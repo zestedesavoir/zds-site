@@ -1,0 +1,19 @@
+{% extends "forum/base.html" %}
+
+{% block title %}
+    {{ category.title }}
+{% endblock %}
+
+{% block headline %}
+    {{ category.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="javascript:;">{{ category.title }}</a></li>
+{% endblock %}
+
+{% block content %}
+    
+{% include "forum/forums_common.part.html" %}
+
+{% endblock %}

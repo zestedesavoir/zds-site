@@ -1,0 +1,43 @@
+{% extends "gallery/base.html" %}
+
+{% block title %}
+    Éditer une image
+{% endblock %}
+
+{% block headline %}
+    Éditer une image
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li class="current"><a href="javascript:;">Éditer une Image</a></li>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+    <div class="large-12 columns">
+        <div class="large-6 columns">
+            <img src="{{ image.physical.url }}" alt="" />
+        </div>
+        <div class="large-6 columns">
+            <form action="{% url "lbp.gallery.views.edit_image" gallery.pk image.pk %}" method="POST">
+                <input type="text" placeholder="Titre" name="title" value="{{ image.title }}" /><br />
+                <input type="text" placeholder="Légende" name="legend" value="{{ image.legend }}" /><br />
+
+                <div style="text-align: center;">
+                    <button type="submit" class="button">
+                        <i class="icon-plus icon-white"></i>
+                        Éditer
+                    </button>
+
+                    <a href="{{ gallery.get_absolute_url }}" class="button secondary">
+                        Retour
+                    </a>
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

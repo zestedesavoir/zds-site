@@ -1,0 +1,55 @@
+{# Block displaying the list of forums belonging to a category #}
+{% load humane_date %}
+{% load upfirstletter %}
+
+{% for forum in category.get_forums %}
+<div class="forum-entry">
+    <div class="forum-entry-title {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
+        <a href="{{ forum.get_absolute_url }}">
+            {{ forum.title }}
+        </a>
+        <p>
+            {{ forum.subtitle }}
+        </p>
+    </div>
+    <div class="forum-entry-count">
+        <span class="label">
+            <span title="Nombre de sujets dans le forum">
+                {{ forum.get_topic_count }}
+            </span>
+        </span>
+        <span class="label secondary">
+            <span title="Nombre de messages dans le forum">
+                {{ forum.get_post_count }}
+            </span>
+        </span>
+    </div>
+    <div class="forum-entry-count">
+
+    </div>
+    <div class="forum-entry-desc">
+        <p>
+            {% with last_message=forum.get_last_message %}
+                {% if last_message %}
+                    <a href="{{ last_message.get_absolute_url }}">
+                        {% with date=last_message.pubdate|humane_date %}
+                            {{ date|upfirstletter }}
+                        {% endwith %}
+                    </a>
+                    par
+                    {% with member=last_message.author %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endwith %}
+                    dans
+                    <a href="{{ last_message.topic.get_absolute_url }}">
+                        {{ last_message.topic.title }}
+                    </a>
+                {% else %}
+                    Aucun message
+                {% endif %}
+            {% endwith %}
+        </p>
+    </div>
+</div>
+
+{% endfor %}

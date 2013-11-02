@@ -1,0 +1,25 @@
+{% extends "project/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nouveau
+{% endblock %}
+
+{% block headline %}
+    Nouveau projet
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Nouveau projet</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

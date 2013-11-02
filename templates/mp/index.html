@@ -1,0 +1,52 @@
+{% extends "mp/base.html" %}
+{% load humane_date %}
+
+{% block title %}
+    Liste des MP
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Votre boîte à MP" />
+{% endblock %}
+
+{% block header %}
+    <h1>
+        <i class="fi-mail size18"></i>
+        Messages Privés
+    </h1>
+{% endblock %}
+
+{% block headline %}
+   Liste des MPs
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="javascript:;">Index</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+
+<form action="" method="POST" >    
+    <div class="button-group">
+        {% if user.is_authenticated %}
+        <a href="{% url "lbp.mp.views.new" %}" class="button">
+            <i class="fi-plus"></i>
+            Nouvel MP
+        </a>
+        {% endif %}
+        <button type="submit" name="delete" class="button secondary">Supprimer</button>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+
+    <div class="forum-entries">
+        {% for topic in privatetopics %}
+            {% include "mp/details_row.part.html" %}
+        {% endfor %}
+    </div>
+    {% csrf_token %}
+</form>
+{% include "mp/details_pagination.part.html" %}
+
+{% endblock %}

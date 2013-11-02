@@ -1,0 +1,56 @@
+{% load humane_date %}
+{% load upfirstletter %}
+
+<div class="forum-entry">
+    <div class="forum-entry-title
+    {% if user.is_authenticated %}
+        {% if topic.never_read %}
+            unread
+        {% endif %}
+    {% endif %}">
+        <input name="items" type="checkbox" value="{{ topic.pk }}" />
+        <a href="{{ topic.get_absolute_url }}">
+            {{ topic.title }}
+        </a>
+        <p>
+            Participants : 
+        {% with member=topic.author %}
+            {% include "member/member_item_common.part.html" %}
+        {% endwith %}
+        {% for member in topic.participants.all %}
+            | {% include "member/member_item_common.part.html" %}
+        {% endfor %}
+        </p>
+    </div>
+    <div class="forum-entry-count">
+        <span class="label">
+            {{ topic.get_post_count|add:"-1" }}
+        </span>
+    </div>
+    <div class="forum-entry-desc">
+        <p>
+            {% with member=topic.author %}
+                Par {% include "member/member_item_common.part.html" %}
+            {% endwith %}
+            <br />
+            {% with answer=topic.get_last_answer %}
+                {% if answer %}
+                    Dernière rép.
+                    <a href="{{ answer.get_absolute_url }}">
+                        {% with date=answer.pubdate|humane_date %}
+                            {{ date }}
+                        {% endwith %}
+                    </a>
+                    par
+                    {% with member=answer.author %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endwith %}
+                {% else %}
+                    Aucune réponse
+                {% endif %}
+            {% endwith %}
+
+        </p>
+    </div>
+    
+</div>

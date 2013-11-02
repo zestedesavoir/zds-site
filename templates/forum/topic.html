@@ -1,0 +1,276 @@
+{% extends "forum/base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+{% load profile %}
+
+{% block title %}
+    {{ topic.title }}
+{% endblock %}
+
+{% block headline %}
+    <a href="{{ topic.get_absolute_url }}">
+        {{ topic.title }}
+    </a>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
+    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+    <li class="current"><a href="javascript:;">{{ topic.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% if user.is_authenticated %}
+        <form action="{% url "lbp.forum.views.edit" %}" method="POST"
+        class="topic-actions" id="edit_form">
+            <input type="hidden" name="topic" value="{{ topic.pk }}" />
+            <input type="hidden" name="page" value="{{ nb }}">
+            <div class="button-group">
+                <a href="/forums/sujet/nouveau?forum={{ topic.forum.pk }}" class="button small">
+                    <i class="icon-plus"></i>
+                    Nouveau
+                </a>
+                {% if topic.author.pk == user.pk %}
+                <button type="submit" name="solved" id="resolu_btn" class="button small {% if topic.is_solved %}success{% else %}secondary{% endif %}">
+                    <i class="icon-ok"></i>
+                    {% if topic.is_solved %}
+                        Résolu
+                    {% else %}
+                        Résolu ?
+                    {% endif %}
+                </button>
+                {% endif %}
+                <button class="button small {% if not topic.is_followed %}secondary{% endif %}" type="submit" name="follow" id="follow_btn">
+                    <i class="icon-star"></i>
+                    {% if topic.is_followed %}
+                        Suivi
+                    {% else %}
+                        Suivre
+                    {% endif %}
+                </button>
+            </div>
+
+            {% csrf_token %}
+        </form>
+
+        {% if perms.forum.change_topic %}
+            <form action="{% url "lbp.forum.views.edit" %}" method="POST" class="topic-actions">
+                <input type="hidden" name="topic" value="{{ topic.pk }}" />
+
+                <a href="#" class="button secondary dropdown" data-dropdown="staff-dropdown">
+                    Staff
+                </a>
+                <div id="staff-dropdown" class="f-dropdown content" data-dropdown-content>
+                    <div class="switch">
+                        <input id="lock-off" name="lock" type="radio" {% if not topic.is_locked %}checked="checked"{% endif %}>
+                        <label for="lock-off" onclick="">Verouiller</label>
+
+                        <input id="lock-on" name="lock" type="radio" {% if topic.is_locked %}checked="checked"{% endif %}>
+                        <label for="lock-on" onclick="">Verouillé</label>
+
+                        <span></span>
+                    </div>
+
+                    <div class="switch">
+                        <input id="sticky-off" name="sticky" type="radio" {% if not topic.is_sticky %}checked="checked"{% endif %}>
+                        <label for="sticky-off" onclick="">Post-it</label>
+
+                        <input id="sticky-on" name="sticky" type="radio" {% if topic.is_sticky %}checked="checked"{% endif %}>
+                        <label for="sticky-on" onclick="">Post-it</label>
+
+                        <span></span>
+                    </div>
+
+                    <a href="javascript:;" class="button validate">
+                        Valider
+                    </a>
+                </div>
+
+                {% csrf_token %}
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row" id="resolu" {% if not topic.is_solved %}style="display: none;"{% endif %}>
+    <div class="large-12 columns">
+        <div class="alert-box success">
+            <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
+            solution satisfaisant son problème.
+        </div>
+    </div>
+</div>
+
+{% include "forum/topic_pagination.part.html" with position="top" %}
+
+
+{% for post in posts %}
+<div class="post {% if forloop.first and nb > 1 %}before{% endif %} {% if post.is_useful %}useful{% endif %}">
+        <div class="row post-head" id="p{{ post.id }}">
+            <div class="large-2 columns post-nickname">
+                <p>
+                    <a href="{{ post.author.get_absolute_url }}">
+                        {{ post.author.username }}
+                    </a>
+                </p>
+            </div>
+            <div class="large-10 columns">
+                <div class="right">
+                    {% if user.is_authenticated %}
+                        <div class="button-group">
+                            {% if topic.author == user and post.author != user %}
+                                <a href="/forums/message/utile?message={{ post.pk }}" class="button small {% if not post.is_useful %}secondary{% else %}success{% endif %}">
+                                    <i class="icon-thumbs-up"></i>
+                                    Cette réponse m'a aidé
+                                </a>
+                            {% endif %}
+
+                            {% if post.author == user or perms.forum.change_post %}
+                                <a href="/forums/message/editer?message={{ post.pk }}" class="button secondary small">
+                                    <i class="icon-pencil"></i>
+                                    Éditer
+                                </a>
+                            {% endif %}
+
+                            {% if not topic.is_locked and not topic.antispam %}
+                                <a href="/forums/message/nouveau?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
+                                    class="button secondary small">
+                                    <i class="icon-quote-left"></i>
+                                    Citer
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <p>
+                    <a href="#p{{ post.pk }}">#</a>
+                    {{ post.pubdate|humane_date }}
+                    {% if not post.update = None %}
+                        (dernière édition {{ post.update|humane_date }})
+                    {% endif %}
+                    {% if forloop.first and nb > 1 %}
+                        &ndash; page précédente
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="row post-content">
+            <div class="large-2 columns hide-for-small post-avatar">
+                {% with profile=post.author|profile %}
+                    <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
+                {% endwith %}
+            </div>
+            <div class="large-10 columns">
+                {{ post.text|emarkdown }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% include "forum/topic_pagination.part.html" with position="bottom" %}
+
+{% if user.is_authenticated %}
+<hr />
+<form action="{% url "lbp.forum.views.answer" %}?sujet={{ topic.pk }}"
+method="POST" id="submit_form">
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Ajouter une réponse</h3>
+            {% include "misc/editor.part.html" %}
+            <textarea id='id_text' name="text" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                placeholder="Votre message au format Markdown.">{% spaceless %}
+                    {% if topic.is_locked %}
+                        Ce sujet est verrouillé.
+                    {% elif topic.antispam  %}
+                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                    {% endif %}
+                {% endspaceless %}</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-8 large-centered columns" style="text-align: center;">
+            <button class="button btn-primary" type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
+                <i class="icon-reply"></i>
+                Répondre
+            </button>
+            <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
+                Prévisualiser
+            </button>
+        </div>
+    </div>
+    <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
+    {% csrf_token %}
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block additionnal-js %}
+    {% if perms.forum.change_topic %}
+        <script>
+            $('.topic-actions .validate').click(function() {
+                var lock = $('#lock-on').is(':checked');
+                var sticky = $('#sticky-on').is(':checked');
+                $.post('{% url "lbp.forum.views.edit" %}', {
+                    topic: {{ topic.pk}},
+                    lock: lock.toString(),
+                    sticky: sticky.toString(),
+                })
+            });
+        </script>
+    {% endif %}
+    <script>
+        /* anwser check */
+        $('#submit_form').submit(function(e){
+            if (!$(this).find('textarea').val()) {
+                alert('Votre message ne peut pas être vide.');
+                e.preventDefault();
+            }
+        })
+        /* on button press, store it */
+        $('#edit_form button[type="submit"]').on('click', function() {
+            $('#edit_form').data('button', this.name);    
+        });
+        /* on submit */
+        $('#edit_form').submit(function(e){
+            e.preventDefault();
+            /* build data */
+            var button = $(this).data('button');
+            var data = { topic: {{ topic.pk }}};
+            data[button] = 'true';
+            /* post data */
+            $.post('{% url "lbp.forum.views.edit" %}', data, function(data){
+                    if ('solved' in data) {
+                        if (data.solved) {
+                            $('#resolu').fadeIn();
+                            $('#resolu_btn').removeClass('secondary');
+                            $('#resolu_btn').addClass('success');
+                            $('#resolu_btn').html('Résolu');
+                        } else {
+                            $('#resolu').fadeOut();
+                            $('#resolu_btn').removeClass('success');
+                            $('#resolu_btn').addClass('secondary');
+                            $('#resolu_btn').html('Résolu ?');
+                        }
+                    }
+                    if ('follow' in data) {
+                        if (data.follow) {
+                            $('#follow_btn').removeClass('secondary');
+                            $('#follow_btn').html('Suivi');
+                        } else {
+                            $('#follow_btn').addClass('secondary');
+                            $('#follow_btn').html('Suivre');
+                        }
+                    }
+                }, 'json'); 
+        });
+    </script>
+{% endblock %}
+

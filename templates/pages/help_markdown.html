@@ -1,0 +1,39 @@
+{% extends "pages/base.html" %}
+
+{% block title %}
+    Markdown
+{% endblock %}
+
+{% block headline %}
+    Markdown
+{% endblock %}
+
+{% block headline-sub %}
+    Petit aide-mémoire pour mieux rédiger
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Markdown</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Voici un petit aide-mémoire permettant de vous souvenir des
+            différents éléments disponibles à l'aide de la syntaxe Markdown
+            utilisée (massivement) sur ce site. Sachez que si vous voulez
+            rédiger en HTML, un jeu restreint de balises et d'attributs est
+            également mis à votre disposition.
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-12 columns">
+        {% include "pages/help_markdown.part.html" %}
+    </div>
+</div>
+
+{% endblock %}

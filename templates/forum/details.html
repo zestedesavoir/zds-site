@@ -1,0 +1,49 @@
+{% extends "forum/base.html" %}
+{% load humane_date %}
+
+{% block title %}
+    {{ forum.title }}
+{% endblock %}
+
+{% block headline %}
+    {{ forum.title }}
+{% endblock %}
+
+{% block headline-sub %}
+    {{ forum.subtitle }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
+    <li class="current"><a href="javascript:;">{{ forum.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% if user.is_authenticated %}
+        <a href="/forums/sujet/nouveau?forum={{ forum.pk }}" class="button">
+            <i class="icon-plus"></i>
+            Nouveau sujet
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+{% if sticky_topics %}
+    <div class="forum-entries forum-entries-sticky">
+        {% for topic in sticky_topics %}
+            {% include "forum/details_row.part.html" %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="forum-entries">
+    {% for topic in topics %}
+        {% include "forum/details_row.part.html" %}
+    {% endfor %}
+</div>
+
+{% include "forum/details_pagination.part.html" with position="bottom" %}
+
+{% endblock %}

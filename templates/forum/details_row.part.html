@@ -1,0 +1,77 @@
+{% load humane_date %}
+{% load upfirstletter %}
+
+<div class="forum-entry
+    {% if topic.is_locked %}
+        forum-entry-locked
+    {% else %}
+        {% if topic.is_solved %}
+        forum-entry-solved
+        {% endif %}
+    {% endif %}">
+    <div class="forum-entry-title
+    {% if user.is_authenticated %}
+        {% if topic.never_read %}
+            unread
+        {% endif %}
+    {% endif %}">
+        <a href="{{ topic.get_absolute_url }}">
+            {{ topic.title }}
+        </a>
+        {% if topic.subtitle %}
+            <p>
+                {{ topic.subtitle }}
+            </p>
+        {% endif %}
+    </div>
+    <div class="forum-entry-count">
+        <span class="label">
+            {{ topic.get_post_count|add:"-1" }}
+        </span>
+    </div>
+    <div class="forum-entry-desc">
+        <p>
+            {% with member=topic.author %}
+                Par {% include "member/member_item_common.part.html" %}
+            {% endwith %}
+            <br />
+            {% with answer=topic.get_last_answer %}
+                {% if answer %}
+                    Dernière rép.
+                    <a href="{{ answer.get_absolute_url }}">
+                        {% with date=answer.pubdate|humane_date %}
+                            {{ date }}
+                        {% endwith %}
+                    </a>
+                    par
+                    {% with member=answer.author %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endwith %}
+                {% else %}
+                    Aucune réponse
+                {% endif %}
+            {% endwith %}
+
+        </p>
+    </div>
+</div>
+
+<!--
+{% if topic.is_sticky %}
+    <i class="icon-bookmark" title="Ce sujet est épinglé"></i>
+{% endif %}
+{% if topic.is_locked %}
+    <i class="icon-lock" title="Ce sujet est verrouillé"></i>
+{% endif %}
+{% if topic.is_solved %}
+    <i class="icon-ok" title="Ce sujet est résolu"></i>
+{% endif %}
+
+{% if user.is_authenticated %}
+    {% with topic.last_read_post as last_read_post %}
+        {% ifnotequal last_read_post topic.get_last_answer %}
+            <i class="icon-eye-open"></i>
+        {% endifnotequal %}
+    {% endwith %}
+{% endif %}
+-->

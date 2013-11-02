@@ -1,0 +1,128 @@
+{% extends "member/base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+{% load email_obfuscator %}
+
+{% block title %}
+    {{ usr.username }}
+{% endblock %}
+
+{% block headline %}
+    {{ usr.username }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ usr.username }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% ifequal profile.user user %}
+        <a href="{% url "lbp.member.views.settings_profile" %}" class="button">
+            <i class="icon-cog"></i>
+            Paramètres
+        </a>
+    {% endifequal %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-2 columns">
+            <p>
+            <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="80" height="80" class="th"/>
+            </p>
+            <p>
+            <a href="{% url "lbp.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a>
+        </p>
+    </div>
+    <div class="large-10 columns">
+        <p>
+            {% if profile.show_email and user.is_authenticated %}
+                Adresse mail : {{ usr.email|obfuscate_mailto }}<br />
+            {% endif %}
+
+            {% if profile.site %}
+                Site internet : <a href="{{ profile.site }}">{{ profile.site }}</a><br />
+            {% endif %}
+
+            Inscrit {{ usr.date_joined|humane_date }},
+            dernière connexion {{ usr.last_login|humane_date }}.
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-4 columns">
+        <h3>Articles</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>En cours de rédaction</td>
+                    <td>{{ profile.get_hidden_articles.count }}</td>
+                </tr>
+                <tr>
+                    <td>En ligne</td>
+                    <td><a href="{% url "lbp.article.views.find_article" usr.username %}">{{ profile.get_visible_articles.count }}</a></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ profile.get_articles.count }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="large-4 columns">
+        <h3>Tutoriels</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>En cours de rédaction</td>
+                    <td>{{ profile.get_hidden_tutorials.count }}</td>
+                </tr>
+                <tr>
+                    <td>En ligne</td>
+                    <td><a href="{% url "lbp.tutorial.views.find_tuto" usr.username %}">{{ profile.get_visible_tutorials.count }}</a></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ profile.get_tutorials.count }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="large-4 columns">
+        <h3>Forums</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Sujets créés</td>
+                    <td><a href="{% url "lbp.forum.views.find_topic" usr.username %}">{{ profile.get_topic_count }}</a></td>
+                </tr>
+                <tr>
+                    <td>Messages postés</td>
+                    <td><a href="{% url "lbp.forum.views.find_post" usr.username %}">{{ profile.get_post_count }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# Biography #}
+
+{% if profile.biography %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <h2>Biographie</h2>
+        {{ profile.biography|emarkdown }}
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

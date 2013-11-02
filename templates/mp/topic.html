@@ -1,0 +1,185 @@
+{% extends "mp/base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+{% load profile %}
+
+{% block title %}
+    {{ topic.title }}
+{% endblock %}
+
+{% block headline %}
+    <a href="{{ topic.get_absolute_url }}">
+        {{ topic.title }}
+    </a>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="javascript:;">{{ topic.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% if user.is_authenticated %}
+        <form action="{% url "lbp.mp.views.edit" %}" method="POST"
+        class="topic-actions" >
+            <input type="hidden" name="privatetopic" value="{{ topic.pk }}" />
+            <input type="hidden" name="page" value="{{ nb }}">
+            <div class="button-group">
+                <a href="{% url "lbp.mp.views.new" %}" class="button small">
+                    <i class="fi-mail"></i>
+                    Nouvel MP
+                </a>
+                {% if topic.author == user %}
+                <a href="#" data-dropdown="add-member"  data-options="is_hover:true" class="button small secondary">
+                    <i class="fi-torso"></i>
+                    Ajouter un membre
+                </a>
+                <ul id="add-member" class="f-dropdown" data-dropdown-content>
+                    <li>
+                        <input type="text" placeholder="Pseudo" name="username" />
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+
+            {% csrf_token %}
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <p>
+            <strong>Participants :</strong> 
+        {% with member=topic.author %}
+            {% include "member/member_item_common.part.html" %}
+        {% endwith %}
+        {% for member in topic.participants.all %}
+            | {% include "member/member_item_common.part.html" %}
+        {% endfor %}
+        </p>
+
+</div>
+{% include "mp/topic_pagination.part.html" %}
+
+{% for post in posts %}
+<div class="post {% if forloop.first and nb > 1 %}before{% endif %} {% if post.is_useful %}useful{% endif %}">
+        <div class="row post-head" id="p{{ post.id }}">
+            <div class="large-2 columns post-nickname">
+                <p>
+                    <a href="{{ post.author.get_absolute_url }}">
+                        {{ post.author.username }}
+                    </a>
+                </p>
+            </div>
+            <div class="large-10 columns">
+                <div class="right">
+                    {% if user.is_authenticated %}
+                        <div class="button-group">
+                            {% if post == topic.last_message %}
+                            {% if post.author == user or perms.mp.change_post %}
+                                <a href="/mp/message/editer?message={{ post.pk }}" class="button secondary small">
+                                    <i class="icon-pencil"></i>
+                                    Éditer
+                                </a>
+                            {% endif %}
+                            {% endif %}
+                            {% if not topic.is_locked and not topic.antispam %}
+                                <a href="/mp/message/nouveau?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
+                                    class="button secondary small">
+                                    <i class="icon-quote-left"></i>
+                                    Citer
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <p>
+                    <a href="#p{{ post.pk }}">#</a>
+                    {{ post.pubdate|humane_date }}
+                    {% if not post.update = None %}
+                        (dernière édition {{ post.update|humane_date }})
+                    {% endif %}
+                    {% if forloop.first and nb > 1 %}
+                        &ndash; page précédente
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="row post-content">
+            <div class="large-2 columns hide-for-small post-avatar">
+                {% with profile=post.author|profile %}
+                    <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
+                {% endwith %}
+            </div>
+            <div class="large-10 columns">
+                {{ post.text|emarkdown }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% include "mp/topic_pagination.part.html" %}
+
+{% if user.is_authenticated %}
+<hr />
+<form action="{% url "lbp.mp.views.answer" %}?sujet={{ topic.pk }}"
+method="POST" id="submit_form">
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Ajouter une réponse</h3>
+            {% include "misc/editor.part.html" %}
+            <textarea id='id_text' name="text" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                placeholder="Votre message au format Markdown.">{% spaceless %}
+                    {% if topic.antispam  %}
+                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                    {% endif %}
+                {% endspaceless %}</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-8 large-centered columns" style="text-align: center;">
+            <button class="button btn-primary" type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
+                <i class="icon-reply"></i>
+                Répondre
+            </button>
+            <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
+                Prévisualiser
+            </button>
+        </div>
+    </div>
+    <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
+    {% csrf_token %}
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block additionnal-js %}
+    <script>
+        /* anwser check */
+        $('#submit_form').submit(function(e){
+            if (!$(this).find('textarea').val()) {
+                alert('Votre message ne peut pas être vide.');
+                e.preventDefault();
+            }
+        })
+        /* on button press, store it */
+        $('#edit_form button[type="submit"]').on('click', function() {
+            $('#edit_form').data('button', this.name);    
+        });
+        /* on submit */
+        $('#edit_form').submit(function(e){
+            e.preventDefault();
+            /* build data */
+            var button = $(this).data('button');
+            var data = { topic: {{ topic.pk }}};
+            data[button] = 'true';
+        });
+    </script>
+{% endblock %}
+

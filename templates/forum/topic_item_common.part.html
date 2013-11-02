@@ -1,0 +1,14 @@
+{% load humane_date %}
+{% load interventions %}
+
+<div class="small-10 column">
+<a href="{{ topic.get_absolute_url }}">
+    {{ topic.title }}
+</a>
+<p>
+    {{ topic.subtitle }}
+</p>
+</div>
+<div class="small-2 column">
+	    <a class="tiny button {% reads_topic topic user %} radius expand" href="{{topic.get_last_answer.get_absolute_url}}">{{ topic.get_post_count }}</a>
+</div>

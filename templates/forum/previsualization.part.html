@@ -1,0 +1,9 @@
+{% load emarkdown %}
+<div class="row" id="previsualisation">
+    <div class="large-12 columns">
+        <div class="panel">
+            <h5>Prévisualisation de votre message</h5>
+            {{ text|emarkdown }}
+        </div>
+    </div>
+</div>

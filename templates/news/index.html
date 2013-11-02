@@ -1,0 +1,92 @@
+{% extends "news/base.html" %}
+{% load humane_date %}
+{% load emarkdown %}
+
+{% block title %}
+    Liste des news
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Les news sont rédigés par la
+    communauté ; ils permettent aussi bien de se tenir informé des dernières
+    innovations du moment que de découvrir de nouvelles notions" />
+{% endblock %}
+
+{% block headline %}
+    Liste des news
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    <div class="button-group">
+
+        {% if user.is_authenticated %}
+            <a href="{% url "lbp.news.views.new" %}" class="button">
+                <i class="icon-plus"></i>
+                Proposez une news
+            </a>
+        {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="large-12 columns">  
+        <div class="row">
+            {% if une.titre %}
+            <div class="large-12 columns panel">
+              <div class="large-6 columns">
+                <h3><a href="{{ une.get_absolute_url }}" >{{ une.title }}</a></h3>
+              </div>
+              <div class="large-3 columns">
+                <h5 class="subheader">{{ une.pubdate|humane_date}}</h5>
+              </div>
+              <div class="large-3 columns">
+                <a href="#" class="hide-for-small subheader">
+                    {% for member in une.auteurs.all %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endfor %}
+                </a>
+              </div>
+              <hr/>
+              <div class="large-3 columns">
+                <img src="{{une.image.url}}"><br>
+              </div>
+              <div class="large-9 columns">
+                <h5 class="subheader">{{ une.description }}.</h5>
+              </div>
+            </div>
+            {% endif %}
+            {% for news in newss %}
+            <div class="large-12 columns panel">
+              <div class="large-6 columns">
+                <h3><a href="{{ news.get_absolute_url }}" >{{ news.title }}</a></h3>
+              </div>
+              <div class="large-3 columns">
+                <h5 class="subheader">{{ news.date.pubdate|humane_date}}</h5>
+              </div>
+              <div class="large-3 columns">
+                <a href="#" class="hide-for-small subheader">
+                    {% for member in news.auteurs.all %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endfor %}
+                </a>
+              </div>
+              <hr/>
+              <div class="large-2 columns">
+                <img src="{{news.image.image.physical.url}}"><br><br>
+              </div>
+              <div class="large-10 columns">
+                <h5 class="subheader">{{ actu.description }}</h5>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+ 
+      <!-- End Header Content -->
+
+{% endblock %}

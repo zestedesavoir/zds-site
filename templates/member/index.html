@@ -1,0 +1,35 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+    Membres
+{% endblock %}
+
+{% block headline %}
+    Membres
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ members.count }} membres).
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            {% for member in members %}
+                {% include "member/member_item_common.part.html" %}
+            {% endfor %}
+        </p>
+    </div>
+</div>
+
+{% endblock %}
