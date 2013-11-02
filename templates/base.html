@@ -1,0 +1,293 @@
+﻿{% load staticfiles %}
+{% load compressed %}
+{% load profile %}
+{% load interventions %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; Progdupeupl</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    {% block meta %}{% endblock %}
+
+    {% compressed_css "lbp" %}
+
+    <!--
+        Temporary removed icons
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    -->
+
+    {# for additionnal css in some pages #}
+    {% block extracss %}{% endblock %}
+
+    {# favicons #}
+    <link rel="shortcut icon" type="image/png" href="{% static "img/favicon.png" %}" />
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static "img/touch-icon-114x114.png" %}" />
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static "img/touch-icon-72x72.png" %}" />
+    <link rel="apple-touch-icon" href="{% static "img/touch-icon-iphone.png" %}" />
+
+    {# RSS links #}
+    <link rel="alternate" type="application/rss+xml"
+          title="Forum" href="{% url "post-feed-rss" %}"/>
+</head>
+<body>
+
+    <nav class="top-bar">
+        <ul class="title-area">
+            <li class="name">
+                <img src="{% static "img/topbar.png" %}" alt="Logo" />
+                <h1>
+                    <a href="/">
+                        LeBonProjet
+                    </a>
+                </h1>
+            </li>
+            <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+        </ul>
+
+        <section class="top-bar-section">
+
+            {# Theses menu_* blocks are set or not in applications derived base.html #}
+            {# in order to set the menu entry active or not. #}
+
+            <ul class="left">
+                <li {% block menu_home %}{% endblock %}>
+                    <a href="{% url "lbp.pages.views.home" %}">
+                        <i class="fi-home"></i>
+                        Accueil
+                    </a>
+                </li>
+                <li {% block menu_news %}{% endblock %}>
+                    <a href="{% url "lbp.news.views.index" %}">
+                        <i class="fi-clipboard-pencil"></i>
+                        News
+                    </a>
+                </li>
+                <li {% block menu_project %}{% endblock %}>
+                    <a href="{% url "lbp.project.views.index" %}">
+                        <i class="fi-mountains"></i>
+                        Projets
+                    </a>
+                </li>
+                <li {% block menu_forum %}{% endblock %}>
+                    <a href="{% url "lbp.forum.views.index" %}">
+                        <i class="fi-comments"></i>
+                        Forums
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="right">
+                <li>
+                    <a href="{% url "haystack_search" %}">Recherche</a>
+                </li>
+                {% if user.is_authenticated %}
+                    {% with topics=user|interventions_privatetopics %}
+                        {% with unread_topics=topics.unread %}
+                            <li class="{% block menu_mp %}{% endblock %} has-dropdown">
+                                <a href="{% url "lbp.mp.views.index" %}">
+                                    {% if unread_topics|length > 0 %}
+                                        <span class="label alert">{{ unread_topics|length }}</span>
+                                    {% endif %}
+                                    <i class="fi-mail"></i>
+                                </a>
+                                <ul class="dropdown">
+                                    {% with read_topics=topics.read %}
+                                        {# Unread topics #}
+                                        {% for topic in unread_topics %}
+                                            <li>
+                                                <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                    <span class="label">!</span>
+                                                    <strong>
+                                                        {{ topic.title }}
+                                                    </strong>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                        {# Read topics #}
+                                        {% for topic in read_topics %}
+                                            <li>
+                                                {% with last_answer=topic.get_last_answer %}
+                                                    <a href="
+                                                        {% if last_answer %}
+                                                            {{ last_answer.get_absolute_url }}
+                                                        {% else %}
+                                                            {{ topic.first_post.get_absolute_url }}
+                                                        {% endif %}">
+                                                        {{ topic.title }}
+                                                    </a>
+                                                {% endwith %}
+                                            </li>
+                                        {% endfor %}
+                                        {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                            <li class="disabled">
+                                                <a href="{% url "lbp.mp.views.index" %}">Pas de message</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endwith %}
+                                </ul>
+                            </li>
+                        {% endwith %}
+                    {% endwith %}
+                    {% with topics=user|interventions_topics %}
+                        {% with unread_topics=topics.unread %}
+                            <li class="has-dropdown">
+                                <a href="#">
+                                    {% if unread_topics|length > 0 %}
+                                        <span class="label alert">{{ unread_topics|length }}</span>
+                                    {% endif %}
+                                    <i class="fi-star"></i>
+                                </a>
+                                <ul class="dropdown">
+                                    {% with read_topics=topics.read %}
+                                        {# Unread topics #}
+                                        {% for topic in unread_topics %}
+                                            <li>
+                                                <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                    <span class="label">!</span>
+                                                    <strong>
+                                                        {{ topic.title }}
+                                                    </strong>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                        {# Read topics #}
+                                        {% for topic in read_topics %}
+                                            <li>
+                                                {% with last_answer=topic.get_last_answer %}
+                                                    <a href="
+                                                        {% if last_answer %}
+                                                            {{ last_answer.get_absolute_url }}
+                                                        {% else %}
+                                                            {{ topic.first_post.get_absolute_url }}
+                                                        {% endif %}">
+                                                        {{ topic.title }}
+                                                    </a>
+                                                {% endwith %}
+                                            </li>
+                                        {% endfor %}
+                                        {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                            <li class="disabled">
+                                                <a href="javascript:;">Aucun sujet suivi</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endwith %}
+                                </ul>
+                            </li>
+                        {% endwith %}
+                    {% endwith %}
+                <li class="has-dropdown">
+                    {% with profile=user|profile %}
+                        <a href="{% url "lbp.member.views.actions" %}">
+                            <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="24" height="24" />
+                            {{ user.username }}
+                        </a>
+                    {% endwith %}
+                    <ul class="dropdown">
+                        <li><a href="{% url "lbp.member.views.details" user.username %}"><i class="icon-user"></i> Profil</a></li>
+                        <li><a href="{% url "lbp.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
+                        <li><a href="{% url "lbp.member.views.publications" %}"><i class="icon-list"></i> Publications</a></li>
+                        <li><a href="{% url "lbp.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
+                        <li><a href="{% url "lbp.member.views.logout_view" %}"><i class="icon-signout"></i> Se déconnecter</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li>
+                    <a href="{% url "lbp.member.views.register_view" %}">S'inscrire</a>
+                </li>
+                <li>
+                    <a href="{% url "lbp.member.views.login_view" %}">Se connecter</a>
+                </li>
+                {% endif %}
+            </ul>
+        </section>
+    </nav>
+
+    <header>
+        <div class="row">
+            <div class="twelve columns">
+                
+            </div>
+        </div>
+    </header>
+
+    <div class="row">
+        <div class="large-12 columns">
+            <ul class="breadcrumbs">
+                <li>
+                    <a href="{% url "lbp.pages.views.home" %}">Accueil</a>
+                </li>
+                {% block breadcrumb_base %}{% endblock %}
+                {% block breadcrumb %}{% endblock %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="large-8 columns">
+            <h1>{% block headline %}{% endblock %}</h1>
+        </div>
+        <div class="large-4 columns">
+            <div class="headline-actions right">
+                {% block headline-actions %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="large-12 columns">
+            <h1>
+                <small>
+                    {% block headline-sub %}{% endblock %}
+                </small>
+            </h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <div data-alert class="alert-box {{ message.tags }}">
+                        <span>{{ message }}</span>
+                        <a href="#" class="close">&times;</a>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    {# Footer #}
+
+    <div class="row full-width footer">
+        <div class="large-4 columns">
+            <p>&copy; LeBonProjet 2013</p>
+        </div>
+        <div class="large-8 columns">
+            <ul class="inline-list right">
+                
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">Source</a></li>
+                <li><a href="{% url "lbp.pages.views.index" %}">Plus…</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {# Javascript stuff start #}
+    {% compressed_js "lbp" %}
+
+    {# for addtionnal javascript in some pages #}
+    {% block extrajs %}{% endblock %}
+
+    {# Foundation #}
+    <script>
+        $(document).foundation('topbar forms dropdown tooltips alerts section clearing', {
+            custom_back_text: true,
+            back_text: 'Précédent'
+        });
+    </script>
+
+    {% block additionnal-js %}{% endblock %}
+
+</body>
+</html>

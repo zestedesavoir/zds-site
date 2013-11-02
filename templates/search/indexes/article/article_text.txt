@@ -1,0 +1,4 @@
+{{ object.author.username }}
+{{ object.text }}
+{% for tag in object.tags.all %}{{ tag.name }} {% endfor %}
+{{ object.pubdate }}

@@ -1,0 +1,84 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+    Connexion
+{% endblock %}
+
+{% block headline %}
+    Se connecter
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Connexion</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% if not user.is_authenticated %}
+            {% if error %}
+            <div class="alert-box warning">
+                {{ error }}.
+            </div>
+            {% endif %}
+
+            <p>
+                Si vous n'avez pas de compte, vous pouvez <a href="{% url "lbp.member.views.register_view" %}" >vous inscrire</a>.
+            </p>
+        {% else %}
+            <p>
+                Vous êtes déjà connecté.
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="row">
+    <div class="large-7 large-offset-1 columns">
+        <form method="post" action="{% url "lbp.member.views.login_view" %}">
+            <div class="row">
+                <div class="small-4 columns">
+                    <label class="right inline" for="id_username">Identifiant</label>
+                </div>
+                <div class="small-8 columns">
+                    <input type="text" name="username" id="id_username" maxlength="30" {% if form.username.value %}value="{{ form.username.value }}"{% endif %} />
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-4 columns">
+                    <label class="right inline" for="id_password">Mot magique</label>
+                </div>
+                <div class="small-8 columns">
+                    <input type="password" name="password" id="id_password" maxlength="76" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-4 columns"></div>
+                <div class="small-8 columns">
+                    <label>
+                        <input type="checkbox" name="remember">
+                        Connexion automatique
+                    </label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="small-8 small-offset-4 columns">
+                    <button type="submit" class="button">
+                        Se connecter
+                    </button>
+                    <a href="/" class="button secondary">
+                        Annuler
+                    </a>
+                </div>
+            </div>
+
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

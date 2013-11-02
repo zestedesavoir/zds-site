@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title_base %}
+    &#183; Projets
+{% endblock %}
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "lbp.project.views.index" %}">Projets</a></li>
+{% endblock %}
+
+{% block menu_projet %}
+    class="active"
+{% endblock %}

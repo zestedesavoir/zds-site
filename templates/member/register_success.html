@@ -1,0 +1,25 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+    Inscription réussie
+{% endblock %}
+
+{% block headline %}
+    Inscription réussie
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Inscription</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Vous avez bien été inscrit au site. <a href="{% url "lbp.member.views.details" user.username %}">Voir votre profil</a>.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

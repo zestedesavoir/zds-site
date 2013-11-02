@@ -1,0 +1,40 @@
+{% extends "gallery/base.html" %}
+
+{% block title %}
+    Partager une galerie
+{% endblock %}
+
+{% block headline %}
+    Partager : {{ gallery.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="javascript:;">Partager une galerie</a></li>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+    <div class="large-6 columns large-centered">
+        <form action='{% url "lbp.gallery.views.share_gallery" gallery.pk %}' method="POST">
+            
+            <label for="mode">Mode d'accès</label>
+            <select id="mode" name="mode" class="large">
+                <option value="R">Lecture seule</option>
+                <option value="W">Lecture/écriture</option>
+            </select>
+            <input type="text" placeholder="Membre" name="user" class="input-xxlarge" value="" /><br />
+            <div style="text-align: center;">
+                <button type="submit" class="button">
+                    <i class="fi-share size-18"></i>
+                    Partager
+                </button>
+                <a href="{% url "lbp.gallery.views.gallery_list" %}" class="button secondary">
+                    Retour
+                </a>
+            </div>
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+
+{% endblock %}

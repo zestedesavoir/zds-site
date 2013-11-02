@@ -1,0 +1,45 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+    Quoi de neuf ?
+{% endblock %}
+
+{% block headline %}
+    Quoi de neuf ?
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Quoi de neuf ?</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <h2>Actions</h2>
+        <ul>
+            <li>
+                <a href="{% url "lbp.member.views.details" user.username %}">
+                    Voir votre profil
+                </a>
+            </li>
+            <li>
+                <a href="{% url "lbp.member.views.publications" %}">
+                    Voir vos publications
+                </a>
+            </li>
+            <li>
+                <a href="{% url "lbp.member.views.settings_profile" %}">
+                    Paramètres de votre profil
+                </a>
+            </li>
+            <li>
+                <a href="{% url "lbp.member.views.settings_account" %}">
+                    Paramètres de votre compte
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

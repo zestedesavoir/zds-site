@@ -1,0 +1,13 @@
+{{ object.title }}
+{{ object.text }}
+{{ object.chapter.part.title }}
+{{ object.chapter.part.introduction }}
+{{ object.chapter.part.conclusion }}
+{{ object.chapter.tutorial.title }}
+{{ object.chapter.tutorial.description }}
+{{ object.chapter.tutorial.author.username }}
+{{ object.chapter.tutorial.introduction }}
+{{ object.chapter.tutorial.conclusion }}
+{{ object.chapter.introduction }}
+{{ object.chapter.conclusion }}
+{{ object.chapter.title }}

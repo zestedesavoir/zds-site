@@ -1,0 +1,80 @@
+{% extends "news/base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+
+{% block titre %}
+    {{ actualite.titre }}
+{% endblock %}
+
+{% block headline %}
+    <a href="{{ actualite.get_absolute_url }}">{{ actualite.titre }}</a><br />
+    <small>{{ actualite.description }}</small>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ actualite.titre }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% if user in actualite.auteurs.all %}
+        <form action="{% url "lbp.actualite.views.modify" %}" method="POST">
+            <div class="button-group">
+                <a href="/actualites/editer?actualite={{ actualite.pk }}" class="button">
+                    <i class="icon-pencil"></i>
+                    Éditer
+                </a>
+                <a href="#" class="button secondary" data-dropdown="delete-drop">
+                    Supprimer
+                </a>
+                <div id="delete-drop" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Si vous supprimez cet actualite, il sera alors impossible de le modifier/consulter de nouveau.
+                    </p>
+                    <button type="submit" name="delete" class="button expand alert">
+                        <i class="icon-remove"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" name="actualite" value="{{ actualite.pk }}" />
+            {% csrf_token %}
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if actualite.is_visible %}
+    {% include "actualite/view_pager.part.html" %}
+{% endif %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Rédigé par
+            {% for member in actualite.auteurs.all %}
+                {% include "member/member_item_common.part.html" %}
+            {% endfor %}
+            et publié
+            {{ actualite.pubdate|humane_date }}.
+        </p>
+
+        {{ actualite.text|emarkdown }}
+    </div>
+</div>
+
+{% if actualite.is_visible %}
+    {% include "actualite/view_pager.part.html" %}
+{% else %}
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Cet actualite n'a pas encore été mis en ligne.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
