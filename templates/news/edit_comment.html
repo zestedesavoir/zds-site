@@ -1,0 +1,51 @@
+{% extends "news/base.html" %}
+
+{% block title %}
+    Éditer un commentaire
+{% endblock %}
+
+{% block headline %}
+    Éditer un commentaire
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></li>
+    <li class="current"><a href="javascript:;">Éditer un commentaire</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="large-12 columns">
+        <form action="#previsualisation" method="POST">
+            {% include "misc/editor.part.html" %}
+            <fieldset>
+                <legend>Message</legend>
+                <div class="control-group">
+                    <label class="control-label" for="id_text">Texte</label>
+                    <div class="controls">
+                        <textarea id="id_text" name="text"
+                            class="input-block-level" rows="20">{{ text }}</textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div style="text-align: center;">
+                <button type="submit" class="button">
+                    Éditer
+                </button>
+
+                <button type="submit" name="preview" class="button secondary">
+                    Prévisualisation
+                </button>
+
+                <a href="{{ comment.get_absolute_url }}" class="button secondary">Annuler</a>
+            </div>
+
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+
+{% include "forum/previsualization.part.html" %}
+
+{% endblock %}

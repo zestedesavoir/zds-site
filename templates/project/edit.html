@@ -1,0 +1,26 @@
+{% extends "project/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Éditer
+{% endblock %}
+
+{% block headline %}
+    Éditer le projet
+{% endblock %}
+
+{% block breadcrumb %}
+    <li ><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    <li class="current"><a href="#">Éditer</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "project/view_base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+{% load profile %}
+
+{% block subnav_marketstudy %}active{% endblock %}
+
+{% block breadcrumb %}
+    <li ><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    <li class="current"><a href="#">Etude de marché</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    
+        <form action="#" method="POST">
+            <div class="button-group">
+                {% if user = project.author %}
+                    <a href="{% url "lbp.project.views.edit_marketstudy" project.pk project.slug %}" class="button small">
+                        <i class="icon-pencil"></i>
+                        Éditer
+                    </a>
+                {% endif %}
+                {% if user = project.author %}
+                    <a href="#" class="button secondary small" data-dropdown="delete-drop">
+                        Supprimer
+                    </a>
+                {% endif %}
+                <div id="delete-drop" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Si vous supprimez ce projet, il sera alors impossible de le restaurer/consulter de nouveau.
+                    </p>
+                    <button type="submit" name="delete" class="button expand alert">
+                        <i class="icon-remove"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" name="project" value="{{ project.pk }}" />
+            {% csrf_token %}
+        </form>
+    
+{% endblock %}
+
+{% block sub_form %}
+
+
+<div class="row">
+    <div class="large-12 columns">
+        <fieldset>
+            <legend>Rapport d'étude de marché/faisabilité</legend>
+            {{ project.bplan.marketstudy|emarkdown}}
+        </fieldset>
+    </div>
+</div>
+
+{% endblock %}

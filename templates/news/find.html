@@ -1,0 +1,55 @@
+{% extends "news/base.html" %}
+{% load humane_date %}
+{% load profile %}
+{% load emarkdown %}
+
+{% block title %}
+    News rédigées par {{ usr.username }}
+{% endblock %}
+
+{% block headline %}
+    News rédigées par "{{ usr.username }}""
+{% endblock %}
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li ><a href="{% url "lbp.news.views.find_news" usr.pk %}">news rédigés</a></li>
+    <li class="current"><a href="#">Recherche</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <table>
+          <thead>
+            <tr>
+              <th width="15%">news</th>
+              <th width="10%">Quand</th>
+              <th width="30%">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for news in newss %}
+            <tr>
+                <td>
+                    <div>
+                        <img src="{{ news.thumbnail.url }}" />
+                        <a href="{{ news.get_absolute_url }}">{{ news.title }} </a> 
+                    </div>
+                </td>
+                <td>
+                    {% with date=news.date.pubdate|humane_date %}
+                        {{ date }}
+                    {% endwith %}
+                </td>
+                <td>
+                    {% if news.description %} <p> {{ news.description }} </p> {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+{% endblock %}
