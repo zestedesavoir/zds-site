@@ -7,21 +7,21 @@
 {% endblock %}
 
 {% block headline %}
-    Éditer l'actualite
+    Éditer la news
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ actualite.get_absolute_url }}">{{ actualite.title }}</a></li>
+    <li><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></li>
     <li class="current"><a href="#">Éditer</a></li>
 {% endblock %}
 
 {% block content %}
 
-{% if actualite.is_visible %}
+{% if news.is_visible %}
     <div class="row">
         <div class="large-12 columns">
             <div class="alert-box warning">
-                <strong>Cet actualite est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
+                <strong>Cet news est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
                 Vous pouvez modifier la forme de celui-ci, mais évitez d'en modifier le fond !
             </div>
         </div>

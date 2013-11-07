@@ -1,7 +1,7 @@
 {% extends "news/base.html" %}
 
 {% block title %}
-    Liste des news
+    Administration des news
 {% endblock %}
 
 {% block meta %}
@@ -11,24 +11,11 @@
 {% endblock %}
 
 {% block headline %}
-    Liste des news
+    Administration des news
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
-{% endblock %}
-
-{% block headline-actions %}
-    <div class="button-group">
-
-        {% if user.is_authenticated %}
-            <a href="{% url "lbp.news.views.new" %}" class="button radius">
-                <i class="fi-clipboard-pencil"></i>
-                Proposez une news
-            </a>
-        {% endif %}
-
-    </div>
+    <li class="current"><a href="#">Administration</a></li>
 {% endblock %}
 
 {% block content %}

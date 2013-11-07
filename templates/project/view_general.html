@@ -1,0 +1,82 @@
+{% extends "project/view_base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+{% load profile %}
+
+{% block subnav_general %}active{% endblock %}
+
+{% block breadcrumb %}
+    <li ><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    
+        <form action="#" method="POST">
+            <div class="button-group">
+                {% if user = project.author %}
+                    <a href="{% url "lbp.project.views.edit_general" project.pk project.slug %}" class="button small">
+                        <i class="icon-pencil"></i>
+                        Éditer
+                    </a>
+                {% endif %}
+                {% if user = project.author %}
+                    <a href="#" class="button secondary small" data-dropdown="delete-drop">
+                        Supprimer
+                    </a>
+                {% endif %}
+                <div id="delete-drop" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Si vous supprimez cet projet, il sera alors impossible de le restaurer/consulter de nouveau.
+                    </p>
+                    <button type="submit" name="delete" class="button expand alert">
+                        <i class="icon-remove"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" name="project" value="{{ project.pk }}" />
+            {% csrf_token %}
+        </form>
+    
+{% endblock %}
+
+{% block sub_form %}
+
+
+{% include "news/view_pager.part.html" %}
+
+
+<div class="row">
+    <div class="large-12 columns">
+        <fieldset>
+            <legend>Participants</legend>
+            {% with member=project.author %}
+                {% include "member/member_item_common.part.html"%} (Porteur du projet)
+            {% endwith %}
+            {% for participant in project.get_participants %}
+                {% with member=participant.user %}
+                    [ {% include "member/member_item_common.part.html"%} ({{ participant.fonction }})
+                {% endwith %}
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <legend>Généralités</legend>
+            <div class="row">
+            <div class="large-8 columns">
+                <p> Crée {{ project.date.create_at|humane_date }}</p>
+                <p>Dernière mise à jour {{ project.date.update|humane_date }}</p>
+                <h4>{{ project.title }}</h4>
+                <h5>{{ project.description }}</h5>
+            </div>
+            <div class="large-4 columns">
+                <img src="{{ project.image.medium.url }}" />
+            </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+{% endblock %}

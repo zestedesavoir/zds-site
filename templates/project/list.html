@@ -1,0 +1,46 @@
+{% load humane_date %}
+{% load emarkdown %}
+
+    <div class="large-12 columns">  
+        <div class="row">
+            {% for project in projects %}
+            <div class="large-12 columns panel">
+              <div class="large-3 columns">
+                  <img src="{{ project.image.medium.url }}">
+              </div>
+              <div class="large-9 columns">
+                  <div class="row">
+                    <h3><a href="{{ project.get_absolute_url }}">{{ project.title|upper }}</a></h3>
+                  </div>
+                  <div class="row">
+                    <div class="large-5 columns">
+                        <h5 class="subheader">
+                          <i class="fi-clock"></i>
+                          {% if project.date.pubdate %}
+                          {{ project.date.pubdate|humane_date}}
+                          {% else %}
+                          {{ project.date.update|humane_date}}
+                          {% endif %}
+                        </h5>
+                    </div>
+                    <div class="large-6 columns">
+                        <h5 class="subheader">
+                          {% for member in project.authors.all %}
+                              {% include "member/member_item_common.part.html" %}
+                          {% endfor %}
+                        </h5>
+                    </div>
+                    <div class="large-1 columns">
+                      <a href="{{ project.first_comment.get_absolute_url}}" class="fi-comment size-14">
+                        {{project.get_comments.count}}
+                      </a>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <h6 class="subheader">{{ project.description }}</h6>
+                  </div>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
