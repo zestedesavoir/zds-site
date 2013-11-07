@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from lbp.forum.models import Post, Topic
+from lbp.news.models import News
 
 class Profile(models.Model):
 
@@ -48,3 +49,15 @@ class Profile(models.Model):
     def get_topic_count(self):
         '''Number of threads created'''
         return Topic.objects.all().filter(author=self.user).count()
+    
+    def get_writing_news(self):
+        return News.objects.all().filter(authors__in=[self.user], statut='REDACTION')
+    
+    def get_check_news(self):
+        return News.objects.all().filter(authors__in=[self.user], statut='VALIDATION')
+    
+    def get_online_news(self):
+        return News.objects.all().filter(authors__in=[self.user], statut='PUBLIQUE')
+    
+    def get_news(self):
+        return News.objects.all().filter(authors__in=[self.user])

@@ -15,46 +15,49 @@
 {% block content %}
     <div class="row">
         <div class="large-12 columns">
-            <h3>Articles</h3>
+            <h3>News</h3>
         </div>
     </div>
-    {% if user_articles %}
-        {% for article in user_articles %}
-            {% if article.is_visible %}
+    {% if user_news %}
+        {% for news in user_news %}
+            {% if news.en_ligne %}
+                <div class="row article-publication-item published">
+            {% elif news.en_validation %}
                 <div class="row article-publication-item published">
             {% else %}
                 <div class="row article-publication-item">
             {% endif %}
-                <div class="large-1 columns">
+                <div class="large-2 columns">
                     <div class="date-box">
-                        {% with date=article.pubdate %}
+                        {% with date=news.date.update %}
                             {% include "misc/datebox.part.html" %}
                         {% endwith %}
                     </div>
                 </div>
-                <div class="large-10 columns">
-                    <a href="{{ article.get_absolute_url }}">{{ article.title }} </a>
-                    <p>{{ article.description }}</p>
+                <div class="large-8 columns">
+                    <a href="{{ news.get_absolute_url }}">{{ news.title }} </a>
+                    <p>{{ news.description }}</p>
                 </div>
-                <div class="large-1 columns">
-                    <a href="{{ article.get_edit_url }}">
-                        <i class="icon-edit"></i>
-                        Éditer
-                    </a>
+                <div class="large-2 columns">
+                    <div class="date-box">
+                        {% with date=news.date.update %}
+                            {% include "misc/datebox.part.html" %}
+                        {% endwith %}
+                    </div>
                 </div>
             </div>
         {% endfor %}
     {% else %}
         <div class="row">
             <div class="large-12 columns">
-                Aucun article n'a été rédigé.
+                Aucune News n'a été rédigé.
             </div>
         </div>
     {% endif %}
 
     <div class="row">
         <div class="large-12 columns">
-            <h3>Tutoriels</h3>
+            <h3>Projets</h3>
         </div>
     </div>
 
@@ -87,7 +90,7 @@
     {% else %}
         <div class="row">
             <div class="large-12 columns">
-                Aucun tutoriel n'a été rédigé.
+                Vous ne travaillez sur aucun projet
             </div>
         </div>
     {% endif %}

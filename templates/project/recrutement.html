@@ -1,0 +1,23 @@
+{% extends "project/base.html" %}
+
+{% block title %}
+    Recrutements
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Les projects réalisés par la communauté" />
+{% endblock %}
+
+{% block headline %}
+    Recrutements
+{% endblock %}
+
+{% block breadcrumb %}
+    <li ><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    <li ><a href="{% url "pdp.project.views.recrutement" project.pk project.slug %">recrutements</a></li>
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block content %}
+  {% include "project/list.html" %}
+{% endblock %}

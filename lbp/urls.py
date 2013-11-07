@@ -8,9 +8,10 @@ from haystack.views import SearchView
 from haystack.forms import ModelSearchForm
 
 from rest_framework import viewsets, routers
-
 from django.contrib import admin
-from ajax_select import urls as ajax_select_urls
+
+import autocomplete_light
+autocomplete_light.autodiscover()
 
 admin.autodiscover()
 
@@ -31,7 +32,7 @@ router.register(r'groups', GroupViewSet)
 
 urlpatterns = patterns('',
     url(r'^news/', include('lbp.news.urls')),
-    url(r'^project/', include('lbp.project.urls')),
+    url(r'^projet/', include('lbp.project.urls')),
     url(r'^forums/', include('lbp.forum.urls')),
     url(r'^mp/', include('lbp.mp.urls')),
     url(r'^membres/', include('lbp.member.urls')),
@@ -41,7 +42,7 @@ urlpatterns = patterns('',
     url(r'^api/', include('lbp.api.urls')),
 
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^admin/lookups/', include(ajax_select_urls)),
+    url(r'^autocomplete/', include('autocomplete_light.urls')),
 
     url(r'^$', pages.views.home),
 

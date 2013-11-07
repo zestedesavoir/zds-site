@@ -2,6 +2,7 @@
 {% load compressed %}
 {% load profile %}
 {% load interventions %}
+{% load topbar %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -15,11 +16,6 @@
 
     {% compressed_css "lbp" %}
 
-    <!--
-        Temporary removed icons
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
-    -->
-
     {# for additionnal css in some pages #}
     {% block extracss %}{% endblock %}
 
@@ -32,13 +28,29 @@
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml"
           title="Forum" href="{% url "post-feed-rss" %}"/>
+    <!-- Piwik -->
+    <script type="text/javascript"> 
+      var _paq = _paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://lebonprojet.tk/piwik//";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 1]);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
+        g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+
+    </script>
+    <noscript><p><img src="http://lebonprojet.tk/piwik/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+    <!-- End Piwik Code -->
+
 </head>
 <body>
 
     <nav class="top-bar">
         <ul class="title-area">
             <li class="name">
-                <img src="{% static "img/topbar.png" %}" alt="Logo" />
                 <h1>
                     <a href="/">
                         LeBonProjet
@@ -60,23 +72,48 @@
                         Accueil
                     </a>
                 </li>
-                <li {% block menu_news %}{% endblock %}>
+                <li class="{% block menu_news %}{% endblock %} has-dropdown">
                     <a href="{% url "lbp.news.views.index" %}">
                         <i class="fi-clipboard-pencil"></i>
                         News
                     </a>
+                    <ul class="dropdown">
+                        {% with categories='.'|top_categories_news %}
+                            {% for category in categories %}
+                                <li><a href="{{ category.get_news_url }}">{{ category.title }}</a></li>
+                            {% endfor %}
+                        {% endwith %}
+                        <li class="divider"></li>
+                        <li><label>Participez</label></li>
+                        <li><a href="{% url "lbp.news.views.new" %}">Proposer une News &rarr;</a></li>
+                        {% if perms.news.valider_news %}
+                        <li><a href="{% url "lbp.news.views.list_admin" %}">Administration des news &rarr;</a></li>
+                        {% endif %}
+                    </ul>
                 </li>
-                <li {% block menu_project %}{% endblock %}>
+                <li class="{% block menu_project %}{% endblock %}">
                     <a href="{% url "lbp.project.views.index" %}">
                         <i class="fi-mountains"></i>
                         Projets
                     </a>
                 </li>
-                <li {% block menu_forum %}{% endblock %}>
-                    <a href="{% url "lbp.forum.views.index" %}">
+                <li class="{% block menu_forum %}{% endblock %} has-dropdown">
+                    <a href="{% url "lbp.forum.views.index" %}" />
                         <i class="fi-comments"></i>
                         Forums
                     </a>
+                    <ul class="dropdown">
+                        {% with categories='.'|top_categories %}
+                        {% for category in categories %}
+                            <li><label>{{ category.title }}</label></li>
+                            {% for forum in category.get_forums %}
+                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% endwith %}
+                      <li class="divider"></li>
+                      <li><a href="{% url "lbp.forum.views.index" %}">Tous &rarr;</a></li>
+                    </ul>
                 </li>
             </ul>
 
@@ -286,7 +323,6 @@
             back_text: 'Précédent'
         });
     </script>
-
     {% block additionnal-js %}{% endblock %}
 
 </body>

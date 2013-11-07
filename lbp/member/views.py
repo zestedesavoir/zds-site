@@ -16,6 +16,7 @@ from lbp.utils.tokens import generate_token
 from lbp.utils import render_template
 
 from .models import Profile
+from lbp.news.models import News
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm
 
 
@@ -220,6 +221,12 @@ def settings_account(request):
 
 @login_required
 def publications(request):
+    if request.user.is_authenticated():
+        user_news = News.objects.filter(authors__in = [request.user])
+    else:
+        user_news = None
+        
     c = {
+         'user_news': user_news
     }
     return render_to_response('member/publications.html', c, RequestContext(request))
