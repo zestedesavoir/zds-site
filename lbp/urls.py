@@ -10,8 +10,6 @@ from haystack.forms import ModelSearchForm
 from rest_framework import viewsets, routers
 from django.contrib import admin
 
-autocomplete_light.autodiscover()
-
 admin.autodiscover()
 
 import pages.views
@@ -41,7 +39,6 @@ urlpatterns = patterns('',
     url(r'^api/', include('lbp.api.urls')),
 
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^autocomplete/', include('autocomplete_light.urls')),
 
     url(r'^$', pages.views.home),
 
