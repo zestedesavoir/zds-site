@@ -10,7 +10,6 @@ from haystack.forms import ModelSearchForm
 from rest_framework import viewsets, routers
 from django.contrib import admin
 
-import autocomplete_light
 autocomplete_light.autodiscover()
 
 admin.autodiscover()
