@@ -54,45 +54,33 @@
 
 <div class="row">
     <div class="large-4 columns">
-        <h3>Articles</h3>
+        <h3>News</h3>
         <table>
             <tbody>
                 <tr>
                     <td>En cours de rédaction</td>
-                    <td>{{ profile.get_hidden_articles.count }}</td>
+                    <td>{{ profile.get_writing_news.count }}</td>
+                </tr>
+                <tr>
+                    <td>En attente de validation</td>
+                    <td>{{ profile.get_check_news.count }}</td>
                 </tr>
                 <tr>
                     <td>En ligne</td>
-                    <td><a href="{% url "lbp.article.views.find_article" usr.username %}">{{ profile.get_visible_articles.count }}</a></td>
+                    <td><a href="{% url "lbp.news.views.find_news" usr.pk %}">{{ profile.get_online_news.count }}</a></td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <td>Total</td>
-                    <td>{{ profile.get_articles.count }}</td>
+                    <td>{{ profile.get_news.count }}</td>
                 </tr>
             </tfoot>
         </table>
     </div>
     <div class="large-4 columns">
-        <h3>Tutoriels</h3>
-        <table>
-            <tbody>
-                <tr>
-                    <td>En cours de rédaction</td>
-                    <td>{{ profile.get_hidden_tutorials.count }}</td>
-                </tr>
-                <tr>
-                    <td>En ligne</td>
-                    <td><a href="{% url "lbp.tutorial.views.find_tuto" usr.username %}">{{ profile.get_visible_tutorials.count }}</a></td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Total</td>
-                    <td>{{ profile.get_tutorials.count }}</td>
-                </tr>
-            </tfoot>
+        <h3>Projets</h3>
+        
         </table>
     </div>
     <div class="large-4 columns">

@@ -9,5 +9,12 @@ urlpatterns = patterns('',
     url(r'^nouveau$', views.new),
     url(r'^editer$', views.edit),
     url(r'^modifier$', views.modify),
+    url(r'^rechercher/(?P<pk>\d+)$', views.find_news),
+    url(r'^categorie/(?P<cat_pk>\d+)/(?P<cat_slug>.+)', views.list),
+    url(r'^admin$', views.list_admin),
     url(r'^$', views.index),
+    
+    # Message-related
+    url(r'^message/editer$', views.edit_comment),
+    url(r'^message/nouveau$', views.answer),
 )

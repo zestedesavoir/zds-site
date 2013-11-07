@@ -61,6 +61,10 @@
                     [ {% include "member/member_item_common.part.html"%} ({{ participant.fonction }})
                 {% endwith %}
             {% endfor %}
+            {% if project.author = user %}
+            <a class="button radius right" href="#">Recruter ?</a>
+            
+            {% endif %}
         </fieldset>
         <fieldset>
             <legend>Généralités</legend>

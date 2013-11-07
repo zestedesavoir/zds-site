@@ -2,8 +2,11 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+
 from lbp.gallery.models import Image, Gallery, UserGallery
 from lbp.utils.models import DateManager
+from lbp.utils import slugify
+
 
 #from lbp.actualite.models import Actualite
 
@@ -73,21 +76,21 @@ class Project(models.Model):
         '''
         Project Textual form
         '''
-        return self.titre
+        return self.title
     def get_participants(self):
         '''
         Project participants
         '''
-        return Participant.objects.all()\
-            .filter(projet=self, user__isnull=False)
+        return Participation.objects.all()\
+            .filter(project=self, user__isnull=False)
 
     def get_vacancies(self):
         '''
         Vacancies
         '''
-        return Participant.objects.all()\
-            .filter(projet=self, user__isnull=True)
-            
+        return Participation.objects.all()\
+            .filter(project=self, user__isnull=True)
+                
     def is_followed(self, user=None):
         '''
         Check if the project is currently followed by the user. This method uses
@@ -101,7 +104,25 @@ class Project(models.Model):
         except ProjectFollowed.DoesNotExist:
             return False
         return True
-
+    
+    def is_pending(self):
+        return self.statut=='PENDING'
+    
+    def is_alpha(self):
+        return self.statut=='ALPHA'
+    
+    def is_beta(self):
+        return self.statut=='BETA'
+    
+    def is_rc(self):
+        return self.statut=='RC'
+    
+    def is_stable(self):
+        return self.statut=='STABLE'
+    
+    def get_absolute_url(self):
+        return '/projet/voir/{0}/{1}'.format(self.pk, slugify(self.title))
+    
 class ProjectFollowed(models.Model):
     user = models.ForeignKey(User)
     project = models.ForeignKey(Project)
@@ -128,7 +149,8 @@ class Fonction(models.Model):
         Textual fonction form
         '''
         return self.title
-    
+
+        
 class Category(models.Model):
     '''Une catégorie, qui correspond à la catégorie dans laquelle on peut ranger un projet (Site Web, Jeux vidéos, Amménagement, etc.)'''
     class Meta:
@@ -146,6 +168,17 @@ class Category(models.Model):
         Textual Category Form
         '''
         return self.title
+    
+    def get_news(self):
+        from lbp.news.models import News
+        return News.objects.all().filter(category__in = [self])
+    
+    def get_news_count(self):
+        from lbp.news.models import News
+        return News.objects.all().filter(category__in = [self]).count()
+    
+    def get_news_url(self):
+        return '/news/categorie/{0}/{1}'.format(self.pk, slugify(self.title))
 
 class Technology(models.Model):
     '''Une technologie, qui correspond, au domaine technique utilisé pour résoudre un problème (Java, Perçeuse, etc.)'''

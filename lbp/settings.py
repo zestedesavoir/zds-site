@@ -187,7 +187,6 @@ INSTALLED_APPS = (
     'provider.oauth2',
     'rest_framework_swagger',
     'haystack',
-    'ajax_select',
 
     'lbp.member',
     'lbp.forum',
@@ -277,6 +276,7 @@ HAYSTACK_CONNECTIONS = {
 }
 
 AJAX_LOOKUP_CHANNELS = {
+
     'category': ('lbp.lookups', 'CategoryLookup'),
 }
 
