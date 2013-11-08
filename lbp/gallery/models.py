@@ -14,8 +14,8 @@ from PIL import Image as PILImage
 from cStringIO import StringIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-IMAGE_THUMB_MAX_WIDTH = 64
-IMAGE_THUMB_MAX_HEIGHT = 64
+IMAGE_THUMB_MAX_WIDTH = 128
+IMAGE_THUMB_MAX_HEIGHT = 128
 IMAGE_MEDIUM_MAX_WIDTH = 400
 IMAGE_MEDIUM_MAX_HEIGHT = 300
 
