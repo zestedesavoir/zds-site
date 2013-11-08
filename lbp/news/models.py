@@ -190,7 +190,7 @@ class AlertNews(Alert):
 def get_last_news():
     return News.objects.all()\
         .filter(statut='PUBLIQUE')\
-        .order_by('-pubdate')[:3]
+        .order_by('-date__pubdate')[:5]
 
 
 def get_prev_news(g_news):

@@ -343,3 +343,13 @@ class CompetencePlateforme(models.Model):
         Formulation textuelle d'une compétence plateforme
         '''
         return u'{0} -> {1}'.format(self.user, self.fonction)
+
+def get_last_projects():
+    projects=Project.objects.all()\
+        .order_by('-date__update')[:4]
+    
+    prj=[]
+    prj.append(projects[:2])
+    if(len(projects)>2):
+        prj.append(projects[2:])
+    return prj
