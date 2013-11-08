@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from lbp.utils import render_template, slugify
-from lbp.utils.models import DateManagerse
+from lbp.utils.models import DateManager
 from lbp.utils.paginator import paginator_range
 
 from lbp.project.models import Category
