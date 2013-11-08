@@ -1,0 +1,138 @@
+{% extends "pages/base.html" %}
+
+{% block title %}
+    Roadmap
+{% endblock %}
+
+{% block headline %}
+    Roadmap
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Roadmap</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-4 columns">
+        <h3>News</h3>
+        <h4>Features developpées</h4>
+        <ul>
+            <li class="alert">Bouton News dans la Topbar</li>
+            <ul>
+                <li>Affichage des catégories de News</li>
+                <li>Liens de proposition de la news</li>
+                <li>Liens d'administration (Newser)</li>
+            </ul>
+            <li>Lecture des News</li>
+            <ul>
+                <li>Affichage de liste des news</li>
+                <li>Affichage des news par catégorie</li>
+                <li>Vue sur une News</li>
+            </ul>
+            <li>Commentaire de News</li>
+            <ul>
+                <li>Saisie des commentaires</li>
+                <li>Edition des commentaires</li>
+            </ul>
+            <li>Administration des news</li>
+            <ul>
+                <li>Possibilité d'envoyer une news en validation</li>
+                <li>Possibilité de valider/publier une news</li>
+                <li>Possibilité de rejet d'une news</li>
+                <li>Possibilité de dépublication d'une news</li>
+            </ul>
+        </ul>
+        <hr />
+        <h4>A venir</h4>
+        <ul>
+            <li>Création News</li>
+            <ul>
+                <li>Sauvegarde des anciennes versions</li>
+            </ul>
+            <li>Lecture des News</li>
+            <ul>
+                <li>Ajouter un bouton d'alerte pour correction</li>
+            </ul>
+            <li>Commentaire de News</li>
+            <ul>
+                <li>Possibilité de signaler un commentaire</li>
+                <li>Possibilité de modérer un commentaire</li>
+            </ul>
+    </div>
+    <div class="large-4 columns">
+        <h3>Forum</h3>
+        <h4>Features developpées</h4>
+        <ul>
+            <li class="alert">Bouton Forum dans la Topbar</li>
+            <ul>
+                <li>Affichage des catégories de Forum</li>
+                <li>Suivis suivis visibles</li>
+            </ul>
+            <li>Topic</li>
+            <ul>
+                <li>Création d'un topic</li>
+                <li>Suivi d'un topic</li>
+                <li>Fermeture d'un topic </li>
+                <li>Pagination sur un topic</li>
+            </ul>
+            <li>Administration des sujets</li>
+            <ul>
+                <li>Passage en résolu</li>
+                <li>Passage en post-it</li>
+                <li>Déplacement d'un topic</li>
+                <li>Fermeture d'un topic</li>
+            </ul>
+        </ul>
+        <hr />
+        <h4>A venir</h4>
+        <ul>
+            <li>Topic</li>
+            <ul>
+                <li>Possibilité de plussoiement</li>
+                <li>Affichage du groupe du membre</li>
+                <li>Signaler un message</li>
+                <li>Modération d'un message</li>
+            </ul>
+    </div>
+    <div class="large-4 columns">
+        <h3>Projets</h3>
+        <h4>Features developpées</h4>
+        <ul>
+            <li class="alert">Bouton Forum dans la Topbar</li>
+            <ul>
+                <li>Liens vers la liste des projets</li>
+            </ul>
+            <li>Topic</li>
+            <ul>
+                <li>Création d'un projet</li>
+                <li>Modification d'un projet</li>
+            </ul>
+        </ul>
+        <hr />
+        <h4>A venir</h4>
+        <ul>
+            <li>Bouton Projets dans la TopBar</li>
+            <ul>
+                <li>Menu déroulant la liste des catégories</li>
+            </ul>
+            <li>Projets</li>
+            <ul>
+                <li>Commenter un projet</li>
+                <li>Versionning d'un projet</li>
+                <li>Fonction de recrutement</li>
+                <li>Acceptation à un poste</li>
+                <li>Feature d'évaluation d'un projet</li>
+                <li>Passage en Alpha, Beta, RC, etc.</li>
+            </ul>
+            <li>Administration</li>
+            <ul>
+                <li>Signaler un projet</li>
+                <li>Modération un projet</li>
+                <li>Suppression d'un projet</li>
+            </ul>
+    </div>
+</div>
+
+{% endblock %}
