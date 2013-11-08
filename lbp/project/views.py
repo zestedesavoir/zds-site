@@ -19,7 +19,7 @@ from .forms import ProjectForm, ProjectDetailsForm, ProjectStrategyForm, Project
 def index(request):
     '''Affiche la liste des projects'''
     projects = Project.objects.all()\
-        .order_by('date__update')
+        .order_by('-date__update')
 
     if request.user.is_authenticated():
         user_participation = Participation.objects.filter(user=request.user)
