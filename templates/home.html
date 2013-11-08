@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load emarkdown %}
+{% load humane_date %}
 
 {% block menu_home %}
 class="active"
@@ -25,124 +27,108 @@ class="active"
 {% block content %}
 
 <div class="row">
-    {# News #}
-    <div class="large-4 columns">
-        <div class="home-app-title">
-            <h2 >
-                <a class="fi-clipboard-pencil" href="{% url "lbp.news.views.index" %}">
-                    News
-                </a>
-            </h2>
-        </div>
-
-        {% if last_news %}
-            {% for news in last_news %}
-            <div class="large-12">
-                <div class="large-3 column hide-for-small">
-                    {% if news.image.thumb %}
-                    <img src="{{news.image.thumb }}"/>
-                    {% endif %}
-                </div>
-                <div class="large-9 column">
-                    <a href="{{news.get_absolute_url }}">{{ news.title }}</a>
-                </div>
-                <div class="large-12 column">
-                    <p>{{ news.description }}</p>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>Pas de news pour l'instant.</p>
-        {% endif %}
-    </div>
-
-    <div class="large-4 columns">
-        <div class="home-app-title">
-            <h2 >
-                <a class="fi-book" href="{% url "lbp.project.views.index" %}">
-                    Projets
-                </a>
-            </h2>
-        </div>
-
-        {% if last_projects %}
-            {% for project in last_projects %}
-                <div class="large-12">
-                    <div class="large-3 column hide-for-small">
-                        {% if project.thumbnail %}
-                        <img src="{{project.image.thumbnail.url }}"/>
+ 
+          <div class="large-6 columns">
+ 
+            <h3 class="show-for-small">Header<hr></h3>
+            <div class="row">
+              <div class="large-12 small-12 columns">
+                <div class="panel">
+                  <h3><a href="{% url "lbp.news.views.index" %}">News</a></h3>
+                  {% if last_news %}
+                    {% for news in last_news %}
+                  <hr />
+                  <div class="row">
+                  <div class="large-12">
+                    <div class="large-2 columns">
+                        <img src="{{ news.image.thumb.url }}">
+                    </div>
+                    <div class="large-9 columns">
+                    <p class="subheader">
+                    <a href="{{ news.get_absolute_url}}">
+                        {{ news.title }}
+                    </a>
+                    </p>
+                    <p class="subheader">
+                        {% if news.category %}
+                        {% for category in news.category.all %}
+                            <a href="{{category.get_news_url}}">{{category.title}}</a>
+                        {% endfor %}
                         {% endif %}
+                        <i class="fi-clock"></i>
+                        {{news.date.pubdate|humane_date}}
+                    </p>
+                    
                     </div>
-                    <div class="large-9 column">
-                        <a href="{{project.get_absolute_url }}">{{ project.title }}</a>
+                    <div class="large-1 columns">
+                        <a class="fi-comment right size-18" href="{{ news.first_comment.get_absolute_url}}">
+                            {{ news.get_comments.count }}
+                        </a>
                     </div>
-                    <div class="large-12 column">
-                        <p>{{ project.description }}</p>
+                  </div>
+                </div>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <p>{{news.description|truncatechars:80}}<a href="{{ news.get_absolute_url }}" class="fi-play"> Plus </a></p>
                     </div>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p>Aucun projet actuellement.</p>
-        {% endif %}
-    </div>
-    <div class="large-4 columns">
-        <div class="home-app-title">
-            <h2  >
-                <a class="fi-comments" href="{% url "lbp.forum.views.index" %}">
-                    Forums
-                </a>
-            </h2>
+                {% endfor %}
+                {% endif %}
+                <hr />
+                <div class="row">
+                    <div class="large-12 columns">
+                        <div class="large-6 columns">
+                                <a href="{% url "lbp.news.views.new" %}" class="small button">Rédigez une news</a>
+                        </div>
+                    <div class="large-6 columns">
+                            <a href="{% url "lbp.news.views.index" %}" >Voir les news plus anciennes <i class="fi-play"></i></a>
+                    </div>
+                </div>
+              </div>
+                </div>
+              </div>
+          </div>
+ 
+          </div>
+          <div class="large-6 columns">
+            <div class="row">
+                <div class="panel">
+                    <h3><a href="{% url "lbp.project.views.index" %}">Forums</a></h3>
+                    <hr />
+                    <div class="row">
+                {% if last_topics %}
+                    {% for topic in last_topics %}
+                        {% include "forum/topic_item_common.part.html" %}
+                    {% endfor %}
+                {% else %}
+                    <p>Aucun sujet récent.</p>
+                {% endif %}
+            </div>
+                </div>
+            </div>
+          <div class="row">
+            <div class="panel">
+                <h3><a href="{% url "lbp.project.views.index" %}">Projets</a></h3>
+                <hr />
+                {% if last_projects %}
+                {% for project in last_projects %}
+                <div class="row">
+                    {% for p in project %}
+                  <div class="large-6 small-6 columns">
+                    <div class="panel">
+                      <h5><a href="{{p.get_absolute_url}}">{{p}}</a></h5>
+                      <img src="{{p.image.medium.url}}" />
+                    <p class="subheader">{{p.description|truncatechars:60 }}</p>
+                    </div>
+                  </div>
+                  {% endfor %}
+        </div>
+        {% endfor %}
+        {% endif %} 
+        </div>
+          </div>
+ 
         </div>
 
-        {% if last_topics %}
-            {% for topic in last_topics %}
-                {% include "forum/topic_item_common.part.html" %}
-            {% endfor %}
-        {% else %}
-            <p>Aucun sujet récent.</p>
-        {% endif %}
-    </div>
 </div>
-<div class="row hide-for-small">
-    <div class="small-4 columns">
-        <form id="search-article" name="search-article" type="GET" action="{% url "haystack_search" %}">
-            <div class="row collapse">
-                <div class="small-7 columns">
-                    <input type="hidden" name="models" value="article.article" />
-                  <input type="text" name="q" placeholder="Rechercher">
-                </div>
-                <div class="small-3 columns left">
-                  <button type="submit" class="button"><i class="fi-magnifying-glass size-12"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="large-4 columns">
-        <form id="search-tuto" name="search-tuto" type="GET" action="{% url "haystack_search" %}">
-            <div class="row collapse">
-                <div class="small-7 columns">
-                    <input type="hidden" name="models" value="tutorial.extract" />
-                  <input type="text" name="q" placeholder="Rechercher">
-                </div>
-                <div class="small-3 columns left">
-                  <button type="submit" class="button"><i class="fi-magnifying-glass size-12"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="large-4 columns">
-        <form id="search-forum" name="search-forum" type="GET" action="{% url "haystack_search" %}">
-            <div class="row collapse">
-                <div class="small-7 columns">
-                    <input type="hidden" name="models" value="forum.topic" />
-                  <input type="text" name="q" placeholder="Rechercher">
-                </div>
-                <div class="small-3 columns left">
-                  <button type="submit" class="button"><i class="fi-magnifying-glass size-12"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
 {% endblock %}

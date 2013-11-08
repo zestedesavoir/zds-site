@@ -140,7 +140,6 @@ def edit_general(request, prj_pk, prj_slug):
 
             project.titre = data['title']
             project.description = data['description']
-            project.text = data['text']
             project.date.update = datetime.now()
             
             project.categories.clear()
@@ -155,7 +154,7 @@ def edit_general(request, prj_pk, prj_slug):
                     project.technologies.add(t)
                 project.save() 
                 
-            project.platforms.clear()
+            project.plateforms.clear()
             if 'platforms' in data :
                 for p in data['platforms']:
                     project.platforms.add(p)
@@ -165,7 +164,7 @@ def edit_general(request, prj_pk, prj_slug):
             if 'image' in request.FILES:
                 img = Image()
                 img.physical = request.FILES['image']
-                img.gallery = news.gallery
+                img.gallery = project.gallery
                 img.title = request.FILES['image']
                 img.slug = slugify(request.FILES['image'])
                 img.update = datetime.now()
