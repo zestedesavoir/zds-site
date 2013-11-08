@@ -296,7 +296,7 @@ BOT_ARTICLE_FORUM_PK = 2
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024*512
+IMAGE_MAX_SIZE = 1024*1024
 
 # Load the production settings, overwrite the existing ones if needed
 try:

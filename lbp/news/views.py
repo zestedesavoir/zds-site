@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
@@ -10,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from lbp.utils import render_template, slugify
-from lbp.utils.models import DateManager
+from lbp.utils.models import DateManagerse
 from lbp.utils.paginator import paginator_range
 
 from lbp.project.models import Category
