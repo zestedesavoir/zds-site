@@ -57,12 +57,12 @@ nav.top-bar {
 /* Topbar gradient (but not for folded topbar) */
 
 .top-bar {
-    background-image: linear-gradient(#884DA7, #660099) ;
+    background-image: linear-gradient(#002e42, #002e42) ;
 }
 
 @media #{$small} {
     .top-bar-section li:not(.active) a:not(.button) {
-        background-image: linear-gradient(#884DA7, #660099) ;
+        background-image: linear-gradient(#002e42, #002e42) ;
     }
     .top-bar-section .dropdown li a {
         background-image: none !important;
