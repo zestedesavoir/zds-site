@@ -2,6 +2,7 @@
 {% load humane_date %}
 {% load upfirstletter %}
 
+<div class="row">
 {% for forum in category.get_forums %}
 <div class="forum-entry">
     <div class="forum-entry-title {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
@@ -53,3 +54,4 @@
 </div>
 
 {% endfor %}
+</div>

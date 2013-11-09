@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from lbp.utils import render_template, slugify
 from lbp.utils.paginator import paginator_range
 
-from models import Category, Forum, Topic, Post, POSTS_PER_PAGE, TOPICS_PER_PAGE
+from models import Category, Forum, Topic, Post, POSTS_PER_PAGE, TOPICS_PER_PAGE, PostDislike, PostLike
 from models import never_read, mark_read
 from models import follow
 from forms import TopicForm, PostForm
@@ -403,6 +403,50 @@ def useful_post(request):
 
     post.is_useful = not post.is_useful
     post.save()
+
+    return redirect(post.get_absolute_url())
+
+@login_required
+def like_post(request):
+    '''like a post'''
+    try:
+        post_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    post = get_object_or_404(Post, pk=post_pk)
+    user = request.user
+
+    # Making sure the user is allowed to do that
+    if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
+        like=PostLike()
+        like.user=user
+        like.posts=post
+        like.save()
+        if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
+            PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+
+    return redirect(post.get_absolute_url())
+
+@login_required
+def dislike_post(request):
+    '''like a post'''
+    try:
+        post_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    post = get_object_or_404(Post, pk=post_pk)
+    user = request.user
+
+    # Making sure the user is allowed to do that
+    if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
+        dislike=PostDislike()
+        dislike.user=user
+        dislike.posts=post
+        dislike.save()
+        if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
+            PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
 
     return redirect(post.get_absolute_url())
 

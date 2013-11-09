@@ -103,7 +103,12 @@ class ProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={'placeholder': 'Lien vers un avatar externe '
                    '(laisser vide pour utiliser Gravatar).'}))
-
+    sign = forms.CharField(
+        label='Signature',
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Elle apparaitra dans les messages de forums. '}
+            ))
     def __init__(self, user, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
@@ -123,6 +128,7 @@ class ProfileForm(forms.Form):
                 Field('biography'),
                 Field('site'),
                 Field('avatar_url'),
+                Field('sign'),
                 # inline checkbox is not supported by crispy form
                 HTML('<div id="div_id_show_email" class="ctrlHolder checkbox" style="padding-top:10px">\
                 <label for="id_show_email" > <input id="id_show_email" type="checkbox" class="checkboxinput" name="show_email" ' + value_checked + '/>\

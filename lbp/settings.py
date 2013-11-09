@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     'provider.oauth2',
     'rest_framework_swagger',
     'haystack',
+    'smileys',
 
     'lbp.member',
     'lbp.forum',

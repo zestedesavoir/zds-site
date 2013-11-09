@@ -22,6 +22,7 @@ table {
 }
 
 header {
+    border-top: 4px solid #03638b;
     background-color: darken($primary-color, 10%);
 
     h1, p {
@@ -32,7 +33,7 @@ header {
         padding-bottom: emCalc(5px);
     }
 
-    margin-bottom: emCalc(30px);
+    margin-bottom: emCalc(10px);
 }
 
 nav.top-bar {
@@ -79,6 +80,7 @@ nav.top-bar {
 
 .breadcrumbs {
     @include text-shadow(1px 1px 0px rgb(255, 255, 255));
+    margin-top: 10px;
 }
 
 .headline-actions {
@@ -171,4 +173,16 @@ div.switch label {
 // Correct bad font size for lists
 li p {
     font-size: emCalc(16px);
+}
+
+body > .row, body > .post > .row{
+    background: #fff;
+}
+
+.bad {
+    color : #FF0000;
+}
+
+.good {
+    color : #006400;
 }
