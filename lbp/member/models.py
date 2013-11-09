@@ -26,6 +26,8 @@ class Profile(models.Model):
     )
 
     biography = models.TextField('Biographie', blank=True)
+    
+    sign = models.TextField('Signature', blank=True)
 
     def __unicode__(self):
         '''Textual forum of a profile'''

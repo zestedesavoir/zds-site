@@ -28,7 +28,7 @@ $experimental: true !default;
 
 $default-float: left;
 
-$body-bg: #fff;
+$body-bg: url('/static/img/background.png');;
 $body-font-color: rgb(85, 85, 85);
 $body-font-family: "Noto Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $body-font-weight: normal;

@@ -220,6 +220,11 @@ class Post(models.Model):
 
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 
+    def get_like_count(self):
+        return PostLike.objects.filter(posts__pk=self.pk).count()
+    
+    def get_dislike_count(self):
+        return PostDislike.objects.filter(posts__pk=self.pk).count()
 
 class TopicRead(models.Model):
     '''
@@ -256,6 +261,28 @@ class TopicFollowed(models.Model):
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)
+
+class PostLike(models.Model):
+    '''
+    Set of like posts
+    '''
+    class Meta:
+        verbose_name = 'Ce message est utile'
+        verbose_name_plural = 'Ces messages sont utiles'
+
+    posts = models.ForeignKey(Post)
+    user = models.ForeignKey(User, related_name='post_liked')
+
+class PostDislike(models.Model):
+    '''
+    Set of dislike posts
+    '''
+    class Meta:
+        verbose_name = 'Ce message est inutile'
+        verbose_name_plural = 'Ces messages sont inutiles'
+
+    posts = models.ForeignKey(Post)
+    user = models.ForeignKey(User, related_name='post_disliked')
 
 
 def never_read(topic, user=None):

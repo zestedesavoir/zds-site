@@ -197,7 +197,7 @@ def get_prev_news(g_news):
     try:
         return News.objects\
             .filter(statut='PUBLIQUE')\
-            .filter(date=g_news.date)\
+            .filter(date__pubdate__lt=g_news.date.pubdate)\
             .order_by('-date__pubdate')[0]
     except IndexError:
         return None
@@ -207,7 +207,7 @@ def get_next_news(g_news):
     try:
         return News.objects\
             .filter(statut='PUBLIQUE')\
-            .filter(date=g_news.date)\
+            .filter(date__pubdate__gt=g_news.date.pubdate)\
             .order_by('date__pubdate')[0]
     except IndexError:
         return None

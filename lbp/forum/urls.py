@@ -27,6 +27,8 @@ urlpatterns = patterns('',
     url(r'^message/editer$', views.edit_post),
     url(r'^message/nouveau$', views.answer),
     url(r'^message/utile$', views.useful_post),
+    url(r'^message/like$', views.like_post),
+    url(r'^message/dislike$', views.dislike_post),
     url(r'^messages/(?P<name>.+)$', views.find_post),
 
     # Forum details

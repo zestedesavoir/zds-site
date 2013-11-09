@@ -3,6 +3,7 @@
 {% load markup %}
 {% load humane_date %}
 {% load profile %}
+{% load smiley_tags %}
 
 {% block title %}
     {{ topic.title }}
@@ -110,10 +111,10 @@
 
 {% include "forum/topic_pagination.part.html" with position="top" %}
 
-
+<div class="row">
 {% for post in posts %}
 <div class="post {% if forloop.first and nb > 1 %}before{% endif %} {% if post.is_useful %}useful{% endif %}">
-        <div class="row post-head" id="p{{ post.id }}">
+        <div class="large-12 columns post-head" id="p{{ post.id }}">
             <div class="large-2 columns post-nickname">
                 <p>
                     <a href="{{ post.author.get_absolute_url }}">
@@ -134,7 +135,7 @@
 
                             {% if post.author == user or perms.forum.change_post %}
                                 <a href="/forums/message/editer?message={{ post.pk }}" class="button secondary small">
-                                    <i class="icon-pencil"></i>
+                                    <i class="fi-pencil"></i>
                                     Éditer
                                 </a>
                             {% endif %}
@@ -142,7 +143,7 @@
                             {% if not topic.is_locked and not topic.antispam %}
                                 <a href="/forums/message/nouveau?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
                                     class="button secondary small">
-                                    <i class="icon-quote-left"></i>
+                                    <i class="fi-quote-left"></i>
                                     Citer
                                 </a>
                             {% endif %}
@@ -168,12 +169,30 @@
                 {% endwith %}
             </div>
             <div class="large-10 columns">
-                {{ post.text|emarkdown }}
+                <div class="row">
+                    {{ post.text|smileys|emarkdown }}
+                </div>
+                <div class="row right">
+                    <div class="large-12 columns">
+                    <span>+{{post.get_like_count}}</span>
+                    <a class="button small radius secondary " href="{% url "lbp.forum.views.like_post" %}?message={{ post.pk }} "><i class="fi-like size-18 {% if post.get_like_count > post.get_dislike_count %}good{% endif%}"></i> </a>
+                    <span>-{{post.get_dislike_count}}</span>
+                    <a class="button small radius secondary " href="{% url "lbp.forum.views.dislike_post" %}?message={{ post.pk }} "> <i class="fi-dislike size-18 {% if post.get_like_count < post.get_dislike_count %}bad{% endif%}"></i></a>
+                    </div>
+                </div>
+                <div class="row">
+                    <hr />
+                </div>
+                <div class="row">
+                    {% with profile=post.author|profile %}
+                        {{profile.sign|emarkdown}}
+                    {% endwith %}
+                </div>
             </div>
         </div>
     </div>
 {% endfor %}
-
+</div>
 {% include "forum/topic_pagination.part.html" with position="bottom" %}
 
 {% if user.is_authenticated %}
