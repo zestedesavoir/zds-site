@@ -7293,7 +7293,6 @@ nav.top-bar .name img {
 /* Center images in markdown content */
 /* line 129, ../sass/_misc.scss */
 .markdown img {
-  display: block;
   margin: 0 auto;
 }
 
