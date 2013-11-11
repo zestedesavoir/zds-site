@@ -11,10 +11,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from lbp.utils import render_template, slugify
-from lbp.utils.models import DateManager
+from lbp.utils.models import DateManager, Category
 from lbp.utils.paginator import paginator_range
 
-from lbp.project.models import Category
 from lbp.gallery.models import Image, Gallery, UserGallery
 
 from .models import News, get_prev_news, get_next_news, Comment

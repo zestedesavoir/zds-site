@@ -91,11 +91,26 @@
                         {% endif %}
                     </ul>
                 </li>
-                <li class="{% block menu_project %}{% endblock %}">
+                <li class="{% block menu_project %}{% endblock %} ">
                     <a href="{% url "lbp.project.views.index" %}">
                         <i class="fi-mountains"></i>
                         Projets
                     </a>
+                </li>
+                <li class="{% block menu_tutorial %}{% endblock %} has-dropdown">
+                    <a href="{% url "lbp.tutorial.views.index" %}">
+                        <i class="fi-book"></i>
+                        Tutoriels
+                    </a>
+                    <ul class="dropdown">
+                        <li class="divider"></li>
+                        <li><label>Participez</label></li>
+                        <li><a href="{% url "lbp.tutorial.views.add_tutorial" %}">Proposer un tutoriel &rarr;</a></li>
+                        <li><a href="{% url "lbp.tutorial.views.import_tuto" %}">Importer un .tuto &rarr;</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url "lbp.tutorial.views.list" %}">Vos tutoriels &rarr;</a></li>
+                        {% endif %}
+                    </ul>
                 </li>
                 <li class="{% block menu_forum %}{% endblock %} has-dropdown">
                     <a href="{% url "lbp.forum.views.index" %}" />

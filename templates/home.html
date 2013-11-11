@@ -91,9 +91,6 @@ Bienvenue sur LeBonProjet
                 </div>
               </div>
           </div>
- 
-          </div>
-          <div class="large-6 columns">
             <div class="row">
                 <div class="large-12 columns">
                 <div class="panel">
@@ -107,6 +104,52 @@ Bienvenue sur LeBonProjet
                             {% endfor %}
                         {% else %}
                     <p>Aucun sujet récent.</p>
+                    
+                    {% endif %}
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+          </div>
+          <div class="large-6 columns">
+            <div class="row">
+                <div class="large-12 columns">
+                <div class="panel">
+                    <h3><a href="{% url "lbp.tutorial.views.index" %}">Tutoriels</a></h3>
+                    <hr />
+                    <div class="row">
+                        <div class="large-12 columns">
+                        {% if last_tutorials %}
+                            {% for tutorial in last_tutorials %}
+                            {% if tutorial.on_line %}
+                                <div class="large-2 columns hide-for-small">
+                                    <img src="{{ tutorial.image.thumb.url }}">
+                                </div>
+                                <div class="large-10 columns">
+                                <p class="subheader">
+                                <a href="{{ tutorial.get_absolute_url}}">
+                                    {{ tutorial.title }}
+                                </a>
+                                </p>
+                                <p class="subheader">
+                                    {% if tutorial.category %}
+                                    {% for category in tutorial.category.all %}
+                                    
+                                        <a class="label secondary" href="#">{{category.title}}</a>
+                                    
+                                    {% endfor %}
+                                    {% endif %}
+                                    <i class="fi-clock"></i>
+                                    {{tutorial.date.pubdate|humane_date}}
+                                </p>
+                                
+                                </div>
+                                <hr />
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                    <p>Aucun Tutoriel récent.</p>
                     
                     {% endif %}
                     </div>

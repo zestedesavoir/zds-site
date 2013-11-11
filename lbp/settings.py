@@ -197,6 +197,7 @@ INSTALLED_APPS = (
     'lbp.project',
     'lbp.gallery',
     'lbp.mp',
+    'lbp.tutorial',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -233,7 +234,6 @@ LOGGING = {
 }
 
 REST_FRAMEWORK = {
-
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.YAMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
@@ -298,6 +298,9 @@ SERVE = False
 
 # Max size image upload (in bytes)
 IMAGE_MAX_SIZE = 1024*1024
+
+#git directory
+REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels')
 
 # Load the production settings, overwrite the existing ones if needed
 try:

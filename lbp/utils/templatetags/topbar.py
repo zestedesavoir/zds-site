@@ -3,7 +3,7 @@
 from django import template
 
 from lbp.forum.models import Category as fCategory
-from lbp.project.models import Category as pCategory
+from lbp.utils.models import Category as pCategory
 
 register = template.Library()
 
@@ -23,4 +23,23 @@ def top_categories_news(user):
             liste.append(c)
     
     return liste
+
+@register.filter('top_categories_tuto')
+def top_categories_tuto(user):
+    categories = pCategory.objects.all()
+    liste=[]
+    for c in categories :
+        if c.get_news_count()>0:
+            liste.append(c)
     
+    return liste
+
+@register.filter('top_categories_project')
+def top_categories_project(user):
+    categories = pCategory.objects.all()
+    liste=[]
+    for c in categories :
+        if c.get_news_count()>0:
+            liste.append(c)
+    
+    return liste

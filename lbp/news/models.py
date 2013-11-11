@@ -7,11 +7,9 @@ from django.utils import timezone
 
 from taggit.managers import TaggableManager
 
-from lbp.utils.models import DateManager, Alert
+from lbp.utils.models import DateManager, Alert, Category
 from lbp.utils import slugify, get_current_user
 
-
-from lbp.project.models import Category
 from lbp.gallery.models import Image, Gallery, UserGallery
 import os
 

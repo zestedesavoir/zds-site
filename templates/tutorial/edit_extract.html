@@ -1,0 +1,37 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Éditer l'extrait
+{% endblock %}
+
+{% block headline %}
+    Éditer l'extrait
+{% endblock %}
+
+{% block breadcrumb %}
+    {% if extract.chapter.tutorial %}
+        <li><a href="{{ extract.chapter.tutorial.get_absolute_url }}">{{ extract.chapter.tutorial.title }}</a></li>
+    {% else %}
+        <li><a href="{{ extract.chapter.part.tutorial.get_absolute_url }}">{{ extract.chapter.part.tutorial.title }}</a></li>
+        <li><a href="{{ extract.chapter.part.get_absolute_url }}">{{ extract.chapter.part.title }}</a></li>
+        <li><a href="{{ extract.chapter.get_absolute_url }}">{{ extract.chapter.title }}</a></li>
+    {% endif %}
+    <li class="current"><a href="#">Éditer l'extrait</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% include "tutorial/extract_common.part.html" %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

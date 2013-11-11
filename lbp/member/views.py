@@ -17,6 +17,8 @@ from lbp.utils import render_template
 
 from .models import Profile
 from lbp.news.models import News
+from lbp.project.models import Project
+from lbp.tutorial.models import Tutorial
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm
 
 
@@ -228,7 +230,18 @@ def publications(request):
     else:
         user_news = None
         
+    if request.user.is_authenticated():
+        user_projects = Project.objects.filter(author = request.user)
+    else:
+        user_projects = None
+    
+    if request.user.is_authenticated():
+        user_tutorials = Tutorial.objects.filter(authors__in = [request.user])
+    else:
+        user_tutorials = None    
     c = {
-         'user_news': user_news
+         'user_news': user_news,
+         'user_tutorials': user_tutorials,
+         'user_projects': user_projects
     }
     return render_to_response('member/publications.html', c, RequestContext(request))

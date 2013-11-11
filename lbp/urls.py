@@ -30,6 +30,7 @@ router.register(r'groups', GroupViewSet)
 urlpatterns = patterns('',
     url(r'^news/', include('lbp.news.urls')),
     url(r'^projet/', include('lbp.project.urls')),
+    url(r'^tutoriels/', include('lbp.tutorial.urls')),
     url(r'^forums/', include('lbp.forum.urls')),
     url(r'^mp/', include('lbp.mp.urls')),
     url(r'^membres/', include('lbp.member.urls')),
