@@ -1,9 +1,8 @@
 from django.contrib import admin
-from lbp.project.models import Category, Plateform, Technology, Criteria, Evaluation, Note, Participation, CompetenceFonctionnelle, CompetenceTechno, Fonction, CompetencePlateforme, Project, ProjectFollowed, ProjectRead, BPlan
+from lbp.project.models import Plateform, Technology, Criteria, Evaluation, Note, Participation, CompetenceFonctionnelle, CompetenceTechno, Fonction, CompetencePlateforme, Project, ProjectFollowed, ProjectRead, BPlan
  
 
 admin.site.register(BPlan)
-admin.site.register(Category)
 admin.site.register(Plateform)
 admin.site.register(Technology)
 admin.site.register(Criteria)
