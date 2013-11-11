@@ -847,6 +847,7 @@ def import_tuto(request):
                         gal.slug = slugify(tutorial_title.text)
                         gal.pubdate = datetime.now()
                         gal.save()
+                        tutorial.gallery=gal
                         
                         tuto_path=os.path.join(settings.REPO_PATH, slugify(tutorial.title))
                         
@@ -921,6 +922,7 @@ def import_tuto(request):
                         gal.slug = slugify(tutorial_title.text)
                         gal.pubdate = datetime.now()
                         gal.save()
+                        tutorial.gallery=gal
                         
                         tuto_path=os.path.join(settings.REPO_PATH, slugify(tutorial.title))
                         
