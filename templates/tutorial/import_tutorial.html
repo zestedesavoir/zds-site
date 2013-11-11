@@ -1,0 +1,25 @@
+{% extends "tutorial/base.html" %}
+{% load markup %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Importer un tutoriel .tuto
+{% endblock %}
+
+{% block headline %}
+    Importer un tutoriel .tuto
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Nouveau tutoriel</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}
