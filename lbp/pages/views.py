@@ -5,6 +5,7 @@ from lbp.utils import render_template
 from lbp.forum.models import get_last_topics
 from lbp.news.models import get_last_news
 from lbp.project.models import get_last_projects
+from lbp.tutorial.models import get_last_tutorials
 
 
 def home(request):
@@ -15,6 +16,7 @@ def home(request):
         'last_topics': get_last_topics(),
         'last_news': get_last_news(),
         'last_projects': get_last_projects(),
+        'last_tutorials': get_last_tutorials(),
     })
 
 

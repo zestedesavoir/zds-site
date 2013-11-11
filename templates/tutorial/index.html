@@ -1,0 +1,72 @@
+{% extends "tutorial/base.html" %}
+
+{% block title %}
+    Liste des tutoriels
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Les tutoriels vous permettent d'apprendre
+    sur divers sujets axés autour de la programmation et de l'informatique." />
+{% endblock %}
+
+{% block header %}
+    <h1>
+        <i class="fi-book icon-large"></i>
+        Tutoriels
+    </h1>
+    <p>
+        Les tutoriels vous permettent <strong>d'apprendre</strong> sur divers sujets axés autour de la programmation et de l'informatique.
+    </p>
+{% endblock %}
+
+{% block headline %}
+    Liste des tutoriels
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    <div class="button-group">
+        {% if user.is_authenticated %}
+            <a href="/tutoriels/nouveau/tutoriel" class="button">
+                <i class="icon-plus"></i>
+                Nouveau tutoriel
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% if tutorials %}
+            <div class="tutorial-items">
+            {% for tuto in tutorials %}
+                <div class="row article-publication-item">
+                    <div class="large-1 columns">
+                        {% if tuto.thumbnail %}
+                            <img src="{{tuto.thumbnail.url }}"/>
+                        {% endif %}
+                    </div>
+                    <div class="large-10 columns">
+                        <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
+                        <p>{{ tuto.description }}</p>
+                    </div>
+                    <div class="large-1 columns">
+                        {% with date=tuto.pubdate %}
+                            {% include "misc/datebox.part.html" %}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun tutoriel disponible.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

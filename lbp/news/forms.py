@@ -5,7 +5,7 @@ from django.conf import settings
 from django.forms.models import ModelForm
 
 from models import News
-from lbp.project.models import Category
+from lbp.utils.models import Category
 from crispy_forms.helper import FormHelper
 from crispy_forms_foundation.layout import Layout, Submit, Field
 

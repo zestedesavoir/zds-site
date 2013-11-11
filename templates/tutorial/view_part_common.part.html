@@ -1,0 +1,97 @@
+{# Block displaying a part #}
+{% load markup %}
+{% load emarkdown %}
+
+{% with tutorial=part.tutorial%}
+    {% with authors=tutorial.authors.all %}
+        {% with chapters=part.get_chapters %}
+
+            {% if user in authors %}
+            <form action="{% url "lbp.tutorial.views.modify_part" %}" method="POST" class="custom right">
+                <input type="hidden" name="part" value="{{ part.pk }}" />
+                <input type="hidden" name="move" value="" />
+                <select name="move_target" class="select-autosubmit">
+                    <option selected>Déplacer</option>
+                {% if part.position_in_tutorial > 1 %}
+                    <option value="{{ part.position_in_tutorial|add:"-1" }}">Monter</option>
+                {% endif %}
+                {% if part.position_in_tutorial < tutorial.get_parts.count %}
+                <option value="{{ part.position_in_tutorial|add:"1" }}">Descendre</option>
+                {% endif %}
+                    <option disabled>&mdash; Déplacer avant</option>
+                {% for part_mv in part.tutorial.get_parts %}
+                    {% if part != part_mv and part_mv.position_in_tutorial|add:"-1" != part.position_in_tutorial %}
+                    <option value="{% if part_mv.position_in_tutorial < part.position_in_tutorial %}{{ part_mv.position_in_tutorial }}{% else %}{{ part_mv.position_in_tutorial|add:"-1" }}{% endif %}">
+                            Partie {{ part_mv.position_in_tutorial }} : {{ part_mv.title }}
+                    </option>
+                    {% endif %}
+                {% endfor %}
+                <option disabled>&mdash; Déplacer après</option>
+                {% for part_mv in part.tutorial.get_parts %}
+                    {% if part != part_mv and part_mv.position_in_tutorial|add:"1" != part.position_in_tutorial %}
+                    <option value="{% if part_mv.position_in_tutorial < part.position_in_tutorial %}{{ part_mv.position_in_tutorial|add:"1" }}{% else %}{{ part_mv.position_in_tutorial }}{% endif %}">
+                            Partie {{ part_mv.position_in_tutorial }} : {{ part_mv.title }}
+                    </option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+                {% csrf_token %}
+            </form>
+            <form action="{% url "lbp.tutorial.views.modify_part" %}" method="POST">
+                <input type="hidden" name="part" value="{{ part.pk }}" />
+                <div class="button-group">
+                    <a href="/tutoriels/nouveau/chapitre?partie={{ part.pk }}" class="button">
+                        Ajouter
+                    </a>
+                    <a href="/tutoriels/editer/partie?partie={{ part.pk }}" class="button">
+                        Éditer
+                    </a>
+
+                    <button type="submit" name="delete" class="button secondary">
+                        Supprimer
+                    </button>
+                </div>
+                {% csrf_token %}
+            </form>
+
+            {% endif %}
+
+            {% if part.get_introduction %}
+                {{ part.get_introduction|emarkdown }}
+            {% else %}
+                <p>Pas d'introduction.</p>
+            {% endif %}
+
+            <p>
+                {% if chapters.count = 0 %}
+                Il n'y a aucun chapitre dans cette partie.
+                {% endif %}
+            </p>
+
+            <ul>
+                {% for chapter in chapters %}
+                <li>
+                    <a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}">Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</a>
+                    <ul>
+                        {% for extract in chapter.get_extracts %}
+                        <li>
+                            <a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                                {{ extract.title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <br />
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% if part.get_conclusion %}
+                {{ part.get_conclusion|emarkdown }}
+            {% else %}
+                <p>Pas de conclusion.</p>
+            {% endif %}
+
+        {% endwith %}
+    {% endwith %}
+{% endwith %}

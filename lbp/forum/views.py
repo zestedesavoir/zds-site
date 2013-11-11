@@ -425,6 +425,8 @@ def like_post(request):
         like.save()
         if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
             PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+    else:
+        PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
 
     return redirect(post.get_absolute_url())
 
@@ -447,6 +449,8 @@ def dislike_post(request):
         dislike.save()
         if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
             PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+    else :
+        PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
 
     return redirect(post.get_absolute_url())
 

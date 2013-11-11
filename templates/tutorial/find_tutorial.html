@@ -1,0 +1,56 @@
+{% extends "tutorial/base.html" %}
+{% load humane_date %}
+{% load profile %}
+{% load emarkdown %}
+
+{% block title %}
+    Tutoriels rédigés par {{ usr.username }}
+{% endblock %}
+
+{% block headline %}
+    Tutoriels rédigés par "{{ usr.username }}""
+{% endblock %}
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li ><a href="{% url "lbp.tutorial.views.find_tuto" usr.username %}">Tutoriels rédigés</a></li>
+    <li class="current"><a href="#">Recherche</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <table>
+          <thead>
+            <tr>
+              <th width="15%">Tutoriels</th>
+              <th width="10%">Quand</th>
+              <th width="30%">Introduction</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tuto in tutos %}
+            <tr>
+                <td>
+                    <div>
+                        <img src="{{ tuto.thumbnail.url }}" />
+                        <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }} </a> 
+                        {% if tuto.description %} <p> {{ tuto.description }} </p> {% endif %}
+                    </div>
+                </td>
+                <td>
+                    {% with date=tuto.pubdate|humane_date %}
+                        {{ date }}
+                    {% endwith %}
+                </td>
+                <td>
+                    {{ tuto.introduction|truncatechars:200|emarkdown }}
+                </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+{% endblock %}

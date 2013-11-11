@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from lbp.gallery.models import Image, Gallery, UserGallery
-from lbp.utils.models import DateManager
+from lbp.utils.models import DateManager, Category
 from lbp.utils import slugify
 
 
@@ -68,7 +68,7 @@ class Project(models.Model):
     date = models.ForeignKey(DateManager, 
                                 verbose_name='Date')
     
-    categories = models.ManyToManyField('Category', related_name='projets+', blank=True)  # les catégories de métiers touchés par le projet
+    categories = models.ManyToManyField(Category, related_name='projets+', blank=True)  # les catégories de métiers touchés par le projet
     technologies = models.ManyToManyField('Technology', related_name='projets+', blank=True)  # les technologies abordés pendant le projet
     plateforms = models.ManyToManyField('Plateform', related_name='projets+', blank=True)  # les plateformes visés par le projet
     
@@ -149,36 +149,6 @@ class Fonction(models.Model):
         Textual fonction form
         '''
         return self.title
-
-        
-class Category(models.Model):
-    '''Une catégorie, qui correspond à la catégorie dans laquelle on peut ranger un projet (Site Web, Jeux vidéos, Amménagement, etc.)'''
-    class Meta:
-        verbose_name = 'Categorie'
-        verbose_name_plural = 'Categories'
-        ordering = ('title',)
-    title = models.CharField('Titre', max_length=80)
-    description = models.TextField('Description')
-    criterias = models.ManyToManyField('Criteria', verbose_name='Critères d\'évaluation',
-                               related_name='categories',
-                               blank=True, null=True)
-    
-    def __unicode__(self):
-        '''
-        Textual Category Form
-        '''
-        return self.title
-    
-    def get_news(self):
-        from lbp.news.models import News
-        return News.objects.all().filter(category__in = [self])
-    
-    def get_news_count(self):
-        from lbp.news.models import News
-        return News.objects.all().filter(category__in = [self]).count()
-    
-    def get_news_url(self):
-        return '/news/categorie/{0}/{1}'.format(self.pk, slugify(self.title))
 
 class Technology(models.Model):
     '''Une technologie, qui correspond, au domaine technique utilisé pour résoudre un problème (Java, Perçeuse, etc.)'''

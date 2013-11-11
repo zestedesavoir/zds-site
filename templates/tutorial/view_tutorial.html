@@ -1,0 +1,150 @@
+{% extends "tutorial/base.html" %}
+{% load emarkdown %}
+
+{% block title %}
+{{ tutorial.title }}
+{% endblock %}
+
+{% block headline %}
+    {{ tutorial.title }}<br />
+    <small>{{ tutorial.description }}</small>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ tutorial.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    {% if user.is_authenticated and user in tutorial.authors.all %}
+        <form action="{% url "lbp.tutorial.views.modify_tutorial" %}" method="post">
+            <div class="button-group">
+                <a href="
+                    {% if not tutorial.is_mini %}
+                        {% url "lbp.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}
+                    {% else %}
+                        {% url "lbp.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}
+                    {% endif %}" class="button small">
+                    <i class="icon-plus"></i>
+                    Ajouter
+                </a>
+                <a href="{% url "lbp.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="button small">
+                    <i class="icon-pencil"></i>
+                    Éditer
+                </a>
+                <a href="#" class="button secondary small" data-dropdown="delete-drop">
+                    Supprimer
+                </a>
+                <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
+                    <p>
+                        Si vous supprimez ce tutoriel, il sera alors impossible de le modifier/consulter de nouveau.
+                    </p>
+                    <button type="submit" name="delete" class="button expand alert">
+                        <i class="icon-remove"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+            <br />
+            <button name="pending" class="button secondary expand
+                                          {% if tutorial.is_pending %}disabled{% endif %}
+                                          {% if tutorial.is_visible %}disabled success{% endif %}"
+                {% if tutorial.is_pending or tutorial.is_visible %}disabled{% endif %}>
+                {% if not tutorial.is_visible %}
+                    {% if not tutorial.is_pending %}
+                        Demander la validation
+                    {% else %}
+                        En attente de validation
+                    {% endif %}
+                {% else %}
+                   En ligne
+                {% endif %}
+            </button>
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            {% csrf_token %}
+        </form>
+    {% endif %}
+    <a href="#" class="button">
+        <i class="icon-download"></i>
+        Télécharger
+    </a>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns hide-for-small">
+            {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}"/>
+            {% endif %}
+        </div>
+        <div class="large-11 columns">
+        <p>
+            Tutoriel
+            {% if not tutorial.is_mini %}
+                étendu
+            {% endif %}
+            rédigé par
+            {% for member in tutorial.authors.all %}
+                {% if forloop.counter > 1 %}
+                    {% if forloop.last %}
+                        et
+                    {% else %}
+                        ,
+                    {% endif %}
+                {% endif %}
+                {% include "member/member_item_common.part.html" %}
+            {% endfor %}.
+        </p>
+    </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-12 columns">
+
+        {% if tutorial.get_introduction %}
+            {{ tutorial.get_introduction|emarkdown }}
+        {% else %}
+            <p>Aucune introduction.</p>
+        {% endif %}
+
+        {% if tutorial.is_mini %}
+        {# Small tutorial #}
+
+            {% with authors=tutorial.authors.all %}
+                {% include "tutorial/view_chapter_common.part.html" %}
+            {% endwith %}
+
+        {% else %}
+        {# Large tutorial #}
+
+            <hr />
+            {% if parts %}
+                {% for part in parts %}
+                    <h2>
+                        <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}">
+                            Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                        </a>
+                    </h2>
+                    {% include "tutorial/view_part_common.part.html" %}
+                {% endfor %}
+            {% else %}
+                <p>
+                    Il n'y a actuellement aucune partie dans ce tutoriel.
+                </p>
+            {% endif %}
+            <hr />
+
+        {% endif %}
+
+        {% if tutorial.get_conclusion %}
+            {{ tutorial.get_conclusion|emarkdown }}
+        {% else %}
+            <p>Aucune conclusion.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

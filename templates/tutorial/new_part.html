@@ -1,0 +1,32 @@
+{% extends "tutorial/base.html" %}
+{% load markup %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nouvelle partie
+{% endblock %}
+
+{% block headline %}
+    Nouvelle partie
+{% endblock %}
+
+{% block headline-sub %}
+    {{ tutorial.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li class="current"><a href="#">Nouvelle partie</a></li>
+{% endblock %}
+
+{% block content %}
+
+{% include "tutorial/part_common.part.html" %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

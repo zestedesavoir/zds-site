@@ -1,0 +1,32 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nouveau chapitre
+{% endblock %}
+
+{% block headline %}
+    Nouveau chapitre
+{% endblock %}
+
+{% block headline-sub %}
+    {{ part.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url }}">{{ part.tutorial.title }}</a></li>
+    <li><a href="{{ part.get_absolute_url }}">{{ part.title }}</a></li>
+    <li class="current"><a href="#">Nouveau chapitre</a></li>
+{% endblock %}
+
+{% block content %}
+
+{% include "tutorial/chapter_common.part.html" %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

@@ -57,7 +57,7 @@
 
     <div class="row">
         <div class="large-12 columns">
-            <h3>Projets</h3>
+            <h3>Tutoriels</h3>
         </div>
     </div>
 
@@ -70,12 +70,15 @@
             {% endif %}
                 <div class="large-1 columns">
                     <div class="date-box">
-                        {% with date=tuto.pubdate %}
+                        {% with date=tuto.date.update %}
                             {% include "misc/datebox.part.html" %}
                         {% endwith %}
                     </div>
                 </div>
-                <div class="large-10 columns">
+                <div class="large-1 columns">
+                    <img src="{{ tuto.image.thumb.url }}" />
+                </div>
+                <div class="large-9 columns">
                     <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
                     <p>{{ tuto.description }}</p>
                 </div>
@@ -90,9 +93,51 @@
     {% else %}
         <div class="row">
             <div class="large-12 columns">
-                Vous ne travaillez sur aucun projet
+                Vous n'avez aucun tutoriel
             </div>
         </div>
     {% endif %}
 
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Projets</h3>
+        </div>
+    </div>
+
+    {% if user_projects %}
+        {% for project in user_projects %}
+            {% if project.is_stable %}
+                <div class="row article-publication-item published">
+            {% else %}
+                <div class="row article-publication-item">
+            {% endif %}
+                <div class="large-1 columns">
+                    <div class="date-box">
+                        {% with date=project.date.update %}
+                            {% include "misc/datebox.part.html" %}
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="large-1 columns">
+                    <img src="{{ project.image.thumb.url }}" />
+                </div>
+                <div class="large-9 columns">
+                    <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
+                    <p>{{ project.description }}</p>
+                </div>
+                <div class="large-1 columns">
+                    <a href="{% url "lbp.project.views.edit_general" project.pk project.slug %}">
+                        <i class="icon-edit"></i>
+                        Éditer
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="row">
+            <div class="large-12 columns">
+                Vous ne travaillez sur aucun projet
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

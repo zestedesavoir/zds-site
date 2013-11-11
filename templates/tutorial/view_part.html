@@ -1,0 +1,26 @@
+{% extends "tutorial/base.html" %}
+{% load markup %}
+
+{% block title %}
+    {{ part.title }} ({{ part.tutorial.title }})
+{% endblock %}
+
+{% block headline %}
+    Partie {{ part.position_in_tutorial }} : {{ part.title }}<br />
+    <small>{{ part.tutorial.title }}</small>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url }}">{{ part.tutorial.title }}</a></li>
+    <li class="current"><a href="#">{{ part.title }}</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% include "tutorial/view_part_common.part.html" %}
+    </div>
+</div>
+
+{% endblock %}
