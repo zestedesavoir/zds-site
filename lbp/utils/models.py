@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.db import models
+from lbp.utils import slugify
 
 class DateManager(models.Model):
     class Meta:
