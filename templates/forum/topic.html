@@ -27,7 +27,7 @@
 
 {% block headline-actions %}
     {% if user.is_authenticated %}
-        <form action="{% url "lbp.forum.views.edit" %}" method="POST"
+        <form action="{% url "zds.forum.views.edit" %}" method="POST"
         class="topic-actions" id="edit_form">
             <input type="hidden" name="topic" value="{{ topic.pk }}" />
             <input type="hidden" name="page" value="{{ nb }}">
@@ -60,7 +60,7 @@
         </form>
 
         {% if perms.forum.change_topic %}
-            <form action="{% url "lbp.forum.views.edit" %}" method="POST" class="topic-actions">
+            <form action="{% url "zds.forum.views.edit" %}" method="POST" class="topic-actions">
                 <input type="hidden" name="topic" value="{{ topic.pk }}" />
 
                 <a href="#" class="button secondary dropdown" data-dropdown="staff-dropdown">
@@ -174,10 +174,10 @@
                 </div>
                 <div class="row right">
                     <div class="large-12 columns">
-                    <span>+{{post.get_like_count}}</span>
-                    <a class="button small radius secondary " href="{% url "lbp.forum.views.like_post" %}?message={{ post.pk }} "><i class="fi-like size-18 {% if post.get_like_count > post.get_dislike_count %}good{% endif%}"></i> </a>
-                    <span>-{{post.get_dislike_count}}</span>
-                    <a class="button small radius secondary " href="{% url "lbp.forum.views.dislike_post" %}?message={{ post.pk }} "> <i class="fi-dislike size-18 {% if post.get_like_count < post.get_dislike_count %}bad{% endif%}"></i></a>
+                    <span>+{{post.like}}</span>
+                    <a class="button small radius secondary " href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }} "><i class="fi-like size-18 {% if post.like > post.dislike %}good{% endif%}"></i> </a>
+                    <span>-{{post.dislike}}</span>
+                    <a class="button small radius secondary " href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }} "> <i class="fi-dislike size-18 {% if post.like < post.dislike %}bad{% endif%}"></i></a>
                     </div>
                 </div>
                 <div class="row">
@@ -197,7 +197,7 @@
 
 {% if user.is_authenticated %}
 <hr />
-<form action="{% url "lbp.forum.views.answer" %}?sujet={{ topic.pk }}"
+<form action="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}"
 method="POST" id="submit_form">
     <div class="row">
         <div class="large-12 columns">
@@ -237,7 +237,7 @@ method="POST" id="submit_form">
             $('.topic-actions .validate').click(function() {
                 var lock = $('#lock-on').is(':checked');
                 var sticky = $('#sticky-on').is(':checked');
-                $.post('{% url "lbp.forum.views.edit" %}', {
+                $.post('{% url "zds.forum.views.edit" %}', {
                     topic: {{ topic.pk}},
                     lock: lock.toString(),
                     sticky: sticky.toString(),
@@ -265,7 +265,7 @@ method="POST" id="submit_form">
             var data = { topic: {{ topic.pk }}};
             data[button] = 'true';
             /* post data */
-            $.post('{% url "lbp.forum.views.edit" %}', data, function(data){
+            $.post('{% url "zds.forum.views.edit" %}', data, function(data){
                     if ('solved' in data) {
                         if (data.solved) {
                             $('#resolu').fadeIn();

@@ -24,77 +24,17 @@ class="active"
 
 {# Content #}
 {% block headline-sub %}
-Bienvenue sur LeBonProjet
+Bienvenue sur ZesteDeSavoir
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
- 
           <div class="large-6 columns">
-            <div class="row">
-              <div class="large-12 small-12 columns">
-                <div class="panel">
-                  <h3><a href="{% url "lbp.news.views.index" %}">News</a></h3>
-                  {% if last_news %}
-                    {% for news in last_news %}
-                  <hr />
-                  <div class="row">
-                  <div class="large-12">
-                    <div class="large-2 columns hide-for-small">
-                        <img src="{{ news.image.thumb.url }}">
-                    </div>
-                    <div class="large-9 columns">
-                    <p class="subheader">
-                    <a href="{{ news.get_absolute_url}}">
-                        {{ news.title }}
-                    </a>
-                    </p>
-                    <p class="subheader">
-                        {% if news.category %}
-                        {% for category in news.category.all %}
-                        
-                            <a class="label secondary" href="{{category.get_news_url}}">{{category.title}}</a>
-                        
-                        {% endfor %}
-                        {% endif %}
-                        <i class="fi-clock"></i>
-                        {{news.date.pubdate|humane_date}}
-                    </p>
-                    
-                    </div>
-                    <div class="large-1 columns">
-                        <a class="fi-comment right size-18" href="{{ news.first_comment.get_absolute_url}}">
-                            {{ news.get_comments.count }}
-                        </a>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                    <div class="large-12 columns">
-                        <p>{{news.description|truncatechars:80}}<a href="{{ news.get_absolute_url }}" class="fi-play"> Plus </a></p>
-                    </div>
-                </div>
-                {% endfor %}
-                {% endif %}
-                <hr />
-                <div class="row">
-                    <div class="large-12 columns">
-                        <div class="large-6 columns">
-                                <a href="{% url "lbp.news.views.new" %}" class="small button">Rédigez une news</a>
-                        </div>
-                    <div class="large-6 columns">
-                            <a href="{% url "lbp.news.views.index" %}" >Voir les news plus anciennes <i class="fi-play"></i></a>
-                    </div>
-                </div>
-              </div>
-                </div>
-              </div>
-          </div>
             <div class="row">
                 <div class="large-12 columns">
                 <div class="panel">
-                    <h3><a href="{% url "lbp.forum.views.index" %}">Forums</a></h3>
+                    <h3><a href="{% url "zds.forum.views.index" %}">Forums</a></h3>
                     <hr />
                     <div class="row">
                         <div class="large-12 columns">
@@ -116,7 +56,7 @@ Bienvenue sur LeBonProjet
             <div class="row">
                 <div class="large-12 columns">
                 <div class="panel">
-                    <h3><a href="{% url "lbp.tutorial.views.index" %}">Tutoriels</a></h3>
+                    <h3><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></h3>
                     <hr />
                     <div class="row">
                         <div class="large-12 columns">
@@ -141,7 +81,7 @@ Bienvenue sur LeBonProjet
                                     {% endfor %}
                                     {% endif %}
                                     <i class="fi-clock"></i>
-                                    {{tutorial.date.pubdate|humane_date}}
+                                    {{tutorial.pubdate|humane_date}}
                                 </p>
                                 
                                 </div>
@@ -156,31 +96,7 @@ Bienvenue sur LeBonProjet
                 </div>
                 </div>
             </div>
-            </div>
-          <div class="row">
-            <div class="large-12 columns">
-            <div class="panel">
-                <h3><a href="{% url "lbp.project.views.index" %}">Projets</a></h3>
-                <hr />
-                {% if last_projects %}
-                {% for project in last_projects %}
-                <div class="row">
-                    {% for p in project %}
-                  <div class="large-6 small-6 columns">
-                    <div class="panel">
-                      <h5><a href="{{p.get_absolute_url}}">{{p}}</a></h5>
-                      <img src="{{p.image.medium.url}}" />
-                    <p class="subheader">{{p.description|truncatechars:60 }}</p>
-                    </div>
-                  </div>
-                  {% endfor %}
-        </div>
-        {% endfor %}
-        {% endif %} 
-        </div>
-    </div>
-          </div>
- 
+            </div> 
         </div>
 
 </div>

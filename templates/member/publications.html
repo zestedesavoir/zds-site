@@ -15,62 +15,20 @@
 {% block content %}
     <div class="row">
         <div class="large-12 columns">
-            <h3>News</h3>
-        </div>
-    </div>
-    {% if user_news %}
-        {% for news in user_news %}
-            {% if news.en_ligne %}
-                <div class="row article-publication-item published">
-            {% elif news.en_validation %}
-                <div class="row article-publication-item published">
-            {% else %}
-                <div class="row article-publication-item">
-            {% endif %}
-                <div class="large-2 columns">
-                    <div class="date-box">
-                        {% with date=news.date.update %}
-                            {% include "misc/datebox.part.html" %}
-                        {% endwith %}
-                    </div>
-                </div>
-                <div class="large-8 columns">
-                    <a href="{{ news.get_absolute_url }}">{{ news.title }} </a>
-                    <p>{{ news.description }}</p>
-                </div>
-                <div class="large-2 columns">
-                    <div class="date-box">
-                        {% with date=news.date.update %}
-                            {% include "misc/datebox.part.html" %}
-                        {% endwith %}
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="row">
-            <div class="large-12 columns">
-                Aucune News n'a été rédigé.
-            </div>
-        </div>
-    {% endif %}
-
-    <div class="row">
-        <div class="large-12 columns">
             <h3>Tutoriels</h3>
         </div>
     </div>
 
     {% if user_tutorials %}
         {% for tuto in user_tutorials %}
-            {% if tuto.is_visible %}
+            {% if tuto.on_line %}
                 <div class="row article-publication-item published">
             {% else %}
                 <div class="row article-publication-item">
             {% endif %}
                 <div class="large-1 columns">
                     <div class="date-box">
-                        {% with date=tuto.date.update %}
+                        {% with date=tuto.update %}
                             {% include "misc/datebox.part.html" %}
                         {% endwith %}
                     </div>
@@ -83,7 +41,7 @@
                     <p>{{ tuto.description }}</p>
                 </div>
                 <div class="large-1 columns">
-                    <a href="{% url "lbp.tutorial.views.edit_tutorial" %}?tutoriel={{ tuto.pk }}">
+                    <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tuto.pk }}">
                         <i class="icon-edit"></i>
                         Éditer
                     </a>
@@ -94,49 +52,6 @@
         <div class="row">
             <div class="large-12 columns">
                 Vous n'avez aucun tutoriel
-            </div>
-        </div>
-    {% endif %}
-
-    <div class="row">
-        <div class="large-12 columns">
-            <h3>Projets</h3>
-        </div>
-    </div>
-
-    {% if user_projects %}
-        {% for project in user_projects %}
-            {% if project.is_stable %}
-                <div class="row article-publication-item published">
-            {% else %}
-                <div class="row article-publication-item">
-            {% endif %}
-                <div class="large-1 columns">
-                    <div class="date-box">
-                        {% with date=project.date.update %}
-                            {% include "misc/datebox.part.html" %}
-                        {% endwith %}
-                    </div>
-                </div>
-                <div class="large-1 columns">
-                    <img src="{{ project.image.thumb.url }}" />
-                </div>
-                <div class="large-9 columns">
-                    <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
-                    <p>{{ project.description }}</p>
-                </div>
-                <div class="large-1 columns">
-                    <a href="{% url "lbp.project.views.edit_general" project.pk project.slug %}">
-                        <i class="icon-edit"></i>
-                        Éditer
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="row">
-            <div class="large-12 columns">
-                Vous ne travaillez sur aucun projet
             </div>
         </div>
     {% endif %}

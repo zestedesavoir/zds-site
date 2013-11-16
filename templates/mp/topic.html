@@ -24,12 +24,12 @@
 
 {% block headline-actions %}
     {% if user.is_authenticated %}
-        <form action="{% url "lbp.mp.views.edit" %}" method="POST"
+        <form action="{% url "zds.mp.views.edit" %}" method="POST"
         class="topic-actions" >
             <input type="hidden" name="privatetopic" value="{{ topic.pk }}" />
             <input type="hidden" name="page" value="{{ nb }}">
             <div class="button-group">
-                <a href="{% url "lbp.mp.views.new" %}" class="button small">
+                <a href="{% url "zds.mp.views.new" %}" class="button small">
                     <i class="fi-mail"></i>
                     Nouvel MP
                 </a>
@@ -127,7 +127,7 @@
 
 {% if user.is_authenticated %}
 <hr />
-<form action="{% url "lbp.mp.views.answer" %}?sujet={{ topic.pk }}"
+<form action="{% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}"
 method="POST" id="submit_form">
     <div class="row">
         <div class="large-12 columns">

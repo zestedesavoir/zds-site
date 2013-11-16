@@ -16,7 +16,7 @@
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <form action="{% url "lbp.gallery.views.new_image" gallery.pk %}" method="POST" enctype="multipart/form-data">
+        <form action="{% url "zds.gallery.views.new_image" gallery.pk %}" method="POST" enctype="multipart/form-data">
             <input type="file" id="id_physical" name="physical" onchange="load_field()"/><br />
             <input type="text" id="id_titre" placeholder="Titre" name="title" /><br />
             <input type="text" placeholder="Légende" name="legend" /><br />

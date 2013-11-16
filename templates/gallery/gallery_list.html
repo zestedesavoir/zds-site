@@ -13,11 +13,11 @@
 {% endblock %}
 
 {% block content %}
-<form id="form" name="form" method="POST" action="{% url "lbp.gallery.views.modify_gallery" %}">
+<form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_gallery" %}">
 <div class="row">
     <div class="small-12 columns">
         <div class="small-3 columns">
-            <a href="{% url "lbp.gallery.views.new_gallery" %}" class="button">Nouvelle galerie</a>
+            <a href="{% url "zds.gallery.views.new_gallery" %}" class="button">Nouvelle galerie</a>
         </div>
         <div class="small-2 columns">
             <button type="submit" name="delete_multi" class="button secondary">

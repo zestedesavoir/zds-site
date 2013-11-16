@@ -20,7 +20,7 @@
             <img src="{{ image.physical.url }}" alt="" />
         </div>
         <div class="large-6 columns">
-            <form action="{% url "lbp.gallery.views.edit_image" gallery.pk image.pk %}" method="POST">
+            <form action="{% url "zds.gallery.views.edit_image" gallery.pk image.pk %}" method="POST">
                 <input type="text" placeholder="Titre" name="title" value="{{ image.title }}" /><br />
                 <input type="text" placeholder="Légende" name="legend" value="{{ image.legend }}" /><br />
 

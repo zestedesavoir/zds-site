@@ -15,7 +15,7 @@
     {% with profile=usr|profile %}
         <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li ><a href="{% url "lbp.tutorial.views.find_tuto" usr.username %}">Tutoriels rédigés</a></li>
+    <li ><a href="{% url "zds.tutorial.views.find_tuto" usr.username %}">Tutoriels rédigés</a></li>
     <li class="current"><a href="#">Recherche</a></li>
 {% endblock %}
 
