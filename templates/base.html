@@ -7,14 +7,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; LeBonProjet</title>
+    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
 
     {% block meta %}{% endblock %}
 
-    {% compressed_css "lbp" %}
+    {% compressed_css "zds" %}
 
     {# for additionnal css in some pages #}
     {% block extracss %}{% endblock %}
@@ -34,7 +34,7 @@
       _paq.push(['trackPageView']);
       _paq.push(['enableLinkTracking']);
       (function() {
-        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://lebonprojet.tk/piwik//";
+        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://zestedesavoir.tk/piwik//";
         _paq.push(['setTrackerUrl', u+'piwik.php']);
         _paq.push(['setSiteId', 1]);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
@@ -42,18 +42,22 @@
       })();
 
     </script>
-    <noscript><p><img src="http://lebonprojet.tk/piwik/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+    <noscript><p><img src="http://zestedesavoir.tk/piwik/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
     <!-- End Piwik Code -->
 
 </head>
 <body>
 
-    <nav class="top-bar">
+    <nav class="top-bar" 
+        {% with profile=user|profile %}
+        data-options="is_hover: {{ profile.hover_or_click}}"
+        >
+        {% endwith %}
         <ul class="title-area">
             <li class="name">
                 <h1>
                     <a href="/">
-                        LeBonProjet
+                        ZesteDeSavoir
                     </a>
                 </h1>
             </li>
@@ -67,53 +71,30 @@
 
             <ul class="left">
                 <li {% block menu_home %}{% endblock %}>
-                    <a href="{% url "lbp.pages.views.home" %}">
+                    <a href="{% url "zds.pages.views.home" %}">
                         <i class="fi-home"></i>
                         Accueil
                     </a>
                 </li>
-                <li class="{% block menu_news %}{% endblock %} has-dropdown">
-                    <a href="{% url "lbp.news.views.index" %}">
-                        <i class="fi-clipboard-pencil"></i>
-                        News
-                    </a>
-                    <ul class="dropdown">
-                        {% with categories='.'|top_categories_news %}
-                            {% for category in categories %}
-                                <li><a href="{{ category.get_news_url }}">{{ category.title }}</a></li>
-                            {% endfor %}
-                        {% endwith %}
-                        <li class="divider"></li>
-                        <li><label>Participez</label></li>
-                        <li><a href="{% url "lbp.news.views.new" %}">Proposer une News &rarr;</a></li>
-                        {% if perms.news.valider_news %}
-                        <li><a href="{% url "lbp.news.views.list_admin" %}">Administration des news &rarr;</a></li>
-                        {% endif %}
-                    </ul>
-                </li>
-                <li class="{% block menu_project %}{% endblock %} ">
-                    <a href="{% url "lbp.project.views.index" %}">
-                        <i class="fi-mountains"></i>
-                        Projets
-                    </a>
-                </li>
-                <li class="{% block menu_tutorial %}{% endblock %} has-dropdown">
-                    <a href="{% url "lbp.tutorial.views.index" %}">
+                
+                <li class="{% block menu_tutorial %}{% endblock %} has-dropdown " >
+                    <a href="{% url "zds.tutorial.views.index" %}">
                         <i class="fi-book"></i>
                         Tutoriels
                     </a>
                     <ul class="dropdown">
                         <li class="divider"></li>
                         <li><label>Participez</label></li>
-                        <li><a href="{% url "lbp.tutorial.views.add_tutorial" %}">Proposer un tutoriel &rarr;</a></li>
-                        <li><a href="{% url "lbp.tutorial.views.import_tuto" %}">Importer un .tuto &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Proposer un tutoriel &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto &rarr;</a></li>
                         {% if user.is_authenticated %}
-                        <li><a href="{% url "lbp.tutorial.views.list" %}">Vos tutoriels &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels &rarr;</a></li>
                         {% endif %}
                     </ul>
                 </li>
+                
                 <li class="{% block menu_forum %}{% endblock %} has-dropdown">
-                    <a href="{% url "lbp.forum.views.index" %}" />
+                    <a href="{% url "zds.forum.views.index" %}" />
                         <i class="fi-comments"></i>
                         Forums
                     </a>
@@ -127,20 +108,17 @@
                         {% endfor %}
                         {% endwith %}
                       <li class="divider"></li>
-                      <li><a href="{% url "lbp.forum.views.index" %}">Tous &rarr;</a></li>
+                      <li><a href="{% url "zds.forum.views.index" %}">Tous &rarr;</a></li>
                     </ul>
                 </li>
             </ul>
 
             <ul class="right">
-                <li>
-                    <a href="{% url "haystack_search" %}">Recherche</a>
-                </li>
                 {% if user.is_authenticated %}
                     {% with topics=user|interventions_privatetopics %}
                         {% with unread_topics=topics.unread %}
                             <li class="{% block menu_mp %}{% endblock %} has-dropdown">
-                                <a href="{% url "lbp.mp.views.index" %}">
+                                <a href="{% url "zds.mp.views.index" %}">
                                     {% if unread_topics|length > 0 %}
                                         <span class="label alert">{{ unread_topics|length }}</span>
                                     {% endif %}
@@ -176,7 +154,7 @@
                                         {% endfor %}
                                         {% if read_topics|length = 0 and unread_topics|length = 0 %}
                                             <li class="disabled">
-                                                <a href="{% url "lbp.mp.views.index" %}">Pas de message</a>
+                                                <a href="{% url "zds.mp.views.index" %}">Pas de message</a>
                                             </li>
                                         {% endif %}
                                     {% endwith %}
@@ -233,25 +211,25 @@
                     {% endwith %}
                 <li class="has-dropdown">
                     {% with profile=user|profile %}
-                        <a href="{% url "lbp.member.views.actions" %}">
+                        <a href="{% url "zds.member.views.actions" %}">
                             <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="24" height="24" />
                             {{ user.username }}
                         </a>
                     {% endwith %}
                     <ul class="dropdown">
-                        <li><a href="{% url "lbp.member.views.details" user.username %}"><i class="icon-user"></i> Profil</a></li>
-                        <li><a href="{% url "lbp.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
-                        <li><a href="{% url "lbp.member.views.publications" %}"><i class="icon-list"></i> Publications</a></li>
-                        <li><a href="{% url "lbp.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
-                        <li><a href="{% url "lbp.member.views.logout_view" %}"><i class="icon-signout"></i> Se déconnecter</a></li>
+                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Profil</a></li>
+                        <li><a href="{% url "zds.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
+                        <li><a href="{% url "zds.member.views.publications" %}"><i class="icon-list"></i> Publications</a></li>
+                        <li><a href="{% url "zds.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
+                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Se déconnecter</a></li>
                     </ul>
                 </li>
                 {% else %}
                 <li>
-                    <a href="{% url "lbp.member.views.register_view" %}">S'inscrire</a>
+                    <a href="{% url "zds.member.views.register_view" %}">S'inscrire</a>
                 </li>
                 <li>
-                    <a href="{% url "lbp.member.views.login_view" %}">Se connecter</a>
+                    <a href="{% url "zds.member.views.login_view" %}">Se connecter</a>
                 </li>
                 {% endif %}
             </ul>
@@ -270,7 +248,7 @@
         <div class="large-12 columns">
             <ul class="breadcrumbs">
                 <li>
-                    <a href="{% url "lbp.pages.views.home" %}">Accueil</a>
+                    <a href="{% url "zds.pages.views.home" %}">Accueil</a>
                 </li>
                 {% block breadcrumb_base %}{% endblock %}
                 {% block breadcrumb %}{% endblock %}
@@ -313,19 +291,19 @@
 
     <div class="row full-width footer">
         <div class="large-4 columns">
-            <p>&copy; LeBonProjet 2013</p>
+            <p>&copy; ZesteDeSavoir 2013</p>
         </div>
         <div class="large-8 columns">
             <ul class="inline-list right">
                 
-                <li><a href="{% url "lbp.pages.views.roadmap" %}">Roadmap</a></li>
+                <li><a href="{% url "zds.pages.views.roadmap" %}">Roadmap</a></li>
                 <li><a href="#">Code source</a></li>
             </ul>
         </div>
     </div>
 
     {# Javascript stuff start #}
-    {% compressed_js "lbp" %}
+    {% compressed_js "zds" %}
 
     {# for addtionnal javascript in some pages #}
     {% block extrajs %}{% endblock %}

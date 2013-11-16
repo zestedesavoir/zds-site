@@ -7,7 +7,7 @@
         {% with chapters=part.get_chapters %}
 
             {% if user in authors %}
-            <form action="{% url "lbp.tutorial.views.modify_part" %}" method="POST" class="custom right">
+            <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST" class="custom right">
                 <input type="hidden" name="part" value="{{ part.pk }}" />
                 <input type="hidden" name="move" value="" />
                 <select name="move_target" class="select-autosubmit">
@@ -37,7 +37,7 @@
                 </select>
                 {% csrf_token %}
             </form>
-            <form action="{% url "lbp.tutorial.views.modify_part" %}" method="POST">
+            <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST">
                 <input type="hidden" name="part" value="{{ part.pk }}" />
                 <div class="button-group">
                     <a href="/tutoriels/nouveau/chapitre?partie={{ part.pk }}" class="button">

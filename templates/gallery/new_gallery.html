@@ -15,7 +15,7 @@
 {% block content %}
 	<div class="row">
     <div class="large-12 columns">
-        <form action="{% url "lbp.gallery.views.new_gallery" %}" method="POST">
+        <form action="{% url "zds.gallery.views.new_gallery" %}" method="POST">
             <input type="text" placeholder="Titre" name="title" />
             <br />
             <input type="text" placeholder="Sous-titre" name="subtitle">
@@ -27,7 +27,7 @@
                     Créer
                 </button>
 
-                <a href="{% url "lbp.gallery.views.gallery_list" %}" class="button secondary">
+                <a href="{% url "zds.gallery.views.gallery_list" %}" class="button secondary">
                     Retour
                 </a>
             </div>

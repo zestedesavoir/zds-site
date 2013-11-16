@@ -25,7 +25,7 @@
     <div class="large-6 columns">
         <h2>Auteurs</h2>
 
-        <form action="{% url "lbp.tutorial.views.modify_tutorial" %}" method="post">
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
             <div class="row collapse">
                 <div class="small-10 columns">
                     <input type="text" name="author" placeholder="Nom de l'utilisateur à ajouter…" />
@@ -40,7 +40,7 @@
             {% csrf_token %}
         </form>
 
-        <form action="{% url "lbp.tutorial.views.modify_tutorial" %}" method="post">
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
             <table>
                 <thead>
                     <th>Auteur</th>

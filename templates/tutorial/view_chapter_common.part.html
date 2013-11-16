@@ -53,7 +53,7 @@
             </h2>
 
             {% if user in authors %}
-                <form action="{% url "lbp.tutorial.views.modify_extract" %}" method="post" class="custom right">
+                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="custom right">
                     <input type="hidden" name="extract" value="{{ extract.pk }}" />
                     <input type="hidden" name="move" value="" />
                     <select name="move_target" class="select-autosubmit">
@@ -90,10 +90,10 @@
                     {% csrf_token %}
                 </form>
 
-                <form action="{% url "lbp.tutorial.views.modify_extract" %}" method="post">
+                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post">
                     <input type="hidden" name="extract" value="{{ extract.pk }}" />
                     <div class="button-group">
-                        <a href="{% url "lbp.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="button">
+                        <a href="{% url "zds.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="button">
                             <i class="icon-pencil"></i>
                             Éditer
                         </a>

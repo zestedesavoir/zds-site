@@ -16,18 +16,18 @@
 
 {% block headline-actions %}
     {% if user.is_authenticated and user in tutorial.authors.all %}
-        <form action="{% url "lbp.tutorial.views.modify_tutorial" %}" method="post">
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
             <div class="button-group">
                 <a href="
                     {% if not tutorial.is_mini %}
-                        {% url "lbp.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}
+                        {% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}
                     {% else %}
-                        {% url "lbp.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}
+                        {% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}
                     {% endif %}" class="button small">
                     <i class="icon-plus"></i>
                     Ajouter
                 </a>
-                <a href="{% url "lbp.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="button small">
+                <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="button small">
                     <i class="icon-pencil"></i>
                     Éditer
                 </a>

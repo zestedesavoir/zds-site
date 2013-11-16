@@ -14,7 +14,7 @@
 
 {% block headline-actions %}
     {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}
-        <form action="{% url "lbp.tutorial.views.modify_chapter" %}" method="POST">
+        <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST">
             <div class="button-group">
                 <a href="/tutoriels/editer/chapitre?chapitre={{ chapter.pk }}" class="button">
                     <i class="icon-pencil"></i>
@@ -32,7 +32,7 @@
             {% csrf_token %}
         </form>
         {% if chapter.part %}
-            <form action="{% url "lbp.tutorial.views.modify_chapter" %}" method="POST" class="custom">
+            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="custom">
                     <div>
                         <select name="move_target" class="select-autosubmit">
                             <option>Déplacer</option>

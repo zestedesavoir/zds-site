@@ -15,7 +15,7 @@
 {% block content %}
 	<div class="row">
     <div class="large-6 columns large-centered">
-        <form action='{% url "lbp.gallery.views.share_gallery" gallery.pk %}' method="POST">
+        <form action='{% url "zds.gallery.views.share_gallery" gallery.pk %}' method="POST">
             
             <label for="mode">Mode d'accès</label>
             <select id="mode" name="mode" class="large">
@@ -28,7 +28,7 @@
                     <i class="fi-share size-18"></i>
                     Partager
                 </button>
-                <a href="{% url "lbp.gallery.views.gallery_list" %}" class="button secondary">
+                <a href="{% url "zds.gallery.views.gallery_list" %}" class="button secondary">
                     Retour
                 </a>
             </div>

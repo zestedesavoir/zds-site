@@ -24,7 +24,7 @@
             {% endif %}
 
             <p>
-                Si vous n'avez pas de compte, vous pouvez <a href="{% url "lbp.member.views.register_view" %}" >vous inscrire</a>.
+                Si vous n'avez pas de compte, vous pouvez <a href="{% url "zds.member.views.register_view" %}" >vous inscrire</a>.
             </p>
         {% else %}
             <p>
@@ -37,7 +37,7 @@
 {% if not user.is_authenticated %}
 <div class="row">
     <div class="large-7 large-offset-1 columns">
-        <form method="post" action="{% url "lbp.member.views.login_view" %}">
+        <form method="post" action="{% url "zds.member.views.login_view" %}">
             <div class="row">
                 <div class="small-4 columns">
                     <label class="right inline" for="id_username">Identifiant</label>

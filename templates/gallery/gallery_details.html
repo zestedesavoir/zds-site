@@ -30,7 +30,7 @@
             {% endfor %}
         </p>
         {% if gallery_mode.is_write %}
-        <form action="{% url "lbp.gallery.views.modify_gallery" %}"
+        <form action="{% url "zds.gallery.views.modify_gallery" %}"
             method="post">
             <input type="text" name="user" placeholder="Nom de l'utilisateur">
             <input type="hidden" name="gallery" value={{ gallery.pk }}>
@@ -44,7 +44,7 @@
 </div>
 <div class="row">
     <div class="large-12 columns">
-        <form id="form" name="form" method="POST" action="{% url "lbp.gallery.views.modify_image" %}">
+        <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
             <input type="hidden" name="gallery" value="{{ gallery.pk }}">
             <div class="row">
                 <div class="large-8 columns">   
@@ -52,7 +52,7 @@
                 </div>
                 <div class="large-4 columns">
                     <div class="right">
-                        <a href="{% url "lbp.gallery.views.new_image" gallery.pk %}" class="button">
+                        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="button">
                             Ajouter une image
                         </a>
                         <button name="delete_multi" class="button secondary">
@@ -77,14 +77,14 @@
                             </td>
                             <td>
                                 <div>
-                                    <a href="{% url "lbp.gallery.views.edit_image" gallery.pk img.pk %}">
+                                    <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">
                                         <img src="{{ img.physical.url }}" style="max-width:180px ;max-height:180px" data-caption="{{ img.title }}"
                                              alt="{{ img.title }}" />
                                     </a>
                                 </div>
                             </td>
                             <td>
-                                <a href="{% url "lbp.gallery.views.edit_image" gallery.pk img.pk %}">{{ img.title }}</a>
+                                <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">{{ img.title }}</a>
                             </td>
                         </tr>
                     {% endfor %}

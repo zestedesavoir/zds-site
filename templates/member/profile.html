@@ -18,7 +18,7 @@
 
 {% block headline-actions %}
     {% ifequal profile.user user %}
-        <a href="{% url "lbp.member.views.settings_profile" %}" class="button">
+        <a href="{% url "zds.member.views.settings_profile" %}" class="button">
             <i class="icon-cog"></i>
             Paramètres
         </a>
@@ -33,7 +33,7 @@
             <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="80" height="80" class="th"/>
             </p>
             <p>
-            <a href="{% url "lbp.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a>
+            <a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a>
         </p>
     </div>
     <div class="large-10 columns">
@@ -53,47 +53,46 @@
 </div>
 
 <div class="row">
-    <div class="large-4 columns">
-        <h3>News</h3>
+    <div class="large-6 columns">
+        <h3>Tutoriels</h3>
         <table>
             <tbody>
                 <tr>
                     <td>En cours de rédaction</td>
-                    <td>{{ profile.get_writing_news.count }}</td>
+                    <td>{{ profile.get_draft_tuto.count }}</td>
                 </tr>
                 <tr>
                     <td>En attente de validation</td>
-                    <td>{{ profile.get_check_news.count }}</td>
+                    <td>{{ profile.get_validate_tuto.count }}</td>
+                </tr>
+                <tr>
+                    <td>En version beta</td>
+                    <td>{{ profile.get_beta_tuto.count }}</td>
                 </tr>
                 <tr>
                     <td>En ligne</td>
-                    <td><a href="{% url "lbp.news.views.find_news" usr.pk %}">{{ profile.get_online_news.count }}</a></td>
+                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{{ profile.get_public_tuto.count }}</a></td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <td>Total</td>
-                    <td>{{ profile.get_news.count }}</td>
+                    <td>{{ profile.get_tuto.count }}</td>
                 </tr>
             </tfoot>
         </table>
     </div>
-    <div class="large-4 columns">
-        <h3>Projets</h3>
-        
-        </table>
-    </div>
-    <div class="large-4 columns">
+    <div class="large-6 columns">
         <h3>Forums</h3>
         <table>
             <tbody>
                 <tr>
                     <td>Sujets créés</td>
-                    <td><a href="{% url "lbp.forum.views.find_topic" usr.username %}">{{ profile.get_topic_count }}</a></td>
+                    <td><a href="{% url "zds.forum.views.find_topic" usr.pk %}">{{ profile.get_topic_count }}</a></td>
                 </tr>
                 <tr>
                     <td>Messages postés</td>
-                    <td><a href="{% url "lbp.forum.views.find_post" usr.username %}">{{ profile.get_post_count }}</a></td>
+                    <td><a href="{% url "zds.forum.views.find_post" usr.pk %}">{{ profile.get_post_count }}</a></td>
                 </tr>
             </tbody>
         </table>
