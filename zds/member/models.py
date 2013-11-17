@@ -95,3 +95,4 @@ class Profile(models.Model):
     def get_ip_address(self):
         return Post.objects.all().filter(author=self.user)
     
+    

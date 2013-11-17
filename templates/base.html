@@ -49,10 +49,13 @@
 <body>
 
     <nav class="top-bar" 
+        {% if user.is_authenticated %}
         {% with profile=user|profile %}
         data-options="is_hover: {{ profile.hover_or_click}}"
-        >
+        
         {% endwith %}
+        {% endif %}
+        >
         <ul class="title-area">
             <li class="name">
                 <h1>

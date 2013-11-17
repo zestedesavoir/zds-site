@@ -243,7 +243,7 @@ IMAGE_MAX_SIZE = 1024*1024
 
 #git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
-REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-public')
+REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 
 # Load the production settings, overwrite the existing ones if needed
 try:

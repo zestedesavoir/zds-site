@@ -167,6 +167,7 @@
                 {% with profile=post.author|profile %}
                     <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
                 {% endwith %}
+                <p>{{ post.ip_address }}</p>
             </div>
             <div class="large-10 columns">
                 <div class="row">

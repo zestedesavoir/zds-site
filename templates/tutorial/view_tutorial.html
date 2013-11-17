@@ -63,7 +63,7 @@
             {% csrf_token %}
         </form>
     {% endif %}
-    <a href="#" class="button">
+    <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="button">
         <i class="icon-download"></i>
         Télécharger
     </a>

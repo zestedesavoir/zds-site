@@ -104,6 +104,13 @@ def login_view(request):
                 request.session['get_token'] = generate_token()
                 if not 'remember' in request.POST:
                     request.session.set_expiry(0)
+                
+                try:
+                    profile = get_object_or_404(Profile, user=request.user)
+                    profile.last_ip_address = get_client_ip(request)
+                    profile.save()
+                except :
+                    profile= None
                 return redirect(reverse('zds.pages.views.home'))
             else:
                 error = 'Les identifiants fournis ne sont pas valides'
@@ -226,7 +233,7 @@ def settings_account(request):
 
 
 @login_required
-def publications(request):    
+def publications(request):
     if request.user.is_authenticated():
         user_tutorials = Tutorial.objects.filter(authors__in = [request.user])
     else:
@@ -235,3 +242,12 @@ def publications(request):
          'user_tutorials': user_tutorials,
     }
     return render_to_response('member/publications.html', c, RequestContext(request))
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
