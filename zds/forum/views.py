@@ -415,23 +415,24 @@ def like_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
-
-    # Making sure the user is allowed to do that
-    if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
-        like=PostLike()
-        like.user=user
-        like.posts=post
-        post.like=post.like+1
-        post.save()
-        like.save()
-        if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
-            PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
-            post.dislike=post.dislike-1
+    
+    if post.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
+            like=PostLike()
+            like.user=user
+            like.posts=post
+            post.like=post.like+1
             post.save()
-    else:
-        PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
-        post.like=post.like-1
-        post.save()
+            like.save()
+            if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
+                PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+                post.dislike=post.dislike-1
+                post.save()
+        else:
+            PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            post.like=post.like-1
+            post.save()
 
     return redirect(post.get_absolute_url())
 
@@ -446,22 +447,23 @@ def dislike_post(request):
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
 
-    # Making sure the user is allowed to do that
-    if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
-        dislike=PostDislike()
-        dislike.user=user
-        dislike.posts=post
-        post.dislike=post.dislike+1
-        post.save()
-        dislike.save()
-        if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
-            PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
-            post.like=post.like-1
+    if post.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
+            dislike=PostDislike()
+            dislike.user=user
+            dislike.posts=post
+            post.dislike=post.dislike+1
             post.save()
-    else :
-        PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
-        post.dislike=post.dislike-1
-        post.save()
+            dislike.save()
+            if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
+                PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+                post.like=post.like-1
+                post.save()
+        else :
+            PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            post.dislike=post.dislike-1
+            post.save()
 
     return redirect(post.get_absolute_url())
 
