@@ -54,4 +54,5 @@ urlpatterns = patterns('',
     url(r'^$', views.index),
     url(r'^liste$', views.list),
     url(r'^importer$', views.import_tuto),
+    url(r'^telecharger$', views.download),
 )

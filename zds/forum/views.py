@@ -170,6 +170,7 @@ def new(request):
             post.text = data['text']
             post.pubdate = datetime.now()
             post.position_in_topic = 1
+            post.ip_address = get_client_ip(request)
             post.save()
 
             n_topic.last_message = post
@@ -294,6 +295,7 @@ def answer(request):
                 post.text = data['text']
                 post.pubdate = datetime.now()
                 post.position_in_topic = g_topic.get_post_count() + 1
+                post.ip_address = get_client_ip(request)
                 post.save()
 
                 g_topic.last_message = post
@@ -534,3 +536,11 @@ def deprecated_feed_messages_rss(request):
 
 def deprecated_feed_messages_atom(request):
     return redirect('/forums/flux/messages/atom/', permanent=True)
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

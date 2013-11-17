@@ -27,7 +27,7 @@ def index(request):
     '''Display tutorials list'''
     try:
         tutorials = Tutorial.objects.all() \
-            .filter(public_version_number__gte=1) \
+            .filter(sha_public__isnull=False) \
             .order_by("-pubdate")
     except:
         tutorials = None
@@ -41,7 +41,7 @@ def list(request):
     '''Display tutorials list'''
     try:
         tutorials = Tutorial.objects.all() \
-            .filter(public_version_number__lte=0) \
+            .filter(sha_draft__isnull=False) \
             .order_by("-update")
     except:
         tutorials = None
@@ -94,7 +94,7 @@ def add_tutorial(request):
             tutorial.description = data['description']
             tutorial.type = data['type']
             
-            if 'licence' in data:
+            if 'licence' in data and data['licence']!= '' :
                 lc = Licence.objects.filter(pk=data['licence']).all()[0]
                 tutorial.licence = lc
             
@@ -128,9 +128,6 @@ def add_tutorial(request):
                 img.pubdate = datetime.now()
                 img.save()
                 tutorial.image = img
-
-            # add version initial
-            tutorial.draft_version_number = 1
             
             tutorial.save()
             
@@ -180,7 +177,7 @@ def edit_tutorial(request):
             tutorial.title = data['title']
             tutorial.description = data['description']
             
-            if 'licence' in data and data['licence']:
+            if 'licence' in data and data['licence']!= '' :
                 lc = Licence.objects.filter(pk=data['licence']).all()[0]
                 tutorial.licence = lc
             
@@ -198,8 +195,6 @@ def edit_tutorial(request):
                 img.save()
                 tutorial.image = img
             
-            # add next version
-            tutorial.draft_version_number = tutorial.draft_version_number + 1
             new_slug = os.path.join(settings.REPO_PATH, slugify(data['title']))
             
             maj_repo_tuto(old_slug, new_slug, tutorial, data['introduction'], data['conclusion'])
@@ -815,8 +810,7 @@ def import_tuto(request):
                     tutorial = Tutorial()
                     # add create date
                     tutorial.create_at = datetime.now()
-                    # add version initial
-                    tutorial.draft_version_number = vr
+
                     
                     tree = etree.parse(request.FILES['file'])
                     racine_big = tree.xpath("/bigtuto")
@@ -996,62 +990,127 @@ def maj_repo_tuto(old_slug_path, new_slug_path, tuto, introduction, conclusion):
     elif new_slug_path != None: 
         if old_slug_path != None:    
             shutil.move(old_slug_path, new_slug_path)
+            repo = Repo(new_slug_path)
+            msg='Modification du tutoriel'
         if not os.path.isdir(new_slug_path) :
             os.makedirs(new_slug_path, mode=0777)
             repo = Repo.init(new_slug_path, bare=False)
+            msg='Creation du tutoriel'
+        
+        repo = Repo(new_slug_path)
+        index = repo.index
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
+        index.add(['introduction.md'])
     
         conclu = open(os.path.join(new_slug_path, 'conclusion.md'), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
+        index.add(['conclusion.md'])
+        index.commit(msg)
+        tuto.sha_draft=repo.head.commit.tree.hexsha
     
 def maj_repo_part(old_slug_path, new_slug_path, part, introduction, conclusion):
     
+    repo = Repo(os.path.join(settings.REPO_PATH, part.tutorial.slug))
+    index = repo.index
+    msg='repo partie'
     if old_slug_path != None and part == None :
         shutil.rmtree(old_slug_path)
-    elif new_slug_path != None:        
+        msg='Suppresion de la partie : '+part.title
+        
+    elif new_slug_path != None:
         if old_slug_path != None and new_slug_path != None :
             os.rename(old_slug_path, new_slug_path)
+            msg='Modification de la partie : '+part.title
         elif not os.path.isdir(new_slug_path) :
             os.makedirs(new_slug_path, mode=0777)
+            msg='Creation de la partie : '+part.title
+        
+        index.add([slugify(part.title)])
+        
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
+        index.add(['introduction.md'])
     
         conclu = open(os.path.join(new_slug_path, 'conclusion.md'), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
+        index.add(['conclusion.md'])
+    
+    index.commit(msg)
+    part.tutorial.sha_draft=repo.head.commit.tree.hexsha
         
 def maj_repo_chapter(old_slug_path, new_slug_path, chapter, introduction, conclusion):
+    if(chapter.tutorial):
+        repo = Repo(os.path.join(settings.REPO_PATH, chapter.tutorial.slug))
+        ph=chapter.slug
+    else:
+        repo = Repo(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug))
+        ph=os.path.join(chapter.part.slug, slugify(chapter.title))
+        
+    index = repo.index
+    msg='repo chapitre'
+    
     if old_slug_path != None and new_slug_path == None :
         shutil.rmtree(old_slug_path)
+        msg='Suppresion du chapitre : '+chapter.title
     elif new_slug_path != None:
-
         if old_slug_path != None and new_slug_path != None :
             os.rename(old_slug_path, new_slug_path)
+            msg='Modification du chapitre : '+chapter.title
         elif not os.path.isdir(new_slug_path) :
             os.makedirs(new_slug_path, mode=0777)
+            msg='Creation du chapitre : '+chapter.title
+        
+        index.add([ph])
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
+        index.add(['introduction.md'])
     
         conclu = open(os.path.join(new_slug_path, 'conclusion.md'), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
+        index.add(['conclusion.md'])
+    
+    index.commit(msg)
+    
+    if(chapter.tutorial):
+        chapter.tutorial.sha_draft=repo.head.commit.tree.hexsha
+    else:
+        chapter.part.tutorial.sha_draft=repo.head.commit.tree.hexsha
     
 def maj_repo_extract(old_slug_path, new_slug_path, extract, text):
+    if(extract.chapter.tutorial):
+        repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug))
+    else:
+        repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug))
+
+    index = repo.index
+    
     if old_slug_path != None and new_slug_path == None :
          os.remove(old_slug_path)
     elif new_slug_path != None:        
         if old_slug_path != None and new_slug_path != None :
             os.rename(old_slug_path, new_slug_path)
+            msg='Modification de l\'exrait : '+extract.title
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
+        index.add([slugify(extract.title)])
+        msg='Mise a jour de l\'exrait : '+extract.title
+    
+    index.commit(msg)
+    
+    if(extract.chapter.tutorial):
+        extract.chapter.tutorial.sha_draft=repo.head.commit.tree.hexsha
+    else:
+        extract.chapter.part.tutorial.sha_draft=repo.head.commit.tree.hexsha
 
 def tuto_to_markdown(text):
     chaine_h1 = re.sub(r'(.*)<titre1>(.*)</titre1>(.*)', r'\1##\2\3', text)
@@ -1074,3 +1133,19 @@ def tuto_to_markdown(text):
     chaine_attention = re.sub(r'(.*)<attention(.*)>(.*)</attention>(.*)', r'\1<p class="alert-box">\3</p>\4', chaine_erreur)
     
     return chaine_attention
+
+
+def download(request):
+    '''Download a tutorial'''
+    import json
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+
+    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    repo = Repo(ph)
+    repo.archive(open(ph+".tar",'w'))
+    
+    response = HttpResponse(open(ph+".tar", 'rb').read(), mimetype='application/tar')
+    response['Content-Disposition'] = 'attachment; filename={0}.tar'.format(tutorial.slug)
+
+    return response
