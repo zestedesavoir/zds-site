@@ -1088,8 +1088,10 @@ def maj_repo_chapter(old_slug_path, new_slug_path, chapter, introduction, conclu
 def maj_repo_extract(old_slug_path, new_slug_path, extract, text):
     if(extract.chapter.tutorial):
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug))
+        ph=chapter.slug
     else:
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug))
+        ph=os.path.join(chapter.part.slug, slugify(chapter.title))
 
     index = repo.index
     
@@ -1102,7 +1104,7 @@ def maj_repo_extract(old_slug_path, new_slug_path, extract, text):
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
-        index.add([slugify(extract.title)])
+        index.add([os.path.join(ph, slugify(extract.title)+'.md')])
         msg='Mise a jour de l\'exrait : '+extract.title
     
     index.commit(msg.encode('utf-8'))
