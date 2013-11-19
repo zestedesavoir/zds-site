@@ -723,7 +723,7 @@ def edit_extract(request):
                 chapter_part = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
             new_slug = os.path.join(chapter_part, slugify(data['title']))
             
-            maj_repo_extract(old_slug, new_slug, extract, data['text'])
+            maj_repo_extract(old_slug, new_slug, extract, data['text']+'.md')
             
             extract.save()
             return redirect(extract.get_absolute_url())
@@ -764,7 +764,7 @@ def modify_extract(request):
             chapter_path = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
         else:
             chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
-        old_slug = os.path.join(chapter_path, slugify(extract.title))
+        old_slug = os.path.join(chapter_path, slugify(extract.title)+'.md')
             
         maj_repo_extract(old_slug, None, None, None)
         
