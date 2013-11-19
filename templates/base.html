@@ -118,7 +118,7 @@
 
             <ul class="right">
                 {% if user.is_authenticated %}
-                    {% if perms.post.change_post %}
+                    {% if perms.forum.change_post %}
                     {% with posts=user|alerts_topic %}
                         <li class="has-dropdown">
                                 <a href="#">
