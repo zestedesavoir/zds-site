@@ -323,7 +323,7 @@ class Extract(models.Model):
         else:
             chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
-        return os.path.join(chapter_path, slugify(self.title)) 
+        return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
     def get_text(self):
         text = open(self.get_path(), "r")
