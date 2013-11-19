@@ -8,6 +8,7 @@ import views
 urlpatterns = patterns('',
     url(r'^voir/(?P<user_name>.+)$', views.details),
     url(r'^profil/editer$', views.edit_profile),
+    url(r'^profil/modifier/(?P<user_pk>\d+)', views.modify_profile),
 
     url(r'^publications$', views.publications),
     url(r'^actions$', views.actions),

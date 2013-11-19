@@ -1,4 +1,5 @@
 # coding: utf-8
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -15,7 +16,7 @@ from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm
-from .models import Profile
+from .models import Profile, Ban
 
 
 def index(request):
@@ -46,11 +47,13 @@ def details(request, user_name):
 
     try:
         profile = usr.get_profile()
+        bans= Ban.objects.filter(user=usr).order_by('-pubdate')
+        
     except SiteProfileNotAvailable:
         raise Http404
 
     return render_template('member/profile.html', {
-        'usr': usr, 'profile': profile
+        'usr': usr, 'profile': profile, 'bans': bans
     })
 
 
@@ -87,7 +90,47 @@ def edit_profile(request):
             'profile': profile
         })
 
-
+@login_required
+def modify_profile(request, user_pk):
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    if request.method == 'POST':
+        ban= Ban()
+        ban.moderator=request.user
+        ban.user=profile.user
+        ban.pubdate = datetime.now()
+        
+        if 'ls' in request.POST:
+            profile.can_write=False
+            ban.type='Lecture Seule'
+            ban.text = request.POST['ls-text']
+        if 'ls-temp' in request.POST:
+            ban.type='Lecture Seule Temporaire'
+            ban.text = request.POST['ls-temp-text']
+            profile.can_write=False
+            profile.end_ban_write = datetime.now() + timedelta(days=int(request.POST['ls-jrs']),hours=0, minutes=0, seconds=0) 
+        if 'ban-temp' in request.POST:
+            ban.type='Ban Temporaire'
+            ban.text = request.POST['ban-temp-text']
+            profile.can_read=False
+            profile.end_ban_read = datetime.now() + timedelta(days=int(request.POST['ban-jrs']),hours=0, minutes=0, seconds=0)
+        if 'ban' in request.POST:
+            ban.type='Ban définitif'
+            ban.text = request.POST['ban-text']
+            profile.can_read=False
+        if 'un-ls' in request.POST:
+            ban.type='Authorisation d\'écrire'
+            ban.text = request.POST['unls-text']
+            profile.can_write=True
+        if 'un-ban' in request.POST:
+            ban.type='Authorisation de se connecter'
+            ban.text = request.POST['unban-text']
+            profile.can_read=True
+            
+        profile.save()
+        ban.save()
+        
+    return redirect(profile.get_absolute_url())
+    
 def login_view(request):
     csrf_tk = {}
     csrf_tk.update(csrf(request))
@@ -109,6 +152,8 @@ def login_view(request):
                     profile = get_object_or_404(Profile, user=request.user)
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
+                    if not profile.can_read_now():
+                        logout_view(request)
                 except :
                     profile= None
                 return redirect(reverse('zds.pages.views.home'))
@@ -141,6 +186,7 @@ def register_view(request):
                 data['email'],
                 data['password'])
             profile = Profile(user=user, show_email=False, show_sign=True, hover_or_click=True)
+            profile.last_ip_address = get_client_ip(request)
             profile.save()
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)

@@ -41,7 +41,7 @@ def list(request):
     '''Display tutorials list'''
     try:
         tutorials = Tutorial.objects.all() \
-            .filter(sha_draft__isnull=False) \
+            .filter(sha_draft__isnull=False, authors__in=[request.user]) \
             .order_by("-update")
     except:
         tutorials = None
@@ -1009,7 +1009,7 @@ def maj_repo_tuto(old_slug_path, new_slug_path, tuto, introduction, conclusion):
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
         index.add(['conclusion.md'])
-        index.commit(msg)
+        index.commit(msg.encode('utf-8'))
         tuto.sha_draft=repo.head.commit.tree.hexsha
     
 def maj_repo_part(old_slug_path, new_slug_path, part, introduction, conclusion):
@@ -1041,7 +1041,7 @@ def maj_repo_part(old_slug_path, new_slug_path, part, introduction, conclusion):
         conclu.close()
         index.add(['conclusion.md'])
     
-    index.commit(msg)
+    index.commit(msg.encode('utf-8'))
     part.tutorial.sha_draft=repo.head.commit.tree.hexsha
         
 def maj_repo_chapter(old_slug_path, new_slug_path, chapter, introduction, conclusion):
@@ -1078,7 +1078,7 @@ def maj_repo_chapter(old_slug_path, new_slug_path, chapter, introduction, conclu
         conclu.close()
         index.add(['conclusion.md'])
     
-    index.commit(msg)
+    index.commit(msg.encode('utf-8'))
     
     if(chapter.tutorial):
         chapter.tutorial.sha_draft=repo.head.commit.tree.hexsha
@@ -1105,7 +1105,7 @@ def maj_repo_extract(old_slug_path, new_slug_path, extract, text):
         index.add([slugify(extract.title)])
         msg='Mise a jour de l\'exrait : '+extract.title
     
-    index.commit(msg)
+    index.commit(msg.encode('utf-8'))
     
     if(extract.chapter.tutorial):
         extract.chapter.tutorial.sha_draft=repo.head.commit.tree.hexsha

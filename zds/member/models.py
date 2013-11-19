@@ -6,6 +6,7 @@ from django.db.models import Q
 from hashlib import md5
 
 from zds.forum.models import Post, Topic
+from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
 
 
@@ -44,7 +45,11 @@ class Profile(models.Model):
     hover_or_click = models.BooleanField('Survol ou click ?',
                                      default=True)
     
+    can_read = models.BooleanField('Possibilité de lire', default=True)
+    end_ban_read = models.DateTimeField('Fin d\'interdiction de lecture', null=True, blank=True)
     
+    can_write = models.BooleanField('Possibilité d\'écrire', default=True)
+    end_ban_write = models.DateTimeField('Fin d\'interdiction d\'ecrire', null=True, blank=True)
 
     def __unicode__(self):
         '''Textual forum of a profile'''
@@ -95,4 +100,32 @@ class Profile(models.Model):
     def get_ip_address(self):
         return Post.objects.all().filter(author=self.user)
     
+    def get_invisible_posts_count(self):
+        return Post.objects.filter(is_visible=False, author=self.user).count()
     
+    def get_alerts_posts_count(self):
+        return Alert.objects.filter(author=self.user).count()
+    
+    def can_read_now(self):
+        if self.end_ban_read:
+            return self.can_read or (self.end_ban_read < datetime.now())
+        else:
+            return self.can_read
+    
+    def can_write_now(self):
+        if self.end_ban_write:
+            return self.can_write or (self.end_ban_write < datetime.now())
+        else:
+            return self.can_write
+        
+class Ban(models.Model):
+    class Meta:
+        verbose_name = 'Sanction'
+        verbose_name_plural = 'Sanctions'
+        
+    user = models.ForeignKey(User, verbose_name='Sanctionné')
+    moderator = models.ForeignKey(User, verbose_name='Moderateur',
+                                     related_name='bans')
+    type = models.CharField('Type',  max_length=15)
+    text = models.TextField('Explication de la sanction')
+    pubdate = models.DateTimeField('Date de publication', blank=True, null=True)

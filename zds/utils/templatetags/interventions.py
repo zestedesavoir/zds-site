@@ -2,7 +2,7 @@
 
 from django import template
 
-from zds.forum.models import TopicFollowed, never_read
+from zds.forum.models import TopicFollowed, never_read, Post
 from zds.mp.models import PrivateTopic, never_privateread
 
 
@@ -58,6 +58,13 @@ def reads_topic(topic, user):
             return ''
         else :
             return 'secondary'
+    else :
+        return '';
+    
+@register.filter(name='alerts_topic')
+def alerts_topic(user):
+    if user.is_authenticated() :
+        return Post.objects.filter(alerts__isnull=False)
     else :
         return '';
     

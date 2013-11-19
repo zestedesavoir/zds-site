@@ -11,3 +11,7 @@ class TopicForm(forms.Form):
 
 class PostForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea)
+
+
+class AlertForm(forms.Form):
+    text = forms.CharField()

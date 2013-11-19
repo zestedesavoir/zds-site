@@ -23,6 +23,9 @@
             Paramètres
         </a>
     {% endifequal %}
+    {% if user.is_authenticated %}
+        <a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -32,9 +35,11 @@
             <p>
             <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="80" height="80" class="th"/>
             </p>
+            {% if perms.member.show_ip %}
             <p>
-            <a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a>
-        </p>
+                {{ profile.last_ip_address }}
+            </p>
+            {% endif %}
     </div>
     <div class="large-10 columns">
         <p>
@@ -98,11 +103,128 @@
         </table>
     </div>
 </div>
-
+{% if perms.forum.change_topic %}
+<div class="row">
+<div class="large-12 columns">
+        <h3>Modération</h3>
+        <div class="large-6 columns">
+            <h4>Statistiques</h4>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Nombres de messages modérés</td>
+                        <td>{{ profile.get_invisible_posts_count }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nombres d'alertes déclarées</td>
+                        <td>{{ profile.get_alerts_posts_count }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="POST"
+        class="topic-actions" id="edit_form">
+        <div class="large-6 columns">
+            <h4>Sanctions</h4>
+            <div class="row">
+                {% if profile.can_write_now %}
+                <a href="#" class="button secondary small" data-dropdown="ls-drop-{{profile.pk}}">
+                    Lecture seule
+                </a>
+                <div id="ls-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                    </p>
+                    <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc." />
+                    <button type="submit" name="ls" class="button expand alert">
+                        Confirmer la sanction
+                    </button>
+                </div>
+                <a href="#" class="button secondary small" data-dropdown="ls-temp-drop-{{profile.pk}}">
+                    LS Temporaire
+                </a>
+                <div id="ls-temp-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                    </p>
+                    <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc." />
+                    <input type="text" name="ls-jrs" class="expand" placeholder="Nombre de jours de la sanction" />
+                    <button type="submit" name="ls-temp" class="button expand alert">
+                        Confirmer la sanction
+                    </button>
+                </div>
+                {% else %}
+                <a href="#" class="button secondary small" data-dropdown="unls-drop-{{profile.pk}}">
+                    Oter la LS
+                </a>
+                <div id="unls-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous lever la sanction de ce membre ?
+                    </p>
+                    <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?" />
+                    <button type="submit" name="un-ls" class="button expand alert">
+                        Confirmer la libération
+                    </button>
+                </div>
+                {% endif %}
+                {% if profile.can_read_now %}
+                
+                <a href="#" class="button secondary small" data-dropdown="ban-temp-drop-{{profile.pk}}">
+                    Ban Temporaire
+                </a>
+                <div id="ban-temp-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous bannir ce membre ?
+                    </p>
+                    <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc." />
+                    <input type="text" name="ban-jrs" class="expand" placeholder="Nombre de jours de la sanction" />
+                    <button type="submit" name="ban-temp" class="button expand alert">
+                        Confirmer la sanction
+                    </button>
+                </div>
+                <a href="#" class="button secondary small" data-dropdown="ban-drop-{{profile.pk}}">
+                    Ban Définitif
+                </a>
+                <div id="ban-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous bannir ce membre ?
+                    </p>
+                    <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc." />
+                    <button type="submit" name="ban" class="button expand alert">
+                        Confirmer la sanction
+                    </button>
+                </div>
+                {% else %}
+                <a href="#" class="button secondary small" data-dropdown="unban-drop-{{profile.pk}}">
+                    Oter le ban
+                </a>
+                <div id="unban-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                    <p>
+                        Pour quelle raison souhaitez vous lever la sanction de ce membre ?
+                    </p>
+                    <input type="text" name="unban-text" class="expand" placeholder="Bonne action ?" />
+                    <button type="submit" name="un-ban" class="button expand alert">
+                        Confirmer la libération
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% for ban in bans %}
+                <hr />
+                <p><strong>{{ ban.type }}</strong> : par {{ban.moderator.username}} <i>{{ban.pubdate|humane_date}} </i></p>
+                <p>{{ ban.text }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% csrf_token %}
+        </form>
+    </div>
+</div>
+{% endif %}
 {# Biography #}
 
 {% if profile.biography %}
-
 <div class="row">
     <div class="large-12 columns">
         <h2>Biographie</h2>

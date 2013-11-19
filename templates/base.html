@@ -118,6 +118,28 @@
 
             <ul class="right">
                 {% if user.is_authenticated %}
+                    {% if perms.post.change_post %}
+                    {% with posts=user|alerts_topic %}
+                        <li class="has-dropdown">
+                                <a href="#">
+                                    {% if posts.count > 0 %}
+                                        <span class="label alert">{{ posts.count }}</span>
+                                    {% endif %}
+                                    <i class="fi-lightbulb"></i>
+                                </a>
+                                <ul class="dropdown">
+                                    {% for post in posts %}
+                                        <li>
+                                            <a href="{{ post.get_absolute_url }}">
+                                                <strong>
+                                                    {{ post.topic.title }}
+                                                </strong>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                    {% endwith %}
+                    {% endif %}
                     {% with topics=user|interventions_privatetopics %}
                         {% with unread_topics=topics.unread %}
                             <li class="{% block menu_mp %}{% endblock %} has-dropdown">
