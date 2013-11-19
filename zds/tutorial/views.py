@@ -1091,7 +1091,7 @@ def maj_repo_extract(old_slug_path, new_slug_path, extract, text):
         ph=extract.chapter.slug
     else:
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug))
-        ph=os.path.join(chapter.part.slug, slugify(extract.chapter.title))
+        ph=os.path.join(extract.chapter.part.slug, slugify(extract.chapter.title))
 
     index = repo.index
     
