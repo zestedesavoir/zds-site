@@ -151,7 +151,7 @@
                                 </a>
                             {% endif %}
 
-                            {% if post.author == user or perms.post.change_post %}
+                            {% if post.author == user or perms.forum.change_post %}
                                 <a href="/forums/message/editer?message={{ post.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer
@@ -165,7 +165,7 @@
                                     <p>
                                         Êtes vous certains de vouloir masquer ce message ? cette action est irreversible pour les simples membres
                                     </p>
-                                    {% if perms.post.change_post %}
+                                    {% if perms.forum.change_post %}
                                     <input type="text" name="text_hidden" class="expand" placeholder="Message de masquage" />
                                     {% endif %}
                                     <button type="submit" name="delete-post" class="button expand alert">
@@ -197,7 +197,7 @@
                         </div>
                     {% endif %}
                 </div>
-                {% elif perms.post.change_post %}
+                {% elif perms.forum.change_post %}
                 <div class="right">
                     <a href="#" class="button secondary small" data-dropdown="show-drop-{{post.pk}}">
                         Afficher
