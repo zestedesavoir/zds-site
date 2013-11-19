@@ -13,10 +13,17 @@ from forms import TopicForm, PostForm
 from models import Category, Forum, Topic, Post, POSTS_PER_PAGE, TOPICS_PER_PAGE, \
     PostDislike, PostLike, follow, never_read, mark_read
 from zds.utils import render_template, slugify
+from zds.utils.models import Alert
 from zds.utils.paginator import paginator_range
+from zds.member.models import Profile
 
 
 def index(request):
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now():
+            raise Http404
     '''
     Display the category list with all their forums
     '''
@@ -28,6 +35,12 @@ def index(request):
 
 
 def details(request, cat_slug, forum_slug):
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now():
+            raise Http404
+    
     '''
     Display the given forum and all its topics
     '''
@@ -76,7 +89,11 @@ def topic(request, topic_pk, topic_slug):
     '''
     Display a thread and its posts using a pager
     '''
-
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now():
+            raise Http404
+    
     # TODO: Clean that up
     g_topic = get_object_or_404(Topic, pk=topic_pk)
 
@@ -134,6 +151,12 @@ def new(request):
     '''
     Creates a new topic in a forum
     '''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     try:
         forum_pk = request.GET['forum']
     except KeyError:
@@ -198,6 +221,12 @@ def edit(request):
     '''
     Edit the given topic
     '''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     if not request.method == 'POST':
         raise Http404
 
@@ -258,7 +287,12 @@ def answer(request):
         topic_pk = request.GET['sujet']
     except KeyError:
         raise Http404
-
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     posts = Post.objects.filter(topic=g_topic).order_by('-pubdate')[:3]
     last_post_pk = g_topic.last_message.pk
@@ -334,6 +368,12 @@ def edit_post(request):
     '''
     Edit the given user's post
     '''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -347,17 +387,38 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that
     if post.author != request.user:
-        if not request.user.has_perm('forum.change_post'):
-            raise Http404
-        elif request.method == 'GET':
+        if request.method == 'GET' and request.user.has_perm('forum.change_post'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(post.author.username))
+            post.alerts.all().delete()
 
     if request.method == 'POST':
-
+        
+        if 'delete-post' in request.POST:
+            if post.author == request.user or request.user.has_perm('forum.change_post'):
+                post.alerts.all().delete()
+                post.is_visible=False
+                if request.user.has_perm('forum.change_post'):
+                    post.text_hidden=request.POST['text_hidden']
+                else :
+                    post.text_hidden="Masqué par le membre"
+            
+        if 'show-post' in request.POST:
+            if request.user.has_perm('forum.change_post'):
+                post.is_visible=True
+                post.text_hidden=''
+                    
+        if 'signal-post' in request.POST:
+            if post.author != request.user :
+                alert = Alert()
+                alert.author = request.user
+                alert.text=request.POST['signal-text']
+                alert.pubdate = datetime.now()
+                alert.save()
+                post.alerts.add(alert)
         # Using the preview button
         if 'preview' in request.POST:
             if g_topic:
@@ -366,18 +427,20 @@ def edit_post(request):
             return render_template('forum/edit_post.html', {
                 'post': post, 'topic': g_topic, 'text': request.POST['text'],
             })
-
-        # The user just sent data, handle them
-        post.text = request.POST['text']
-        post.update = datetime.now()
+        
+        if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
+            # The user just sent data, handle them
+            post.text = request.POST['text']
+            post.update = datetime.now()
+            
+            # Modifying the thread info
+            if g_topic:
+                g_topic.title = request.POST['title']
+                g_topic.subtitle = request.POST['subtitle']
+                g_topic.save()
+        
         post.save()
-
-        # Modifying the thread info
-        if g_topic:
-            g_topic.title = request.POST['title']
-            g_topic.subtitle = request.POST['subtitle']
-            g_topic.save()
-
+        
         return redirect(post.get_absolute_url())
 
     else:
@@ -408,6 +471,12 @@ def useful_post(request):
 @login_required
 def like_post(request):
     '''like a post'''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -439,6 +508,12 @@ def like_post(request):
 @login_required
 def dislike_post(request):
     '''like a post'''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -468,7 +543,12 @@ def dislike_post(request):
     return redirect(post.get_absolute_url())
 
 def find_topic(request, user_pk):
-
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now():
+            raise Http404
+    
     u = get_object_or_404(User, pk=user_pk)
     topics=Topic.objects.all().filter(author=u)\
                           .order_by('-pubdate')
@@ -493,6 +573,12 @@ def find_topic(request, user_pk):
     })
 
 def find_post(request, user_pk):
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now():
+            raise Http404
+    
     u = get_object_or_404(User, pk=user_pk)
     posts=Post.objects.all().filter(author=u)\
                           .order_by('-pubdate')

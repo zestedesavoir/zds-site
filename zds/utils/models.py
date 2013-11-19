@@ -5,6 +5,7 @@ import string
 import uuid
 
 from zds.utils import slugify
+from django.contrib.auth.models import User
 
 
 def image_path_category(instance, filename):
@@ -18,11 +19,13 @@ class Alert(models.Model):
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
     
+    author = models.ForeignKey(User, verbose_name='Auteur',
+                                     related_name='alerts')
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de publication', blank=True, null=True)
     
     def __unicode__(self):
-        return '{0}'.format(self.text)
+        return u'{0}'.format(self.text)
 
 class Category(models.Model):
     '''Une catégorie, qui correspond à la catégorie dans laquelle on peut ranger un projet (Site Web, Jeux vidéos, etc.)'''

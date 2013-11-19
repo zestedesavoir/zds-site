@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import slugify
 
 from zds.utils import get_current_user
+from zds.utils.models import Alert
 
 # TODO: Put these constants in settings.py file
 POSTS_PER_PAGE = 21
@@ -210,6 +211,7 @@ class Post(models.Model):
     '''
     A forum post written by an user.
     '''
+    
     topic = models.ForeignKey(Topic, verbose_name='Sujet')
     author = models.ForeignKey(User, verbose_name='Auteur',
                                      related_name='posts')
@@ -226,6 +228,10 @@ class Post(models.Model):
     position_in_topic = models.IntegerField('Position dans le sujet')
 
     is_useful = models.BooleanField('Est utile', default=False)
+    is_visible = models.BooleanField('Est visible', default=True)
+    text_hidden = models.CharField('Texte de masquage ', max_length=80, default='')
+    
+    alerts = models.ManyToManyField(Alert, verbose_name='Alertes', null=True, blank=True)
 
     def __unicode__(self):
         '''Textual form of a post'''
