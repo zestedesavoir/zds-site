@@ -12,12 +12,12 @@ urlpatterns = patterns('',
     url(r'^recherche/(?P<pk_user>.+)$', views.find_tuto),
     url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
         r'(?P<part_slug>.+)/' +
-        r'(?P<chapter_slug>.+)/$', views.view_chapter, name="view-chapter-url"),
+        r'(?P<chapter_slug>.+)$', views.view_chapter, name="view-chapter-url"),
 
     url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-    r'(?P<part_slug>.+)/$', views.view_part, name="view-part-url"),
+    r'(?P<part_slug>.+)$', views.view_part, name="view-part-url"),
 
-    url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
+    url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)$',
         views.view_tutorial),
 
     # Deprecated URLs
