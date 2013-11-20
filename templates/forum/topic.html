@@ -172,7 +172,8 @@
                                         Confirmer
                                     </button>
                                 </div>
-                            {% else %}
+                            {% endif %}
+                            {% if post.author != user or perms.forum.change_post %}
                                 <a href="#" class="button secondary small" data-dropdown="signal-drop-{{post.pk}}">
                                     Signaler
                                 </a>
