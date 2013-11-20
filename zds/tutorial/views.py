@@ -1,5 +1,6 @@
 # coding: utf-8
 from datetime import datetime
+from operator import itemgetter, attrgetter
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -51,11 +52,63 @@ def list(request):
     })
     
 # Tutorial
+@login_required
+def diff(request, tutorial_pk, tutorial_slug):
+    try:
+        sha = request.GET['sha']
+    except KeyError:
+        raise Http404
+    
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    
+    repo = Repo(tutorial.get_path())
+    hcommit = repo.commit(sha)
+    tdiff = hcommit.diff('HEAD~1')
+    
+    for diff_path_maj in tdiff.iter_change_type('M'):
+        print('---------------------> '+str(diff_path_maj))
+    
+    return render_template('tutorial/diff_tutorial.html', {
+        'tutorial': tutorial,
+        'path_add':tdiff.iter_change_type('A'),
+        'path_ren':tdiff.iter_change_type('R'),
+        'path_del':tdiff.iter_change_type('D'),
+        'path_maj':tdiff.iter_change_type('M')
+    })
+
+@login_required
+def history(request, tutorial_pk, tutorial_slug):
+    '''Display a tutorial'''
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
+    if not tutorial.on_line \
+       and not request.user.has_perm('tutorial.change_tutorial') \
+       and request.user not in tutorial.authors.all():
+        raise Http404
+
+    # Make sure the URL is well-formed
+    if not tutorial_slug == slugify(tutorial.title):
+        return redirect(tutorial.get_absolute_url())
+
+
+    repo = Repo(tutorial.get_path())
+    tree = repo.heads.master.commit.tree
+    
+    logs = repo.head.reference.log()
+    logs = sorted(logs, key=attrgetter('time'), reverse=True)
+    
+    return render_template('tutorial/history_tutorial.html', {
+        'tutorial': tutorial, 'logs':logs
+    })
 
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
+    try:
+        sha = request.GET['version']
+    except KeyError:
+        sha = None
+    
     if not tutorial.on_line \
        and not request.user.has_perm('tutorial.change_tutorial') \
        and request.user not in tutorial.authors.all():
@@ -77,7 +130,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         ).filter(tutorial__pk=tutorial.pk).order_by('position_in_tutorial')
 
     return render_template('tutorial/view_tutorial.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts
+        'tutorial': tutorial, 'chapter': chapter, 'parts': parts, 'version':sha
     })
 
 
@@ -288,6 +341,10 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
     part = get_object_or_404(Part,
                              slug=part_slug, tutorial__pk=tutorial_pk)
+    try:
+        sha = request.GET['version']
+    except KeyError:
+        sha = None
 
     tutorial = part.tutorial
     if not tutorial.on_line \
@@ -301,7 +358,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
         return redirect(part.get_absolute_url())
 
     return render_template('tutorial/view_part.html', {
-        'part': part
+        'part': part, 'version':sha
     })
 
 
@@ -428,6 +485,10 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                                 slug=chapter_slug,
                                 part__slug=part_slug,
                                 part__tutorial__pk=tutorial_pk)
+    try:
+        sha = request.GET['version']
+    except KeyError:
+        sha = None
 
     tutorial = chapter.get_tutorial()
     if not tutorial.on_line \
@@ -455,7 +516,8 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     return render_template('tutorial/view_chapter.html', {
         'chapter': chapter,
         'prev': prev_chapter,
-        'next': next_chapter
+        'next': next_chapter, 
+        'version':sha
     })
 
 

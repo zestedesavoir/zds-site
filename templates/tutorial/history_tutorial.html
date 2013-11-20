@@ -1,0 +1,77 @@
+{% extends "tutorial/base.html" %}
+{% load emarkdown %}
+{% load humane_date %}
+
+{% block title %}
+{{ tutorial.title }}
+{% endblock %}
+
+{% block headline %}
+    {{ tutorial.title }}<br />
+    <small>{{ tutorial.description }}</small>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ tutorial.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns hide-for-small">
+            {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}"/>
+            {% endif %}
+        </div>
+        <div class="large-11 columns">
+        <p>
+            Tutoriel
+            {% if not tutorial.is_mini %}
+                étendu
+            {% endif %}
+            rédigé par
+            {% for member in tutorial.authors.all %}
+                {% if forloop.counter > 1 %}
+                    {% if forloop.last %}
+                        et
+                    {% else %}
+                        ,
+                    {% endif %}
+                {% endif %}
+                {% include "member/member_item_common.part.html" %}
+            {% endfor %}.
+        </p>
+    </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-12 columns">
+        <table>
+          <thead>
+            <tr>
+              <th width="10%">Date</th>
+              <th>Message</th>
+              <th width="20%">Commit</th>
+              <th width="10%">Auteur</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+            <tr>
+              <td>{{ log.time.0 }}</td>
+              <td><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></td>
+              <td><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha }}</a></td>
+              <td>{{ log.actor }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

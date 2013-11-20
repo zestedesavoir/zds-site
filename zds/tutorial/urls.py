@@ -55,4 +55,6 @@ urlpatterns = patterns('',
     url(r'^liste$', views.list),
     url(r'^importer$', views.import_tuto),
     url(r'^telecharger$', views.download),
+    url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
+    url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
 )
