@@ -1,5 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
+{% load repo_reader %}
 
 {% block title %}
 {{ tutorial.title }}
@@ -45,7 +46,7 @@
                 </div>
             </div>
             <br />
-            <button name="pending" class="button secondary expand
+            <button name="pending" class="button secondary small expand
                                           {% if tutorial.is_pending %}disabled{% endif %}
                                           {% if tutorial.is_visible %}disabled success{% endif %}"
                 {% if tutorial.is_pending or tutorial.is_visible %}disabled{% endif %}>
@@ -62,15 +63,25 @@
             <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
             {% csrf_token %}
         </form>
+        <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="button secondary small expand">
+            <i class="fi-info"></i>
+            Historique des versions
+        </a>
     {% endif %}
-    <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="button">
-        <i class="icon-download"></i>
+    <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="button secondary small expand">
+        <i class="fi-download"></i>
         Télécharger
     </a>
 {% endblock %}
 
 {% block content %}
-
+{% if version %}
+<div class="row">
+    <div class="large-12 columns alert-box">
+        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ version }}" > Ancienne version </a>
+    </div>
+</div>
+{% endif %}
 <div class="row">
     <div class="large-12 columns">
         <div class="large-1 columns hide-for-small">
@@ -102,9 +113,9 @@
 
 <div class="row">
     <div class="large-12 columns">
-
-        {% if tutorial.get_introduction %}
-            {{ tutorial.get_introduction|emarkdown }}
+    {% with tuto_version=tutorial|repo_tuto:version %}
+        {% if tuto_version.introduction %}
+            {{ tuto_version.introduction|emarkdown }}
         {% else %}
             <p>Aucune introduction.</p>
         {% endif %}
@@ -123,7 +134,7 @@
             {% if parts %}
                 {% for part in parts %}
                     <h2>
-                        <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}">
+                        <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
                             Partie {{ part.position_in_tutorial }} : {{ part.title }}
                         </a>
                     </h2>
@@ -138,12 +149,12 @@
 
         {% endif %}
 
-        {% if tutorial.get_conclusion %}
-            {{ tutorial.get_conclusion|emarkdown }}
+        {% if tuto_version.conclusion %}
+            {{ tuto_version.conclusion|emarkdown }}
         {% else %}
             <p>Aucune conclusion.</p>
         {% endif %}
-
+    {% endwith %}
     </div>
 </div>
 
