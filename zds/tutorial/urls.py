@@ -12,12 +12,12 @@ urlpatterns = patterns('',
     url(r'^recherche/(?P<pk_user>.+)$', views.find_tuto),
     url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
         r'(?P<part_slug>.+)/' +
-        r'(?P<chapter_slug>.+)$', views.view_chapter, name="view-chapter-url"),
+        r'(?P<chapter_slug>.+)/$', views.view_chapter, name="view-chapter-url"),
 
     url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-    r'(?P<part_slug>.+)$', views.view_part, name="view-part-url"),
+    r'(?P<part_slug>.+)/$', views.view_part, name="view-part-url"),
 
-    url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)$',
+    url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
         views.view_tutorial),
 
     # Deprecated URLs
@@ -52,9 +52,9 @@ urlpatterns = patterns('',
     url(r'^nouveau/extrait$', views.add_extract),
 
     url(r'^$', views.index),
-    url(r'^liste$', views.list),
-    url(r'^importer$', views.import_tuto),
-    url(r'^telecharger$', views.download),
+    url(r'^liste/$', views.list),
+    url(r'^importer/$', views.import_tuto),
+    url(r'^telecharger/$', views.download),
     url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
     url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
 )
