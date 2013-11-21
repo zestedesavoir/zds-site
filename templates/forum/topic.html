@@ -248,7 +248,7 @@
                         {{profile.sign|emarkdown}}
                     {% endwith %}
                 </div>
-                {% if post.alerts.all.count > 0 and perms.forum.moderation %}
+                {% if post.alerts.all.count > 0 and perms.forum.change_topic %}
                     <div class="row">
                         <hr />
                     </div>
