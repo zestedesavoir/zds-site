@@ -121,7 +121,6 @@ def new(request):
     Creates a new private topic 
     '''
     
-    
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
@@ -135,6 +134,13 @@ def new(request):
         form = PrivateTopicForm(request.POST)
         if form.is_valid():
             data = form.data
+            #control participant
+            ctrl=[]
+            list_part = data['participants'].split(',')
+            for part in list_part:
+                p=get_object_or_404(User, username=part)
+                ctrl.append(p)
+            
             # Creating the thread
             n_topic = PrivateTopic()
             n_topic.title = data['title']
@@ -143,11 +149,8 @@ def new(request):
             n_topic.author = request.user
             n_topic.save()
             
-            list_part = data['participants'].split(',')
-            for part in list_part:
-                p=get_object_or_404(User, username=part)
-                n_topic.participants.add(p)
-            n_topic.save()
+            for part in ctrl:
+                n_topic.participants.add(part)
 
             # Adding the first message
             post = PrivatePost()
