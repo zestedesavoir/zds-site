@@ -23,3 +23,4 @@ django-rest-swagger
 django-oauth2-provider
 django-guardian
 django-haystack
+django-smileys
