@@ -24,3 +24,4 @@ django-oauth2-provider
 django-guardian
 django-haystack
 django-smileys
+lxml
