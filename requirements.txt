@@ -25,3 +25,4 @@ django-guardian
 django-haystack
 django-smileys
 lxml
+GitPython
