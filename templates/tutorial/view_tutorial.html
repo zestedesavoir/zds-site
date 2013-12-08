@@ -18,55 +18,118 @@
 {% block headline-actions %}
     {% if user.is_authenticated and user in tutorial.authors.all %}
         <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
+            {% if validation.0 %}
             <div class="button-group">
-                <a href="
-                    {% if not tutorial.is_mini %}
-                        {% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}
-                    {% else %}
-                        {% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}
-                    {% endif %}" class="button small">
-                    <i class="icon-plus"></i>
-                    Ajouter
-                </a>
-                <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="button small">
-                    <i class="icon-pencil"></i>
-                    Éditer
-                </a>
-                <a href="#" class="button secondary small" data-dropdown="delete-drop">
-                    Supprimer
-                </a>
-                <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
-                    <p>
-                        Si vous supprimez ce tutoriel, il sera alors impossible de le modifier/consulter de nouveau.
-                    </p>
-                    <button type="submit" name="delete" class="button expand alert">
-                        <i class="icon-remove"></i>
-                        Confirmer la suppression
-                    </button>
-                </div>
+                <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
             </div>
             <br />
-            <button name="pending" class="button secondary small expand
-                                          {% if tutorial.is_pending %}disabled{% endif %}
-                                          {% if tutorial.is_visible %}disabled success{% endif %}"
-                {% if tutorial.is_pending or tutorial.is_visible %}disabled{% endif %}>
-                {% if not tutorial.is_visible %}
-                    {% if not tutorial.is_pending %}
-                        Demander la validation
-                    {% else %}
-                        En attente de validation
-                    {% endif %}
+            {% endif %}
+
+            {% if not tutorial.on_line %}
+                {% if not version = tutorial.sha_validation %}
+                
+                <a href="#" class="button secondary small expand" data-reveal-id="valid-modal">
+                    Demander la validation
+                </a>
+                <div id="valid-modal" class="reveal-modal" style="display: none">
+                  <h5>Commentaires de validation</h5>
+                  <textarea name="comment"> </textarea>
+                  <button name="pending" class="expand success">Faire valider
+                  </buton>
+                  <a class="close-reveal-modal">&#215;</a>
+                </div>
                 {% else %}
-                   En ligne
+
+                {% if perms.tutorial.change_tutorial %}
+                <div class="button-group">
+                    <a href="#" class="button small success" data-dropdown="valid-drop">
+                        <i class="fi-check"></i>
+                        Valider
+                    </a>
+                    <a href="#" class="button small alert" data-dropdown="reject-drop">
+                        <i class="fi-x"></i>
+                        Rejeter
+                    </a>
+                    <div id="valid-drop" class="f-dropdown content small" data-dropdown-content>
+                        <p>
+                            Vous vous appretez à mettre en ligne ce tutoriel, êtes vous certains de votre action ? Si oui avez vous un commentaire de validation à soumettre ?
+                        </p>
+                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                        <button type="submit" name="valid-tuto" class="button expand success">
+                            Confirmer la publication
+                        </button>
+                    </div>
+                    <div id="reject-drop" class="f-dropdown content small" data-dropdown-content>
+                        <p>
+                            Vous vous appretez à rejeter ce tutoriel ? Si vous êtes certain de votre action, pouvez expliquer pourquoi ce rejet ?
+                        </p>
+                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                        <button type="submit" name="reject-tuto" class="button expand alert">
+                            Confirmer le rejet
+                        </button>
+                    </div>
+                </div>
                 {% endif %}
-            </button>
+                <br />
+                {% endif %}
+
+                <div class="button-group">
+                    <a href="
+                        {% if not tutorial.is_mini %}
+                            {% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}
+                        {% else %}
+                            {% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}
+                        {% endif %}" class="button small">
+                        <i class="icon-plus"></i>
+                        Ajouter
+                    </a>
+                    <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="button small">
+                        <i class="icon-pencil"></i>
+                        Éditer
+                    </a>
+                    <a href="#" class="button secondary small" data-dropdown="delete-drop">
+                        Supprimer
+                    </a>
+                    <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
+                        <p>
+                            Si vous supprimez ce tutoriel, il sera alors impossible de le modifier/consulter de nouveau.
+                        </p>
+                        <button type="submit" name="delete" class="button expand alert">
+                            <i class="icon-remove"></i>
+                            Confirmer la suppression
+                        </button>
+                    </div>
+                </div>
+                <br />
+                
+                
+                
+                <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="button secondary small expand">
+                    <i class="fi-info"></i>
+                    Historique des versions
+                </a>
+            {% elif perms.tutorial.change_tutorial %}
+                <div class="button-group">
+                    <a href="#" class="button small alert" data-dropdown="invalid-drop">
+                        <i class="fi-x"></i>
+                        Dépublier
+                    </a>
+                    <div id="invalid-drop" class="f-dropdown content small" data-dropdown-content>
+                        <p>
+                            Vous vous appretez à Dépublier ce tutoriel, êtes vous certains de vouloir le faire ?
+                        </p>
+                        <button type="submit" name="invalid-tuto" class="button expand alert">
+                            Confirmer la dépublication
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+
             <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            <input type="hidden" name="version" value="{{ version }}" />
             {% csrf_token %}
         </form>
-        <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="button secondary small expand">
-            <i class="fi-info"></i>
-            Historique des versions
-        </a>
+        
     {% endif %}
     <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="button secondary small expand">
         <i class="fi-download"></i>
@@ -75,13 +138,6 @@
 {% endblock %}
 
 {% block content %}
-{% if version %}
-<div class="row">
-    <div class="large-12 columns alert-box">
-        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ version }}" > Ancienne version </a>
-    </div>
-</div>
-{% endif %}
 <div class="row">
     <div class="large-12 columns">
         <div class="large-1 columns hide-for-small">
@@ -157,5 +213,4 @@
     {% endwith %}
     </div>
 </div>
-
 {% endblock %}

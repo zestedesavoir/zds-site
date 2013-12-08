@@ -30,7 +30,8 @@ def index(request):
     categories = Category.objects.all().order_by('position')
 
     return render_template('forum/index.html', {
-        'categories': categories
+        'categories': categories,
+        'user': request.user
     })
 
 
@@ -41,11 +42,16 @@ def details(request, cat_slug, forum_slug):
         if not profile[0].can_read_now():
             raise Http404
     
+    
+    
     '''
     Display the given forum and all its topics
     '''
     forum = get_object_or_404(Forum, slug=forum_slug)
-
+    
+    if not forum.can_read(request.user):
+        raise Http404
+    
     sticky_topics = Topic.objects.all()\
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')
@@ -96,7 +102,9 @@ def topic(request, topic_pk, topic_slug):
     
     # TODO: Clean that up
     g_topic = get_object_or_404(Topic, pk=topic_pk)
-
+    
+    if not g_topic.forum.can_read(request.user):
+        raise Http404
     # Check link
     if not topic_slug == slugify(g_topic.title):
         return redirect(g_topic.get_absolute_url())
@@ -294,6 +302,10 @@ def answer(request):
             raise Http404
     
     g_topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not g_topic.forum.can_read(request.user):
+        raise Http404
+    
     posts = Post.objects.filter(topic=g_topic).order_by('-pubdate')[:3]
     last_post_pk = g_topic.last_message.pk
 

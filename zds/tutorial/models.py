@@ -18,6 +18,13 @@ TYPE_CHOICES = (
         ('ARTICLE', 'Article'),
     )
 
+STATUS_CHOICES = (
+        ('PENDING', 'En attente de validateur'),
+        ('PENDING_VALID', 'En attente de validation'),
+        ('ACCEPT', 'Accepté'),
+        ('REJECT', 'Rejeté'),
+    )
+
 class Tutorial(models.Model):
 
     '''A tutorial, large or small'''
@@ -67,6 +74,11 @@ class Tutorial(models.Model):
         return reverse('zds.tutorial.views.view_tutorial', args=[
             self.pk, slugify(self.title)
         ])
+    
+    def get_absolute_url_prod(self):
+        return reverse('zds.tutorial.views.view_tutorial_online', args=[
+            self.pk, slugify(self.title)
+        ])
 
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
@@ -105,15 +117,33 @@ class Tutorial(models.Model):
     def get_path(self):
         return os.path.join(settings.REPO_PATH, self.slug)
     
-    def get_introduction(self):
-        intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
+    def get_prod_path(self):
+        return os.path.join(settings.REPO_PATH_PROD, self.slug)
+    
+    def get_introduction(self, name='introduction.md'):
+        intro = open(os.path.join(self.get_path(), name), "r")
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_conclusion(self):
-        conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
+    def get_introduction_online(self, name='introduction.md.html'):
+        intro = open(os.path.join(self.get_prod_path(), name), "r")
+        intro_contenu = intro.read()
+        intro.close()
+        
+        return intro_contenu.decode('utf-8')
+    
+    def get_conclusion(self, name='conclusion.md'):
+        print(name)
+        conclu = open(os.path.join(self.get_path(), name), "r")
+        conclu_contenu = conclu.read()
+        conclu.close()
+        
+        return conclu_contenu.decode('utf-8')
+
+    def get_conclusion_online(self, name='conclusion.md.html'):
+        conclu = open(os.path.join(self.get_prod_path(), name), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
@@ -167,6 +197,13 @@ class Part(models.Model):
             self.tutorial.slug,
             self.slug,
         ])
+    
+    def get_absolute_url_prod(self):
+        return reverse('zds.tutorial.views.view_part_online', args=[
+            self.tutorial.pk,
+            self.tutorial.slug,
+            self.slug,
+        ])
 
     def get_chapters(self):
         return Chapter.objects.all()\
@@ -175,15 +212,43 @@ class Part(models.Model):
     def get_path(self):
         return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
     
-    def get_introduction(self):
-        intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
+    def get_introduction(self, name=None):
+        if name == None:
+            intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
+        else :
+            intro = open(os.path.join(self.tutorial.get_path(), name), "r")
+
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_conclusion(self):
-        conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
+    def get_introduction_online(self, name=None):
+        if name == None:
+            intro = open(os.path.join(self.get_prod_path(), 'introduction.md.html'), "r")
+        else:
+            intro = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
+        intro_contenu = intro.read()
+        intro.close()
+        
+        return intro_contenu.decode('utf-8')
+    
+    def get_conclusion(self, name=None):
+        if name == None:
+            conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
+        else:
+            conclu = open(os.path.join(self.tutorial.get_path(), name), "r")
+        conclu_contenu = conclu.read()
+        conclu.close()
+        
+        return conclu_contenu.decode('utf-8')
+
+    def get_conclusion_online(self, name=None):
+        if name == None:
+            conclu = open(os.path.join(self.get_prod_path(), 'conclusion.md.html'), "r")
+        else:
+            conclu = open(os.path.join(self.tutorial.get_prod_path(), name), "r")
+
         conclu_contenu = conclu.read()
         conclu.close()
         
@@ -243,6 +308,16 @@ class Chapter(models.Model):
 
         else:
             return '/tutoriels/'
+    
+    def get_absolute_url_online(self):
+        if self.tutorial:
+            return self.tutorial.get_absolute_url_online()
+
+        elif self.part:
+            return self.part.get_absolute_url_online() + '{0}/'.format(self.slug)
+
+        else:
+            return '/tutoriels/'
 
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
@@ -282,20 +357,62 @@ class Chapter(models.Model):
             
         return chapter_path
     
-    def get_introduction(self):
-        intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
+    def get_introduction(self, name=None):
+        if name == None:
+            intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
+        else:
+            if self.tutorial:
+                intro = open(os.path.join(self.tutorial.get_path(), name), "r")
+            else:
+                intro = open(os.path.join(self.part.tutorial.get_path(), name), "r")                
+
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_conclusion(self):
-        conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
+    def get_introduction_online(self, name=None):
+        if name == None:
+            intro = open(os.path.join(self.get_prod_path(), 'introduction.md.html'), "r")
+        else:
+            if self.tutorial:
+                intro = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
+            else:
+                intro = open(os.path.join(self.part.tutorial.get_prod_path(), name+'.html'), "r")
+
+        intro_contenu = intro.read()
+        intro.close()
+        
+        return intro_contenu.decode('utf-8')
+    
+    def get_conclusion(self, name=None):
+        if name == None:
+            conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
+        else:
+            if self.tutorial:
+                conclu = open(os.path.join(self.tutorial.get_path(), name), "r")
+            else:
+                conclu = open(os.path.join(self.part.tutorial.get_path(), name), "r")
+
         conclu_contenu = conclu.read()
         conclu.close()
         
         return conclu_contenu.decode('utf-8')
     
+    def get_conclusion_online(self, name=None):
+        if name == None:
+            conclu = open(os.path.join(self.get_prod_path(), 'conclusion.md.html'), "r")
+        else:
+            if self.tutorial:
+                conclu = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
+            else:
+                conclu = open(os.path.join(self.part.tutorial.get_prod_path(), name+'.html'), "r")
+
+        conclu_contenu = conclu.read()
+        conclu.close()
+        
+        return conclu_contenu.decode('utf-8')
+
 class Extract(models.Model):
 
     '''A content extract from a chapter'''
@@ -325,9 +442,67 @@ class Extract(models.Model):
             
         return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
-    def get_text(self):
-        text = open(self.get_path(), "r")
+    def get_prod_path(self):
+        if self.chapter.tutorial:
+            chapter_path = os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.tutorial.slug), self.chapter.slug)
+        else:
+            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+            
+        return os.path.join(chapter_path, slugify(self.title)+'.md.html') 
+    
+    def get_text(self, name=None):
+        if name == None:
+            text = open(self.get_path(), "r")
+        else:
+            if self.chapter.tutorial:
+                text = open(os.path.join(self.chapter.tutorial.get_path(), name), "r")
+            else:
+                text = open(os.path.join(self.chapter.part.tutorial.get_path(), name), "r")
+
         text_contenu = text.read()
         text.close()
         
         return text_contenu.decode('utf-8')
+    
+    def get_text_online(self, name=None):
+        if name == None:
+            text = open(self.get_prod_path(), "r")
+        else:
+            if self.chapter.tutorial:
+                text = open(os.path.join(self.chapter.tutorial.get_prod_path(), name), "r")
+            else:
+                text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), name), "r")
+
+        text_contenu = text.read()
+        text.close()
+        
+        return text_contenu.decode('utf-8')
+
+    
+class Validation(models.Model):
+    '''Tutorial validation'''
+    class Meta:
+        verbose_name = 'Validation'
+        verbose_name_plural = 'Validations'
+    
+    tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
+                                 verbose_name='Tutoriel proposé')
+    version = models.CharField('Sha1 de la version',
+                                  blank=True, null=True, max_length=80)
+    date_proposition = models.DateTimeField('Date de proposition')
+    comment_authors = models.TextField('Commentaire de l\'auteur')
+    validator = models.ForeignKey(User,
+                                verbose_name='Validateur',
+                                related_name='author_validations',
+                                blank=True, null=True)
+    date_reserve = models.DateTimeField('Date de réservation', 
+                                           blank=True, null=True)
+    date_validation = models.DateTimeField('Date de validation', 
+                                           blank=True, null=True)
+    comment_validator = models.TextField('Commentaire du validateur', 
+                                         blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    
+    def __unicode__(self):
+        return self.tutorial.title
+    

@@ -163,6 +163,32 @@ class ProfileForm(forms.Form):
         super(ProfileForm, self).__init__(*args, **kwargs)
 
 
+#to update email/username
+class ChangeUserForm(forms.Form):
+    
+    username_new = forms.CharField(
+        label='Nouveau pseudo ',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
+    
+    email_new = forms.CharField(
+        label='Nouvel email ',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
+    
+    def __init__(self, user, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+
+        self.user = user
+
+        self.helper.layout = Layout(
+            Field('username_new'),
+            Field('email_new'),
+            Submit('submit', 'Changer'),
+        )
+        super(ChangeUserForm, self).__init__(*args, **kwargs)
+        
 # to update a password
 
 class ChangePasswordForm(forms.Form):

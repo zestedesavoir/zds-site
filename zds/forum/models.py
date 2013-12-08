@@ -90,6 +90,16 @@ class Forum(models.Model):
         except IndexError:
             return None
 
+    def can_read(self, user):
+        print(self.group.count())
+        print(user)
+        
+        if self.group.count() == 0:
+            return True
+        else:
+            groups = Group.objects.filter(user=user).all()
+            return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+        
     def is_read(self):
         for t in Topic.objects.all().filter(forum=self):
             if never_read(t):

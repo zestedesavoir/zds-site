@@ -15,7 +15,7 @@ from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
-from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm
+from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm
 from .models import Profile, Ban
 
 
@@ -277,6 +277,44 @@ def settings_account(request):
         }
         return render_to_response('member/settings_account.html', c, RequestContext(request))
 
+@login_required
+def settings_user(request):
+    profile = get_object_or_404(Profile, user__pk=request.user.pk)
+    
+    if request.method == 'POST':
+        form = ChangeUserForm(request.user, request.POST)
+        c = {
+            'form': form,
+        }
+        if form.is_valid():
+            email_exist = User.objects.filter(email = form.data['username_new']).count()
+            username_exist = User.objects.filter(username = form.data['username_new']).count()
+            
+            old = User.objects.filter(pk = request.user.pk).all()[0]
+            if form.data['username_new'] and username_exist > 0:
+                raise Http404
+            elif form.data['username_new']:
+                if form.data['username_new'].strip() != '':
+                    old.username = form.data['username_new']
+                
+            if form.data['email_new'] and email_exist > 0:
+                raise Http404
+            elif form.data['email_new']:
+                if form.data['email_new'].strip() != '':
+                    old.email = form.data['email_new']
+                
+            old.save()
+            
+            return redirect(profile.get_absolute_url())
+        
+        else:
+            return render_to_response('member/settings_user.html', c, RequestContext(request))
+    else:
+        form = ChangeUserForm(request.user)
+        c = {
+            'form': form,
+        }
+        return render_to_response('member/settings_user.html', c, RequestContext(request))
 
 @login_required
 def publications(request):
