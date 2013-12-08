@@ -93,6 +93,12 @@
                         {% if user.is_authenticated %}
                         <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels &rarr;</a></li>
                         {% endif %}
+                        {% if perms.tutorial.change_tutorial %}
+                        <li class="divider"></li>
+                        <li><label>Validation</label></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur &rarr;</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 
@@ -335,10 +341,7 @@
 
     {# Foundation #}
     <script>
-        $(document).foundation('topbar forms dropdown tooltips alerts section clearing', {
-            custom_back_text: true,
-            back_text: 'Précédent'
-        });
+        $(document).foundation();
     </script>
     {% block additionnal-js %}{% endblock %}
 

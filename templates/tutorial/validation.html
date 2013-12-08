@@ -1,0 +1,88 @@
+{% extends "tutorial/base.html" %}
+{% load humane_date %}
+
+{% block title %}
+    Liste des tutoriels soumis en validation
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Les tutoriels vous permettent d'apprendre
+    sur divers sujets axés autour de la programmation et de l'informatique." />
+{% endblock %}
+
+{% block header %}
+    <h1>
+        <i class="fi-book icon-large"></i>
+        Tutoriels
+    </h1>
+    <p>
+        Les tutoriels vous permettent <strong>d'apprendre</strong> sur divers sujets axés autour de la programmation et de l'informatique.
+    </p>
+{% endblock %}
+
+{% block headline %}
+    Liste des tutoriels soumis en validation
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% if validations %}
+            <table>
+                <thead>
+                <tr>
+                  <th></th>
+                  <th>Titre</th>
+                  <th width="8%">Catégorie</th>
+                  <th width="8%">Auteur(s)</th>
+                  <th width="8%">Proposé</th>
+                  <th width="8%">Validateur</th>
+                  <th width="8%">Réservé</th>
+                  <th></th>
+                </tr>
+                </thead>
+              <tbody>
+                {% for validation in validations %}
+                  <td></td>
+                  <td><a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a></td>
+                  <td>
+                    {% for category in validation.tutorial.category.all %}
+                        <p><a href="{% url "zds.tutorial.views.list_validation" %}?category={{category.pk}}" class="secondary" >{{ category.title }}</a></p>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for author in validation.tutorial.authors.all %}
+                        <p class='label'>{{ author.username }}</p>
+                    {% endfor %}
+                  </td>
+                  <td><p>{{ validation.date_proposition|humane_date }}</p></td>
+                  <td>
+                    {% if validation.validator %}
+                        <p class='label success'>{{ validation.validator.username }}</p></td>
+                    {% endif %}
+                  <td>
+                    {% if validation.date_reserve %}
+                        <p>{{ validation.date_reserve|humane_date }}</p>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if not validation.date_reserve %}
+                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-paw" style="color:#E33100; font-size:21px;"></a></p>
+                    {% endif %}
+                  </td>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>Aucun tutoriel soumis en validation.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

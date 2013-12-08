@@ -15,6 +15,7 @@ urlpatterns = patterns('',
 
     url(r'^parametres/profil$', views.settings_profile),
     url(r'^parametres/compte$', views.settings_account),
+    url(r'^parametres/user$', views.settings_user),
 
     url(r'^connexion$', views.login_view),
     url(r'^inscription$', views.register_view),

@@ -103,7 +103,7 @@ PIPELINE_JS = {
             'js/foundation.min.js',
             'js/custom/ajax-csrf.js',
             'js/custom/editor.js',
-            'js/custom/section.js',
+            'js/custom/foundation-migrate.js',
         ),
         'output_filename': 'js/zds.js'
     }

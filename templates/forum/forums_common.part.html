@@ -1,9 +1,11 @@
 {# Block displaying the list of forums belonging to a category #}
 {% load humane_date %}
 {% load upfirstletter %}
+{% load forum %}
 
 <div class="row">
 {% for forum in category.get_forums %}
+{% if forum|readable:user %}
 <div class="forum-entry">
     <div class="forum-entry-title {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
         <a href="{{ forum.get_absolute_url }}">
@@ -52,6 +54,6 @@
         </p>
     </div>
 </div>
-
+{% endif %}
 {% endfor %}
 </div>

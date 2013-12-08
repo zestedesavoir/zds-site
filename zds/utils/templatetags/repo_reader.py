@@ -64,14 +64,14 @@ def repo_extract(extract, sha=None):
     if sha == None:
         return {'text': extract.get_text()}
     else:
-        repo = Repo(extract.get_path())
-        bls = repo.commit(sha).tree.blobs
-        for bl in bls:
+        repo_e = Repo(extract.get_path())
+        bls_e = repo_e.commit(sha).tree.blobs
+        
+        for bl in bls_e:
             if bl.path==slugify(extract.title)+'.md':
                 text = bl.data_stream.read()
                 return {'text': text.decode('utf-8')}
-            else:
-                return {'text': ''}
+    return {'text': ''}
 
 @register.filter('repo_blob')
 def repo_blob(blob):
