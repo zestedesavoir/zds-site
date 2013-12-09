@@ -349,13 +349,21 @@ def edit_tutorial(request):
                           conclusion=data['conclusion'])
             
             tutorial.save()
-
+            
+            if 'category' in data:
+                tutorial.category.clear()
+                for cat in data['category']:
+                    tutorial.category.add(cat)
+            
+            tutorial.save()
+            
             return redirect(tutorial.get_absolute_url())
     else:
         form = EditTutorialForm({
             'title': tutorial.title,
             'licence': tutorial.licence,
             'description': tutorial.description,
+            'category': tutorial.category.all(),
             'introduction': tutorial.get_introduction(),
             'conclusion': tutorial.get_conclusion(),
         })

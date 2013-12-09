@@ -85,6 +85,12 @@ class EditTutorialForm(forms.Form):
         queryset=Licence.objects.all(),
         required = False,
     )
+    
+    category = forms.ModelMultipleChoiceField(
+        label = "Catégories",
+        queryset=Category.objects.all(),
+        required = False,
+    )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -97,6 +103,7 @@ class EditTutorialForm(forms.Form):
             Field('licence'),
             Field('introduction'),
             Field('conclusion'),
+            Field('category'),
             Submit('submit', 'Valider')
         )
         super(EditTutorialForm, self).__init__(*args, **kwargs)
