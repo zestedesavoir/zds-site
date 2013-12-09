@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.tutorial',
+    'zds.newsletter',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
