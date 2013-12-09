@@ -71,8 +71,14 @@
                     {% endif %}
                   </td>
                   <td>
-                    {% if not validation.date_reserve %}
-                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-paw" style="color:#E33100; font-size:21px;"></a></p>
+                    {% if validation.is_pending %}
+                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-unlock" style="color:#E33100; font-size:21px;"></a></p>
+                    {% elif validation.is_pending_valid %}
+                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-lock" style="color:#E33100; font-size:21px;"></a></p>
+                    {% elif validation.is_accept %}
+                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-check" style="color:#E33100; font-size:21px;"></a></p>
+                    {% elif validation.is_reject %}
+                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-x" style="color:#E33100; font-size:21px;"></a></p>
                     {% endif %}
                   </td>
                 {% endfor %}
