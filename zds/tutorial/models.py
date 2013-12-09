@@ -15,7 +15,6 @@ from zds.utils.models import Category, Licence
 TYPE_CHOICES = (
         ('MINI', 'Mini-tuto'),
         ('BIG', 'Big tuto'),
-        ('ARTICLE', 'Article'),
     )
 
 STATUS_CHOICES = (
@@ -506,3 +505,14 @@ class Validation(models.Model):
     def __unicode__(self):
         return self.tutorial.title
     
+    def is_pending(self):
+        return self.status == 'PENDING'
+    
+    def is_pending_valid(self):
+        return self.status == 'PENDING_VALID'
+    
+    def is_accept(self):
+        return self.status == 'ACCEPT'
+    
+    def is_reject(self):
+        return self.status == 'REJECT'
