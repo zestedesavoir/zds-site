@@ -88,16 +88,17 @@
                     <ul class="dropdown">
                         <li class="divider"></li>
                         <li><label>Participez</label></li>
-                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Proposer un tutoriel &rarr;</a></li>
-                        <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Proposer un tutoriel</a></li>
+                        <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto </a></li>
                         {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels</a></li>
                         {% endif %}
                         {% if perms.tutorial.change_tutorial %}
                         <li class="divider"></li>
                         <li><label>Validation</label></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation &rarr;</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur &rarr;</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Zone de validation</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
                         {% endif %}
                     </ul>
                 </li>
