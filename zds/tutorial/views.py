@@ -95,7 +95,8 @@ def list_validation(request):
             validations = Validation.objects.all() \
             .filter(tutorial__category__in=[category]) \
                 .order_by("date_proposition")
-        
+    
+    print(validations)
     return render_template('tutorial/validation.html', {
         'validations': validations,
     })
@@ -1359,14 +1360,15 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
         conclu.close()
         index.add(['conclusion.md'])
 
+    com_ch = index.commit(msg.encode('utf-8'))
+    
     if(chapter.tutorial):
         chapter.tutorial.sha_draft=com_ch.hexsha
         chapter.tutorial.save()
     else:
         chapter.part.tutorial.sha_draft=com_ch.hexsha
         chapter.part.tutorial.save()
-        
-    com_ch = index.commit(msg.encode('utf-8'))
+
     
 def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=None):
     if(extract.chapter.tutorial):
