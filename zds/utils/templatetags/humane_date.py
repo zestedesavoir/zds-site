@@ -10,7 +10,6 @@ from pytz import timezone, UnknownTimeZoneError
 
 import zds.settings
 
-
 def humane_date(date, conf={}):
     """Transforms a date into a human-readable format.
 
@@ -239,3 +238,4 @@ else:
     register.filter('humane_date', humane_date)
     register.tag('humane_date', do_humane_date)
     humane_date.is_safe = True
+

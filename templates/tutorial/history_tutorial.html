@@ -55,20 +55,20 @@
           <thead>
             <tr>
               <th></th>
-              <th width="10%">Date</th>
+              <th width="25%">Date</th>
               <th>Version</th>
-              <th width="20%">Diff</th>
+              <th width="10%">Diff</th>
               <th width="10%">Auteur</th>
             </tr>
           </thead>
           <tbody>
             {% for log in logs %}
             <tr>
-              <td>{% if tutorial.sha_validation = log.newhexsha %} Validation {% elif tutorial.sha_draft =  log.newhexsha %} Draft {% endif%}</td>
-              <td>{{ log.time.0 }}</td>
-              <td><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></td>
-              <td><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha|truncatechars:8 }}</a></td>
-              <td>{{ log.actor }}</td>
+              <td><p>{% if tutorial.sha_validation = log.newhexsha %} Validation {% elif tutorial.sha_draft =  log.newhexsha %} Draft {% endif%}</p></td>
+              <td><p>{{ log.time.0|humane_time }}</p></td>
+              <td><p><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
+              <td><p><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
+              <td><p>{{ log.actor }}</p></td>
             </tr>
             {% endfor %}
           </tbody>

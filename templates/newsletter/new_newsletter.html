@@ -1,0 +1,14 @@
+{% load crispy_forms_tags %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    {% crispy form %}
+</body>
+</html>
