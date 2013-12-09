@@ -220,3 +220,7 @@ $RECYCLE.BIN/
 # Mac crap
 .DS_Store
 /static
+/tutoriels-private
+/tutoriels-public
+/media
+/assets
