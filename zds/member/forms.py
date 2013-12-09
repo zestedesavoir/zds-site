@@ -171,7 +171,7 @@ class ChangeUserForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
     
-    email_new = forms.CharField(
+    email_new = forms.EmailField(
         label='Nouvel email ',
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
