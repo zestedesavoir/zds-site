@@ -16,7 +16,7 @@ register = template.Library()
 @register.filter('humane_time')
 def humane_time(t, conf={}):
     tp = time.localtime(t)
-    return time.strftime("%A %d %B %Y %H:%M:%S", tp)
+    return time.strftime("%d %b %Y, %H:%M:%S", tp)
 
 @register.filter(needs_autoescape=False)
 def emarkdown(value):
