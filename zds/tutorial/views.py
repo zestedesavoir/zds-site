@@ -19,7 +19,6 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
 from zds.utils.models import Category, Licence
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.tutorial import Toc, Toc_chapter, Toc_part, Toc_extract
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
     EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm
