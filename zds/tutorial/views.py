@@ -1413,26 +1413,28 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
     
 
 def tuto_to_markdown(text):
-    chaine_h1 = re.sub(r'(.*)<titre1>(.*)</titre1>(.*)', r'\1##\2\3', text)
-    chaine_h2 = re.sub(r'(.*)<titre2>(.*)</titre2>(.*)', r'\1###\2\3', chaine_h1)
-    chaine_bold = re.sub(r'(.*)<gras(.*)>(.*)</gras>(.*)', r'\1**\3**\4', chaine_h2)
-    chaine_i = re.sub(r'(.*)<italique(.*)>(.*)</italique>(.*)', r'\1*\3*\4', chaine_bold)
-    chaine_link = re.sub(r'(.*)<lien(.*)url="(.*)"(.*)>(.*)</lien>(.*)', r'\1[\4](\3)\6', chaine_i)
-    chaine_image = re.sub(r'(.*)<image(.*)>(.*)</image>(.*)', r'\1![](\3)\4', chaine_link)
-    chaine_list = re.sub(r'(.*)<liste(.*)>(.*)</liste>(.*)', r'\r\1\r\3\r\4\r', chaine_image)
-    chaine_puce = re.sub(r'(.*)<puce(.*)>(.*)</puce>(.*)', r'\1- \3\4', chaine_list)
-    chaine_minicode = re.sub(r'(.*)<minicode(.*)type="(.*)"(.*)>(.*)</minicode>(.*)', r'\1`\5`\6', chaine_puce)
-    chaine_code = re.sub(r'(.*)<code(.*)type="(.*)"(.*)>(.*)</code>(.*)', r'\1\r```\3\r\5\r```\r\6', chaine_minicode)
-    
-    chaine_color = re.sub(r'(.*)<couleur(.*)>(.*)</couleur>(.*)', r'\1\3\4', chaine_code)
-    chaine_position = re.sub(r'(.*)<position(.*)>(.*)</position>(.*)', r'\1\3\4', chaine_color)
-    
-    chaine_info = re.sub(r'(.*)<information(.*)>(.*)</information>(.*)', r'\1<p class="alert-box success">\3</p>\4', chaine_position)
-    chaine_question = re.sub(r'(.*)<question(.*)>(.*)</question>(.*)', r'\1<p class="alert-box secondary">\3</p>\4', chaine_info)
-    chaine_erreur = re.sub(r'(.*)<erreur(.*)>(.*)</erreur>(.*)', r'\1<p class="alert-box alert">\3</p>\4', chaine_question)
-    chaine_attention = re.sub(r'(.*)<attention(.*)>(.*)</attention>(.*)', r'\1<p class="alert-box">\3</p>\4', chaine_erreur)
-    
-    return chaine_attention
+    chaine = re.sub(r'(.*)<titre1>(.*)</titre1>(.*)', r'\1##\2\3', text)
+    chaine = re.sub(r'(.*)<titre2>(.*)</titre2>(.*)', r'\1###\2\3', chaine)
+    chaine = re.sub(r'(.*)<gras>(.*)</gras>(.*)', r'\1**\2**\3', chaine)
+    chaine = re.sub(r'(.*)<italique>(.*)</italique>(.*)', r'\1*\2*\3', chaine)
+    chaine = re.sub(r'(.*)<lien(.*)url="(.*)">(.*)</lien>(.*)', r'\1[\4](\3)\5', chaine)
+    chaine = re.sub(r'(.*)<image([\s|\S]*)>(.*)</image>([\s|\S]*)', r'\1![](\3)\4', chaine)
+    chaine = re.sub(r'(.*)<puce>(.*)</puce>(.*)', r'\1- \2\3', chaine)
+    chaine = re.sub(r'(.*)<minicode(.*)type="(.*)"(.*)>(.*)</minicode>(.*)', r'\1`\5`\6', chaine)
+    chaine = re.sub(r'(.*)<code(.*)type="(.*)"(.*)>([\s|\S]*)</code>(.*)', r'\1\r```\3\r\5\r```\r\6', chaine)    
+    chaine = re.sub(r'(.*)<couleur nom="(.*)">(.*)</couleur>(.*)', r'\1\3\4', chaine)
+    chaine = re.sub(r'(.*)<position valeur="(.*)">', r'\1', chaine)
+    chaine = re.sub(r'</position>(.*)', r'\1', chaine)
+    chaine = re.sub(r'(.*)<taille valeur="(.*)">', r'\1', chaine)
+    chaine = re.sub(r'</taille>(.*)', r'\1', chaine)
+    chaine = re.sub(r'(.*)<liste>', r'\1', chaine)
+    chaine = re.sub(r'</liste>(.*)', r'\1', chaine)
+    chaine = re.sub(r'(.*)<information(.*)>(.*)</information>(.*)', r'\1\n[information]\n|\3\n\4', chaine)
+    chaine = re.sub(r'(.*)<question(.*)>(.*)</question>(.*)', r'\1\n[question]\n|\3\n\4', chaine)
+    chaine = re.sub(r'(.*)<erreur(.*)>(.*)</erreur>(.*)', r'\1\n[erreur]\n|\3\n\4', chaine)
+    chaine = re.sub(r'(.*)<attention(.*)>(.*)</attention>(.*)', r'\1\n[attention]\n|\3\n\4', chaine)
+
+    return chaine
 
 
 def download(request):
