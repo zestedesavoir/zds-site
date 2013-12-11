@@ -66,18 +66,20 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Tal
 ##Comment démarrer une instance de ZdS ?
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
-* `apt-get install git`
-* `git clone https://github.com/Taluu/ZesteDeSavoir.git`
-* `apt-get install python-2.7`
-* `apt-get install python-pip`
-* `apt-get install ruby`
-* `apt-get install rubygems`
-* `gem install compass`
-* `gem install zurb-foundation`
-* `cd ZesteDeSavoir`
-* `pip install --user -r requirements.txt`
-* `python manage.py syncdb`
-* `python manage.py migrate`
-* `python manage.py runserver`
+```console
+$ apt-get install git
+$ git clone https://github.com/Taluu/ZesteDeSavoir.git
+$ apt-get install python-2.7
+$ apt-get install python-pip
+$ apt-get install ruby
+$ apt-get install rubygems
+$ gem install compass
+$ gem install zurb-foundation
+$ cd ZesteDeSavoir
+$ pip install --user -r requirements.txt
+$ python manage.py syncdb
+$ python manage.py migrate
+$ python manage.py runserver
+```
 
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
