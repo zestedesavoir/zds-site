@@ -12,6 +12,7 @@ Fonctionnalités implementées
 * Poster dans un topic (avec des smileys)
 * Liker/Disliker un post
 * Signaler un post aux modérateurs
+
 #### Un staff peut :
 * Faire tout ce que fait un membre simple
 * Masquer un message alerté
