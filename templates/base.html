@@ -5,12 +5,16 @@
 {% load topbar %}
 
 <!DOCTYPE html>
-<html lang="fr">
+<!--[if lt IE 7]>      <html class="no-js enable-mobile-menu lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js enable-mobile-menu lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js enable-mobile-menu lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js enable-mobile-menu"> <!--<![endif]-->
 <head>
+    <meta charset="utf-8">
+
     <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
     {% block meta %}{% endblock %}
 
@@ -20,42 +24,227 @@
     {% block extracss %}{% endblock %}
 
     {# favicons #}
-    <link rel="shortcut icon" type="image/png" href="{% static "img/favicon.png" %}" />
-    <link rel="apple-touch-icon" sizes="114x114" href="{% static "img/touch-icon-114x114.png" %}" />
-    <link rel="apple-touch-icon" sizes="72x72" href="{% static "img/touch-icon-72x72.png" %}" />
-    <link rel="apple-touch-icon" href="{% static "img/touch-icon-iphone.png" %}" />
+    <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static "images/apple-touch-icon-144x144-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static "images/apple-touch-icon-114x114-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static "images/apple-touch-icon-72x72-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static "images/apple-touch-icon-57x57-precomposed.png" %}">
+    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
+    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml"
           title="Forum" href="{% url "post-feed-rss" %}"/>
-    <!-- Piwik -->
-    <script type="text/javascript"> 
-      var _paq = _paq || [];
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://zestedesavoir.tk/piwik//";
-        _paq.push(['setTrackerUrl', u+'piwik.php']);
-        _paq.push(['setSiteId', 1]);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
-        g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-      })();
-
-    </script>
-    <noscript><p><img src="http://zestedesavoir.tk/piwik/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
-    <!-- End Piwik Code -->
-
 </head>
 <body>
+    <!--[if lt IE 7]>
+        <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> ou <a href="http://www.google.com/chromeframe/?redirect=true">activer Google Chrome Frame</a> pour améliorer votre expérience.</p>
+    <![endif]-->
 
+    <div class="mobile-menu" id="mobile-menu"></div>
+
+
+    <div class="page-container">
+        <div class="header-container">
+            <header class="clearfix">
+                <ul class="accessibility">
+                    <li>
+                        <a href="#menu">Aller au menu</a>
+                    </li>
+                    <li>
+                        <a href="#content" accesskey="s">Aller au contenu</a>
+                    </li>
+                    <li>
+                        <a href="#search" accesskey="4">Aller à la recherche</a>
+                    </li>
+                </ul>
+
+
+
+                <div class="wrapper">
+                    <div class="mobile-menu-btn"></div>
+
+
+
+                    {# Logo #}
+
+                    <h1 class="header-logo">
+                        <a href="{% url "zds.pages.views.home" %}" class="header-logo-link" data-title="Zeste de Savoir">
+                            Zeste de Savoir
+                        </a>
+                    </h1>
+
+
+
+                    {# Menu #}
+
+                    <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
+                        {% if user.is_authenticated %}
+                        {% with profile=user|profile %}
+                            data-is-hover="{{ profile.hover_or_click}}"
+                        {% endwith %}
+                        {% endif %}
+                    >
+                        <ul>
+                            <li>
+                                <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link">
+                                    Tutoriels
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="mobile-menu-link">
+                                    Articles
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link">
+                                    Forums
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+
+    
+                    {# Logbox #}
+
+                    {% if user.is_authenticated %}
+                        <div class="logbox header-right">
+                            <div class="notifs-links">
+
+                                {% with topics=user|interventions_privatetopics %}
+                                    {% with unread_topics=topics.unread %}
+                                    <a href="{% url "zds.mp.views.index" %}">
+                                        <span class="notif-text ico ico-messages">Messagerie</span>
+                                        {% if unread_topics|length > 0 %}
+                                            <span class="notif-count">{{ unread_topics|length }}</span>
+                                        {% endif %}
+                                    </a>
+                                    {% endwith %}
+                                {% endwith %}
+
+
+                                {% with topics=user|interventions_topics %}
+                                    {% with unread_topics=topics.unread %}
+                                    <a href="#">
+                                        <span class="notif-text ico ico-notifs">Notifications</span>
+                                        {% if unread_topics|length > 0 %}
+                                            <span class="notif-count">{{ unread_topics|length }}</span>
+                                        {% endif %}
+                                    </a>
+                                    {% endwith %}
+                                {% endwith %}
+
+                                {% if perms.forum.change_post %}
+                                    {% with posts=user|alerts_topic %}
+                                    <a href="#">
+                                        <span class="notif-text ico ico-alerts">Alertes</span>
+                                        {% if posts.count > 0 %}
+                                            <span class="notif-count">{{ posts.count }}</span>
+                                        {% endif %}
+                                    </a>
+                                    {% endwith %}
+                                {% endif %}
+                            </div>
+                            <a href="{% url "zds.member.views.actions" %}" 
+                               class="my-account mobile-menu-link mobile-menu-bloc" 
+                               title="Mon compte" 
+                               data-title="Mon compte">
+                                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                <span class="username label">{{ user.username }}</span>
+                            </a>
+                        </div>
+
+                    {% else %} {# Not logged #}
+
+                        {# TODO : design links #}
+
+                        <a href="{% url "zds.member.views.register_view" %}">S'inscrire</a>
+                        <a href="{% url "zds.member.views.login_view" %}">Se connecter</a>
+                    {% endif %}
+                </div>
+            </header>
+
+
+
+        
+            <div class="clearfix sub-header">
+                <div class="wrapper">
+                    <div class="ariane">
+                        <ul>
+                            <li>
+                                <a href="{% url "zds.pages.views.home" %}">Accueil</a>
+                            </li>
+                            {% block breadcrumb_base %}{% endblock %}
+                            {% block breadcrumb %}{% endblock %}
+                        </ul>
+                    </div>
+                    <div class="search header-right" id="search">
+                        <form action="">
+                            <input type="text" name="q" placeholder="Rechercher">
+                            <button type="submit" class="search-submit">OK</button>
+                        </form>
+                        <a href="" class="search-more">+</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+                
+                <main class="content-container" role="main" id="content">
+                    {% block content %}{% endblock %}
+                </main>
+                
+
+                <aside class="sidebar mobile-menu-bloc" data-title="{% block sidebar_title %}Catégories de tutoriels{% endblock %}">
+                    {% block sidebar %}
+                        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+                        <h4><a href="#" class="mobile-menu-link">Sites web</a></h4>
+                        <ul>
+                            <li><a href="#">HTML5 &amp; CSS3</a></li>
+                            <li><a href="#">JavaScript</a></li>
+                            <li><a href="#">PHP</a></li>
+                            <li><a href="#">Java EE</a></li>
+                            <li><a href="#">Node.js</a></li>
+                        </ul>
+                        <h4><a href="#" class="mobile-menu-link">Programmation</a></h4>
+                        <ul>
+                            <li><a href="#">Langage C</a></li>
+                            <li><a href="#">Langage C++</a></li>
+                            <li><a href="#">Langage C#</a></li>
+                            <li><a href="#">Langage Java</a></li>
+                            <li><a href="#">Langage Python</a></li>
+                            <li><a href="#">.NET</a></li>
+                        </ul>
+                    {% endblock %}
+                </aside>
+
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->
+
+
+
+        <!-- TO BE CONTINUED -->
+    </div>
+
+
+
+
+
+
+
+<!--
     <nav class="top-bar" 
         {% if user.is_authenticated %}
         {% with profile=user|profile %}
-        data-options="is_hover: {{ profile.hover_or_click}}"
-        
+            data-is-hover="{{ profile.hover_or_click}}"
         {% endwith %}
         {% endif %}
-        >
+    >
         <ul class="title-area">
             <li class="name">
                 <h1>
@@ -276,18 +465,7 @@
         </div>
     </header>
 
-    <div class="row">
-        <div class="large-12 columns">
-            <ul class="breadcrumbs">
-                <li>
-                    <a href="{% url "zds.pages.views.home" %}">Accueil</a>
-                </li>
-                {% block breadcrumb_base %}{% endblock %}
-                {% block breadcrumb %}{% endblock %}
-            </ul>
-        </div>
-    </div>
-
+            
     <div class="row">
         <div class="large-8 columns">
             <h1>{% block headline %}{% endblock %}</h1>
@@ -317,7 +495,7 @@
         </div>
     </div>
 
-    {% block content %}{% endblock %}
+    
 
     {# Footer #}
 
@@ -333,18 +511,15 @@
             </ul>
         </div>
     </div>
+-->
+
+
 
     {# Javascript stuff start #}
     {% compressed_js "zds" %}
 
     {# for addtionnal javascript in some pages #}
     {% block extrajs %}{% endblock %}
-
-    {# Foundation #}
-    <script>
-        $(document).foundation();
-    </script>
     {% block additionnal-js %}{% endblock %}
-
 </body>
 </html>

@@ -27,77 +27,47 @@ class="active"
 Bienvenue sur ZesteDeSavoir
 {% endblock %}
 
+
+
 {% block content %}
 
-<div class="row">
-          <div class="large-6 columns">
-            <div class="row">
-                <div class="large-12 columns">
-                <div class="panel">
-                    <h3><a href="{% url "zds.forum.views.index" %}">Forums</a></h3>
-                    <hr />
-                    <div class="row">
-                        <div class="large-12 columns">
-                        {% if last_topics %}
-                            {% for topic in last_topics %}
-                                {% include "forum/topic_item_common.part.html" %}
-                            {% endfor %}
-                        {% else %}
-                    <p>Aucun sujet récent.</p>
-                    
-                    {% endif %}
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-          </div>
-          <div class="large-6 columns">
-            <div class="row">
-                <div class="large-12 columns">
-                <div class="panel">
-                    <h3><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></h3>
-                    <hr />
-                    <div class="row">
-                        <div class="large-12 columns">
-                        {% if last_tutorials %}
-                            {% for tutorial in last_tutorials %}
-                            {% if tutorial.on_line %}
-                                <div class="large-2 columns hide-for-small">
-                                    <img src="{{ tutorial.image.thumb.url }}">
-                                </div>
-                                <div class="large-10 columns">
-                                <p class="subheader">
-                                <a href="{{ tutorial.get_absolute_url_prod }}">
-                                    {{ tutorial.title }}
-                                </a>
-                                </p>
-                                <p class="subheader">
-                                    {% if tutorial.category %}
-                                    {% for category in tutorial.category.all %}
-                                    
-                                        <a class="label secondary" href="#">{{category.title}}</a>
-                                    
-                                    {% endfor %}
-                                    {% endif %}
-                                    <i class="fi-clock"></i>
-                                    {{tutorial.pubdate|humane_date}}
-                                </p>
-                                
-                                </div>
-                                <hr />
-                            {% endif %}
-                            {% endfor %}
-                        {% else %}
-                    <p>Aucun Tutoriel récent.</p>
-                    
-                    {% endif %}
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div> 
-        </div>
+    <section class="content-col">
+        <h2 class="ico ico-articles">Derniers Articles</h2>
 
-</div>
+        {% if last_topics %}
+            {% for topic in last_topics %}
+                {% include "forum/topic_item_common.part.html" %}
+            {% endfor %}
+        {% endif %}        
+    </section>
+
+    <section class="content-col">
+        <h2 class="ico ico-tutorials">Dernier tutoriels</h2>
+
+        
+        {% if last_tutorials %}
+            {% for tutorial in last_tutorials %}
+                {% if tutorial.on_line %}
+                    <article>
+                        <a href="{{ tutorial.get_absolute_url_prod }}">
+                            <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
+                            <div class="tutorial-infos">
+                                <h3>{{ tutorial.title }}</h3>
+
+                                <p class="article-metadata">
+                                    {% if tutorial.category %}
+                                        {% for category in tutorial.category.all %}
+                                            {{ category.title }}                                    
+                                        {% endfor %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                    </article>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        
+    </section>
+
 {% endblock %}
