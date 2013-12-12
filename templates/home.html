@@ -47,24 +47,22 @@ Bienvenue sur ZesteDeSavoir
         
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
-                {% if tutorial.on_line %}
-                    <article>
-                        <a href="{{ tutorial.get_absolute_url_prod }}">
-                            <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                            <div class="tutorial-infos">
-                                <h3>{{ tutorial.title }}</h3>
+                <article>
+                    <a href="{{ tutorial.get_absolute_url_prod }}">
+                        <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
+                        <div class="tutorial-infos">
+                            <h3>{{ tutorial.title }}</h3>
 
-                                <p class="article-metadata">
-                                    {% if tutorial.category %}
-                                        {% for category in tutorial.category.all %}
-                                            {{ category.title }}                                    
-                                        {% endfor %}
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </a>
-                    </article>
-                {% endif %}
+                            <p class="article-metadata">
+                                {% if tutorial.category %}
+                                    {% for category in tutorial.category.all %}
+                                        {{ category.title }}                                    
+                                    {% endfor %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
+                </article>
             {% endfor %}
         {% endif %}
         
