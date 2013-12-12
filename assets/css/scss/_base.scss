@@ -1,0 +1,147 @@
+/* ===== Zeste de Savoir ====================================================
+   Base from HTML5 BoilerPlate
+   Updated by: Alex-D / Alexandre Demode
+   ---------------------------------
+   Base style for globals elements & helpers
+   ========================================================================== */
+
+
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+html {
+    width: 100%;
+    font-size: 62.5%;
+    overflow-x: hidden;
+}
+body,
+.page-container {
+    font-family: "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
+    background: #f4f6f6;
+    font-size: 14px;
+    font-size: 1.4rem;
+    line-height: 24px;
+    line-height: 2.4rem;
+    width: 100%;
+}
+/*
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+*/
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+img {
+    vertical-align: middle;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.chromeframe {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+.mobile-menu,
+.mobile-menu-btn {
+    display: none;
+}
+
+.ico {
+    background-image: $sprite;
+    background-repeat: no-repeat;
+}
+
+
+
+
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+
+.ir {
+    background-color: transparent;
+    border: 0;
+    overflow: hidden;
+    *text-indent: -9999px;
+}
+
+.ir:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 150%;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}

@@ -1,0 +1,49 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Override for high pixel ratio screens : HD icons
+   ========================================================================== */
+
+
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 4/3), only screen and (min-device-pixel-ratio: 1.3), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx){ 
+    .header-logo-link {
+        background-size: 100%;
+        background-image: url('../images/logo@2x.png');
+    }
+    .ico,
+    .search form button:after,
+    .js.enable-mobile-menu .page-container .mobile-menu-btn:after {
+        background-size: round(image-width(sprite-path($sprite2x)) / 2) round(image-height(sprite-path($sprite2x)) / 2);
+        background-image: $sprite2x;
+    }
+
+    .js.enable-mobile-menu .page-container .mobile-menu-btn:after {
+        @include sprite-pos($sprite2x, 'menu', true);
+    }
+
+    .logbox .notifs-links a .notif-text {
+        &.ico-messages {
+            @include sprite-pos($sprite2x, 'messages', true);
+        }
+        &.ico-notifs {
+            @include sprite-pos($sprite2x, 'notifications', true);
+        }
+        &.ico-alerts {
+            @include sprite-pos($sprite2x, 'alerts', true);
+        }
+    }
+
+    .search form button:after {
+        @include sprite-pos($sprite2x, 'search', true);
+    }
+
+    .main .content-container h2 {
+        &.ico-articles {
+            @include sprite-pos($sprite2x, 'articles', true);
+        }
+        &.ico-tutorials {
+            @include sprite-pos($sprite2x, 'tutorials', true);
+        }
+    }
+}
