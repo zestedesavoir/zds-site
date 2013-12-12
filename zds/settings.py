@@ -100,21 +100,21 @@ PIPELINE_JS = {
         'source_filenames': (
             'js/vendor/custom.modernizr.js',
             'js/vendor/jquery.js',
-            'js/foundation.min.js',
             'js/custom/ajax-csrf.js',
             'js/custom/editor.js',
-            'js/custom/foundation-migrate.js',
+            'js/custom/mobile-menu.js',
+            'js/custom/accessibility-links.js',
         ),
-        'output_filename': 'js/zds.js'
+        'output_filename': 'js/main.js'
     }
 }
 
 PIPELINE_CSS = {
     'zds': {
         'source_filenames': (
-            'css/zestedesavoir.css',
+            'css/main.css',
         ),
-        'output_filename': 'css/zds.css'
+        'output_filename': 'css/design.css'
     }
 }
 
