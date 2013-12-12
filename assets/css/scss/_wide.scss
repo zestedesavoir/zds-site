@@ -1,0 +1,143 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Wide screen support, for wide and extra-wide
+   ========================================================================== */
+
+
+
+@media only screen and (min-width: 768px) {
+    .screen {
+        display: inline;
+    }
+
+    .wrapper {
+        width: 95%;
+        margin: 0 2.5%;
+    }
+
+
+
+    // CSS3 Effects
+    .header-container {
+        @include box-shadow(0 1px 5px rgba(0, 0, 0, .25));
+    }
+
+
+
+    /* ============
+       Header
+       ============ */
+
+    .header-logo {
+        float: left;
+        text-align: left;
+        width: 240px;
+    }
+
+    .header-menu {
+        float: left;
+        width: 34%;
+        margin-left: .5%;
+
+        a {
+            max-width: 150px;
+        }
+    }
+
+    .header-right {
+        float: right;
+        width: 230px;
+    }
+
+    .ariane {
+        display: block;
+        width: 100%;
+        height: 40px;
+
+            ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+
+            li {
+                float: left;
+                padding-right: 10px;
+                line-height: 30px;
+
+                a {
+                    text-decoration: none;
+                    color: #084561;
+                }
+            }
+        }
+    }
+
+    .search {
+        &:before {
+            display: block;
+            content: " ";
+            position: absolute;
+            left: -20px;
+            height: 30px;
+            width: 20px;
+            @include background(linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0)));
+        }
+        form {
+            input,
+            button {
+                height: 30px;
+                line-height: 30px;
+            }
+            input {
+                padding: 0 10px;
+                width: 150px;
+            }
+            button {
+                width: 30px;
+                &:after {
+                    top: 7px;
+                }
+            }
+        }
+        .search-more {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+
+    .ariane {
+        width: auto;
+        height: 30px;
+        float: left;
+    }
+
+
+
+    /* ============
+       Main
+       ============ */
+
+    .main .content-container {
+        float: right;
+        width: 80%;
+
+        .content-col {
+            width: 49%;
+            margin: 0 0 0 1%;
+            float: left;
+        }
+    }
+
+    .main .sidebar {
+        float: left;
+        width: 22.3%;
+
+        h3,
+        h4,
+        ul li {
+            padding-left: 11.1%;
+        }
+    }
+}
