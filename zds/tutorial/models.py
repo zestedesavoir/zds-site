@@ -6,10 +6,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from os import path
 import os
+import json
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify
 from zds.utils.models import Category, Licence
+from zds.utils.tutorials import *
 
 
 TYPE_CHOICES = (
@@ -113,8 +115,11 @@ class Tutorial(models.Model):
     def is_article(self):
         return self.type == 'ARTICLE'
     
-    def get_path(self):
-        return os.path.join(settings.REPO_PATH, self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            return ''
+        else:
+            return os.path.join(settings.REPO_PATH, self.slug)
     
     def get_prod_path(self):
         return os.path.join(settings.REPO_PATH_PROD, self.slug)
@@ -125,6 +130,29 @@ class Tutorial(models.Model):
         intro.close()
         
         return intro_contenu.decode('utf-8')
+    
+    def load_json(self, path=None):
+        if path==None:
+            man_path=os.path.join(self.get_path(),'manifest.json')
+        else :
+            man_path=path
+        if os.path.isfile(man_path):
+            json_data=open(man_path)
+            data = json.load(json_data)
+            json_data.close()
+            
+            return data
+        else:
+            return None
+    
+    def dump_json(self, path=None):
+        old = self.load_json(path=path)
+        dct = export_tutorial(self)
+        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        json_data = open(path, "w")
+        json_data.write(data)
+        json_data.close()
+        
     
     def get_introduction_online(self, name='introduction.md.html'):
         intro = open(os.path.join(self.get_prod_path(), name), "r")
@@ -208,8 +236,11 @@ class Part(models.Model):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 
-    def get_path(self):
-        return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            return self.slug
+        else:
+            return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
     
     def get_introduction(self, name=None):
         if name == None:
@@ -348,11 +379,17 @@ class Chapter(models.Model):
                         position += 1
         self.position_in_tutorial = position
     
-    def get_path(self):
-        if self.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            if self.tutorial:
+                chapter_path = self.slug
+            else:
+                chapter_path = os.path.join(self.part.slug, self.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
+            if self.tutorial:
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+            else:
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
             
         return chapter_path
     
@@ -433,11 +470,17 @@ class Extract(models.Model):
             slugify(self.title)
         )
         
-    def get_path(self):
-        if self.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+    def get_path(self, relative=False):
+        if relative:
+            if self.chapter.tutorial:
+                chapter_path = self.chapter.slug
+            else:
+                chapter_path = os.path.join(self.chapter.part.slug, self.chapter.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+            if self.chapter.tutorial:
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+            else:
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
