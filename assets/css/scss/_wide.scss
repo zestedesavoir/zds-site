@@ -121,12 +121,16 @@
 
     .main .content-container {
         float: right;
-        width: 80%;
+        width: 79%;
 
         .content-col {
-            width: 49%;
+            width: 49.5%;
             margin: 0 0 0 1%;
             float: left;
+
+            &:first-child {
+                margin: 0;
+            }
         }
     }
 

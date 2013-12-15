@@ -196,7 +196,25 @@
             <div class="main wrapper clearfix">
                 
                 <main class="content-container" role="main" id="content">
-                    {% block content %}{% endblock %}
+                    {% block content_out %}
+                        <h2>{% block headline %}{% endblock %}</h2>
+                        
+                        <div class="headline-actions">{% block headline-actions %}{% endblock %}</div>
+
+                        <div class="row">
+                            {% block headline-sub %}{% endblock %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert-box {{ message.tags }}">
+                                        <span>{{ message }}</span>
+                                        <a href="#" class="close">&times;</a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        {% block content %}{% endblock %}
+                    {% endblock %}
                 </main>
                 
 
@@ -456,45 +474,6 @@
             </ul>
         </section>
     </nav>
-
-    <header>
-        <div class="row">
-            <div class="twelve columns">
-                
-            </div>
-        </div>
-    </header>
-
-            
-    <div class="row">
-        <div class="large-8 columns">
-            <h1>{% block headline %}{% endblock %}</h1>
-        </div>
-        <div class="large-4 columns">
-            <div class="headline-actions right">
-                {% block headline-actions %}{% endblock %}
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="large-12 columns">
-            <h1>
-                <small>
-                    {% block headline-sub %}{% endblock %}
-                </small>
-            </h1>
-            {% if messages %}
-                {% for message in messages %}
-                    <div data-alert class="alert-box {{ message.tags }}">
-                        <span>{{ message }}</span>
-                        <a href="#" class="close">&times;</a>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-
     
 
     {# Footer #}
