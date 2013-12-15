@@ -309,6 +309,7 @@ def edit_tutorial(request):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    json = tutorial.load_json()
 
     if not request.user in tutorial.authors.all():
         raise Http404
@@ -358,13 +359,18 @@ def edit_tutorial(request):
             
             return redirect(tutorial.get_absolute_url())
     else:
+        if json['licence']:
+            licence=Licence.objects.filter(code=json['licence']).all()[0]
+        else:
+            licence=None
+            
         form = EditTutorialForm({
-            'title': tutorial.title,
-            'licence': tutorial.licence,
-            'description': tutorial.description,
+            'title': json['title'],
+            'licence': licence,
+            'description': json['description'],
             'category': tutorial.category.all(),
-            'introduction': tutorial.get_introduction(),
-            'conclusion': tutorial.get_conclusion(),
+            'introduction': tutorial.get_introduction(name=json['introduction']),
+            'conclusion': tutorial.get_conclusion(name=json['conclusion']),
         })
 
     return render_template('tutorial/edit_tutorial.html', {
@@ -1272,7 +1278,7 @@ def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introductio
     
     if old_slug_path != None and new_slug_path == None :
         shutil.rmtree(old_slug_path)
-    elif new_slug_path != None: 
+    elif new_slug_path != None:
         if old_slug_path != None:    
             shutil.move(old_slug_path, new_slug_path)
             repo = Repo(new_slug_path)
@@ -1281,10 +1287,14 @@ def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introductio
             os.makedirs(new_slug_path, mode=0777)
             repo = Repo.init(new_slug_path, bare=False)
             msg='Creation du tutoriel'
-        os.environ['GIT_AUTHOR_NAME'] = "willard"
         
         repo = Repo(new_slug_path)
         index = repo.index
+        
+        man_path=os.path.join(new_slug_path,'manifest.json')
+        json = tuto.dump_json(path=man_path)
+        index.add(['manifest.json'])
+        
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
