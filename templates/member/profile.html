@@ -220,6 +220,12 @@
         {% csrf_token %}
         </form>
     </div>
+    <div class="large-12 columns">
+        <h3>Vue d'ensemble des posts sur le forum</h3>
+        <figure style='height:800px'>
+          <embed type="image/svg+xml" src="/media/pygal/mod-{{profile.user.pk}}.svg" />
+        </figure>
+    </div>
 </div>
 {% endif %}
 {# Biography #}

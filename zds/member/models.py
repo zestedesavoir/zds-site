@@ -118,6 +118,11 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
+    
+    def get_posts(self):
+        posts = Post.objects.filter(author=self.user).all()
+        return posts
+        
         
 class Ban(models.Model):
     class Meta:

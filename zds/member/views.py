@@ -1,6 +1,6 @@
 # coding: utf-8
 from datetime import datetime, timedelta
-
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,12 +10,16 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import RequestContext
+import os
+import uuid
 
+import pygal
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
-from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm
+from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
+    ChangeUserForm
 from .models import Profile, Ban
 
 
@@ -51,6 +55,22 @@ def details(request, user_name):
         
     except SiteProfileNotAvailable:
         raise Http404
+    
+    #refresh moderation chart
+    dot_chart = pygal.Dot(x_label_rotation=30)
+    dot_chart.title = u'Messages postés par période'
+    dot_chart.x_labels = [u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi', u'Samedi', u'Dimanche']
+    dot_chart.show_legend = False
+    
+    dates = date_to_chart(profile.get_posts())
+    
+    for i in range(0,24):
+        dot_chart.add(str(i+1)+' h', dates[i])
+    
+    fchart = os.path.join(settings.MEDIA_ROOT, os.path.join('pygal', 'mod-{}.svg'.format(str(usr.pk))))
+    
+    dot_chart.render_to_file(fchart)
+    
 
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans
@@ -335,3 +355,14 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+def date_to_chart(posts):
+    lst = 24*[0]
+    for i in range(len(lst)):
+        lst[i] = 7*[0]
+    
+    for post in posts:
+        t = post.pubdate.timetuple()
+        lst[t.tm_hour+1][t.tm_wday+1]=lst[t.tm_hour+1][t.tm_wday+1]+1
+        
+    return lst
