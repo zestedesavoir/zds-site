@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
 from crispy_forms_foundation.layout import Layout, Div, Fieldset, Submit, Field, \
     HTML
@@ -25,7 +24,6 @@ class RegisterForm(forms.Form):
     password_confirm = forms.CharField(
         label='Confirmation', max_length=76, widget=forms.PasswordInput
     )
-    captcha = CaptchaField()
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -38,10 +36,6 @@ class RegisterForm(forms.Form):
                 Field('password'),
                 Field('password_confirm'),
                 Field('email'),
-            ),
-            Fieldset(
-                u'Captcha',
-                Field('captcha'),
             ),
             Div(
                 Submit('submit', 'Valider mon inscription'),
