@@ -18,7 +18,7 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-                ("moderation", u"Moderer un membre"),
+                ("moderation", u"Modérer un membre"),
                 ("show_ip", u"Afficher les IP d'un membre"),
         )
 
