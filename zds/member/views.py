@@ -63,7 +63,7 @@ def details(request, user_name):
 
 @login_required
 def modify_profile(request, user_pk):
-    '''Modifies sanction of an user if there is a POST request'''
+    '''Modifies sanction of a user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if request.method == 'POST':
         ban= Ban()
