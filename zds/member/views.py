@@ -62,40 +62,6 @@ def details(request, user_name):
     })
 
 @login_required
-def edit_profile(request):
-    '''Edits information of the authenticated user'''
-    try:
-        profile_pk = int(request.GET['profil'])
-        profile = get_object_or_404(Profile, pk=profile_pk)
-    except KeyError:
-        profile = get_object_or_404(Profile, user=request.user)
-
-    # Making sure the user is allowed to do that
-    if not request.user == profile.user:
-        raise Http404
-    if request.method == 'POST':
-        form = ProfileForm(request.POST)
-        if form.is_valid():
-            data = form.data
-            profile.biography = data['biography']
-            profile.site = data['site']
-            profile.user.email = data['email']
-            profile.show_email = 'show_email' in data
-            profile.show_sign = 'show_sign' in data
-            profile.hover_or_click = 'hover_or_click' in data
-
-            # Save the user and it's associated profile
-            profile.user.save()
-            profile.save()
-            return redirect(profile.get_absolute_url())
-        else:
-            raise Http404
-    else:
-        return render_template('member/edit_profile.html', {
-            'profile': profile
-        })
-
-@login_required
 def modify_profile(request, user_pk):
     '''Modifies sanction of an user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
