@@ -30,21 +30,6 @@ def index(request):
         'members': members
     })
 
-
-@login_required
-def actions(request):
-    '''
-    Show avaible actions for current user, like a customized homepage.
-    This may be very temporary.
-    '''
-
-    # TODO: Seriously improve this page, and see if cannot be merged in
-    #       zds.pages.views.home since it will be more coherent to give an
-    #       enhanced homepage for registered users
-
-    return render_template('member/actions.html')
-
-
 def details(request, user_name):
     '''Displays details about a profile'''
     usr = get_object_or_404(User, username=user_name)
@@ -76,9 +61,9 @@ def details(request, user_name):
         'usr': usr, 'profile': profile, 'bans': bans
     })
 
-
 @login_required
 def edit_profile(request):
+    '''Edits information of the authenticated user'''
     try:
         profile_pk = int(request.GET['profil'])
         profile = get_object_or_404(Profile, pk=profile_pk)
@@ -112,6 +97,7 @@ def edit_profile(request):
 
 @login_required
 def modify_profile(request, user_pk):
+    '''Modifies sanction of a user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if request.method == 'POST':
         ban= Ban()
@@ -150,8 +136,153 @@ def modify_profile(request, user_pk):
         ban.save()
         
     return redirect(profile.get_absolute_url())
+
+@login_required
+def publications(request):
+    '''Returns all publications of the authenticated user'''
+    profile = Profile.objects.get(user=request.user)
+
+    user_tutorials = profile.get_tutos()
+    c = {
+         'user_tutorials': user_tutorials,
+    }
+    return render_to_response('member/publications.html', c, RequestContext(request))
+
+@login_required
+def actions(request):
+    '''
+    Show avaible actions for current user, like a customized homepage.
+    This may be very temporary.
+    '''
+
+    # TODO: Seriously improve this page, and see if cannot be merged in
+    #       zds.pages.views.home since it will be more coherent to give an
+    #       enhanced homepage for registered users
+
+    return render_template('member/actions.html')
+
+# settings for public profile
+
+@login_required
+def settings_profile(request):
+    '''User's settings about his personal information'''
+    # extra information about the current user
+    profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileForm(request.user, request.POST)
+        c = {
+            'form': form,
+        }
+        if form.is_valid():
+            profile.biography = form.data['biography']
+            profile.site = form.data['site']
+            profile.show_email = 'show_email' in form.data
+            profile.show_sign = 'show_sign' in form.data
+            profile.hover_or_click = 'hover_or_click' in form.data
+            profile.avatar_url = form.data['avatar_url']
+            profile.sign = form.data['sign']
+
+            # Save the profile
+            # and redirect the user to the configuration space
+            # with message indicate the state of the operation
+            try:
+                profile.save()
+            except:
+                messages.error(request, 'Une erreur est survenue.')
+                return redirect('/membres/parametres/profil')
+
+            messages.success(
+                request, 'Le profil a correctement été mis à jour.')
+            return redirect('/membres/parametres/profil')
+        else:
+            # TODO Warning, this page don't exist !
+            return render_to_response('member/settings_profile.html', c, RequestContext(request))
+    else:
+        form = ProfileForm(request.user, initial={
+            'biography': profile.biography,
+            'site': profile.site,
+            'avatar_url': profile.avatar_url,
+            'show_email': profile.show_email,
+            'show_sign': profile.show_sign,
+            'hover_or_click': profile.hover_or_click,
+            'sign': profile.sign}
+        )
+        c = {
+            'form': form
+        }
+        return render_to_response('member/settings_profile.html', c, RequestContext(request))
+
+
+@login_required
+def settings_account(request):
+    '''User's settings about his account'''
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        c = {
+            'form': form,
+        }
+        if form.is_valid():
+            try:
+                request.user.set_password(form.data['password_new'])
+                request.user.save()
+                messages.success(
+                    request, 'Le mot de passe a bien été modifié.')
+                return redirect('/membres/parametres/profil')
+            except:
+                messages.error(request, 'Une erreur est survenue.')
+                return redirect('/membres/parametres/profil')
+        else:
+            return render_to_response('member/settings_account.html', c, RequestContext(request))
+    else:
+        form = ChangePasswordForm(request.user)
+        c = {
+            'form': form,
+        }
+        return render_to_response('member/settings_account.html', c, RequestContext(request))
+
+@login_required
+def settings_user(request):
+    '''User's settings about his email'''
+    profile = get_object_or_404(Profile, user__pk=request.user.pk)
+    
+    if request.method == 'POST':
+        form = ChangeUserForm(request.user, request.POST)
+        c = {
+            'form': form,
+        }
+        if form.is_valid():
+            email_exist = User.objects.filter(email = form.data['username_new']).count()
+            username_exist = User.objects.filter(username = form.data['username_new']).count()
+            
+            old = User.objects.filter(pk = request.user.pk).all()[0]
+            if form.data['username_new'] and username_exist > 0:
+                raise Http404
+            elif form.data['username_new']:
+                if form.data['username_new'].strip() != '':
+                    old.username = form.data['username_new']
+                
+            if form.data['email_new'] and email_exist > 0:
+                raise Http404
+            elif form.data['email_new']:
+                if form.data['email_new'].strip() != '':
+                    old.email = form.data['email_new']
+                
+            old.save()
+            
+            return redirect(profile.get_absolute_url())
+        
+        else:
+            return render_to_response('member/settings_user.html', c, RequestContext(request))
+    else:
+        form = ChangeUserForm(request.user)
+        c = {
+            'form': form,
+        }
+        return render_to_response('member/settings_user.html', c, RequestContext(request))
     
 def login_view(request):
+    '''Log in user'''
     csrf_tk = {}
     csrf_tk.update(csrf(request))
 
@@ -191,12 +322,14 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
+    '''Log out user'''
     logout(request)
     request.session.clear()
     return redirect(reverse('zds.pages.views.home'))
 
 
 def register_view(request):
+    '''Register a new user'''
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -220,135 +353,8 @@ def register_view(request):
     })
 
 
-# settings for public profile
-
-@login_required
-def settings_profile(request):
-    # extra information about the current user
-    profile = Profile.objects.get(user=request.user)
-
-    if request.method == 'POST':
-        form = ProfileForm(request.user, request.POST)
-        c = {
-            'form': form,
-        }
-        if form.is_valid():
-            profile.biography = form.data['biography']
-            profile.site = form.data['site']
-            profile.show_email = 'show_email' in form.data
-            profile.show_sign = 'show_sign' in form.data
-            profile.hover_or_click = 'hover_or_click' in form.data
-            profile.avatar_url = form.data['avatar_url']
-            profile.sign = form.data['sign']
-
-            # Save the profile
-            # and redirect the user to the configuration space
-            # with message indicate the state of the operation
-            try:
-                profile.save()
-            except:
-                messages.error(request, 'Une erreur est survenue.')
-                return redirect('/membres/parametres/profil')
-
-            messages.success(
-                request, 'Le profil a correctement été mis à jour.')
-            return redirect('/membres/parametres/profil')
-        else:
-            return render_to_response('member/settings_profile.html', c, RequestContext(request))
-    else:
-        form = ProfileForm(request.user, initial={
-            'biography': profile.biography,
-            'site': profile.site,
-            'avatar_url': profile.avatar_url,
-            'show_email': profile.show_email,
-            'show_sign': profile.show_sign,
-            'hover_or_click': profile.hover_or_click,
-            'sign': profile.sign}
-        )
-        c = {
-            'form': form
-        }
-        return render_to_response('member/settings_profile.html', c, RequestContext(request))
-
-
-@login_required
-def settings_account(request):
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.user, request.POST)
-        c = {
-            'form': form,
-        }
-        if form.is_valid():
-            try:
-                request.user.set_password(form.data['password_new'])
-                request.user.save()
-                messages.success(
-                    request, 'Le mot de passe a bien été modifié.')
-                return redirect('/membres/parametres/profil')
-            except:
-                messages.error(request, 'Une erreur est survenue.')
-                return redirect('/membres/parametres/profil')
-        else:
-            return render_to_response('member/settings_account.html', c, RequestContext(request))
-    else:
-        form = ChangePasswordForm(request.user)
-        c = {
-            'form': form,
-        }
-        return render_to_response('member/settings_account.html', c, RequestContext(request))
-
-@login_required
-def settings_user(request):
-    profile = get_object_or_404(Profile, user__pk=request.user.pk)
-    
-    if request.method == 'POST':
-        form = ChangeUserForm(request.user, request.POST)
-        c = {
-            'form': form,
-        }
-        if form.is_valid():
-            email_exist = User.objects.filter(email = form.data['username_new']).count()
-            username_exist = User.objects.filter(username = form.data['username_new']).count()
-            
-            old = User.objects.filter(pk = request.user.pk).all()[0]
-            if form.data['username_new'] and username_exist > 0:
-                raise Http404
-            elif form.data['username_new']:
-                if form.data['username_new'].strip() != '':
-                    old.username = form.data['username_new']
-                
-            if form.data['email_new'] and email_exist > 0:
-                raise Http404
-            elif form.data['email_new']:
-                if form.data['email_new'].strip() != '':
-                    old.email = form.data['email_new']
-                
-            old.save()
-            
-            return redirect(profile.get_absolute_url())
-        
-        else:
-            return render_to_response('member/settings_user.html', c, RequestContext(request))
-    else:
-        form = ChangeUserForm(request.user)
-        c = {
-            'form': form,
-        }
-        return render_to_response('member/settings_user.html', c, RequestContext(request))
-
-@login_required
-def publications(request):
-    if request.user.is_authenticated():
-        user_tutorials = Tutorial.objects.filter(authors__in = [request.user])
-    else:
-        user_tutorials = None    
-    c = {
-         'user_tutorials': user_tutorials,
-    }
-    return render_to_response('member/publications.html', c, RequestContext(request))
-
-
 def get_client_ip(request):
+    '''Get the IP of the user'''
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
