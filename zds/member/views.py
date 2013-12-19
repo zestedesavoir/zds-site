@@ -55,7 +55,6 @@ def details(request, user_name):
     fchart = os.path.join(settings.MEDIA_ROOT, os.path.join('pygal', 'mod-{}.svg'.format(str(usr.pk))))
     
     dot_chart.render_to_file(fchart)
-    
 
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans
@@ -162,7 +161,6 @@ def settings_profile(request):
                 request, 'Le profil a correctement été mis à jour.')
             return redirect(reverse('zds.member.views.settings_profile'))
         else:
-            # TODO Warning, this page don't exist !
             return render_to_response('member/settings_profile.html', c, RequestContext(request))
     else:
         form = ProfileForm(request.user, initial={
