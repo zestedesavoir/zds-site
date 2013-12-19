@@ -97,7 +97,7 @@ def edit_profile(request):
 
 @login_required
 def modify_profile(request, user_pk):
-    '''Modifies sanction of a user if there is a POST request'''
+    '''Modifies sanction of an user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if request.method == 'POST':
         ban= Ban()
@@ -190,11 +190,11 @@ def settings_profile(request):
                 profile.save()
             except:
                 messages.error(request, 'Une erreur est survenue.')
-                return redirect('/membres/parametres/profil')
+                return redirect(reverse('zds.member.views.settings_profile'))
 
             messages.success(
                 request, 'Le profil a correctement été mis à jour.')
-            return redirect('/membres/parametres/profil')
+            return redirect(reverse('zds.member.views.settings_profile'))
         else:
             # TODO Warning, this page don't exist !
             return render_to_response('member/settings_profile.html', c, RequestContext(request))
@@ -228,10 +228,10 @@ def settings_account(request):
                 request.user.save()
                 messages.success(
                     request, 'Le mot de passe a bien été modifié.')
-                return redirect('/membres/parametres/profil')
+                return redirect(reverse('zds.member.views.settings_account'))
             except:
                 messages.error(request, 'Une erreur est survenue.')
-                return redirect('/membres/parametres/profil')
+                return redirect(reverse('zds.member.views.settings_account'))
         else:
             return render_to_response('member/settings_account.html', c, RequestContext(request))
     else:
