@@ -66,8 +66,10 @@ def details(request, user_name):
     
     for i in range(0,24):
         dot_chart.add(str(i)+' h', dates[(i+1)%24])
-    
-    fchart = os.path.join(settings.MEDIA_ROOT, os.path.join('pygal', 'mod-{}.svg'.format(str(usr.pk))))
+    img_path = os.path.join(settings.MEDIA_ROOT, 'pygal')
+    if not os.path.isdir(img_path) :
+        os.makedirs(img_path, mode=0777)
+    fchart = os.path.join(img_path, 'mod-{}.svg'.format(str(usr.pk)))
     
     dot_chart.render_to_file(fchart)
     
