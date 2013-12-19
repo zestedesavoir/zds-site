@@ -59,13 +59,13 @@ def details(request, user_name):
     #refresh moderation chart
     dot_chart = pygal.Dot(x_label_rotation=30)
     dot_chart.title = u'Messages postés par période'
-    dot_chart.x_labels = [u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi', u'Samedi', u'Dimanche']
+    dot_chart.x_labels = [u'Dimanche', u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi', u'Samedi']
     dot_chart.show_legend = False
     
-    dates = date_to_chart(profile.get_posts())
+    dates = date_to_chart(profile.get_posts()) 
     
     for i in range(0,24):
-        dot_chart.add(str(i+1)+' h', dates[i])
+        dot_chart.add(str(i)+' h', dates[(i+1)%24])
     
     fchart = os.path.join(settings.MEDIA_ROOT, os.path.join('pygal', 'mod-{}.svg'.format(str(usr.pk))))
     
