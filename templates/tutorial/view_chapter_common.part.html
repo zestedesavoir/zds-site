@@ -3,10 +3,10 @@
 {% load repo_reader %}
 
 {% with chapter_version=chapter|repo_chapter:version %}
-{% with extracts=chapter.get_extracts %}
+{% with extracts=chapter.extracts %}
     <div class="row">
         <div class="large-12 columns">
-            {% if not chapter.tutorial %}
+            {% if not chapter.type = 'MINI' %}
                 {% if chapter_version.introduction %}
                     {{ chapter_version.introduction|emarkdown }}
                 {% else %}
@@ -122,7 +122,7 @@
 
     <hr />
 
-    {% if not chapter.tutorial %}
+    {% if not chapter.type = 'MINI' %}
     <div class="row">
         <div class="large-12 columns">
             {% if chapter_version.conclusion %}

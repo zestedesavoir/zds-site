@@ -127,14 +127,13 @@
                 <p>
                     <a href="#p{{ post.pk }}">#</a>
                     {{ post.pubdate|humane_date }}
-                    {% if not post.update = None %}
-                        (dernière édition {{ post.update|humane_date }})
+                    {% if not post.is_visible %}
+                        Masqué par {{ post.editor }} : <i>{{ post.text_hidden }}</i>
+                    {% elif not post.update = None %}
+                        (Edité {{ post.update|humane_date }} par {{ post.editor }} )
                     {% endif %}
                     {% if forloop.first and nb > 1 %}
                         &ndash; page précédente
-                    {% endif %}
-                    {% if not post.is_visible %}
-                        : <i>{{ post.text_hidden }}</i>
                     {% endif %}
                 </p>
                 </div>
@@ -244,9 +243,11 @@
                     <hr />
                 </div>
                 <div class="row">
+                    <p>
                     {% with profile=post.author|profile %}
                         {{profile.sign|emarkdown}}
                     {% endwith %}
+                    </p>
                 </div>
                 {% if post.alerts.all.count > 0 and perms.forum.change_topic %}
                     <div class="row">

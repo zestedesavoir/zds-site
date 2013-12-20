@@ -13,6 +13,7 @@ from operator import itemgetter, attrgetter
 import os
 import re
 import shutil
+import json
 
 from git import *
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -184,10 +185,32 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
-
+    
+    #find the good manifest file
+    repo = Repo(tutorial.get_path())
+    bls = repo.commit(sha).tree.blobs
+    for bl in bls:
+        if bl.path=='manifest.json':
+            man = bl.data_stream.read()
+            break
+    manifest = man.decode('utf-8')
+    mandata = json.loads(manifest)
+    
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
-        chapter = Chapter.objects.get(tutorial=tutorial)
+        if 'chapter' in mandata:
+            chapter = mandata['chapter']
+            chapter['path'] = tutorial.get_path()
+            chapter['type'] = 'MINI'
+            cpt=0
+            for ext in chapter['extracts'] :
+                ext['position_in_chapter'] = cpt
+                ext['path'] = tutorial.get_path()
+                cpt+=1
+        else:
+            chapter = None
+        #chapter = Chapter.objects.get(tutorial=tutorial)
+        
     else:
         parts = Part.objects.all(
         ).filter(tutorial__pk=tutorial.pk).order_by('position_in_tutorial')
@@ -237,6 +260,9 @@ def add_tutorial(request):
             tutorial.title = data['title']
             tutorial.description = data['description']
             tutorial.type = data['type']
+            tutorial.introduction = 'introduction.md'
+            tutorial.conclusion = 'conclusion.md'
+            tutorial.images = 'images'
             
             if 'licence' in data and data['licence']!= '' :
                 lc = Licence.objects.filter(pk=data['licence']).all()[0]
@@ -289,8 +315,11 @@ def add_tutorial(request):
                 chapter.tutorial = tutorial
                 chapter.save()
             
-            maj_repo_tuto(new_slug_path=tutorial.get_path(), tuto = tutorial)
             tutorial.save()
+            
+            maj_repo_tuto(new_slug_path=tutorial.get_path(), 
+                          tuto = tutorial,
+                          action = 'add')
             
             return redirect(tutorial.get_absolute_url())
     else:
@@ -309,6 +338,7 @@ def edit_tutorial(request):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    json = tutorial.load_json()
 
     if not request.user in tutorial.authors.all():
         raise Http404
@@ -341,13 +371,14 @@ def edit_tutorial(request):
             
             new_slug = os.path.join(settings.REPO_PATH, slugify(data['title']))
             
+            tutorial.save()
+            
             maj_repo_tuto(old_slug_path=old_slug, 
                           new_slug_path=new_slug, 
                           tuto=tutorial, 
                           introduction=data['introduction'], 
-                          conclusion=data['conclusion'])
-            
-            tutorial.save()
+                          conclusion=data['conclusion'],
+                          action = 'maj')
             
             if 'category' in data:
                 tutorial.category.clear()
@@ -358,10 +389,15 @@ def edit_tutorial(request):
             
             return redirect(tutorial.get_absolute_url())
     else:
+        if json['licence']:
+            licence=Licence.objects.filter(code=json['licence']).all()[0]
+        else:
+            licence=None
+            
         form = EditTutorialForm({
-            'title': tutorial.title,
-            'licence': tutorial.licence,
-            'description': tutorial.description,
+            'title': json['title'],
+            'licence': licence,
+            'description': json['description'],
             'category': tutorial.category.all(),
             'introduction': tutorial.get_introduction(),
             'conclusion': tutorial.get_conclusion(),
@@ -459,9 +495,12 @@ def modify_tutorial(request):
         elif 'delete' in request.POST:
             old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
             
-            maj_repo_tuto(old_slug_path=old_slug)
+            maj_repo_tuto(old_slug_path=old_slug,
+                          tuto = tutorial,
+                          action = 'del')
             
             tutorial.delete()
+            
             return redirect('/tutoriels/')
         
         elif 'pending' in request.POST:
@@ -553,11 +592,17 @@ def add_part(request):
             part.position_in_tutorial = tutorial.get_parts().count() + 1
             
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
-            
-            
-            maj_repo_part(None, new_slug, part, data['introduction'], data['conclusion'])
+            part.introduction = os.path.join(new_slug, 'introduction.md')
+            part.conclusion = os.path.join(new_slug, 'conclusion.md')
             
             part.save()
+            
+            maj_repo_part(new_slug_path =new_slug, 
+                          part = part, 
+                          introduction = data['introduction'], 
+                          conclusion = data['conclusion'],
+                          action = 'add')
+            
             return redirect(part.get_absolute_url())
     else:
         form = PartForm()
@@ -602,7 +647,8 @@ def modify_part(request):
         old_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), part.slug)
         
         
-        maj_repo_part(old_slug, None, None, None, None)
+        maj_repo_part(old_slug_path=old_slug,
+                      action ='del')
         # Actually delete the part
         part.delete()
 
@@ -629,10 +675,17 @@ def edit_part(request):
             
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
+            old_slug = part.get_path()
             
-            
-            maj_repo_part(part.get_path(), new_slug, part, data['introduction'], data['conclusion'])
             part.save()
+            
+            maj_repo_part(old_slug_path = old_slug, 
+                          new_slug_path = new_slug, 
+                          part = part, 
+                          introduction = data['introduction'], 
+                          conclusion = data['conclusion'],
+                          action = 'maj')
+            
             return redirect(part.get_absolute_url())
     else:
             
@@ -774,14 +827,23 @@ def add_chapter(request):
                 
                 if chapter.tutorial:
                     chapter_path = os.path.join(os.path.join(settings.REPO_PATH, chapter.tutorial.slug), chapter.slug)
+                    chapter.introduction = os.path.join(chapter.slug, 'introduction.md')
+                    chapter.conclusion = os.path.join(chapter.slug, 'conclusion.md')
                 else:
                     chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), chapter.slug)
+                    chapter.introduction = os.path.join(os.path.join(chapter.part.tutorial.slug, chapter.slug), 'introduction.md')
+                    chapter.conclusion = os.path.join(os.path.join(chapter.part.tutorial.slug, chapter.slug), 'conclusion.md')
                 new_slug = os.path.join(chapter_path , slugify(data['title']))
                 
-                
-                maj_repo_chapter(new_slug_path=new_slug, chapter=chapter, introduction=data['introduction'], conclusion=data['conclusion'])
-                
                 chapter.save()
+                
+                maj_repo_chapter(new_slug_path=new_slug, 
+                                 chapter=chapter, 
+                                 introduction=data['introduction'], 
+                                 conclusion=data['conclusion'],
+                                 action='add')
+                
+                
 
                 if 'submit_continue' in request.POST:
                     form = ChapterForm()
@@ -839,7 +901,8 @@ def modify_chapter(request):
                 tut_c.position_in_part = tut_c.position_in_part - 1
                 tut_c.save()
         
-        maj_repo_chapter(new_slug_path=chapter.get_path())
+        maj_repo_chapter(new_slug_path=chapter.get_path(),
+                         action = 'del')
         # Then delete the chapter
         chapter.delete()
         # Update all the position_in_tutorial fields for the next chapters
@@ -899,14 +962,18 @@ def edit_chapter(request):
                     img.pubdate = datetime.now()
                     img.save()
                     chapter.image = img
-            
-            maj_repo_chapter(old_slug_path=chapter.get_path(),
-                             new_slug_path=new_slug, 
-                             chapter=chapter, 
-                             introduction=data['introduction'], 
-                             conclusion=data['conclusion'])
+            old_slug = chapter.get_path()
             
             chapter.save()
+            
+            maj_repo_chapter(old_slug_path = old_slug,
+                             new_slug_path = new_slug, 
+                             chapter=chapter,
+                             introduction=data['introduction'], 
+                             conclusion=data['conclusion'],
+                             action = 'maj')
+            
+            
             return redirect(chapter.get_absolute_url())
     else:
         if chapter.part:
@@ -949,8 +1016,14 @@ def add_extract(request):
             extract.position_in_chapter = chapter.get_extract_count() + 1
             extract.title = data['title']
             
-            maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=data['text'])
+            extract.text = extract.get_path(relative=True)
             extract.save()
+            
+            maj_repo_extract(new_slug_path=extract.get_path(), 
+                             extract=extract, 
+                             text=data['text'],
+                             action='add')
+            
 
             if 'submit_continue' in request.POST:
                 form = ExtractForm()
@@ -991,6 +1064,7 @@ def edit_extract(request):
             old_slug = extract.get_path()
             
             extract.title = data['title']
+            extract.text = extract.get_path(relative=True)
             
             if extract.chapter.tutorial:
                 chapter_part = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
@@ -998,9 +1072,15 @@ def edit_extract(request):
                 chapter_part = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
             new_slug = os.path.join(chapter_part, slugify(data['title'])+'.md')
             
-            maj_repo_extract(old_slug_path=old_slug, new_slug_path=new_slug, extract=extract, text=data['text'])
-            
             extract.save()
+            
+            maj_repo_extract(old_slug_path=old_slug, 
+                             new_slug_path=new_slug, 
+                             extract=extract, 
+                             text=data['text'],
+                             action = 'maj')
+            
+            
             return redirect(extract.get_absolute_url())
     else:
         form = EditExtractForm({
@@ -1041,7 +1121,9 @@ def modify_extract(request):
             chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
         old_slug = os.path.join(chapter_path, slugify(extract.title)+'.md')
         
-        maj_repo_extract(old_slug_path=old_slug, extract=extract)
+        maj_repo_extract(old_slug_path=old_slug, 
+                         extract=extract,
+                         action = 'del')
         
         extract.delete()
         return redirect(chapter.get_absolute_url())
@@ -1097,8 +1179,11 @@ def import_tuto(request):
                         tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
                         tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
                         
+                        
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.introduction = 'introduction.md'
+                        tutorial.conclusion = 'conclusion.md'
                         # Creating the gallery
                         gal = Gallery()
                         gal.title = tutorial_title.text
@@ -1117,12 +1202,13 @@ def import_tuto(request):
                         
                         tuto_path = os.path.join(settings.REPO_PATH, slugify(tutorial.title))
                         
+                        tutorial.save()
+                        
                         maj_repo_tuto(new_slug_path=tuto_path, 
                                       tuto=tutorial, 
                                       introduction=tuto_to_markdown(tutorial_intro.text), 
-                                      conclusion=tuto_to_markdown(tutorial_conclu.text))
-                        
-                        tutorial.save()
+                                      conclusion=tuto_to_markdown(tutorial_conclu.text),
+                                      action = 'add')
                         
                         tutorial.authors.add(request.user)
                         part_count = 1
@@ -1137,10 +1223,15 @@ def import_tuto(request):
                             
                             part.tutorial = tutorial
                             
+                            part.introduction = os.path.join(part.get_path(relative=True),'introduction.md')
+                            part.conclusion = os.path.join(part.get_path(relative=True),'conclusion.md')
+                            
                             part_path = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(part.title))
                             
-                            maj_repo_part(None, part_path, part, tuto_to_markdown(part_intro.text), tuto_to_markdown(part_conclu.text))
                             part.save()
+                            
+                            maj_repo_part(None, part_path, part, tuto_to_markdown(part_intro.text), tuto_to_markdown(part_conclu.text), action='add')
+                            
                             
                             chapter_count = 1
                             for chapitre in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre"):
@@ -1154,13 +1245,19 @@ def import_tuto(request):
                                 chapter.position_in_tutorial = part_count * chapter_count
                                 chapter.part = part
                                 
+                                chapter.introduction = os.path.join(chapter.get_path(relative=True),'introduction.md')
+                                chapter.conclusion = os.path.join(chapter.get_path(relative=True),'conclusion.md')
+                                
                                 chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), slugify(chapter.title))
+                                
+                                chapter.save()
                                 
                                 maj_repo_chapter(new_slug_path=chapter_path, 
                                                  chapter=chapter, 
                                                  introduction=tuto_to_markdown(chapter_intro.text), 
-                                                 conclusion=tuto_to_markdown(chapter_conclu.text))
-                                chapter.save()
+                                                 conclusion=tuto_to_markdown(chapter_conclu.text),
+                                                 action='add')
+                                
                                 
                                 extract_count = 1
                                 for souspartie in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre[" + str(chapter_count) + "]/sousparties/souspartie"):
@@ -1172,8 +1269,11 @@ def import_tuto(request):
                                     extract.position_in_chapter = extract_count
                                     extract.chapter = chapter
                                     
-                                    maj_repo_extract(old_slug_path=None, new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text))
+                                    extract.text = extract.get_path(relative=True)
                                     extract.save()
+
+                                    maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text), action= 'add')
+                                    
                                     
                                     extract_count += 1
                                     
@@ -1189,6 +1289,8 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.introduction = 'introduction.md'
+                        tutorial.conclusion = 'conclusion.md'
                         
                         # Creating the gallery
                         gal = Gallery()
@@ -1208,11 +1310,14 @@ def import_tuto(request):
                         
                         tuto_path = os.path.join(settings.REPO_PATH, slugify(tutorial.title))
                         
+                        tutorial.save()
+                        
                         maj_repo_tuto(new_slug_path=tuto_path, 
                                       tuto=tutorial, 
                                       introduction=tuto_to_markdown(tutorial_intro.text), 
-                                      conclusion=tuto_to_markdown(tutorial_conclu.text))
-                        tutorial.save()
+                                      conclusion=tuto_to_markdown(tutorial_conclu.text),
+                                      action = 'add')
+                        
                         tutorial.authors.add(request.user)
                         
                         chapter = Chapter()
@@ -1228,9 +1333,12 @@ def import_tuto(request):
                             extract.title = extract_title.text.strip()
                             extract.position_in_chapter = extract_count
                             extract.chapter = chapter
+                            extract.text = extract.get_path(relative=True)
                             
-                            maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text))
                             extract.save()
+                            
+                            maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text), action='add')
+                            
                             
                             extract_count += 1
                                     
@@ -1268,23 +1376,27 @@ def deprecated_view_chapter_redirect(
 
 # Handling repo
 
-def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introduction=None, conclusion=None):
+def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introduction=None, conclusion=None, action=None):
     
-    if old_slug_path != None and new_slug_path == None :
+    if action == 'del' :
         shutil.rmtree(old_slug_path)
-    elif new_slug_path != None: 
-        if old_slug_path != None:    
+    else:
+        if action == 'maj':    
             shutil.move(old_slug_path, new_slug_path)
             repo = Repo(new_slug_path)
             msg='Modification du tutoriel'
-        elif not os.path.isdir(new_slug_path) :
+        elif action == 'add' :
             os.makedirs(new_slug_path, mode=0777)
             repo = Repo.init(new_slug_path, bare=False)
             msg='Creation du tutoriel'
-        os.environ['GIT_AUTHOR_NAME'] = "willard"
         
         repo = Repo(new_slug_path)
         index = repo.index
+        
+        man_path=os.path.join(new_slug_path,'manifest.json')
+        tuto.dump_json(path=man_path)
+        index.add(['manifest.json'])
+        
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
@@ -1298,42 +1410,51 @@ def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introductio
             
         com = index.commit(msg.encode('utf-8'))
         tuto.sha_draft=com.hexsha
+        tuto.save()
         
     
-def maj_repo_part(old_slug_path=None, new_slug_path=None, part=None, introduction=None, conclusion=None):
+def maj_repo_part(old_slug_path=None, new_slug_path=None, part=None, introduction=None, conclusion=None, action=None):
     
-    repo = Repo(os.path.join(settings.REPO_PATH, part.tutorial.slug))
+    repo = Repo(part.tutorial.get_path())
     index = repo.index
+    
     msg='repo partie'
-    if old_slug_path != None and part == None :
+    if action == 'del' :
         shutil.rmtree(old_slug_path)
         msg='Suppresion de la partie : '+part.title
+        index.remove([part.get_path(relative=True)])
         
-    elif new_slug_path != None:
-        if old_slug_path != None and new_slug_path != None :
+    else:
+        if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
             msg='Modification de la partie : '+part.title
-        elif not os.path.isdir(new_slug_path) :
+        elif action == 'add' :
             os.makedirs(new_slug_path, mode=0777)
             msg='Creation de la partie : '+part.title
         
         index.add([slugify(part.title)])
         
+        man_path=os.path.join(part.tutorial.get_path(),'manifest.json')
+        part.tutorial.dump_json(path=man_path)
+        index.add(['manifest.json'])
+        
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
-        index.add(['introduction.md'])
+        index.add([os.path.join(part.get_path(relative=True),'introduction.md')])
     
         conclu = open(os.path.join(new_slug_path, 'conclusion.md'), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
-        index.add(['conclusion.md'])    
+        index.add([os.path.join(part.get_path(relative=True),'conclusion.md')])
     
     com_part = index.commit(msg.encode('utf-8'))
     part.tutorial.sha_draft=com_part.hexsha
     part.tutorial.save()
+    
+    part.save()
         
-def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, introduction=None, conclusion=None):
+def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, introduction=None, conclusion=None, action=None):
     if(chapter.tutorial):
         repo = Repo(os.path.join(settings.REPO_PATH, chapter.tutorial.slug))
         ph=chapter.slug
@@ -1344,28 +1465,38 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
     index = repo.index
     msg='repo chapitre'
     
-    if old_slug_path != None and new_slug_path == None :
+    if action == 'del' :
         shutil.rmtree(old_slug_path)
         msg='Suppresion du chapitre : '+chapter.title
-    elif new_slug_path != None:
-        if old_slug_path != None and new_slug_path != None :
+        index.remove([ph])
+    else:
+        if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
             msg='Modification du chapitre : '+chapter.title
-        elif not os.path.isdir(new_slug_path) :
+        elif action == 'add' :
             os.makedirs(new_slug_path, mode=0777)
             msg='Creation du chapitre : '+chapter.title
-        
-        index.add([ph])
+
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
-        index.add(['introduction.md'])
     
         conclu = open(os.path.join(new_slug_path, 'conclusion.md'), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
-        index.add(['conclusion.md'])
+        
+        index.add([ph])
+    
+    #update manifest
+    if(chapter.tutorial):
+        man_path=os.path.join(chapter.tutorial.get_path(),'manifest.json')
+        chapter.tutorial.dump_json(path=man_path)
+    else:
+        man_path=os.path.join(chapter.part.tutorial.get_path(),'manifest.json')
+        chapter.part.tutorial.dump_json(path=man_path)
+    
+    index.add(['manifest.json'])
 
     com_ch = index.commit(msg.encode('utf-8'))
     
@@ -1375,9 +1506,10 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
     else:
         chapter.part.tutorial.sha_draft=com_ch.hexsha
         chapter.part.tutorial.save()
-
     
-def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=None):
+    chapter.save()
+    
+def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=None, action=None):
     if(extract.chapter.tutorial):
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug))
         ph=extract.chapter.slug
@@ -1387,18 +1519,28 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
 
     index = repo.index
     
-    if old_slug_path != None and new_slug_path == None :
+    if action == 'del' :
          os.remove(old_slug_path)
          msg='Suppression de l\'exrait : '+extract.title
-    elif new_slug_path != None:        
-        if old_slug_path != None and new_slug_path != None :
+    else:        
+        if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
             msg='Modification de l\'exrait : '+extract.title
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
-        index.add([os.path.join(ph, slugify(extract.title)+'.md')])
+        index.add([extract.get_path(relative=True)])
         msg='Mise a jour de l\'exrait : '+extract.title
+    
+    #update manifest
+    if(extract.chapter.tutorial):
+        man_path=os.path.join(extract.chapter.tutorial.get_path(),'manifest.json')
+        extract.chapter.tutorial.dump_json(path=man_path)
+    else:
+        man_path=os.path.join(extract.chapter.part.tutorial.get_path(),'manifest.json')
+        extract.chapter.part.tutorial.dump_json(path=man_path)
+        
+    index.add(['manifest.json'])
     
     com_ex = index.commit(msg.encode('utf-8'))
     
@@ -1409,7 +1551,7 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
         extract.chapter.part.tutorial.sha_draft = com_ex.hexsha
         extract.chapter.part.tutorial.save()
         
-    
+    extract.save()
 
 def tuto_to_markdown(text):
     chaine = re.sub(r'(.*)<titre1>(.*)</titre1>(.*)', r'\1##\2\3', text)

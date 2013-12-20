@@ -26,3 +26,4 @@ django-haystack
 django-smileys
 lxml
 GitPython
+pygal

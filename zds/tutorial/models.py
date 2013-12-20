@@ -6,10 +6,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from os import path
 import os
+import json
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify
 from zds.utils.models import Category, Licence
+from zds.utils.tutorials import *
 
 
 TYPE_CHOICES = (
@@ -65,6 +67,12 @@ class Tutorial(models.Model):
                                 blank=True, null=True)
     
     type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    
+    introduction = models.CharField('chemin relatif introduction',blank=True, null=True, max_length=200)
+    
+    conclusion = models.CharField('chemin relatif conclusion',blank=True, null=True, max_length=200)
+    
+    images = models.CharField('chemin relatif images',blank=True, null=True, max_length=200)
 
     def __unicode__(self):
         return self.title
@@ -113,36 +121,68 @@ class Tutorial(models.Model):
     def is_article(self):
         return self.type == 'ARTICLE'
     
-    def get_path(self):
-        return os.path.join(settings.REPO_PATH, self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            return ''
+        else:
+            return os.path.join(settings.REPO_PATH, self.slug)
     
     def get_prod_path(self):
         return os.path.join(settings.REPO_PATH_PROD, self.slug)
     
-    def get_introduction(self, name='introduction.md'):
-        intro = open(os.path.join(self.get_path(), name), "r")
+    
+    
+    def load_json(self, path=None):
+        if path==None:
+            man_path=os.path.join(self.get_path(),'manifest.json')
+        else :
+            man_path=path
+        if os.path.isfile(man_path):
+            json_data=open(man_path)
+            data = json.load(json_data)
+            json_data.close()
+            
+            return data
+        else:
+            return None
+    
+    def dump_json(self, path=None):
+        if path==None:
+            man_path=os.path.join(self.get_path(),'manifest.json')
+        else :
+            man_path=path
+            
+        dct = export_tutorial(self)
+        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        json_data = open(man_path, "w")
+        json_data.write(data.encode('utf-8'))
+        json_data.close()
+    
+    def get_introduction(self):
+        path = os.path.join(self.get_path(), self.introduction)
+        intro = open(path, "r")
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_introduction_online(self, name='introduction.md.html'):
-        intro = open(os.path.join(self.get_prod_path(), name), "r")
+    def get_introduction_online(self):
+        intro = open(os.path.join(self.get_prod_path(), self.introduction+'.html'), "r")
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_conclusion(self, name='conclusion.md'):
-        print(name)
-        conclu = open(os.path.join(self.get_path(), name), "r")
+    def get_conclusion(self):
+        
+        conclu = open(os.path.join(self.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
         return conclu_contenu.decode('utf-8')
 
-    def get_conclusion_online(self, name='conclusion.md.html'):
-        conclu = open(os.path.join(self.get_prod_path(), name), "r")
+    def get_conclusion_online(self):
+        conclu = open(os.path.join(self.get_prod_path(), self.conclusion+'.html'), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
@@ -178,6 +218,9 @@ class Part(models.Model):
     title = models.CharField('Titre', max_length=80)
 
     slug = models.SlugField(max_length=80)
+    
+    introduction = models.CharField('chemin relatif introduction',blank=True, null=True, max_length=200)
+    conclusion = models.CharField('chemin relatif conclusion',blank=True, null=True, max_length=200)
 
     
     # The list of chapters is shown between introduction and conclusion
@@ -208,46 +251,36 @@ class Part(models.Model):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 
-    def get_path(self):
-        return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            return self.slug
+        else:
+            return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
     
-    def get_introduction(self, name=None):
-        if name == None:
-            intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
-        else :
-            intro = open(os.path.join(self.tutorial.get_path(), name), "r")
-
+    def get_introduction(self):
+        intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_introduction_online(self, name=None):
-        if name == None:
-            intro = open(os.path.join(self.get_prod_path(), 'introduction.md.html'), "r")
-        else:
-            intro = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
+    def get_introduction_online(self):
+        intro = open(os.path.join(self.tutorial.get_prod_path(), self.introduction+'.html'), "r")
         intro_contenu = intro.read()
         intro.close()
         
         return intro_contenu.decode('utf-8')
     
-    def get_conclusion(self, name=None):
-        if name == None:
-            conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
-        else:
-            conclu = open(os.path.join(self.tutorial.get_path(), name), "r")
+    def get_conclusion(self):
+        
+        conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
         return conclu_contenu.decode('utf-8')
 
-    def get_conclusion_online(self, name=None):
-        if name == None:
-            conclu = open(os.path.join(self.get_prod_path(), 'conclusion.md.html'), "r")
-        else:
-            conclu = open(os.path.join(self.tutorial.get_prod_path(), name), "r")
-
+    def get_conclusion_online(self):
+        conclu = open(os.path.join(self.tutorial.get_prod_path(), self.conclusion+'.html'), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
@@ -284,6 +317,10 @@ class Chapter(models.Model):
     title = models.CharField('Titre', max_length=80, blank=True)
 
     slug = models.SlugField(max_length=80)
+    
+    introduction = models.CharField('chemin relatif introduction',blank=True, null=True, max_length=200)
+    
+    conclusion = models.CharField('chemin relatif conclusion',blank=True, null=True, max_length=200)
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -348,65 +385,64 @@ class Chapter(models.Model):
                         position += 1
         self.position_in_tutorial = position
     
-    def get_path(self):
-        if self.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+    def get_path(self, relative=False):
+        if relative:
+            if self.tutorial:
+                chapter_path = self.slug
+            else:
+                chapter_path = os.path.join(self.part.slug, self.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
+            if self.tutorial:
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+            else:
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
             
         return chapter_path
     
-    def get_introduction(self, name=None):
-        if name == None:
-            intro = open(os.path.join(self.get_path(), 'introduction.md'), "r")
-        else:
+    def get_introduction(self):
+        if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_path(), name), "r")
+                intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
             else:
-                intro = open(os.path.join(self.part.tutorial.get_path(), name), "r")                
-
-        intro_contenu = intro.read()
-        intro.close()
-        
-        return intro_contenu.decode('utf-8')
+                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction), "r")
+            intro_contenu = intro.read()
+            intro.close()
+            
+            return intro_contenu.decode('utf-8')
+        else:
+            return None
     
-    def get_introduction_online(self, name=None):
-        if name == None:
-            intro = open(os.path.join(self.get_prod_path(), 'introduction.md.html'), "r")
-        else:
+    def get_introduction_online(self):
+        if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
+                intro = open(os.path.join(self.tutorial.get_path(), self.introduction+'.html'), "r")
             else:
-                intro = open(os.path.join(self.part.tutorial.get_prod_path(), name+'.html'), "r")
-
-        intro_contenu = intro.read()
-        intro.close()
-        
-        return intro_contenu.decode('utf-8')
+                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction+'.html'), "r")
+            intro_contenu = intro.read()
+            intro.close()
+            
+            return intro_contenu.decode('utf-8')
+        else:
+            return None
     
-    def get_conclusion(self, name=None):
-        if name == None:
-            conclu = open(os.path.join(self.get_path(), 'conclusion.md'), "r")
-        else:
+    def get_conclusion(self):
+        if self.introduction:
             if self.tutorial:
-                conclu = open(os.path.join(self.tutorial.get_path(), name), "r")
+                conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
             else:
-                conclu = open(os.path.join(self.part.tutorial.get_path(), name), "r")
-
-        conclu_contenu = conclu.read()
-        conclu.close()
-        
-        return conclu_contenu.decode('utf-8')
-    
-    def get_conclusion_online(self, name=None):
-        if name == None:
-            conclu = open(os.path.join(self.get_prod_path(), 'conclusion.md.html'), "r")
+                conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion), "r")
+            conclu_contenu = conclu.read()
+            conclu.close()
+            
+            return conclu_contenu.decode('utf-8')
         else:
-            if self.tutorial:
-                conclu = open(os.path.join(self.tutorial.get_prod_path(), name+'.html'), "r")
-            else:
-                conclu = open(os.path.join(self.part.tutorial.get_prod_path(), name+'.html'), "r")
+            return None
 
+    def get_conclusion_online(self):
+        if self.tutorial:
+            conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion+'.html'), "r")
+        else:
+            conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion+'.html'), "r")
         conclu_contenu = conclu.read()
         conclu.close()
         
@@ -422,6 +458,8 @@ class Extract(models.Model):
     title = models.CharField('Titre', max_length=80)
     chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent')
     position_in_chapter = models.IntegerField('Position dans le chapitre')
+    
+    text = models.CharField('chemin relatif du texte',blank=True, null=True, max_length=200)
 
     def __unicode__(self):
         return u'<extrait \'{0}\'>'.format(self.title)
@@ -433,11 +471,17 @@ class Extract(models.Model):
             slugify(self.title)
         )
         
-    def get_path(self):
-        if self.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+    def get_path(self, relative=False):
+        if relative:
+            if self.chapter.tutorial:
+                chapter_path = self.chapter.slug
+            else:
+                chapter_path = os.path.join(self.chapter.part.slug, self.chapter.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+            if self.chapter.tutorial:
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+            else:
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
@@ -449,29 +493,21 @@ class Extract(models.Model):
             
         return os.path.join(chapter_path, slugify(self.title)+'.md.html') 
     
-    def get_text(self, name=None):
-        if name == None:
-            text = open(self.get_path(), "r")
+    def get_text(self):
+        if self.chapter.tutorial:
+            text = open(os.path.join(self.chapter.tutorial.get_path(), self.text), "r")
         else:
-            if self.chapter.tutorial:
-                text = open(os.path.join(self.chapter.tutorial.get_path(), name), "r")
-            else:
-                text = open(os.path.join(self.chapter.part.tutorial.get_path(), name), "r")
-
+            text = open(os.path.join(self.chapter.part.tutorial.get_path(), self.text), "r")
         text_contenu = text.read()
         text.close()
         
         return text_contenu.decode('utf-8')
     
-    def get_text_online(self, name=None):
-        if name == None:
-            text = open(self.get_prod_path(), "r")
+    def get_text_online(self):
+        if self.chapter.tutorial:
+            text = open(os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html'), "r")
         else:
-            if self.chapter.tutorial:
-                text = open(os.path.join(self.chapter.tutorial.get_prod_path(), name), "r")
-            else:
-                text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), name), "r")
-
+            text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html'), "r")
         text_contenu = text.read()
         text.close()
         

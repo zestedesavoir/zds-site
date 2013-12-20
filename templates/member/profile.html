@@ -64,25 +64,25 @@
             <tbody>
                 <tr>
                     <td>En cours de rédaction</td>
-                    <td>{{ profile.get_draft_tuto.count }}</td>
+                    <td>{{ profile.get_draft_tutos.count }}</td>
                 </tr>
                 <tr>
                     <td>En attente de validation</td>
-                    <td>{{ profile.get_validate_tuto.count }}</td>
+                    <td>{{ profile.get_validate_tutos.count }}</td>
                 </tr>
                 <tr>
                     <td>En version beta</td>
-                    <td>{{ profile.get_beta_tuto.count }}</td>
+                    <td>{{ profile.get_beta_tutos.count }}</td>
                 </tr>
                 <tr>
                     <td>En ligne</td>
-                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{{ profile.get_public_tuto.count }}</a></td>
+                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{{ profile.get_public_tutos.count }}</a></td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <td>Total</td>
-                    <td>{{ profile.get_tuto.count }}</td>
+                    <td>{{ profile.get_tutos.count }}</td>
                 </tr>
             </tfoot>
         </table>
@@ -219,6 +219,12 @@
         </div>
         {% csrf_token %}
         </form>
+    </div>
+    <div class="large-12 columns">
+        <h3>Vue d'ensemble des posts sur le forum</h3>
+        <figure style='height:800px'>
+          <embed type="image/svg+xml" src="/media/pygal/mod-{{profile.user.pk}}.svg" />
+        </figure>
     </div>
 </div>
 {% endif %}

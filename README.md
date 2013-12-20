@@ -2,6 +2,9 @@ ZesteDeSavoir
 =============
 Site internet communautaire codé à l'aide du Framework Django 1.5.
 
+* Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
+* Lien d'inscrition à la newsletter : [newsletter](http://zestedesavoir.com/newsletter/) (future adresse de teasing)
+
 Fonctionnalités implementées
 ----------------------------
 ### La gestion forums
@@ -23,7 +26,7 @@ Fonctionnalités implementées
 
 ### La gestion des membres
 #### Un membre peut :
-* Modifier son profil (bio, site, avatar, singature)
+* Modifier son profil (bio, site, avatar, signature)
 * Modifier ses préférences
     * Affichage publique de son adresse mail
     * Affichage de la signature des membres
