@@ -18,8 +18,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-                ("moderation",u"Moderer un membre"),
-                ("show_ip",u"Afficher les IP d'un membre"),
+                ("moderation", u"Modérer un membre"),
+                ("show_ip", u"Afficher les IP d'un membre"),
         )
 
     user = models.ForeignKey(User, unique=True, verbose_name='Utilisateur')
@@ -69,37 +69,38 @@ class Profile(models.Model):
 
     def get_post_count(self):
         '''Number of messages posted'''
-        return Post.objects.all().filter(author__pk=self.user.pk).count()
+        return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
         '''Number of threads created'''
-        return Topic.objects.all().filter(author=self.user).count()
+        return Topic.objects.filter(author=self.user).count()
     
-    def get_tuto(self):
+    def get_tuto_count(self):
+        '''Number of tutos created'''
+        return Tutorial.objects.filter(authors__in=[self.user]).count()
+
+    def get_tutos(self):
+        '''Get all tutorials of the user'''
+        return Tutorial.objects.filter(authors__in = [self.user]).all()
+    
+    def get_draft_tutos(self):
         '''Tutorial in draft'''
-        return Tutorial.objects.all().filter(authors__in=[self.user]).count()
+        return Tutorial.objects.filter(authors__in=[self.user], sha_public__isnull=True, sha_draft__isnull=False).all()
     
-    def get_draft_tuto(self):
-        '''Tutorial in draft'''
-        return Tutorial.objects.all().filter(authors__in=[self.user], sha_public__isnull=True, sha_draft__isnull=False)
+    def get_public_tutos(self):
+        '''Tutorial in public'''
+        return Tutorial.objects.filter(authors__in=[self.user], sha_public__isnull=False).all()
     
-    def get_public_tuto(self):
-        '''Draft tuto'''
-        return Tutorial.objects.all().filter(authors__in=[self.user], sha_public__isnull=False)
-    
-    def get_validate_tuto(self):
+    def get_validate_tutos(self):
         '''Tutorial in validation'''
-        return Tutorial.objects.all().filter(authors__in=[self.user], sha_validation__isnull=False)
+        return Tutorial.objects.filter(authors__in=[self.user], sha_validation__isnull=False).all()
     
-    def get_beta_tuto(self):
+    def get_beta_tutos(self):
         '''Tutorial in beta'''
-        return Tutorial.objects.all().filter(authors__in=[self.user], sha_beta__isnull=False)
+        return Tutorial.objects.filter(authors__in=[self.user], sha_beta__isnull=False).all()
     
-    def get_is_author(self):
-        return False
-    
-    def get_ip_address(self):
-        return Post.objects.all().filter(author=self.user)
+    def get_posts(self):
+        return Post.objects.filter(author=self.user).all()
     
     def get_invisible_posts_count(self):
         return Post.objects.filter(is_visible=False, author=self.user).count()
@@ -118,11 +119,6 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
-    
-    def get_posts(self):
-        posts = Post.objects.filter(author=self.user).all()
-        return posts
-        
         
 class Ban(models.Model):
     class Meta:
