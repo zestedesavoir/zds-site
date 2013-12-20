@@ -504,10 +504,10 @@ class Extract(models.Model):
         return text_contenu.decode('utf-8')
     
     def get_text_online(self):
-        if self.tutorial:
-            text = open(os.path.join(self.tutorial.get_path(), self.text+'.html'), "r")
+        if self.chapter.tutorial:
+            text = open(os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html'), "r")
         else:
-            text = open(os.path.join(self.part.tutorial.get_path(), self.text+'.html'), "r")
+            text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html'), "r")
         text_contenu = text.read()
         text.close()
         
