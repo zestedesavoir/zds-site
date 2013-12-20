@@ -74,19 +74,22 @@ class Forum(models.Model):
 
     def get_topic_count(self):
         '''Gets the number of threads in the forum'''
-        return Topic.objects.all().filter(forum__pk=self.pk).count()
+        return Topic.objects.filter(forum__pk=self.pk).count()
 
     def get_post_count(self):
-        return Post.objects.all().filter(topic__forum=self).count()
+        '''Gets the number of posts for a forum'''
+        return Post.objects.filter(topic__forum=self).count()
 
     def get_last_message(self):
         '''Gets the last message on the forum, if there are any'''
         try:
-            return Post.objects.all().filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
+            return Post.objects.filter(topic__forum__pk=self.pk).order_by('-pubdate').all()[0]
         except IndexError:
             return None
 
     def can_read(self, user):
+        '''Checks if the forum can be read by the user'''
+        # TODO These prints is used to debug this method. Remove them later.
         print(self.group.count())
         print(user)
         
@@ -97,8 +100,9 @@ class Forum(models.Model):
             return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
         
     def is_read(self):
-        for t in Topic.objects.all().filter(forum=self):
-            if never_read(t):
+        '''Checks if there are topics never read in the forum'''
+        for current_topic in Topic.objects.filter(forum=self).all():
+            if never_read(current_topic):
                 return False
         return True
 
