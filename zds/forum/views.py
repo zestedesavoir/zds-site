@@ -20,15 +20,15 @@ from zds.member.models import Profile
 
 
 def index(request):
-    
+    '''
+    Display the category list with all their forums
+    '''
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now():
             raise Http404
-    '''
-    Display the category list with all their forums
-    '''
-    categories = Category.objects.all().order_by('position')
+    
+    categories = Category.objects.order_by('position').all()
 
     return render_template('forum/index.html', {
         'categories': categories,
@@ -37,28 +37,27 @@ def index(request):
 
 
 def details(request, cat_slug, forum_slug):
-    
+    '''
+    Display the given forum and all its topics
+    '''
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now():
             raise Http404
     
-    
-    
-    '''
-    Display the given forum and all its topics
-    '''
     forum = get_object_or_404(Forum, slug=forum_slug)
     
     if not forum.can_read(request.user):
         raise Http404
     
-    sticky_topics = Topic.objects.all()\
+    sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
-        .order_by('-last_message__pubdate')
-    topics = Topic.objects.all()\
+        .order_by('-last_message__pubdate')\
+        .all()
+    topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=False)\
-        .order_by('-last_message__pubdate')
+        .order_by('-last_message__pubdate')\
+        .all()
 
     # Paginator
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
@@ -85,7 +84,7 @@ def cat_details(request, cat_slug):
     Display the forums belonging to the given category
     '''
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = Forum.objects.all().filter(category__pk=category.pk)
+    forums = Forum.objects.filter(category__pk=category.pk).all()
 
     return render_template('forum/cat_details.html', {
         'category': category, 'forums': forums
@@ -114,8 +113,10 @@ def topic(request, topic_pk, topic_slug):
         if never_read(g_topic):
             mark_read(g_topic)
 
-    posts = Post.objects.all().filter(topic__pk=g_topic.pk)\
-                              .order_by('position_in_topic')
+    posts = Post.objects\
+                .filter(topic__pk=g_topic.pk)\
+                .order_by('position_in_topic')\
+                .all()
 
     last_post_pk = g_topic.last_message.pk
 
@@ -254,10 +255,8 @@ def edit(request):
 
     g_topic = get_object_or_404(Topic, pk=topic_pk)
 
-    if request.user.is_authenticated():
-        # User actions
-        if 'follow' in data:
-            resp['follow'] = follow(g_topic)
+    if 'follow' in data:
+        resp['follow'] = follow(g_topic)
     if request.user == g_topic.author:
         # Author actions
         if 'solved' in data:
@@ -290,7 +289,7 @@ def edit(request):
 @login_required
 def answer(request):
     '''
-    Adds an answer from an user to a topic
+    Adds an answer from a user to a topic
     '''
     try:
         topic_pk = request.GET['sujet']
@@ -465,6 +464,7 @@ def edit_post(request):
 @login_required
 def useful_post(request):
     '''Marks a message as useful (for the OP)'''
+
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -483,8 +483,8 @@ def useful_post(request):
 
 @login_required
 def like_post(request):
-    '''like a post'''
-    
+    '''Like a post'''
+
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now() or not profile[0].can_write_now():
@@ -520,8 +520,8 @@ def like_post(request):
 
 @login_required
 def dislike_post(request):
-    '''like a post'''
-    
+    '''Dislike a post'''
+
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now() or not profile[0].can_write_now():
@@ -556,15 +556,18 @@ def dislike_post(request):
     return redirect(post.get_absolute_url())
 
 def find_topic(request, user_pk):
-    
+    '''Finds all topics of a user'''
+
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now():
             raise Http404
     
     u = get_object_or_404(User, pk=user_pk)
-    topics=Topic.objects.all().filter(author=u)\
-                          .order_by('-pubdate')
+    topics = Topic.objects\
+                .filter(author=u)\
+                .order_by('-pubdate')\
+                .all()
                               
     # Paginator
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
@@ -572,13 +575,13 @@ def find_topic(request, user_pk):
 
     try:
         shown_topics = paginator.page(page)
-        page=int(page)
+        page = int(page)
     except PageNotAnInteger:
         shown_topics = paginator.page(1)
         page = 1
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
-        page=paginator.num_pages
+        page = paginator.num_pages
     
     return render_template('forum/find_topic.html', {
         'topics': shown_topics, 'usr':u,
@@ -586,28 +589,32 @@ def find_topic(request, user_pk):
     })
 
 def find_post(request, user_pk):
-    
+    '''Finds all posts of a user'''
+
     profile = Profile.objects.filter(user__pk=request.user.pk).all()
     if len(profile)>0:
         if not profile[0].can_read_now():
             raise Http404
     
     u = get_object_or_404(User, pk=user_pk)
-    posts=Post.objects.all().filter(author=u)\
-                          .order_by('-pubdate')
+    posts = Post.objects\
+                .filter(author=u)\
+                .order_by('-pubdate')\
+                .all()
+
     # Paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
         shown_posts = paginator.page(page)
-        page=int(page)
+        page = int(page)
     except PageNotAnInteger:
         shown_posts = paginator.page(1)
         page = 1
     except EmptyPage:
         shown_posts = paginator.page(paginator.num_pages)
-        page=paginator.num_pages
+        page = paginator.num_pages
     
     return render_template('forum/find_post.html', {
         'posts': shown_posts, 'usr':u,
