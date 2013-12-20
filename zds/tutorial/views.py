@@ -1179,8 +1179,11 @@ def import_tuto(request):
                         tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
                         tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
                         
+                        
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.introduction = 'introduction.md'
+                        tutorial.conclusion = 'conclusion.md'
                         # Creating the gallery
                         gal = Gallery()
                         gal.title = tutorial_title.text
@@ -1220,6 +1223,9 @@ def import_tuto(request):
                             
                             part.tutorial = tutorial
                             
+                            part.introduction = os.path.join(part.get_path(relative=True),'introduction.md')
+                            part.conclusion = os.path.join(part.get_path(relative=True),'conclusion.md')
+                            
                             part_path = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(part.title))
                             
                             part.save()
@@ -1238,6 +1244,9 @@ def import_tuto(request):
                                 chapter.position_in_part = chapter_count
                                 chapter.position_in_tutorial = part_count * chapter_count
                                 chapter.part = part
+                                
+                                chapter.introduction = os.path.join(chapter.get_path(relative=True),'introduction.md')
+                                chapter.conclusion = os.path.join(chapter.get_path(relative=True),'conclusion.md')
                                 
                                 chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), slugify(chapter.title))
                                 
@@ -1260,6 +1269,7 @@ def import_tuto(request):
                                     extract.position_in_chapter = extract_count
                                     extract.chapter = chapter
                                     
+                                    extract.text = extract.get_path(relative=True)
                                     extract.save()
 
                                     maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text), action= 'add')
@@ -1279,6 +1289,8 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.introduction = 'introduction.md'
+                        tutorial.conclusion = 'conclusion.md'
                         
                         # Creating the gallery
                         gal = Gallery()
@@ -1321,6 +1333,7 @@ def import_tuto(request):
                             extract.title = extract_title.text.strip()
                             extract.position_in_chapter = extract_count
                             extract.chapter = chapter
+                            extract.text = extract.get_path(relative=True)
                             
                             extract.save()
                             
