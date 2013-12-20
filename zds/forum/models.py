@@ -112,8 +112,8 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=80)
-    subtitle = models.CharField('Sous-titre', max_length=200)
+    title = models.CharField('Titre', max_length=60)
+    subtitle = models.CharField('Sous-titre', max_length=100)
 
     forum = models.ForeignKey(Forum, verbose_name='Forum')
     author = models.ForeignKey(User, verbose_name='Auteur',
@@ -225,6 +225,9 @@ class Post(models.Model):
     topic = models.ForeignKey(Topic, verbose_name='Sujet')
     author = models.ForeignKey(User, verbose_name='Auteur',
                                      related_name='posts')
+    editor = models.ForeignKey(User, verbose_name='Editeur',
+                                     related_name='posts-editor',
+                                     null=True, blank=True)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=15)
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en Html')

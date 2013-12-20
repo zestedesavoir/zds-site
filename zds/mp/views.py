@@ -136,7 +136,7 @@ def new(request):
             data = form.data
             #control participant
             ctrl=[]
-            list_part = data['participants'].split(',')
+            list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
                 p=get_object_or_404(User, username=part)
                 ctrl.append(p)
@@ -267,7 +267,7 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             post_cite_pk = request.GET['cite']
-            post_cite = Post.objects.get(pk=post_cite_pk)
+            post_cite = PrivatePost.objects.get(pk=post_cite_pk)
 
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'

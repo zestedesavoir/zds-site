@@ -48,6 +48,7 @@
                 </thead>
               <tbody>
                 {% for validation in validations %}
+                  <tr>
                   <td></td>
                   <td><a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a></td>
                   <td>
@@ -81,6 +82,7 @@
                         <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-x" style="color:#E33100; font-size:21px;"></a></p>
                     {% endif %}
                   </td>
+                  </tr>
                 {% endfor %}
                 </tbody>
             </table>
