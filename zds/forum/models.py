@@ -83,7 +83,7 @@ class Forum(models.Model):
     def get_last_message(self):
         '''Gets the last message on the forum, if there are any'''
         try:
-            return Post.objects.filter(topic__forum__pk=self.pk).order_by('-pubdate').all()[0]
+            return Post.objects.filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
         except IndexError:
             return None
 
@@ -140,13 +140,13 @@ class Topic(models.Model):
         '''
         Return the number of posts in the topic
         '''
-        return Post.objects.all().filter(topic__pk=self.pk).count()
+        return Post.objects.filter(topic__pk=self.pk).count()
 
     def get_last_answer(self):
         '''
         Gets the last answer in the thread, if any
         '''
-        last_post = Post.objects.all()\
+        last_post = Post.objects\
             .filter(topic__pk=self.pk)\
             .order_by('-pubdate')[0]
 
@@ -256,9 +256,11 @@ class Post(models.Model):
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 
     def get_like_count(self):
+        '''Gets number of like for the post'''
         return PostLike.objects.filter(posts__pk=self.pk).count()
     
     def get_dislike_count(self):
+        '''Gets number of dislike for the post''' 
         return PostDislike.objects.filter(posts__pk=self.pk).count()
 
 class TopicRead(models.Model):
@@ -373,4 +375,4 @@ def get_last_topics():
     '''
     Returns the 5 very last topics
     '''
-    return Topic.objects.all().order_by('-last_message__pubdate')[:5]
+    return Topic.objects.order_by('-last_message__pubdate').all()[:5]
