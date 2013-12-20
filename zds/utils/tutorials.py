@@ -5,9 +5,7 @@ import os
 
 from zds.utils import slugify
 
-
 # Export-to-dict functions
-
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
     '''
@@ -15,9 +13,10 @@ def export_chapter(chapter, export_all=True):
     '''
     dct = OrderedDict()
     if export_all:
+        dct['pk'] = chapter.pk
         dct['title'] = chapter.title
-        dct['introduction'] = os.path.join(chapter.get_path(relative=True),'introduction.md')
-        dct['conclusion'] = os.path.join(chapter.get_path(relative=True),'conclusion.md')
+        dct['introduction'] = chapter.introduction
+        dct['conclusion'] = chapter.conclusion
     dct['extracts'] = []
 
     extracts = Extract.objects.filter(chapter=chapter)\
@@ -25,8 +24,9 @@ def export_chapter(chapter, export_all=True):
 
     for extract in extracts:
         extract_dct = OrderedDict()
+        extract_dct['pk'] = extract.pk
         extract_dct['title'] = extract.title
-        extract_dct['text'] = os.path.join(chapter.get_path(relative=True), slugify(extract.title))
+        extract_dct['text'] = extract.text
         dct['extracts'].append(extract_dct)
 
     return dct
@@ -38,9 +38,10 @@ def export_part(part):
     Export a part to a dict
     '''
     dct = OrderedDict()
+    dct['pk'] = part.pk
     dct['title'] = part.title
-    dct['introduction'] = os.path.join(part.get_path(relative=True),'introduction.md')
-    dct['conclusion'] = os.path.join(part.get_path(relative=True),'conclusion.md')
+    dct['introduction'] = part.introduction
+    dct['conclusion'] = part.conclusion
     dct['chapters'] = []
 
     chapters = Chapter.objects\
@@ -63,13 +64,16 @@ def export_tutorial(tutorial):
     dct['type'] = tutorial.type
     if tutorial.licence:
         dct['licence'] = tutorial.licence.code
-    dct['introduction'] = os.path.join(tutorial.get_path(relative=True),'introduction.md')
-    dct['conclusion'] = os.path.join(tutorial.get_path(relative=True),'conclusion.md')
+    dct['introduction'] = tutorial.introduction
+    dct['conclusion'] = tutorial.conclusion
 
     if tutorial.is_mini:
         # We export the chapter without its empty title if mini tutorial
-        chapter = Chapter.objects.get(tutorial=tutorial)
-        dct['chapter'] = export_chapter(chapter, export_all=False)
+        try :
+            chapter = Chapter.objects.get(tutorial__pk=tutorial.pk)
+            dct['chapter'] = export_chapter(chapter, export_all=False)
+        except Chapter.DoesNotExist:
+            chapter = None
     else:
         dct['parts'] = []
         parts = Part.objects\
