@@ -5,6 +5,7 @@ import string
 
 from math import ceil
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import Group, User
@@ -12,12 +13,6 @@ from django.template.defaultfilters import slugify
 
 from zds.utils import get_current_user
 from zds.utils.models import Alert
-
-# TODO: Put these constants in settings.py file
-POSTS_PER_PAGE = 21
-TOPICS_PER_PAGE = 21
-SPAM_LIMIT_SECONDS = 60 * 15
-
 
 def image_path_forum(instance, filename):
     '''Return path to an image'''
@@ -43,9 +38,10 @@ class Category(models.Model):
         return '/forums/{0}/'.format(self.slug)
 
     def get_forums(self):
-        return Forum.objects.all()\
+        return Forum.objects\
             .filter(category=self)\
-            .order_by('position_in_category')
+            .order_by('position_in_category')\
+            .all()
 
 
 class Forum(models.Model):
@@ -208,7 +204,7 @@ class Topic(models.Model):
         if last_user_posts and last_user_posts[0] == self.get_last_answer():
             last_user_post = last_user_posts[0]
             t = timezone.now() - last_user_post.pubdate
-            if t.total_seconds() < SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
 
         return False
@@ -251,7 +247,7 @@ class Post(models.Model):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position_in_topic) / POSTS_PER_PAGE))
+        page = int(ceil(float(self.position_in_topic) / settings.POSTS_PER_PAGE))
 
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 

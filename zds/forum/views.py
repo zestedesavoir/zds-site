@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -10,7 +11,7 @@ from django.shortcuts import redirect, get_object_or_404
 import json
 
 from forms import TopicForm, PostForm
-from models import Category, Forum, Topic, Post, POSTS_PER_PAGE, TOPICS_PER_PAGE, \
+from models import Category, Forum, Topic, Post, \
     PostDislike, PostLike, follow, never_read, mark_read
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert
@@ -60,7 +61,7 @@ def details(request, cat_slug, forum_slug):
         .order_by('-last_message__pubdate')
 
     # Paginator
-    paginator = Paginator(topics, TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -119,7 +120,7 @@ def topic(request, topic_pk, topic_slug):
     last_post_pk = g_topic.last_message.pk
 
     # Handle pagination
-    paginator = Paginator(posts, POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
 
     # The category list is needed to move threads
     categories = Category.objects.all()
@@ -566,7 +567,7 @@ def find_topic(request, user_pk):
                           .order_by('-pubdate')
                               
     # Paginator
-    paginator = Paginator(topics, TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -595,7 +596,7 @@ def find_post(request, user_pk):
     posts=Post.objects.all().filter(author=u)\
                           .order_by('-pubdate')
     # Paginator
-    paginator = Paginator(posts, POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
