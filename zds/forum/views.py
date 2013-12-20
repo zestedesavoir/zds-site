@@ -415,8 +415,7 @@ def edit_post(request):
                 post.is_visible=False
                 if request.user.has_perm('forum.change_post'):
                     post.text_hidden=request.POST['text_hidden']
-                else :
-                    post.text_hidden="Masqué par le membre"
+                post.editor = request.user
             
         if 'show-post' in request.POST:
             if request.user.has_perm('forum.change_post'):
@@ -444,6 +443,7 @@ def edit_post(request):
             # The user just sent data, handle them
             post.text = request.POST['text']
             post.update = datetime.now()
+            post.editor = request.user
             
             # Modifying the thread info
             if g_topic:
