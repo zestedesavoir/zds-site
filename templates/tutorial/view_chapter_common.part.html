@@ -2,13 +2,12 @@
 {% load emarkdown %}
 {% load repo_reader %}
 
-{% with chapter_version=chapter|repo_chapter:version %}
 {% with extracts=chapter.extracts %}
     <div class="row">
         <div class="large-12 columns">
             {% if not chapter.type = 'MINI' %}
-                {% if chapter_version.introduction %}
-                    {{ chapter_version.introduction|emarkdown }}
+                {% if chapter.intro %}
+                    {{ chapter.intro|emarkdown }}
                 {% else %}
                     <p>Aucune introduction.</p>
                 {% endif %}
@@ -107,15 +106,13 @@
                     {% csrf_token %}
                 </form>
             {% endif %}
-            {% with extract_version=extract|repo_extract:version %}
-            {% if extract_version.text %}
-                {{ extract_version.text|emarkdown }}
+            {% if extract.txt %}
+                {{ extract.txt|emarkdown }}
             {% else %}
                 <p>
                     Cet extrait est vide.
                 </p>
             {% endif %}
-            {% endwith %}
         </div>
     </div>
     {% endfor %}
@@ -125,8 +122,8 @@
     {% if not chapter.type = 'MINI' %}
     <div class="row">
         <div class="large-12 columns">
-            {% if chapter_version.conclusion %}
-                {{ chapter_version.conclusion|emarkdown }}
+            {% if chapter.conclu %}
+                {{ chapter.conclu|emarkdown }}
             {% else %}
                 <p>Aucune conclusion.</p>
             {% endif %}
@@ -134,5 +131,4 @@
     </div>
     {% endif %}
 
-{% endwith %}
 {% endwith %}

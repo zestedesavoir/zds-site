@@ -34,7 +34,7 @@ def repo_part(part, sha=None):
         return {'introduction': part.get_introduction(),
             'conclusion': part.get_conclusion()}
     else:
-        repo = Repo(part.get_path())
+        repo = Repo(part['path'])
         bls = repo.commit(sha).tree.blobs
         for bl in bls:
             if bl.path=='introduction.md':

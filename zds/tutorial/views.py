@@ -18,6 +18,7 @@ import json
 from git import *
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
+from zds.utils.tutorials import get_blob
 from zds.utils.models import Category, Licence
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -107,14 +108,23 @@ def reservation(request, validation_pk):
     
     validation = get_object_or_404(Validation, pk=validation_pk)
     
-    if not request.user.has_perm('tutorial.change_tutorial') or validation.validator != None:
+    if not request.user.has_perm('tutorial.change_tutorial'):
         raise Http404
     
-    validation.validator = request.user
-    validation.date_reserve = datetime.now()
-    validation.save()
+    if validation.validator :
+        validation.validator = None
+        validation.date_reserve = None
+        validation.status = 'PENDING'
+        validation.save()
         
-    return redirect(validation.tutorial.get_absolute_url())
+        return redirect(reverse('zds.tutorial.views.list_validation'))
+    
+    else:
+        validation.validator = request.user
+        validation.date_reserve = datetime.now()
+        validation.status = 'PENDING_V'
+        validation.save()
+        return redirect(validation.tutorial.get_absolute_url())
     
 # Tutorial
 @login_required
@@ -188,32 +198,59 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     
     #find the good manifest file
     repo = Repo(tutorial.get_path())
-    bls = repo.commit(sha).tree.blobs
-    for bl in bls:
-        if bl.path=='manifest.json':
-            man = bl.data_stream.read()
-            break
-    manifest = man.decode('utf-8')
+
+    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
     mandata = json.loads(manifest)
-    
+
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_path()
             chapter['type'] = 'MINI'
-            cpt=0
+            chapter['intro'] = get_blob(repo.commit(sha).tree, 'introduction.md')
+            chapter['conclu'] = get_blob(repo.commit(sha).tree, 'conclusion.md')
+            cpt=1
             for ext in chapter['extracts'] :
                 ext['position_in_chapter'] = cpt
                 ext['path'] = tutorial.get_path()
+                ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
                 cpt+=1
         else:
             chapter = None
         #chapter = Chapter.objects.get(tutorial=tutorial)
         
     else:
-        parts = Part.objects.all(
-        ).filter(tutorial__pk=tutorial.pk).order_by('position_in_tutorial')
+        parts = mandata['parts']
+        cpt_p=1
+        for part in parts :
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            part['intro'] = get_blob(repo.commit(sha).tree, part['introduction'])
+            part['conclu'] = get_blob(repo.commit(sha).tree, part['conclusion'])
+
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                chapter['intro'] = get_blob(repo.commit(sha).tree, chapter['introduction'])
+                chapter['conclu'] = get_blob(repo.commit(sha).tree, chapter['conclusion'])
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                    cpt_e+=1
+                cpt_c+=1
+                
+            cpt_p+=1
     
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = sha)
 
@@ -389,7 +426,7 @@ def edit_tutorial(request):
             
             return redirect(tutorial.get_absolute_url())
     else:
-        if json['licence']:
+        if 'licence' in json:
             licence=Licence.objects.filter(code=json['licence']).all()[0]
         else:
             licence=None
@@ -526,26 +563,60 @@ def modify_tutorial(request):
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
-    part = get_object_or_404(Part,
-                             slug=part_slug, tutorial__pk=tutorial_pk)
     try:
         sha = request.GET['version']
     except KeyError:
         sha = tutorial.sha_draft
 
-    tutorial = part.tutorial
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     if not tutorial.on_line \
        and not request.user.has_perm('tutorial.change_part') \
        and not request.user in tutorial.authors.all():
         raise Http404
+    
+    final_part = None
+    #find the good manifest file
+    repo = Repo(tutorial.get_path())
 
-    # Make sure the URL is well-formed
-    if not tutorial_slug == slugify(tutorial.title)\
-            or not part_slug == slugify(part.title):
-        return redirect(part.get_absolute_url())
+    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    mandata = json.loads(manifest)
+    
+    parts = mandata['parts']
+    cpt_p=1
+    for part in parts :
+        if part_slug == slugify(part['title']):
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            part['intro'] = get_blob(repo.commit(sha).tree, part['introduction'])
+            part['conclu'] = get_blob(repo.commit(sha).tree, part['conclusion'])    
+    
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                chapter['intro'] = get_blob(repo.commit(sha).tree, chapter['introduction'])
+                chapter['conclu'] = get_blob(repo.commit(sha).tree, chapter['conclusion'])
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                    cpt_e+=1
+                cpt_c+=1
+                
+            final_part = part
+            break
+        cpt_p+=1
 
     return render_template('tutorial/view_part.html', {
-        'part': part, 'version':sha
+        'part': final_part, 'version':sha
     })
 
 
@@ -725,21 +796,50 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
         or not part_slug == slugify(chapter.part.title)\
             or not chapter_slug == slugify(chapter.title):
         return redirect(chapter.get_absolute_url())
+    
+    #find the good manifest file
+    repo = Repo(tutorial.get_path())
 
-    prev_chapter = Chapter.objects.all()\
-        .filter(part__tutorial__pk=chapter.part.tutorial.pk)\
-        .filter(position_in_tutorial__lt=chapter.position_in_tutorial)\
-        .order_by('-position_in_tutorial')
-    prev_chapter = prev_chapter[0] if len(prev_chapter) > 0 else None
-
-    next_chapter = Chapter.objects.all()\
-        .filter(part__tutorial__pk=chapter.part.tutorial.pk)\
-        .filter(position_in_tutorial__gt=chapter.position_in_tutorial)\
-        .order_by('position_in_tutorial')
-    next_chapter = next_chapter[0] if len(next_chapter) > 0 else None
-
+    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    mandata = json.loads(manifest)
+    
+    parts = mandata['parts']
+    cpt_p=1
+    
+    final_chapter = None
+    chapter_tab = []
+    final_position = 0
+    for part in parts :
+        cpt_c=1
+        part['tutorial'] = tutorial
+        for chapter in part['chapters'] :
+            chapter['part'] = part
+            chapter['path'] = tutorial.get_path()
+            chapter['slug'] = slugify(chapter['title'])
+            chapter['type'] = 'BIG'
+            chapter['position_in_part'] = cpt_c
+            chapter['position_in_tutorial'] = cpt_c * cpt_p
+            chapter['intro'] = get_blob(repo.commit(sha).tree, chapter['introduction'])
+            chapter['conclu'] = get_blob(repo.commit(sha).tree, chapter['conclusion'])
+            cpt_e=1
+            for ext in chapter['extracts'] :
+                ext['chapter'] = chapter
+                ext['position_in_chapter'] = cpt_e
+                ext['path'] = tutorial.get_path()
+                ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                cpt_e+=1
+            chapter_tab.append(chapter)    
+            if chapter_slug == slugify(chapter['title']):
+                final_chapter = chapter
+                final_position = len(chapter_tab)-1
+            cpt_c+=1
+        cpt_p+=1
+        
+    prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
+    next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
+    
     return render_template('tutorial/view_chapter.html', {
-        'chapter': chapter,
+        'chapter': final_chapter,
         'prev': prev_chapter,
         'next': next_chapter, 
         'version':sha
@@ -1223,8 +1323,8 @@ def import_tuto(request):
                             
                             part.tutorial = tutorial
                             
-                            part.introduction = os.path.join(part.get_path(relative=True),'introduction.md')
-                            part.conclusion = os.path.join(part.get_path(relative=True),'conclusion.md')
+                            part.introduction = os.path.join(slugify(part_title.text.strip()),'introduction.md')
+                            part.conclusion = os.path.join(slugify(part_title.text.strip()),'conclusion.md')
                             
                             part_path = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(part.title))
                             
@@ -1245,8 +1345,8 @@ def import_tuto(request):
                                 chapter.position_in_tutorial = part_count * chapter_count
                                 chapter.part = part
                                 
-                                chapter.introduction = os.path.join(chapter.get_path(relative=True),'introduction.md')
-                                chapter.conclusion = os.path.join(chapter.get_path(relative=True),'conclusion.md')
+                                chapter.introduction = os.path.join(part.slug,os.path.join(slugify(chapter_title.text.strip()),'introduction.md'))
+                                chapter.conclusion = os.path.join(part.slug,os.path.join(slugify(chapter_title.text.strip()),'conclusion.md'))  
                                 
                                 chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), slugify(chapter.title))
                                 
