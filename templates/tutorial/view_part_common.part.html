@@ -5,7 +5,7 @@
 
 {% with tutorial=part.tutorial%}
     {% with authors=tutorial.authors.all %}
-        {% with chapters=part.get_chapters %}
+        {% with chapters=part.chapters %}
 
             {% if user in authors %}
             <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST" class="custom right">
@@ -57,9 +57,8 @@
 
             {% endif %}
 
-            {% with part_version=part|repo_part:version %}
-            {% if part_version.introduction %}
-                {{ part_version.introduction|emarkdown }}
+            {% if part.intro %}
+                {{ part.intro|emarkdown }}
             {% else %}
                 <p>Pas d'introduction.</p>
             {% endif %}
@@ -75,7 +74,7 @@
                 <li>
                     <a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}{%if version %}?version={{version}}{% endif %}">Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</a>
                     <ul>
-                        {% for extract in chapter.get_extracts %}
+                        {% for extract in chapter.extracts %}
                         <li>
                             <a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
                                 {{ extract.title }}
@@ -88,12 +87,11 @@
                 {% endfor %}
             </ul>
 
-            {% if part_version.conclusion %}
-                {{ part_version.conclusion|emarkdown }}
+            {% if part.conclu %}
+                {{ part.conclu|emarkdown }}
             {% else %}
                 <p>Pas de conclusion.</p>
             {% endif %}
-            {% endwith %}
         {% endwith %}
     {% endwith %}
 {% endwith %}
