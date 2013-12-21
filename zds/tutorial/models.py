@@ -21,7 +21,7 @@ TYPE_CHOICES = (
 
 STATUS_CHOICES = (
         ('PENDING', 'En attente de validateur'),
-        ('PENDING_VALID', 'En attente de validation'),
+        ('PENDING_V', 'En attente de validation'),
         ('ACCEPT', 'Accepté'),
         ('REJECT', 'Rejeté'),
     )
@@ -545,7 +545,7 @@ class Validation(models.Model):
         return self.status == 'PENDING'
     
     def is_pending_valid(self):
-        return self.status == 'PENDING_VALID'
+        return self.status == 'PENDING_V'
     
     def is_accept(self):
         return self.status == 'ACCEPT'
