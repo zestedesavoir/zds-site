@@ -9,7 +9,7 @@ from .models import Post, Topic
 
 
 class LastPostsFeedRSS(Feed):
-    title = u'Postes sur Zeste de Savoir'
+    title = u'Derniers messages sur Zeste de Savoir'
     link = '/forums/'
     description = u'Les derniers messages parus sur le forum de Zeste de Savoir.'
 
@@ -40,7 +40,7 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
 
 
 class LastTopicsFeedRSS(Feed):
-    title = u'Sujets sur Zeste de Savoir'
+    title = u'Derniers sujets sur Zeste de Savoir'
     link = '/forums/'
     description = u'Les derniers sujets créés sur le forum de Zeste de Savoir.'
 
