@@ -246,6 +246,14 @@ IMAGE_MAX_SIZE = 1024*1024
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 
+# Constants for pagination
+POSTS_PER_PAGE = 21
+TOPICS_PER_PAGE = 21
+
+# Constants to avoid spam
+SPAM_LIMIT_SECONDS = 60 * 15
+SPAM_LIMIT_PARTICIPANT = 2
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
