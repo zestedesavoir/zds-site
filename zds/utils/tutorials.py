@@ -4,6 +4,7 @@ from collections import OrderedDict
 import os
 
 from zds.utils import slugify
+from git import *
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -66,8 +67,8 @@ def export_tutorial(tutorial):
         dct['licence'] = tutorial.licence.code
     dct['introduction'] = tutorial.introduction
     dct['conclusion'] = tutorial.conclusion
-
-    if tutorial.is_mini:
+       
+    if tutorial.is_mini():
         # We export the chapter without its empty title if mini tutorial
         try :
             chapter = Chapter.objects.get(tutorial__pk=tutorial.pk)
@@ -77,9 +78,23 @@ def export_tutorial(tutorial):
     else:
         dct['parts'] = []
         parts = Part.objects\
-            .filter(tutorial=tutorial)\
+            .filter(tutorial__pk=tutorial.pk)\
             .order_by('position_in_tutorial')
         for part in parts:
             dct['parts'].append(export_part(part))
 
     return dct
+
+def get_blob(tree, chemin):
+    for bl in tree.blobs:
+        if bl.path==chemin:
+            data = bl.data_stream.read()
+            return data.decode('utf-8')
+    if len(tree.trees) > 0:
+        for tr in tree.trees:
+            result = get_blob(tr, chemin)
+            if result != None:
+                return result
+        return None
+    else:
+        return None

@@ -1,0 +1,35 @@
+{% extends "tutorial/base.html" %}
+{% load markup %}
+
+{% block title %}
+{{ chapter.title }} ({{ chapter.part.tutorial.title }})
+{% endblock %}
+
+{% block headline %}
+{% if chapter.thumbnail %}
+<img src="{{chapter.thumbnail.url }}"/>
+{% endif %}
+{{ chapter.title }}
+{% endblock %}
+
+{% block headline-actions %}
+    
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url_online }}">{{ chapter.part.tutorial.title }}</a></li>
+    <li><a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}">{{ chapter.part.title }}</a></li>
+    <li class="current"><a href="#">{{ chapter.title }}</a></li>
+{% endblock %}
+
+{% block content %}
+
+{% with tutorial=chapter.get_tutorial %}
+    {% with authors=tutorial.authors.all %}
+        {% include "tutorial/view_chapter_pager.html" %}
+        {% include "tutorial/view_chapter_online_common.part.html" %}
+        {% include "tutorial/view_chapter_pager.html" %}
+    {% endwith %}
+{% endwith %}
+
+{% endblock %}
