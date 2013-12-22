@@ -274,12 +274,73 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     chapter = None
     parts = None
 
+    #find the good manifest file
+    mandata = tutorial.load_json(online=True)
+
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
-        chapter = Chapter.objects.get(tutorial=tutorial)
+        if 'chapter' in mandata:
+            chapter = mandata['chapter']
+            chapter['path'] = tutorial.get_prod_path()
+            chapter['type'] = 'MINI'
+            intro = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            chapter['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            chapter['conclu'] = conclu.read()
+            conclu.close()
+            cpt=1
+            for ext in chapter['extracts'] :
+                ext['position_in_chapter'] = cpt
+                ext['path'] = tutorial.get_prod_path()
+                text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                ext['txt'] = text.read()
+                text.close()
+                cpt+=1
+        else:
+            chapter = None
+        #chapter = Chapter.objects.get(tutorial=tutorial)
+        
     else:
-        parts = Part.objects.all(
-        ).filter(tutorial__pk=tutorial.pk).order_by('position_in_tutorial')
+        parts = mandata['parts']
+        cpt_p=1
+        for part in parts :
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            intro = open(os.path.join(tutorial.get_prod_path(), part['introduction']+'.html'), "r")
+            part['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), part['conclusion']+'.html'), "r")
+            part['conclu'] = conclu.read()
+            conclu.close()
+
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']+'.html'), "r")
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
+                chapter['conclu'] = conclu.read()
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e+=1
+                cpt_c+=1
+                
+            cpt_p+=1
 
     return render_template('tutorial/view_tutorial_online.html', {
         'tutorial': tutorial, 'chapter': chapter, 'parts': parts
@@ -633,7 +694,55 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     if not tutorial_slug == slugify(tutorial.title)\
             or not part_slug == slugify(part.title):
         return redirect(part.get_absolute_url())
-
+    
+    final_part = None
+    #find the good manifest file
+    mandata = tutorial.load_json()
+    
+    parts = mandata['parts']
+    cpt_p=1
+    for part in parts :
+        if part_slug == slugify(part['title']):
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            intro = open(os.path.join(tutorial.get_prod_path(), part['introduction']+'.html'), "r")
+            part['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), part['conclusion']+'.html'), "r")
+            part['conclu'] = conclu.read()
+            conclu.close()
+                
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']+'.html'), "r")
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
+                chapter['conclu'] = conclu.read()
+                conclu.close()
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_prod_path()
+                    text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e+=1
+                cpt_c+=1
+                
+            final_part = part
+            break
+        cpt_p+=1
+        
     return render_template('tutorial/view_part_online.html', {
         'part': part
     })
@@ -811,6 +920,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     final_position = 0
     for part in parts :
         cpt_c=1
+        part['slug'] = slugify(part['title'])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -864,20 +974,53 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             or not chapter_slug == slugify(chapter.title):
         return redirect(chapter.get_absolute_url())
 
-    prev_chapter = Chapter.objects.all()\
-        .filter(part__tutorial__pk=chapter.part.tutorial.pk)\
-        .filter(position_in_tutorial__lt=chapter.position_in_tutorial)\
-        .order_by('-position_in_tutorial')
-    prev_chapter = prev_chapter[0] if len(prev_chapter) > 0 else None
-
-    next_chapter = Chapter.objects.all()\
-        .filter(part__tutorial__pk=chapter.part.tutorial.pk)\
-        .filter(position_in_tutorial__gt=chapter.position_in_tutorial)\
-        .order_by('position_in_tutorial')
-    next_chapter = next_chapter[0] if len(next_chapter) > 0 else None
+    #find the good manifest file
+    mandata = tutorial.load_json()
+    
+    parts = mandata['parts']
+    cpt_p=1
+    
+    final_chapter = None
+    chapter_tab = []
+    final_position = 0
+    for part in parts :
+        cpt_c=1
+        part['slug'] = slugify(part['title'])
+        part['tutorial'] = tutorial
+        for chapter in part['chapters'] :
+            chapter['part'] = part
+            chapter['path'] = tutorial.get_path()
+            chapter['slug'] = slugify(chapter['title'])
+            chapter['type'] = 'BIG'
+            chapter['position_in_part'] = cpt_c
+            chapter['position_in_tutorial'] = cpt_c * cpt_p
+            intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']+'.html'), "r")
+            chapter['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
+            chapter['conclu'] = conclu.read()
+            conclu.close()
+            cpt_e=1
+            for ext in chapter['extracts'] :
+                ext['chapter'] = chapter
+                ext['position_in_chapter'] = cpt_e
+                ext['path'] = tutorial.get_path()
+                text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                ext['txt'] = text.read()
+                text.close()
+                cpt_e+=1
+            chapter_tab.append(chapter)    
+            if chapter_slug == slugify(chapter['title']):
+                final_chapter = chapter
+                final_position = len(chapter_tab)-1
+            cpt_c+=1
+        cpt_p+=1
+        
+    prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
+    next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
 
     return render_template('tutorial/view_chapter_online.html', {
-        'chapter': chapter,
+        'chapter': final_chapter,
         'prev': prev_chapter,
         'next': next_chapter
     })
