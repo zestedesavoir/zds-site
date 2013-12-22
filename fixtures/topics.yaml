@@ -1,0 +1,66 @@
+-   model: forum.Topic
+    pk: 1
+    fields:
+        title: Android vs iOS
+        subtitle: Quelle est la meilleure plateforme ?
+        forum: 10
+        author: 3
+        pubdate: 2013-12-21T13:20:30+00:00
+        last_message: 1
+-   model: forum.Topic
+    pk: 2
+    fields:
+        title: Technologies utilisées pour ZdS
+        subtitle: Questions sur les choix technologiques
+        forum: 3
+        author: 3
+        pubdate: 2013-12-21T13:20:30+00:00
+        last_message: 2
+-   model: forum.Topic
+    pk: 3
+    fields:
+        title: JS vs jQuery
+        forum: 2
+        author: 3
+        pubdate: 2013-12-21T13:20:30+00:00
+        last_message: 4
+-   model: forum.Post
+    pk: 1
+    fields:
+        topic: 1
+        author: 3
+        text: Bonjour<br />Je ne comprends pas pourquoi il y a une guerre entre Android et iOS alors que Android est supérieur.<br />Merci pour vos réponses.
+        like: 42
+        dislike: 0
+        pubdate: 2013-12-21T13:20:30+00:00
+        position_in_topic: 1
+-   model: forum.Post
+    pk: 2
+    fields:
+        topic: 2
+        author: 3
+        text: Bonjour<br />Je ne comprends pas les choix technologiques faits pour ZdS.<br />Pourquoi ne pas avoir développé le site avec Symfony comme OpenClassrooms ?<br />Merci de vos réponses.
+        like: 3
+        dislike: 12
+        pubdate: 2013-12-21T13:20:30+00:00
+        position_in_topic: 1
+-   model: forum.Post
+    pk: 3
+    fields:
+        topic: 2
+        author: 2
+        text: Haha, allez ! Prend cette balle et va jouer !
+        like: 42
+        dislike: 0
+        pubdate: 2013-12-21T13:22:30+00:00
+        position_in_topic: 2
+-   model: forum.Post
+    pk: 4
+    fields:
+        topic: 3
+        author: 3
+        text: Bonjour<br />Je ne comprends pas pourquoi il y a encore des développeurs JS alors qu'il existe jQuery...<br />Des éclaircissements ?
+        like: 0
+        dislike: 0
+        pubdate: 2013-12-21T13:20:30+00:00
+        position_in_topic: 1
