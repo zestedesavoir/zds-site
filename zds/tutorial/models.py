@@ -82,7 +82,7 @@ class Tutorial(models.Model):
             self.pk, slugify(self.title)
         ])
     
-    def get_absolute_url_prod(self):
+    def get_absolute_url_online(self):
         return reverse('zds.tutorial.views.view_tutorial_online', args=[
             self.pk, slugify(self.title)
         ])
@@ -130,11 +130,13 @@ class Tutorial(models.Model):
     def get_prod_path(self):
         return os.path.join(settings.REPO_PATH_PROD, self.slug)
     
-    
-    
-    def load_json(self, path=None):
+        
+    def load_json(self, path=None, online = False):
         if path==None:
-            man_path=os.path.join(self.get_path(),'manifest.json')
+            if online :
+                man_path=os.path.join(self.get_prod_path(),'manifest.json')
+            else:
+                man_path=os.path.join(self.get_path(),'manifest.json')
         else :
             man_path=path
         if os.path.isfile(man_path):
@@ -240,7 +242,7 @@ class Part(models.Model):
             self.slug,
         ])
     
-    def get_absolute_url_prod(self):
+    def get_absolute_url_online(self):
         return reverse('zds.tutorial.views.view_part_online', args=[
             self.tutorial.pk,
             self.tutorial.slug,
