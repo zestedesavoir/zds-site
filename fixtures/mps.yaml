@@ -1,0 +1,17 @@
+-   model: mp.PrivateTopic
+    pk: 1
+    fields:
+        title: Comment on fait pour devenir staff ?
+        subtitle: C'est mon rêve !
+        author: 3
+        participants: [1, 2]
+        pubdate: 2013-12-21T13:20:30+00:00
+        last_message: 1
+-   model: mp.PrivatePost
+    pk: 1
+    fields:
+        privatetopic: 1
+        author: 3
+        text: Bonjour<br />On fait comment pour devenir staff svp ?
+        pubdate: 2013-12-21T13:20:30+00:00
+        position_in_topic: 1
