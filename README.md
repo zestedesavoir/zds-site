@@ -88,4 +88,10 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+Pour bénéficier de données statiques, exécutez la commande suivante, en plus, à la fin des précédentes :
+
+```console
+python manage.py loaddata fixtures/*
+```
+
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
