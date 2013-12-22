@@ -77,9 +77,9 @@
                     {% elif validation.is_pending_valid %}
                         <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-lock" style="color:#E33100; font-size:21px;"></a></p>
                     {% elif validation.is_accept %}
-                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-check" style="color:#E33100; font-size:21px;"></a></p>
+                        <p><i class="fi-check" style="color:#E33100; font-size:21px;"></i></p>
                     {% elif validation.is_reject %}
-                        <p><a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="fi-x" style="color:#E33100; font-size:21px;"></a></p>
+                        <p><i class="fi-x" style="color:#E33100; font-size:21px;"></i></p>
                     {% endif %}
                   </td>
                   </tr>
