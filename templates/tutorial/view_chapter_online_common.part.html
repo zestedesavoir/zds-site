@@ -1,12 +1,12 @@
 {% load markup %}
 {% load emarkdown %}
 
-{% with extracts=chapter.get_extracts %}
+{% with extracts=chapter.extracts %}
     <div class="row">
         <div class="large-12 columns">
             {% if not chapter.tutorial %}
-                {% if chapter.get_introduction_online %}
-                    {{ chapter.get_introduction_online|safe }}
+                {% if chapter.intro %}
+                    {{ chapter.intro|safe }}
                 {% else %}
                     <p>Aucune introduction.</p>
                 {% endif %}
@@ -40,8 +40,8 @@
                     {{ extract.title }}
                 </a>
             </h2>
-            {% if extract.get_text_online %}
-                {{ extract.get_text_online|safe }}
+            {% if extract.txt %}
+                {{ extract.txt|safe }}
             {% else %}
                 <p>
                     Cet extrait est vide.
