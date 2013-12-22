@@ -1,0 +1,39 @@
+-   model: auth.user
+    pk: 1
+    fields:
+        first_name: Admin
+        last_name: User
+        username: admin
+        password: pbkdf2_sha256$10000$9fsFMQYzY9yi$/tR1ozxJyvUE29bCDA/n/t03ESacCKVCwli/kej7j24=
+        is_staff: True
+        is_superuser: True
+-   model: auth.user
+    pk: 2
+    fields:
+        first_name: Staff
+        last_name: User
+        username: staff
+        password: pbkdf2_sha256$10000$XJGkwj7jBlnj$slcAhRhr/clGbPsf5gq+Ec1LNri62GECMIsPFp1rF20=
+        is_staff: True
+        is_superuser: False
+-   model: auth.user
+    pk: 3
+    fields:
+        first_name: User
+        last_name: User
+        username: user
+        password: pbkdf2_sha256$10000$w5hhXcOg2pIT$gluvdmTKlbOJDpo9U/C3pWJOmOytbXX2N38j2iplNcM=
+        is_staff: False
+        is_superuser: False
+-   model: member.Profile
+    pk: 1
+    fields:
+        user: 1
+-   model: member.Profile
+    pk: 2
+    fields:
+        user: 2
+-   model: member.Profile
+    pk: 3
+    fields:
+        user: 3
