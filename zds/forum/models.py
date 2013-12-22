@@ -91,14 +91,15 @@ class Forum(models.Model):
             return None
 
     def can_read(self, user):
-        print(self.group.count())
-        print(user)
         
         if self.group.count() == 0:
             return True
         else:
-            groups = Group.objects.filter(user=user).all()
-            return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+            if user.is_authenticated():
+                groups = Group.objects.filter(user=user).all()
+                return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+            else:
+                return False
         
     def is_read(self):
         for t in Topic.objects.all().filter(forum=self):
@@ -369,8 +370,18 @@ def follow(topic):
     return ret
 
 
-def get_last_topics():
+def get_last_topics(user):
     '''
     Returns the 5 very last topics
     '''
-    return Topic.objects.all().order_by('-last_message__pubdate')[:5]
+    topics = Topic.objects.all().order_by('-last_message__pubdate')
+    
+    tops = []
+    cpt=1
+    for topic in topics:
+        if topic.forum.can_read(user):
+            tops.append(topic)
+            cpt+=1
+        if cpt > 5:
+            break
+    return tops

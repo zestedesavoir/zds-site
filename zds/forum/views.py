@@ -41,9 +41,6 @@ def details(request, cat_slug, forum_slug):
     if len(profile)>0:
         if not profile[0].can_read_now():
             raise Http404
-    
-    
-    
     '''
     Display the given forum and all its topics
     '''
