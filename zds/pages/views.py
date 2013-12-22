@@ -10,7 +10,7 @@ def home(request):
     Display the home page with last topics added
     '''
     return render_template('home.html', {
-        'last_topics': get_last_topics(),
+        'last_topics': get_last_topics(request.user),
         'last_tutorials': get_last_tutorials(),
     })
 
