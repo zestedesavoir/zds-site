@@ -1,0 +1,92 @@
+-   model: forum.Category
+    pk: 1
+    fields:
+        title: Site web
+        slug: site-web
+-   model: forum.Category
+    pk: 2
+    fields:
+        title: Programmation
+        slug: programmation
+-   model: forum.Category
+    pk: 3
+    fields:
+        title: Développement Mobile
+        slug: developpement-mobile
+-   model: forum.Forum
+    pk: 1
+    fields:
+        title: HTML & CSS
+        subtitle: Apprendre le HTML et CSS
+        category: 1
+        slug: html-css
+-   model: forum.Forum
+    pk: 2
+    fields:
+        title: Javascript
+        subtitle: Apprendre le Javascript jQuery Ajax etc.
+        category: 1
+        slug: javascript
+-   model: forum.Forum
+    pk: 3
+    fields:
+        title: PHP
+        subtitle: Apprendre le PHP et ses frameworks
+        category: 1
+        slug: php
+-   model: forum.Forum
+    pk: 4
+    fields:
+        title: Java EE
+        subtitle: Apprendre le développement web en Java
+        category: 2
+        slug: java-ee
+-   model: forum.Forum
+    pk: 5
+    fields:
+        title: Node.JS
+        subtitle: Apprendre le développement serveur en Javascript
+        category: 2
+        slug: node-js
+-   model: forum.Forum
+    pk: 6
+    fields:
+        title: Langage C
+        subtitle: Apprendre le développement en C
+        category: 2
+        slug: c
+-   model: forum.Forum
+    pk: 7
+    fields:
+        title: Langage C++
+        subtitle: Apprendre le développement en C++
+        category: 2
+        slug: c-plus-plus
+-   model: forum.Forum
+    pk: 8
+    fields:
+        title: Java
+        subtitle: Apprendre le développement en Java
+        category: 2
+        slug: java
+-   model: forum.Forum
+    pk: 9
+    fields:
+        title: Python
+        subtitle: Apprendre le développement en Python
+        category: 2
+        slug: python
+-   model: forum.Forum
+    pk: 10
+    fields:
+        title: Android
+        subtitle: Apprendre le développement de la meilleure plateforme mobile Android
+        category: 3
+        slug: android
+-   model: forum.Forum
+    pk: 11
+    fields:
+        title: Autres
+        subtitle: Apprendre d'autres trucs moins cools
+        category: 3
+        slug: autres

@@ -40,15 +40,16 @@ class PrivateTopic(models.Model):
         '''
         Return the number of private posts in the private topic
         '''
-        return PrivatePost.objects.all().filter(privatetopic__pk=self.pk).count()
+        return PrivatePost.objects.filter(privatetopic__pk=self.pk).count()
 
     def get_last_answer(self):
         '''
         Gets the last answer in the thread, if any
         '''
-        last_post = PrivatePost.objects.all()\
+        last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
-            .order_by('-pubdate')[0]
+            .order_by('-pubdate')\
+            .all()[0]
 
         if last_post == self.first_post():
             return None
@@ -176,4 +177,4 @@ def get_last_privatetopics():
     '''
     Returns the 5 very last topics
     '''
-    return PrivateTopic.objects.all().order_by('-pubdate')[:5]
+    return PrivateTopic.objects.order_by('-pubdate').all()[:5]
