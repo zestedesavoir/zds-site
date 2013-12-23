@@ -19,7 +19,7 @@ def git_version(request):
 
     """
     repo = Repo(settings.SITE_ROOT)
-    v = repo.head.commit.tree.hexsha
+    v = repo.head.commit.hexsha
 
     return {
         'git_version': v
