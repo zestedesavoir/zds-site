@@ -35,9 +35,9 @@ def index(request):
                     topic.participants.remove(request.user)
                 topic.save()
 
-    privatetopics = PrivateTopic.objects.all()\
+    privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user])|Q(author=request.user))\
-        .distinct().order_by('-last_message__pubdate')
+        .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator
     paginator = Paginator(privatetopics, settings.TOPICS_PER_PAGE)
@@ -78,8 +78,9 @@ def topic(request, topic_pk, topic_slug):
         if never_privateread(g_topic):
             mark_read(g_topic)
 
-    posts = PrivatePost.objects.all().filter(privatetopic__pk=g_topic.pk)\
-                              .order_by('position_in_topic')
+    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
+                              .order_by('position_in_topic')\
+                              .all()
 
     last_post_pk = g_topic.last_message.pk
 
@@ -121,6 +122,7 @@ def new(request):
     '''
     Creates a new private topic 
     '''
+    authenticated_user = request.user
     
     if request.method == 'POST':
         # If the client is using the "preview" button
@@ -139,7 +141,9 @@ def new(request):
             ctrl=[]
             list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
-                p=get_object_or_404(User, username=part)
+                p = get_object_or_404(User, username=part)
+                if authenticated_user == p:
+                    continue
                 ctrl.append(p)
             
             # Creating the thread
@@ -186,6 +190,8 @@ def edit(request):
     '''
     Edit the given topic
     '''
+    authenticated_user = request.user
+
     if not request.method == 'POST':
         raise Http404
 
@@ -204,9 +210,10 @@ def edit(request):
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
     if request.POST['username'] :
-        u=get_object_or_404(User, username=request.POST['username'])
-        g_topic.participants.add(u)
-        g_topic.save()
+        u = get_object_or_404(User, username=request.POST['username'])
+        if not authenticated_user == u:
+            g_topic.participants.add(u)
+            g_topic.save()
 
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
