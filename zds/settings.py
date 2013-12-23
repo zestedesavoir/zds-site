@@ -164,6 +164,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
     # Custom context processors
     'zds.utils.context_processors.versions',
+    'zds.utils.context_processors.git_version',
 )
 
 INSTALLED_APPS = (
