@@ -122,6 +122,7 @@ def new(request):
     '''
     Creates a new private topic 
     '''
+    authenticated_user = request.user
     
     if request.method == 'POST':
         # If the client is using the "preview" button
@@ -140,7 +141,9 @@ def new(request):
             ctrl=[]
             list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
-                p=get_object_or_404(User, username=part)
+                p = get_object_or_404(User, username=part)
+                if authenticated_user == p:
+                    continue
                 ctrl.append(p)
             
             # Creating the thread
