@@ -88,4 +88,24 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+Pour bénéficier de données statiques, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
+
+```console
+python manage.py loaddata fixtures/users.yaml
+python manage.py loaddata fixtures/forums.yaml
+python manage.py loaddata fixtures/topics.yaml
+python manage.py loaddata fixtures/mps.yaml
+```
+
+Cela va créer plusieurs entitées :
+
+* 3 utilisateurs (username/password) :
+	* user/user : Utilisateur normal
+	* staff/staff : Utilisateur avec les droits d'un staff
+	* admin/admin : Utilisateur avec les droits d'un staff et d'un admin
+* 3 categories
+* 11 forums
+* 3 topics with one answer
+* 1 mp with 3 participants
+
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
