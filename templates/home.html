@@ -31,7 +31,7 @@ Bienvenue sur ZesteDeSavoir
 <div class="row hide-small">
     <div class="large-6 columns">
         <div class="large-12 columns">
-            <form id="search-forum" name="search-forum" type="GET" action="{% url "haystack_search" %}">
+            <form id="search-forum" name="search-forum" type="GET" action="/recherche/">
                 <div class="row collapse">
                     <div class="small-11 columns expand">
                         <input type="hidden" name="models" value="forum.topic" />
@@ -46,7 +46,7 @@ Bienvenue sur ZesteDeSavoir
         </div>
     </div>
     <div class="large-6 columns">
-        <form id="search-forum" name="search-forum" type="GET" action="{% url "haystack_search" %}">
+        <form id="search-forum" name="search-forum" type="GET" action="/recherche/">
             <div class="row collapse">
                 <div class="small-11 columns expand">
                     <input type="hidden" name="models" value="tutorial.chapter" />
