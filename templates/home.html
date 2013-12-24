@@ -28,10 +28,44 @@ Bienvenue sur ZesteDeSavoir
 {% endblock %}
 
 {% block content %}
-
+<div class="row hide-small">
+    <div class="large-6 columns">
+        <div class="large-12 columns">
+            <form id="search-forum" name="search-forum" type="GET" action="{% url "haystack_search" %}">
+                <div class="row collapse">
+                    <div class="small-11 columns expand">
+                        <input type="hidden" name="models" value="forum.topic" />
+                        <input type="hidden" name="models" value="forum.post" />
+                        <input type="text" name="q" placeholder="Rechercher">
+                    </div>
+                    <div class="small-1 columns expand">
+                      <button type="submit" class="button small">GO</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="large-6 columns">
+        <form id="search-forum" name="search-forum" type="GET" action="{% url "haystack_search" %}">
+            <div class="row collapse">
+                <div class="small-11 columns expand">
+                    <input type="hidden" name="models" value="tutorial.chapter" />
+                    <input type="hidden" name="models" value="tutorial.extract" />
+                    <input type="hidden" name="models" value="tutorial.part" />
+                    <input type="hidden" name="models" value="tutorial.tutorial" />
+                    <input type="text" name="q" placeholder="Rechercher">
+                </div>
+                <div class="small-1 columns expand">
+                  <button type="submit" class="button small">GO</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="row">
           <div class="large-6 columns">
             <div class="row">
+                
                 <div class="large-12 columns">
                 <div class="panel">
                     <h3><a href="{% url "zds.forum.views.index" %}">Forums</a></h3>
@@ -49,7 +83,8 @@ Bienvenue sur ZesteDeSavoir
                     </div>
                 </div>
                 </div>
-            </div>
+                </div>
+                
             </div>
           </div>
           <div class="large-6 columns">
@@ -95,9 +130,12 @@ Bienvenue sur ZesteDeSavoir
                     </div>
                 </div>
                 </div>
-            </div>
+                </div>
+                
             </div> 
-        </div>
 
+        </div>
+        
 </div>
+
 {% endblock %}

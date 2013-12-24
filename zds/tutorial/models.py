@@ -404,51 +404,76 @@ class Chapter(models.Model):
     def get_introduction(self):
         if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
+                path = os.path.join(self.tutorial.get_path(), self.introduction)
             else:
-                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction), "r")
-            intro_contenu = intro.read()
-            intro.close()
-            
-            return intro_contenu.decode('utf-8')
+                path = os.path.join(self.part.tutorial.get_path(), self.introduction)
+                
+            if os.path.isfile(path):
+                intro = open(path, "r")
+                intro_contenu = intro.read()
+                intro.close()
+                
+                return intro_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
     
     def get_introduction_online(self):
         if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_path(), self.introduction+'.html'), "r")
+                path = os.path.join(self.tutorial.get_path(), self.introduction+'.html')
             else:
-                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction+'.html'), "r")
-            intro_contenu = intro.read()
-            intro.close()
+                path = os.path.join(self.part.tutorial.get_path(), self.introduction+'.html')
             
-            return intro_contenu.decode('utf-8')
+            if os.path.isfile(path):
+                intro = open(path, "r")
+                intro_contenu = intro.read()
+                intro.close()
+                
+                return intro_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
     
     def get_conclusion(self):
-        if self.introduction:
+        if self.conclusion:
             if self.tutorial:
-                conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
+                path = os.path.join(self.tutorial.get_path(), self.conclusion)
             else:
-                conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion), "r")
-            conclu_contenu = conclu.read()
-            conclu.close()
-            
-            return conclu_contenu.decode('utf-8')
+                path = os.path.join(self.part.tutorial.get_path(), self.conclusion)
+                
+            if os.path.isfile(path):
+                conclu = open(path, "r")
+                conclu_contenu = conclu.read()
+                conclu.close()
+                
+                return conclu_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
 
     def get_conclusion_online(self):
-        if self.tutorial:
-            conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion+'.html'), "r")
+        if self.conclusion:
+            if self.tutorial:
+                path = os.path.join(self.tutorial.get_path(), self.conclusion+'.html')
+            else:
+                path = os.path.join(self.part.tutorial.get_path(), self.conclusion+'.html')
+                
+            if os.path.isfile(path):
+                conclu = open(path, "r")
+                conclu_contenu = conclu.read()
+                conclu.close()
+                
+                return conclu_contenu.decode('utf-8')
+            else:
+                return None
+            
+            return conclu_contenu.decode('utf-8')
         else:
-            conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion+'.html'), "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-        
-        return conclu_contenu.decode('utf-8')
+            return None
 
 class Extract(models.Model):
 
@@ -469,6 +494,13 @@ class Extract(models.Model):
     def get_absolute_url(self):
         return '{0}#{1}-{2}'.format(
             self.chapter.get_absolute_url(),
+            self.position_in_chapter,
+            slugify(self.title)
+        )
+    
+    def get_absolute_url_online(self):
+        return '{0}#{1}-{2}'.format(
+            self.chapter.get_absolute_url_online(),
             self.position_in_chapter,
             slugify(self.title)
         )
@@ -497,23 +529,34 @@ class Extract(models.Model):
     
     def get_text(self):
         if self.chapter.tutorial:
-            text = open(os.path.join(self.chapter.tutorial.get_path(), self.text), "r")
+            path = os.path.join(self.chapter.tutorial.get_path(), self.text)
         else:
-            text = open(os.path.join(self.chapter.part.tutorial.get_path(), self.text), "r")
-        text_contenu = text.read()
-        text.close()
-        
-        return text_contenu.decode('utf-8')
+            path = os.path.join(self.chapter.part.tutorial.get_path(), self.text)
+            
+        if os.path.isfile(path):
+            text = open(path, "r")
+            text_contenu = text.read()
+            text.close()
+            
+            return text_contenu.decode('utf-8')
+        else:
+            return None
     
     def get_text_online(self):
-        if self.chapter.tutorial:
-            text = open(os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html'), "r")
-        else:
-            text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html'), "r")
-        text_contenu = text.read()
-        text.close()
         
-        return text_contenu.decode('utf-8')
+        if self.chapter.tutorial:
+            path = os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html')
+        else:
+            path = os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html')
+        
+        if os.path.isfile(path):
+            text = open(path, "r")
+            text_contenu = text.read()
+            text.close()
+            
+            return text_contenu.decode('utf-8')
+        else:
+            return None
 
     
 class Validation(models.Model):
