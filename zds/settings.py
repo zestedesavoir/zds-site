@@ -185,6 +185,7 @@ INSTALLED_APPS = (
     'taggit',
     'pipeline',
     'smileys',
+    'haystack',
 
     'zds.member',
     'zds.forum',
@@ -254,6 +255,15 @@ TOPICS_PER_PAGE = 21
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+        # ...or for multicore...
+        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
+    },
+}
 
 # Load the production settings, overwrite the existing ones if needed
 try:
