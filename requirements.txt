@@ -7,7 +7,6 @@ south
 pytz
 pil
 PyYAML
-Whoosh
 defusedxml
 django-dynamic-fixture
 django-crispy-forms
@@ -27,3 +26,5 @@ django-smileys
 lxml
 GitPython
 pygal
+httplib2
+pysolr
