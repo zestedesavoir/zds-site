@@ -175,7 +175,14 @@ def new(request):
             #send email
             for part in ctrl:
                 subject = "ZDS : Vous avez reçu un Message Privé"
-                message = get_template('email/mp.html').render(
+                message_html = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': n_topic.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                message_txt = get_template('email/mp.txt').render(
                                 Context({
                                     'username': part.username,
                                     'url': n_topic.get_absolute_url(),
@@ -184,7 +191,7 @@ def new(request):
                             )
                 from_email = 'noreply@zestedesavoir.com'
                 try:
-                    send_mail(subject, message, from_email, [part.email], fail_silently = True)
+                    send_mail(subject, message_txt, from_email, [part.email], fail_silently = True, html_message = message_html)
                 except :
                     raise Http404
 
