@@ -190,10 +190,8 @@ def new(request):
                                 })
                             )
                 from_email = 'noreply@zestedesavoir.com'
-                try:
-                    send_mail(subject, message_txt, from_email, [part.email], fail_silently = True, html_message = message_html)
-                except :
-                    raise Http404
+                
+                send_mail(subject, message_txt, from_email, [part.email], fail_silently = True, html_message = message_html)
 
             return redirect(n_topic.get_absolute_url())
 
