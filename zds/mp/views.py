@@ -9,6 +9,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.template.loader import get_template
+from django.core.mail import send_mail
+from django.template import Context
 
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
@@ -168,6 +171,22 @@ def new(request):
 
             n_topic.last_message = post
             n_topic.save()
+            
+            #send email
+            for part in ctrl:
+                subject = "ZDS : Vous avez reçu un Message Privé"
+                message = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': n_topic.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                from_email = 'noreply@zestedesavoir.com'
+                try:
+                    send_mail(subject, message, from_email, [part.email], fail_silently = True)
+                except :
+                    raise Http404
 
             return redirect(n_topic.get_absolute_url())
 
