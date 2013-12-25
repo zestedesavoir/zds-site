@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import get_template
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 
 from forms import PrivateTopicForm, PrivatePostForm
