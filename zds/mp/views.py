@@ -173,8 +173,9 @@ def new(request):
             n_topic.save()
             
             #send email
+            subject = "ZDS : Vous avez reçu un Message Privé"
+            from_email = 'noreply@zestedesavoir.com'
             for part in ctrl:
-                subject = "ZDS : Vous avez reçu un Message Privé"
                 message_html = get_template('email/mp.html').render(
                                 Context({
                                     'username': part.username,
@@ -189,9 +190,10 @@ def new(request):
                                     'author': request.user.username
                                 })
                             )
-                from_email = 'noreply@zestedesavoir.com'
                 
-                send_mail(subject, message_txt, from_email, [part.email], fail_silently = True, html_message = message_html)
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                msg.attach_alternative(message_html, "text/html")
+                msg.send()
 
             return redirect(n_topic.get_absolute_url())
 
