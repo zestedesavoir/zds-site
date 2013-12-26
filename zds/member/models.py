@@ -26,7 +26,7 @@ class Profile(models.Model):
 
     user = models.ForeignKey(User, unique=True, verbose_name='Utilisateur')
     
-    last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True)
+    last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True,  null=True)
 
     site = models.CharField('Site internet', max_length=128, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
