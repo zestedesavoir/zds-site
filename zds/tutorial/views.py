@@ -175,6 +175,28 @@ def history(request, tutorial_pk, tutorial_slug):
     })
 
 @login_required
+def activ_beta(request, tutorial_pk, version):
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+        raise Http404
+    tutorial.sha_beta = version
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url_beta())
+
+@login_required
+def desactiv_beta(request, tutorial_pk, version):
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+        raise Http404
+    tutorial.sha_beta = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url_beta())
+
+@login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
@@ -183,8 +205,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     except KeyError:
         sha = tutorial.sha_draft
     
-    if not tutorial.on_line \
-       and not request.user.has_perm('tutorial.change_tutorial') \
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    
+    if not request.user.has_perm('tutorial.change_tutorial') \
+       and not beta \
        and request.user not in tutorial.authors.all():
         raise Http404
 
@@ -1387,14 +1411,26 @@ def modify_extract(request):
     raise Http404
 
 def find_tuto(request, pk_user):
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+        
     u = get_object_or_404(User, pk=pk_user)
-    tutos = Tutorial.objects.all().filter(authors__in=[u])\
-                          .order_by('-pubdate')
-    # Paginator
+    if type == 'beta':
+        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_beta__isnull=False)\
+                              .order_by('-pubdate')
+        
+        return render_template('tutorial/find_betatutorial.html', {
+            'tutos': tutos, 'usr':u,
+        })
+    else:
+        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_public__isnull=False)\
+                              .order_by('-pubdate')
     
-    return render_template('tutorial/find_tutorial.html', {
-        'tutos': tutos, 'usr':u,
-    })
+        return render_template('tutorial/find_tutorial.html', {
+            'tutos': tutos, 'usr':u,
+        })
 
 @login_required
 def import_tuto(request):

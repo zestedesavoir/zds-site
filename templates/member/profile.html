@@ -75,7 +75,7 @@
                 </tr>
                 <tr>
                     <td>En version beta</td>
-                    <td>{{ profile.get_beta_tutos.count }}</td>
+                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">{{ profile.get_beta_tutos.count }}</a></td>
                 </tr>
                 <tr>
                     <td>En ligne</td>

@@ -12,7 +12,8 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ tutorial.title }}</a></li>
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li class="current"><a href="#">Historique</a></li>
 {% endblock %}
 
 {% block headline-actions %}
@@ -64,7 +65,7 @@
           <tbody>
             {% for log in logs %}
             <tr>
-              <td><p>{% if tutorial.sha_validation = log.newhexsha %} Validation {% elif tutorial.sha_draft =  log.newhexsha %} Draft {% endif%}</p></td>
+              <td><p>{% if tutorial.sha_validation = log.newhexsha %} Validation {% elif tutorial.sha_beta =  log.newhexsha %} Beta {% elif tutorial.sha_draft =  log.newhexsha %} Draft {% endif%}</p></td>
               <td><p>{{ log.time.0|humane_time }}</p></td>
               <td><p><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
               <td><p><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
