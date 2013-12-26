@@ -15,7 +15,7 @@ from django.template import Context
 
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
-    never_privateread, mark_read
+    never_privateread, mark_read, PrivateTopicRead
 from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
 
@@ -173,8 +173,8 @@ def new(request):
             n_topic.save()
             
             #send email
-            subject = "ZDS : Vous avez reçu un Message Privé"
-            from_email = 'noreply@zestedesavoir.com'
+            subject = "ZDS - MP: "+n_topic.title
+            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
             for part in ctrl:
                 message_html = get_template('email/mp.html').render(
                                 Context({
@@ -290,6 +290,38 @@ def answer(request):
 
                 g_topic.last_message = post
                 g_topic.save()
+                
+                #send email
+                subject = "ZDS - MP: "+g_topic.title
+                from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+                parts = list(g_topic.participants.all())
+                parts.append(g_topic.author)
+                parts.remove(request.user)
+                for part in parts:
+                    pos = post.position_in_topic-1
+                    last_read = PrivateTopicRead.objects.filter(
+                                        privatetopic = g_topic,
+                                        privatepost__position_in_topic = pos,
+                                        user = part).count()
+                    if last_read > 0 :
+                        message_html = get_template('email/mp.html').render(
+                                        Context({
+                                            'username': part.username,
+                                            'url': n_topic.get_absolute_url(),
+                                            'author': request.user.username
+                                        })
+                                    )
+                        message_txt = get_template('email/mp.txt').render(
+                                        Context({
+                                            'username': part.username,
+                                            'url': n_topic.get_absolute_url(),
+                                            'author': request.user.username
+                                        })
+                                    )
+                    
+                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                        msg.attach_alternative(message_html, "text/html")
+                        msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
