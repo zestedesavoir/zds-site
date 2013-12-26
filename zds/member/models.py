@@ -10,6 +10,8 @@ from zds.forum.models import Post, Topic
 from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
 
+from django.contrib.gis.geoip import GeoIP
+
 
 class Profile(models.Model):
 
@@ -59,7 +61,13 @@ class Profile(models.Model):
     def get_absolute_url(self):
         '''Absolute URL to the profile page'''
         return '/membres/voir/{0}'.format(self.user.username)
-
+    
+    def get_city(self):
+        ''' return physical adress by geolocalisation '''
+        g = GeoIP()
+        geo = g.city(self.last_ip_address)
+        return u'{0}, {1}'.format(str(geo['city']), str(geo['country_name']))
+    
     def get_avatar_url(self):
         '''Avatar URL (using custom URL or Gravatar)'''
         if self.avatar_url:

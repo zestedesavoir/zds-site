@@ -265,6 +265,8 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
