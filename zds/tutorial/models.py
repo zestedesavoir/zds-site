@@ -86,6 +86,14 @@ class Tutorial(models.Model):
         return reverse('zds.tutorial.views.view_tutorial_online', args=[
             self.pk, slugify(self.title)
         ])
+    
+    def get_absolute_url_beta(self):
+        if self.sha_beta != None:
+            return reverse('zds.tutorial.views.view_tutorial', args=[
+                self.pk, slugify(self.title)
+            ])+'?version='+self.sha_beta
+        else:
+            return self.get_absolute_url()
 
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
