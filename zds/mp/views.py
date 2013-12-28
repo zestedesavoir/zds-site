@@ -307,14 +307,14 @@ def answer(request):
                         message_html = get_template('email/mp.html').render(
                                         Context({
                                             'username': part.username,
-                                            'url': n_topic.get_absolute_url(),
+                                            'url': g_topic.get_absolute_url(),
                                             'author': request.user.username
                                         })
                                     )
                         message_txt = get_template('email/mp.txt').render(
                                         Context({
                                             'username': part.username,
-                                            'url': n_topic.get_absolute_url(),
+                                            'url': g_topic.get_absolute_url(),
                                             'author': request.user.username
                                         })
                                     )
