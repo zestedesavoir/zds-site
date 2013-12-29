@@ -41,8 +41,16 @@ class Category(models.Model):
         '''Textual Category Form'''
         return self.title
 
-    def get_subcategories():
-        return Category.objects.filter(category__in = [self]).all()
+    def get_all_subcategories(self):
+        return CategorySubCategory.objects \
+                    .filter(category__in = [self]) \
+                    .all()
+
+    def get_subcategories(self):
+        return CategorySubCategory.objects \
+                    .filter(category__in = [self]
+                        , is_main = True)\
+                    .all()
 
 class SubCategory(models.Model):
     '''Common subcategory for several concepts of the application'''
@@ -56,8 +64,6 @@ class SubCategory(models.Model):
     group = models.ManyToManyField(Group, verbose_name='Groupe autorisés (Aucun = public)', null=True, blank=True)
     image = models.ImageField(upload_to=image_path_category)
     
-    category = models.ForeignKey(Category, verbose_name='Catégorie')
-    
     def __unicode__(self):
         '''Textual Category Form'''
         return self.title
@@ -65,6 +71,16 @@ class SubCategory(models.Model):
     def get_tutos(self):
         from zds.tutorial.models import Tutorial
         return Tutorial.objects.filter(subcategory__in = [self]).all()
+
+class CategorySubCategory(models.Model):
+    '''ManyToMany between Category and SubCategory but save a boolean to know if category is his main category'''
+    class Meta:
+        verbose_name = 'Liaison entre Category et SubCategory'
+        verbose_name_plural = 'Liaisons entre Category et SubCategory'
+
+    category = models.ForeignKey(Category, verbose_name='Catégorie')
+    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie')
+    is_main = models.BooleanField('Est la catégorie principale', default=True)
    
 class Licence(models.Model):
     '''Publication licence'''
