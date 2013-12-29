@@ -82,6 +82,14 @@
                         Tutoriels
                     </a>
                     <ul class="dropdown">
+                        {% with categories='.'|top_categories_tuto %}
+                        {% for category in categories %}
+                            <li><label>{{ category.title }}</label></li>
+                            {% for catofsubcat in category.get_subcategories %}
+                                <li><a href="#">{{ catofsubcat.subcategory }}</a></li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% endwith %}
                         <li class="divider"></li>
                         <li><a href="{% url "zds.tutorial.views.index" %}">Tous &rarr;</a></li>
                     </ul>
