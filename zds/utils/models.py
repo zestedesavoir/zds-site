@@ -5,7 +5,7 @@ import string
 import uuid
 
 from zds.utils import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 
 
 def image_path_category(instance, filename):
@@ -28,28 +28,43 @@ class Alert(models.Model):
         return u'{0}'.format(self.text)
 
 class Category(models.Model):
-    '''Une catégorie, qui correspond à la catégorie dans laquelle on peut ranger un projet (Site Web, Jeux vidéos, etc.)'''
+    '''Common category for several concepts of the application'''
     class Meta:
         verbose_name = 'Categorie'
         verbose_name_plural = 'Categories'
-        ordering = ('title',)
+
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
-    image = models.ImageField(upload_to=image_path_category)
+    slug = models.SlugField(max_length=80)
     
     def __unicode__(self):
-        '''
-        Textual Category Form
-        '''
+        '''Textual Category Form'''
         return self.title
+
+    def get_subcategories():
+        return Category.objects.filter(category__in = [self]).all()
+
+class SubCategory(models.Model):
+    '''Common subcategory for several concepts of the application'''
+    class Meta:
+        verbose_name = 'Sous-categorie'
+        verbose_name_plural = 'Sous-categories'
+
+    title = models.CharField('Titre', max_length=80)
+    subtitle = models.CharField('Sous-titre', max_length=200)
     
-    def get_tuto(self):
-        from zds.tutorial.models import Tutorial
-        return Tutorial.objects.all().filter(category__in = [self])
+    group = models.ManyToManyField(Group, verbose_name='Groupe autorisés (Aucun = public)', null=True, blank=True)
+    image = models.ImageField(upload_to=image_path_category)
     
-    def get_tuto_count(self):
+    category = models.ForeignKey(Category, verbose_name='Catégorie')
+    
+    def __unicode__(self):
+        '''Textual Category Form'''
+        return self.title
+
+    def get_tutos(self):
         from zds.tutorial.models import Tutorial
-        return Tutorial.objects.all().filter(category__in = [self]).count()
+        return Tutorial.objects.filter(subcategory__in = [self]).all()
    
 class Licence(models.Model):
     '''Publication licence'''
