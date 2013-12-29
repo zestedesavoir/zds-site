@@ -49,7 +49,6 @@ urlpatterns = patterns('',
     url(r'^nouveau/extrait$', views.add_extract),
 
     url(r'^$', views.index),
-    url(r'^liste/$', views.list),
     url(r'^importer/$', views.import_tuto),
     url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.activ_beta),
     url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
