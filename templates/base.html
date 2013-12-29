@@ -247,14 +247,10 @@
                         <li><a href="{% url "zds.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
                         <li><a href="{% url "zds.member.views.publications" %}"><i class="icon-list"></i> Mes tutoriels</a></li>
                         <li><a href="{% url "zds.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
-                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Déconnexion</a></li>
                         {% if perms.tutorial.change_tutorial %}
-                        <li class="divider"></li>
-                        <li><label>Validation</label></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Zone de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Admin</a></li>
                         {% endif %}
+                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Déconnexion</a></li>
                     </ul>
                 </li>
                 {% else %}
