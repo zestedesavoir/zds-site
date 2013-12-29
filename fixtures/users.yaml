@@ -29,11 +29,14 @@
     pk: 1
     fields:
         user: 1
+        last_ip_address: 192.168.0.1
 -   model: member.Profile
     pk: 2
     fields:
         user: 2
+        last_ip_address: 192.168.0.1
 -   model: member.Profile
     pk: 3
     fields:
         user: 3
+        last_ip_address: 192.168.0.1
