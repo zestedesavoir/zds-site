@@ -42,11 +42,13 @@ class Category(models.Model):
         return self.title
 
     def get_all_subcategories(self):
+        '''Get all subcategories of a category (not main include)'''
         return CategorySubCategory.objects \
                     .filter(category__in = [self]) \
                     .all()
 
     def get_subcategories(self):
+        '''Get only main subcategories of a category'''
         return CategorySubCategory.objects \
                     .filter(category__in = [self]
                         , is_main = True)\
