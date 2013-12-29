@@ -11,16 +11,12 @@ register = template.Library()
 
 @register.filter('top_categories')
 def top_categories(user):
-    categories = fCategory.objects.all().order_by('position')
+    categories = fCategory.objects.order_by('position').all()
     
     return categories
 
 @register.filter('top_categories_tuto')
 def top_categories_tuto(user):
     categories = Category.objects.all()
-    liste=[]
-    for c in categories :
-        if c.get_news_count()>0:
-            liste.append(c)
     
-    return liste
+    return categories
