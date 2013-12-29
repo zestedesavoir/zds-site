@@ -63,6 +63,8 @@ class SubCategory(models.Model):
     
     group = models.ManyToManyField(Group, verbose_name='Groupe autorisés (Aucun = public)', null=True, blank=True)
     image = models.ImageField(upload_to=image_path_category)
+
+    slug = models.SlugField(max_length=80)
     
     def __unicode__(self):
         '''Textual Category Form'''
