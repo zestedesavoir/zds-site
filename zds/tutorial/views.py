@@ -41,20 +41,6 @@ def index(request):
     })
 
 @login_required
-def list(request):
-    '''Display tutorials list'''
-    try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_draft__isnull=False, authors__in=[request.user]) \
-            .order_by("-update")
-    except:
-        tutorials = None
-        
-    return render_template('tutorial/index.html', {
-        'tutorials': tutorials,
-    })
-
-@login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
     

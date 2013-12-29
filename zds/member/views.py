@@ -110,10 +110,10 @@ def publications(request):
     profile = Profile.objects.get(user=request.user)
 
     user_tutorials = profile.get_tutos()
-    c = {
-         'user_tutorials': user_tutorials,
-    }
-    return render_to_response('member/publications.html', c, RequestContext(request))
+    
+    return render_template('member/publications.html', {
+        'user_tutorials': user_tutorials,
+    })
 
 @login_required
 def actions(request):

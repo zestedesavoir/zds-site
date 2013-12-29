@@ -83,19 +83,7 @@
                     </a>
                     <ul class="dropdown">
                         <li class="divider"></li>
-                        <li><label>Participez</label></li>
-                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Proposer un tutoriel</a></li>
-                        <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto </a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels</a></li>
-                        {% endif %}
-                        {% if perms.tutorial.change_tutorial %}
-                        <li class="divider"></li>
-                        <li><label>Validation</label></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Zone de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
-                        {% endif %}
+                        <li><a href="{% url "zds.tutorial.views.index" %}">Tous &rarr;</a></li>
                     </ul>
                 </li>
                 
@@ -245,11 +233,20 @@
                         </a>
                     {% endwith %}
                     <ul class="dropdown">
-                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Profil</a></li>
+                        <li class="divider"></li>
+                        <li><label>Mon Compte</label></li>
+                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Mon Profil</a></li>
                         <li><a href="{% url "zds.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
-                        <li><a href="{% url "zds.member.views.publications" %}"><i class="icon-list"></i> Publications</a></li>
+                        <li><a href="{% url "zds.member.views.publications" %}"><i class="icon-list"></i> Mes tutoriels</a></li>
                         <li><a href="{% url "zds.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
-                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Se déconnecter</a></li>
+                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Déconnexion</a></li>
+                        {% if perms.tutorial.change_tutorial %}
+                        <li class="divider"></li>
+                        <li><label>Validation</label></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Zone de validation</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation</a></li>
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {% else %}
