@@ -15,11 +15,8 @@ class="active"
 {% endblock %}
 
 {% block meta %}
-    <meta name="description" content="Bienvenue sur LeBonProjet, une communauté
-    qui a pour objectif de réaliser des projets en mettant en commun leurs
-    compétences respectives.
-    Grâce à ce site, vous éviterez les pièges dans lequels tombent de nombreux
-    débutant." />
+    <meta name="description" content="Bienvenue sur ZesteDeSavoir, une communauté
+    " />
 {% endblock %}
 
 {# Content #}
@@ -132,10 +129,58 @@ Bienvenue sur ZesteDeSavoir
                 </div>
                 </div>
                 
+            </div>
+        </div>
+</div>
+<div class="row">
+        <div class="large-6 columns">
+            <div class="row">
+                <div class="large-12 columns">
+                <div class="panel">
+                    <h3><a href="{% url "zds.article.views.index" %}">Articles</a></h3>
+                    <hr />
+                    <div class="row">
+                        <div class="large-12 columns">
+                        {% if last_articles %}
+                            {% for article in last_articles %}
+                            {% if article.on_line %}
+                                <div class="large-2 columns hide-for-small">
+                                    <img src="{{ article.image.thumb.url }}">
+                                </div>
+                                <div class="large-10 columns">
+                                <p class="subheader">
+                                <a href="{{ article.get_absolute_url_online }}">
+                                    {{ article.title }}
+                                </a>
+                                </p>
+                                <p class="subheader">
+                                    {% if article.category %}
+                                    {% for category in article.category.all %}
+                                    
+                                        <a class="label secondary" href="#">{{category.title}}</a>
+                                    
+                                    {% endfor %}
+                                    {% endif %}
+                                    <i class="fi-clock"></i>
+                                    {{article.pubdate|humane_date}}
+                                </p>
+                                
+                                </div>
+                                <hr />
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                    <p>Aucun Article récent.</p>
+                    
+                    {% endif %}
+                    </div>
+                </div>
+                </div>
+                </div>
+                
             </div> 
 
         </div>
-        
 </div>
 
 {% endblock %}
