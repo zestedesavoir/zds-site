@@ -1,5 +1,5 @@
 from haystack import indexes
-from pdp.article.models import Article
+from zds.article.models import Article
 
 
 class ArticleIndex(indexes.SearchIndex, indexes.Indexable):
