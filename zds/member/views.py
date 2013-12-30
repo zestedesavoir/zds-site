@@ -10,6 +10,9 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+from django.template import Context
 import os
 import uuid
 
@@ -19,8 +22,8 @@ from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
-    ChangeUserForm
-from .models import Profile, Ban
+    ChangeUserForm, ForgotPasswordForm, NewPasswordForm
+from .models import Profile, TokenForgotPassword, Ban
 
 
 def index(request):
@@ -318,6 +321,87 @@ def register_view(request):
         'form': form
     })
 
+def forgot_password(request):
+    '''If the user forgot his password, he can have a new one'''
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.data
+            username = data['username']
+
+            usr = get_object_or_404(User, username=username)
+            
+            if usr is None:
+                raise Http404
+
+            # Generate a valid token during one hour.
+            uuidToken = str(uuid.uuid4())
+            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0, seconds=0)
+            token = TokenForgotPassword(user=usr, token = uuidToken, date_end = date_end)
+            token.save()
+
+            #send email
+            subject = "ZDS - Mot de passe oublié"
+            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            message_html = get_template('email/confirm_forgot_password.html').render(
+                            Context({
+                                'username': usr.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+            message_txt = get_template('email/confirm_forgot_password.txt').render(
+                            Context({
+                                'username': usr.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+                
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
+            msg.attach_alternative(message_html, "text/html")
+            msg.send()
+            return render_template('member/forgot_password_success.html')
+        else:
+            return render_template('member/forgot_password.html', {'form': form})
+
+    form = ForgotPasswordForm()
+    return render_template('member/forgot_password.html', {
+        'form': form
+    })
+
+def new_password(request):
+    '''Create a new password for a user'''
+    try:
+        token = request.GET['token']
+    except KeyError:
+        return redirect(reverse('zds.pages.views.home'))
+
+    if request.method == 'POST':
+        form = NewPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.data
+            password = data['password']
+
+            token = get_object_or_404(TokenForgotPassword, token = token)
+
+            if token is None:
+                raise Http404
+
+            # TODO Explain at the user, he must make a change password request again.
+            if datetime.now() > token.date_end:
+                return redirect(reverse('zds.pages.views.home'))
+
+            token.user.set_password(password)
+            token.user.save()
+            token.delete()
+
+            return render_template('member/new_password_success.html')
+        else:
+            return render_template('member/new_password.html', {'form': form})
+
+    form = NewPasswordForm()
+    return render_template('member/new_password.html', {
+        'form': form
+    })
 
 def get_client_ip(request):
     '''Get the IP of the user'''
