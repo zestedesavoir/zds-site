@@ -97,7 +97,6 @@ def list_validation(request):
             .filter(tutorial__category__in=[category]) \
                 .order_by("date_proposition")
     
-    print(validations)
     return render_template('tutorial/validation.html', {
         'validations': validations,
     })
@@ -307,10 +306,10 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_prod_path()
             chapter['type'] = 'MINI'
-            intro = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            intro = open(os.path.join(tutorial.get_prod_path(), mandata['introduction']+'.html'), "r")
             chapter['intro'] = intro.read()
             intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            conclu = open(os.path.join(tutorial.get_prod_path(), mandata['conclusion']+'.html'), "r")
             chapter['conclu'] = conclu.read()
             conclu.close()
             cpt=1

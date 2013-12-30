@@ -75,7 +75,27 @@
                         Accueil
                     </a>
                 </li>
-                
+                <li class="{% block menu_article %}{% endblock %} has-dropdown " >
+                    <a href="{% url "zds.article.views.index" %}">
+                        <i class="fi-clipboard"></i>
+                        Articles
+                    </a>
+                    <ul class="dropdown">
+                        <li class="divider"></li>
+                        <li><label>Participez</label></li>
+                        <li><a href="{% url "zds.article.views.new" %}">Rédiger un article</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url "zds.article.views.list" %}">Articles communautaires</a></li>
+                        {% endif %}
+                        {% if perms.article.change_article %}
+                        <li class="divider"></li>
+                        <li><label>Validation</label></li>
+                        <li><a href="{% url "zds.article.views.list_validation" %}">Zone de validation</a></li>
+                        <li><a href="{% url "zds.article.views.list_validation" %}?type=reserved">En cours de validation</a></li>
+                        <li><a href="{% url "zds.article.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
                 <li class="{% block menu_tutorial %}{% endblock %} has-dropdown " >
                     <a href="{% url "zds.tutorial.views.index" %}">
                         <i class="fi-book"></i>
@@ -84,7 +104,7 @@
                     <ul class="dropdown">
                         <li class="divider"></li>
                         <li><label>Participez</label></li>
-                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Proposer un tutoriel</a></li>
+                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Rédiger un tutoriel</a></li>
                         <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto </a></li>
                         {% if user.is_authenticated %}
                         <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels</a></li>
