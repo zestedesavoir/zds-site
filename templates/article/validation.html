@@ -1,0 +1,86 @@
+{% extends "article/base.html" %}
+{% load humane_date %}
+
+{% block title %}
+    Liste des tutoriels soumis en validation
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="" />
+{% endblock %}
+
+
+{% block headline %}
+    Liste des Articles soumis en validation
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% if validations %}
+            <table>
+                <thead>
+                <tr>
+                  <th></th>
+                  <th>Titre</th>
+                  <th width="8%">Catégorie</th>
+                  <th width="8%">Auteur(s)</th>
+                  <th width="8%">Proposé</th>
+                  <th width="8%">Validateur</th>
+                  <th width="8%">Réservé</th>
+                  <th></th>
+                </tr>
+                </thead>
+              <tbody>
+                {% for validation in validations %}
+                  <tr>
+                  <td></td>
+                  <td><a href="{% url "zds.article.views.view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >{{ validation.article.title }}</a></td>
+                  <td>
+                    {% for category in validation.article.category.all %}
+                        <p><a href="{% url "zds.article.views.list_validation" %}?category={{category.pk}}" class="secondary" >{{ category.title }}</a></p>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for author in validation.article.authors.all %}
+                        <p class='label'>{{ author.username }}</p>
+                    {% endfor %}
+                  </td>
+                  <td><p>{{ validation.date_proposition|humane_date }}</p></td>
+                  <td>
+                    {% if validation.validator %}
+                        <p class='label success'>{{ validation.validator.username }}</p></td>
+                    {% endif %}
+                  <td>
+                    {% if validation.date_reserve %}
+                        <p>{{ validation.date_reserve|humane_date }}</p>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if validation.is_pending %}
+                        <p><a href="{% url "zds.article.views.reservation" validation.pk %}" class="fi-unlock" style="color:#E33100; font-size:21px;"></a></p>
+                    {% elif validation.is_pending_valid %}
+                        <p><a href="{% url "zds.article.views.reservation" validation.pk %}" class="fi-lock" style="color:#E33100; font-size:21px;"></a></p>
+                    {% elif validation.is_accept %}
+                        <p><i class="fi-check" style="color:#E33100; font-size:21px;"></i></p>
+                    {% elif validation.is_reject %}
+                        <p><i class="fi-x" style="color:#E33100; font-size:21px;"></i></p>
+                    {% endif %}
+                  </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>Aucun tutoriel soumis en validation.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -20,9 +20,9 @@ TYPE_CHOICES = (
     )
 
 STATUS_CHOICES = (
-        ('PENDING', 'En attente de validateur'),
-        ('PENDING_V', 'En attente de validation'),
-        ('ACCEPT', 'Accepté'),
+        ('PENDING', 'En attente d\'un validateur'),
+        ('PENDING_V', 'En cours de validation'),
+        ('ACCEPT', 'Publié'),
         ('REJECT', 'Rejeté'),
     )
 
@@ -125,9 +125,6 @@ class Tutorial(models.Model):
     
     def is_big(self):
         return self.type == 'BIG'
-    
-    def is_article(self):
-        return self.type == 'ARTICLE'
     
     def get_path(self, relative=False):
         if relative:
