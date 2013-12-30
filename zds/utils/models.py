@@ -35,6 +35,9 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
+
+    image = models.ImageField(upload_to=image_path_category)
+    
     slug = models.SlugField(max_length=80)
     
     def __unicode__(self):

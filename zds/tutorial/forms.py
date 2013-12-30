@@ -27,12 +27,6 @@ class TutorialForm(forms.Form):
     
     type = forms.ChoiceField(choices=TYPE_CHOICES)
 
-    category = forms.ModelMultipleChoiceField(
-        label = "Catégories de votre tuto",
-        queryset = Category.objects.all(),
-        required = True,
-    )
-
     subcategory = forms.ModelMultipleChoiceField(
         label = "Sous-catégories de votre tuto",
         queryset = SubCategory.objects.all(),
@@ -54,7 +48,6 @@ class TutorialForm(forms.Form):
             Field('description'),
             Field('type'),
             Field('image'),
-            Field('category'),
             Field('subcategory'),
             Field('licence'),
             Submit('submit', 'Valider')
@@ -91,13 +84,7 @@ class EditTutorialForm(forms.Form):
         label = "Licence de votre publication",
         queryset=Licence.objects.all(),
         required = False,
-    )
-    
-    category = forms.ModelMultipleChoiceField(
-        label = "Catégories",
-        queryset = Category.objects.all(),
-        required = True,
-    )
+    ) 
 
     subcategory = forms.ModelMultipleChoiceField(
         label = "Sous-catégories",
@@ -116,7 +103,6 @@ class EditTutorialForm(forms.Form):
             Field('licence'),
             Field('introduction'),
             Field('conclusion'),
-            Field('category'),
             Field('subcategory'),
             Submit('submit', 'Valider')
         )
