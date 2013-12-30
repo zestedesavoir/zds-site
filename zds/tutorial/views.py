@@ -65,37 +65,21 @@ def list_validation(request):
     except KeyError:
         type=None
     
-    try:
-        category = get_object_or_404(Category, pk=request.GET['category'])
-    except KeyError:
-        category=None
-    
     if type == 'orphan':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True) \
-                .order_by("date_proposition")
-        else :
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        validations = Validation.objects \
+            .filter(validator__isnull=True) \
+            .order_by("date_proposition") \
+            .all()
+
     elif type == 'reserved':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False) \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        validations = Validation.objects \
+            .filter(validator__isnull=False) \
+            .order_by("date_proposition") \
+            .all()
     else:
-        if category ==None:
-            validations = Validation.objects.all() \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-            .filter(tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        validations = Validation.objects \
+            .order_by("date_proposition") \
+            .all()
     
     return render_template('tutorial/validation.html', {
         'validations': validations,
@@ -422,9 +406,9 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            if 'category' in data:
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            # Add tutorial on subcategories
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
@@ -501,10 +485,9 @@ def edit_tutorial(request):
                           conclusion=data['conclusion'],
                           action = 'maj')
             
-            if 'category' in data:
-                tutorial.category.clear()
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            tutorial.subcategory.clear()
+            for cat in data['subcategory']:
+                tutorial.subcategory.add(cat)
             
             tutorial.save()
             
@@ -519,7 +502,7 @@ def edit_tutorial(request):
             'title': json['title'],
             'licence': licence,
             'description': json['description'],
-            'category': tutorial.category.all(),
+            'subcategory': tutorial.subcategory.all(),
             'introduction': tutorial.get_introduction(),
             'conclusion': tutorial.get_conclusion(),
         })
