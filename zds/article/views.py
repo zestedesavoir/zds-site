@@ -151,7 +151,7 @@ def view(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
 
-    if (not article.is_visible) and (article.authors.filter(pk = request.user.pk).count()==0):
+    if request.user.has_perm('article.change_article') and (article.authors.filter(pk = request.user.pk).count()==0):
         raise Http404
     
     try:
