@@ -12,6 +12,8 @@ from zds.tutorial.models import Tutorial
 
 from django.contrib.gis.geoip import GeoIP
 
+import uuid
+
 
 class Profile(models.Model):
 
@@ -127,6 +129,19 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
+
+class TokenForgotPassword(models.Model):
+    class Meta:
+        verbose_name = 'Token'
+        verbose_name_plural = 'Tokens'
+
+    user = models.ForeignKey(User, verbose_name='Utilisateur')
+    token = models.CharField(max_length=100)
+    date_end = models.DateTimeField('Date de fin', auto_now_add=True)
+
+    def get_absolute_url(self):
+        '''Absolute URL to the new password page'''
+        return '/membres/new_password?token={0}'.format(self.token)
         
 class Ban(models.Model):
     class Meta:

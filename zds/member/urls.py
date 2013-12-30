@@ -19,4 +19,6 @@ urlpatterns = patterns('',
     url(r'^connexion$', views.login_view),
     url(r'^deconnexion/$', views.logout_view),
     url(r'^inscription$', views.register_view),
+    url(r'^reinitialisation$', views.forgot_password),
+    url(r'^new_password$', views.new_password),
 )
