@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block headline-actions %}
-    {% if user.is_authenticated and user in authors.all %}
+    {% if user.is_authenticated %}
         <form action="{% url "zds.article.views.modify" %}" method="post">
             {% if validation.0 %}
             <div class="button-group">
@@ -25,7 +25,7 @@
             </div>
             <br />
             {% endif %}
-            {% if not version = article.sha_validation and not version = article.sha_public %}
+            {% if not version = article.sha_validation and not version = article.sha_public and user in authors.all %}
             <a href="#" class="button secondary small expand" data-reveal-id="valid-modal">
                 Demander la validation
             </a>
@@ -36,6 +36,25 @@
               </buton>
               <a class="close-reveal-modal">&#215;</a>
             </div>
+            <div class="button-group">
+                <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="button small">
+                    <i class="icon-pencil"></i>
+                    Éditer
+                </a>
+                <a href="#" class="button secondary small" data-dropdown="delete-drop">
+                    Supprimer
+                </a>
+                <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
+                    <p>
+                        Si vous supprimez ce article, il sera alors impossible de le modifier/consulter de nouveau.
+                    </p>
+                    <button type="submit" name="delete" class="button expand alert">
+                        <i class="icon-remove"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+            <br />
             {% elif perms.article.change_article and not version = article.sha_public%}
                 <div class="button-group">
                     <a href="#" class="button small success" data-dropdown="valid-drop">
@@ -68,25 +87,7 @@
                 <br />
             {% endif %}
 
-            <div class="button-group">
-                <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="button small">
-                    <i class="icon-pencil"></i>
-                    Éditer
-                </a>
-                <a href="#" class="button secondary small" data-dropdown="delete-drop">
-                    Supprimer
-                </a>
-                <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
-                    <p>
-                        Si vous supprimez ce article, il sera alors impossible de le modifier/consulter de nouveau.
-                    </p>
-                    <button type="submit" name="delete" class="button expand alert">
-                        <i class="icon-remove"></i>
-                        Confirmer la suppression
-                    </button>
-                </div>
-            </div>
-            <br />
+            
             
             
             
