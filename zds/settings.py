@@ -188,6 +188,7 @@ INSTALLED_APPS = (
     'haystack',
 
     'zds.member',
+    'zds.article',
     'zds.forum',
     'zds.utils',
     'zds.pages',
@@ -247,6 +248,7 @@ IMAGE_MAX_SIZE = 1024*1024
 #git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
+REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 
 # Constants for pagination
 POSTS_PER_PAGE = 21
