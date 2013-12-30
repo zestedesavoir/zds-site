@@ -1,0 +1,61 @@
+{% extends "article/base.html" %}
+{% load emarkdown %}
+{% load markup %}
+{% load humane_date %}
+
+{% block title %}
+    {{ article.title }}
+{% endblock %}
+
+{% block headline %}
+    <a href="{{ article.get_absolute_url }}">{{ article.title }}</a><br />
+    <small>{{ article.description }}</small>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ article.title }}</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="button secondary small expand">
+        <i class="fi-download"></i>
+        Télécharger
+    </a>
+{% endblock %}
+
+{% block content %}
+
+{% if article.is_visible %}
+    {% include "article/view_pager.part.html" %}
+{% endif %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns hide-for-small">
+            {% if article.thumbnail %}
+            <img src="{{article.thumbnail.url }}"/>
+            {% endif %}
+        </div>
+        <div class="large-12 columns">
+        <p>
+            Rédigé par
+            {% for author in authors.all %}
+                {% with member=author %}
+                    {% include "member/member_item_common.part.html" %}
+                {% endwith %}
+            {% endfor %}
+            <br />
+            Tags : 
+            {% for tag in tags.all %}
+                <a href="{% url "haystack_search" %}?q={{ tag.name }}&amp;models=article.article">{{ tag.name }}</a>{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </p>
+        </div>
+        {{ article.txt|safe }}
+    </div>
+</div>
+
+
+{% include "article/view_pager.part.html" %}
+
+{% endblock %}
