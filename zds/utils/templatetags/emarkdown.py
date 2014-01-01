@@ -9,9 +9,11 @@ import time
 #Markdowns customs extensions :
 from zds.utils.templatetags.mkd_ext.superscript import SuperscriptExtension
 from zds.utils.templatetags.mkd_ext.subscript import SubscriptExtension
+from zds.utils.templatetags.mkd_ext.delext import DelExtension
 
 sup_ext = SuperscriptExtension()        # Superscript support
 sub_ext = SubscriptExtension()          # Subscript support
+del_ext = DelExtension()                # Del support
 
 
 register = template.Library()
@@ -36,6 +38,7 @@ def emarkdown(text):
                                 # Externs extensions :
                                 sup_ext,                            # Superscript support
                                 sub_ext,                            # Subscript support
+                                del_ext,                            # Del support
 							    ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
