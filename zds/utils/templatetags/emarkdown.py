@@ -10,11 +10,12 @@ import time
 from zds.utils.templatetags.mkd_ext.superscript import SuperscriptExtension
 from zds.utils.templatetags.mkd_ext.subscript import SubscriptExtension
 from zds.utils.templatetags.mkd_ext.delext import DelExtension
+from zds.utils.templatetags.mkd_ext.urlize import UrlizeExtension
 
 sup_ext = SuperscriptExtension()        # Superscript support
 sub_ext = SubscriptExtension()          # Subscript support
 del_ext = DelExtension()                # Del support
-
+urlize_ext = UrlizeExtension()          # Autolink support
 
 register = template.Library()
 
@@ -39,7 +40,8 @@ def emarkdown(text):
                                 sup_ext,                            # Superscript support
                                 sub_ext,                            # Subscript support
                                 del_ext,                            # Del support
-							    ],
+							    urlize_ext,                         # Autolink support
+                                ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
                                                                     # This could potentially allow an
