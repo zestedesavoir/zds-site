@@ -19,6 +19,12 @@ def emarkdown(value):
     return mark_safe('<div class="markdown">{0}</div>'.format(
             markdown.markdown(  value, 
                                 extensions=[
-                                'codehilite(force_linenos=True)',
+                                'abbr',                             # Abbreviation support, included in python-markdown
+                                'footnotes',                        # Footnotes support, included in python-markdown
+                                                                    # Footnotes place marker can be set with the PLACE_MARKER option
+                                'tables',                           # Tables support, included in python-markdown
+                                'nl2br',                            # Convert new line to br tags support, included in python markdown
+                                'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
+                                'codehilite(force_linenos=True)',   # Code hightlight support, with line numbers, included in python-markdwon
 							  ])
         .encode('utf-8')))
