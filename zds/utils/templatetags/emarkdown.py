@@ -6,6 +6,10 @@ from django.utils.safestring import mark_safe
 import markdown
 import time
 
+#Markdowns customs extensions :
+from zds.utils.templatetags.mkd_ext.superscript import SuperscriptExtension
+
+sup_ext = SuperscriptExtension()        # Superscript support
 
 register = template.Library()
 
@@ -26,6 +30,8 @@ def emarkdown(text):
                                 'nl2br',                            # Convert new line to br tags support, included in python markdown
                                 'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
                                 'codehilite(force_linenos=True)',   # Code hightlight support, with line numbers, included in python-markdwon
+                                # Externs extensions :
+                                sup_ext,                            # Superscript support
 							    ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
