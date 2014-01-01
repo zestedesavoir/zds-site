@@ -8,8 +8,11 @@ import time
 
 #Markdowns customs extensions :
 from zds.utils.templatetags.mkd_ext.superscript import SuperscriptExtension
+from zds.utils.templatetags.mkd_ext.subscript import SubscriptExtension
 
 sup_ext = SuperscriptExtension()        # Superscript support
+sub_ext = SubscriptExtension()          # Subscript support
+
 
 register = template.Library()
 
@@ -32,6 +35,7 @@ def emarkdown(text):
                                 'codehilite(force_linenos=True)',   # Code hightlight support, with line numbers, included in python-markdwon
                                 # Externs extensions :
                                 sup_ext,                            # Superscript support
+                                sub_ext,                            # Subscript support
 							    ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
