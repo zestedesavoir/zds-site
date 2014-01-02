@@ -18,27 +18,7 @@ from zds.utils import render_template, slugify
 from zds.utils.models import Alert
 from zds.utils.paginator import paginator_range
 from zds.member.models import Profile
-
-
-def can_read_now(func):
-    '''Decorator to check that the user can read now'''
-    def _can_read_now(request, *args, **kwargs):
-        profile = Profile.objects.filter(user__pk=request.user.pk).all()
-        if len(profile)>0:
-            if not profile[0].can_read_now():
-                raise Http404
-        return func(request, *args, **kwargs)
-    return _can_read_now
-
-def can_write_and_read_now(func):
-    '''Decorator to check that the user can read and write now'''
-    def _can_write_and_read_now(request, *args, **kwargs):
-        profile = Profile.objects.filter(user__pk=request.user.pk).all()
-        if len(profile)>0:
-            if not profile[0].can_read_now() or not profile[0].can_write_now():
-                raise Http404
-        return func(request, *args, **kwargs)
-    return _can_write_and_read_now
+from zds.member.decorator import can_read_now, can_write_and_read_now
 
 @can_read_now
 def index(request):
@@ -368,7 +348,7 @@ def edit_post(request):
     '''
     Edit the given user's post
     '''
-    
+
     try:
         post_pk = request.GET['message']
     except KeyError:
