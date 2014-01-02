@@ -4,6 +4,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from hashlib import md5
 
 from zds.forum.models import Post, Topic
@@ -137,11 +139,11 @@ class TokenForgotPassword(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Utilisateur')
     token = models.CharField(max_length=100)
-    date_end = models.DateTimeField('Date de fin', auto_now_add=True)
+    date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
         '''Absolute URL to the new password page'''
-        return '/membres/new_password?token={0}'.format(self.token)
+        return redirect(reverse('zds.member.views.new_password')+'?token={0}'.format(self.token))
         
 class Ban(models.Model):
     class Meta:
