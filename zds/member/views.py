@@ -330,9 +330,6 @@ def forgot_password(request):
             username = data['username']
 
             usr = get_object_or_404(User, username=username)
-            
-            if usr is None:
-                raise Http404
 
             # Generate a valid token during one hour.
             uuidToken = str(uuid.uuid4())
@@ -383,12 +380,9 @@ def new_password(request):
 
             token = get_object_or_404(TokenForgotPassword, token = token)
 
-            if token is None:
-                raise Http404
-
-            # TODO Explain at the user, he must make a change password request again.
+            # User can't confirm his request if it is too late.
             if datetime.now() > token.date_end:
-                return redirect(reverse('zds.pages.views.home'))
+                return render_template('member/new_password_failed.html')
 
             token.user.set_password(password)
             token.user.save()
