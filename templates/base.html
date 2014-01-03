@@ -107,7 +107,7 @@
                         {% for category in categories %}
                             <li><label>{{ category.title }}</label></li>
                             {% for catofsubcat in category.get_subcategories %}
-                                <li><a href="#">{{ catofsubcat.subcategory }}</a></li>
+                                <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
                             {% endfor %}
                         {% endfor %}
                         {% endwith %}

@@ -29,14 +29,29 @@ from .models import Tutorial, Part, Chapter, Extract, Validation
 
 def index(request):
     '''Display tutorials list'''
+    
     try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_public__isnull=False) \
-            .order_by("-pubdate")
-    except:
-        tutorials = None
+        tag = request.GET['tag']
+    except KeyError:
+        tag=None
         
-    return render_template('tutorial/index.html', {
+    if tag == None :
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
+    else:
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False, 
+                        subcategory__in=[tag]) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
+        
+    return render_template('tutorial/index_online.html', {
         'tutorials': tutorials,
     })
 
@@ -406,7 +421,7 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            # Add tutorial on subcategories
+            # Add subcategories on article
             for subcat in data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
@@ -486,8 +501,8 @@ def edit_tutorial(request):
                           action = 'maj')
             
             tutorial.subcategory.clear()
-            for cat in data['subcategory']:
-                tutorial.subcategory.add(cat)
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             tutorial.save()
             
