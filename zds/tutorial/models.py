@@ -38,7 +38,7 @@ class Tutorial(models.Model):
     authors = models.ManyToManyField(User, verbose_name='Auteurs')
     
     subcategory = models.ManyToManyField(SubCategory,
-                                verbose_name='SubCategory',
+                                verbose_name='Sous-Catégorie',
                                 blank=True, null=True)
 
     slug = models.SlugField(max_length=80)
