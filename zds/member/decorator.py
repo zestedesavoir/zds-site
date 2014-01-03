@@ -30,7 +30,7 @@ def can_write_and_read_now(func):
             profile = None
 
         if profile is not None:
-            if not profile[0].can_read_now() or not profile[0].can_write_now():
+            if not profile.can_read_now() or not profile.can_write_now():
                 raise Http404
         return func(request, *args, **kwargs)
     return _can_write_and_read_now

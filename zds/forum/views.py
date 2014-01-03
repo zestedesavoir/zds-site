@@ -348,7 +348,6 @@ def edit_post(request):
     '''
     Edit the given user's post
     '''
-
     try:
         post_pk = request.GET['message']
     except KeyError:
