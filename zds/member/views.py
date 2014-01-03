@@ -269,6 +269,8 @@ def login_view(request):
                     profile = get_object_or_404(Profile, user=request.user)
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
+                    # Annotation isn't possible for this method. So we check
+                    # if the user is ban when we retrieved him.
                     if not profile.can_read_now():
                         logout_view(request)
                 except :
