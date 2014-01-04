@@ -10,15 +10,14 @@ from django.contrib.auth.models import User
 
 
 class NewsletterForm(forms.Form):
-    email = forms.EmailField(label='Adresse email')
-
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-
-                Field('email'),
-                Submit('submit', 'Valider'),
+            Div(
+                HTML('<input type="email" name="email" placeholder="E-mail" required="required" pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}">'),
+                HTML('<button type="submit" title="Inscription newsletter"><span>OK</span></button>'),
+            )
         )
         super(NewsletterForm, self).__init__(*args, **kwargs)
