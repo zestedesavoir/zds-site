@@ -11,6 +11,7 @@ def add_newsletter(request):
         
         if form.is_valid() and already == 0 :
             data = form.data
+            print data['email']
             nl = Newsletter()
             nl.email = data['email']
             nl.ip = my_ip
@@ -20,7 +21,7 @@ def add_newsletter(request):
 
         else:
             # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('newsletter/failed.html')
     else:
         form = NewsletterForm()
         return render_template('newsletter/new_newsletter.html', {
