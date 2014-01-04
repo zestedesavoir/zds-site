@@ -116,6 +116,17 @@ def publications(request):
     })
 
 @login_required
+def articles(request):
+    '''Returns all articles of the authenticated user'''
+    profile = Profile.objects.get(user=request.user)
+
+    user_articles = profile.get_articles()
+
+    return render_template('article/index.html', {
+        'articles': user_articles,
+    })
+
+@login_required
 def actions(request):
     '''
     Show avaible actions for current user, like a customized homepage.
