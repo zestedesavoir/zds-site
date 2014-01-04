@@ -10,7 +10,7 @@ import json
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify
-from zds.utils.models import Category, Licence
+from zds.utils.models import Category, SubCategory, Licence
 from zds.utils.tutorials import *
 
 
@@ -37,8 +37,8 @@ class Tutorial(models.Model):
     description = models.CharField('Description', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs')
     
-    category = models.ManyToManyField(Category,
-                                verbose_name='Categorie',
+    subcategory = models.ManyToManyField(SubCategory,
+                                verbose_name='Sous-Catégorie',
                                 blank=True, null=True)
 
     slug = models.SlugField(max_length=80)

@@ -103,6 +103,15 @@
                     </a>
                     <ul class="dropdown">
                         <li class="divider"></li>
+                        {% with categories='.'|top_categories_tuto %}
+                        {% for category in categories %}
+                            <li><label>{{ category.title }}</label></li>
+                            {% for catofsubcat in category.get_subcategories %}
+                                <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% endwith %}
+                        <li class="divider"></li>
                         <li><label>Participez</label></li>
                         <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Rédiger un tutoriel</a></li>
                         <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto </a></li>
