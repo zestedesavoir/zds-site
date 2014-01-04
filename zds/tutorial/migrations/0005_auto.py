@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
+import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -160,13 +160,6 @@ class Migration(SchemaMigration):
             'validator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'author_validations'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '80', 'null': 'True', 'blank': 'True'})
         },
-        u'utils.category': {
-            'Meta': {'object_name': 'Category'},
-            'description': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
-        },
         u'utils.licence': {
             'Meta': {'object_name': 'Licence'},
             'code': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
@@ -176,10 +169,9 @@ class Migration(SchemaMigration):
         },
         u'utils.subcategory': {
             'Meta': {'object_name': 'SubCategory'},
-            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['utils.Category']"}),
-            'group': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['auth.Group']", 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
             'subtitle': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
         }

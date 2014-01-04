@@ -7,8 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from taggit.managers import TaggableManager
-from zds.utils.models import Category, Licence
+from zds.utils.models import SubCategory
 from zds.utils.articles import *
 
 from zds.utils import slugify
@@ -44,10 +43,8 @@ class Article(models.Model):
     update = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
-    tags = TaggableManager()
-    
-    category = models.ManyToManyField(Category,
-                                verbose_name='Categorie',
+    subcategory = models.ManyToManyField(SubCategory,
+                                verbose_name='Sous-Catégorie',
                                 blank=True, null=True)
     
     image = models.ImageField(upload_to=image_path, blank=True, null=True)
