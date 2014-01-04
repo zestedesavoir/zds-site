@@ -14,6 +14,8 @@ from zds.utils.templatetags.mkd_ext.urlize import UrlizeExtension
 from zds.utils.templatetags.mkd_ext.kbd import KbdExtension
 from zds.utils.templatetags.mkd_ext.mathjax import MathJaxExtension
 from zds.utils.templatetags.mkd_ext.customblock import CustomBlockExtension
+from zds.utils.templatetags.mkd_ext.center import CenterExtension
+from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
 
 sup_ext = SuperscriptExtension()            # Superscript support
 sub_ext = SubscriptExtension()              # Subscript support
@@ -22,6 +24,8 @@ urlize_ext = UrlizeExtension()              # Autolink support
 kbd_ext = KbdExtension()                    # Keyboard support
 mathjax_ext = MathJaxExtension()            # MathJax support
 customblock_ext = CustomBlockExtension()    # CustomBlock support
+center_ext = CenterExtension()              # Center support
+rightalign_ext = RightAlignExtension()      # CustomBlock support
 
 register = template.Library()
 
@@ -50,6 +54,8 @@ def emarkdown(text):
                                 kbd_ext,                            # Kbd support
                                 mathjax_ext,                        # Mathjax support
                                 customblock_ext,                    # CustomBlock support
+                                center_ext,                         # Center support
+                                rightalign_ext,                     # Right align support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
