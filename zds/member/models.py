@@ -110,7 +110,7 @@ class Profile(models.Model):
 
     def get_articles(self):
         '''Get all articles of the user'''
-        return 
+        return Article.objects.filter(authors__in=[self.user]).all()
     
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
