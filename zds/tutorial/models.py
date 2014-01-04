@@ -204,7 +204,8 @@ class Tutorial(models.Model):
     
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
-        .filter(sha_public__isnull=False)\
+        .exclude(sha_public__isnull=True)\
+        .exclude(sha_public__exact='')\
         .order_by('-pubdate')[:5]
         
     return tutorials

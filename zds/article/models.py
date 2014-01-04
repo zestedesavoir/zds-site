@@ -161,7 +161,8 @@ def has_changed(instance, field, manager='objects'):
 
 def get_last_articles():
     return Article.objects.all()\
-        .filter(sha_public__isnull=False)\
+        .exclude(sha_public__isnull=True)\
+        .exclude(sha_public__exact='')\
         .order_by('-pubdate')[:5]
 
 
