@@ -9,6 +9,7 @@ from hashlib import md5
 from zds.forum.models import Post, Topic
 from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
+from zds.article.models import Article
 
 from django.contrib.gis.geoip import GeoIP
 
@@ -106,6 +107,10 @@ class Profile(models.Model):
     def get_beta_tutos(self):
         '''Tutorial in beta'''
         return Tutorial.objects.filter(authors__in=[self.user], sha_beta__isnull=False).all()
+
+    def get_articles(self):
+        '''Get all articles of the user'''
+        return 
     
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()

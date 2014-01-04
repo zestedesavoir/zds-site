@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^profil/modifier/(?P<user_pk>\d+)', views.modify_profile),
 
     url(r'^publications$', views.publications),
+    url(r'^articles$', views.articles),
     url(r'^actions$', views.actions),
 
     url(r'^parametres/profil$', views.settings_profile),
