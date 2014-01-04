@@ -1,0 +1,16 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Zeste de Savoir &bull; Bientôt</title>
+	<link rel="stylesheet" href="{% static "css/newsletter.css" %}">
+</head>
+<body>
+	{% block content %}{% endblock %}
+
+	<script src="{% static "js/jquery.min.js" %}"></script>
+	<script src="{% static "js/newsletter.js" %}"></script>
+</body>
+</html>

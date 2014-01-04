@@ -3,7 +3,7 @@ ZesteDeSavoir
 Site internet communautaire codé à l'aide du Framework Django 1.5.
 
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
-* Lien d'inscrition à la newsletter : [newsletter](http://zestedesavoir.com/newsletter/) (future adresse de teasing)
+* Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
 
 Fonctionnalités implementées
 ----------------------------

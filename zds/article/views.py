@@ -27,9 +27,18 @@ from .models import Article, get_prev_article, get_next_article, Validation
 
 def index(request):
     '''Displayy articles list'''
-    article = Article.objects.all()\
-        .filter(is_visible=True)\
-        .order_by('-pubdate')
+    
+    try:
+        tag = request.GET['tag']
+    except KeyError:
+        tag=None
+        
+    if tag == None :
+        article = Article.objects.all()\
+            .filter(sha_public__isnull=False)\
+            .order_by('-pubdate')
+    else:
+        article = None
 
     return render_template('article/index.html', {
         'articles': article,
@@ -151,7 +160,7 @@ def view(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
 
-    if (not article.is_visible) and (article.authors.filter(pk = request.user.pk).count()==0):
+    if not request.user.has_perm('article.change_article') and (article.authors.filter(pk = request.user.pk).count()==0):
         raise Http404
     
     try:
@@ -178,7 +187,7 @@ def view(request, article_pk, article_slug):
     return render_template('article/view.html', {
         'article': article_version,
         'authors': article.authors,
-        'tags': article.tags,
+        'tags': article.subcategory,
         'version': sha,
         'prev': get_prev_article(article),
         'next': get_next_article(article), 
@@ -188,9 +197,6 @@ def view(request, article_pk, article_slug):
 def view_online(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
-
-    if (not article.is_visible) and (article.authors.filter(pk = request.user.pk).count()==0):
-        raise Http404
     
     try:
         sha = request.GET['version']
@@ -211,7 +217,7 @@ def view_online(request, article_pk, article_slug):
     return render_template('article/view_online.html', {
         'article': article_version,
         'authors': article.authors,
-        'tags': article.tags,
+        'tags': article.subcategory,
         'version': sha,
         'prev': get_prev_article(article),
         'next': get_next_article(article), 
@@ -243,9 +249,10 @@ def new(request):
             
             article.authors.add(request.user)
 
-            list_tags = data['tags'].split(',')
-            for tag in list_tags:
-                article.tags.add(tag)
+            # Add subcategories on article
+            for subcat in data['subcategory']:
+                article.subcategory.add(subcat)
+
             article.save()
             
             maj_repo_article(new_slug_path=article.get_path(), 
@@ -286,15 +293,12 @@ def edit(request):
             if 'image' in request.FILES:
                 article.image = request.FILES['image']
 
-            article.tags.clear()
-            list_tags = data['tags'].split(',')
-            for tag in list_tags:
-                article.tags.add(tag)
+            article.subcategory.clear()
+            for subcat in data['subcategory']:
+                article.subcategory.add(subcat)
 
             article.save()
-            
-            
-            
+
             new_slug = os.path.join(settings.REPO_ARTICLE_PATH, slugify(data['title']))
             
             maj_repo_article(old_slug_path=old_slug, 
@@ -305,16 +309,12 @@ def edit(request):
             
             return redirect(article.get_absolute_url())
     else:
-        # initial value for tags input
-        list_tags = ''
-        for tag in article.tags.all():
-            list_tags += ',' + tag.__str__()
 
         form = ArticleForm({
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
-            'tags': list_tags,
+            'subcategory': article.subcategory.all(),
         })
 
     return render_template('article/edit.html', {

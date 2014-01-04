@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.db import models
+from django.core.urlresolvers import reverse
 import os
 import string
 import uuid
@@ -35,8 +36,6 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
-
-    image = models.ImageField(upload_to=image_path_category)
     
     slug = models.SlugField(max_length=80)
     
@@ -66,8 +65,7 @@ class SubCategory(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
     
-    group = models.ManyToManyField(Group, verbose_name='Groupe autorisés (Aucun = public)', null=True, blank=True)
-    image = models.ImageField(upload_to=image_path_category)
+    image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
     slug = models.SlugField(max_length=80)
     
@@ -78,16 +76,33 @@ class SubCategory(models.Model):
     def get_tutos(self):
         from zds.tutorial.models import Tutorial
         return Tutorial.objects.filter(subcategory__in = [self]).all()
+    
+    def get_absolute_url_tutorial(self):
+        url = reverse('zds.tutorial.views.index')
+        url = url+'?tag={}'.format(self.pk)
+        return url
+    
+    def get_absolute_url_article(self):
+        url = reverse('zds.article.views.index')
+        url = url+'?tag={}'.format(self.pk)
+        return url
 
 class CategorySubCategory(models.Model):
     '''ManyToMany between Category and SubCategory but save a boolean to know if category is his main category'''
     class Meta:
-        verbose_name = 'Liaison entre Category et SubCategory'
-        verbose_name_plural = 'Liaisons entre Category et SubCategory'
+        verbose_name = 'Hierarchie catégorie'
+        verbose_name_plural = 'Hierarchies catégories'
 
     category = models.ForeignKey(Category, verbose_name='Catégorie')
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie')
     is_main = models.BooleanField('Est la catégorie principale', default=True)
+    
+    def __unicode__(self):
+        '''Textual Link Form'''
+        if self.is_main :
+            return u'[{0}][main]: {1}'.format(self.category.title, self.subcategory.title)
+        else:
+            return u'[{0}]: {1}'.format(self.category.title, self.subcategory.title)
    
 class Licence(models.Model):
     '''Publication licence'''
