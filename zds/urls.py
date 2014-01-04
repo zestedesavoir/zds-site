@@ -21,7 +21,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^pages/', include('zds.pages.urls')),
     url(r'^galerie/', include('zds.gallery.urls')),
-    url(r'^newsletter/', include('zds.newsletter.urls')),
+    url(r'^teasing/', include('zds.newsletter.urls')),
     url(r'^recherche/', include('haystack.urls'), name='haystack_search'),
 
     url(r'^captcha/', include('captcha.urls')),

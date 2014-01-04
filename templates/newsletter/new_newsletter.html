@@ -1,14 +1,54 @@
+{% extends "newsletter/base.html" %}
 {% load crispy_forms_tags %}
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
+{% block content %}
+	<div id="page">
+		<div id="page-in">
+			<header>
+				<h1>Zeste de Savoir</h1>
+			</header>
+			<main role="main">
+				<section>
+					<hgroup>
+						<h2>Zeste de Savoir, un « <i>Site du Zéro</i> » tel que nous l’avions imaginé</h2>
+						<h3>Des tutoriels libres pour apprendre gratuitement et sans publicité</h3>
+					</hgroup>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-</head>
-<body>
-    {% crispy form %}
-</body>
-</html>
+					<a href="#en-savoir-plus" class="en-savoir-plus">En savoir plus</a>
+				</section>
+
+				<section id="en-savoir-plus">
+					<a href="#retour" class="back">Retour</a>
+
+					<p>
+						Zeste de Savoir est un « fork » du Site du Zéro. Un site ayant les mêmes objectifs, à savoir proposer des cours libres, gratuits, sans publicités et autres comptes premium, comme le faisait jadis le Site du Zéro.
+					</p>
+
+					<p>
+						Le site sera développé en Python à l'aide du framework Django et le code source sera open-source. Le stockage des tutoriels reposera sur un système de dépôts Git afin de proposer un outil de versionnement puissant. Le tout sera chapeauté par une association à but non lucratif.
+					</p>
+
+					<p>
+						Dès le lancement du projet, nous importerons un certain nombre de tutoriels d'OpenClassrooms sous licence libre Creative Commons. Un tutoriel sous licence CC autorise de reproduire son contenu à condition de citer le nom de l'auteur et de s'engager à le publier en conservant sa licence originale.
+					</p>
+
+					<p>
+						Zeste de Savoir se placera donc comme une solution viable à OpenClassrooms pour tous les utilisateurs qui souhaitent continuer à apprendre et partager dans les meilleurs conditions.
+					</p>
+				</section>
+
+				<section class="form-section">
+					<p class="register">
+						S'inscrire à la newsletter pour être averti des nouveautés
+					</p>
+
+					{% crispy form %}
+
+					<p class="email-note">
+						Votre adresse email ne sera utilisée que pour vous envoyer notre newsletter, rien d'autre
+					</p>
+				</section>
+			</main>
+		</div>
+	</div>
+{% endblock %}
