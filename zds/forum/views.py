@@ -653,4 +653,7 @@ def get_client_ip(request):
         ip = x_forwarded_for.split(',')[0]
     else:
         ip = request.META.get('HTTP_X_REAL_IP')
+        if not ip:
+            #Houston, we have a problem
+            ip = "0.0.0.0"
     return ip
