@@ -24,6 +24,14 @@
         author: 3
         pubdate: 2013-12-21T13:20:30+00:00
         last_message: 4
+-   model: forum.Topic
+    pk: 4
+    fields:
+        title: Rédiger sur ZesteDeSavoir
+        forum: 12
+        author: 3
+        pubdate: 2014-01-05T18:20:30+00:00
+        last_message: 5
 -   model: forum.Post
     pk: 1
     fields:
@@ -63,4 +71,181 @@
         like: 0
         dislike: 0
         pubdate: 2013-12-21T13:20:30+00:00
+        position_in_topic: 1
+-   model: forum.Post
+    pk: 5
+    fields:
+        topic: 4
+        author: 3
+        text: "Zeste de Savoir utilise un langage de formatage de\
+    \ texte tr\xE8s proche du Markdown, auquel ont \xE9t\xE9 ajout\xE9s quelques extensions\
+    \ courantes. Ce langage est utilis\xE9 sur ZdS pour \xE9crire les tutoriels, les\
+    \ articles, les messages de forums ou MP, etc.\n\nOn ne pr\xE9sente plus le Markdown,\
+    \ ce langage de formatage alliant la simplicit\xE9 d'\xE9criture \xE0 la facilit\xE9\
+    \ de lecture. Sa syntaxe tr\xE8s l\xE9g\xE8re permet en effet de lire du simple\
+    \ texte de fa\xE7on presque aussi agr\xE9able que s'il \xE9tait r\xE9ellement\
+    \ mis en forme. Mais aussi pratique soit le Markdown, il ne permet pas de tout\
+    \ baliser. Les indices et exposants par exemple, n'ont pas de repr\xE9sentations\
+    \ Markdown. Il existe donc des extensions permettant de compl\xE9ter le Markdown\
+    \ natif. Certaines de ces extensions, tr\xE8s courantes, ont \xE9t\xE9 reprises\
+    \ sur ZdS, d'autres ont \xE9t\xE9 sp\xE9cifiquement impl\xE9ment\xE9es pour r\xE9\
+    pondre aux besoins pr\xE9cis de ZdS. Nous vous pr\xE9sentons donc ici les syntaxes\
+    \ utilisables sur ZdS.\n\n# Mise en forme de texte classique\n\n## Paragraphes\n\
+    \nLes paragraphes s'\xE9crivent naturellement, en sautant une ligne :\n\n```text\n\
+    Ceci est mon premier paragraphe.\n\nCeci est mon second paragraphe.\n```\n\nContrairement\
+    \ au Markdown standard, un retour \xE0 la ligne au sein d'un paragraphe sera bel\
+    \ et bien vu comme un retour \xE0 la ligne (et non pas comme un simple espace)\
+    \ :\n\n```text\nCeci est mon premier paragraphe.\nIci je reviens \xE0 la ligne,\
+    \ je suis toujours dans le premier paragraphe.\n\nCeci est mon second paragraphe.\n\
+    ```\n\nBref, \xE9crivez vos paragraphes naturellement.\n\nDe plus, le Markdown\
+    \ standard autorise l'insertion de HTML, mais pour des raisons de s\xE9curit\xE9\
+    \ nous avons choisi de ne pas laisser cette possibilit\xE9. Si vous \xE9crivez\
+    \ du HTML, celui-ci apparaitra donc tel quel dans votre texte.\n\n## Titres\n\n\
+    Les titres se font en pr\xE9c\xE9dent le texte d'un ou plusieurs croisillons selon\
+    \ leur niveau hi\xE9rarchique. Ainsi un titre de premier niveau s'\xE9crit avec\
+    \ un seul croisillon, un titre de deuxi\xE8me niveau avec deux croisillons, etc.\n\
+    \n```text\n# Titre de niveau 1\n\n## Titre de niveau 2\n\n### Titre de niveau\
+    \ 3\n\n#### Titre de niveau 4\n\n##### Titre de niveau 5\n\n###### Titre de niveau\
+    \ 6\n```\n\nSix niveaux hi\xE9rarchiques sont possibles. J'attire d'ailleurs votre\
+    \ attention sur ce point car il est tr\xE8s important de donner la bonne hi\xE9\
+    rarchie \xE0 vos titres lorsque vous r\xE9digerez vos tutoriels.\n\n## Emphases\n\
+    \nLes emphases permettent de mettre un morceau de votre texte en valeur. Deux\
+    \ types d'emphases sont disponibles : l'italique et le gras.\n\nPour mettre du\
+    \ texte en *italique*, utilisez l'ast\xE9risque ou le soulign\xE9 (*underscore*)\
+    \ :\n\n```text\nLe mot *italique* est en italique.\n```\n\nou\n\n```text\nLe mot\
+    \ _italique_ est en italique.\n```\n\n[[attention]]\n| Si la syntace avec underscore\
+    \ est utilis\xE9e en milieu de mot, alors le texte ne sera pas transform\xE9.\
+    \ Ainsi `truc_bidule_mush` ne sera pas transform\xE9 alors que `truc*bidule*mush`\
+    \ le sera. La raison tient du fait que les expressions avec des underscores sont\
+    \ communes en informatique comme Mon_super_nom_de_fichier.txt par exemple.\n\n\
+    Pour mettre du texte en **gras** le principe est le m\xEAme, en doublant le symbole\
+    \ :\n\n```text\nLe mot **gras** est en gras.\n```\n\nou\n\n```text\nLe mot __gras__\
+    \ est en gras.\n```\n\nPar soucis de simplicit\xE9 et de lisibilit\xE9, vous ne\
+    \ pourrez pas mettre du texte en couleur, le souligner ou bien en changer la police.\n\
+    \n## Barrer\n\nBarrer du texte (~~comme ceci~~) se fait en utilisant deux tildes\
+    \ successifs avant et apr\xE8s la portion de texte concern\xE9e :\n\n```text\n\
+    Le mot ~~barr\xE9~~ est barr\xE9.\n```\n\nPour information, il s'agit de la syntaxe\
+    \ utilis\xE9e par Pandoc.\n\n## Alignement du texte\n\nPar d\xE9faut, le texte\
+    \ est bien \xE9videmment align\xE9 \xE0 gauche. Pour le centrer, on l'entoure\
+    \ de deux petites fl\xE8ches (tiret et chevron) de directions invers\xE9es :\n\
+    \n```text\n-> Ce texte est centr\xE9. <- \n```\n\nPour l'aligner \xE0 droite,\
+    \ on utilise deux fl\xE8ches dirig\xE9es vers la droite :\n\n```text\n-> Ce texte\
+    \ est align\xE9 \xE0 droite. -> \n```\n\nEnfin, sachez qu'il est impossible de\
+    \ justifier du texte sur ZdS.\n\n## Indices et exposants\n\nL\xE0 encore, ce sont\
+    \ les syntaxes de Pandoc qui sont utilis\xE9es pour mettre en indice ou en exposant\
+    \ une portion de texte.\n\nOn utilise l'accent circonflexe pour l'exposant. Si\
+    \ par exemple on veut \xE9crire que 2^10^ vaut 1024, alors on \xE9crira :\n\n\
+    ```text\n2^10^ vaut 1024.\n```\n\nPour l'indice, comme dans H~2~O par exemple,\
+    \ on utilise cette fois le tilde :\n\n```text\nLa mol\xE9cule de l'eau est H~2~O.\n\
+    ```\n\n# Mise en forme avanc\xE9e\n\n## Citations\n\nLes citations permettent\
+    \ de s\xE9parer votre propos de celui que vous rapporter. D'ailleurs, si l'on\
+    \ en croit ce vieux proverbe nous venant d'une petite plan\xE8te quelque part\
+    \ aux confins de B\xE9telgeuse, il ne faut pas s'en priver :\n\n> Les citations,\
+    \ c'est bien.\n\nOn utilise pour cela un chevron devant chaque d\xE9but de ligne\
+    \ :\n\n```text\n> Ceci est une citation\n> sur plusieurs lignes\n```\n\n## Abr\xE9\
+    viations\n\nIl est souvent utile de pr\xE9ciser la signification d'une abr\xE9\
+    viation (notamment d'un acronyme ou d'un sigle), sans toutefois la faire figurer\
+    \ dans le corps du texte. En utilisant la syntaxe suivante, la signification appara\xEE\
+    tra au passage de la souris sur l'abr\xE9viation :\n\n```text\nBienvenue sur ZdS\
+    \ !\n\n*[ZdS]: Zeste de Savoir\n```\n\nBienvenue, donc, sur ZdS !\n\n*[ZdS]: Zeste\
+    \ de Savoir\n\n## Notes de bas de pages\n\nToujours dans l'id\xE9e d'enrichir\
+    \ votre texte[^enrich], vous pouvez utiliser des notes de base de page :\n\n[^enrich]:\
+    \ Sans pour autant l'alourdir.\n\n```text\nMarkdown[^mdown] est une syntaxe l\xE9\
+    g\xE8re d'\xE9criture de documents. Pandoc[^pandoc] est un convertisseur de documents.\n\
+    \n[^mdown]: Plus d'informations sur [Markdown](http://daringfireball.net/projects/markdown/).\n\
+    \n[^pandoc]: Plus d'informations sur [Pandoc](http://johnmacfarlane.net/pandoc/).\n\
+    ```\n\nLes notes sont alors num\xE9rot\xE9es automatiquement. Vous n'avez \xE0\
+    \ vous soucier que du nom que vous donner \xE0 votre note.\n\n## Tableaux et lignes\n\
+    \nPour faire un tableau, la fa\xE7on la plus simple est encore de le dessiner,\
+    \ \xE0 l'aide de barres verticales et de tirets :\n\n```text\nNom     |   Age\n\
+    ------|-----\nFred |   39\nSam |   38\nAlice  |   35\nMathilde  | 35\n```\n\n\
+    L'exemple ci-dessus donnera donc :\n\nNom     |   Age\n------|-----\nFred |  \
+    \ 39\nSam |   38\nAlice  |   35\nMathilde  | 35\n\n\n----\n\nDe la m\xEAme fa\xE7\
+    on, pour faire une ligne horizontale comme ci-dessus, dessinez-l\xE0 en utilisant\
+    \ (au moins) trois tirets :\n\n```\n------\n```\n\n## Formules math\xE9matiques\n\
+    \nUne formule math\xE9matique s'\xE9crit \xE0 l'aide d'expressions TeX Math, en\
+    \ l'entourant de caract\xE8res dollars `$` :\n\n```text\n$a \\cdot x^2 + b \\\
+    cdot x + c = 0 \\quad \\Longrightarrow \\quad x = \frac {-b \\pm \\sqrt{b^2 -\
+    \ 4ac}}{2a}$\n```\n\nCe qui donne :\n\n$a \\cdot x^2 + b \\cdot x + c = 0 \\quad\
+    \ \\Longrightarrow \\quad x = \frac {-b \\pm \\sqrt{b^2 - 4ac}}{2a}$\n\n# Liens\
+    \ et emails\n\nIl existe deux fa\xE7ons d'\xE9crire des liens : avec ou sans texte\
+    \ d'ancrage.\n\n## Liens avec texte d'ancrage\n\nPour faire un [lien](http://www.zestedesavoir.com\
+    \ \"Zeste de Savoir\") sur un morceau de texte (qu'on appelle donc texte d'ancrage,\
+    \ ici le mot \"lien\"), on utilise la syntaxe suivante :\n\n```text\nPour faire\
+    \ un [lien](http://www.zestedesavoir.com \"Zeste de Savoir\") sur un morceau de\
+    \ texte\n```\n\nAttention \xE0 ne pas mettre d'espace entre la partie concernant\
+    \ le texte d'ancrage (entre crochets) et la partie concernant l'URL (entre parenth\xE8\
+    ses).\n\nLe titre du lien (ici \"Zeste de Savoir\" entre guillemets) est optionnel.\
+    \ S'il est renseign\xE9, il appara\xEEt sur le lien au passage de la souris.\n\
+    \n## Liens pr\xE9sent\xE9s sous forme d'URL\n\nSi vous ne souhaitez pas utiliser\
+    \ de texte d'ancrage et ainsi rendre une URL cliquable, alors vous n'avez rien\
+    \ \xE0 faire : une URL sera automatiquement cliquable.\n\n## Emails\n\nLes emails\
+    \ peuvent s'\xE9crire de la m\xEAme fa\xE7on que les liens. Pensez simplement\
+    \ \xE0 ajouter la mention \"mailto:\" :\n\n```text\nPour nous contacter, cliquez\
+    \ [ici](mailto:contact@monsite.com).\n```\n\nVous pouvez \xE9galement entourer\
+    \ l'email de chevrons pour le rendre cliquable :\n\n```text\nPour nous contacter\
+    \ : <contact@monsite.com>\n```\n\n# Listes\n\nVous pouvez utiliser deux types\
+    \ de liste :\n\n- les listes non ordonn\xE9es (comme la pr\xE9sente) ;\n- les\
+    \ listes ordonn\xE9es par chiffres arabes.\n\nC'est peut-\xEAtre la syntaxe la\
+    \ plus intuitive du Markdown ! Il suffit de mat\xE9rialiser les puces par des\
+    \ tirets :\n\n```text\n- Ma tr\xE8s belle ;\n- liste ;\n- \xE0 puces.\n```\n\n\
+    Ou bien par des chiffres :\n\n```text\n1. Mon premier.\n2. Mon second.\n3. Mon\
+    \ troisi\xE8me.\n```\nPrenez simplement garde \xE0 bien sauter une ligne **avant\
+    \ et apr\xE8s** vos listes.\n\nLa syntaxe est tellement naturelle que je ne vous\
+    \ ferai pas l'affront de mettre des exemples.\n\n# Code\n\n## Bloc de code\n\n\
+    Il n'est pas rare d'illustrer son propos d'un petit exemple de code :\n\n```\n\
+    #!/usr/bin/env python3\n\nprint(\"Hello, World!\")\n```\n\nPour cela, il existe\
+    \ plusieurs solutions.\n\nPremi\xE8re solution : entourer votre code de, au moins,\
+    \ trois accents graves (```) ou de trois tildes (~~~), avant et apr\xE8s : \n\n\
+    ````text\n```\n#!/usr/bin/env python3\n\nprint(\"Hello, World!\")\n```\n````\n\
+    \nou\n\n````text\n~~~\n#!/usr/bin/env python3\n\nprint(\"Hello, World!\")\n~~~\n\
+    ````\n\nLe langage utilis\xE9 sera d\xE9tect\xE9 automatiquement et donc color\xE9\
+    \ en cons\xE9quence. Si tel n'est pas le cas, vous pouvez forcer le langage en\
+    \ l'indiquant \xE0 la suite des caract\xE8res ouvrant :\n\n````text\n~~~{.python}\n\
+    #!/usr/bin/env python3\n\nprint(\"Hello, World!\")\n~~~\n````\n\nou \n\n````text\n\
+    ~~~.python\n#!/usr/bin/env python3\n\nprint(\"Hello, World!\")\n~~~\n````\n\n\n\
+    ou \n\n````text\n```python\n#!/usr/bin/env python3\n\nprint(\"Hello, World!\"\
+    )\n```\n````\n\nSeconde solution, faites pr\xE9c\xE9der chaque ligne de quatre\
+    \ espaces ou bien d'une tabulation :\n\n````text\n    #!/usr/bin/env python3\n\
+    \    \n    print(\"Hello, World!\")\n````\n\nPour forcer le langage, utilisez\
+    \ cette fois trois symboles de deux points de suite :\n\n````text\n    :::python\n\
+    \    #!/usr/bin/env python3\n    \n    print(\"Hello, World!\")\n````\n\nA noter\
+    \ qu'actuellement, seule cette syntaxe fonctionne pour imbriquer un bloc de code\
+    \ \xE0 l'int\xE9rieur d'un autre bloc (une citation par exemple) d\xFB \xE0 des\
+    \ limitations du parseur markdown utilis\xE9, mais nous sommes dessus !\n\n##\
+    \ Code inline\n\nEnfin, si vous souhaitez ins\xE9rer un petit \xE9l\xE9ment de\
+    \ code dans votre phrase (comme `print` par exemple), alors un seul accent grave\
+    \ autour du mot suffira :\n\n```text\ncomme `print` par exemple\n```\n\n# M\xE9\
+    dias\n\n## Images\n\nL'insertion d'une image ressemble \xE0 celle d'un lien, \xE0\
+    \ ceci pr\xE8s que le texte d'ancrage doit \xEAtre remplac\xE9 par un texte alternatif\
+    \ :\n\n```text\n![Logo Creative Commons](http://mirrors.creativecommons.org/presskit/logos/cc.logo.png)\n\
+    ```\n\nLe texte alternatif **doit** \xEAtre renseign\xE9. Il sert \xE0 apporter\
+    \ la m\xEAme information que l'image si celle-ci ne peut \xEAtre charg\xE9e ou\
+    \ bien ne peut \xEAtre vue (notamment pour les synth\xE9tiseurs vocaux pour les\
+    \ non-voyants).\n\n## Vid\xE9os\n\nPour ins\xE9rer une vid\xE9o h\xE9berg\xE9\
+    e chez YouTube, Dailymotion ou encore Vimeo, indiquez simplement son URL dans\
+    \ un paragraphe \xE0 part. Le bloc vid\xE9o correspondant sera alors automatiquement\
+    \ charg\xE9.\n\n```text\nhttp://www.youtube.com/watch?v=oavMtUWDBTM\n```\n\nproduira\
+    \ :\n\nhttp://www.youtube.com/watch?v=oavMtUWDBTM\n\n\n# Sp\xE9cifique ZdS\n\n\
+    Certains \xE9l\xE9ments de mise en forme sont sp\xE9cifique \xE0 ZdS. Il aura\
+    \ tout de m\xEAme fallu les impl\xE9menter, voici donc leur syntaxe.\n\n## Touches\n\
+    \nPour repr\xE9senter une touche, utilisez deux barres verticales avant et apr\xE8\
+    s le nom de la touche :\n\n```\nUtilisez ||Ctrl|| + ||C|| pour copier.\n```\n\n\
+    Vous pouvez bien s\xFBr mettre ||ce que vous voulez|| comme nom de touche.\n\n\
+    ## Balises attention, erreur, information, question et secret\n\nLes tutoriels\
+    \ et articles de ZdS sont parsem\xE9s de balises telles que la balise \"information\"\
+    \ :\n\n[[information]]\n| Ceci est une balise d'information.\n|\n| Cool, non ?\n\
+    \nElle se fait avec la syntaxe suivante :\n\n```text\n[[information]]\n| Ceci\
+    \ est une balise d'information.\n|\n| Cool, non ?\n```\n\nOu dans sa version raccourcie\
+    \ :\n\n```text\n[[i]]\n| Ceci est une balise d'information.\n|\n| Cool, non ?\n\
+    ```\n\nLes balises disponibles sont : \n\n- attention\n- erreur\n- information\n\
+    - question\n- secret\n\nLa balise \"secret\" (appel\xE9e \"spoiler\" sur certains\
+    \ sites) a pour effet de masquer son contenu par d\xE9faut et de ne le rendre\
+    \ visible qu'au clic :\n\n[s]\n| Ceci est un secret.\n\n# Caract\xE8res r\xE9\
+    serv\xE9s\n\nSi vous avez besoin d'\xE9crire un caract\xE8re r\xE9serv\xE9 entrant\
+    \ en conflit avec l'une des syntaxes d\xE9crites ici (l'ast\xE9risque par exemple),\
+    \ vous pouvez le faire en le pr\xE9c\xE9dent d'un antislash : `\\*`\n\n"
+        like: 1337
+        dislike: 0
+        pubdate: 2014-01-05T18:20:30+00:00
         position_in_topic: 1
