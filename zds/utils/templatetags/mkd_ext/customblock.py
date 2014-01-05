@@ -20,10 +20,10 @@ class CustomBlockExtension(Extension):
                 "i" : "information ico-after",
                 "question" : "question ico-after",
                 "q" : "question ico-after",
-                "attention" : "attention ico-after", 
-                "a" : "attention ico-after", 
-                "erreur" : "erreur ico-after",
-                "e" : "erreur ico-after"
+                "attention" : "warning ico-after", 
+                "a" : "warning ico-after", 
+                "erreur" : "error ico-after",
+                "e" : "error ico-after"
             }), '_begin')
 
 
