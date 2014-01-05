@@ -50,8 +50,8 @@
                   <td></td>
                   <td><a href="{% url "zds.article.views.view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >{{ validation.article.title }}</a></td>
                   <td>
-                    {% for category in validation.article.category.all %}
-                        <p><a href="{% url "zds.article.views.list_validation" %}?category={{category.pk}}" class="secondary" >{{ category.title }}</a></p>
+                    {% for subcategory in validation.article.subcategory.all %}
+                        <p><a href="{% url "zds.article.views.list_validation" %}?subcategory={{subcategory.pk}}" class="secondary" >{{ subcategory.title }}</a></p>
                     {% endfor %}
                   </td>
                   <td>
