@@ -4,6 +4,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from hashlib import md5
 
 from zds.forum.models import Post, Topic
@@ -11,6 +13,8 @@ from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
 
 from django.contrib.gis.geoip import GeoIP
+
+import uuid
 
 
 class Profile(models.Model):
@@ -127,6 +131,19 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
+
+class TokenForgotPassword(models.Model):
+    class Meta:
+        verbose_name = 'Token'
+        verbose_name_plural = 'Tokens'
+
+    user = models.ForeignKey(User, verbose_name='Utilisateur')
+    token = models.CharField(max_length=100)
+    date_end = models.DateTimeField('Date de fin')
+
+    def get_absolute_url(self):
+        '''Absolute URL to the new password page'''
+        return redirect(reverse('zds.member.views.new_password')+'?token={0}'.format(self.token))
         
 class Ban(models.Model):
     class Meta:
