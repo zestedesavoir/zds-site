@@ -16,6 +16,7 @@ from zds.utils.templatetags.mkd_ext.mathjax import MathJaxExtension
 from zds.utils.templatetags.mkd_ext.customblock import CustomBlockExtension
 from zds.utils.templatetags.mkd_ext.center import CenterExtension
 from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
+from zds.utils.templatetags.mkd_ext.video import VideoExtension
 
 sup_ext = SuperscriptExtension()            # Superscript support
 sub_ext = SubscriptExtension()              # Subscript support
@@ -26,6 +27,7 @@ mathjax_ext = MathJaxExtension()            # MathJax support
 customblock_ext = CustomBlockExtension()    # CustomBlock support
 center_ext = CenterExtension()              # Center support
 rightalign_ext = RightAlignExtension()      # CustomBlock support
+video_ext = VideoExtension()                # Video support
 
 register = template.Library()
 
@@ -56,6 +58,7 @@ def emarkdown(text):
                                 customblock_ext,                    # CustomBlock support
                                 center_ext,                         # Center support
                                 rightalign_ext,                     # Right align support
+                                video_ext,                          # Video support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
