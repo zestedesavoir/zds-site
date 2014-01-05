@@ -13,6 +13,11 @@
     fields:
         title: Développement Mobile
         slug: developpement-mobile
+-   model: forum.Category
+    pk: 4
+    fields:
+        title: Communauté
+        slug: communaute
 -   model: forum.Forum
     pk: 1
     fields:
@@ -90,3 +95,10 @@
         subtitle: Apprendre d'autres trucs moins cools
         category: 3
         slug: autres
+-   model: forum.Forum
+    pk: 12
+    fields:
+        title: Discussions générales
+        subtitle: Discutez de tout !
+        category: 4
+        slug: discussions-generales
