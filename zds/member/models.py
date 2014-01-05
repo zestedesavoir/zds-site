@@ -143,7 +143,7 @@ class TokenForgotPassword(models.Model):
 
     def get_absolute_url(self):
         '''Absolute URL to the new password page'''
-        return redirect(reverse('zds.member.views.new_password')+'?token={0}'.format(self.token))
+        return reverse('zds.member.views.new_password')+'?token={0}'.format(self.token)
         
 class Ban(models.Model):
     class Meta:
