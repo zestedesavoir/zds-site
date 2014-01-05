@@ -19,4 +19,5 @@ def top_categories(user):
 def top_categories_tuto(user):
     categories = Category.objects.all()
     
+    
     return categories
