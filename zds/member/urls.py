@@ -9,7 +9,8 @@ urlpatterns = patterns('',
     url(r'^voir/(?P<user_name>.+)$', views.details),
     url(r'^profil/modifier/(?P<user_pk>\d+)', views.modify_profile),
 
-    url(r'^publications$', views.publications),
+    url(r'^tutoriels$', views.tutorials),
+    url(r'^articles$', views.articles),
     url(r'^actions$', views.actions),
 
     url(r'^parametres/profil$', views.settings_profile),
