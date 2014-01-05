@@ -108,15 +108,26 @@ def modify_profile(request, user_pk):
     return redirect(profile.get_absolute_url())
 
 @login_required
-def publications(request):
-    '''Returns all publications of the authenticated user'''
+def tutorials(request):
+    '''Returns all tutorials of the authenticated user'''
     profile = Profile.objects.get(user=request.user)
 
     user_tutorials = profile.get_tutos()
-    c = {
-         'user_tutorials': user_tutorials,
-    }
-    return render_to_response('member/publications.html', c, RequestContext(request))
+    
+    return render_template('member/publications.html', {
+        'user_tutorials': user_tutorials,
+    })
+
+@login_required
+def articles(request):
+    '''Returns all articles of the authenticated user'''
+    profile = Profile.objects.get(user=request.user)
+
+    user_articles = profile.get_articles()
+
+    return render_template('article/index.html', {
+        'articles': user_articles,
+    })
 
 @login_required
 def actions(request):
