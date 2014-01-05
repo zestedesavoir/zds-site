@@ -12,6 +12,15 @@
     <li class="current"><a href="#">Publications</a></li>
 {% endblock %}
 
+{% block headline-actions %}
+    <div class="button-group">
+        {% if user.is_authenticated %}
+            <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="button">Nouveau</a>
+            <a href="{% url "zds.tutorial.views.import_tuto" %}" class="button">Importer</a>
+        {% endif %}
+    </div>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="large-12 columns">

@@ -65,7 +65,7 @@ class SubCategory(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
     
-    image = models.ImageField(upload_to=image_path_category)
+    image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
     slug = models.SlugField(max_length=80)
     
