@@ -105,10 +105,14 @@
                         <li class="divider"></li>
                         {% with categories='.'|top_categories_tuto %}
                         {% for category in categories %}
-                            <li><label>{{ category.title }}</label></li>
-                            {% for catofsubcat in category.get_subcategories %}
-                                <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
-                            {% endfor %}
+                            <li class="has-dropdown">
+                                <a href="#">{{ category.title }}</a>
+                                <ul class="dropdown">
+                                    {% for catofsubcat in category.get_subcategories %}
+                                        <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
                         {% endfor %}
                         {% endwith %}
                         <li class="divider"></li>
@@ -136,10 +140,14 @@
                     <ul class="dropdown">
                         {% with categories='.'|top_categories %}
                         {% for category in categories %}
-                            <li><label>{{ category.title }}</label></li>
-                            {% for forum in category.get_forums %}
-                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                            {% endfor %}
+                            <li class="has-dropdown">
+                                <a href="{{ category.get_absolute_url }}">{{ category.title }}</a>
+                                <ul class="dropdown">
+                                    {% for forum in category.get_forums %}
+                                        <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
                         {% endfor %}
                         {% endwith %}
                       <li class="divider"></li>
