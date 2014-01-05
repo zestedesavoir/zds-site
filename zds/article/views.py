@@ -70,38 +70,43 @@ def list_validation(request):
         type=None
     
     try:
-        category = get_object_or_404(Category, pk=request.GET['category'])
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
     except KeyError:
-        category=None
-    
+        subcategory=None
+
     if type == 'orphan':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True) \
+                            .order_by("date_proposition") \
+                            .all()
         else :
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True, article__category__in=[category]) \
-                .order_by("date_proposition")
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     elif type == 'reserved':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False) \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False, article__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
     else:
-        if category ==None:
-            validations = Validation.objects.all() \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-            .filter(article__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     
-    print(validations)
     return render_template('article/validation.html', {
         'validations': validations,
     })

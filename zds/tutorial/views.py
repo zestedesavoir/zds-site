@@ -56,20 +56,6 @@ def index(request):
     })
 
 @login_required
-def list(request):
-    '''Display tutorials list'''
-    try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_draft__isnull=False, authors__in=[request.user]) \
-            .order_by("-update")
-    except:
-        tutorials = None
-        
-    return render_template('tutorial/index.html', {
-        'tutorials': tutorials,
-    })
-
-@login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
     
@@ -79,22 +65,44 @@ def list_validation(request):
         type = request.GET['type']
     except KeyError:
         type=None
-    
-    if type == 'orphan':
-        validations = Validation.objects \
-            .filter(validator__isnull=True) \
-            .order_by("date_proposition") \
-            .all()
 
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except KeyError:
+        subcategory=None
+
+    if type == 'orphan':
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     elif type == 'reserved':
-        validations = Validation.objects \
-            .filter(validator__isnull=False) \
-            .order_by("date_proposition") \
-            .all()
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
     else:
-        validations = Validation.objects \
-            .order_by("date_proposition") \
-            .all()
+        if subcategory == None:
+            validations = Validation.objects \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     
     return render_template('tutorial/validation.html', {
         'validations': validations,
