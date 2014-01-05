@@ -27,3 +27,23 @@ div.hidden-block:target p, div.hidden-block:target table, div.hidden-block:targe
 a.hidden-link-show, a.hidden-link-hide {
     font-size: emCalc(14px);
 }
+
+.information {
+	background: #088A08;
+	color : #FFF;
+}
+
+.erreur {
+	background: #FE2E2E;
+	color : #FFF;
+}
+
+.attention {
+	background: #F79F81;
+	color : #000;
+}
+
+.question {
+	background: #81BEF7;
+	color : #FFF;
+}
