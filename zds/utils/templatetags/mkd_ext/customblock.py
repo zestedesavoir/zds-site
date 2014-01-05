@@ -12,7 +12,19 @@ class CustomBlockExtension(Extension):
         """ Add CustomBlock to Markdown instance. """
         md.registerExtension(self)
 
-        md.parser.blockprocessors.add('customblock', CustomBlockProcessor(md.parser,{"secret":"spoiler","information":"information ico-after","question":"question ico-after","attention":"attention ico-after","erreur":"erreur ico-after"}), '_begin')
+        md.parser.blockprocessors.add( 'customblock', CustomBlockProcessor(md.parser,
+            {
+                "secret" : "spoiler",
+                "s" : "spoiler",
+                "information" : "information ico-after",
+                "i" : "information ico-after",
+                "question" : "question ico-after",
+                "q" : "question ico-after",
+                "attention" : "attention ico-after", 
+                "a" : "attention ico-after", 
+                "erreur" : "erreur ico-after",
+                "e" : "erreur ico-after"
+            }), '_begin')
 
 
 class CustomBlockProcessor(BlockProcessor):
