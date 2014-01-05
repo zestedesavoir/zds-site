@@ -105,8 +105,8 @@ def modify_profile(request, user_pk):
     return redirect(profile.get_absolute_url())
 
 @login_required
-def publications(request):
-    '''Returns all publications of the authenticated user'''
+def tutorials(request):
+    '''Returns all tutorials of the authenticated user'''
     profile = Profile.objects.get(user=request.user)
 
     user_tutorials = profile.get_tutos()
