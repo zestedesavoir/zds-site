@@ -60,8 +60,8 @@
                   <td></td>
                   <td><a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a></td>
                   <td>
-                    {% for category in validation.tutorial.category.all %}
-                        <p><a href="{% url "zds.tutorial.views.list_validation" %}?category={{category.pk}}" class="secondary" >{{ category.title }}</a></p>
+                    {% for subcategory in validation.tutorial.subcategory.all %}
+                        <p><a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}" class="secondary" >{{ subcategory.title }}</a></p>
                     {% endfor %}
                   </td>
                   <td>
