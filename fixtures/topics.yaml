@@ -37,7 +37,7 @@
     fields:
         topic: 1
         author: 3
-        text: Bonjour<br />Je ne comprends pas pourquoi il y a une guerre entre Android et iOS alors que Android est supérieur.<br />Merci pour vos réponses.
+        text: "Bonjour\nJe ne comprends pas pourquoi il y a une guerre entre Android et iOS alors que Android est supérieur.\nMerci pour vos réponses."
         like: 42
         dislike: 0
         pubdate: 2013-12-21T13:20:30+00:00
@@ -47,7 +47,7 @@
     fields:
         topic: 2
         author: 3
-        text: Bonjour<br />Je ne comprends pas les choix technologiques faits pour ZdS.<br />Pourquoi ne pas avoir développé le site avec Symfony comme OpenClassrooms ?<br />Merci de vos réponses.
+        text: "Bonjour\nJe ne comprends pas les choix technologiques faits pour ZdS.\nPourquoi ne pas avoir développé le site avec Symfony comme OpenClassrooms ?\nMerci de vos réponses."
         like: 3
         dislike: 12
         pubdate: 2013-12-21T13:20:30+00:00
@@ -67,7 +67,7 @@
     fields:
         topic: 3
         author: 3
-        text: Bonjour<br />Je ne comprends pas pourquoi il y a encore des développeurs JS alors qu'il existe jQuery...<br />Des éclaircissements ?
+        text: "Bonjour\nJe ne comprends pas pourquoi il y a encore des développeurs JS alors qu'il existe jQuery...\nDes éclaircissements ?"
         like: 0
         dislike: 0
         pubdate: 2013-12-21T13:20:30+00:00
