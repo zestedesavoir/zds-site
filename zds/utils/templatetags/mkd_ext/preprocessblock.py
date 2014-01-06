@@ -30,8 +30,6 @@ class PreprocessBlockExtension(markdown.extensions.Extension):
     def addPreprocessor(self, md):
         self.preprocess = []
         for name in self.preprocessNames:
-            print name
-            
             if name in md.preprocessors:
                 self.preprocess.append(md.preprocessors[name])
 
