@@ -17,17 +17,19 @@ from zds.utils.templatetags.mkd_ext.customblock import CustomBlockExtension
 from zds.utils.templatetags.mkd_ext.center import CenterExtension
 from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
 from zds.utils.templatetags.mkd_ext.video import VideoExtension
+from zds.utils.templatetags.mkd_ext.preprocessblock import PreprocessBlockExtension
 
-sup_ext = SuperscriptExtension()            # Superscript support
-sub_ext = SubscriptExtension()              # Subscript support
-del_ext = DelExtension()                    # Del support
-urlize_ext = UrlizeExtension()              # Autolink support
-kbd_ext = KbdExtension()                    # Keyboard support
-mathjax_ext = MathJaxExtension()            # MathJax support
+sup_ext         = SuperscriptExtension()    # Superscript support
+sub_ext         = SubscriptExtension()      # Subscript support
+del_ext         = DelExtension()            # Del support
+urlize_ext      = UrlizeExtension()         # Autolink support
+kbd_ext         = KbdExtension()            # Keyboard support
+mathjax_ext     = MathJaxExtension()        # MathJax support
 customblock_ext = CustomBlockExtension()    # CustomBlock support
-center_ext = CenterExtension()              # Center support
-rightalign_ext = RightAlignExtension()      # CustomBlock support
-video_ext = VideoExtension()                # Video support
+center_ext      = CenterExtension()         # Center support
+rightalign_ext  = RightAlignExtension()     # CustomBlock support
+video_ext       = VideoExtension()          # Video support
+preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
 
 register = template.Library()
 
@@ -52,13 +54,14 @@ def emarkdown(text):
                                 sup_ext,                            # Superscript support
                                 sub_ext,                            # Subscript support
                                 del_ext,                            # Del support
-							    urlize_ext,                         # Autolink support
+                                urlize_ext,                         # Autolink support
                                 kbd_ext,                            # Kbd support
                                 mathjax_ext,                        # Mathjax support
                                 customblock_ext,                    # CustomBlock support
                                 center_ext,                         # Center support
                                 rightalign_ext,                     # Right align support
                                 video_ext,                          # Video support
+                                preprocess_ext,                     # Preprocess support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
