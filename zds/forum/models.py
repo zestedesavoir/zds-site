@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import slugify
 
 from zds.utils import get_current_user
-from zds.utils.models import Alert
+from zds.utils.models import Comment
 
 def image_path_forum(instance, filename):
     '''Return path to an image'''
@@ -217,35 +217,15 @@ class Topic(models.Model):
         return never_read(self)
 
 
-class Post(models.Model):
+class Post(Comment):
     '''
     A forum post written by an user.
     '''
     
     topic = models.ForeignKey(Topic, verbose_name='Sujet')
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                                     related_name='posts')
-    editor = models.ForeignKey(User, verbose_name='Editeur',
-                                     related_name='posts-editor',
-                                     null=True, blank=True)
-    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=15)
-    text = models.TextField('Texte')
-    text_html = models.TextField('Texte en Html')
-    
-    like = models.IntegerField('Likes', default=0)
-    dislike = models.IntegerField('Dislikes', default=0)
-
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
-    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
-
-    position_in_topic = models.IntegerField('Position dans le sujet')
 
     is_useful = models.BooleanField('Est utile', default=False)
-    is_visible = models.BooleanField('Est visible', default=True)
-    text_hidden = models.CharField('Texte de masquage ', max_length=80, default='')
     
-    alerts = models.ManyToManyField(Alert, verbose_name='Alertes', null=True, blank=True)
-
     def __unicode__(self):
         '''Textual form of a post'''
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
@@ -255,13 +235,6 @@ class Post(models.Model):
 
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 
-    def get_like_count(self):
-        '''Gets number of like for the post'''
-        return PostLike.objects.filter(posts__pk=self.pk).count()
-    
-    def get_dislike_count(self):
-        '''Gets number of dislike for the post''' 
-        return PostDislike.objects.filter(posts__pk=self.pk).count()
 
 class TopicRead(models.Model):
     '''
@@ -298,28 +271,6 @@ class TopicFollowed(models.Model):
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)
-
-class PostLike(models.Model):
-    '''
-    Set of like posts
-    '''
-    class Meta:
-        verbose_name = 'Ce message est utile'
-        verbose_name_plural = 'Ces messages sont utiles'
-
-    posts = models.ForeignKey(Post)
-    user = models.ForeignKey(User, related_name='post_liked')
-
-class PostDislike(models.Model):
-    '''
-    Set of dislike posts
-    '''
-    class Meta:
-        verbose_name = 'Ce message est inutile'
-        verbose_name_plural = 'Ces messages sont inutiles'
-
-    posts = models.ForeignKey(Post)
-    user = models.ForeignKey(User, related_name='post_disliked')
 
 
 def never_read(topic, user=None):
