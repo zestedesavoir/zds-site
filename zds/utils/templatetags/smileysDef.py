@@ -16,7 +16,7 @@ smileys = {
     ":colere2:" : "mechant.png",
     "o_O"       : "blink.gif",
     "^^"        : "hihi.png",
-#    ":-°"       : "siffle.png",
+   u":-°"       : "siffle.png",
     ":ange:"    : "ange.png",
     ":colere:"  : "angry.gif",
     ":diable:"  : "diable.png",
