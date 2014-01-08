@@ -147,8 +147,8 @@
             {% endfor %}
             <br />
             Tags : 
-            {% for tag in tags.all %}
-                <a href="{% url "haystack_search" %}?q={{ tag.name }}&amp;models=article.article">{{ tag.name }}</a>{% if not forloop.last %},{% endif %}
+            {% for category in tags.all %}
+                <span class="label">{{ category.title }}</span>
             {% endfor %}
         </p>
         </div>
