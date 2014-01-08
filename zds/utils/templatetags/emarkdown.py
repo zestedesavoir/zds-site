@@ -21,6 +21,7 @@ from zds.utils.templatetags.mkd_ext.preprocessblock import PreprocessBlockExtens
 from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
 from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
+from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -34,7 +35,8 @@ rightalign_ext  = RightAlignExtension()     # CustomBlock support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
 emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "BASE_URL" : smileys_baseURL, "FILE_EXTENSION" : smileys_ext}) # smileys support
-gridtable_ext   = GridTableExtension()
+gridtable_ext   = GridTableExtension()      # Grid Table support
+comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
 
 register = template.Library()
 
@@ -69,6 +71,7 @@ def emarkdown(text):
                                 preprocess_ext,                     # Preprocess support
                                 emo_ext,                            # Smileys support
                                 gridtable_ext,                      # Grid tables support
+                                comment_ext,                        # Comment support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
