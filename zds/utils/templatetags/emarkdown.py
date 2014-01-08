@@ -18,6 +18,8 @@ from zds.utils.templatetags.mkd_ext.center import CenterExtension
 from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
 from zds.utils.templatetags.mkd_ext.video import VideoExtension
 from zds.utils.templatetags.mkd_ext.preprocessblock import PreprocessBlockExtension
+from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
+from zds.utils.templatetags.smileysDef import *
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -30,6 +32,7 @@ center_ext      = CenterExtension()         # Center support
 rightalign_ext  = RightAlignExtension()     # CustomBlock support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
+emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "BASE_URL" : smileys_baseURL, "FILE_EXTENSION" : smileys_ext}) # smileys support
 
 register = template.Library()
 
@@ -62,6 +65,7 @@ def emarkdown(text):
                                 rightalign_ext,                     # Right align support
                                 video_ext,                          # Video support
                                 preprocess_ext,                     # Preprocess support
+                                emo_ext,                            # Smileys support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
