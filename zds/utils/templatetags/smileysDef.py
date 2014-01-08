@@ -30,4 +30,5 @@ smileys = {
     ":waw:"     : "waw.png",
     ":zorro:"   : "zorro.png",
     }
-
+for k, v in smileys.iteritems():
+    smileys[k] = smileys_baseURL + v

@@ -23,6 +23,7 @@ from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
 from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
+from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -35,10 +36,11 @@ center_ext      = CenterExtension()         # Center support
 rightalign_ext  = RightAlignExtension()     # CustomBlock support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
-emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "BASE_URL" : smileys_baseURL, "FILE_EXTENSION" : smileys_ext}) # smileys support
+emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "FILE_EXTENSION" : smileys_ext}) # smileys support
 gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
 legend_ext      = TableLegendExtension()    # Table Legend support
+smimg_ext       = SmartImgExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart image support
 
 register = template.Library()
 
@@ -75,6 +77,7 @@ def emarkdown(text):
                                 gridtable_ext,                      # Grid tables support
                                 comment_ext,                        # Comment support
                                 legend_ext,                         # Legend support
+                                smimg_ext,                          # SmartImg support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
