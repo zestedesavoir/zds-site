@@ -224,3 +224,11 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+
+# Root directories on the project
+/static
+/tutoriels-private
+/tutoriels-public
+/media
+/articles-data
+/apache-solr

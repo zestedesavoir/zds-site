@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block headline %}
-    Tutoriels rédigés par "{{ usr.username }}""
+    Tutoriels rédigés par {{ usr.username }}"
 {% endblock %}
 
 {% block breadcrumb %}
@@ -40,12 +40,14 @@
                     </div>
                 </td>
                 <td>
+                    {% if tuto.pubdate %}
                     {% with date=tuto.pubdate|humane_date %}
                         {{ date }}
                     {% endwith %}
+                    {% endif %}
                 </td>
                 <td>
-                    {{ tuto.introduction|truncatechars:200|emarkdown }}
+                    {{ tuto.get_introduction_online|truncatechars:200|emarkdown }}
                 </td>
             </tr>
             {% endfor %}

@@ -1,0 +1,82 @@
+{% extends "article/base.html" %}
+
+{% block title %}
+    Liste des articles
+{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Les articles sont rédigés par la
+    communauté ; ils permettent aussi bien de se tenir informé des dernières
+    innovations du moment que de découvrir de nouvelles notions liées aux
+    différents domaines de l'informatique." />
+{% endblock %}
+
+{% block header %}
+    <h1>
+        <i class="icon-file-text icon-large"></i>
+        Articles
+    </h1>
+    <p>
+        Les articles sont rédigés par la communauté ; ils permettent aussi bien de <strong>se tenir informé des dernières innovations</strong> du moment
+        que de <strong>découvrir de nouvelles notions</strong> liées aux différents domaines de l'informatique.
+    </p>
+{% endblock %}
+
+{% block headline %}
+    Liste des articles
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    <div class="button-group">
+
+        {% include "article/feeds.part.html" %}
+
+        {% if user.is_authenticated %}
+            <a href="{% url "zds.article.views.new" %}" class="button">
+                <i class="icon-plus"></i>
+                Nouvel article
+            </a>
+        {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <h2>À la une</h2>
+        {% if articles %}
+            <div class="article-items">
+                {% for article in articles %}
+                <div class="row article-publication-item">
+                    <div class="large-1 columns">
+                        {% if article.thumbnail %}
+                            <img src="{{article.thumbnail.url }}"/>
+                        {% endif %}
+                    </div>
+                    <div class="large-10 columns">
+                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                        <p>{{ article.description }}</p>
+                    </div>
+                    <div class="large-1 columns">
+                        <div class="date-box">
+                            {% with date=article.pubdate %}
+                                {% include "misc/datebox.part.html" %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun article disponible.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

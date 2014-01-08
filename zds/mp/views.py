@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,10 +9,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+from django.template import Context
 
 from forms import PrivateTopicForm, PrivatePostForm
-from models import PrivateTopic, PrivatePost, POSTS_PER_PAGE, TOPICS_PER_PAGE, \
-    never_privateread, mark_read
+from models import PrivateTopic, PrivatePost, \
+    never_privateread, mark_read, PrivateTopicRead
 from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
 
@@ -34,12 +38,12 @@ def index(request):
                     topic.participants.remove(request.user)
                 topic.save()
 
-    privatetopics = PrivateTopic.objects.all()\
+    privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user])|Q(author=request.user))\
-        .distinct().order_by('-last_message__pubdate')
+        .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator
-    paginator = Paginator(privatetopics, TOPICS_PER_PAGE)
+    paginator = Paginator(privatetopics, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -77,13 +81,14 @@ def topic(request, topic_pk, topic_slug):
         if never_privateread(g_topic):
             mark_read(g_topic)
 
-    posts = PrivatePost.objects.all().filter(privatetopic__pk=g_topic.pk)\
-                              .order_by('position_in_topic')
+    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
+                              .order_by('position_in_topic')\
+                              .all()
 
     last_post_pk = g_topic.last_message.pk
 
     # Handle pagination
-    paginator = Paginator(posts, POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
 
     try:
         page_nbr = int(request.GET['page'])
@@ -120,6 +125,7 @@ def new(request):
     '''
     Creates a new private topic 
     '''
+    authenticated_user = request.user
     
     if request.method == 'POST':
         # If the client is using the "preview" button
@@ -138,7 +144,9 @@ def new(request):
             ctrl=[]
             list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
-                p=get_object_or_404(User, username=part)
+                p = get_object_or_404(User, username=part)
+                if authenticated_user == p:
+                    continue
                 ctrl.append(p)
             
             # Creating the thread
@@ -163,6 +171,29 @@ def new(request):
 
             n_topic.last_message = post
             n_topic.save()
+            
+            #send email
+            subject = "ZDS - MP: "+n_topic.title
+            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            for part in ctrl:
+                message_html = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': n_topic.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                message_txt = get_template('email/mp.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': n_topic.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                msg.attach_alternative(message_html, "text/html")
+                msg.send()
 
             return redirect(n_topic.get_absolute_url())
 
@@ -185,6 +216,8 @@ def edit(request):
     '''
     Edit the given topic
     '''
+    authenticated_user = request.user
+
     if not request.method == 'POST':
         raise Http404
 
@@ -203,9 +236,10 @@ def edit(request):
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
     if request.POST['username'] :
-        u=get_object_or_404(User, username=request.POST['username'])
-        g_topic.participants.add(u)
-        g_topic.save()
+        u = get_object_or_404(User, username=request.POST['username'])
+        if not authenticated_user == u:
+            g_topic.participants.add(u)
+            g_topic.save()
 
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
@@ -256,6 +290,38 @@ def answer(request):
 
                 g_topic.last_message = post
                 g_topic.save()
+                
+                #send email
+                subject = "ZDS - MP: "+g_topic.title
+                from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+                parts = list(g_topic.participants.all())
+                parts.append(g_topic.author)
+                parts.remove(request.user)
+                for part in parts:
+                    pos = post.position_in_topic-1
+                    last_read = PrivateTopicRead.objects.filter(
+                                        privatetopic = g_topic,
+                                        privatepost__position_in_topic = pos,
+                                        user = part).count()
+                    if last_read > 0 :
+                        message_html = get_template('email/mp.html').render(
+                                        Context({
+                                            'username': part.username,
+                                            'url': g_topic.get_absolute_url(),
+                                            'author': request.user.username
+                                        })
+                                    )
+                        message_txt = get_template('email/mp.txt').render(
+                                        Context({
+                                            'username': part.username,
+                                            'url': g_topic.get_absolute_url(),
+                                            'author': request.user.username
+                                        })
+                                    )
+                    
+                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                        msg.attach_alternative(message_html, "text/html")
+                        msg.send()
 
                 return redirect(post.get_absolute_url())
             else:

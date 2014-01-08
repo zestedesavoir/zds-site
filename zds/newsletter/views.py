@@ -11,6 +11,7 @@ def add_newsletter(request):
         
         if form.is_valid() and already == 0 :
             data = form.data
+            print data['email']
             nl = Newsletter()
             nl.email = data['email']
             nl.ip = my_ip
@@ -20,7 +21,7 @@ def add_newsletter(request):
 
         else:
             # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('newsletter/failed.html')
     else:
         form = NewsletterForm()
         return render_template('newsletter/new_newsletter.html', {
@@ -28,9 +29,10 @@ def add_newsletter(request):
         })
 
 def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #if x_forwarded_for:
+    #    ip = x_forwarded_for.split(',')[0]
+    #else:
+    #    ip = request.META.get('REMOTE_ADDR')
+    #return ip
+    return request.META.get('REMOTE_ADDR')
