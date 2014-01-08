@@ -29,28 +29,29 @@ from .models import Tutorial, Part, Chapter, Extract, Validation
 
 def index(request):
     '''Display tutorials list'''
+    
     try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_public__isnull=False) \
-            .order_by("-pubdate")
-    except:
-        tutorials = None
+        tag = request.GET['tag']
+    except KeyError:
+        tag=None
         
-    return render_template('tutorial/index.html', {
-        'tutorials': tutorials,
-    })
-
-@login_required
-def list(request):
-    '''Display tutorials list'''
-    try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_draft__isnull=False, authors__in=[request.user]) \
-            .order_by("-update")
-    except:
-        tutorials = None
+    if tag == None :
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
+    else:
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False, 
+                        subcategory__in=[tag]) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
         
-    return render_template('tutorial/index.html', {
+    return render_template('tutorial/index_online.html', {
         'tutorials': tutorials,
     })
 
@@ -64,40 +65,45 @@ def list_validation(request):
         type = request.GET['type']
     except KeyError:
         type=None
-    
+
     try:
-        category = get_object_or_404(Category, pk=request.GET['category'])
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
     except KeyError:
-        category=None
-    
+        subcategory=None
+
     if type == 'orphan':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True) \
+                            .order_by("date_proposition") \
+                            .all()
         else :
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     elif type == 'reserved':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False) \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
     else:
-        if category ==None:
-            validations = Validation.objects.all() \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-            .filter(tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     
-    print(validations)
     return render_template('tutorial/validation.html', {
         'validations': validations,
     })
@@ -175,6 +181,28 @@ def history(request, tutorial_pk, tutorial_slug):
     })
 
 @login_required
+def activ_beta(request, tutorial_pk, version):
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+        raise Http404
+    tutorial.sha_beta = version
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url_beta())
+
+@login_required
+def desactiv_beta(request, tutorial_pk, version):
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+        raise Http404
+    tutorial.sha_beta = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url_beta())
+
+@login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
@@ -183,8 +211,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     except KeyError:
         sha = tutorial.sha_draft
     
-    if not tutorial.on_line \
-       and not request.user.has_perm('tutorial.change_tutorial') \
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    
+    if not request.user.has_perm('tutorial.change_tutorial') \
+       and not beta \
        and request.user not in tutorial.authors.all():
         raise Http404
 
@@ -283,10 +313,10 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_prod_path()
             chapter['type'] = 'MINI'
-            intro = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            intro = open(os.path.join(tutorial.get_prod_path(), mandata['introduction']+'.html'), "r")
             chapter['intro'] = intro.read()
             intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(), 'introduction.md.html'), "r")
+            conclu = open(os.path.join(tutorial.get_prod_path(), mandata['conclusion']+'.html'), "r")
             chapter['conclu'] = conclu.read()
             conclu.close()
             cpt=1
@@ -399,9 +429,9 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            if 'category' in data:
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            # Add subcategories on article
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
@@ -478,10 +508,9 @@ def edit_tutorial(request):
                           conclusion=data['conclusion'],
                           action = 'maj')
             
-            if 'category' in data:
-                tutorial.category.clear()
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            tutorial.subcategory.clear()
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             tutorial.save()
             
@@ -496,7 +525,7 @@ def edit_tutorial(request):
             'title': json['title'],
             'licence': licence,
             'description': json['description'],
-            'category': tutorial.category.all(),
+            'subcategory': tutorial.subcategory.all(),
             'introduction': tutorial.get_introduction(),
             'conclusion': tutorial.get_conclusion(),
         })
@@ -1387,14 +1416,26 @@ def modify_extract(request):
     raise Http404
 
 def find_tuto(request, pk_user):
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+        
     u = get_object_or_404(User, pk=pk_user)
-    tutos = Tutorial.objects.all().filter(authors__in=[u])\
-                          .order_by('-pubdate')
-    # Paginator
+    if type == 'beta':
+        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_beta__isnull=False)\
+                              .order_by('-pubdate')
+        
+        return render_template('tutorial/find_betatutorial.html', {
+            'tutos': tutos, 'usr':u,
+        })
+    else:
+        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_public__isnull=False)\
+                              .order_by('-pubdate')
     
-    return render_template('tutorial/find_tutorial.html', {
-        'tutos': tutos, 'usr':u,
-    })
+        return render_template('tutorial/find_tutorial.html', {
+            'tutos': tutos, 'usr':u,
+        })
 
 @login_required
 def import_tuto(request):

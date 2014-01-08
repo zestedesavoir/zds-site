@@ -5,6 +5,7 @@ import string
 
 from math import ceil
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import Group, User
@@ -12,12 +13,6 @@ from django.template.defaultfilters import slugify
 
 from zds.utils import get_current_user
 from zds.utils.models import Alert
-
-# TODO: Put these constants in settings.py file
-POSTS_PER_PAGE = 21
-TOPICS_PER_PAGE = 21
-SPAM_LIMIT_SECONDS = 60 * 15
-
 
 def image_path_forum(instance, filename):
     '''Return path to an image'''
@@ -81,7 +76,8 @@ class Forum(models.Model):
         return Topic.objects.all().filter(forum__pk=self.pk).count()
 
     def get_post_count(self):
-        return Post.objects.all().filter(topic__forum=self).count()
+        '''Gets the number of posts for a forum'''
+        return Post.objects.filter(topic__forum=self).count()
 
     def get_last_message(self):
         '''Gets the last message on the forum, if there are any'''
@@ -91,18 +87,22 @@ class Forum(models.Model):
             return None
 
     def can_read(self, user):
-        print(self.group.count())
-        print(user)
+        '''Checks if the forum can be read by the user'''
+        # TODO These prints is used to debug this method. Remove them later.
         
         if self.group.count() == 0:
             return True
         else:
-            groups = Group.objects.filter(user=user).all()
-            return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+            if user.is_authenticated():
+                groups = Group.objects.filter(user=user).all()
+                return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+            else:
+                return False
         
     def is_read(self):
-        for t in Topic.objects.all().filter(forum=self):
-            if never_read(t):
+        '''Checks if there are topics never read in the forum'''
+        for current_topic in Topic.objects.filter(forum=self).all():
+            if never_read(current_topic):
                 return False
         return True
 
@@ -140,7 +140,7 @@ class Topic(models.Model):
         '''
         Return the number of posts in the topic
         '''
-        return Post.objects.all().filter(topic__pk=self.pk).count()
+        return Post.objects.filter(topic__pk=self.pk).count()
 
     def get_last_answer(self):
         '''
@@ -208,7 +208,7 @@ class Topic(models.Model):
         if last_user_posts and last_user_posts[0] == self.get_last_answer():
             last_user_post = last_user_posts[0]
             t = timezone.now() - last_user_post.pubdate
-            if t.total_seconds() < SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
 
         return False
@@ -251,14 +251,16 @@ class Post(models.Model):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position_in_topic) / POSTS_PER_PAGE))
+        page = int(ceil(float(self.position_in_topic) / settings.POSTS_PER_PAGE))
 
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 
     def get_like_count(self):
+        '''Gets number of like for the post'''
         return PostLike.objects.filter(posts__pk=self.pk).count()
     
     def get_dislike_count(self):
+        '''Gets number of dislike for the post''' 
         return PostDislike.objects.filter(posts__pk=self.pk).count()
 
 class TopicRead(models.Model):
@@ -369,8 +371,18 @@ def follow(topic):
     return ret
 
 
-def get_last_topics():
+def get_last_topics(user):
     '''
     Returns the 5 very last topics
     '''
-    return Topic.objects.all().order_by('-last_message__pubdate')[:5]
+    topics = Topic.objects.all().order_by('-last_message__pubdate')
+    
+    tops = []
+    cpt=1
+    for topic in topics:
+        if topic.forum.can_read(user):
+            tops.append(topic)
+            cpt+=1
+        if cpt > 5:
+            break
+    return tops

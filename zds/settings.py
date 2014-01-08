@@ -164,6 +164,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
     # Custom context processors
     'zds.utils.context_processors.versions',
+    'zds.utils.context_processors.git_version',
 )
 
 INSTALLED_APPS = (
@@ -184,8 +185,10 @@ INSTALLED_APPS = (
     'taggit',
     'pipeline',
     'smileys',
+    'haystack',
 
     'zds.member',
+    'zds.article',
     'zds.forum',
     'zds.utils',
     'zds.pages',
@@ -245,6 +248,26 @@ IMAGE_MAX_SIZE = 1024*1024
 #git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
+REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
+
+# Constants for pagination
+POSTS_PER_PAGE = 21
+TOPICS_PER_PAGE = 21
+
+# Constants to avoid spam
+SPAM_LIMIT_SECONDS = 60 * 15
+SPAM_LIMIT_PARTICIPANT = 2
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+        # ...or for multicore...
+        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
+    },
+}
+
+GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
 
 # Load the production settings, overwrite the existing ones if needed
 try:

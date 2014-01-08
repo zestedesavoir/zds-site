@@ -2,6 +2,7 @@
 
 from zds.forum.models import get_last_topics
 from zds.tutorial.models import get_last_tutorials
+from zds.article.models import get_last_articles
 from zds.utils import render_template
 
 
@@ -10,8 +11,9 @@ def home(request):
     Display the home page with last topics added
     '''
     return render_template('home.html', {
-        'last_topics': get_last_topics(),
+        'last_topics': get_last_topics(request.user),
         'last_tutorials': get_last_tutorials(),
+        'last_articles': get_last_articles(),
     })
 
 

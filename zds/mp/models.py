@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -7,14 +8,6 @@ from django.utils import timezone
 from math import ceil
 
 from zds.utils import get_current_user
-
-
-# TODO: Put these constants in settings.py file
-POSTS_PER_PAGE = 21
-TOPICS_PER_PAGE = 21
-SPAM_LIMIT_SECONDS = 60 * 15
-SPAM_LIMIT_PARTICIPANT = 2
-
 
 class PrivateTopic(models.Model):
     '''Topic private, containing private posts'''
@@ -47,15 +40,16 @@ class PrivateTopic(models.Model):
         '''
         Return the number of private posts in the private topic
         '''
-        return PrivatePost.objects.all().filter(privatetopic__pk=self.pk).count()
+        return PrivatePost.objects.filter(privatetopic__pk=self.pk).count()
 
     def get_last_answer(self):
         '''
         Gets the last answer in the thread, if any
         '''
-        last_post = PrivatePost.objects.all()\
+        last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
-            .order_by('-pubdate')[0]
+            .order_by('-pubdate')\
+            .all()[0]
 
         if last_post == self.first_post():
             return None
@@ -105,7 +99,7 @@ class PrivateTopic(models.Model):
         if last_user_privateposts and last_user_privateposts[0] == self.get_last_answer():
             last_user_privatepost = last_user_privateposts[0]
             t = timezone.now() - last_user_privatepost.pubdate
-            if t.total_seconds() < SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
 
         return False
@@ -134,7 +128,7 @@ class PrivatePost(models.Model):
         return u'<Post pour "{0}", #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position_in_topic) / POSTS_PER_PAGE))
+        page = int(ceil(float(self.position_in_topic) / settings.POSTS_PER_PAGE))
 
         return '{0}?page={1}#p{2}'.format(self.privatetopic.get_absolute_url(), page, self.pk)
 
@@ -183,4 +177,4 @@ def get_last_privatetopics():
     '''
     Returns the 5 very last topics
     '''
-    return PrivateTopic.objects.all().order_by('-pubdate')[:5]
+    return PrivateTopic.objects.order_by('-pubdate').all()[:5]

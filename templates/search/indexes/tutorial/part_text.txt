@@ -1,0 +1,6 @@
+{{ object.get_conclusion_online }}
+{{ object.get_introduction_online }}
+{{ object.tutorial.title }}
+{{ object.tutorial.description }}
+{{ object.tutorial.pubdate }}
+{{ object.title }}

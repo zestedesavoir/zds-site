@@ -1,0 +1,50 @@
+{% extends "tutorial/base.html" %}
+{% load humane_date %}
+{% load profile %}
+{% load emarkdown %}
+
+{% block title %}
+    Tutoriels en Beta rédigés par {{ usr.username }}
+{% endblock %}
+
+{% block headline %}
+    Tutoriels en Beta rédigés par {{ usr.username }}"
+{% endblock %}
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li ><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">Tutoriels en Beta</a></li>
+    <li class="current"><a href="#">Recherche</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <table>
+          <thead>
+            <tr>
+              <th width="25%">Tutoriels</th>
+              <th >Introduction</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tuto in tutos %}
+            <tr>
+                <td>
+                    <div>
+                        <img src="{{ tuto.thumbnail.url }}" />
+                        <a href="{{ tuto.get_absolute_url_beta }}">{{ tuto.title }} </a> 
+                        {% if tuto.description %} <p> {{ tuto.description }} </p> {% endif %}
+                    </div>
+                </td>
+                <td>
+                    {{ tuto.get_introduction|truncatechars:200|emarkdown }}
+                </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+{% endblock %}
