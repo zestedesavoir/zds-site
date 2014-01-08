@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load emarkdown %}
 {% load humane_date %}
+{% load interventions %}
 
 {% block menu_home %}
 class="active"
@@ -147,7 +148,7 @@ Bienvenue sur ZesteDeSavoir
                                 <div class="large-2 columns hide-for-small">
                                     <img src="{{ article.image.thumb.url }}">
                                 </div>
-                                <div class="large-10 columns">
+                                <div class="large-8 columns">
                                 <p class="subheader">
                                 <a href="{{ article.get_absolute_url_online }}">
                                     {{ article.title }}
@@ -165,6 +166,9 @@ Bienvenue sur ZesteDeSavoir
                                     {{article.pubdate|humane_date}}
                                 </p>
                                 
+                                </div>
+                                <div class="small-2 column">
+                                        <a class="tiny button {% reads_article article user %} radius expand" href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }}</a>
                                 </div>
                                 <hr />
                             {% endif %}

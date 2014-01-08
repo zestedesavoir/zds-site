@@ -27,7 +27,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import ArticleForm, ReactionForm, AlertForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
-    Reaction
+    Reaction, never_read, mark_read
 
 
 def index(request):
@@ -223,8 +223,14 @@ def view_online(request, article_pk, article_slug):
     txt.close()
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
+    article_version['is_locked'] = article.is_locked
+    article_version['antispam'] = article.antispam()
     
     #find reactions
+    if request.user.is_authenticated():
+        if never_read(article):
+            mark_read(article)
+            
     reactions = Reaction.objects\
                 .filter(article__pk=article.pk)\
                 .order_by('position')\
@@ -579,7 +585,7 @@ def answer(request):
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
-                g_article.last_message = reaction
+                g_article.last_reaction = reaction
                 g_article.save()
 
                 return redirect(reaction.get_absolute_url())

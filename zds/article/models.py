@@ -11,6 +11,7 @@ from django.conf import settings
 
 from zds.utils.models import SubCategory, Comment
 from zds.utils.articles import *
+from zds.utils import get_current_user
 
 from zds.utils import slugify
 
@@ -298,7 +299,28 @@ class ArticleRead(models.Model):
         return u'<Article "{0}" lu par {1}, #{2}>'.format(self.article,
                                                         self.user,
                                                         self.reaction.pk)
-    
+
+def never_read(article, user=None):
+    '''
+    Check if a topic has been read by an user since it last post was added.
+    '''
+    if user is None:
+        user = get_current_user()
+
+    return ArticleRead.objects\
+        .filter(reaction=article.last_reaction, article=article, user=user)\
+        .count() == 0
+
+def mark_read(article):
+    '''
+    Mark a article as read for the user
+    '''
+    #print("------------------------>"+str(article.last_reaction))
+    ArticleRead.objects.filter(article=article, user=get_current_user()).delete()
+    a = ArticleRead(
+        reaction=article.last_reaction, article=article, user=get_current_user())
+    a.save()
+
 class Validation(models.Model):
     '''Article validation'''
     class Meta:
