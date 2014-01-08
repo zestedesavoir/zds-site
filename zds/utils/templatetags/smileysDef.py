@@ -23,7 +23,7 @@ smileys = {
     ":magicien:": "magicien.png",
     ":ninja:"   : "ninja.png",
     ">_<"       : "pinch.png",
-    ":pirate:"  : "pirage.png",
+    ":pirate:"  : "pirate.png",
     ":'("       : "pleure.png",
     ":honte:"   : "rouge.png",
     ":soleil:"  : "soleil.png",
