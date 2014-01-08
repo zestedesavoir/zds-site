@@ -10,7 +10,7 @@ import json
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify
-from zds.utils.models import Category, Licence
+from zds.utils.models import Category, SubCategory, Licence
 from zds.utils.tutorials import *
 
 
@@ -20,9 +20,9 @@ TYPE_CHOICES = (
     )
 
 STATUS_CHOICES = (
-        ('PENDING', 'En attente de validateur'),
-        ('PENDING_V', 'En attente de validation'),
-        ('ACCEPT', 'Accepté'),
+        ('PENDING', 'En attente d\'un validateur'),
+        ('PENDING_V', 'En cours de validation'),
+        ('ACCEPT', 'Publié'),
         ('REJECT', 'Rejeté'),
     )
 
@@ -37,8 +37,8 @@ class Tutorial(models.Model):
     description = models.CharField('Description', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs')
     
-    category = models.ManyToManyField(Category,
-                                verbose_name='Categorie',
+    subcategory = models.ManyToManyField(SubCategory,
+                                verbose_name='Sous-Catégorie',
                                 blank=True, null=True)
 
     slug = models.SlugField(max_length=80)
@@ -86,6 +86,14 @@ class Tutorial(models.Model):
         return reverse('zds.tutorial.views.view_tutorial_online', args=[
             self.pk, slugify(self.title)
         ])
+    
+    def get_absolute_url_beta(self):
+        if self.sha_beta != None:
+            return reverse('zds.tutorial.views.view_tutorial', args=[
+                self.pk, slugify(self.title)
+            ])+'?version='+self.sha_beta
+        else:
+            return self.get_absolute_url()
 
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
@@ -117,9 +125,6 @@ class Tutorial(models.Model):
     
     def is_big(self):
         return self.type == 'BIG'
-    
-    def is_article(self):
-        return self.type == 'ARTICLE'
     
     def get_path(self, relative=False):
         if relative:
@@ -199,7 +204,8 @@ class Tutorial(models.Model):
     
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
-        .filter(sha_public__isnull=False)\
+        .exclude(sha_public__isnull=True)\
+        .exclude(sha_public__exact='')\
         .order_by('-pubdate')[:5]
         
     return tutorials
@@ -404,51 +410,76 @@ class Chapter(models.Model):
     def get_introduction(self):
         if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
+                path = os.path.join(self.tutorial.get_path(), self.introduction)
             else:
-                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction), "r")
-            intro_contenu = intro.read()
-            intro.close()
-            
-            return intro_contenu.decode('utf-8')
+                path = os.path.join(self.part.tutorial.get_path(), self.introduction)
+                
+            if os.path.isfile(path):
+                intro = open(path, "r")
+                intro_contenu = intro.read()
+                intro.close()
+                
+                return intro_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
     
     def get_introduction_online(self):
         if self.introduction:
             if self.tutorial:
-                intro = open(os.path.join(self.tutorial.get_path(), self.introduction+'.html'), "r")
+                path = os.path.join(self.tutorial.get_path(), self.introduction+'.html')
             else:
-                intro = open(os.path.join(self.part.tutorial.get_path(), self.introduction+'.html'), "r")
-            intro_contenu = intro.read()
-            intro.close()
+                path = os.path.join(self.part.tutorial.get_path(), self.introduction+'.html')
             
-            return intro_contenu.decode('utf-8')
+            if os.path.isfile(path):
+                intro = open(path, "r")
+                intro_contenu = intro.read()
+                intro.close()
+                
+                return intro_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
     
     def get_conclusion(self):
-        if self.introduction:
+        if self.conclusion:
             if self.tutorial:
-                conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
+                path = os.path.join(self.tutorial.get_path(), self.conclusion)
             else:
-                conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion), "r")
-            conclu_contenu = conclu.read()
-            conclu.close()
-            
-            return conclu_contenu.decode('utf-8')
+                path = os.path.join(self.part.tutorial.get_path(), self.conclusion)
+                
+            if os.path.isfile(path):
+                conclu = open(path, "r")
+                conclu_contenu = conclu.read()
+                conclu.close()
+                
+                return conclu_contenu.decode('utf-8')
+            else:
+                return None
         else:
             return None
 
     def get_conclusion_online(self):
-        if self.tutorial:
-            conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion+'.html'), "r")
+        if self.conclusion:
+            if self.tutorial:
+                path = os.path.join(self.tutorial.get_path(), self.conclusion+'.html')
+            else:
+                path = os.path.join(self.part.tutorial.get_path(), self.conclusion+'.html')
+                
+            if os.path.isfile(path):
+                conclu = open(path, "r")
+                conclu_contenu = conclu.read()
+                conclu.close()
+                
+                return conclu_contenu.decode('utf-8')
+            else:
+                return None
+            
+            return conclu_contenu.decode('utf-8')
         else:
-            conclu = open(os.path.join(self.part.tutorial.get_path(), self.conclusion+'.html'), "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-        
-        return conclu_contenu.decode('utf-8')
+            return None
 
 class Extract(models.Model):
 
@@ -469,6 +500,13 @@ class Extract(models.Model):
     def get_absolute_url(self):
         return '{0}#{1}-{2}'.format(
             self.chapter.get_absolute_url(),
+            self.position_in_chapter,
+            slugify(self.title)
+        )
+    
+    def get_absolute_url_online(self):
+        return '{0}#{1}-{2}'.format(
+            self.chapter.get_absolute_url_online(),
             self.position_in_chapter,
             slugify(self.title)
         )
@@ -497,23 +535,34 @@ class Extract(models.Model):
     
     def get_text(self):
         if self.chapter.tutorial:
-            text = open(os.path.join(self.chapter.tutorial.get_path(), self.text), "r")
+            path = os.path.join(self.chapter.tutorial.get_path(), self.text)
         else:
-            text = open(os.path.join(self.chapter.part.tutorial.get_path(), self.text), "r")
-        text_contenu = text.read()
-        text.close()
-        
-        return text_contenu.decode('utf-8')
+            path = os.path.join(self.chapter.part.tutorial.get_path(), self.text)
+            
+        if os.path.isfile(path):
+            text = open(path, "r")
+            text_contenu = text.read()
+            text.close()
+            
+            return text_contenu.decode('utf-8')
+        else:
+            return None
     
     def get_text_online(self):
-        if self.chapter.tutorial:
-            text = open(os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html'), "r")
-        else:
-            text = open(os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html'), "r")
-        text_contenu = text.read()
-        text.close()
         
-        return text_contenu.decode('utf-8')
+        if self.chapter.tutorial:
+            path = os.path.join(self.chapter.tutorial.get_prod_path(), self.text+'.html')
+        else:
+            path = os.path.join(self.chapter.part.tutorial.get_prod_path(), self.text+'.html')
+        
+        if os.path.isfile(path):
+            text = open(path, "r")
+            text_contenu = text.read()
+            text.close()
+            
+            return text_contenu.decode('utf-8')
+        else:
+            return None
 
     
 class Validation(models.Model):

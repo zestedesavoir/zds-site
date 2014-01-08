@@ -7,7 +7,6 @@ south
 pytz
 pil
 PyYAML
-Whoosh
 defusedxml
 django-dynamic-fixture
 django-crispy-forms
@@ -15,7 +14,6 @@ django-simple-captcha
 django-email-obfuscator
 django-debug-toolbar
 crispy-forms-foundation
-django-taggit
 django-pipeline
 djangorestframework
 django-filter
@@ -27,3 +25,5 @@ django-smileys
 lxml
 GitPython
 pygal
+httplib2
+pysolr

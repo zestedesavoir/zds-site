@@ -1,0 +1,7 @@
+{{ object.get_conclusion_online }}
+{{ object.get_introduction_online }}
+{{ object.category.title }}
+{{ object.category.description }}
+{{ object.text }}
+{{ object.description }}
+{{ object.title }}

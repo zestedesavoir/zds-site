@@ -4,11 +4,18 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from hashlib import md5
 
 from zds.forum.models import Post, Topic
 from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
+from zds.article.models import Article
+
+from django.contrib.gis.geoip import GeoIP
+
+import uuid
 
 
 class Profile(models.Model):
@@ -24,7 +31,7 @@ class Profile(models.Model):
 
     user = models.ForeignKey(User, unique=True, verbose_name='Utilisateur')
     
-    last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True)
+    last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True,  null=True)
 
     site = models.CharField('Site internet', max_length=128, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
@@ -59,7 +66,13 @@ class Profile(models.Model):
     def get_absolute_url(self):
         '''Absolute URL to the profile page'''
         return '/membres/voir/{0}'.format(self.user.username)
-
+    
+    def get_city(self):
+        ''' return physical adress by geolocalisation '''
+        g = GeoIP()
+        geo = g.city(self.last_ip_address)
+        return u'{0}, {1}'.format(str(geo['city']), str(geo['country_name']))
+    
     def get_avatar_url(self):
         '''Avatar URL (using custom URL or Gravatar)'''
         if self.avatar_url:
@@ -98,6 +111,10 @@ class Profile(models.Model):
     def get_beta_tutos(self):
         '''Tutorial in beta'''
         return Tutorial.objects.filter(authors__in=[self.user], sha_beta__isnull=False).all()
+
+    def get_articles(self):
+        '''Get all articles of the user'''
+        return Article.objects.filter(authors__in=[self.user]).all()
     
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -119,6 +136,19 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
+
+class TokenForgotPassword(models.Model):
+    class Meta:
+        verbose_name = 'Token'
+        verbose_name_plural = 'Tokens'
+
+    user = models.ForeignKey(User, verbose_name='Utilisateur')
+    token = models.CharField(max_length=100)
+    date_end = models.DateTimeField('Date de fin')
+
+    def get_absolute_url(self):
+        '''Absolute URL to the new password page'''
+        return reverse('zds.member.views.new_password')+'?token={0}'.format(self.token)
         
 class Ban(models.Model):
     class Meta:
