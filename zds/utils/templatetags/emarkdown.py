@@ -22,7 +22,7 @@ from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
 from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
-from zds.utils.templatetags.mkd_ext.legend import LegendExtension
+from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -38,7 +38,7 @@ preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",
 emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "BASE_URL" : smileys_baseURL, "FILE_EXTENSION" : smileys_ext}) # smileys support
 gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
-legend_ext      = LegendExtension()         # Legend support
+legend_ext      = TableLegendExtension()    # Table Legend support
 
 register = template.Library()
 
