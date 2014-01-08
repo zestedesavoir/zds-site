@@ -10,6 +10,9 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+from django.template import Context
 import os
 import uuid
 
@@ -19,8 +22,8 @@ from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
-    ChangeUserForm
-from .models import Profile, Ban
+    ChangeUserForm, ForgotPasswordForm, NewPasswordForm
+from .models import Profile, TokenForgotPassword, Ban
 
 
 def index(request):
@@ -105,15 +108,26 @@ def modify_profile(request, user_pk):
     return redirect(profile.get_absolute_url())
 
 @login_required
-def publications(request):
-    '''Returns all publications of the authenticated user'''
+def tutorials(request):
+    '''Returns all tutorials of the authenticated user'''
     profile = Profile.objects.get(user=request.user)
 
     user_tutorials = profile.get_tutos()
-    c = {
-         'user_tutorials': user_tutorials,
-    }
-    return render_to_response('member/publications.html', c, RequestContext(request))
+    
+    return render_template('member/publications.html', {
+        'user_tutorials': user_tutorials,
+    })
+
+@login_required
+def articles(request):
+    '''Returns all articles of the authenticated user'''
+    profile = Profile.objects.get(user=request.user)
+
+    user_articles = profile.get_articles()
+
+    return render_template('article/index.html', {
+        'articles': user_articles,
+    })
 
 @login_required
 def actions(request):
@@ -318,15 +332,91 @@ def register_view(request):
         'form': form
     })
 
+def forgot_password(request):
+    '''If the user forgot his password, he can have a new one'''
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.data
+            username = data['username']
+
+            usr = get_object_or_404(User, username=username)
+
+            # Generate a valid token during one hour.
+            uuidToken = str(uuid.uuid4())
+            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0, seconds=0)
+            token = TokenForgotPassword(user=usr, token = uuidToken, date_end = date_end)
+            token.save()
+
+            #send email
+            subject = "ZDS - Mot de passe oublié"
+            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            message_html = get_template('email/confirm_forgot_password.html').render(
+                            Context({
+                                'username': usr.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+            message_txt = get_template('email/confirm_forgot_password.txt').render(
+                            Context({
+                                'username': usr.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+                
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
+            msg.attach_alternative(message_html, "text/html")
+            msg.send()
+            return render_template('member/forgot_password_success.html')
+        else:
+            return render_template('member/forgot_password.html', {'form': form})
+
+    form = ForgotPasswordForm()
+    return render_template('member/forgot_password.html', {
+        'form': form
+    })
+
+def new_password(request):
+    '''Create a new password for a user'''
+    try:
+        token = request.GET['token']
+    except KeyError:
+        return redirect(reverse('zds.pages.views.home'))
+
+    if request.method == 'POST':
+        form = NewPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.data
+            password = data['password']
+
+            token = get_object_or_404(TokenForgotPassword, token = token)
+
+            # User can't confirm his request if it is too late.
+            if datetime.now() > token.date_end:
+                return render_template('member/new_password_failed.html')
+
+            token.user.set_password(password)
+            token.user.save()
+            token.delete()
+
+            return render_template('member/new_password_success.html')
+        else:
+            return render_template('member/new_password.html', {'form': form})
+
+    form = NewPasswordForm()
+    return render_template('member/new_password.html', {
+        'form': form
+    })
 
 def get_client_ip(request):
     '''Get the IP of the user'''
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('HTTP_X_REAL_IP')
-    return ip
+    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #if x_forwarded_for:
+    #    ip = x_forwarded_for.split(',')[0]
+    #else:
+    #    ip = request.META.get('HTTP_X_REAL_IP')
+    #return ip
+    return request.META.get('REMOTE_ADDR')
 
 def date_to_chart(posts):
     lst = 24*[0]
@@ -335,6 +425,6 @@ def date_to_chart(posts):
     
     for post in posts:
         t = post.pubdate.timetuple()
-        lst[t.tm_hour+1][t.tm_wday+1]=lst[t.tm_hour+1][t.tm_wday+1]+1
+        lst[t.tm_hour+1][(t.tm_wday+1)%7]=lst[t.tm_hour+1][(t.tm_wday+1)%7]+1
         
     return lst

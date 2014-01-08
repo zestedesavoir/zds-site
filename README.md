@@ -3,7 +3,7 @@ ZesteDeSavoir
 Site internet communautaire codé à l'aide du Framework Django 1.5.
 
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
-* Lien d'inscrition à la newsletter : [newsletter](http://zestedesavoir.com/newsletter/) (future adresse de teasing)
+* Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
 
 Fonctionnalités implementées
 ----------------------------
@@ -95,6 +95,7 @@ python manage.py loaddata fixtures/users.yaml
 python manage.py loaddata fixtures/forums.yaml
 python manage.py loaddata fixtures/topics.yaml
 python manage.py loaddata fixtures/mps.yaml
+python manage.py loaddata fixtures/categories.yaml
 ```
 
 Cela va créer plusieurs entitées :
@@ -107,5 +108,6 @@ Cela va créer plusieurs entitées :
 * 11 forums
 * 3 topics with one answer
 * 1 mp with 3 participants
+* 3 catégories et 2 sous-catégories
 
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
