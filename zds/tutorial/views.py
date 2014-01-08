@@ -29,28 +29,29 @@ from .models import Tutorial, Part, Chapter, Extract, Validation
 
 def index(request):
     '''Display tutorials list'''
+    
     try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_public__isnull=False) \
-            .order_by("-pubdate")
-    except:
-        tutorials = None
+        tag = request.GET['tag']
+    except KeyError:
+        tag=None
         
-    return render_template('tutorial/index.html', {
-        'tutorials': tutorials,
-    })
-
-@login_required
-def list(request):
-    '''Display tutorials list'''
-    try:
-        tutorials = Tutorial.objects.all() \
-            .filter(sha_draft__isnull=False, authors__in=[request.user]) \
-            .order_by("-update")
-    except:
-        tutorials = None
+    if tag == None :
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
+    else:
+        try:
+            tutorials = Tutorial.objects.all() \
+                .filter(sha_public__isnull=False, 
+                        subcategory__in=[tag]) \
+                .order_by("-pubdate")
+        except:
+            tutorials = None
         
-    return render_template('tutorial/index.html', {
+    return render_template('tutorial/index_online.html', {
         'tutorials': tutorials,
     })
 
@@ -64,38 +65,44 @@ def list_validation(request):
         type = request.GET['type']
     except KeyError:
         type=None
-    
+
     try:
-        category = get_object_or_404(Category, pk=request.GET['category'])
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
     except KeyError:
-        category=None
-    
+        subcategory=None
+
     if type == 'orphan':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True) \
+                            .order_by("date_proposition") \
+                            .all()
         else :
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=True, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     elif type == 'reserved':
-        if category ==None:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False) \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-                .filter(validator__isnull=False, tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
     else:
-        if category ==None:
-            validations = Validation.objects.all() \
-                .order_by("date_proposition")
-        else:
-            validations = Validation.objects.all() \
-            .filter(tutorial__category__in=[category]) \
-                .order_by("date_proposition")
+        if subcategory == None:
+            validations = Validation.objects \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
     
     return render_template('tutorial/validation.html', {
         'validations': validations,
@@ -422,9 +429,9 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            if 'category' in data:
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            # Add subcategories on article
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
@@ -501,10 +508,9 @@ def edit_tutorial(request):
                           conclusion=data['conclusion'],
                           action = 'maj')
             
-            if 'category' in data:
-                tutorial.category.clear()
-                for cat in data['category']:
-                    tutorial.category.add(cat)
+            tutorial.subcategory.clear()
+            for subcat in data['subcategory']:
+                tutorial.subcategory.add(subcat)
             
             tutorial.save()
             
@@ -519,7 +525,7 @@ def edit_tutorial(request):
             'title': json['title'],
             'licence': licence,
             'description': json['description'],
-            'category': tutorial.category.all(),
+            'subcategory': tutorial.subcategory.all(),
             'introduction': tutorial.get_introduction(),
             'conclusion': tutorial.get_conclusion(),
         })

@@ -1,0 +1,55 @@
+-   model: utils.Category
+    pk: 1
+    fields:
+        title: Site web
+        description: Catégorie pour les ressources des sites web
+        slug: site-web
+
+-   model: utils.Category
+    pk: 2
+    fields:
+        title: Programmation
+        description: Catégorie pour les ressources de la programmation
+        slug: programmation
+
+-   model: utils.Category
+    pk: 3
+    fields:
+        title: Mobile
+        description: Catégorie pour les ressources sur la mobilité
+        slug: mobile
+
+-   model: utils.SubCategory
+    pk: 1
+    fields:
+        title: Android
+        subtitle: Sous-catégorie pour les ressources sur Android
+        slug: android
+
+-   model: utils.SubCategory
+    pk: 2
+    fields:
+        title: PHP
+        subtitle: Sous-catégorie pour les ressources sur PHP
+        slug: php
+
+-   model: utils.CategorySubCategory
+    pk: 1
+    fields:
+        category: 1
+        subcategory: 2
+        is_main: True
+
+-   model: utils.CategorySubCategory
+    pk: 2
+    fields:
+        category: 2
+        subcategory: 2
+        is_main: False
+
+-   model: utils.CategorySubCategory
+    pk: 3
+    fields:
+        category: 3
+        subcategory: 1
+        is_main: True

@@ -69,54 +69,34 @@
             {# in order to set the menu entry active or not. #}
 
             <ul class="left">
-                <li {% block menu_home %}{% endblock %}>
-                    <a href="{% url "zds.pages.views.home" %}">
-                        <i class="fi-home"></i>
-                        Accueil
-                    </a>
-                </li>
-                <li class="{% block menu_article %}{% endblock %} has-dropdown " >
-                    <a href="{% url "zds.article.views.index" %}">
-                        <i class="fi-clipboard"></i>
-                        Articles
-                    </a>
-                    <ul class="dropdown">
-                        <li class="divider"></li>
-                        <li><label>Participez</label></li>
-                        <li><a href="{% url "zds.article.views.new" %}">Rédiger un article</a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.article.views.list" %}">Articles communautaires</a></li>
-                        {% endif %}
-                        {% if perms.article.change_article %}
-                        <li class="divider"></li>
-                        <li><label>Validation</label></li>
-                        <li><a href="{% url "zds.article.views.list_validation" %}">Zone de validation</a></li>
-                        <li><a href="{% url "zds.article.views.list_validation" %}?type=reserved">En cours de validation</a></li>
-                        <li><a href="{% url "zds.article.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
-                        {% endif %}
-                    </ul>
-                </li>
                 <li class="{% block menu_tutorial %}{% endblock %} has-dropdown " >
                     <a href="{% url "zds.tutorial.views.index" %}">
                         <i class="fi-book"></i>
                         Tutoriels
                     </a>
                     <ul class="dropdown">
+                        {% with categories='.'|top_categories_tuto %}
+                        {% for category in categories %}
+                            <li class="has-dropdown">
+                                <a href="#">{{ category.title }}</a>
+                                <ul class="dropdown">
+                                    {% for catofsubcat in category.get_subcategories %}
+                                        <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                        {% endwith %}
                         <li class="divider"></li>
-                        <li><label>Participez</label></li>
-                        <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Rédiger un tutoriel</a></li>
-                        <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer un .tuto </a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.tutorial.views.list" %}">Vos tutoriels</a></li>
-                        {% endif %}
-                        {% if perms.tutorial.change_tutorial %}
-                        <li class="divider"></li>
-                        <li><label>Validation</label></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Zone de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">En cours de validation</a></li>
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
-                        {% endif %}
+                        <li><a href="{% url "zds.tutorial.views.index" %}">Tous &rarr;</a></li>
                     </ul>
+                </li>
+
+                <li class="{% block menu_article %}{% endblock %}" >
+                    <a href="{% url "zds.article.views.index" %}">
+                        <i class="fi-clipboard"></i>
+                        Articles
+                    </a>
                 </li>
                 
                 <li class="{% block menu_forum %}{% endblock %} has-dropdown">
@@ -127,10 +107,14 @@
                     <ul class="dropdown">
                         {% with categories='.'|top_categories %}
                         {% for category in categories %}
-                            <li><label>{{ category.title }}</label></li>
-                            {% for forum in category.get_forums %}
-                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                            {% endfor %}
+                            <li class="has-dropdown">
+                                <a href="{{ category.get_absolute_url }}">{{ category.title }}</a>
+                                <ul class="dropdown">
+                                    {% for forum in category.get_forums %}
+                                        <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
                         {% endfor %}
                         {% endwith %}
                       <li class="divider"></li>
@@ -265,11 +249,20 @@
                         </a>
                     {% endwith %}
                     <ul class="dropdown">
-                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Profil</a></li>
+                        <li class="divider"></li>
+                        <li><label>Mon Compte</label></li>
+                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Mon Profil</a></li>
+                        <li><a href="{% url "zds.member.views.tutorials" %}"><i class="icon-list"></i> Mes Tutoriels</a></li>
+                        <li><a href="{% url "zds.member.views.articles" %}"><i class="icon-list"></i> Mes Articles</a></li>
                         <li><a href="{% url "zds.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
-                        <li><a href="{% url "zds.member.views.publications" %}"><i class="icon-list"></i> Publications</a></li>
                         <li><a href="{% url "zds.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
-                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Se déconnecter</a></li>
+                        {% if perms.tutorial.change_tutorial %}
+                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a></li>
+                        {% endif %}
+                        {% if perms.article.change_article %}
+                        <li><a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a></li>
+                        {% endif %}
+                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Déconnexion</a></li>
                     </ul>
                 </li>
                 {% else %}
@@ -360,6 +353,19 @@
     <script>
         $(document).foundation();
     </script>
+
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                processEscapes: true,
+            },
+            messageStyle: "none",
+        });
+    </script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     {% block additionnal-js %}{% endblock %}
 
 </body>

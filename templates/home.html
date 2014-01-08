@@ -105,8 +105,8 @@ Bienvenue sur ZesteDeSavoir
                                 </a>
                                 </p>
                                 <p class="subheader">
-                                    {% if tutorial.category %}
-                                    {% for category in tutorial.category.all %}
+                                    {% if tutorial.subcategory %}
+                                    {% for category in tutorial.subcategory.all %}
                                     
                                         <a class="label secondary" href="#">{{category.title}}</a>
                                     
