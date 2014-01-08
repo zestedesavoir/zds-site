@@ -22,6 +22,7 @@ from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
 from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
+from zds.utils.templatetags.mkd_ext.legend import LegendExtension
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -37,6 +38,7 @@ preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",
 emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "BASE_URL" : smileys_baseURL, "FILE_EXTENSION" : smileys_ext}) # smileys support
 gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
+legend_ext      = LegendExtension()         # Legend support
 
 register = template.Library()
 
@@ -72,6 +74,7 @@ def emarkdown(text):
                                 emo_ext,                            # Smileys support
                                 gridtable_ext,                      # Grid tables support
                                 comment_ext,                        # Comment support
+                                legend_ext,                         # Legend support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
@@ -80,7 +83,7 @@ def emarkdown(text):
                                                                     # into documents.
                                 tab_length          = 4,            # Length of tabs in the source.
                                                                     # This is the default value
-                                output_format       = 'xhtml1',     # Xhtml1 output
+                                output_format       = 'html5',      # html5 output
                                                                     # This is the default value
                                 smart_emphasis      = True,         # Enable smart emphasis for underscore syntax
                                 lazy_ol             = True,         # Enable smart ordered list start support
