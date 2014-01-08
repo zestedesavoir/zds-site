@@ -588,12 +588,13 @@ def deprecated_feed_messages_atom(request):
     return redirect('/forums/flux/messages/atom/', permanent=True)
 
 def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('HTTP_X_REAL_IP')
-        if not ip:
+    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #if x_forwarded_for:
+    #    ip = x_forwarded_for.split(',')[0]
+    #else:
+    #    ip = request.META.get('HTTP_X_REAL_IP')
+    #    if not ip:
             #Houston, we have a problem
-            ip = "0.0.0.0"
-    return ip
+    #        ip = "0.0.0.0"
+    #return ip
+    return request.META.get('REMOTE_ADDR')
