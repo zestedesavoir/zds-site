@@ -117,7 +117,7 @@ def topic(request, topic_pk, topic_slug):
 
     posts = Post.objects\
                 .filter(topic__pk=g_topic.pk)\
-                .order_by('position_in_topic')\
+                .order_by('position')\
                 .all()
 
     last_post_pk = g_topic.last_message.pk
@@ -204,7 +204,7 @@ def new(request):
             post.author = request.user
             post.text = data['text']
             post.pubdate = datetime.now()
-            post.position_in_topic = 1
+            post.position = 1
             post.ip_address = get_client_ip(request)
             post.save()
 
@@ -342,7 +342,7 @@ def answer(request):
                 post.author = request.user
                 post.text = data['text']
                 post.pubdate = datetime.now()
-                post.position_in_topic = g_topic.get_post_count() + 1
+                post.position = g_topic.get_post_count() + 1
                 post.ip_address = get_client_ip(request)
                 post.save()
 
@@ -396,7 +396,7 @@ def edit_post(request):
     post = get_object_or_404(Post, pk=post_pk)
 
     g_topic = None
-    if post.position_in_topic == 1:
+    if post.position == 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
 
     # Making sure the user is allowed to do that

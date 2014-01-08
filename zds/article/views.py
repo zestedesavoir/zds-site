@@ -5,24 +5,29 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+import json
 from lxml import etree
 from operator import itemgetter, attrgetter
-from zds.utils.templatetags.emarkdown import emarkdown
-import json
 import os
 import shutil
 
 from git import *
+from zds.member.models import Profile
+from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
 from zds.utils.models import Category
+from zds.utils.paginator import paginator_range
+from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import ArticleForm
-from .models import Article, get_prev_article, get_next_article, Validation
+from .forms import ArticleForm, ReactionForm, AlertForm
+from .models import Article, get_prev_article, get_next_article, Validation, \
+    Reaction
 
 
 def index(request):
@@ -219,13 +224,53 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     
+    #find reactions
+    reactions = Reaction.objects\
+                .filter(article__pk=article.pk)\
+                .order_by('position')\
+                .all()
+            
+    if article.last_reaction:
+        last_reaction_pk = article.last_reaction.pk
+    else:
+        last_reaction_pk = 0
+    
+    # Handle pagination
+    paginator = Paginator(reactions, settings.POSTS_PER_PAGE)
+
+    try:
+        page_nbr = int(request.GET['page'])
+    except KeyError:
+        page_nbr = 1
+
+    try:
+        reactions = paginator.page(page_nbr)
+    except PageNotAnInteger:
+        reactions = paginator.page(1)
+    except EmptyPage:
+        raise Http404
+
+    res = []
+    if page_nbr != 1:
+        # Show the last reaction of the previous page
+        last_page = paginator.page(page_nbr - 1).object_list
+        last_reaction = (last_page)[len(last_page) - 1]
+        res.append(last_reaction)
+
+    for reaction in reactions:
+        res.append(reaction)
+    
     return render_template('article/view_online.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
         'version': sha,
         'prev': get_prev_article(article),
-        'next': get_next_article(article), 
+        'next': get_next_article(article),
+        'reactions': res,
+        'pages': paginator_range(page_nbr, paginator.num_pages),
+        'nb': page_nbr,
+        'last_reaction_pk': last_reaction_pk 
     })
 
 @login_required
@@ -473,6 +518,244 @@ def MEP(article, sha):
     html_file = open(os.path.join(article.get_path(), article_version['text']+'.html'), "w")
     html_file.write(emarkdown(md_file_contenu))
     html_file.close()
+
+
+@login_required
+def answer(request):
+    '''
+    Adds an answer from a user to an article
+    '''
+    try:
+        article_pk = request.GET['article']
+    except KeyError:
+        raise Http404
     
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    g_article = get_object_or_404(Article, pk=article_pk)
+    
+    reactions = Reaction.objects.filter(article=g_article).order_by('-pubdate')[:3]
+    
+    if g_article.last_reaction:
+        last_reaction_pk = g_article.last_reaction.pk
+    else:
+        last_reaction_pk=0
+
+    # Making sure reactioning is allowed
+    if g_article.is_locked:
+        raise Http404
+
+    # Check that the user isn't spamming
+    if g_article.antispam(request.user):
+        raise Http404
+
+    # If we just sent data
+    if request.method == 'POST':
+        data = request.POST
+        newreaction = last_reaction_pk != int(data['last_reaction'])
+
+        # Using the « preview button », the « more » button or new reaction
+        if 'preview' in data or 'more' in data or newreaction:
+            return render_template('article/answer.html', {
+                'text': data['text'], 'article': g_article, 'reactions': reactions,
+                'last_reaction_pk': last_reaction_pk, 'newreaction': newreaction
+            })
+
+        # Saving the message
+        else:
+            form = ReactionForm(request.POST)
+            if form.is_valid():
+                data = form.data
+
+                reaction = Reaction()
+                reaction.article = g_article
+                reaction.author = request.user
+                reaction.text = data['text']
+                reaction.pubdate = datetime.now()
+                reaction.position = g_article.get_reaction_count() + 1
+                reaction.ip_address = get_client_ip(request)
+                reaction.save()
+
+                g_article.last_message = reaction
+                g_article.save()
+
+                return redirect(reaction.get_absolute_url())
+            else:
+                raise Http404
+
+    else:
+        text = ''
+
+        # Using the quote button
+        if 'cite' in request.GET:
+            reaction_cite_pk = request.GET['cite']
+            reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
+
+            for line in reaction_cite.text.splitlines():
+                text = text + '> ' + line + '\n'
+
+            text = u'**{0} a écrit :**\n{1}\n'.format(
+                reaction_cite.author.username, text)
+
+        return render_template('article/answer.html', {
+            'article': g_article, 'text': text, 'reactions': reactions,
+            'last_reaction_pk': last_reaction_pk
+        })
+
+
+@login_required
+def edit_reaction(request):
+    '''
+    Edit the given user's reaction
+    '''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        reaction_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    reaction = get_object_or_404(Reaction, pk=reaction_pk)
+
+    g_article = None
+    if reaction.position == 1:
+        g_article = get_object_or_404(Article, pk=reaction.article.pk)
+
+    # Making sure the user is allowed to do that
+    if reaction.author != request.user:
+        if request.method == 'GET' and request.user.has_perm('article.change_reaction'):
+            messages.add_message(
+                request, messages.WARNING,
+                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+                .format(reaction.author.username))
+            reaction.alerts.all().delete()
+
+    if request.method == 'POST':
+        
+        if 'delete-reaction' in request.POST:
+            if reaction.author == request.user or request.user.has_perm('article.change_reaction'):
+                reaction.alerts.all().delete()
+                reaction.is_visible=False
+                if request.user.has_perm('article.change_reaction'):
+                    reaction.text_hidden=request.POST['text_hidden']
+                reaction.editor = request.user
+            
+        if 'show-reaction' in request.POST:
+            if request.user.has_perm('article.change_reaction'):
+                reaction.is_visible=True
+                reaction.text_hidden=''
+                    
+        if 'signal-reaction' in request.POST:
+            if reaction.author != request.user :
+                alert = Alert()
+                alert.author = request.user
+                alert.text=request.POST['signal-text']
+                alert.pubdate = datetime.now()
+                alert.save()
+                reaction.alerts.add(alert)
+        # Using the preview button
+        if 'preview' in request.POST:
+            return render_template('article/edit_reaction.html', {
+                'reaction': reaction, 'article': g_article, 'text': request.POST['text'],
+            })
+        
+        if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
+            # The user just sent data, handle them
+            reaction.text = request.POST['text']
+            reaction.update = datetime.now()
+            reaction.editor = request.user
+        
+        reaction.save()
+        
+        return redirect(reaction.get_absolute_url())
+
+    else:
+        return render_template('article/edit_reaction.html', {
+            'reaction': reaction, 'article': g_article, 'text': reaction.text
+        })
+
+
+
+@login_required
+def like_reaction(request):
+    '''Like a reaction'''
+
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        reaction_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    reaction = get_object_or_404(Reaction, pk=reaction_pk)
+    user = request.user
+    
+    if reaction.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()==0:
+            like=CommentLike()
+            like.user=user
+            like.reactions=reaction
+            reaction.like=reaction.like+1
+            reaction.save()
+            like.save()
+            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()>0:
+                CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).all().delete()
+                reaction.dislike=reaction.dislike-1
+                reaction.save()
+        else:
+            CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).all().delete()
+            reaction.like=reaction.like-1
+            reaction.save()
+
+    return redirect(reaction.get_absolute_url())
+
+@login_required
+def dislike_reaction(request):
+    '''Dislike a reaction'''
+
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        reaction_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    reaction = get_object_or_404(Reaction, pk=reaction_pk)
+    user = request.user
+
+    if reaction.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()==0:
+            dislike=CommentDislike()
+            dislike.user=user
+            dislike.reactions=reaction
+            reaction.dislike=reaction.dislike+1
+            reaction.save()
+            dislike.save()
+            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()>0:
+                CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).all().delete()
+                reaction.like=reaction.like-1
+                reaction.save()
+        else :
+            CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).all().delete()
+            reaction.dislike=reaction.dislike-1
+            reaction.save()
+
+    return redirect(reaction.get_absolute_url())
     
 

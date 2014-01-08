@@ -231,7 +231,7 @@ class Post(Comment):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position_in_topic) / settings.POSTS_PER_PAGE))
+        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
 
         return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
 
