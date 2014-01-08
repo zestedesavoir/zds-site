@@ -21,7 +21,7 @@ from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
-from zds.utils.models import Category
+from zds.utils.models import Category, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -706,7 +706,7 @@ def like_reaction(request):
         if CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()==0:
             like=CommentLike()
             like.user=user
-            like.reactions=reaction
+            like.comments=reaction
             reaction.like=reaction.like+1
             reaction.save()
             like.save()
@@ -743,7 +743,7 @@ def dislike_reaction(request):
         if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count()==0:
             dislike=CommentDislike()
             dislike.user=user
-            dislike.reactions=reaction
+            dislike.comments=reaction
             reaction.dislike=reaction.dislike+1
             reaction.save()
             dislike.save()
