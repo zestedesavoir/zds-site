@@ -505,7 +505,7 @@ def like_post(request):
         if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()==0:
             like=CommentLike()
             like.user=user
-            like.posts=post
+            like.comments=post
             post.like=post.like+1
             post.save()
             like.save()
@@ -542,7 +542,7 @@ def dislike_post(request):
         if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()==0:
             dislike=CommentDislike()
             dislike.user=user
-            dislike.posts=post
+            dislike.comments=post
             post.dislike=post.dislike+1
             post.save()
             dislike.save()
