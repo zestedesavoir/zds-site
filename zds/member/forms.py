@@ -244,3 +244,71 @@ class ChangePasswordForm(forms.Form):
                 del cleaned_data['password_confirm']
 
         return cleaned_data
+
+# Reset the password
+
+class ForgotPasswordForm(forms.Form):
+    username = forms.CharField(label='Nom d\'utilisateur', max_length=30, required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Fieldset(
+                u'Identifiants',
+                Field('username'),
+            ),
+            Div(
+                Submit('submit', 'Envoyer'),
+                HTML('<a href="/" class="button secondary">Annuler</a>'),
+                css_class='button-group'
+            )
+        )
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
+
+class NewPasswordForm(forms.Form):
+    password = forms.CharField(
+        label='Mot de passe', max_length=76, widget=forms.PasswordInput
+    )
+    password_confirm = forms.CharField(
+        label='Confirmation', max_length=76, widget=forms.PasswordInput
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Fieldset(
+                u'Mot de passe',
+                Field('password'),
+                Field('password_confirm'),
+            ),
+            Div(
+                Submit('submit', 'Envoyer'),
+                HTML('<a href="/" class="button secondary">Annuler</a>'),
+                css_class='button-group'
+            )
+        )
+        super(NewPasswordForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(NewPasswordForm, self).clean()
+
+        # Check that the password and it's confirmation match
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+
+        if not password_confirm == password:
+            msg = u'Les mots de passe sont différents'
+            self._errors['password'] = self.error_class([''])
+            self._errors['password_confirm'] = self.error_class([msg])
+
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
+        return cleaned_data

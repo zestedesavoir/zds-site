@@ -8,7 +8,7 @@ from django import forms
 from django.conf import settings
 
 from zds.tutorial.models import TYPE_CHOICES
-from zds.utils.models import Category, Licence
+from zds.utils.models import Category, SubCategory, Licence
 
 
 class TutorialForm(forms.Form):
@@ -27,10 +27,10 @@ class TutorialForm(forms.Form):
     
     type = forms.ChoiceField(choices=TYPE_CHOICES)
 
-    category = forms.ModelMultipleChoiceField(
-        label = "Catégories de votre tuto",
-        queryset=Category.objects.all(),
-        required = False,
+    subcategory = forms.ModelMultipleChoiceField(
+        label = "Sous-catégories de votre tuto",
+        queryset = SubCategory.objects.all(),
+        required = True,
     )
     
     licence = forms.ModelChoiceField(
@@ -48,7 +48,7 @@ class TutorialForm(forms.Form):
             Field('description'),
             Field('type'),
             Field('image'),
-            Field('category'),
+            Field('subcategory'),
             Field('licence'),
             Submit('submit', 'Valider')
         )
@@ -84,12 +84,12 @@ class EditTutorialForm(forms.Form):
         label = "Licence de votre publication",
         queryset=Licence.objects.all(),
         required = False,
-    )
-    
-    category = forms.ModelMultipleChoiceField(
-        label = "Catégories",
-        queryset=Category.objects.all(),
-        required = False,
+    ) 
+
+    subcategory = forms.ModelMultipleChoiceField(
+        label = "Sous-catégories",
+        queryset = SubCategory.objects.all(),
+        required = True,
     )
 
     def __init__(self, *args, **kwargs):
@@ -103,7 +103,7 @@ class EditTutorialForm(forms.Form):
             Field('licence'),
             Field('introduction'),
             Field('conclusion'),
-            Field('category'),
+            Field('subcategory'),
             Submit('submit', 'Valider')
         )
         super(EditTutorialForm, self).__init__(*args, **kwargs)
