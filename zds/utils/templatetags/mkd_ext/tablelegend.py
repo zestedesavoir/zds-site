@@ -6,32 +6,37 @@ import logging
 import re
 from markdown import util
 
-class LegendProcessor(BlockProcessor):
-    """ Legend Center. """
+class TableLegendProcessor(BlockProcessor):
+    """ Table legend """
 
-    RE = re.compile(r'^(Table[ ]{0,1})*\:(?P<txtlegend>.*?)(\n|$)')
+    RE = re.compile(r'(^|\n)(Table[ ]{0,1})*\:(?P<txtlegend>.*?)(\n|$)')
+    def __init__(self, parser, totest):
+        BlockProcessor.__init__(self, parser)
+        self.totest = totest
 
     def test(self, parent, block):
+        m = self.RE.search(block)
+        if not bool(m):
+            return False
+        
         sibling = self.lastChild(parent)
-        return sibling and sibling.tag == "table" and  bool(self.RE.search(block))
+        PreviousWillBeTable = False # sibling and sibling.tag== "table"
+        for extTab in self.totest:
+            PreviousWillBeTable = PreviousWillBeTable or extTab.test(parent,block[:m.start()])
+        
+        return PreviousWillBeTable
 
     def run(self, parent, blocks):
         block = blocks.pop(0)
         m = self.RE.search(block)
-        print "la"
         if m:
             before = block[:m.start()] # All lines before header
             after = block[m.end():]    # All lines after header
             sibling = self.lastChild(parent)
-            print parent
-            print sibling
             if before:
-                print before
                 self.parser.parseBlocks(parent,[before])
             sibling = self.lastChild(parent)
-            print sibling
             if sibling and sibling.tag == "table" :
-                print "ici"
                 h = util.etree.Element('caption')
                 sibling.insert(0,h)
                 self.parser.parseChunk(h, m.group('txtlegend'))
@@ -40,14 +45,19 @@ class LegendProcessor(BlockProcessor):
         else:
             logger.warn("We've got a problem center: %r" % block)
 
-class LegendExtension(markdown.extensions.Extension):
+class TableLegendExtension(markdown.extensions.Extension):
     """Adds Legend extension to Markdown class."""
 
     def extendMarkdown(self, md, md_globals):
         """Modifies inline patterns."""
         md.registerExtension(self)
-        md.parser.blockprocessors.add('legend',LegendProcessor(md.parser),'>grid-table')
+        toTest=[]
+        if "grid-table" in md.parser.blockprocessors:
+            toTest.append(md.parser.blockprocessors["grid-table"])
+        if "table" in md.parser.blockprocessors:
+            toTest.append(md.parser.blockprocessors["table"])
+        md.parser.blockprocessors.add('table-legend',TableLegendProcessor(md.parser, toTest),'_begin')
 
 def makeExtension(configs={}):
-    return LegendExtension(configs=dict(configs))
+    return TableLegendExtension(configs=dict(configs))
 
