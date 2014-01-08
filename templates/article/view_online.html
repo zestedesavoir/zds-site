@@ -60,10 +60,12 @@
 
 {% include "article/view_pager.part.html" %}
 
+
 {% with topic=article %}
 {% include "forum/topic_pagination.part.html" with position="top" %}
 {% endwith %}
 <div class="row">
+    <h1>Réacions</h1>
 {% for reaction in reactions %}
 <div class="reaction {% if forloop.first and nb > 1 %}before{% endif %} {% if reaction.is_useful %}useful{% endif %} {% if perms.article.change_article and reaction.alerts.all.count > 0 %} alert-box {% endif %}">
         <div class="large-12 columns reaction-head" id="p{{ reaction.id }}">
