@@ -412,12 +412,13 @@ def new_password(request):
 
 def get_client_ip(request):
     '''Get the IP of the user'''
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('HTTP_X_REAL_IP')
-    return ip
+    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #if x_forwarded_for:
+    #    ip = x_forwarded_for.split(',')[0]
+    #else:
+    #    ip = request.META.get('HTTP_X_REAL_IP')
+    #return ip
+    return request.META.get('REMOTE_ADDR')
 
 def date_to_chart(posts):
     lst = 24*[0]
