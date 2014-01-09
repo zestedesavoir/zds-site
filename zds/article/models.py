@@ -183,9 +183,12 @@ class Article(models.Model):
         '''
         Return the first post of a topic, written by topic's author
         '''
-        return Reaction.objects\
-            .filter(article=self)\
-            .order_by('pubdate')[0]
+        try:
+            return Reaction.objects\
+                .filter(article=self)\
+                .order_by('pubdate')[0]
+        except:
+            return None
 
     def last_read_reaction(self):
         '''
