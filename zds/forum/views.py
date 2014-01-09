@@ -658,4 +658,4 @@ def get_client_ip(request):
             #Houston, we have a problem
     #        ip = "0.0.0.0"
     #return ip
-    return request.META.get('REMOTE_ADDR')
+    return request.META['HTTP_X_REAL_IP']
