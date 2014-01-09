@@ -42,24 +42,8 @@ class EmoticonExtension(markdown.Extension):
     def __init__ (self, configs):
         self.config = {
             'EMOTICONS': [{
-                    ':angry:':    'angry',
-                    ':blink:':    'blink',
-                    ':D':         'grin',
-                    ':huh:':      'huh',
-                    ':lol:':      'lol',
-                    ':o':         'ohmy',
-                    ':ph34r:':    'ph34r',
-                    ':rolleyes:': 'rolleyes',
-                    ':(':         'sad',
-                    ':)':         'smile',
-                    ':p':         'tongue',
-                    ':unsure:':   'unsure',
-                    ':wacko:':    'wacko',
-                    ';)':         'wink',
-                    ':wub:':      'wub',
+                ":)" : "test.png",
                 }, 'A mapping from emoticon symbols to image names.'],
-            'BASE_URL': ['', 'The base URL at which emoticons are accessible.'],
-            'FILE_EXTENSION': ['.gif', 'The file extension to be used for emoticon images.'],
         }
 
         for key, value in configs.iteritems() :
@@ -80,10 +64,7 @@ class EmoticonPattern(Pattern):
     def handleMatch(self, m):
         emoticon = m.group('emoticon')
         el = etree.Element('img')
-        el.set('src', '%s%s%s' % (
-            self.emoticons.getConfig('BASE_URL'),
-            self.emoticons.getConfig('EMOTICONS')[emoticon],
-            self.emoticons.getConfig('FILE_EXTENSION')))
+        el.set('src', '%s' % (self.emoticons.getConfig('EMOTICONS')[emoticon],))
         el.set('alt', emoticon)
         return el
 
