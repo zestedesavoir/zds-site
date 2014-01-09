@@ -7,8 +7,7 @@ import markdown
 import time
 
 #Markdowns customs extensions :
-from zds.utils.templatetags.mkd_ext.superscript import SuperscriptExtension
-from zds.utils.templatetags.mkd_ext.subscript import SubscriptExtension
+from zds.utils.templatetags.mkd_ext.subsuperscript import SubSuperscriptExtension
 from zds.utils.templatetags.mkd_ext.delext import DelExtension
 from zds.utils.templatetags.mkd_ext.urlize import UrlizeExtension
 from zds.utils.templatetags.mkd_ext.kbd import KbdExtension
@@ -25,8 +24,7 @@ from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
 from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
 from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
 
-sup_ext         = SuperscriptExtension()    # Superscript support
-sub_ext         = SubscriptExtension()      # Subscript support
+sub_ext         = SubSuperscriptExtension() # Sub and Superscript support
 del_ext         = DelExtension()            # Del support
 urlize_ext      = UrlizeExtension()         # Autolink support
 kbd_ext         = KbdExtension()            # Keyboard support
@@ -62,7 +60,6 @@ def emarkdown(text):
                                 'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
                                 'codehilite(force_linenos=True)',   # Code hightlight support, with line numbers, included in python-markdwon
                                 # Externs extensions :
-                                sup_ext,                            # Superscript support
                                 sub_ext,                            # Subscript support
                                 del_ext,                            # Del support
                                 urlize_ext,                         # Autolink support
