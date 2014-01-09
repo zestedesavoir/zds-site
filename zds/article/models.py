@@ -3,12 +3,15 @@
 import os
 import uuid
 import string
+from math import ceil
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from zds.utils.models import SubCategory
+from zds.utils.models import SubCategory, Comment
 from zds.utils.articles import *
+from zds.utils import get_current_user
 
 from zds.utils import slugify
 
@@ -60,6 +63,11 @@ class Article(models.Model):
                                  blank=True, null=True, max_length=80)
     
     text = models.CharField('chemin relatif du texte',blank=True, null=True, max_length=200)
+    
+    last_reaction = models.ForeignKey('Reaction', blank=True, null=True,
+                                     related_name='last_reaction',
+                                     verbose_name='Derniere réaction')
+    is_locked = models.BooleanField('Est verrouillé', default = False)
 
     def __unicode__(self):
         return self.title
@@ -149,6 +157,69 @@ class Article(models.Model):
         else :
             super(Article, self).save()
         
+    def get_reaction_count(self):
+        '''
+        Return the number of reactions in the article
+        '''
+        return Reaction.objects.filter(article__pk=self.pk).count()
+    
+    def get_last_reaction(self):
+        '''
+        Gets the last answer in the thread, if any
+        '''
+        last_reaction = Reaction.objects.all()\
+            .filter(article__pk=self.pk)\
+            .order_by('-pubdate')[0]
+
+        if last_reaction == self.first_reaction():
+            return None
+        else:
+            return last_reaction
+
+    def first_reaction(self):
+        '''
+        Return the first post of a topic, written by topic's author
+        '''
+        return Reaction.objects\
+            .filter(article=self)\
+            .order_by('pubdate')[0]
+
+    def last_read_reaction(self):
+        '''
+        Return the last post the user has read
+        '''
+        try:
+            return ArticleRead.objects\
+                .select_related()\
+                .filter(article=self, user=get_current_user())\
+                .latest('reaction__pubdate').reaction
+        except Reaction.DoesNotExist:
+            return self.first_post()
+        
+    def antispam(self, user=None):
+        '''
+        Check if the user is allowed to post in an article according to the
+        SPAM_LIMIT_SECONDS value. If user shouldn't be able to reaction, then
+        antispam is activated and this method returns True. Otherwise time
+        elapsed between user's last reaction and now is enough, and the method will
+        return False.
+        '''
+        if user is None:
+            user = get_current_user()
+
+        last_user_reactions = Reaction.objects\
+            .filter(article=self)\
+            .filter(author=user)\
+            .order_by('-pubdate')
+
+        if last_user_reactions and last_user_reactions[0] == self.get_last_reaction():
+            last_user_reaction = last_user_reactions[0]
+            t = timezone.now() - last_user_reaction.pubdate
+            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+                return True
+        return False
+
+        
 def has_changed(instance, field, manager='objects'):
     """Returns true if a field has changed in a model
     May be used in a model.save() method.
@@ -191,6 +262,61 @@ STATUS_CHOICES = (
         ('ACCEPT', 'Publié'),
         ('REJECT', 'Rejeté'),
     )
+
+class Reaction(Comment):
+    '''
+    A reaction article written by an user.
+    '''
+    
+    article = models.ForeignKey(Article, verbose_name='Sujet')
+    
+    def __unicode__(self):
+        '''Textual form of a post'''
+        return u'<Article pour "{0}", #{1}>'.format(self.article, self.pk)
+
+    def get_absolute_url(self):
+        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+
+        return '{0}?page={1}#p{2}'.format(self.article.get_absolute_url_online(), page, self.pk)
+
+class ArticleRead(models.Model):
+    '''
+    Small model which keeps track of the user viewing articles. It remembers the
+    topic he looked and what was the last Reaction at this time.
+    '''
+    class Meta:
+        verbose_name = 'Article lu'
+        verbose_name_plural = 'Articles lus'
+
+    article = models.ForeignKey(Article)
+    reaction = models.ForeignKey(Reaction)
+    user = models.ForeignKey(User, related_name='reactions_read')
+
+    def __unicode__(self):
+        return u'<Article "{0}" lu par {1}, #{2}>'.format(self.article,
+                                                        self.user,
+                                                        self.reaction.pk)
+
+def never_read(article, user=None):
+    '''
+    Check if a topic has been read by an user since it last post was added.
+    '''
+    if user is None:
+        user = get_current_user()
+
+    return ArticleRead.objects\
+        .filter(reaction=article.last_reaction, article=article, user=user)\
+        .count() == 0
+
+def mark_read(article):
+    '''
+    Mark a article as read for the user
+    '''
+    #print("------------------------>"+str(article.last_reaction))
+    ArticleRead.objects.filter(article=article, user=get_current_user()).delete()
+    a = ArticleRead(
+        reaction=article.last_reaction, article=article, user=get_current_user())
+    a.save()
 
 class Validation(models.Model):
     '''Article validation'''
