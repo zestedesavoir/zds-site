@@ -167,9 +167,12 @@ class Article(models.Model):
         '''
         Gets the last answer in the thread, if any
         '''
-        last_reaction = Reaction.objects.all()\
-            .filter(article__pk=self.pk)\
-            .order_by('-pubdate')[0]
+        try:
+            last_reaction = Reaction.objects.all()\
+                .filter(article__pk=self.pk)\
+                .order_by('-pubdate')[0]
+        except:
+            last_reaction = None
 
         if last_reaction == self.first_reaction():
             return None
