@@ -11,12 +11,12 @@ from django.shortcuts import redirect, get_object_or_404
 import json
 
 from forms import TopicForm, PostForm
-from models import Category, Forum, Topic, Post, \
-    follow, never_read, mark_read
+from models import Category, Forum, Topic, Post, follow, never_read, mark_read
+from zds.member.models import Profile
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
-from zds.member.models import Profile
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def index(request):
@@ -341,6 +341,7 @@ def answer(request):
                 post.topic = g_topic
                 post.author = request.user
                 post.text = data['text']
+                post.text_html = emarkdown(data['text'])
                 post.pubdate = datetime.now()
                 post.position = g_topic.get_post_count() + 1
                 post.ip_address = get_client_ip(request)

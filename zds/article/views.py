@@ -21,7 +21,7 @@ from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
-from zds.utils.models import Category, CommentLike, CommentDislike
+from zds.utils.models import Category, CommentLike, CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -580,6 +580,7 @@ def answer(request):
                 reaction.article = g_article
                 reaction.author = request.user
                 reaction.text = data['text']
+                reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
                 reaction.position = g_article.get_reaction_count() + 1
                 reaction.ip_address = get_client_ip(request)
