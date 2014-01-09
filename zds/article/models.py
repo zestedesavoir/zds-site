@@ -216,10 +216,7 @@ class Article(models.Model):
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
-                print('------------------------> SPAMM')
                 return True
-
-        print('------------------------> NOOO SPAMM')
         return False
 
         
