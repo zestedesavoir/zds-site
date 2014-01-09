@@ -318,11 +318,13 @@ def mark_read(article):
     '''
     Mark a article as read for the user
     '''
-    #print("------------------------>"+str(article.last_reaction))
-    ArticleRead.objects.filter(article=article, user=get_current_user()).delete()
-    a = ArticleRead(
-        reaction=article.last_reaction, article=article, user=get_current_user())
-    a.save()
+    if article.last_reaction != None :
+        ArticleRead.objects.filter(article=article, user=get_current_user()).delete()
+        a = ArticleRead(
+            reaction=article.last_reaction, 
+            article=article, 
+            user=get_current_user())
+        a.save()
 
 class Validation(models.Model):
     '''Article validation'''
