@@ -18,6 +18,12 @@ from zds.utils.templatetags.mkd_ext.center import CenterExtension
 from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
 from zds.utils.templatetags.mkd_ext.video import VideoExtension
 from zds.utils.templatetags.mkd_ext.preprocessblock import PreprocessBlockExtension
+from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
+from zds.utils.templatetags.smileysDef import *
+from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
+from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
+from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
+from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
 
 sup_ext         = SuperscriptExtension()    # Superscript support
 sub_ext         = SubscriptExtension()      # Subscript support
@@ -30,6 +36,11 @@ center_ext      = CenterExtension()         # Center support
 rightalign_ext  = RightAlignExtension()     # CustomBlock support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
+emo_ext         = EmoticonExtension({"EMOTICONS" : smileys, "FILE_EXTENSION" : smileys_ext}) # smileys support
+gridtable_ext   = GridTableExtension()      # Grid Table support
+comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
+legend_ext      = TableLegendExtension()    # Table Legend support
+smimg_ext       = SmartImgExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart image support
 
 register = template.Library()
 
@@ -62,6 +73,11 @@ def emarkdown(text):
                                 rightalign_ext,                     # Right align support
                                 video_ext,                          # Video support
                                 preprocess_ext,                     # Preprocess support
+                                emo_ext,                            # Smileys support
+                                gridtable_ext,                      # Grid tables support
+                                comment_ext,                        # Comment support
+                                legend_ext,                         # Legend support
+                                smimg_ext,                          # SmartImg support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
@@ -70,7 +86,7 @@ def emarkdown(text):
                                                                     # into documents.
                                 tab_length          = 4,            # Length of tabs in the source.
                                                                     # This is the default value
-                                output_format       = 'xhtml1',     # Xhtml1 output
+                                output_format       = 'html5',      # html5 output
                                                                     # This is the default value
                                 smart_emphasis      = True,         # Enable smart emphasis for underscore syntax
                                 lazy_ol             = True,         # Enable smart ordered list start support
