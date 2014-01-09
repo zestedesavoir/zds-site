@@ -11,12 +11,12 @@ from django.shortcuts import redirect, get_object_or_404
 import json
 
 from forms import TopicForm, PostForm
-from models import Category, Forum, Topic, Post, \
-    PostDislike, PostLike, follow, never_read, mark_read
-from zds.utils import render_template, slugify
-from zds.utils.models import Alert
-from zds.utils.paginator import paginator_range
+from models import Category, Forum, Topic, Post, follow, never_read, mark_read
 from zds.member.models import Profile
+from zds.utils import render_template, slugify
+from zds.utils.models import Alert, CommentLike, CommentDislike
+from zds.utils.paginator import paginator_range
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def index(request):
@@ -117,7 +117,7 @@ def topic(request, topic_pk, topic_slug):
 
     posts = Post.objects\
                 .filter(topic__pk=g_topic.pk)\
-                .order_by('position_in_topic')\
+                .order_by('position')\
                 .all()
 
     last_post_pk = g_topic.last_message.pk
@@ -204,7 +204,7 @@ def new(request):
             post.author = request.user
             post.text = data['text']
             post.pubdate = datetime.now()
-            post.position_in_topic = 1
+            post.position = 1
             post.ip_address = get_client_ip(request)
             post.save()
 
@@ -341,8 +341,9 @@ def answer(request):
                 post.topic = g_topic
                 post.author = request.user
                 post.text = data['text']
+                post.text_html = emarkdown(data['text'])
                 post.pubdate = datetime.now()
-                post.position_in_topic = g_topic.get_post_count() + 1
+                post.position = g_topic.get_post_count() + 1
                 post.ip_address = get_client_ip(request)
                 post.save()
 
@@ -396,7 +397,7 @@ def edit_post(request):
     post = get_object_or_404(Post, pk=post_pk)
 
     g_topic = None
-    if post.position_in_topic == 1:
+    if post.position == 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
 
     # Making sure the user is allowed to do that
@@ -502,19 +503,19 @@ def like_post(request):
     
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
-        if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
-            like=PostLike()
+        if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()==0:
+            like=CommentLike()
             like.user=user
-            like.posts=post
+            like.comments=post
             post.like=post.like+1
             post.save()
             like.save()
-            if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
-                PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()>0:
+                CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).all().delete()
                 post.dislike=post.dislike-1
                 post.save()
         else:
-            PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            CommentLike.objects.filter(user__pk=user.pk, comments__pk=post_pk).all().delete()
             post.like=post.like-1
             post.save()
 
@@ -539,19 +540,19 @@ def dislike_post(request):
 
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
-        if PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()==0:
-            dislike=PostDislike()
+        if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()==0:
+            dislike=CommentDislike()
             dislike.user=user
-            dislike.posts=post
+            dislike.comments=post
             post.dislike=post.dislike+1
             post.save()
             dislike.save()
-            if PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).count()>0:
-                PostLike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count()>0:
+                CommentLike.objects.filter(user__pk=user.pk, comments__pk=post_pk).all().delete()
                 post.like=post.like-1
                 post.save()
         else :
-            PostDislike.objects.filter(user__pk=user.pk, posts__pk=post_pk).all().delete()
+            CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).all().delete()
             post.dislike=post.dislike-1
             post.save()
 
