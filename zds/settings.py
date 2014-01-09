@@ -184,7 +184,6 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'taggit',
     'pipeline',
-    'smileys',
     'haystack',
 
     'zds.member',
