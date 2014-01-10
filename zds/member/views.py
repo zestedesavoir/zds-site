@@ -409,6 +409,7 @@ def new_password(request):
     })
 
 def get_client_ip(request):
+    '''Retrieve the real IP address of the client'''
     if request.META.has_key('HTTP_X_REAL_IP'): # nginx
         return request.META.get('HTTP_X_REAL_IP')
     elif request.META.has_key('REMOTE_ADDR'): # other
