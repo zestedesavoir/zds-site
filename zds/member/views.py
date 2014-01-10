@@ -409,8 +409,12 @@ def new_password(request):
     })
 
 def get_client_ip(request):
-    '''Get the IP of the user'''
-    return request.META.get('HTTP_X_REAL_IP')
+    if request.META.has_key('HTTP_X_REAL_IP'): # nginx
+        return request.META.get('HTTP_X_REAL_IP')
+    elif request.META.has_key('REMOTE_ADDR'): # other
+        return request.META.get('REMOTE_ADDR')
+    else: # should never happend
+        return '0.0.0.0'
 
 def date_to_chart(posts):
     lst = 24*[0]
