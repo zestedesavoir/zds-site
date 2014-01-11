@@ -4,6 +4,7 @@ from django import template
 
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.article.models import never_read as never_read_article
+from zds.tutorial.models import never_read as never_read_tutorial
 from zds.mp.models import PrivateTopic, never_privateread
 
 
@@ -66,6 +67,16 @@ def reads_topic(topic, user):
 def reads_article(article, user):
     if user.is_authenticated() :
         if never_read_article (article, user) :
+            return ''
+        else :
+            return 'secondary'
+    else :
+        return '';
+
+@register.simple_tag(name='reads_tutorial')
+def reads_tutorial(tutorial, user):
+    if user.is_authenticated() :
+        if never_read_tutorial (tutorial, user) :
             return ''
         else :
             return 'secondary'
