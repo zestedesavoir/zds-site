@@ -124,11 +124,14 @@ class Comment(models.Model):
     '''
     Comment in forum, articles, tutorial, chapter, etc.
     '''
-    
+    class Meta:
+        verbose_name = 'Commentaire'
+        verbose_name_plural = 'Commentaires'
+        
     author = models.ForeignKey(User, verbose_name='Auteur',
-                                     related_name='posts')
+                                     related_name='comments')
     editor = models.ForeignKey(User, verbose_name='Editeur',
-                                     related_name='posts-editor',
+                                     related_name='comments-editor',
                                      null=True, blank=True)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=15)
     

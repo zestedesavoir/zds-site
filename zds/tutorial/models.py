@@ -7,10 +7,12 @@ from django.db import models
 from os import path
 import os
 import json
+from math import ceil
+from django.utils import timezone
 
 from zds.gallery.models import Image, Gallery
-from zds.utils import slugify
-from zds.utils.models import Category, SubCategory, Licence
+from zds.utils import slugify, get_current_user
+from zds.utils.models import Category, SubCategory, Licence, Comment
 from zds.utils.tutorials import *
 
 
@@ -73,6 +75,11 @@ class Tutorial(models.Model):
     conclusion = models.CharField('chemin relatif conclusion',blank=True, null=True, max_length=200)
     
     images = models.CharField('chemin relatif images',blank=True, null=True, max_length=200)
+    
+    last_note = models.ForeignKey('Note', blank=True, null=True,
+                                     related_name='last_note',
+                                     verbose_name='Derniere note')
+    is_locked = models.BooleanField('Est verrouillé', default = False)
 
     def __unicode__(self):
         return self.title
@@ -199,7 +206,74 @@ class Tutorial(models.Model):
         self.slug = slugify(self.title)
                             
         super(Tutorial, self).save(*args, **kwargs)
+    
+    def get_note_count(self):
+        '''
+        Return the number of notes in the tutorial
+        '''
+        return Note.objects.filter(tutorial__pk=self.pk).count()
+    
+    def get_last_note(self):
+        '''
+        Gets the last answer in the thread, if any
+        '''
+        try:
+            last_note = Note.objects.all()\
+                .filter(tutorial__pk=self.pk)\
+                .order_by('-pubdate')[0]
+        except:
+            last_note = None
 
+        if last_note == self.first_note():
+            return None
+        else:
+            return last_note
+
+    def first_note(self):
+        '''
+        Return the first post of a topic, written by topic's author
+        '''
+        try:
+            return Note.objects\
+                .filter(tutorial=self)\
+                .order_by('pubdate')[0]
+        except:
+            return None
+
+    def last_read_note(self):
+        '''
+        Return the last post the user has read
+        '''
+        try:
+            return TutorialRead.objects\
+                .select_related()\
+                .filter(tutorial=self, user=get_current_user())\
+                .latest('note__pubdate').note
+        except Note.DoesNotExist:
+            return self.first_post()
+        
+    def antispam(self, user=None):
+        '''
+        Check if the user is allowed to post in an tutorial according to the
+        SPAM_LIMIT_SECONDS value. If user shouldn't be able to note, then
+        antispam is activated and this method returns True. Otherwise time
+        elapsed between user's last note and now is enough, and the method will
+        return False.
+        '''
+        if user is None:
+            user = get_current_user()
+
+        last_user_notes = Note.objects\
+            .filter(tutorial=self)\
+            .filter(author=user)\
+            .order_by('-pubdate')
+
+        if last_user_notes and last_user_notes[0] == self.get_last_note():
+            last_user_note = last_user_notes[0]
+            t = timezone.now() - last_user_note.pubdate
+            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+                return True
+        return False
 
     
 def get_last_tutorials():
@@ -209,6 +283,66 @@ def get_last_tutorials():
         .order_by('-pubdate')[:5]
         
     return tutorials
+
+class Note(Comment):
+    '''
+    A note tutorial written by an user.
+    '''
+    class Meta:
+        verbose_name = 'note sur un tutoriel'
+        verbose_name_plural = 'notes sur un tutoriel'
+    
+    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel')
+    
+    def __unicode__(self):
+        '''Textual form of a post'''
+        return u'<Tutorial pour "{0}", #{1}>'.format(self.tutorial, self.pk)
+
+    def get_absolute_url(self):
+        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+
+        return '{0}?page={1}#p{2}'.format(self.tutorial.get_absolute_url_online(), page, self.pk)
+
+class TutorialRead(models.Model):
+    '''
+    Small model which keeps track of the user viewing tutorials. It remembers the
+    topic he looked and what was the last Note at this time.
+    '''
+    class Meta:
+        verbose_name = 'Tutoriel lu'
+        verbose_name_plural = 'Tutoriels lus'
+
+    tutorial = models.ForeignKey(Tutorial)
+    note = models.ForeignKey(Note)
+    user = models.ForeignKey(User, related_name='tuto_notes_read')
+
+    def __unicode__(self):
+        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
+                                                        self.user,
+                                                        self.note.pk)
+
+def never_read(tutorial, user=None):
+    '''
+    Check if a topic has been read by an user since it last post was added.
+    '''
+    if user is None:
+        user = get_current_user()
+
+    return TutorialRead.objects\
+        .filter(note=tutorial.last_note, tutorial=tutorial, user=user)\
+        .count() == 0
+
+def mark_read(tutorial):
+    '''
+    Mark a tutorial as read for the user
+    '''
+    if tutorial.last_note != None :
+        TutorialRead.objects.filter(tutorial=tutorial, user=get_current_user()).delete()
+        a = TutorialRead(
+            note=tutorial.last_note, 
+            tutorial=tutorial, 
+            user=get_current_user())
+        a.save()
 
 
 class Part(models.Model):
