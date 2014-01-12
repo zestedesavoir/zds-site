@@ -273,8 +273,7 @@ class Reaction(Comment):
     '''
     A reaction article written by an user.
     '''
-    
-    article = models.ForeignKey(Article, verbose_name='Sujet')
+    article = models.ForeignKey(Article, verbose_name='Article')
     
     def __unicode__(self):
         '''Textual form of a post'''
