@@ -4,6 +4,7 @@ from django.http import Http404
 from django.contrib.auth.models import User
 
 from zds.member.models import Profile
+from django.contrib.auth import logout
 
 def can_read_now(func):
     '''Decorator to check that the user can read now'''
@@ -16,6 +17,8 @@ def can_read_now(func):
 
         if profile is not None:
             if not profile.can_read_now():
+                logout(request)
+                request.session.clear()
                 raise Http404
         return func(request, *args, **kwargs)
     return _can_read_now
