@@ -16,10 +16,11 @@ from django.template import Context
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
 
-
+@can_read_now
 def index(request):
     '''
     Display the all private topics
@@ -61,7 +62,7 @@ def index(request):
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
 
-
+@can_read_now
 def topic(request, topic_pk, topic_slug):
     '''
     Display a thread and its posts using a pager
@@ -119,7 +120,7 @@ def topic(request, topic_pk, topic_slug):
         'last_post_pk': last_post_pk
     })
 
-
+@can_write_and_read_now
 @login_required
 def new(request):
     '''
@@ -210,7 +211,8 @@ def new(request):
         return render_template('mp/new.html', {
             'participants': u,
         })
-        
+
+@can_write_and_read_now 
 @login_required
 def edit(request):
     '''
@@ -243,7 +245,7 @@ def edit(request):
 
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
-
+@can_write_and_read_now
 @login_required
 def answer(request):
     '''
@@ -346,7 +348,7 @@ def answer(request):
             'last_post_pk': last_post_pk
         })
 
-
+@can_write_and_read_now
 @login_required
 def edit_post(request):
     '''
