@@ -99,7 +99,7 @@ Bienvenue sur ZesteDeSavoir
                                 <div class="large-2 columns hide-for-small">
                                     <img src="{{ tutorial.image.thumb.url }}">
                                 </div>
-                                <div class="large-10 columns">
+                                <div class="large-8 columns">
                                 <p class="subheader">
                                 <a href="{{ tutorial.get_absolute_url_online }}">
                                     {{ tutorial.title }}
@@ -117,6 +117,9 @@ Bienvenue sur ZesteDeSavoir
                                     {{tutorial.pubdate|humane_date}}
                                 </p>
                                 
+                                </div>
+                                <div class="small-2 column">
+                                        <a class="tiny button {% reads_tutorial tutorial user %} radius expand" href="{{tutorial.get_last_note.get_absolute_url}}">{{ tutorial.get_note_count }}</a>
                                 </div>
                                 <hr />
                             {% endif %}
