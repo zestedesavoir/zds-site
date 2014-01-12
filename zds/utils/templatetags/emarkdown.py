@@ -13,8 +13,7 @@ from zds.utils.templatetags.mkd_ext.urlize import UrlizeExtension
 from zds.utils.templatetags.mkd_ext.kbd import KbdExtension
 from zds.utils.templatetags.mkd_ext.mathjax import MathJaxExtension
 from zds.utils.templatetags.mkd_ext.customblock import CustomBlockExtension
-from zds.utils.templatetags.mkd_ext.center import CenterExtension
-from zds.utils.templatetags.mkd_ext.rightalign import RightAlignExtension
+from zds.utils.templatetags.mkd_ext.align import AlignExtension
 from zds.utils.templatetags.mkd_ext.video import VideoExtension
 from zds.utils.templatetags.mkd_ext.preprocessblock import PreprocessBlockExtension
 from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
@@ -30,8 +29,7 @@ urlize_ext      = UrlizeExtension()         # Autolink support
 kbd_ext         = KbdExtension()            # Keyboard support
 mathjax_ext     = MathJaxExtension()        # MathJax support
 customblock_ext = CustomBlockExtension()    # CustomBlock support
-center_ext      = CenterExtension()         # Center support
-rightalign_ext  = RightAlignExtension()     # CustomBlock support
+align_ext       = AlignExtension()          # Right align and center support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
 emo_ext         = EmoticonExtension({"EMOTICONS" : smileys}) # smileys support
@@ -66,8 +64,7 @@ def emarkdown(text):
                                 kbd_ext,                            # Kbd support
                                 mathjax_ext,                        # Mathjax support
                                 customblock_ext,                    # CustomBlock support
-                                center_ext,                         # Center support
-                                rightalign_ext,                     # Right align support
+                                align_ext,                          # Right align and center support
                                 video_ext,                          # Video support
                                 preprocess_ext,                     # Preprocess support
                                 emo_ext,                            # Smileys support
