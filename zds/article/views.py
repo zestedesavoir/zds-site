@@ -543,11 +543,6 @@ def answer(request):
     except KeyError:
         raise Http404
     
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     g_article = get_object_or_404(Article, pk=article_pk)
     
     reactions = Reaction.objects.filter(article=g_article).order_by('-pubdate')[:3]
@@ -626,11 +621,6 @@ def edit_reaction(request):
     Edit the given user's reaction
     '''
     
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         reaction_pk = request.GET['message']
     except KeyError:
@@ -701,11 +691,6 @@ def edit_reaction(request):
 @login_required
 def like_reaction(request):
     '''Like a reaction'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         reaction_pk = request.GET['message']
@@ -739,11 +724,6 @@ def like_reaction(request):
 @login_required
 def dislike_reaction(request):
     '''Dislike a reaction'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         reaction_pk = request.GET['message']

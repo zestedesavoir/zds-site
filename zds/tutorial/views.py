@@ -1973,11 +1973,6 @@ def answer(request):
     except KeyError:
         raise Http404
     
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     g_tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
     notes = Note.objects.filter(tutorial=g_tutorial).order_by('-pubdate')[:3]
@@ -2056,11 +2051,6 @@ def edit_note(request):
     Edit the given user's note
     '''
     
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         note_pk = request.GET['message']
     except KeyError:
@@ -2131,11 +2121,6 @@ def edit_note(request):
 @login_required
 def like_note(request):
     '''Like a note'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         note_pk = request.GET['message']
@@ -2169,11 +2154,6 @@ def like_note(request):
 @login_required
 def dislike_note(request):
     '''Dislike a note'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         note_pk = request.GET['message']
