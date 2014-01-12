@@ -3,7 +3,6 @@
 {% load markup %}
 {% load humane_date %}
 {% load profile %}
-{% load smiley_tags %}
 
 {% block title %}
     {{ article.title }}
@@ -176,7 +175,7 @@
             </div>
             <div class="large-10 columns">
                 <div class="row">
-                    {{ reaction.text|smileys|emarkdown }}
+                    {{ reaction.text|emarkdown }}
                 </div>
                 <div class="row right">
                     <div class="large-12 columns">

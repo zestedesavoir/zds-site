@@ -224,7 +224,8 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['is_locked'] = article.is_locked
-    article_version['antispam'] = article.antispam()
+    if request.user.is_authenticated():
+        article_version['antispam'] = article.antispam()
     
     #find reactions
     if request.user.is_authenticated():

@@ -14,6 +14,7 @@ import json
 from forms import TopicForm, PostForm
 from models import Category, Forum, Topic, Post, follow, never_read, mark_read
 from zds.member.models import Profile
+from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
@@ -589,14 +590,3 @@ def deprecated_feed_messages_rss(request):
 def deprecated_feed_messages_atom(request):
     return redirect('/forums/flux/messages/atom/', permanent=True)
 
-def get_client_ip(request):
-    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    #if x_forwarded_for:
-    #    ip = x_forwarded_for.split(',')[0]
-    #else:
-    #    ip = request.META.get('HTTP_X_REAL_IP')
-    #    if not ip:
-            #Houston, we have a problem
-    #        ip = "0.0.0.0"
-    #return ip
-    return request.META.get('REMOTE_ADDR')

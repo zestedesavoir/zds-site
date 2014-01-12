@@ -110,4 +110,10 @@ Cela va créer plusieurs entitées :
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
 
+Si vous voulez utiliser la meme version de python-markdown que sur le serveur, incluant la mise en évidence de lignes de codes particulières exécutez :
+
+```console
+cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
+```
+
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
