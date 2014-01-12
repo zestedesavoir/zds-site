@@ -296,3 +296,10 @@ class ImportForm(forms.Form):
             Submit('submit', 'Importer'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
+
+class NoteForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea)
+
+
+class AlertForm(forms.Form):
+    text = forms.CharField()

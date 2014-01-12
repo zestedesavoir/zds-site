@@ -409,14 +409,13 @@ def new_password(request):
     })
 
 def get_client_ip(request):
-    '''Get the IP of the user'''
-    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    #if x_forwarded_for:
-    #    ip = x_forwarded_for.split(',')[0]
-    #else:
-    #    ip = request.META.get('HTTP_X_REAL_IP')
-    #return ip
-    return request.META.get('REMOTE_ADDR')
+    '''Retrieve the real IP address of the client'''
+    if request.META.has_key('HTTP_X_REAL_IP'): # nginx
+        return request.META.get('HTTP_X_REAL_IP')
+    elif request.META.has_key('REMOTE_ADDR'): # other
+        return request.META.get('REMOTE_ADDR')
+    else: # should never happend
+        return '0.0.0.0'
 
 def date_to_chart(posts):
     lst = 24*[0]

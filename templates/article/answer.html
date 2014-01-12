@@ -1,0 +1,67 @@
+{% extends "article/base.html" %}
+{% block title %}
+    Répondre à l'article
+{% endblock %}
+
+{% block headline %}
+    Répondre à l'article
+{% endblock %}
+
+{% block headline-sub %}
+    {{ article.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">{{ article.title }}</a></li>
+    <li class="current"><a href="javascript:;">Répondre à l'article</a></li>
+{% endblock %}
+
+{% block content %}
+
+{% if newreaction %}
+<div class="row">
+    <div class="large-12 columns">
+        <div class="alert-box alert">
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+            pendant que vous rédigiez le votre.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% include "misc/editor.part.html" %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <form action="#previsualisation" method="post">
+            <textarea class="input-block-level" name="text" rows="20" id="id_text"
+                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
+
+            <div style="text-align: center;">
+                <button type="submit" class="button">
+                    <i class="icon-ok icon-white"></i>
+                    Répondre
+                </button>
+
+                <button type="submit" name="preview" class="button secondary">
+                    <i class="icon-eye-open"></i>
+                    Prévisualisation
+                </button>
+
+                <a href="{{ article.get_absolute_url }}" class="button secondary">
+                    <i class="icon-remove"></i>
+                    Annuler
+                </a>
+            </div>
+
+            <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+
+{% if text %}
+    {% include "forum/previsualization.part.html" %}
+{% endif %}
+
+{% endblock %}
