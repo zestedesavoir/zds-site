@@ -501,15 +501,19 @@ class GridTableProcessor(markdown.blockprocessors.BlockProcessor):
         Otherwise, it is rendered as a table with the appropriate row and
         column spans.
         """
-        orig_block = [r.strip() for r in blocks.pop(0).split('\n')]
-        body_block = orig_block[:]
-        success, body = self._get_all_cells(body_block)
-        if not success:
-            self._render_as_block(parent, '\n'.join(orig_block))
-            return
-        table = etree.SubElement(parent, 'table')
-        self._render_rows(body, table)
-
+        block = blocks.pop(0)
+        try:
+            orig_block = [r.strip() for r in block.split('\n')]
+            body_block = orig_block[:]
+            success, body = self._get_all_cells(body_block)
+            if not success:
+                self._render_as_block(parent, '\n'.join(orig_block))
+                return
+            table = etree.SubElement(parent, 'table')
+            self._render_rows(body, table)
+        except:
+            blocks.insert(0, block)
+            return False
     def _render_as_block(self, parent, text):
         """
         Renders a table as a block of text instead of a table. This isn't done

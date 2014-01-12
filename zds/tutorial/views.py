@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
@@ -16,15 +17,18 @@ import shutil
 import json
 
 from git import *
+from zds.member.models import Profile
+from zds.member.views import get_client_ip
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
 from zds.utils.tutorials import get_blob
-from zds.utils.models import Category, Licence
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike
+from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
-    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm
-from .models import Tutorial, Part, Chapter, Extract, Validation
+    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm,  NoteForm, AlertForm
+from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, mark_read, Note
 
 
 def index(request):
@@ -371,9 +375,53 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 cpt_c+=1
                 
             cpt_p+=1
+    
+    #find notes
+    if request.user.is_authenticated():
+        if never_read(tutorial):
+            mark_read(tutorial)
+            
+    notes = Note.objects\
+                .filter(tutorial__pk=tutorial.pk)\
+                .order_by('position')\
+                .all()
+            
+    if tutorial.last_note:
+        last_note_pk = tutorial.last_note.pk
+    else:
+        last_note_pk = 0
+    
+    # Handle pagination
+    paginator = Paginator(notes, settings.POSTS_PER_PAGE)
 
+    try:
+        page_nbr = int(request.GET['page'])
+    except KeyError:
+        page_nbr = 1
+
+    try:
+        notes = paginator.page(page_nbr)
+    except PageNotAnInteger:
+        notes = paginator.page(1)
+    except EmptyPage:
+        raise Http404
+
+    res = []
+    if page_nbr != 1:
+        # Show the last note of the previous page
+        last_page = paginator.page(page_nbr - 1).object_list
+        last_note = (last_page)[len(last_page) - 1]
+        res.append(last_note)
+
+    for note in notes:
+        res.append(note)
+        
     return render_template('tutorial/view_tutorial_online.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts
+        'tutorial': tutorial, 'chapter': chapter, 'parts': parts,
+        'notes': res,
+        'pages': paginator_range(page_nbr, paginator.num_pages),
+        'nb': page_nbr,
+        'last_note_pk': last_note_pk 
     })
 
 @login_required
@@ -429,7 +477,7 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            # Add subcategories on article
+            # Add subcategories on tutorial
             for subcat in data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
@@ -1903,4 +1951,243 @@ def MEP(tutorial):
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
+
+@login_required
+def answer(request):
+    '''
+    Adds an answer from a user to an tutorial
+    '''
+    try:
+        tutorial_pk = request.GET['tutorial']
+    except KeyError:
+        raise Http404
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    g_tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    
+    notes = Note.objects.filter(tutorial=g_tutorial).order_by('-pubdate')[:3]
+    
+    if g_tutorial.last_note:
+        last_note_pk = g_tutorial.last_note.pk
+    else:
+        last_note_pk=0
+
+    # Making sure noteing is allowed
+    if g_tutorial.is_locked:
+        raise Http404
+
+    # Check that the user isn't spamming
+    if g_tutorial.antispam(request.user):
+        raise Http404
+
+    # If we just sent data
+    if request.method == 'POST':
+        data = request.POST
+        newnote = last_note_pk != int(data['last_note'])
+
+        # Using the « preview button », the « more » button or new note
+        if 'preview' in data or 'more' in data or newnote:
+            return render_template('tutorial/answer.html', {
+                'text': data['text'], 'tutorial': g_tutorial, 'notes': notes,
+                'last_note_pk': last_note_pk, 'newnote': newnote
+            })
+
+        # Saving the message
+        else:
+            form = NoteForm(request.POST)
+            if form.is_valid():
+                data = form.data
+
+                note = Note()
+                note.tutorial = g_tutorial
+                note.author = request.user
+                note.text = data['text']
+                note.text_html = emarkdown(data['text'])
+                note.pubdate = datetime.now()
+                note.position = g_tutorial.get_note_count() + 1
+                note.ip_address = get_client_ip(request)
+                note.save()
+
+                g_tutorial.last_note = note
+                g_tutorial.save()
+
+                return redirect(note.get_absolute_url())
+            else:
+                raise Http404
+
+    else:
+        text = ''
+
+        # Using the quote button
+        if 'cite' in request.GET:
+            note_cite_pk = request.GET['cite']
+            note_cite = Note.objects.get(pk=note_cite_pk)
+
+            for line in note_cite.text.splitlines():
+                text = text + '> ' + line + '\n'
+
+            text = u'**{0} a écrit :**\n{1}\n'.format(
+                note_cite.author.username, text)
+
+        return render_template('tutorial/answer.html', {
+            'tutorial': g_tutorial, 'text': text, 'notes': notes,
+            'last_note_pk': last_note_pk
+        })
+
+
+@login_required
+def edit_note(request):
+    '''
+    Edit the given user's note
+    '''
+    
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        note_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    note = get_object_or_404(Note, pk=note_pk)
+
+    g_tutorial = None
+    if note.position == 1:
+        g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
+
+    # Making sure the user is allowed to do that
+    if note.author != request.user:
+        if request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+            messages.add_message(
+                request, messages.WARNING,
+                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+                .format(note.author.username))
+            note.alerts.all().delete()
+
+    if request.method == 'POST':
+        
+        if 'delete-note' in request.POST:
+            if note.author == request.user or request.user.has_perm('tutorial.change_note'):
+                note.alerts.all().delete()
+                note.is_visible=False
+                if request.user.has_perm('tutorial.change_note'):
+                    note.text_hidden=request.POST['text_hidden']
+                note.editor = request.user
+            
+        if 'show-note' in request.POST:
+            if request.user.has_perm('tutorial.change_note'):
+                note.is_visible=True
+                note.text_hidden=''
+                    
+        if 'signal-note' in request.POST:
+            if note.author != request.user :
+                alert = Alert()
+                alert.author = request.user
+                alert.text=request.POST['signal-text']
+                alert.pubdate = datetime.now()
+                alert.save()
+                note.alerts.add(alert)
+        # Using the preview button
+        if 'preview' in request.POST:
+            return render_template('tutorial/edit_note.html', {
+                'note': note, 'tutorial': g_tutorial, 'text': request.POST['text'],
+            })
+        
+        if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
+            # The user just sent data, handle them
+            note.text = request.POST['text']
+            note.update = datetime.now()
+            note.editor = request.user
+        
+        note.save()
+        
+        return redirect(note.get_absolute_url())
+
+    else:
+        return render_template('tutorial/edit_note.html', {
+            'note': note, 'tutorial': g_tutorial, 'text': note.text
+        })
+
+
+
+@login_required
+def like_note(request):
+    '''Like a note'''
+
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        note_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    note = get_object_or_404(Note, pk=note_pk)
+    user = request.user
+    
+    if note.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if CommentLike.objects.filter(user__pk=user.pk, comments__pk=note_pk).count()==0:
+            like=CommentLike()
+            like.user=user
+            like.comments=note
+            note.like=note.like+1
+            note.save()
+            like.save()
+            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=note_pk).count()>0:
+                CommentDislike.objects.filter(user__pk=user.pk, comments__pk=note_pk).all().delete()
+                note.dislike=note.dislike-1
+                note.save()
+        else:
+            CommentLike.objects.filter(user__pk=user.pk, comments__pk=note_pk).all().delete()
+            note.like=note.like-1
+            note.save()
+
+    return redirect(note.get_absolute_url())
+
+@login_required
+def dislike_note(request):
+    '''Dislike a note'''
+
+    profile = Profile.objects.filter(user__pk=request.user.pk).all()
+    if len(profile)>0:
+        if not profile[0].can_read_now() or not profile[0].can_write_now():
+            raise Http404
+    
+    try:
+        note_pk = request.GET['message']
+    except KeyError:
+        raise Http404
+
+    note = get_object_or_404(Note, pk=note_pk)
+    user = request.user
+
+    if note.author.pk != request.user.pk:
+        # Making sure the user is allowed to do that
+        if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=note_pk).count()==0:
+            dislike=CommentDislike()
+            dislike.user=user
+            dislike.comments=note
+            note.dislike=note.dislike+1
+            note.save()
+            dislike.save()
+            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=note_pk).count()>0:
+                CommentLike.objects.filter(user__pk=user.pk, comments__pk=note_pk).all().delete()
+                note.like=note.like-1
+                note.save()
+        else :
+            CommentDislike.objects.filter(user__pk=user.pk, comments__pk=note_pk).all().delete()
+            note.dislike=note.dislike-1
+            note.save()
+
+    return redirect(note.get_absolute_url())
     
