@@ -2,6 +2,7 @@ from zds.utils import render_template, slugify
 from .forms import NewsletterForm
 from .models import Newsletter
 from django.http import Http404
+from zds.member.views import get_client_ip
 
 def add_newsletter(request):
     if request.method == 'POST':
@@ -28,11 +29,3 @@ def add_newsletter(request):
             'form': form
         })
 
-def get_client_ip(request):
-    #x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    #if x_forwarded_for:
-    #    ip = x_forwarded_for.split(',')[0]
-    #else:
-    #    ip = request.META.get('REMOTE_ADDR')
-    #return ip
-    return request.META.get('REMOTE_ADDR')

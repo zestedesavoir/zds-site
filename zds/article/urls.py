@@ -31,4 +31,10 @@ urlpatterns = patterns('',
     #Validation
     url(r'^validation/$', views.list_validation),
     url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation),
+    
+    #Reactions
+    url(r'^message/editer$', views.edit_reaction),
+    url(r'^message/nouveau$', views.answer),
+    url(r'^message/like$', views.like_reaction),
+    url(r'^message/dislike$', views.dislike_reaction),
 )

@@ -46,3 +46,10 @@ class ArticleForm(forms.Form):
             Submit('submit', 'Valider'),
         )
         super(ArticleForm, self).__init__(*args, **kwargs)
+
+class ReactionForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea)
+
+
+class AlertForm(forms.Form):
+    text = forms.CharField()
