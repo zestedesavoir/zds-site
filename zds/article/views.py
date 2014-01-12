@@ -3,7 +3,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
@@ -19,6 +19,7 @@ import shutil
 from git import *
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
 from zds.utils.models import Category, CommentLike, CommentDislike, Alert
@@ -29,7 +30,7 @@ from .forms import ArticleForm, ReactionForm, AlertForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read
 
-
+@can_read_now
 def index(request):
     '''Displayy articles list'''
     
@@ -49,7 +50,7 @@ def index(request):
         'articles': article,
     })
 
-
+@can_read_now
 def list(request):
     '''Display articles list'''
     try:
@@ -63,12 +64,11 @@ def list(request):
         'articles': articles,
     })
     
+@can_read_now
+@permission_required('article.change_article')
 @login_required
 def list_validation(request):
     '''Display articles list in validation'''
-    
-    if not request.user.has_perm('article.change_article'):
-        raise Http404
     try:
         type = request.GET['type']
     except KeyError:
@@ -116,15 +116,13 @@ def list_validation(request):
         'validations': validations,
     })
 
-
+@can_read_now
+@permission_required('article.change_article')
 @login_required
 def reservation(request, validation_pk):
     '''Display articles list in validation'''
     
     validation = get_object_or_404(Validation, pk=validation_pk)
-    
-    if not request.user.has_perm('article.change_article'):
-        raise Http404
     
     if validation.validator :
         validation.validator = None
@@ -141,6 +139,7 @@ def reservation(request, validation_pk):
         validation.save()
         return redirect(validation.article.get_absolute_url())
 
+@can_read_now
 @login_required
 def history(request, article_pk, article_slug):
     '''Display an article'''
@@ -166,11 +165,14 @@ def history(request, article_pk, article_slug):
         'article': article, 'logs':logs
     })
 
+@can_read_now
+@permission_required('article.change_article')
+@login_required
 def view(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
 
-    if not request.user.has_perm('article.change_article') and (article.authors.filter(pk = request.user.pk).count()==0):
+    if article.authors.filter(pk = request.user.pk).count()==0:
         raise Http404
     
     try:
@@ -204,6 +206,7 @@ def view(request, article_pk, article_slug):
         'validation': validation
     })
 
+@can_read_now
 def view_online(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
@@ -280,6 +283,7 @@ def view_online(request, article_pk, article_slug):
         'last_reaction_pk': last_reaction_pk 
     })
 
+@can_write_and_read_now
 @login_required
 def new(request):
     '''Create a new article'''
@@ -324,7 +328,7 @@ def new(request):
         'form': form
     })
 
-
+@can_write_and_read_now
 @login_required
 def edit(request):
     '''Edit article identified by given GET paramter'''
@@ -378,7 +382,7 @@ def edit(request):
         'article': article, 'form': form
     })
 
-
+@can_write_and_read_now
 @login_required
 def modify(request):
     if not request.method == 'POST':
@@ -453,6 +457,7 @@ def modify(request):
 
     return redirect(article.get_absolute_url())
 
+@can_read_now
 def find_article(request, name):
     u = get_object_or_404(User, username=name)
     articles=Article.objects.all().filter(author=u)\
@@ -494,6 +499,7 @@ def maj_repo_article(old_slug_path=None, new_slug_path=None, article=None, text=
         article.sha_draft=com.hexsha
         article.save()
 
+@can_read_now
 def download(request):
     '''Download an article'''
 
@@ -526,7 +532,7 @@ def MEP(article, sha):
     html_file.write(emarkdown(md_file_contenu))
     html_file.close()
 
-
+@can_write_and_read_now
 @login_required
 def answer(request):
     '''
@@ -613,7 +619,7 @@ def answer(request):
             'last_reaction_pk': last_reaction_pk
         })
 
-
+@can_write_and_read_now
 @login_required
 def edit_reaction(request):
     '''
@@ -691,7 +697,7 @@ def edit_reaction(request):
         })
 
 
-
+@can_write_and_read_now
 @login_required
 def like_reaction(request):
     '''Like a reaction'''
@@ -729,6 +735,7 @@ def like_reaction(request):
 
     return redirect(reaction.get_absolute_url())
 
+@can_write_and_read_now
 @login_required
 def dislike_reaction(request):
     '''Dislike a reaction'''

@@ -17,6 +17,7 @@ import os
 import uuid
 
 import pygal
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.tokens import generate_token
@@ -25,7 +26,7 @@ from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
     ChangeUserForm, ForgotPasswordForm, NewPasswordForm
 from .models import Profile, TokenForgotPassword, Ban
 
-
+@can_read_now
 def index(request):
     '''Displays the list of registered users'''
     members = User.objects.order_by('date_joined')
@@ -33,6 +34,7 @@ def index(request):
         'members': members
     })
 
+@can_read_now
 def details(request, user_name):
     '''Displays details about a profile'''
     usr = get_object_or_404(User, username=user_name)
@@ -65,6 +67,7 @@ def details(request, user_name):
         'usr': usr, 'profile': profile, 'bans': bans
     })
 
+@can_write_and_read_now
 @login_required
 def modify_profile(request, user_pk):
     '''Modifies sanction of a user if there is a POST request'''
@@ -107,6 +110,7 @@ def modify_profile(request, user_pk):
         
     return redirect(profile.get_absolute_url())
 
+@can_read_now
 @login_required
 def tutorials(request):
     '''Returns all tutorials of the authenticated user'''
@@ -118,6 +122,7 @@ def tutorials(request):
         'user_tutorials': user_tutorials,
     })
 
+@can_read_now
 @login_required
 def articles(request):
     '''Returns all articles of the authenticated user'''
@@ -129,6 +134,7 @@ def articles(request):
         'articles': user_articles,
     })
 
+@can_read_now
 @login_required
 def actions(request):
     '''
@@ -144,6 +150,7 @@ def actions(request):
 
 # settings for public profile
 
+@can_write_and_read_now
 @login_required
 def settings_profile(request):
     '''User's settings about his personal information'''
@@ -193,7 +200,7 @@ def settings_profile(request):
         }
         return render_to_response('member/settings_profile.html', c, RequestContext(request))
 
-
+@can_write_and_read_now
 @login_required
 def settings_account(request):
     '''User's settings about his account'''
@@ -221,6 +228,7 @@ def settings_account(request):
         }
         return render_to_response('member/settings_account.html', c, RequestContext(request))
 
+@can_write_and_read_now
 @login_required
 def settings_user(request):
     '''User's settings about his email'''
@@ -260,7 +268,8 @@ def settings_user(request):
             'form': form,
         }
         return render_to_response('member/settings_user.html', c, RequestContext(request))
-    
+
+@can_read_now
 def login_view(request):
     '''Log in user'''
     csrf_tk = {}
@@ -283,6 +292,8 @@ def login_view(request):
                     profile = get_object_or_404(Profile, user=request.user)
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
+                    # Annotation isn't possible for this method. So we check
+                    # if the user is ban when we retrieved him.
                     if not profile.can_read_now():
                         logout_view(request)
                 except :
@@ -298,7 +309,6 @@ def login_view(request):
     csrf_tk['form'] = form
 
     return render_template('member/login.html', csrf_tk)
-
 
 @login_required
 def logout_view(request):
@@ -332,6 +342,7 @@ def register_view(request):
         'form': form
     })
 
+@can_read_now
 def forgot_password(request):
     '''If the user forgot his password, he can have a new one'''
     if request.method == 'POST':
@@ -376,6 +387,7 @@ def forgot_password(request):
         'form': form
     })
 
+@can_read_now
 def new_password(request):
     '''Create a new password for a user'''
     try:

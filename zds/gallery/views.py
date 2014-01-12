@@ -10,11 +10,12 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.utils import render_template, slugify
 
-
+@can_read_now
 @login_required
 def gallery_list(request):
     '''
@@ -26,7 +27,7 @@ def gallery_list(request):
         'galleries': galleries
     })
 
-
+@can_read_now
 @login_required
 def gallery_details(request, gal_pk, gal_slug):
     '''
@@ -43,7 +44,7 @@ def gallery_details(request, gal_pk, gal_slug):
         'images': images
     })
 
-
+@can_write_and_read_now
 @login_required
 def new_gallery(request):
     '''
@@ -79,7 +80,7 @@ def new_gallery(request):
             'form': form
         })
 
-
+@can_write_and_read_now
 @login_required
 def modify_gallery(request):
     '''Modify gallery instance'''
@@ -136,7 +137,7 @@ def modify_gallery(request):
 
     return redirect(gal.get_absolute_url())
 
-
+@can_write_and_read_now
 @login_required
 def del_image(request, gal_pk):
     gal = get_object_or_404(Gallery, pk=gal_pk)
@@ -146,7 +147,7 @@ def del_image(request, gal_pk):
         return redirect(gal.get_absolute_url())
     return redirect(gal.get_absolute_url())
 
-
+@can_write_and_read_now
 @login_required
 def edit_image(request, gal_pk, img_pk):
     '''
@@ -177,7 +178,7 @@ def edit_image(request, gal_pk, img_pk):
             'image': img
         })
 
-
+@can_write_and_read_now
 @login_required
 def modify_image(request):
     # We only handle secured POST actions
@@ -206,7 +207,7 @@ def modify_image(request):
 
     return redirect(gal.get_absolute_url())
 
-
+@can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
     '''
