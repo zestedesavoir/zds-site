@@ -119,4 +119,65 @@ class Licence(models.Model):
         Textual Licence Form
         '''
         return self.title
+    
+class Comment(models.Model):
+    '''
+    Comment in forum, articles, tutorial, chapter, etc.
+    '''
+    class Meta:
+        verbose_name = 'Commentaire'
+        verbose_name_plural = 'Commentaires'
+        
+    author = models.ForeignKey(User, verbose_name='Auteur',
+                                     related_name='comments')
+    editor = models.ForeignKey(User, verbose_name='Editeur',
+                                     related_name='comments-editor',
+                                     null=True, blank=True)
+    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=15)
+    
+    position = models.IntegerField('Position')
+    
+    text = models.TextField('Texte')
+    text_html = models.TextField('Texte en Html')
+    
+    like = models.IntegerField('Likes', default=0)
+    dislike = models.IntegerField('Dislikes', default=0)
+
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
+    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+
+    is_visible = models.BooleanField('Est visible', default=True)
+    text_hidden = models.CharField('Texte de masquage ', max_length=80, default='')
+    
+    alerts = models.ManyToManyField(Alert, verbose_name='Alertes', null=True, blank=True)
+    
+    def get_like_count(self):
+        '''Gets number of like for the post'''
+        return CommentLike.objects.filter(comments__pk=self.pk).count()
+    
+    def get_dislike_count(self):
+        '''Gets number of dislike for the post''' 
+        return CommentDislike.objects.filter(comments__pk=self.pk).count()
+
+class CommentLike(models.Model):
+    '''
+    Set of like comments
+    '''
+    class Meta:
+        verbose_name = 'Ce message est utile'
+        verbose_name_plural = 'Ces messages sont utiles'
+
+    comments = models.ForeignKey(Comment)
+    user = models.ForeignKey(User, related_name='post_liked')
+
+class CommentDislike(models.Model):
+    '''
+    Set of dislike comments
+    '''
+    class Meta:
+        verbose_name = 'Ce message est inutile'
+        verbose_name_plural = 'Ces messages sont inutiles'
+
+    comments = models.ForeignKey(Comment)
+    user = models.ForeignKey(User, related_name='post_disliked')
         

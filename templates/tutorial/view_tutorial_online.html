@@ -1,5 +1,7 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
+{% load humane_date %}
+{% load profile %}
 
 {% block title %}
 {{ tutorial.title }}
@@ -95,4 +97,194 @@
         {% endif %}
     </div>
 </div>
+
+{% with topic=tutorial %}
+{% include "forum/topic_pagination.part.html" with position="top" %}
+{% endwith %}
+<div class="row">
+    <h1>Réactions</h1>
+{% for note in notes %}
+<div class="note {% if forloop.first and nb > 1 %}before{% endif %} {% if note.is_useful %}useful{% endif %} {% if perms.tutorial.change_tutorial and note.alerts.all.count > 0 %} alert-box {% endif %}">
+        <div class="large-12 columns note-head" id="p{{ note.id }}">
+            <div class="large-2 columns note-nickname">
+                <p>
+                    <a href="{{ note.author.get_absolute_url }}">
+                        {{ note.author.username }}
+                    </a>
+                </p>
+            </div>
+            <div class="large-10 columns">
+                <div class="left">
+                <p>
+                    <a href="#p{{ note.pk }}">#</a>
+                    {{ note.pubdate|humane_date }}
+                    {% if not note.is_visible %}
+                        Masqué par {{ note.editor }} : <i>{{ note.text_hidden }}</i>
+                    {% elif not note.update = None %}
+                        (Edité {{ note.update|humane_date }} par {{ note.editor }} )
+                    {% endif %}
+                    {% if forloop.first and nb > 1 %}
+                        &ndash; page précédente
+                    {% endif %}
+                </p>
+                </div>
+                <form  action="{% url "zds.tutorial.views.edit_note" %}?message={{note.pk}}" method="post">
+                {% if note.is_visible %}
+                <div class="right">
+                    {% if user.is_authenticated %}
+                        
+                        <div class="button-group">
+                            {% if note.author == user or perms.tutorial.change_note %}
+                                <a href="/tutoriels/message/editer?message={{ note.pk }}" class="button secondary small">
+                                    <i class="fi-pencil"></i>
+                                    Éditer
+                                </a>
+                                {% if not note == tutorial.first_note %}
+                                <a href="#" class="button secondary small" data-dropdown="delete-drop-{{note.pk}}">
+                                    Masquer
+                                </a>
+                                {% endif %}
+                                <div id="delete-drop-{{note.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                    <p>
+                                        Êtes vous certains de vouloir masquer ce message ? cette action est irreversible pour les simples membres
+                                    </p>
+                                    {% if perms.tutorial.change_note %}
+                                    <input type="text" name="text_hidden" class="expand" placeholder="Message de masquage" />
+                                    {% endif %}
+                                    <button type="submit" name="delete-note" class="button expand alert">
+                                        Confirmer
+                                    </button>
+                                </div>
+                            {% endif %}
+                            {% if note.author != user or perms.tutorial.change_note %}
+                                <a href="#" class="button secondary small" data-dropdown="signal-drop-{{note.pk}}">
+                                    Signaler
+                                </a>
+                                <div id="signal-drop-{{note.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                    <p>
+                                        Pour quelle raison signalez vous ce message ?
+                                    </p>
+                                    <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors tutorial, ..." />
+                                    <button type="submit" name="signal-note" class="button expand alert">
+                                        Confirmer le signalement
+                                    </button>
+                                </div>
+                            {% endif %}
+
+                            {% if not tutorial.is_locked and not tutorial.antispam %}
+                                <a href="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ note.pk }}"
+                                    class="button secondary small">
+                                    <i class="fi-quote-left"></i>
+                                    Citer
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% elif perms.tutorial.change_note %}
+                <div class="right">
+                    <a href="#" class="button secondary small" data-dropdown="show-drop-{{note.pk}}">
+                        Afficher
+                    </a>
+                    <div id="show-drop-{{note.pk}}" class="f-dropdown small content" data-dropdown-content>
+                        <p>
+                            Ce message a été masqué par un modérateur, souhaitez vous réellement l'afficher ?
+                        </p>
+                        <button type="submit" name="show-note" class="button expand alert">
+                            Confirmer
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                {% csrf_token %}
+                </form>
+            </div>
+        </div>
+        {% if note.is_visible %}
+        <div class="row note-content">
+            <div class="large-2 columns hide-for-small note-avatar">
+                {% with profile=note.author|profile %}
+                    <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
+                    {% if perms.member.show_ip %}
+                    <p>{{ note.ip_address }}</p>
+                    {% endif %}
+                {% endwith %}
+                <p></p>
+            </div>
+            <div class="large-10 columns">
+                <div class="row">
+                    {{ note.text|emarkdown }}
+                </div>
+                <div class="row right">
+                    <div class="large-12 columns">
+                    <span>+{{note.like}}</span>
+                    <a class="button small radius secondary " href="{% url "zds.tutorial.views.like_note" %}?message={{ note.pk }} "><i class="fi-like size-18 {% if note.like > note.dislike %}good{% endif%}"></i> </a>
+                    <span>-{{note.dislike}}</span>
+                    <a class="button small radius secondary " href="{% url "zds.tutorial.views.dislike_note" %}?message={{ note.pk }} "> <i class="fi-dislike size-18 {% if note.like < note.dislike %}bad{% endif%}"></i></a>
+                    </div>
+                </div>
+                <div class="row">
+                    <hr />
+                </div>
+                <div class="row">
+                    <p>
+                    {% with profile=note.author|profile %}
+                        {{profile.sign|emarkdown}}
+                    {% endwith %}
+                    </p>
+                </div>
+                {% if note.alerts.all.count > 0 and perms.tutorial.change_tutorial %}
+                    <div class="row">
+                        <hr />
+                    </div>
+                    {% for alert in note.alerts.all %}
+                    <div class="row">
+                        <p><i>{{alert.pubdate|humane_date}}</i> par {{ alert.author.username }}: <strong>{{alert.text}}</strong></p>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+{% with topic=tutorial %}
+{% include "forum/topic_pagination.part.html" with position="bottom" %}
+{% endwith %}
+
+{% if user.is_authenticated %}
+<hr />
+<form action="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}"
+method="post" id="submit_form">
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Ajouter une réponse</h3>
+            {% include "misc/editor.part.html" %}
+            <textarea id='id_text' name="text" rows="10" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %}
+                placeholder="Votre message au format Markdown.">{% spaceless %}
+                    {% if tutorial.is_locked %}
+                        Ce tutorial est verrouillé.
+                    {% elif tutorial.antispam  %}
+                        Vous ne pouvez pas encore répondre dans ce tutorial (protection antispam de 15 min).
+                    {% endif %}
+                {% endspaceless %}</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-8 large-centered columns" style="text-align: center;">
+            <button class="button btn-primary" type="submit" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %} name="note">
+                <i class="icon-reply"></i>
+                Répondre
+            </button>
+            <button type="submit" name="preview" class="button secondary" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %}>
+                Prévisualiser
+            </button>
+        </div>
+    </div>
+    <input type="hidden" name="last_note" value="{{ last_note_pk }}" />
+    {% csrf_token %}
+</form>
+{% endif %}
+
 {% endblock %}
