@@ -29,11 +29,26 @@ class="active"
     <section class="content-col">
         <h2 class="ico ico-articles">Derniers Articles</h2>
 
-        {% if last_topics %}
-            {% for topic in last_topics %}
-                {% include "forum/topic_item_common.part.html" %}
+        {% if last_articles %}
+            {% for article in last_articles %}
+                <article>
+                    <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
+                    <p class="article-metadata">
+                        {{ article.pubdate|humane_date }} -
+                        <a href="{{ article.get_last_answer.get_absolute_url }}">23 réactions</a>
+                    </p>
+                    <a href="{{ article.get_absolute_url_online }}" 
+                       tabindex="-1"
+                       style="background-image: url({{ article.image.thumb.url }})" 
+                       class="article-illu">
+                        <img src="{{ article.image.thumb.url }}" alt="">
+                    </a>
+                    <p class="resume">
+                        {{ article.subtitle }}
+                    </p>
+                </article>
             {% endfor %}
-        {% endif %}        
+        {% endif %}
     </section>
 
     <section class="content-col">
