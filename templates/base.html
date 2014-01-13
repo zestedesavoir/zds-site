@@ -18,7 +18,7 @@
 
     {% block meta %}{% endblock %}
 
-    {% compressed_css "zds" %}
+    {% compressed_css "main-css" %}
 
     {# for additionnal css in some pages #}
     {% block extracss %}{% endblock %}
@@ -35,6 +35,14 @@
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml"
           title="Forum" href="{% url "post-feed-rss" %}"/>
+
+    {# Modernizr #}
+    {% compressed_js "modernizr" %}
+
+    {# CSS3 Mediaqueries for IE <= 8 #}
+    <!--[if lte IE 8]>
+    {% compressed_js "css3-mediaqueries" %}
+    <![endif]-->
 </head>
 <body>
     <!--[if lt IE 7]>
@@ -62,7 +70,7 @@
 
 
                 <div class="wrapper">
-                    <div class="mobile-menu-btn"></div>
+                    <div class="mobile-menu-btn ico-after"></div>
 
 
 
@@ -85,14 +93,32 @@
                         {% endwith %}
                         {% endif %}
                     >
-                        <ul>
+                        <ul class="header-menu-list">
                             <li>
                                 <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link">
                                     Tutoriels
                                 </a>
+                                <div class="dropdown header-menu-dropdown">
+                                    <a href="{% url "zds.tutorial.views.index" %}" class="dropdown-link-all">
+                                        Tous les tutoriels
+                                    </a>
+
+                                    <ul class="dropdown-list">
+                                        {# Colonne #}
+                                        <li>
+                                            {# Groupement, commençant par un titre #}
+                                            <ul>
+                                                <li class="dropdown-title">Titre</li>
+                                                <li>Element</li>
+                                                <li>Element</li>
+                                                <li>Element</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
                             </li>
                             <li>
-                                <a href="#" class="mobile-menu-link">
+                                <a href="{% url "zds.article.views.index" %}" class="mobile-menu-link">
                                     Articles
                                 </a>
                             </li>
@@ -100,6 +126,24 @@
                                 <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link">
                                     Forums
                                 </a>
+                                <div class="dropdown header-menu-dropdown">
+                                    <a href="{% url "zds.tutorial.views.index" %}" class="dropdown-link-all">
+                                        Tous les forums
+                                    </a>
+
+                                    <ul class="dropdown-list">
+                                        {# Colonne #}
+                                        <li>
+                                            {# Groupement, commençant par un titre #}
+                                            <ul>
+                                                <li class="dropdown-title">Titre</li>
+                                                <li>Element</li>
+                                                <li>Element</li>
+                                                <li>Element</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
                             </li>
                         </ul>
                     </nav>
@@ -108,8 +152,9 @@
     
                     {# Logbox #}
 
-                    {% if user.is_authenticated %}
-                        <div class="logbox header-right">
+                    <div class="logbox header-right {% if not user.is_authenticated %}unlogged{% endif %}">
+                        {% if user.is_authenticated %}
+                        
                             <div class="notifs-links">
 
                                 {% with topics=user|interventions_privatetopics %}
@@ -153,15 +198,12 @@
                                 <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
                                 <span class="username label">{{ user.username }}</span>
                             </a>
-                        </div>
 
-                    {% else %} {# Not logged #}
-
-                        {# TODO : design links #}
-
-                        <a href="{% url "zds.member.views.register_view" %}">S'inscrire</a>
-                        <a href="{% url "zds.member.views.login_view" %}">Se connecter</a>
-                    {% endif %}
+                        {% else %} {# Not logged #}
+                            <a href="{% url "zds.member.views.login_view" %}">Connexion</a>
+                            <a href="{% url "zds.member.views.register_view" %}">Inscription</a>
+                        {% endif %}
+                    </div>
                 </div>
             </header>
 
@@ -508,15 +550,15 @@
 
 
     {# Javascript stuff start #}
-    {% compressed_js "zds" %}
+    {% compressed_js "main-js" %}
 
     {# for addtionnal javascript in some pages #}
     {% block extrajs %}{% endblock %}
 
-    {# Foundation #}
-    <script>
-        $(document).foundation();
-    </script>
+    {# FIXME : choisir entre ce block ou celui du dessus #}
+    {% block additionnal-js %}{% endblock %}
+
+    
 
     {# MathJax #}
     <script type="text/x-mathjax-config">
@@ -543,7 +585,5 @@
     
     </script>
     <!-- Analytics -->
-
-    {% block additionnal-js %}{% endblock %}
 </body>
 </html>
