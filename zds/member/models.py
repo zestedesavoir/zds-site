@@ -13,8 +13,6 @@ from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
 from zds.article.models import Article
 
-from django.contrib.gis.geoip import GeoIP
-
 import uuid
 
 
@@ -69,9 +67,8 @@ class Profile(models.Model):
     
     def get_city(self):
         ''' return physical adress by geolocalisation '''
-        g = GeoIP()
-        geo = g.city(self.last_ip_address)
-        return u'{0}, {1}'.format(str(geo['city']), str(geo['country_name']))
+        ''' TODO : Windows support '''
+        return "TODO : Windows support"
     
     def get_avatar_url(self):
         '''Avatar URL (using custom URL or Gravatar)'''
