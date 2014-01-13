@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 import json
 
 from forms import TopicForm, PostForm
@@ -17,18 +18,15 @@ from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
+from zds.member.models import Profile
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils.templatetags.emarkdown import emarkdown
 
-
+@can_read_now
 def index(request):
     '''
     Display the category list with all their forums
     '''
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now():
-            raise Http404
-    
     categories = Category.objects.order_by('position').all()
 
     return render_template('forum/index.html', {
@@ -36,15 +34,8 @@ def index(request):
         'user': request.user
     })
 
-
+@can_read_now
 def details(request, cat_slug, forum_slug):
-    '''
-    Display the given forum and all its topics
-    '''
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now():
-            raise Http404
     '''
     Display the given forum and all its topics
     '''
@@ -81,7 +72,7 @@ def details(request, cat_slug, forum_slug):
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
 
-
+@can_read_now
 def cat_details(request, cat_slug):
     '''
     Display the forums belonging to the given category
@@ -93,16 +84,11 @@ def cat_details(request, cat_slug):
         'category': category, 'forums': forums
     })
 
-
+@can_read_now
 def topic(request, topic_pk, topic_slug):
     '''
     Display a thread and its posts using a pager
     '''
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now():
-            raise Http404
-    
     # TODO: Clean that up
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     
@@ -158,18 +144,12 @@ def topic(request, topic_pk, topic_slug):
         'last_post_pk': last_post_pk
     })
 
-
+@can_write_and_read_now
 @login_required
 def new(request):
     '''
     Creates a new topic in a forum
     '''
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         forum_pk = request.GET['forum']
     except KeyError:
@@ -228,21 +208,13 @@ def new(request):
             'form': form, 'forum': forum
         })
 
-
+@require_POST
+@can_write_and_read_now
 @login_required
 def edit(request):
     '''
     Edit the given topic
     '''
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
-    if not request.method == 'POST':
-        raise Http404
-
     try:
         topic_pk = request.POST['topic']
     except KeyError:
@@ -288,7 +260,7 @@ def edit(request):
     else:
         return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
-
+@can_write_and_read_now
 @login_required
 def answer(request):
     '''
@@ -298,11 +270,6 @@ def answer(request):
         topic_pk = request.GET['sujet']
     except KeyError:
         raise Http404
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     
@@ -378,18 +345,12 @@ def answer(request):
             'last_post_pk': last_post_pk
         })
 
-
+@can_write_and_read_now
 @login_required
 def edit_post(request):
     '''
     Edit the given user's post
     '''
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -465,10 +426,10 @@ def edit_post(request):
         })
 
 
+@can_write_and_read_now
 @login_required
 def useful_post(request):
     '''Marks a message as useful (for the OP)'''
-
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -485,15 +446,10 @@ def useful_post(request):
 
     return redirect(post.get_absolute_url())
 
+@can_write_and_read_now
 @login_required
 def like_post(request):
     '''Like a post'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -522,15 +478,10 @@ def like_post(request):
 
     return redirect(post.get_absolute_url())
 
+@can_write_and_read_now
 @login_required
 def dislike_post(request):
     '''Dislike a post'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
-    
     try:
         post_pk = request.GET['message']
     except KeyError:
@@ -559,14 +510,9 @@ def dislike_post(request):
 
     return redirect(post.get_absolute_url())
 
+@can_read_now
 def find_topic(request, user_pk):
     '''Finds all topics of a user'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now():
-            raise Http404
-    
     u = get_object_or_404(User, pk=user_pk)
     topics = Topic.objects\
                 .filter(author=u)\
@@ -592,14 +538,9 @@ def find_topic(request, user_pk):
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
 
+@can_read_now
 def find_post(request, user_pk):
     '''Finds all posts of a user'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now():
-            raise Http404
-    
     u = get_object_or_404(User, pk=user_pk)
     posts = Post.objects\
                 .filter(author=u)\

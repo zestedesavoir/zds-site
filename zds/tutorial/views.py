@@ -2,7 +2,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -19,6 +19,7 @@ import json
 from git import *
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
 from zds.utils.tutorials import get_blob
@@ -30,7 +31,7 @@ from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
     EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm,  NoteForm, AlertForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, mark_read, Note
 
-
+@can_read_now
 def index(request):
     '''Display tutorials list'''
     
@@ -59,12 +60,11 @@ def index(request):
         'tutorials': tutorials,
     })
 
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
-    
-    if not request.user.has_perm('tutorial.change_tutorial'):
-        raise Http404
     try:
         type = request.GET['type']
     except KeyError:
@@ -112,14 +112,13 @@ def list_validation(request):
         'validations': validations,
     })
 
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def reservation(request, validation_pk):
     '''Display tutorials list in validation'''
     
     validation = get_object_or_404(Validation, pk=validation_pk)
-    
-    if not request.user.has_perm('tutorial.change_tutorial'):
-        raise Http404
     
     if validation.validator :
         validation.validator = None
@@ -137,6 +136,7 @@ def reservation(request, validation_pk):
         return redirect(validation.tutorial.get_absolute_url())
     
 # Tutorial
+@can_read_now
 @login_required
 def diff(request, tutorial_pk, tutorial_slug):
     try:
@@ -159,13 +159,14 @@ def diff(request, tutorial_pk, tutorial_slug):
         'path_maj':tdiff.iter_change_type('M')
     })
 
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if not tutorial.on_line \
-       and not request.user.has_perm('tutorial.change_tutorial') \
        and request.user not in tutorial.authors.all():
         raise Http404
 
@@ -184,6 +185,7 @@ def history(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'logs':logs
     })
 
+@can_write_and_read_now
 @login_required
 def activ_beta(request, tutorial_pk, version):
 
@@ -195,6 +197,7 @@ def activ_beta(request, tutorial_pk, version):
     
     return redirect(tutorial.get_absolute_url_beta())
 
+@can_write_and_read_now
 @login_required
 def desactiv_beta(request, tutorial_pk, version):
 
@@ -206,6 +209,8 @@ def desactiv_beta(request, tutorial_pk, version):
     
     return redirect(tutorial.get_absolute_url_beta())
 
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
@@ -217,8 +222,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     
-    if not request.user.has_perm('tutorial.change_tutorial') \
-       and not beta \
+    if not beta \
        and request.user not in tutorial.authors.all():
         raise Http404
 
@@ -292,7 +296,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'chapter': chapter, 'parts': parts, 'version':sha, 'validation': validation
     })
 
-
+@can_read_now
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
@@ -424,6 +428,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         'last_note_pk': last_note_pk 
     })
 
+@can_write_and_read_now
 @login_required
 def add_tutorial(request):
     ''''Adds a tutorial'''
@@ -505,7 +510,7 @@ def add_tutorial(request):
         'form': form
     })
 
-
+@can_write_and_read_now
 @login_required
 def edit_tutorial(request):
     try:
@@ -583,6 +588,7 @@ def edit_tutorial(request):
     })
 
 
+@can_write_and_read_now
 def modify_tutorial(request):
     if not request.method == 'POST':
         raise Http404
@@ -698,6 +704,8 @@ def modify_tutorial(request):
 
 
 # Part
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
@@ -708,7 +716,6 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     if not tutorial.on_line \
-       and not request.user.has_perm('tutorial.change_part') \
        and not request.user in tutorial.authors.all():
         raise Http404
     
@@ -757,7 +764,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
         'part': final_part, 'version':sha
     })
 
-
+@can_read_now
 def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
     part = get_object_or_404(Part,
@@ -824,7 +831,7 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
         'part': part
     })
 
-
+@can_write_and_read_now
 @login_required
 def add_part(request):
     '''Add a new part'''
@@ -867,7 +874,7 @@ def add_part(request):
         'tutorial': tutorial, 'form': form
     })
 
-
+@can_write_and_read_now
 @login_required
 def modify_part(request):
     '''Modifiy the given part'''
@@ -911,7 +918,7 @@ def modify_part(request):
 
     return redirect(part.tutorial.get_absolute_url())
 
-
+@can_write_and_read_now
 @login_required
 def edit_part(request):
     '''Edit the given part'''
@@ -958,6 +965,8 @@ def edit_part(request):
 
 
 # Chapter
+@can_read_now
+@permission_required('tutorial.change_tutorial')
 @login_required
 def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
@@ -974,7 +983,6 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
 
     tutorial = chapter.get_tutorial()
     if not tutorial.on_line \
-       and not request.user.has_perm('tutorial.modify_chapter') \
        and not request.user in tutorial.authors.all():
         raise Http404
 
@@ -1032,7 +1040,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
         'version':sha
     })
 
-
+@can_read_now
 def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
     '''View chapter'''
@@ -1102,7 +1110,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         'next': next_chapter
     })
 
-
+@can_write_and_read_now
 @login_required
 def add_chapter(request):
     '''Add a new chapter to given part'''
@@ -1182,7 +1190,7 @@ def add_chapter(request):
         'part': part, 'form': form
     })
 
-
+@can_write_and_read_now
 @login_required
 def modify_chapter(request):
     '''Modify the given chapter'''
@@ -1237,7 +1245,7 @@ def modify_chapter(request):
 
     return redirect(chapter.get_absolute_url())
 
-
+@can_write_and_read_now
 @login_required
 def edit_chapter(request):
     '''Edit the given chapter'''
@@ -1314,7 +1322,7 @@ def edit_chapter(request):
 
 
 # Extract
-
+@can_read_now
 @login_required
 def add_extract(request):
     '''Add extract'''
@@ -1359,7 +1367,7 @@ def add_extract(request):
         'chapter': chapter, 'form': form, 'notify': notify
     })
 
-
+@can_write_and_read_now
 @login_required
 def edit_extract(request):
     '''Edit extract'''
@@ -1412,7 +1420,7 @@ def edit_extract(request):
         'extract': extract, 'form': form
     })
 
-
+@can_write_and_read_now
 def modify_extract(request):
     if not request.method == 'POST':
         raise Http404
@@ -1463,6 +1471,7 @@ def modify_extract(request):
 
     raise Http404
 
+@can_read_now
 def find_tuto(request, pk_user):
     try:
         type = request.GET['type']
@@ -1485,6 +1494,7 @@ def find_tuto(request, pk_user):
             'tutos': tutos, 'usr':u,
         })
 
+@can_write_and_read_now
 @login_required
 def import_tuto(request):
     if request.method == 'POST':
@@ -1909,7 +1919,7 @@ def tuto_to_markdown(text):
 
     return chaine
 
-
+@can_read_now
 def download(request):
     '''Download a tutorial'''
 
@@ -1952,6 +1962,7 @@ def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
 
+@can_write_and_read_now
 @login_required
 def answer(request):
     '''
@@ -1961,11 +1972,6 @@ def answer(request):
         tutorial_pk = request.GET['tutorial']
     except KeyError:
         raise Http404
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     g_tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
@@ -2038,17 +2044,12 @@ def answer(request):
             'last_note_pk': last_note_pk
         })
 
-
+@can_write_and_read_now
 @login_required
 def edit_note(request):
     '''
     Edit the given user's note
     '''
-    
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         note_pk = request.GET['message']
@@ -2116,15 +2117,10 @@ def edit_note(request):
         })
 
 
-
+@can_write_and_read_now
 @login_required
 def like_note(request):
     '''Like a note'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         note_pk = request.GET['message']
@@ -2154,14 +2150,10 @@ def like_note(request):
 
     return redirect(note.get_absolute_url())
 
+@can_write_and_read_now
 @login_required
 def dislike_note(request):
     '''Dislike a note'''
-
-    profile = Profile.objects.filter(user__pk=request.user.pk).all()
-    if len(profile)>0:
-        if not profile[0].can_read_now() or not profile[0].can_write_now():
-            raise Http404
     
     try:
         note_pk = request.GET['message']
