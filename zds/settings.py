@@ -117,6 +117,8 @@ PIPELINE_JS = {
 
             'js/custom/mobile-menu.js',
             'js/custom/accessibility-links.js',
+            'js/custom/dropdown-menu.js',
+            'js/custom/data-click.js',
         ),
         'output_filename': 'js/main.js'
     }
