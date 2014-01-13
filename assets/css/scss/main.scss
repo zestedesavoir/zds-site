@@ -18,6 +18,7 @@ $default-transition-duration: .15s;
 
 $sprite: sprite-map("sprite/*.png");
 $sprite2x: sprite-map("sprite@2x/*.png");
+// $sprite: $sprite2x;
 
 
 
@@ -39,6 +40,11 @@ $sprite2x: sprite-map("sprite@2x/*.png");
     );
 }
 
+/**
+ * Import external mixins
+ */
+@import "mixins/display-flex";
+
 
 
 /**
@@ -51,6 +57,8 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 
 // Fluid layout
 @import "mobile";
+@import "mobile-tablet";
+@import "tablet";
 @import "wide";
 @import "extra-wide";
 

@@ -57,7 +57,7 @@ transform = transform+"transform";
  * Manage mobile sidebar on resize
  */
 $(window).on('resize', function(){
-    if(parseInt($('html').css('width')) < 768 && !disableMobileMenu){
+    if(parseInt($('html').css('width')) < 960 && !disableMobileMenu){
         $('.page-container').css('width', $('html').css('width'));
 
         if(!$('#mobile-menu').hasClass('initialized')){
@@ -68,7 +68,7 @@ $(window).on('resize', function(){
              * Manage menu button
              */
             $('.mobile-menu-btn').on('click', function(e){
-                if(!$('body').hasClass('show-mobile-menu')){
+                if(!$('html').hasClass('show-mobile-menu')){
                     toggleMobileMenu(true);
 
                     e.preventDefault();
@@ -83,10 +83,16 @@ $(window).on('resize', function(){
              */
             appendToSidebar($('#search'), true);
             appendToSidebar($('.logbox .my-account'), true);
+            appendToSidebar($('.header-menu'), true);
 
-            $('.mobile-menu-bloc').each(function(){
+            $('.page-container .mobile-menu-bloc .mobile-menu-bloc').each(function(){
                 appendToSidebar($(this));
             });
+            $('.page-container .mobile-menu-bloc:not(.my-account-dropdown)').each(function(){
+                appendToSidebar($(this));
+            });
+
+            appendToSidebar($('.my-account-dropdown'));
         }
 
 
@@ -102,6 +108,7 @@ $(window).on('resize', function(){
             .on('touchstart', function(e){
                 beginTouchDown = parseInt(e.originalEvent.touches[0].pageX, 10) - $('.page-container').offset().left;
             });
+
             $('.page-container')
             .on('touchmove', function(e){
                 if(swipping || parseInt(e.originalEvent.touches[0].pageX, 10) - $(this).offset().left < borderWidth){
@@ -128,8 +135,8 @@ $(window).on('resize', function(){
                 if(swipping){
                     var offset  = parseInt($(this).offset().left);
                     var width   = parseInt($('html').width());
-                    var visible = (offset > width/3 && !$('body').hasClass('show-mobile-menu'))
-                                    || (offset > width-width/3 && $('body').hasClass('show-mobile-menu'));
+                    var visible = (offset > width/3 && !$('html').hasClass('show-mobile-menu'))
+                                    || (offset > width-width/3 && $('html').hasClass('show-mobile-menu'));
                     toggleMobileMenu(visible);
 
                     swipping = false;
@@ -143,7 +150,7 @@ $(window).on('resize', function(){
 
             
             $('.page-container').on('click', function(e){
-                if($('body').hasClass('show-mobile-menu')){
+                if($('html').hasClass('show-mobile-menu')){
                     toggleMobileMenu(false);
 
                     e.preventDefault();
@@ -155,7 +162,7 @@ $(window).on('resize', function(){
             $('#mobile-menu').addClass('initialized-events');
         }
     } else {
-        $('body').removeClass('show-mobile-menu');
+        $('html').removeClass('show-mobile-menu');
         $('#mobile-menu').removeClass('initialized-events');
         $('.page-container').removeAttr('style');
         $('.page-container').off('click touchstart touchmove touchend');
@@ -166,12 +173,16 @@ $(window).trigger('resize');
 
 
 function appendToSidebar($elem, force){
+    console.log($elem);
+
     if($elem.hasClass('mobile-menu-imported'))
         return;
 
-    $elem.addClass('mobile-menu-imported');
+    console.log("ok");
+
     if(force){
-        $elem.clone().appendTo('#mobile-menu');
+        $elem.addClass('mobile-menu-imported');
+        $elem.clone().removeAttr('id').appendTo('#mobile-menu');
         return;
     }
 
@@ -179,9 +190,20 @@ function appendToSidebar($elem, force){
     $div.addClass('mobile-menu-bloc');
     $div.attr('data-title', $elem.attr('data-title'));
 
-    $('.mobile-menu-link', $elem).each(function(){
-        $div.append($(this).clone());
+    if($elem.hasClass('mobile-show-ico'))
+        $div.addClass('mobile-show-ico');
+
+    $links = ($elem.hasClass('mobile-all-links'))
+        ? $('a:not(.action-hover)', $elem).addClass('mobile-menu-link')
+        : $('.mobile-menu-link', $elem)
+    ;
+
+    $links.each(function(){
+        if($(this).parents('.mobile-menu-imported').length == 0)
+            $div.append($(this).clone());
     });
+
+    $elem.addClass('mobile-menu-imported');
 
     $div.appendTo($('#mobile-menu'));
 }
@@ -195,20 +217,20 @@ function appendToSidebar($elem, force){
  */
 function toggleMobileMenu(visible){
     if(visible == null)
-        visible = !$('body').hasClass('show-mobile-menu');
+        visible = !$('html').hasClass('show-mobile-menu');
 
     $('body').removeClass('swipping');
 
     var viewportmeta = document.querySelector('meta[name="viewport"]');
 
     if(visible){
-        if(!$('body').hasClass('show-mobile-menu')){
+        if(!$('html').hasClass('show-mobile-menu')){
             var scrollTop = $(document).scrollTop();
             $('.page-container').css({
                 'margin-top': '-' + scrollTop + 'px',
                 'padding-bottom': scrollTop + 'px'
             });
-            $('body').addClass('show-mobile-menu');
+            $('html').addClass('show-mobile-menu');
 
             viewportmeta.content = 'width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0';
         }
@@ -219,7 +241,7 @@ function toggleMobileMenu(visible){
             history.pushState(null, document.title, this.href);
 
             $(window).off('popstate').one('popstate', function(e){
-                if($('body').hasClass('show-mobile-menu'))
+                if($('html').hasClass('show-mobile-menu'))
                     toggleMobileMenu(false);
                 else
                     window.history.back();
@@ -227,7 +249,7 @@ function toggleMobileMenu(visible){
         }
         */
     } else {
-        $('body').removeClass('show-mobile-menu');
+        $('html').removeClass('show-mobile-menu');
 
         // Reset CSS modifications for restore scroll
         var scrollTop = parseInt($('.page-container').css('padding-bottom'));
@@ -242,9 +264,20 @@ function toggleMobileMenu(visible){
         $('body').removeClass('swipping');
 
         setTimeout(function(){
+            // Reinit mobile menu at top
             $('#mobile-menu').scrollTop(0);
 
+            // Restore zoom
             viewportmeta.content = 'width=device-width, minimum-scale=1.0, initial-scale=1.0';
+
+            // Bugfix <html> element
+            $('html').css({
+                'position': 'absolute',
+                'left': '0'
+            });
+            setTimeout(function(){
+                $('html').removeAttr('style');
+            }, 500);
         }, 200);
     }
 }

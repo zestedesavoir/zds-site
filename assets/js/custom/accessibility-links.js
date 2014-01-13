@@ -5,6 +5,7 @@
    ========================================================================== */
 
 $('.accessibility a').on('focus', function(){
+	$('.dropdown:visible').parent().find('.active').removeClass('active');
     $('.accessibility').addClass('focused');
 });
 $('.accessibility a').on('blur', function(){
