@@ -104,16 +104,24 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {# Colonne #}
-                                        <li>
-                                            {# Groupement, commençant par un titre #}
-                                            <ul>
-                                                <li class="dropdown-title">Titre</li>
-                                                <li>Element</li>
-                                                <li>Element</li>
-                                                <li>Element</li>
-                                            </ul>
-                                        </li>
+                                        {% with categories='.'|top_categories_tuto %}
+                                        {% for category in categories %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {{ category.title }}
+                                                    </li>
+                                                    {% for catofsubcat in category.get_subcategories %}
+                                                        <li>
+                                                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                                                {{ catofsubcat.subcategory }}
+                                                            </a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                        {% endfor %}
+                                        {% endwith %}
                                     </ul>
                                 </div>
                             </li>
@@ -127,21 +135,25 @@
                                     Forums
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "zds.tutorial.views.index" %}" class="dropdown-link-all">
+                                    <a href="{% url "zds.forum.views.index" %}" class="dropdown-link-all">
                                         Tous les forums
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {# Colonne #}
-                                        <li>
-                                            {# Groupement, commençant par un titre #}
-                                            <ul>
-                                                <li class="dropdown-title">Titre</li>
-                                                <li>Element</li>
-                                                <li>Element</li>
-                                                <li>Element</li>
-                                            </ul>
-                                        </li>
+                                        {% with categories='.'|top_categories %}
+                                        {% for category in categories %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {{ category.title }}
+                                                    </li>
+                                                    {% for forum in category.get_forums %}
+                                                        <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                        {% endfor %}
+                                        {% endwith %}
                                     </ul>
                                 </div>
                             </li>
@@ -156,48 +168,225 @@
                         {% if user.is_authenticated %}
                         
                             <div class="notifs-links">
-
-                                {% with topics=user|interventions_privatetopics %}
+                                {# MESSAGERIE PRIVEE #}
+                                <div>
+                                    {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
-                                    <a href="{% url "zds.mp.views.index" %}">
+                                    {% with read_topics=topics.read %}
+                                    <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                        {% if unread_topics|length > 0 %}
+                                            <span class="notif-count">{{ unread_topics|length }}</span>
+                                        {% endif %}
                                         <span class="notif-text ico ico-messages">Messagerie</span>
-                                        {% if unread_topics|length > 0 %}
-                                            <span class="notif-count">{{ unread_topics|length }}</span>
-                                        {% endif %}
                                     </a>
+
+                                    <div class="dropdown">
+                                        <span class="dropdown-title">Messagerie</span>
+                                        <ul class="dropdown-list">
+                                            {% for topic in unread_topics %}
+                                                <li>
+                                                    <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
+                                                        <span class="username">PSEUDO</span>
+                                                        <span class="date">HH:MM</span>
+                                                        <span class="topic">{{ topic.title }}</span>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+
+                                            {% for topic in read_topics %}
+                                                <li>
+                                                    {% with last_answer=topic.get_last_answer %}
+                                                    <a href="
+                                                        {% if last_answer %}
+                                                            {{ last_answer.get_absolute_url }}
+                                                        {% else %}
+                                                            {{ topic.first_post.get_absolute_url }}
+                                                        {% endif %}"
+                                                    >
+                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
+                                                        <span class="username">PSEUDO</span>
+                                                        <span class="date">HH:MM</span>
+                                                        <span class="topic">{{ topic.title }}</span>
+                                                    </a>
+                                                    {% endwith %}
+                                                </li>
+                                            {% endfor %}
+
+                                            {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                <li class="dropdown-empty-message">
+                                                    Aucun message
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                        <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
+                                            Tous les messages
+                                        </a>
+                                    </div>
                                     {% endwith %}
-                                {% endwith %}
+                                    {% endwith %}
+                                    {% endwith %}
+                                </div>
 
-
-                                {% with topics=user|interventions_topics %}
+                                {# NOTIFICATIONS #}
+                                <div>
+                                    {% with topics=user|interventions_topics %}
                                     {% with unread_topics=topics.unread %}
-                                    <a href="#">
-                                        <span class="notif-text ico ico-notifs">Notifications</span>
+                                    {% with read_topics=topics.read %}
+                                    <a href="{% url "zds.mp.views.index" %}" class="ico-link">
                                         {% if unread_topics|length > 0 %}
                                             <span class="notif-count">{{ unread_topics|length }}</span>
                                         {% endif %}
+                                        <span class="notif-text ico ico-notifs">Notifications</span>
                                     </a>
-                                    {% endwith %}
-                                {% endwith %}
 
-                                {% if perms.forum.change_post %}
-                                    {% with posts=user|alerts_topic %}
-                                    <a href="#">
-                                        <span class="notif-text ico ico-alerts">Alertes</span>
-                                        {% if posts.count > 0 %}
-                                            <span class="notif-count">{{ posts.count }}</span>
-                                        {% endif %}
-                                    </a>
+                                    <div class="dropdown">
+                                        <span class="dropdown-title">Notifications</span>
+                                        <ul class="dropdown-list">
+                                            {% for topic in unread_topics %}
+                                                <li>
+                                                    <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
+                                                        <span class="username">PSEUDO</span>
+                                                        <span class="date">HH:MM</span>
+                                                        <span class="topic">{{ topic.title }}</span>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+
+                                            {% for topic in read_topics %}
+                                                <li>
+                                                    {% with last_answer=topic.get_last_answer %}
+                                                    <a href="
+                                                        {% if last_answer %}
+                                                            {{ last_answer.get_absolute_url }}
+                                                        {% else %}
+                                                            {{ topic.first_post.get_absolute_url }}
+                                                        {% endif %}"
+                                                    >
+                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
+                                                        <span class="username">PSEUDO</span>
+                                                        <span class="date">HH:MM</span>
+                                                        <span class="topic">{{ topic.title }}</span>
+                                                    </a>
+                                                    {% endwith %}
+                                                </li>
+                                            {% endfor %}
+
+                                            {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                <li class="dropdown-empty-message">
+                                                    Aucun sujet suivi
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                        <a href="#" class="dropdown-link-all">
+                                            Toutes les notifications
+                                        </a>
+                                    </div>
                                     {% endwith %}
+                                    {% endwith %}
+                                    {% endwith %}
+                                </div>
+
+                                {# ALERTES MODERATION #}
+                                {% if perms.forum.change_post %}
+                                    <div>
+                                        {% with posts=user|alerts_topic %}
+                                        <a href="#" class="ico-link">
+                                            <span class="notif-text ico ico-alerts">Alertes</span>
+                                            {% if posts.count > 0 %}
+                                                <span class="notif-count">{{ posts.count }}</span>
+                                            {% endif %}
+                                        </a>
+
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">Notifications</span>
+                                            <ul class="dropdown-list">
+                                                {% for post in posts %}
+                                                    <li>
+                                                        <a href="{{ post.get_absolute_url }}">
+                                                            <span class="username">{{ post.topic.title }}</span>
+                                                            <span class="date">FORUM</span>
+                                                            <span class="topic">MOTIF DE L'ALERTE</span>
+                                                        </a>
+                                                    </li>
+                                                {% empty %}
+                                                    <li class="dropdown-empty-message">
+                                                        Aucune alerte
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                            <a href="#" class="dropdown-link-all">
+                                                Toutes les alertes
+                                            </a>
+                                        </div>
+                                        {% endwith %}
+                                    </div>
+                                {% else %}
+                                    <a href="{% url "zds.member.views.actions" %}"
+                                       id="open-my-account"
+                                       class="ico-link dont-click-if-sidebar"
+                                       data-click="my-account"
+                                    >
+                                        <span class="notif-text ico ico-gear">Mon Compte</span>
+                                    </a>
                                 {% endif %}
                             </div>
-                            <a href="{% url "zds.member.views.actions" %}" 
-                               class="my-account mobile-menu-link mobile-menu-bloc" 
-                               title="Mon compte" 
-                               data-title="Mon compte">
-                                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                                <span class="username label">{{ user.username }}</span>
-                            </a>
+
+                            <div>
+                                <a href="{% url "zds.member.views.actions" %}" 
+                                   id="my-account"
+                                   class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
+                                   title="Mon compte" 
+                                   data-title="Mon compte"
+
+                                   {% if not perms.forum.change_post %}
+                                       tabindex="-1"
+                                       data-active="open-my-account"
+                                   {% endif %}
+                                >
+                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                    <span class="username label">{{ user.username }}</span>
+                                </a>
+
+                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
+                                    <span class="dropdown-title">Mon Compte</span>
+
+                                    <ul class="dropdown-list">
+                                        <li>
+                                            <a href="{% url "zds.member.views.details" user.username %}">Mon Profil</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.tutorials" %}">Mes Tutoriels</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.articles" %}">Mes Articles</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.gallery.views.gallery_list" %}">Galeries d'images</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a>
+                                        </li>
+
+                                        {% if perms.tutorial.change_tutorial %}
+                                        <li>
+                                            <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
+                                        </li>
+                                        {% endif %}
+
+                                        {% if perms.article.change_article %}
+                                        <li>
+                                            <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
+                                        </li>
+                                        {% endif %}
+
+                                        <li>
+                                            <a href="{% url "zds.member.views.logout_view" %}">Déconnexion</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
 
                         {% else %} {# Not logged #}
                             <a href="{% url "zds.member.views.login_view" %}">Connexion</a>
@@ -265,23 +454,21 @@
                 >
                     {% block sidebar %}
                         <h3>Catégories <span class="wide">de tutoriels</span></h3>
-                        <h4><a href="#" class="mobile-menu-link">Sites web</a></h4>
-                        <ul>
-                            <li><a href="#">HTML5 &amp; CSS3</a></li>
-                            <li><a href="#">JavaScript</a></li>
-                            <li><a href="#">PHP</a></li>
-                            <li><a href="#">Java EE</a></li>
-                            <li><a href="#">Node.js</a></li>
-                        </ul>
-                        <h4><a href="#" class="mobile-menu-link">Programmation</a></h4>
-                        <ul>
-                            <li><a href="#">Langage C</a></li>
-                            <li><a href="#">Langage C++</a></li>
-                            <li><a href="#">Langage C#</a></li>
-                            <li><a href="#">Langage Java</a></li>
-                            <li><a href="#">Langage Python</a></li>
-                            <li><a href="#">.NET</a></li>
-                        </ul>
+
+                        {% with categories='.'|top_categories_tuto %}
+                        {% for category in categories %}
+                            <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+                            <ul>
+                                {% for catofsubcat in category.get_subcategories %}
+                                    <li>
+                                        <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                            {{ catofsubcat.subcategory }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                        {% endwith %}
                     {% endblock %}
                 </aside>
 
@@ -290,264 +477,10 @@
 
 
 
-        <!-- TO BE CONTINUED -->
+        <!-- TODO : Footer -->
     </div>
 
 
-
-
-
-
-
-<!--
-    <nav class="top-bar" 
-        {% if user.is_authenticated %}
-        {% with profile=user|profile %}
-            data-is-hover="{{ profile.hover_or_click}}"
-        {% endwith %}
-        {% endif %}
-    >
-        <ul class="title-area">
-            <li class="name">
-                <h1>
-                    <a href="/">
-                        ZesteDeSavoir
-                    </a>
-                </h1>
-            </li>
-            <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-        </ul>
-
-        <section class="top-bar-section">
-
-            {# Theses menu_* blocks are set or not in applications derived base.html #}
-            {# in order to set the menu entry active or not. #}
-
-            <ul class="left">
-                <li class="{% block menu_tutorial %}{% endblock %} has-dropdown " >
-                    <a href="{% url "zds.tutorial.views.index" %}">
-                        <i class="fi-book"></i>
-                        Tutoriels
-                    </a>
-                    <ul class="dropdown">
-                        {% with categories='.'|top_categories_tuto %}
-                        {% for category in categories %}
-                            <li class="has-dropdown">
-                                <a href="#">{{ category.title }}</a>
-                                <ul class="dropdown">
-                                    {% for catofsubcat in category.get_subcategories %}
-                                        <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.subcategory }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        {% endfor %}
-                        {% endwith %}
-                        <li class="divider"></li>
-                        <li><a href="{% url "zds.tutorial.views.index" %}">Tous &rarr;</a></li>
-                    </ul>
-                </li>
-
-                <li class="{% block menu_article %}{% endblock %}" >
-                    <a href="{% url "zds.article.views.index" %}">
-                        <i class="fi-clipboard"></i>
-                        Articles
-                    </a>
-                </li>
-                
-                <li class="{% block menu_forum %}{% endblock %} has-dropdown">
-                    <a href="{% url "zds.forum.views.index" %}" />
-                        <i class="fi-comments"></i>
-                        Forums
-                    </a>
-                    <ul class="dropdown">
-                        {% with categories='.'|top_categories %}
-                        {% for category in categories %}
-                            <li class="has-dropdown">
-                                <a href="{{ category.get_absolute_url }}">{{ category.title }}</a>
-                                <ul class="dropdown">
-                                    {% for forum in category.get_forums %}
-                                        <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        {% endfor %}
-                        {% endwith %}
-                      <li class="divider"></li>
-                      <li><a href="{% url "zds.forum.views.index" %}">Tous &rarr;</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="right">
-                {% if user.is_authenticated %}
-                    {% if perms.forum.change_post %}
-                    {% with posts=user|alerts_topic %}
-                        <li class="has-dropdown">
-                                <a href="#">
-                                    {% if posts.count > 0 %}
-                                        <span class="label alert">{{ posts.count }}</span>
-                                    {% endif %}
-                                    <i class="fi-lightbulb"></i>
-                                </a>
-                                <ul class="dropdown">
-                                    {% for post in posts %}
-                                        <li>
-                                            <a href="{{ post.get_absolute_url }}">
-                                                <strong>
-                                                    {{ post.topic.title }}
-                                                </strong>
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                    {% endwith %}
-                    {% endif %}
-                    {% with topics=user|interventions_privatetopics %}
-                        {% with unread_topics=topics.unread %}
-                            <li class="{% block menu_mp %}{% endblock %} has-dropdown">
-                                <a href="{% url "zds.mp.views.index" %}">
-                                    {% if unread_topics|length > 0 %}
-                                        <span class="label alert">{{ unread_topics|length }}</span>
-                                    {% endif %}
-                                    <i class="fi-mail"></i>
-                                </a>
-                                <ul class="dropdown">
-                                    {% with read_topics=topics.read %}
-                                        {# Unread topics #}
-                                        {% for topic in unread_topics %}
-                                            <li>
-                                                <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                    <span class="label">!</span>
-                                                    <strong>
-                                                        {{ topic.title }}
-                                                    </strong>
-                                                </a>
-                                            </li>
-                                        {% endfor %}
-                                        {# Read topics #}
-                                        {% for topic in read_topics %}
-                                            <li>
-                                                {% with last_answer=topic.get_last_answer %}
-                                                    <a href="
-                                                        {% if last_answer %}
-                                                            {{ last_answer.get_absolute_url }}
-                                                        {% else %}
-                                                            {{ topic.first_post.get_absolute_url }}
-                                                        {% endif %}">
-                                                        {{ topic.title }}
-                                                    </a>
-                                                {% endwith %}
-                                            </li>
-                                        {% endfor %}
-                                        {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                                            <li class="disabled">
-                                                <a href="{% url "zds.mp.views.index" %}">Pas de message</a>
-                                            </li>
-                                        {% endif %}
-                                    {% endwith %}
-                                </ul>
-                            </li>
-                        {% endwith %}
-                    {% endwith %}
-                    {% with topics=user|interventions_topics %}
-                        {% with unread_topics=topics.unread %}
-                            <li class="has-dropdown">
-                                <a href="#">
-                                    {% if unread_topics|length > 0 %}
-                                        <span class="label alert">{{ unread_topics|length }}</span>
-                                    {% endif %}
-                                    <i class="fi-star"></i>
-                                </a>
-                                <ul class="dropdown">
-                                    {% with read_topics=topics.read %}
-                                        {# Unread topics #}
-                                        {% for topic in unread_topics %}
-                                            <li>
-                                                <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                    <span class="label">!</span>
-                                                    <strong>
-                                                        {{ topic.title }}
-                                                    </strong>
-                                                </a>
-                                            </li>
-                                        {% endfor %}
-                                        {# Read topics #}
-                                        {% for topic in read_topics %}
-                                            <li>
-                                                {% with last_answer=topic.get_last_answer %}
-                                                    <a href="
-                                                        {% if last_answer %}
-                                                            {{ last_answer.get_absolute_url }}
-                                                        {% else %}
-                                                            {{ topic.first_post.get_absolute_url }}
-                                                        {% endif %}">
-                                                        {{ topic.title }}
-                                                    </a>
-                                                {% endwith %}
-                                            </li>
-                                        {% endfor %}
-                                        {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                                            <li class="disabled">
-                                                <a href="javascript:;">Aucun sujet suivi</a>
-                                            </li>
-                                        {% endif %}
-                                    {% endwith %}
-                                </ul>
-                            </li>
-                        {% endwith %}
-                    {% endwith %}
-                <li class="has-dropdown">
-                    {% with profile=user|profile %}
-                        <a href="{% url "zds.member.views.actions" %}">
-                            <img src="{{ profile.get_avatar_url }}" alt="Avatar" width="24" height="24" />
-                            {{ user.username }}
-                        </a>
-                    {% endwith %}
-                    <ul class="dropdown">
-                        <li class="divider"></li>
-                        <li><label>Mon Compte</label></li>
-                        <li><a href="{% url "zds.member.views.details" user.username %}"><i class="icon-user"></i> Mon Profil</a></li>
-                        <li><a href="{% url "zds.member.views.tutorials" %}"><i class="icon-list"></i> Mes Tutoriels</a></li>
-                        <li><a href="{% url "zds.member.views.articles" %}"><i class="icon-list"></i> Mes Articles</a></li>
-                        <li><a href="{% url "zds.gallery.views.gallery_list" %}"> Galeries d'images</a></li>
-                        <li><a href="{% url "zds.member.views.settings_profile" %}"><i class="icon-cog"></i> Paramètres</a></li>
-                        {% if perms.tutorial.change_tutorial %}
-                        <li><a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a></li>
-                        {% endif %}
-                        {% if perms.article.change_article %}
-                        <li><a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a></li>
-                        {% endif %}
-                        <li><a href="{% url "zds.member.views.logout_view" %}"><i class="icon-signout"></i> Déconnexion</a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li>
-                    <a href="{% url "zds.member.views.register_view" %}">S'inscrire</a>
-                </li>
-                <li>
-                    <a href="{% url "zds.member.views.login_view" %}">Se connecter</a>
-                </li>
-                {% endif %}
-            </ul>
-        </section>
-    </nav>
-    
-
-    {# Footer #}
-
-    <div class="row full-width footer">
-        <div class="large-6 columns">
-            <p>&copy; ZesteDeSavoir 2013 : <small>{{git_version}}</small></p>
-        </div>
-        <div class="large-6 columns">
-            <ul class="inline-list right">
-                
-                <li><a href="{% url "zds.pages.views.roadmap" %}">Roadmap</a></li>
-                <li><a href="#">Code source</a></li>
-            </ul>
-        </div>
-    </div>
--->
 
 
 
