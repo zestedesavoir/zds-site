@@ -29,7 +29,12 @@ class AlignProcessor(BlockProcessor):
         
         EndBlock = (-1, -1, -1)
         for i in range(len(blocks)):
-            mEnd = self.REEnd.search(blocks[i])
+            if i == 0 :
+                txt = FirstBlock[m.end():]
+            else:
+                txt = blocks[i]
+
+            mEnd = self.REEnd.search(txt)
             if mEnd:
                 EndBlock = (i, mEnd.start(), mEnd.end())
                 break
