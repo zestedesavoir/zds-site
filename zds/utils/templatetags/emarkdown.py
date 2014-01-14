@@ -56,7 +56,7 @@ def emarkdown(text):
                                 'tables',                           # Tables support, included in python-markdown
                                 'nl2br',                            # Convert new line to br tags support, included in python markdown
                                 'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
-                                'codehilite(force_linenos=True)',   # Code hightlight support, with line numbers, included in python-markdwon
+                                'codehilite(linenums=True)',        # Code hightlight support, with line numbers, included in python-markdwon
                                 # Externs extensions :
                                 sub_ext,                            # Subscript support
                                 del_ext,                            # Del support
