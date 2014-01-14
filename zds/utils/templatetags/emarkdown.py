@@ -28,7 +28,13 @@ del_ext         = DelExtension()            # Del support
 urlize_ext      = UrlizeExtension()         # Autolink support
 kbd_ext         = KbdExtension()            # Keyboard support
 mathjax_ext     = MathJaxExtension()        # MathJax support
-customblock_ext = CustomBlockExtension()    # CustomBlock support
+customblock_ext = CustomBlockExtension(
+    { "s(ecret)?"       : "spoiler",
+      "i(nformation)?"  : "information ico-after",
+      "q(uestion)?"     : "question ico-after",
+      "a(ttention)?"    : "warning ico-after",
+      "e(rreur)?"       : "error ico-after",
+    })                                      # CustomBlock support
 align_ext       = AlignExtension()          # Right align and center support
 video_ext       = VideoExtension()          # Video support
 preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",)}) # Preprocess extension
