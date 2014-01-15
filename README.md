@@ -87,6 +87,11 @@ python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
 ```
+Pour appliquer le pacth de correction du module gitpython, executez :
+
+```console
+cd scripts && ./UseUpdatedGitPython.sh && cd ..
+```
 
 Pour bénéficier de données statiques, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
