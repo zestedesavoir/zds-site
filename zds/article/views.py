@@ -316,7 +316,8 @@ def new(request):
 
             article.save()
             
-            maj_repo_article(new_slug_path=article.get_path(), 
+            maj_repo_article(request,
+                          new_slug_path=article.get_path(), 
                           article = article,
                           text = data['text'],
                           action = 'add')
@@ -362,7 +363,8 @@ def edit(request):
 
             new_slug = os.path.join(settings.REPO_ARTICLE_PATH, slugify(data['title']))
             
-            maj_repo_article(old_slug_path=old_slug, 
+            maj_repo_article(request,
+                          old_slug_path=old_slug, 
                           new_slug_path=new_slug, 
                           article=article, 
                           text=data['text'],
@@ -468,7 +470,7 @@ def find_article(request, name):
         'articles': articles, 'usr':u,
     })
 
-def maj_repo_article(old_slug_path=None, new_slug_path=None, article=None, text=None, action=None):
+def maj_repo_article(request, old_slug_path=None, new_slug_path=None, article=None, text=None, action=None):
     
     if action == 'del' :
         shutil.rmtree(old_slug_path)
@@ -494,8 +496,14 @@ def maj_repo_article(old_slug_path=None, new_slug_path=None, article=None, text=
         txt.write(smart_str(text).strip())
         txt.close()
         index.add(['text.md'])
-            
-        com = index.commit(msg.encode('utf-8'))
+        
+        aut_user = str(request.user.pk)
+        aut_email = str(request.user.email)
+        if aut_email is None or aut_email.strip() == "":
+            aut_email ="inconnu@zestedesavoir.com"
+        com = index.commit(msg.encode('utf-8'),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
         article.sha_draft=com.hexsha
         article.save()
 
