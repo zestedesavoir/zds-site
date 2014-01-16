@@ -134,7 +134,7 @@
                     {% if user.is_authenticated %}
                         
                         <div class="button-group">
-                            {% perms.tutorial.change_note %}
+                            {% if perms.tutorial.change_note %}
                                 <a href="/tutoriels/message/editer?message={{ note.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer
