@@ -31,17 +31,18 @@ class AlignProcessor(BlockProcessor):
         for i in range(len(blocks)):
             if i == 0 :
                 txt = FirstBlock[m.end():]
+                dec = m.end()-m.start()
             else:
                 txt = blocks[i]
+                dec = 0
 
             mEnd = self.REEnd.search(txt)
             if mEnd:
-                EndBlock = (i, mEnd.start(), mEnd.end())
+                EndBlock = (i, mEnd.start() + dec, mEnd.end() + dec)
                 break
 
         if EndBlock[0] < 0 :
             return False
-        
         Before = FirstBlock[:StartBlock[1]]
         Content = []
         After = blocks[EndBlock[0]][EndBlock[2]:]
@@ -54,12 +55,11 @@ class AlignProcessor(BlockProcessor):
                 startIndex = 0
             
             if i == EndBlock[0]:
-                endIndex = EndBlock[1] 
+                endIndex = EndBlock[1] +1
             else:
                 endIndex = len(blck)
             
             Content.append(blck[startIndex: endIndex])
-
         Content = "\n\n".join(Content)
 
         if Before:
