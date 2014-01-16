@@ -1,4 +1,4 @@
-#! /usr/bin/sh
+#! /bin/sh
 
 mkdir temp
 cd temp

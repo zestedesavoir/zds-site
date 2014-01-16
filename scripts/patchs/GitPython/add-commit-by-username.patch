@@ -219,41 +219,20 @@ diff --git a/git/index/base.py b/git/index/base.py
 index 354319b..9f76adf 100644
 --- a/git/index/base.py
 +++ b/git/index/base.py
-@@ -873,7 +873,7 @@
- 
- 		return out
- 
+@@ -876 +876 @@
 -	def commit(self, message, parent_commits=None, head=True):
 +	def commit(self, message, parent_commits=None, head=True, author=None, committer=None):
- 		"""Commit the current default index file, creating a commit object.
- 
- 		For more information on the arguments, see tree.commit.
-@@ -884,7 +884,7 @@
- 		:return:
- 			Commit object representing the new commit"""
- 		tree = self.write_tree()
+@@ -887 +887 @@
 -		return Commit.create_from_tree(self.repo, tree, message, parent_commits, head)
 +		return Commit.create_from_tree(self.repo, tree, message, parent_commits, head, author=author, committer=committer)
- 
- 	@classmethod
- 	def _flush_stdin_and_wait(cls, proc, ignore_stdout = False):
 diff --git a/git/objects/commit.py b/git/objects/commit.py
 index fd4187b..5413059 100644
 --- a/git/objects/commit.py
 +++ b/git/objects/commit.py
-@@ -254,7 +254,7 @@
- 		
- 		
- 	@classmethod
+@@ -257 +257 @@
 -	def create_from_tree(cls, repo, tree, message, parent_commits=None, head=False):
 +	def create_from_tree(cls, repo, tree, message, parent_commits=None, head=False, author=None, committer=None):
- 		"""Commit the given tree, creating a commit object.
- 		
- 		:param repo: Repo object the commit should be part of 
-@@ -299,8 +299,14 @@
- 		cr = repo.config_reader()
- 		env = os.environ
- 		
+@@ -302,2 +302,8 @@
 -		committer = Actor.committer(cr)
 -		author = Actor.author(cr)
 +		if author is None and committer is None:
@@ -264,32 +243,17 @@ index fd4187b..5413059 100644
 +		elif committer is None:
 +			committer = Actor.committer(cr)
 +		
- 		
- 		# PARSE THE DATES
- 		unix_time = int(time())
 diff --git a/git/refs/log.py b/git/refs/log.py
 index 0e97772..aca47d5 100644
 --- a/git/refs/log.py
 +++ b/git/refs/log.py
-@@ -247,7 +247,7 @@
- 			raise ValueError("Shas need to be given in binary format")
- 		#END handle sha type
- 		assure_directory_exists(filepath, is_file=True)
+@@ -250 +250 @@
 -		entry = RefLogEntry((bin_to_hex(oldbinsha), bin_to_hex(newbinsha), Actor.committer(config_reader), (int(time.time()), time.altzone), message))
 +		entry = RefLogEntry((bin_to_hex(oldbinsha), bin_to_hex(newbinsha), config_reader, (int(time.time()), time.altzone), message))
- 		
- 		lf = LockFile(filepath)
- 		lf._obtain_lock_or_raise()
 diff --git a/git/refs/symbolic.py b/git/refs/symbolic.py
 index 8556a65..05d12b7 100644
 --- a/git/refs/symbolic.py
 +++ b/git/refs/symbolic.py
-@@ -355,7 +355,7 @@
- 		:param newbinsha: The sha the ref points to now. If None, our current commit sha
- 			will be used
- 		:return: added RefLogEntry instance"""
+@@ -358 +358 @@
 -		return RefLog.append_entry(self.repo.config_reader(), RefLog.path(self), oldbinsha, 
 +		return RefLog.append_entry(self.commit.committer, RefLog.path(self), oldbinsha, 
- 									(newbinsha is None and self.commit.binsha) or newbinsha, 
- 									message) 
- 
