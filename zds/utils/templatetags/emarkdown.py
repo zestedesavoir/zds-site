@@ -70,7 +70,6 @@ def emarkdown(text):
                                 kbd_ext,                            # Kbd support
                                 mathjax_ext,                        # Mathjax support
                                 customblock_ext,                    # CustomBlock support
-                                align_ext,                          # Right align and center support
                                 video_ext,                          # Video support
                                 preprocess_ext,                     # Preprocess support
                                 emo_ext,                            # Smileys support
@@ -78,6 +77,7 @@ def emarkdown(text):
                                 comment_ext,                        # Comment support
                                 legend_ext,                         # Legend support
                                 smimg_ext,                          # SmartImg support
+                                align_ext,                          # Right align and center support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
