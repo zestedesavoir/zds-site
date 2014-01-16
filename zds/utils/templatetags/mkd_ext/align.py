@@ -30,8 +30,8 @@ class AlignProcessor(BlockProcessor):
         EndBlock = (-1, -1, -1)
         for i in range(len(blocks)):
             if i == 0 :
-                txt = FirstBlock[m.end():]
-                dec = m.end()-m.start()
+                txt = FirstBlock[m.end()+1:]
+                dec = m.end()-m.start()+1
             else:
                 txt = blocks[i]
                 dec = 0
@@ -55,11 +55,12 @@ class AlignProcessor(BlockProcessor):
                 startIndex = 0
             
             if i == EndBlock[0]:
-                endIndex = EndBlock[1] +1
+                endIndex = EndBlock[1]  
             else:
                 endIndex = len(blck)
             
             Content.append(blck[startIndex: endIndex])
+        
         Content = "\n\n".join(Content)
 
         if Before:
