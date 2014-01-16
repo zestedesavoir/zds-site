@@ -2059,7 +2059,7 @@ def edit_note(request):
     note = get_object_or_404(Note, pk=note_pk)
 
     g_tutorial = None
-    if note.position == 1:
+    if note.position >= 1:
         g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
 
     # Making sure the user is allowed to do that
