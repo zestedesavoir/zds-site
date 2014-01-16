@@ -104,7 +104,7 @@
 <div class="row">
     <h1>Réactions</h1>
 {% for note in notes %}
-<div class="note {% if forloop.first and nb > 1 %}before{% endif %} {% if note.is_useful %}useful{% endif %} {% if perms.tutorial.change_tutorial and note.alerts.all.count > 0 %} alert-box {% endif %}">
+<div class="note {% if forloop.first and nb > 1 %}before{% endif %} {% if perms.tutorial.change_tutorial and note.alerts.all.count > 0 %} alert-box {% endif %}">
         <div class="large-12 columns note-head" id="p{{ note.id }}">
             <div class="large-2 columns note-nickname">
                 <p>
@@ -134,7 +134,7 @@
                     {% if user.is_authenticated %}
                         
                         <div class="button-group">
-                            {% if note.author == user or perms.tutorial.change_note %}
+                            {% perms.tutorial.change_note %}
                                 <a href="/tutoriels/message/editer?message={{ note.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer
