@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from collections import OrderedDict
+from django.template.loader import get_template
 import os
 
-from zds.utils import slugify
 from git import *
+from zds.utils import slugify
+from django.template import Context
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -98,3 +100,84 @@ def get_blob(tree, chemin):
         return None
     else:
         return None
+
+def export_tutorial_to_html(tutorial):
+    # Two variables to handle two distinct cases (large/small tutorial)
+    chapter = None
+    parts = None
+
+    #find the good manifest file
+    mandata = tutorial.load_json(online=True)
+    
+    # If it's a small tutorial, fetch its chapter
+    if tutorial.type == 'MINI':
+        if 'chapter' in mandata:
+            chapter = mandata['chapter']
+            chapter['path'] = tutorial.get_prod_path()
+            chapter['type'] = 'MINI'
+            intro = open(os.path.join(tutorial.get_prod_path(), mandata['introduction']+'.html'), "r")
+            chapter['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), mandata['conclusion']+'.html'), "r")
+            chapter['conclu'] = conclu.read()
+            conclu.close()
+            cpt=1
+            for ext in chapter['extracts'] :
+                ext['position_in_chapter'] = cpt
+                ext['path'] = tutorial.get_prod_path()
+                text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                ext['txt'] = text.read()
+                text.close()
+                cpt+=1
+        else:
+            chapter = None
+    else:
+        parts = mandata['parts']
+        cpt_p=1
+        for part in parts :
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            intro = open(os.path.join(tutorial.get_prod_path(), part['introduction']+'.html'), "r")
+            part['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), part['conclusion']+'.html'), "r")
+            part['conclu'] = conclu.read()
+            conclu.close()
+
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']+'.html'), "r")
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
+                chapter['conclu'] = conclu.read()
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(os.path.join(tutorial.get_prod_path(), ext['text']+'.html'), "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e+=1
+                cpt_c+=1
+                
+            cpt_p+=1
+    
+    contenu_html = get_template('tutorial/export.html').render(
+                            Context({
+                                'chapter': chapter,
+                                'parts': parts,
+                                'tutorial': tutorial,
+                            })
+                        )
+    
+    return contenu_html
