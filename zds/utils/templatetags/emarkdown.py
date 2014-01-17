@@ -62,7 +62,6 @@ def emarkdown(text):
                                 'footnotes',                        # Footnotes support, included in python-markdown
                                                                     # Footnotes place marker can be set with the PLACE_MARKER option
                                 'tables',                           # Tables support, included in python-markdown
-                                'nl2br',                            # Convert new line to br tags support, included in python markdown
                                 'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
                                 'codehilite(linenums=True)',        # Code hightlight support, with line numbers, included in python-markdwon
                                 # Externs extensions :
@@ -81,6 +80,7 @@ def emarkdown(text):
                                 smimg_ext,                          # SmartImg support
                                 align_ext,                          # Right align and center support
                                 dheader_ext,                        # Down Header support
+                                'nl2br',                            # Convert new line to br tags support, included in python markdown
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
