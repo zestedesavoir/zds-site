@@ -307,13 +307,10 @@ def login_view(request):
                     profile= None
 
                 # redirect the user if needed
-                #if next_page:
                 try:
                     return redirect(next_page)
                 except:
                     return redirect(reverse('zds.pages.views.home'))
-                #else:
-                #    return redirect(reverse('zds.pages.views.home'))
             else:
                 error = 'Les identifiants fournis ne sont pas valides'
         else:
