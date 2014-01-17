@@ -485,12 +485,21 @@ class GridTableProcessor(markdown.blockprocessors.BlockProcessor):
         on both the top an bottom right corners, and has a '|' at the beginning
         and end of the first and last rows.
         """
-        rows = [r.strip() for r in block.split('\n')]
-        return (len(rows) > 2 and rows[0][:2] == "+-" and rows[0][-2:] == "-+"
+        rows = []
+        Started = False
+        InTable = True
+        for r in block.split('\n'):
+            if not Started and (r.startswith('+') or r.startswith('|')) :
+                Started = True
+            if Started and InTable and (r.startswith('+') or r.startswith('|')) :
+                rows.append(r.strip())
+            elif Started:
+                InTable = False
+        val= (len(rows) > 2 and rows[0][:2] == "+-" and rows[0][-2:] == "-+"
                 and rows[1][0] == '|' and rows[1][-1] == '|'
                 and rows[-2][0] == '|' and rows[-2][-1] == '|'
                 and rows[-1][:2] == "+-" and rows[-1][-2:] == "-+")
-
+        return val
     def run(self, parent, blocks):
         """
         Starts parsing the block of text which contains the table. It first
@@ -502,8 +511,28 @@ class GridTableProcessor(markdown.blockprocessors.BlockProcessor):
         column spans.
         """
         block = blocks.pop(0)
+        before = []
+        rows = []
+        after = []
+        Started = False
+        InTable = True
+        for r in block.split('\n'):
+            if not Started :
+                if (r.startswith('+') or r.startswith('|')) :
+                    Started = True
+                else:
+                    before.append(r)
+            if Started and InTable and (r.startswith('+') or r.startswith('|')) :
+                rows.append(r.strip())
+            elif Started:
+                InTable = False
+                after.append(r)
+        
+        if len(before) > 0 :
+            self.parser.parseBlocks(parent,["\n".join(before)])
+
         try:
-            orig_block = [r.strip() for r in block.split('\n')]
+            orig_block = rows
             body_block = orig_block[:]
             success, body = self._get_all_cells(body_block)
             if not success:
@@ -511,6 +540,8 @@ class GridTableProcessor(markdown.blockprocessors.BlockProcessor):
                 return
             table = etree.SubElement(parent, 'table')
             self._render_rows(body, table)
+            if len(after) > 0 :
+                blocks.insert(0, "\n".join(after))
         except:
             blocks.insert(0, block)
             return False
