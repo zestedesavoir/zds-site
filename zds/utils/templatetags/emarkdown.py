@@ -22,6 +22,7 @@ from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
 from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
 from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
+from zds.utils.templatetags.mkd_ext.headerDec import DownHeaderExtension
 
 sub_ext         = SubSuperscriptExtension() # Sub and Superscript support
 del_ext         = DelExtension()            # Del support
@@ -43,6 +44,7 @@ gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
 legend_ext      = TableLegendExtension()    # Table Legend support
 smimg_ext       = SmartImgExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart image support
+dheader_ext     = DownHeaderExtension({"OFFSET" : 2, }) # Offset header support
 
 register = template.Library()
 
@@ -78,6 +80,7 @@ def emarkdown(text):
                                 legend_ext,                         # Legend support
                                 smimg_ext,                          # SmartImg support
                                 align_ext,                          # Right align and center support
+                                dheader_ext,                        # Down Header support
                                 ],
                                 safe_mode           = 'escape',     # Protect use of html by escape it
                                 enable_attributes   = False,        # Disable the conversion of attributes.
