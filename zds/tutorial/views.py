@@ -483,7 +483,7 @@ def add_tutorial(request):
             tutorial.save()
             
             # Add subcategories on tutorial
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
             # We need to save the tutorial before changing its author list
@@ -564,7 +564,7 @@ def edit_tutorial(request):
                           action = 'maj')
             
             tutorial.subcategory.clear()
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
             tutorial.save()
