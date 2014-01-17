@@ -276,6 +276,13 @@ def login_view(request):
     csrf_tk.update(csrf(request))
 
     error = False
+
+    # Redirecting user once logged in?
+    if request.GET.has_key('next'):
+        next_page = request.GET['next']
+    else:
+        next_page = None
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -298,16 +305,25 @@ def login_view(request):
                         logout_view(request)
                 except :
                     profile= None
-                return redirect(reverse('zds.pages.views.home'))
+
+                # redirect the user if needed
+                #if next_page:
+                try:
+                    return redirect(next_page)
+                except:
+                    return redirect(reverse('zds.pages.views.home'))
+                #else:
+                #    return redirect(reverse('zds.pages.views.home'))
             else:
                 error = 'Les identifiants fournis ne sont pas valides'
         else:
             error = 'Veuillez spécifier votre identifiant et votre mot de passe'
     else:
+
         form = LoginForm()
     csrf_tk['error'] = error
     csrf_tk['form'] = form
-
+    csrf_tk['next_page'] = next_page
     return render_template('member/login.html', csrf_tk)
 
 @login_required
