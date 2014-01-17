@@ -83,7 +83,6 @@ Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échou
 gem install compass
 gem install zurb-foundation
 pip install --user -r requirements.txt
-rm -f base.db
 python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
