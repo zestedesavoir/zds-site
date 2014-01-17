@@ -311,7 +311,7 @@ def new(request):
             article.authors.add(request.user)
 
             # Add subcategories on article
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
             article.save()
@@ -356,7 +356,7 @@ def edit(request):
                 article.image = request.FILES['image']
 
             article.subcategory.clear()
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
             article.save()
@@ -503,7 +503,8 @@ def maj_repo_article(request, old_slug_path=None, new_slug_path=None, article=No
             aut_email ="inconnu@zestedesavoir.com"
         com = index.commit(msg.encode('utf-8'),
                            author=Actor(aut_user, aut_email),
-                           committer=Actor(aut_user, aut_email))
+                           committer=Actor(aut_user, aut_email)
+                           )
         article.sha_draft=com.hexsha
         article.save()
 
