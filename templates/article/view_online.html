@@ -251,3 +251,16 @@ method="post" id="submit_form">
 
 
 {% endblock %}
+
+{% block additionnal-js %}
+    <script>
+        /* anwser check */
+        $('#submit_form').submit(function(e){
+            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().replace(/^\s+/g,'').replace(/\s+$/g,'')=="")) {
+                alert('Votre message ne peut pas être vide.');
+                e.preventDefault();
+            }
+        })
+    </script>
+{% endblock %}
+
