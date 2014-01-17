@@ -584,7 +584,7 @@ def answer(request):
         # Saving the message
         else:
             form = ReactionForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 reaction = Reaction()
@@ -682,9 +682,11 @@ def edit_reaction(request):
         
         if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
             # The user just sent data, handle them
-            reaction.text = request.POST['text']
-            reaction.update = datetime.now()
-            reaction.editor = request.user
+            if request.POST['text'].strip() !='':
+                reaction.text = request.POST['text']
+                reaction.text_html = emarkdown(request.POST['text'])
+                reaction.update = datetime.now()
+                reaction.editor = request.user
         
         reaction.save()
         
