@@ -38,8 +38,11 @@ class CustomBlockProcessor(BlockProcessor):
         inBlck=True
         
         for line in block.split("\n"):
-            if inBlck and len(line.strip()) >= 1 and line.strip()[0] == "|":
-                cblck.append(line[1:])
+            if inBlck and len(line.strip()) >= 1 and line[0] == "|":
+                if line[1] == ' ':
+                    cblck.append(line[2:])
+                else:
+                    cblck.append(line[1:])
             else:
                 theRest.append(line)
                 inBlck = False
