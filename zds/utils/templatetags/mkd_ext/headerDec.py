@@ -13,7 +13,7 @@ class DownHeaderExtension(markdown.Extension):
     
     def extendMarkdown(self, md, md_globals):
         # VERY DANGEROUS !
-        md.parser.blockprocessors["hashheader"].RE = re.compile(r'(^|\n)(?P<level>#{1,' + str(6 - self.configs["OFFSET"]) + r'})(?P<header>.*?)#*(\n|$)')
+        md.parser.blockprocessors["hashheader"].RE = re.compile(r'(^|\n)(?P<level>#{1,' + str(6 - self.configs["OFFSET"]) + r'})[^#](?P<header>.*?)#*(\n|$)')
         md.treeprocessors.add('downheader', DownHeaderProcessor(self.configs["OFFSET"]), '_end')
 
 class DownHeaderProcessor(markdown.treeprocessors.Treeprocessor):
