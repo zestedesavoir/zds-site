@@ -21,6 +21,7 @@ from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
 from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
+from zds.utils.templatetags.mkd_ext.codelegend import CodeLegendExtension
 from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
 from zds.utils.templatetags.mkd_ext.headerDec import DownHeaderExtension
 
@@ -43,6 +44,7 @@ emo_ext         = EmoticonExtension({"EMOTICONS" : smileys}) # smileys support
 gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
 legend_ext      = TableLegendExtension()    # Table Legend support
+legendcode_ext  = CodeLegendExtension()     # Code Legend support
 smimg_ext       = SmartImgExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart image support
 dheader_ext     = DownHeaderExtension({"OFFSET" : 2, }) # Offset header support
 
@@ -77,6 +79,7 @@ def emarkdown(text):
                                 gridtable_ext,                      # Grid tables support
                                 comment_ext,                        # Comment support
                                 legend_ext,                         # Legend support
+                                legendcode_ext,                     # Legend support
                                 smimg_ext,                          # SmartImg support
                                 align_ext,                          # Right align and center support
                                 dheader_ext,                        # Down Header support
