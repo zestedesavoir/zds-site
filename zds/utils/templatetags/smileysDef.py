@@ -1,34 +1,48 @@
 # -*- coding: utf-8 -*-
-from  zds import settings
+
 import os
 
-smileys_baseURL =os.path.join(settings.STATIC_URL, "smileys/")
-smileys_ext = ""
-smileys = {
-    ":)"        : "smile.png",
-    ":D"        : "heureux.png",
-    ";)"        : "clin.png",
-    ":p"        : "langue.png",
-    ":lol:"     : "rire.gif",
-    ":euh:"     : "unsure.gif",
-    ":("        : "triste.png",
-    ":o"        : "huh.png",
-    ":colere2:" : "mechant.png",
-    "o_O"       : "blink.gif",
-    "^^"        : "hihi.png",
-   u":-°"       : "siffle.png",
-    ":ange:"    : "ange.png",
-    ":colere:"  : "angry.gif",
-    ":diable:"  : "diable.png",
-    ":magicien:": "magicien.png",
-    ":ninja:"   : "ninja.png",
-    ">_<"       : "pinch.png",
-    ":pirate:"  : "pirate.png",
-    ":'("       : "pleure.png",
-    ":honte:"   : "rouge.png",
-    ":soleil:"  : "soleil.png",
-    ":waw:"     : "waw.png",
-    ":zorro:"   : "zorro.png",
+if __name__ == "__main__":
+    smileys_baseURL = os.path.join("../../../assets", "smileys")
+else:
+    from zds import settings
+    smileys_baseURL =os.path.join(settings.STATIC_URL, "smileys")
+
+smileys_base = {
+    "smile.png"   : (":)", ":-)", ),
+    "heureux.png" : (":D", ":-D", ),
+    "clin.png"    : (";)", ";-)", ),
+    "langue.png"  : (":p", ":P", ":-p", ":-P", ),
+    "rire.gif"    : (":lol:", ),
+    "unsure.gif"  : (":euh:", ),
+    "triste.png"  : (":(", ":-(", ),
+    "huh.png"     : (":o", ":-o", ":O", ":-O", ),
+    "mechant.png" : (":colere2:", ),
+    "blink.gif"   : ("o_O", "oO", "O_o", "Oo", ),
+    "hihi.png"    : ("^^", ),
+    "siffle.png"  : (u":-°", u":°", ),
+    "ange.png"    : (":ange:", ),    
+    "angry.gif"   : (":colere:", ),  
+    "diable.png"  : (":diable:", ),  
+    "magicien.png": (":magicien:", ), 
+    "ninja.png"   : (":ninja:", ),   
+    "pinch.png"   : (">_<", ),       
+    "pirate.png"  : (":pirate:", ),  
+    "pleure.png"  : (":'(", ),
+    "rouge.png"   : (":honte:", ),   
+    "soleil.png"  : (":soleil:", ),  
+    "waw.png"     : (":waw:", ),     
+    "zorro.png"   : (":zorro:", ),   
     }
-for k, v in smileys.iteritems():
-    smileys[k] = smileys_baseURL + v
+
+smileys = {}
+for imageFile, symboles in smileys_base.iteritems():
+    for symbole in symboles:
+        smileys[symbole] = os.path.join(smileys_baseURL, imageFile)
+
+if __name__ == "__main__":
+    for image in smileys.values():
+        if not os.path.isfile(image):
+            print "[" + image + "] is not found !!!"
+
+
