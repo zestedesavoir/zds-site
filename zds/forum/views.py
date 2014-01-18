@@ -168,7 +168,7 @@ def new(request):
             })
 
         form = TopicForm(request.POST)
-        if form.is_valid():
+        if form.is_valid() and data['text'].strip() !='':
             data = form.data
             # Creating the thread
             n_topic = Topic()
@@ -184,6 +184,7 @@ def new(request):
             post.topic = n_topic
             post.author = request.user
             post.text = data['text']
+            post.text_html = emarkdown(request.POST['text'])
             post.pubdate = datetime.now()
             post.position = 1
             post.ip_address = get_client_ip(request)
@@ -302,7 +303,7 @@ def answer(request):
         # Saving the message
         else:
             form = PostForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 post = Post()
@@ -406,9 +407,11 @@ def edit_post(request):
         
         if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
             # The user just sent data, handle them
-            post.text = request.POST['text']
-            post.update = datetime.now()
-            post.editor = request.user
+            if request.POST['text'].strip() !='':
+                post.text = request.POST['text']
+                post.text_html = emarkdown(request.POST['text'])
+                post.update = datetime.now()
+                post.editor = request.user
             
             # Modifying the thread info
             if g_topic:
