@@ -191,7 +191,7 @@ def export_tutorial_to_html(tutorial):
                             Context({
                                 'chapter': chapter,
                                 'parts': parts,
-                                'tutorial': tutorial,
+                                'tutorial': tuto,
                             })
                         )
     
