@@ -1,7 +1,4 @@
-{% load emarkdown %}
-{% load humane_date %}
-{% load profile %}
-{% load markup %}
+{% load emarkdown %}{% load humane_date %}{% load profile %}{% load markup %}
 
 {% if tutorial.image %}![]({{tutorial.image.thumb.url }}){% endif %}
 Tutoriel {% if not tutorial.is_mini %}étendu{% endif %} rédigé par :
