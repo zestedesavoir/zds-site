@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from collections import OrderedDict
+from django.template.loader import get_template
 import os
 
-from zds.utils import slugify
 from git import *
+from zds.utils import slugify
+from django.template import Context
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -98,3 +100,99 @@ def get_blob(tree, chemin):
         return None
     else:
         return None
+
+def export_tutorial_to_html(tutorial):
+    # Two variables to handle two distinct cases (large/small tutorial)
+    chapter = None
+    parts = None
+    tuto = OrderedDict()
+    
+    i = open(os.path.join(tutorial.get_prod_path(), tutorial.introduction), "r")
+    i_contenu = i.read()
+    i.close()
+    tuto['intro'] = i_contenu.decode('utf-8')
+
+    c = open(os.path.join(tutorial.get_prod_path(), tutorial.conclusion), "r")
+    c_contenu = c.read()
+    c.close()
+    tuto['conclu'] = c_contenu.decode('utf-8')
+    tuto['image'] = tutorial.image
+    tuto['is_mini'] = tutorial.is_mini()
+    tuto['authors'] = tutorial.authors
+    tuto['subcategory'] = tutorial.subcategory
+     
+    #find the good manifest file
+    mandata = tutorial.load_json(online=True)
+    
+    # If it's a small tutorial, fetch its chapter
+    if tutorial.type == 'MINI':
+        if 'chapter' in mandata:
+            chapter = mandata['chapter']
+            chapter['path'] = tutorial.get_prod_path()
+            chapter['type'] = 'MINI'
+            intro = open(os.path.join(tutorial.get_prod_path(), mandata['introduction']), "r")
+            chapter['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), mandata['conclusion']), "r")
+            chapter['conclu'] = conclu.read()
+            conclu.close()
+            cpt=1
+            for ext in chapter['extracts'] :
+                ext['position_in_chapter'] = cpt
+                ext['path'] = tutorial.get_prod_path()
+                text = open(os.path.join(tutorial.get_prod_path(), ext['text']), "r")
+                ext['txt'] = text.read()
+                text.close()
+                cpt+=1
+        else:
+            chapter = None
+    else:
+        parts = mandata['parts']
+        cpt_p=1
+        for part in parts :
+            part['tutorial'] = tutorial
+            part['path'] = tutorial.get_path()
+            part['slug'] = slugify(part['title'])
+            part['position_in_tutorial'] = cpt_p
+            intro = open(os.path.join(tutorial.get_prod_path(), part['introduction']), "r")
+            part['intro'] = intro.read()
+            intro.close()
+            conclu = open(os.path.join(tutorial.get_prod_path(), part['conclusion']), "r")
+            part['conclu'] = conclu.read()
+            conclu.close()
+
+            cpt_c=1
+            for chapter in part['chapters'] :
+                chapter['part'] = part
+                chapter['path'] = tutorial.get_path()
+                chapter['slug'] = slugify(chapter['title'])
+                chapter['type'] = 'BIG'
+                chapter['position_in_part'] = cpt_c
+                chapter['position_in_tutorial'] = cpt_c * cpt_p
+                intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']), "r")
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']), "r")
+                chapter['conclu'] = conclu.read()
+                cpt_e=1
+                for ext in chapter['extracts'] :
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(os.path.join(tutorial.get_prod_path(), ext['text']), "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e+=1
+                cpt_c+=1
+                
+            cpt_p+=1
+    
+    contenu_html = get_template('tutorial/export.md').render(
+                            Context({
+                                'chapter': chapter,
+                                'parts': parts,
+                                'tutorial': tutorial,
+                            })
+                        )
+    
+    return contenu_html
