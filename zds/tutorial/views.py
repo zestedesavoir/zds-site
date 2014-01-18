@@ -2022,7 +2022,7 @@ def answer(request):
         # Saving the message
         else:
             form = NoteForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 note = Note()
@@ -2120,9 +2120,11 @@ def edit_note(request):
         
         if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
             # The user just sent data, handle them
-            note.text = request.POST['text']
-            note.update = datetime.now()
-            note.editor = request.user
+            if request.POST['text'].strip() !='':
+                note.text = request.POST['text']
+                note.text_html = emarkdown(request.POST['text'])
+                note.update = datetime.now()
+                note.editor = request.user
         
         note.save()
         
