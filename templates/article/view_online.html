@@ -256,7 +256,7 @@ method="post" id="submit_form">
     <script>
         /* anwser check */
         $('#submit_form').submit(function(e){
-            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().replace(/^\s+/g,'').replace(/\s+$/g,'')=="")) {
+            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().trim()=='')) {
                 alert('Votre message ne peut pas être vide.');
                 e.preventDefault();
             }
