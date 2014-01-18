@@ -96,7 +96,7 @@
                     {% if user.is_authenticated %}
                         
                         <div class="button-group">
-                            {% if reaction.author == user or perms.article.change_reaction %}
+                            {% if perms.article.change_reaction %}
                                 <a href="/articles/message/editer?message={{ reaction.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer

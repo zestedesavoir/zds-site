@@ -1,4 +1,4 @@
-{% extends "forum/base.html" %}
+{% extends "article/base.html" %}
 
 {% block title %}
     Éditer un message
@@ -9,9 +9,7 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ post.topic.forum.category.get_absolute_url }}">{{ post.topic.forum.category.title }}</a></li>
-    <li><a href="{{ post.topic.forum.get_absolute_url }}">{{ post.topic.forum.title }}</a></li>
-    <li><a href="{{ post.topic.get_absolute_url }}">{{ post.topic.title }}</a></li>
+    <li><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></li>
     <li class="current"><a href="javascript:;">Éditer un message</a></li>
 {% endblock %}
 
@@ -59,7 +57,7 @@
                     Prévisualisation
                 </button>
 
-                <a href="{{ post.get_absolute_url }}" class="button secondary">Annuler</a>
+                <a href="{{ reaction.get_absolute_url }}" class="button secondary">Annuler</a>
             </div>
 
             {% csrf_token %}
