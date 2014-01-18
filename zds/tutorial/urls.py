@@ -53,6 +53,7 @@ urlpatterns = patterns('',
     url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.activ_beta),
     url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
     url(r'^telecharger/$', views.download),
+    url(r'^telecharger_pdf/$', views.download_pdf),
     url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
     url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
     
