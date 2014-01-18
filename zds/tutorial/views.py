@@ -1944,16 +1944,14 @@ def download_pdf(request):
     
     ph=os.path.join(settings.REPO_PATH, tutorial.slug)
     
-    html_file = open(os.path.join(ph, tutorial.slug+'.txt'), "w")
+    html_file = open(os.path.join(ph, tutorial.slug+'.md'), "w")
     html_file.write(smart_str(contenu))
     html_file.close()
     
     ph=os.path.join(settings.REPO_PATH, tutorial.slug)
-    repo = Repo(ph)
-    repo.archive(open(ph+".tar",'w'))
     
-    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.txt'), "rb").read(), mimetype='application/txt')
-    response['Content-Disposition'] = 'attachment; filename={0}.txt'.format(tutorial.slug)
+    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
+    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
 
     return response
 
