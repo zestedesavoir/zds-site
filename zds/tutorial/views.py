@@ -22,7 +22,7 @@ from zds.member.views import get_client_ip
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
-from zds.utils.tutorials import get_blob
+from zds.utils.tutorials import get_blob, export_tutorial_to_html
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -1948,6 +1948,27 @@ def download(request):
     
     response = HttpResponse(open(ph+".tar", 'rb').read(), mimetype='application/tar')
     response['Content-Disposition'] = 'attachment; filename={0}.tar'.format(tutorial.slug)
+
+    return response
+
+@can_read_now
+def download_pdf(request):
+    '''Download a tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+        
+    contenu = export_tutorial_to_html(tutorial)
+    
+    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    
+    html_file = open(os.path.join(ph, tutorial.slug+'.md'), "w")
+    html_file.write(smart_str(contenu))
+    html_file.close()
+    
+    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    
+    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
+    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
 
     return response
 

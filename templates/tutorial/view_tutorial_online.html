@@ -16,6 +16,13 @@
     <li class="current"><a href="#">{{ tutorial.title }}</a></li>
 {% endblock %}
 
+{% block headline-actions %}
+    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="button secondary small expand">
+        <i class="fi-download"></i>
+        Télécharger MD
+    </a>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
@@ -60,14 +67,12 @@
         {% else %}
             <p>Aucune introduction.</p>
         {% endif %}
-
         {% if tutorial.is_mini %}
         {# Small tutorial #}
 
             {% with authors=tutorial.authors.all %}
                 {% include "tutorial/view_chapter_online_common.part.html" %}
             {% endwith %}
-
         {% else %}
         {# Large tutorial #}
 
