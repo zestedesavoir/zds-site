@@ -14,7 +14,7 @@ Catégories du tutoriel :
 {% endfor %}
 
 {% if tutorial.intro %}
-{{ tutorial.intro }}
+{{ tutorial.intro|safe }}
 {% endif %}
 
 {% if tutorial.is_mini %}
@@ -22,7 +22,7 @@ Catégories du tutoriel :
 {% for extract in chapter.extracts %}
 #[{{ extract.title }}](#{{ extract.position_in_chapter }}-{{ extract.title|slugify }})
 {% if extract.txt %}
-{{ extract.txt }}
+{{ extract.txt|safe }}
 {% endif %}
 {% endfor %}
 {% else %}
@@ -39,5 +39,5 @@ Catégories du tutoriel :
 {% endif %}
 
 {% if tutorial.conclu %}
-{{ tutorial.conclu }}
+{{ tutorial.conclu|safe }}
 {% endif %}
