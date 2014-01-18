@@ -28,9 +28,9 @@ class ArticleForm(forms.Form):
         required=False)
 
     subcategory = forms.ModelMultipleChoiceField(
-        label = "Sous-catégories de votre article",
+        label = "Sous catégories de votre article",
         queryset = SubCategory.objects.all(),
-        required = True,
+        required = False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -46,6 +46,10 @@ class ArticleForm(forms.Form):
             Submit('submit', 'Valider'),
         )
         super(ArticleForm, self).__init__(*args, **kwargs)
+    
+    def clean_subcategory(self):
+        subcategory = self.cleaned_data['subcategory']
+        return subcategory  # Ne pas oublier de renvoyer le contenu du champ traité
 
 class ReactionForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea)

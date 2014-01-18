@@ -87,6 +87,17 @@ python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
 ```
+Pour appliquer le pacth de correction du module gitpython (obligatoire), executez :
+
+```console
+cd scripts && ./UseUpdatedGitPython.sh && cd ..
+```
+
+Si vous voulez utiliser la meme version de python-markdown que sur le serveur, incluant la mise en évidence de lignes de codes particulières exécutez :
+
+```console
+cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
+```
 
 Pour bénéficier de données statiques, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
@@ -109,11 +120,5 @@ Cela va créer plusieurs entitées :
 * 3 topics with one answer
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
-
-Si vous voulez utiliser la meme version de python-markdown que sur le serveur, incluant la mise en évidence de lignes de codes particulières exécutez :
-
-```console
-cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
-```
 
 Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)

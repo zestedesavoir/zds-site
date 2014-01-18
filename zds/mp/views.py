@@ -21,6 +21,7 @@ from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
 
 @can_read_now
+@login_required
 def index(request):
     '''
     Display the all private topics
@@ -63,6 +64,7 @@ def index(request):
     })
 
 @can_read_now
+@login_required
 def topic(request, topic_pk, topic_slug):
     '''
     Display a thread and its posts using a pager
