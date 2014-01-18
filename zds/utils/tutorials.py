@@ -120,6 +120,8 @@ def export_tutorial_to_html(tutorial):
     tuto['is_mini'] = tutorial.is_mini()
     tuto['authors'] = tutorial.authors
     tuto['subcategory'] = tutorial.subcategory
+    tuto['pk'] = tutorial.pk
+    tuto['slug'] = tutorial.slug
      
     #find the good manifest file
     mandata = tutorial.load_json(online=True)
