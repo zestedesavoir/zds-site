@@ -20,9 +20,7 @@ from zds.utils.templatetags.mkd_ext.emoticons import EmoticonExtension
 from zds.utils.templatetags.smileysDef import *
 from zds.utils.templatetags.mkd_ext.grid_tables import GridTableExtension
 from zds.utils.templatetags.mkd_ext.comments import CommentsExtension
-from zds.utils.templatetags.mkd_ext.tablelegend import TableLegendExtension
-from zds.utils.templatetags.mkd_ext.codelegend import CodeLegendExtension
-from zds.utils.templatetags.mkd_ext.smartImg import SmartImgExtension
+from zds.utils.templatetags.mkd_ext.smartLegend import SmartLegendExtension
 from zds.utils.templatetags.mkd_ext.headerDec import DownHeaderExtension
 
 sub_ext         = SubSuperscriptExtension() # Sub and Superscript support
@@ -43,9 +41,7 @@ preprocess_ext  = PreprocessBlockExtension({"preprocess" : ("fenced_code_block",
 emo_ext         = EmoticonExtension({"EMOTICONS" : smileys}) # smileys support
 gridtable_ext   = GridTableExtension()      # Grid Table support
 comment_ext     = CommentsExtension({"START_TAG" : "<--COMMENT", "END_TAG" : "COMMENT-->"}) # Comment support
-legend_ext      = TableLegendExtension()    # Table Legend support
-legendcode_ext  = CodeLegendExtension()     # Code Legend support
-smimg_ext       = SmartImgExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart image support
+legend_ext       = SmartLegendExtension({"IGNORING_IMG" : smileys.values(), "PARENTS" : ("div", "blockquote")})       # Smart Legend support
 dheader_ext     = DownHeaderExtension({"OFFSET" : 2, }) # Offset header support
 
 register = template.Library()
@@ -66,7 +62,6 @@ def emarkdown(text):
                                 'tables',                           # Tables support, included in python-markdown
                                 'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
                                 'codehilite(linenums=True)',        # Code hightlight support, with line numbers, included in python-markdwon
-                                # Externs extensions :
                                 sub_ext,                            # Subscript support
                                 del_ext,                            # Del support
                                 urlize_ext,                         # Autolink support
@@ -79,8 +74,6 @@ def emarkdown(text):
                                 gridtable_ext,                      # Grid tables support
                                 comment_ext,                        # Comment support
                                 legend_ext,                         # Legend support
-                                legendcode_ext,                     # Legend support
-                                smimg_ext,                          # SmartImg support
                                 align_ext,                          # Right align and center support
                                 dheader_ext,                        # Down Header support
                                 'nl2br',                            # Convert new line to br tags support, included in python markdown
