@@ -183,6 +183,26 @@ class SmartLegendProcessor(Treeprocessor):
         return None
 
     def remove_remaining_legend(self, root):
+        elemsToInspect = [root]
+        while len(elemsToInspect) > 0:
+            elem = elemsToInspect.pop()
+            Restart=True
+            while Restart:
+                Restart = False
+                for nelem in elem:
+                    elemsToInspect.append(nelem)
+                    if nelem.tag == "customlegend" :
+                        elem.remove(nelem)
+                        pp = util.etree.Element('p')
+                        contentLegend = legend.items()
+                        for el in legend:
+                            legend.remove(el)
+                            pp.append(el)
+                        elem.insert(0, pp)
+                        
+                        Restart = True
+                        break
+
         return root
 
 class LegendProcessor(BlockProcessor):
