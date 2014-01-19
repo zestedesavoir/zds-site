@@ -3,6 +3,7 @@
 from django import template
 
 from zds.member.models import Profile
+from django.contrib.auth.models import User
 
 
 register = template.Library()
@@ -15,6 +16,14 @@ def profile(user):
     except Profile.DoesNotExist:
         profile = None
     return profile
+
+@register.filter('user')
+def user(pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except:
+        user = None
+    return user
 
 @register.filter('mode')
 def mode(mode):
