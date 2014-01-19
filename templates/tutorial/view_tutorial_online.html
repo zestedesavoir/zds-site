@@ -16,6 +16,13 @@
     <li class="current"><a href="#">{{ tutorial.title }}</a></li>
 {% endblock %}
 
+{% block headline-actions %}
+    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="button secondary small expand">
+        <i class="fi-download"></i>
+        Télécharger MD
+    </a>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
@@ -60,14 +67,12 @@
         {% else %}
             <p>Aucune introduction.</p>
         {% endif %}
-
         {% if tutorial.is_mini %}
         {# Small tutorial #}
 
             {% with authors=tutorial.authors.all %}
                 {% include "tutorial/view_chapter_online_common.part.html" %}
             {% endwith %}
-
         {% else %}
         {# Large tutorial #}
 
@@ -104,7 +109,7 @@
 <div class="row">
     <h1>Réactions</h1>
 {% for note in notes %}
-<div class="note {% if forloop.first and nb > 1 %}before{% endif %} {% if note.is_useful %}useful{% endif %} {% if perms.tutorial.change_tutorial and note.alerts.all.count > 0 %} alert-box {% endif %}">
+<div class="note {% if forloop.first and nb > 1 %}before{% endif %} {% if perms.tutorial.change_tutorial and note.alerts.all.count > 0 %} alert-box {% endif %}">
         <div class="large-12 columns note-head" id="p{{ note.id }}">
             <div class="large-2 columns note-nickname">
                 <p>
@@ -134,7 +139,7 @@
                     {% if user.is_authenticated %}
                         
                         <div class="button-group">
-                            {% if note.author == user or perms.tutorial.change_note %}
+                            {% if perms.tutorial.change_note %}
                                 <a href="/tutoriels/message/editer?message={{ note.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer
@@ -287,4 +292,16 @@ method="post" id="submit_form">
 </form>
 {% endif %}
 
+{% endblock %}
+
+{% block additionnal-js %}
+    <script>
+        /* anwser check */
+        $('#submit_form').submit(function(e){
+            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().trim()=='')) {
+                alert('Votre message ne peut pas être vide.');
+                e.preventDefault();
+            }
+        })
+    </script>
 {% endblock %}
