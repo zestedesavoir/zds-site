@@ -1,6 +1,7 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
 {% load humane_date %}
+{% load profile %}
 
 {% block title %}
 {{ tutorial.title }}
@@ -69,7 +70,17 @@
               <td><p>{{ log.time.0|humane_time }}</p></td>
               <td><p><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
               <td><p><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
-              <td><p>{{ log.actor }}</p></td>
+              <td>
+                {% with u=log.actor.name|user %}
+                  {% if u %}
+                    {% with profile=u|profile %}
+                    <p><a href="{{ profile.get_absolute_url }}">{{ u.username }}</a></p>
+                    {% endwith %}
+                  {% else %}
+                    <p>Inconnu</p>
+                  {% endif %}
+                {% endwith %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>

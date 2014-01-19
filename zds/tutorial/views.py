@@ -22,7 +22,7 @@ from zds.member.views import get_client_ip
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
-from zds.utils.tutorials import get_blob
+from zds.utils.tutorials import get_blob, export_tutorial_to_html
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -483,7 +483,7 @@ def add_tutorial(request):
             tutorial.save()
             
             # Add subcategories on tutorial
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
             # We need to save the tutorial before changing its author list
@@ -498,7 +498,8 @@ def add_tutorial(request):
             
             tutorial.save()
             
-            maj_repo_tuto(new_slug_path=tutorial.get_path(), 
+            maj_repo_tuto(request,
+                          new_slug_path=tutorial.get_path(), 
                           tuto = tutorial,
                           action = 'add')
             
@@ -554,7 +555,8 @@ def edit_tutorial(request):
             
             tutorial.save()
             
-            maj_repo_tuto(old_slug_path=old_slug, 
+            maj_repo_tuto(request,
+                          old_slug_path=old_slug, 
                           new_slug_path=new_slug, 
                           tuto=tutorial, 
                           introduction=data['introduction'], 
@@ -562,7 +564,7 @@ def edit_tutorial(request):
                           action = 'maj')
             
             tutorial.subcategory.clear()
-            for subcat in data['subcategory']:
+            for subcat in form.cleaned_data['subcategory']:
                 tutorial.subcategory.add(subcat)
             
             tutorial.save()
@@ -676,7 +678,8 @@ def modify_tutorial(request):
         elif 'delete' in request.POST:
             old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
             
-            maj_repo_tuto(old_slug_path=old_slug,
+            maj_repo_tuto(request,
+                          old_slug_path=old_slug,
                           tuto = tutorial,
                           action = 'del')
             
@@ -861,7 +864,8 @@ def add_part(request):
             
             part.save()
             
-            maj_repo_part(new_slug_path =new_slug, 
+            maj_repo_part(request,
+                          new_slug_path =new_slug, 
                           part = part, 
                           introduction = data['introduction'], 
                           conclusion = data['conclusion'],
@@ -911,7 +915,8 @@ def modify_part(request):
         old_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), part.slug)
         
         
-        maj_repo_part(old_slug_path=old_slug,
+        maj_repo_part(request,
+                          old_slug_path=old_slug,
                       action ='del')
         # Actually delete the part
         part.delete()
@@ -943,7 +948,8 @@ def edit_part(request):
             
             part.save()
             
-            maj_repo_part(old_slug_path = old_slug, 
+            maj_repo_part(request,
+                          old_slug_path = old_slug, 
                           new_slug_path = new_slug, 
                           part = part, 
                           introduction = data['introduction'], 
@@ -1165,7 +1171,8 @@ def add_chapter(request):
                 
                 chapter.save()
                 
-                maj_repo_chapter(new_slug_path=new_slug, 
+                maj_repo_chapter(request,
+                                 new_slug_path=new_slug, 
                                  chapter=chapter, 
                                  introduction=data['introduction'], 
                                  conclusion=data['conclusion'],
@@ -1229,7 +1236,8 @@ def modify_chapter(request):
                 tut_c.position_in_part = tut_c.position_in_part - 1
                 tut_c.save()
         
-        maj_repo_chapter(new_slug_path=chapter.get_path(),
+        maj_repo_chapter(request,
+                         new_slug_path=chapter.get_path(),
                          action = 'del')
         # Then delete the chapter
         chapter.delete()
@@ -1294,7 +1302,8 @@ def edit_chapter(request):
             
             chapter.save()
             
-            maj_repo_chapter(old_slug_path = old_slug,
+            maj_repo_chapter(request,
+                             old_slug_path = old_slug,
                              new_slug_path = new_slug, 
                              chapter=chapter,
                              introduction=data['introduction'], 
@@ -1347,7 +1356,8 @@ def add_extract(request):
             extract.text = extract.get_path(relative=True)
             extract.save()
             
-            maj_repo_extract(new_slug_path=extract.get_path(), 
+            maj_repo_extract(request,
+                             new_slug_path=extract.get_path(), 
                              extract=extract, 
                              text=data['text'],
                              action='add')
@@ -1402,7 +1412,8 @@ def edit_extract(request):
             
             extract.save()
             
-            maj_repo_extract(old_slug_path=old_slug, 
+            maj_repo_extract(request,
+                             old_slug_path=old_slug, 
                              new_slug_path=new_slug, 
                              extract=extract, 
                              text=data['text'],
@@ -1449,7 +1460,8 @@ def modify_extract(request):
             chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
         old_slug = os.path.join(chapter_path, slugify(extract.title)+'.md')
         
-        maj_repo_extract(old_slug_path=old_slug, 
+        maj_repo_extract(request,
+                         old_slug_path=old_slug, 
                          extract=extract,
                          action = 'del')
         
@@ -1546,10 +1558,11 @@ def import_tuto(request):
                         
                         tutorial.save()
                         
-                        maj_repo_tuto(new_slug_path=tuto_path, 
+                        maj_repo_tuto(request,
+                                      new_slug_path=tuto_path, 
                                       tuto=tutorial, 
-                                      introduction=tuto_to_markdown(tutorial_intro.text), 
-                                      conclusion=tuto_to_markdown(tutorial_conclu.text),
+                                      introduction=tutorial_intro.text, 
+                                      conclusion=tutorial_conclu.text,
                                       action = 'add')
                         
                         tutorial.authors.add(request.user)
@@ -1572,7 +1585,7 @@ def import_tuto(request):
                             
                             part.save()
                             
-                            maj_repo_part(None, part_path, part, tuto_to_markdown(part_intro.text), tuto_to_markdown(part_conclu.text), action='add')
+                            maj_repo_part(request, None, part_path, part, part_intro.text, part_conclu.text, action='add')
                             
                             
                             chapter_count = 1
@@ -1594,10 +1607,11 @@ def import_tuto(request):
                                 
                                 chapter.save()
                                 
-                                maj_repo_chapter(new_slug_path=chapter_path, 
+                                maj_repo_chapter(request,
+                                                 new_slug_path=chapter_path, 
                                                  chapter=chapter, 
-                                                 introduction=tuto_to_markdown(chapter_intro.text), 
-                                                 conclusion=tuto_to_markdown(chapter_conclu.text),
+                                                 introduction=chapter_intro.text, 
+                                                 conclusion=chapter_conclu.text,
                                                  action='add')
                                 
                                 
@@ -1614,7 +1628,7 @@ def import_tuto(request):
                                     extract.text = extract.get_path(relative=True)
                                     extract.save()
 
-                                    maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text), action= 'add')
+                                    maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=extract_text.text, action= 'add')
                                     
                                     
                                     extract_count += 1
@@ -1654,10 +1668,11 @@ def import_tuto(request):
                         
                         tutorial.save()
                         
-                        maj_repo_tuto(new_slug_path=tuto_path, 
+                        maj_repo_tuto(request,
+                                      new_slug_path=tuto_path, 
                                       tuto=tutorial, 
-                                      introduction=tuto_to_markdown(tutorial_intro.text), 
-                                      conclusion=tuto_to_markdown(tutorial_conclu.text),
+                                      introduction=tutorial_intro.text, 
+                                      conclusion=tutorial_conclu.text,
                                       action = 'add')
                         
                         tutorial.authors.add(request.user)
@@ -1679,7 +1694,7 @@ def import_tuto(request):
                             
                             extract.save()
                             
-                            maj_repo_extract(new_slug_path=extract.get_path(), extract=extract, text=tuto_to_markdown(extract_text.text), action='add')
+                            maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=extract_text.text, action='add')
                             
                             
                             extract_count += 1
@@ -1718,7 +1733,7 @@ def deprecated_view_chapter_redirect(
 
 # Handling repo
 
-def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introduction=None, conclusion=None, action=None):
+def maj_repo_tuto(request, old_slug_path=None, new_slug_path=None, tuto=None, introduction=None, conclusion=None, action=None):
     
     if action == 'del' :
         shutil.rmtree(old_slug_path)
@@ -1749,13 +1764,20 @@ def maj_repo_tuto(old_slug_path=None, new_slug_path=None, tuto=None, introductio
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
         index.add(['conclusion.md'])
+        
+        aut_user = str(request.user.pk)
+        aut_email = str(request.user.email)
+        if aut_email is None or aut_email.strip() == "":
+            aut_email ="inconnu@zestedesavoir.com"
             
-        com = index.commit(msg.encode('utf-8'))
+        com = index.commit(msg.encode('utf-8'),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
         tuto.sha_draft=com.hexsha
         tuto.save()
         
     
-def maj_repo_part(old_slug_path=None, new_slug_path=None, part=None, introduction=None, conclusion=None, action=None):
+def maj_repo_part(request, old_slug_path=None, new_slug_path=None, part=None, introduction=None, conclusion=None, action=None):
     
     repo = Repo(part.tutorial.get_path())
     index = repo.index
@@ -1763,16 +1785,16 @@ def maj_repo_part(old_slug_path=None, new_slug_path=None, part=None, introductio
     msg='repo partie'
     if action == 'del' :
         shutil.rmtree(old_slug_path)
-        msg='Suppresion de la partie : '+part.title
+        msg='Suppresion de la partie '
         index.remove([part.get_path(relative=True)])
         
     else:
         if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
-            msg='Modification de la partie : '+part.title
+            msg='Modification de la partie '
         elif action == 'add' :
             os.makedirs(new_slug_path, mode=0777)
-            msg='Creation de la partie : '+part.title
+            msg='Creation de la partie '
         
         index.add([slugify(part.title)])
         
@@ -1790,13 +1812,19 @@ def maj_repo_part(old_slug_path=None, new_slug_path=None, part=None, introductio
         conclu.close()
         index.add([os.path.join(part.get_path(relative=True),'conclusion.md')])
     
-    com_part = index.commit(msg.encode('utf-8'))
+    aut_user = str(request.user.pk)
+    aut_email = str(request.user.email)
+    if aut_email is None or aut_email.strip() == "":
+        aut_email ="inconnu@zestedesavoir.com"
+    com_part = index.commit(msg.encode('utf-8'),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
     part.tutorial.sha_draft=com_part.hexsha
     part.tutorial.save()
     
     part.save()
         
-def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, introduction=None, conclusion=None, action=None):
+def maj_repo_chapter(request, old_slug_path=None, new_slug_path=None, chapter=None, introduction=None, conclusion=None, action=None):
     if(chapter.tutorial):
         repo = Repo(os.path.join(settings.REPO_PATH, chapter.tutorial.slug))
         ph=chapter.slug
@@ -1809,15 +1837,15 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
     
     if action == 'del' :
         shutil.rmtree(old_slug_path)
-        msg='Suppresion du chapitre : '+chapter.title
+        msg='Suppresion du chapitre  '
         index.remove([ph])
     else:
         if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
-            msg='Modification du chapitre : '+chapter.title
+            msg='Modification du chapitre '
         elif action == 'add' :
             os.makedirs(new_slug_path, mode=0777)
-            msg='Creation du chapitre : '+chapter.title
+            msg='Creation du chapitre '
 
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
@@ -1840,7 +1868,13 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
     
     index.add(['manifest.json'])
 
-    com_ch = index.commit(msg.encode('utf-8'))
+    aut_user = str(request.user.pk)
+    aut_email = str(request.user.email)
+    if aut_email is None or aut_email.strip() == "":
+        aut_email ="inconnu@zestedesavoir.com"
+    com_ch = index.commit(msg.encode('utf-8'),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
     
     if(chapter.tutorial):
         chapter.tutorial.sha_draft=com_ch.hexsha
@@ -1851,7 +1885,7 @@ def maj_repo_chapter(old_slug_path=None, new_slug_path=None, chapter=None, intro
     
     chapter.save()
     
-def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=None, action=None):
+def maj_repo_extract(request, old_slug_path=None, new_slug_path=None, extract=None, text=None, action=None):
     if(extract.chapter.tutorial):
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug))
         ph=extract.chapter.slug
@@ -1863,16 +1897,16 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
     
     if action == 'del' :
          os.remove(old_slug_path)
-         msg='Suppression de l\'exrait : '+extract.title
+         msg='Suppression de l\'exrait '
     else:        
         if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
-            msg='Modification de l\'exrait : '+extract.title
+            msg='Modification de l\'exrait '
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg='Mise a jour de l\'exrait : '+extract.title
+        msg='Mise a jour de l\'exrait '
     
     #update manifest
     if(extract.chapter.tutorial):
@@ -1884,7 +1918,13 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
         
     index.add(['manifest.json'])
     
-    com_ex = index.commit(msg.encode('utf-8'))
+    aut_user = str(request.user.pk)
+    aut_email = str(request.user.email)
+    if aut_email is None or aut_email.strip() == "":
+        aut_email ="inconnu@zestedesavoir.com"
+    com_ex = index.commit(msg.encode('utf-8'),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
     
     if(extract.chapter.tutorial):
         extract.chapter.tutorial.sha_draft = com_ex.hexsha
@@ -1895,29 +1935,6 @@ def maj_repo_extract(old_slug_path=None, new_slug_path=None, extract=None, text=
         
     extract.save()
 
-def tuto_to_markdown(text):
-    chaine = re.sub(r'(.*)<titre1>(.*)</titre1>(.*)', r'\1##\2\3', text)
-    chaine = re.sub(r'(.*)<titre2>(.*)</titre2>(.*)', r'\1###\2\3', chaine)
-    chaine = re.sub(r'(.*)<gras>(.*)</gras>(.*)', r'\1**\2**\3', chaine)
-    chaine = re.sub(r'(.*)<italique>(.*)</italique>(.*)', r'\1*\2*\3', chaine)
-    chaine = re.sub(r'(.*)<lien(.*)url="(.*)">(.*)</lien>(.*)', r'\1[\4](\3)\5', chaine)
-    chaine = re.sub(r'(.*)<image([\s|\S]*)>(.*)</image>([\s|\S]*)', r'\1![](\3)\4', chaine)
-    chaine = re.sub(r'(.*)<puce>(.*)</puce>(.*)', r'\1- \2\3', chaine)
-    chaine = re.sub(r'(.*)<minicode(.*)type="(.*)"(.*)>(.*)</minicode>(.*)', r'\1`\5`\6', chaine)
-    chaine = re.sub(r'(.*)<code(.*)type="(.*)"(.*)>([\s|\S]*)</code>(.*)', r'\1\r```\3\r\5\r```\r\6', chaine)    
-    chaine = re.sub(r'(.*)<couleur nom="(.*)">(.*)</couleur>(.*)', r'\1\3\4', chaine)
-    chaine = re.sub(r'(.*)<position valeur="(.*)">', r'\1', chaine)
-    chaine = re.sub(r'</position>(.*)', r'\1', chaine)
-    chaine = re.sub(r'(.*)<taille valeur="(.*)">', r'\1', chaine)
-    chaine = re.sub(r'</taille>(.*)', r'\1', chaine)
-    chaine = re.sub(r'(.*)<liste>', r'\1', chaine)
-    chaine = re.sub(r'</liste>(.*)', r'\1', chaine)
-    chaine = re.sub(r'(.*)<information(.*)>(.*)</information>(.*)', r'\1\n[information]\n|\3\n\4', chaine)
-    chaine = re.sub(r'(.*)<question(.*)>(.*)</question>(.*)', r'\1\n[question]\n|\3\n\4', chaine)
-    chaine = re.sub(r'(.*)<erreur(.*)>(.*)</erreur>(.*)', r'\1\n[erreur]\n|\3\n\4', chaine)
-    chaine = re.sub(r'(.*)<attention(.*)>(.*)</attention>(.*)', r'\1\n[attention]\n|\3\n\4', chaine)
-
-    return chaine
 
 @can_read_now
 def download(request):
@@ -1931,6 +1948,27 @@ def download(request):
     
     response = HttpResponse(open(ph+".tar", 'rb').read(), mimetype='application/tar')
     response['Content-Disposition'] = 'attachment; filename={0}.tar'.format(tutorial.slug)
+
+    return response
+
+@can_read_now
+def download_pdf(request):
+    '''Download a tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+        
+    contenu = export_tutorial_to_html(tutorial)
+    
+    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    
+    html_file = open(os.path.join(ph, tutorial.slug+'.md'), "w")
+    html_file.write(smart_str(contenu))
+    html_file.close()
+    
+    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    
+    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
+    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
 
     return response
 
@@ -2005,7 +2043,7 @@ def answer(request):
         # Saving the message
         else:
             form = NoteForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 note = Note()
@@ -2059,7 +2097,7 @@ def edit_note(request):
     note = get_object_or_404(Note, pk=note_pk)
 
     g_tutorial = None
-    if note.position == 1:
+    if note.position >= 1:
         g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
 
     # Making sure the user is allowed to do that
@@ -2103,9 +2141,11 @@ def edit_note(request):
         
         if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
             # The user just sent data, handle them
-            note.text = request.POST['text']
-            note.update = datetime.now()
-            note.editor = request.user
+            if request.POST['text'].strip() !='':
+                note.text = request.POST['text']
+                note.text_html = emarkdown(request.POST['text'])
+                note.update = datetime.now()
+                note.editor = request.user
         
         note.save()
         
