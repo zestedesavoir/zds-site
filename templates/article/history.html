@@ -1,7 +1,6 @@
 {% extends "article/base.html" %}
 {% load emarkdown %}
 {% load humane_date %}
-{% load profile %}
 
 {% block title %}
 {{ article.title }}
@@ -70,17 +69,7 @@
               <td><p>{{ log.time.0|humane_time }}</p></td>
               <td><p><a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
               <td><p><a href="#" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
-              <td>
-                {% with u=log.actor.name|user %}
-                  {% if u %}
-                    {% with profile=u|profile %}
-                    <p><a href="{{ profile.get_absolute_url }}">{{ u.username }}</a></p>
-                    {% endwith %}
-                  {% else %}
-                    <p>Inconnu</p>
-                  {% endif %}
-                {% endwith %}
-              </td>
+              <td><p>{{ log.actor }}</p></td>
             </tr>
             {% endfor %}
           </tbody>

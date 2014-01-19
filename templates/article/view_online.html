@@ -96,7 +96,7 @@
                     {% if user.is_authenticated %}
                         
                         <div class="button-group">
-                            {% if perms.article.change_reaction %}
+                            {% if reaction.author == user or perms.article.change_reaction %}
                                 <a href="/articles/message/editer?message={{ reaction.pk }}" class="button secondary small">
                                     <i class="fi-pencil"></i>
                                     Éditer
@@ -251,16 +251,3 @@ method="post" id="submit_form">
 
 
 {% endblock %}
-
-{% block additionnal-js %}
-    <script>
-        /* anwser check */
-        $('#submit_form').submit(function(e){
-            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().trim()=='')) {
-                alert('Votre message ne peut pas être vide.');
-                e.preventDefault();
-            }
-        })
-    </script>
-{% endblock %}
-
