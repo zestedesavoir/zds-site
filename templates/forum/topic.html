@@ -319,7 +319,7 @@ method="POST" id="submit_form">
     <script>
         /* anwser check */
         $('#submit_form').submit(function(e){
-            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().trim()=='')) {
+            if (!$(this).find('textarea').val()) {
                 alert('Votre message ne peut pas être vide.');
                 e.preventDefault();
             }
