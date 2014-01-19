@@ -1,17 +1,17 @@
 {% load markup %}
 {% load emarkdown %}
 
+
 {% with extracts=chapter.extracts %}
     <div class="row">
         <div class="large-12 columns">
-            {% if not chapter.tutorial %}
+            {% if chapter.type == 'BIG' %}
                 {% if chapter.intro %}
                     {{ chapter.intro|safe }}
                 {% else %}
                     <p>Aucune introduction.</p>
                 {% endif %}
             {% endif %}
-
             {% if extracts %}
                 <ul>
                     {% for extract in extracts %}
@@ -53,7 +53,7 @@
 
     <hr />
 
-    {% if not chapter.tutorial %}
+    {% if chapter.type == 'BIG' %}
     <div class="row">
         <div class="large-12 columns">
             {% if chapter.get_conclusion_online %}
