@@ -1,4 +1,4 @@
-{% extends "tutorial/base.html" %}
+{% extends "forum/base.html" %}
 
 {% block title %}
     Éditer un message
@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
+    <li><a href="{{ post.topic.forum.category.get_absolute_url }}">{{ post.topic.forum.category.title }}</a></li>
+    <li><a href="{{ post.topic.forum.get_absolute_url }}">{{ post.topic.forum.title }}</a></li>
+    <li><a href="{{ post.topic.get_absolute_url }}">{{ post.topic.title }}</a></li>
     <li class="current"><a href="javascript:;">Éditer un message</a></li>
 {% endblock %}
 
@@ -57,7 +59,7 @@
                     Prévisualisation
                 </button>
 
-                <a href="{{ note.get_absolute_url }}" class="button secondary">Annuler</a>
+                <a href="{{ post.get_absolute_url }}" class="button secondary">Annuler</a>
             </div>
 
             {% csrf_token %}
