@@ -26,6 +26,7 @@ from zds.utils.tutorials import get_blob, export_tutorial_to_html
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+import urllib
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
     EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm,  NoteForm, AlertForm
@@ -1540,6 +1541,7 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.images = 'images'
                         tutorial.introduction = 'introduction.md'
                         tutorial.conclusion = 'conclusion.md'
                         # Creating the gallery
@@ -1649,6 +1651,7 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.images = 'images'
                         tutorial.introduction = 'introduction.md'
                         tutorial.conclusion = 'conclusion.md'
                         
@@ -1734,6 +1737,7 @@ def deprecated_view_chapter_redirect(
                                   part__position_in_tutorial=part_pos,
                                   part__tutorial__pk=tutorial_pk)
     return redirect(chapter.get_absolute_url(), permanent=True)
+
 
 # Handling repo
 
