@@ -110,16 +110,19 @@ def export_tutorial_to_html(tutorial):
     i = open(os.path.join(tutorial.get_prod_path(), tutorial.introduction), "r")
     i_contenu = i.read()
     i.close()
-    tuto['intro'] = i_contenu.decode('utf-8')
+    tuto['intro'] = i_contenu
 
     c = open(os.path.join(tutorial.get_prod_path(), tutorial.conclusion), "r")
     c_contenu = c.read()
     c.close()
-    tuto['conclu'] = c_contenu.decode('utf-8')
+    tuto['conclu'] = c_contenu
+    
     tuto['image'] = tutorial.image
     tuto['is_mini'] = tutorial.is_mini()
     tuto['authors'] = tutorial.authors
     tuto['subcategory'] = tutorial.subcategory
+    tuto['pk'] = tutorial.pk
+    tuto['slug'] = tutorial.slug
      
     #find the good manifest file
     mandata = tutorial.load_json(online=True)
