@@ -12,9 +12,10 @@ git checkout 73fdecaf2cf00d85b7c933f5b8d186d74a80ff2a
 
 # apply patch for supporting range line numbering
 git apply ../../patchs/python-markdown/0001-Add-range-support-for-HL-in-codehilite.patch
+git apply ../../patchs/python-markdown/0002-linenostart-support.patch
 
 # install
-python setup.py install --user
+python2 setup.py install --user
 
 # cleanning
 cd ..
