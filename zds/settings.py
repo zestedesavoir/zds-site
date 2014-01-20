@@ -113,6 +113,7 @@ PIPELINE_CSS = {
     'zds': {
         'source_filenames': (
             'css/zestedesavoir.css',
+            'css/editor.css',
         ),
         'output_filename': 'css/zds.css'
     }

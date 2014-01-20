@@ -29,12 +29,10 @@
 </div>
 {% endif %}
 
-{% include "misc/editor.part.html" %}
-
 <div class="row">
     <div class="large-12 columns">
         <form action="#previsualisation" method="post">
-            <textarea class="input-block-level" name="text" rows="20" id="id_text"
+            <textarea class="input-block-level md_editor" name="text" rows="20" id="id_text"
                 placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
 
             <div style="text-align: center;">
