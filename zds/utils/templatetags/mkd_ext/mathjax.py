@@ -8,8 +8,12 @@ class MathJaxPattern(markdown.inlinepatterns.Pattern):
         markdown.inlinepatterns.Pattern.__init__(self, r'(?<!\\)(\$\$?)(.+?)\2')
 
     def handleMatch(self, m):
-        node = markdown.util.etree.Element('mathjax')
-        node.text = markdown.util.AtomicString(m.group(2) + m.group(3) + m.group(2))
+        if m.group(2) == "$" and "\n" in m.group(3):
+            node = markdown.util.etree.Element('span')
+            node.text = "\\" + m.group(2) + m.group(3) + "\\" + m.group(2)
+        else:
+            node = markdown.util.etree.Element('mathjax')
+            node.text = markdown.util.AtomicString(m.group(2) + m.group(3) + m.group(2))
         return node
 
 class MathJaxExtension(markdown.Extension):

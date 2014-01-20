@@ -1012,6 +1012,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     for part in parts :
         cpt_c=1
         part['slug'] = slugify(part['title'])
+        part['get_absolute_url'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -1022,6 +1023,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['position_in_tutorial'] = cpt_c * cpt_p
             chapter['intro'] = get_blob(repo.commit(sha).tree, chapter['introduction'])
             chapter['conclu'] = get_blob(repo.commit(sha).tree, chapter['conclusion'])
+            chapter['get_absolute_url'] = part['get_absolute_url'] + '{0}/'.format(chapter['slug'])
             cpt_e=1
             for ext in chapter['extracts'] :
                 ext['chapter'] = chapter
@@ -1051,19 +1053,19 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
     '''View chapter'''
 
-    chapter = get_object_or_404(Chapter,
+    chapter_bd = get_object_or_404(Chapter,
                                 slug=chapter_slug,
                                 part__slug=part_slug,
                                 part__tutorial__pk=tutorial_pk)
 
-    tutorial = chapter.get_tutorial()
+    tutorial = chapter_bd.get_tutorial()
     if not tutorial.on_line :
         raise Http404
 
     if not tutorial_slug == slugify(tutorial.title)\
-        or not part_slug == slugify(chapter.part.title)\
-            or not chapter_slug == slugify(chapter.title):
-        return redirect(chapter.get_absolute_url())
+        or not part_slug == slugify(chapter_bd.part.title)\
+            or not chapter_slug == slugify(chapter_bd.title):
+        return redirect(chapter_bd.get_absolute_url())
 
     #find the good manifest file
     mandata = tutorial.load_json()
@@ -1077,6 +1079,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
     for part in parts :
         cpt_c=1
         part['slug'] = slugify(part['title'])
+        part['get_absolute_url_online'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -1090,6 +1093,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             intro.close()
             conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
             chapter['conclu'] = conclu.read()
+            chapter['get_absolute_url_online'] = part['get_absolute_url_online'] + '{0}/'.format(chapter['slug'])
             conclu.close()
             cpt_e=1
             for ext in chapter['extracts'] :
@@ -2043,7 +2047,7 @@ def answer(request):
         # Saving the message
         else:
             form = NoteForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 note = Note()
@@ -2141,9 +2145,11 @@ def edit_note(request):
         
         if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
             # The user just sent data, handle them
-            note.text = request.POST['text']
-            note.update = datetime.now()
-            note.editor = request.user
+            if request.POST['text'].strip() !='':
+                note.text = request.POST['text']
+                note.text_html = emarkdown(request.POST['text'])
+                note.update = datetime.now()
+                note.editor = request.user
         
         note.save()
         

@@ -1,0 +1,18 @@
+<div class="row">
+    <div class="large-6 columns">
+        {% if prev %}
+            <a class="button secondary" href="{{ prev.get_absolute_url_online }}">
+                « {{ prev.title }}
+            </a>
+        {% endif %}
+    </div>
+    <div class="large-6 columns">
+        <div class="right">
+            {% if next %}
+                <a class="button secondary" href="{{ next.get_absolute_url_online }}">
+                    {{ next.title }} »
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
