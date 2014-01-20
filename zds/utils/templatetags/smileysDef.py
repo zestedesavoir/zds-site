@@ -18,7 +18,7 @@ smileys_base = {
     "triste.png"  : (":(", ":-(", ),
     "huh.png"     : (":o", ":-o", ":O", ":-O", ),
     "mechant.png" : (":colere2:", ),
-    "blink.gif"   : ("o_O", "oO", "O_o", "Oo", ),
+    "blink.gif"   : ("o_O", "O_o", ),
     "hihi.png"    : ("^^", ),
     "siffle.png"  : (u":-°", u":°", ),
     "ange.png"    : (":ange:", ),    

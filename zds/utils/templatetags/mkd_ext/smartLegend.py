@@ -194,9 +194,8 @@ class SmartLegendProcessor(Treeprocessor):
                     if nelem.tag == "customlegend" :
                         elem.remove(nelem)
                         pp = util.etree.Element('p')
-                        contentLegend = legend.items()
-                        for el in legend:
-                            legend.remove(el)
+                        contentLegend = nelem.items()
+                        for el in nelem:
                             pp.append(el)
                         elem.insert(0, pp)
                         
