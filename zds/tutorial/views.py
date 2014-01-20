@@ -3,34 +3,39 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+import glob
+import json
 from lxml import etree
 from operator import itemgetter, attrgetter
 import os
+import os.path
 import re
 import shutil
-import json
+import urllib
+import zipfile
 
 from git import *
+from zds.gallery.models import Gallery, UserGallery, Image
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
-from zds.utils.tutorials import get_blob, export_tutorial_to_html
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-import urllib
+from zds.utils.tutorials import get_blob, export_tutorial_to_html
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
-    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm,  NoteForm, AlertForm
-from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, mark_read, Note
+    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
+from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
+    mark_read, Note
+
 
 @can_read_now
 def index(request):
@@ -1524,9 +1529,10 @@ def import_tuto(request):
                 if form.is_valid():
                     
                     tutorial = Tutorial()
+                        
                     # add create date
                     tutorial.create_at = datetime.now()
-
+                    
                     
                     tree = etree.parse(request.FILES['file'])
                     racine_big = tree.xpath("/bigtuto")
@@ -1705,10 +1711,29 @@ def import_tuto(request):
                             
                             
                             extract_count += 1
+                            
+                    #download images 
+                    if 'images' in request.FILES :
+                        zfile = zipfile.ZipFile(request.FILES['images'])
+                        for i in zfile.namelist():
+                            ph = tutorial.get_path() + os.sep + i
+                            try:
+                                data = zfile.read(i)
+                                print("file = "+ph)
+                                fp = open(ph, "wb")
+                                fp.write(data)
+                                fp.close()
+                            except:
+                                print("repertoire = "+ph)
+                                try: os.makedirs(ph)
+                                except: pass
                                     
+                        zfile.close()
+                        
                     return redirect(tutorial.get_absolute_url())
             else: 
                 raise Http404
+                 
     else:
         form = ImportForm()
     
