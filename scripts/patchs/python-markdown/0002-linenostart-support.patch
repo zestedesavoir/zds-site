@@ -1,0 +1,102 @@
+From 0b3f1f87d643b54d6be13c405fdabc882dadbe4e Mon Sep 17 00:00:00 2001
+From: Christophe Gabard <christophe.gabard@gmail.com>
+Date: Mon, 20 Jan 2014 22:28:25 +0100
+Subject: [PATCH 2/2] linenostart support
+
+---
+ markdown/extensions/codehilite.py  | 14 +++++++++++---
+ markdown/extensions/fenced_code.py | 11 +++++++++--
+ 2 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/markdown/extensions/codehilite.py b/markdown/extensions/codehilite.py
+index ee9c9d8..a9a5aaa 100644
+--- a/markdown/extensions/codehilite.py
++++ b/markdown/extensions/codehilite.py
+@@ -94,7 +94,7 @@ class CodeHilite(object):
+ 
+     def __init__(self, src=None, linenums=None, guess_lang=True,
+                 css_class="codehilite", lang=None, style='default',
+-                noclasses=False, tab_length=4, hl_lines=None):
++                noclasses=False, tab_length=4, hl_lines=None, linenostart=1):
+         self.src = src
+         self.lang = lang
+         self.linenums = linenums
+@@ -104,6 +104,7 @@ class CodeHilite(object):
+         self.noclasses = noclasses
+         self.tab_length = tab_length
+         self.hl_lines = hl_lines or []
++        self.linenostart = linenostart
+ 
+     def hilite(self):
+         """
+@@ -136,7 +137,8 @@ class CodeHilite(object):
+                                       cssclass=self.css_class,
+                                       style=self.style,
+                                       noclasses=self.noclasses,
+-                                      hl_lines=self.hl_lines)
++                                      hl_lines=self.hl_lines,
++                                      linenostart = self.linenostart)
+             return highlight(self.src, lexer, formatter)
+         else:
+             # just escape and build markup usable by JS highlighting libs
+@@ -186,7 +188,9 @@ class CodeHilite(object):
+             (?P<lang>[\w+-]*)               # The language
+             \s*                             # Arbitrary whitespace
+             # Optional highlight lines, single- or double-quote-delimited
+-            (hl_lines=(?P<quot>"|')(?P<hl_lines>.*?)(?P=quot))?
++            (hl_lines[ ]*=[ ]*(?P<quot>"|')(?P<hl_lines>.*?)(?P=quot))?
++            \s*
++            (linenostart[ ]*=[ ]*(?P<linenostart>.*?))?
+             ''',  re.VERBOSE)
+         # search first line for shebang
+         m = c.search(fl)
+@@ -204,6 +208,10 @@ class CodeHilite(object):
+                 self.linenums = True
+ 
+             self.hl_lines = parse_hl_lines(m.group('hl_lines'))
++            try:
++                self.linenostart = int(m.group('linenostart'))
++            except:
++                self.linenistart = 1
+         else:
+             # No match
+             lines.insert(0, fl)
+diff --git a/markdown/extensions/fenced_code.py b/markdown/extensions/fenced_code.py
+index f5e1dce..8599d09 100644
+--- a/markdown/extensions/fenced_code.py
++++ b/markdown/extensions/fenced_code.py
+@@ -119,7 +119,8 @@ class FencedBlockPreprocessor(Preprocessor):
+ (?P<fence>^(?:~{3,}|`{3,}))[ ]*         # Opening ``` or ~~~
+ (\{?\.?(?P<lang>[a-zA-Z0-9_+-]*))?[ ]*  # Optional {, and lang
+ # Optional highlight lines, single- or double-quote-delimited
+-(hl_lines=(?P<quot>"|')(?P<hl_lines>.*?)(?P=quot))?[ ]*
++(hl_lines[ ]*=[ ]*(?P<quot>"|')(?P<hl_lines>.*?)(?P=quot))?[ ]*
++(linenostart[ ]*=[ ]*(?P<linenostart>.*?))?[ ]*
+ }?[ ]*\n                                # Optional closing }
+ (?P<code>.*?)(?<=\n)
+ (?P=fence)[ ]*$''', re.MULTILINE | re.DOTALL | re.VERBOSE)
+@@ -155,6 +156,10 @@ class FencedBlockPreprocessor(Preprocessor):
+                 # If config is not empty, then the codehighlite extension
+                 # is enabled, so we call it to highlite the code
+                 if self.codehilite_conf:
++                    try:
++                        linenost = int(m.group("linenostart"))
++                    except:
++                        linenost = 1
+                     highliter = CodeHilite(m.group('code'),
+                             linenums=self.codehilite_conf['linenums'][0],
+                             guess_lang=self.codehilite_conf['guess_lang'][0],
+@@ -162,7 +167,9 @@ class FencedBlockPreprocessor(Preprocessor):
+                             style=self.codehilite_conf['pygments_style'][0],
+                             lang=(m.group('lang') or None),
+                             noclasses=self.codehilite_conf['noclasses'][0],
+-                            hl_lines=parse_hl_lines(m.group('hl_lines')))
++                            hl_lines=parse_hl_lines(m.group('hl_lines')),
++                            linenostart=linenost
++                            )
+ 
+                     code = highliter.hilite()
+                 else:
+-- 
+1.8.5.2
+
