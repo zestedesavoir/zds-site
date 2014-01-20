@@ -93,12 +93,7 @@ class VideoParser(InFigureParser):
     def detect(self, parent, element, legend):
         lelems = list(element.iter())
         return  (legend.attrib["type"] == "unknown" or legend.attrib["type"] == "Video") \
-                and element.tag=="p" \
-                and (element.text is None or element.text.strip() == "") \
-                and (len(lelems) == 1 or (len(lelems)==2 and lelems[0] is element)) \
-                and lelems[-1].tag == "iframe"
-    def transform(self,  parent, element, legend, index):
-        InFigureParser.transform(self, parent, element, legend, index, True)
+                and element.tag=="iframe" 
 
 
 class SmartLegendProcessor(Treeprocessor):
@@ -189,6 +184,7 @@ class SmartLegendProcessor(Treeprocessor):
             Restart=True
             while Restart:
                 Restart = False
+                index = 0
                 for nelem in elem:
                     elemsToInspect.append(nelem)
                     if nelem.tag == "customlegend" :
@@ -197,10 +193,11 @@ class SmartLegendProcessor(Treeprocessor):
                         contentLegend = nelem.items()
                         for el in nelem:
                             pp.append(el)
-                        elem.insert(0, pp)
+                        elem.insert(index, pp)
                         
                         Restart = True
                         break
+                    index += 1
 
         return root
 
