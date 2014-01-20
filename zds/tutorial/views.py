@@ -1719,12 +1719,10 @@ def import_tuto(request):
                             ph = tutorial.get_path() + os.sep + i
                             try:
                                 data = zfile.read(i)
-                                print("file = "+ph)
                                 fp = open(ph, "wb")
                                 fp.write(data)
                                 fp.close()
                             except:
-                                print("repertoire = "+ph)
                                 try: os.makedirs(ph)
                                 except: pass
                                     
