@@ -195,8 +195,7 @@ class SmartLegendProcessor(Treeprocessor):
                         elem.remove(nelem)
                         pp = util.etree.Element('p')
                         contentLegend = nelem.items()
-                        for el in legend:
-                            nelem.remove(el)
+                        for el in nelem:
                             pp.append(el)
                         elem.insert(0, pp)
                         
