@@ -17,7 +17,9 @@ import os
 import os.path
 import re
 import shutil
+from urllib import urlretrieve
 import urllib
+from urlparse import urlparse
 import zipfile
 
 from git import *
@@ -2005,11 +2007,38 @@ def download_pdf(request):
 
     return response
 
+def get_url_images(md_text, pt):
+    regex = ur"!\[(.*)\]\((\S*)\)"
+    imgs = re.findall(regex, md_text)
+    
+    for img in imgs:
+        parse_object = urlparse(img[1])
+        (filepath, filename) = os.path.split(parse_object.path)
+        urlretrieve(img[1], os.path.join(pt, filename))
+
+def sub(g):
+    start = g.group('start')
+    alt = g.group('alt')
+    url = g.group('url')
+    parse_object = urlparse(url)
+    (filepath, filename) = os.path.split(parse_object.path)
+    url = os.path.join ("images", filename)
+    end = g.group('end')
+    return start + alt + url + end
+
+def markdown_to_out(md_text):
+    #chaine = re.sub(r'!\[(.*)\]\((\S*)\)', r'!\[\1\]\((\S*)\)', md_text)
+    return re.sub(r'(?P<start>.*!\[)(?P<alt>.*\]\()(?P<url>\S*)(?P<end>\))', sub, md_text)
+                    
 def MEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
         
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
+    
+    #create resources directory
+    ph = os.path.join(tutorial.get_prod_path(), tutorial.images)
+    os.makedirs(ph)
     
     #convert markdown file to html file
     fichiers=[] 
@@ -2024,11 +2053,18 @@ def MEP(tutorial):
             md_file_contenu = md_file.read()
             md_file.close()
             
+            #convert to out format
+            out_file = open(fichier, "w")
+            out_file.write(markdown_to_out(md_file_contenu))
+            out_file.close()
+            
             html_file = open(fichier+'.html', "w")
             html_file.write(emarkdown(md_file_contenu.decode('utf-8')))
             html_file.close()
-    
-    
+            
+            #download images
+            url_imgs = get_url_images(md_file_contenu.decode('utf-8'), ph)
+
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
