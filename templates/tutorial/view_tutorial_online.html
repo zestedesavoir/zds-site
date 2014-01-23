@@ -17,10 +17,11 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="button secondary small expand">
-        <i class="fi-download"></i>
-        Télécharger MD
-    </a>
+    <a href="#" data-dropdown="drop_dl" class="button secondary small expand"><i class="fi-download"></i>Télécharger</a><br>
+    <ul id="drop_dl" class="f-dropdown">
+      <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
+      <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
+    </ul>
 {% endblock %}
 
 {% block content %}
