@@ -101,7 +101,7 @@ def get_blob(tree, chemin):
     else:
         return None
 
-def export_tutorial_to_html(tutorial):
+def export_tutorial_to_md(tutorial):
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
