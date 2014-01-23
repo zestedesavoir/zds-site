@@ -286,11 +286,6 @@ class ImportForm(forms.Form):
         label='Selectionnez le tutoriel à importer',
         required=False
     )
-    
-    images = forms.FileField(
-        label='Fichier zip contenant les images du tutoriel',
-        required=False
-    )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -298,7 +293,6 @@ class ImportForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('file'),
-            Field('images'),
             Submit('submit', 'Importer'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
