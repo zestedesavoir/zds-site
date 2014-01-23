@@ -1,35 +1,44 @@
 # coding: utf-8
+from PIL import Image as ImagePIL
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+import glob
+import json
 from lxml import etree
 from operator import itemgetter, attrgetter
 import os
+import os.path
 import re
 import shutil
-import json
+from urllib import urlretrieve
+import urllib
+from urlparse import urlparse
+import zipfile
 
 from git import *
+from zds.gallery.models import Gallery, UserGallery, Image
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import render_template, slugify
-from zds.utils.tutorials import get_blob, export_tutorial_to_html
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
-    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm,  NoteForm, AlertForm
-from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, mark_read, Note
+    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
+from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
+    mark_read, Note
+
 
 @can_read_now
 def index(request):
@@ -630,7 +639,7 @@ def modify_tutorial(request):
         
         elif 'invalid-tuto' in request.POST:
             UNMEP(tutorial)
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_public).all()[0]
+            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
             validation.status = 'PENDING'
             validation.date_validation = None
             validation.save()
@@ -1012,6 +1021,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     for part in parts :
         cpt_c=1
         part['slug'] = slugify(part['title'])
+        part['get_absolute_url'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -1022,6 +1032,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['position_in_tutorial'] = cpt_c * cpt_p
             chapter['intro'] = get_blob(repo.commit(sha).tree, chapter['introduction'])
             chapter['conclu'] = get_blob(repo.commit(sha).tree, chapter['conclusion'])
+            chapter['get_absolute_url'] = part['get_absolute_url'] + '{0}/'.format(chapter['slug'])
             cpt_e=1
             for ext in chapter['extracts'] :
                 ext['chapter'] = chapter
@@ -1051,19 +1062,19 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
     '''View chapter'''
 
-    chapter = get_object_or_404(Chapter,
+    chapter_bd = get_object_or_404(Chapter,
                                 slug=chapter_slug,
                                 part__slug=part_slug,
                                 part__tutorial__pk=tutorial_pk)
 
-    tutorial = chapter.get_tutorial()
+    tutorial = chapter_bd.get_tutorial()
     if not tutorial.on_line :
         raise Http404
 
     if not tutorial_slug == slugify(tutorial.title)\
-        or not part_slug == slugify(chapter.part.title)\
-            or not chapter_slug == slugify(chapter.title):
-        return redirect(chapter.get_absolute_url())
+        or not part_slug == slugify(chapter_bd.part.title)\
+            or not chapter_slug == slugify(chapter_bd.title):
+        return redirect(chapter_bd.get_absolute_url())
 
     #find the good manifest file
     mandata = tutorial.load_json()
@@ -1077,6 +1088,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
     for part in parts :
         cpt_c=1
         part['slug'] = slugify(part['title'])
+        part['get_absolute_url_online'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -1090,6 +1102,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             intro.close()
             conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']+'.html'), "r")
             chapter['conclu'] = conclu.read()
+            chapter['get_absolute_url_online'] = part['get_absolute_url_online'] + '{0}/'.format(chapter['slug'])
             conclu.close()
             cpt_e=1
             for ext in chapter['extracts'] :
@@ -1519,9 +1532,10 @@ def import_tuto(request):
                 if form.is_valid():
                     
                     tutorial = Tutorial()
+                        
                     # add create date
                     tutorial.create_at = datetime.now()
-
+                    
                     
                     tree = etree.parse(request.FILES['file'])
                     racine_big = tree.xpath("/bigtuto")
@@ -1536,6 +1550,7 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.images = 'images'
                         tutorial.introduction = 'introduction.md'
                         tutorial.conclusion = 'conclusion.md'
                         # Creating the gallery
@@ -1645,6 +1660,7 @@ def import_tuto(request):
                         
                         tutorial.title = tutorial_title.text.strip()
                         tutorial.description = tutorial_title.text.strip()
+                        tutorial.images = 'images'
                         tutorial.introduction = 'introduction.md'
                         tutorial.conclusion = 'conclusion.md'
                         
@@ -1698,10 +1714,11 @@ def import_tuto(request):
                             
                             
                             extract_count += 1
-                                    
+                        
                     return redirect(tutorial.get_absolute_url())
             else: 
                 raise Http404
+                 
     else:
         form = ImportForm()
     
@@ -1730,6 +1747,7 @@ def deprecated_view_chapter_redirect(
                                   part__position_in_tutorial=part_pos,
                                   part__tutorial__pk=tutorial_pk)
     return redirect(chapter.get_absolute_url(), permanent=True)
+
 
 # Handling repo
 
@@ -1956,27 +1974,64 @@ def download_pdf(request):
     '''Download a tutorial'''
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
-        
-    contenu = export_tutorial_to_html(tutorial)
     
-    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
-    
-    html_file = open(os.path.join(ph, tutorial.slug+'.md'), "w")
-    html_file.write(smart_str(contenu))
-    html_file.close()
-    
-    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
-    
-    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
-    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.pdf'), "rb").read(), mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename={0}.pdf'.format(tutorial.slug)
 
     return response
 
+@can_read_now
+def download_epub(request):
+    '''Download a tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+    
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.epub'), "rb").read(), mimetype='application/epub')
+    response['Content-Disposition'] = 'attachment; filename={0}.epub'.format(tutorial.slug)
+    
+    return response
+    
+def get_url_images(md_text, pt):
+    regex = ur"!\[(.*)\]\((\S*)\)"
+    imgs = re.findall(regex, md_text)
+    
+    for img in imgs:
+        parse_object = urlparse(img[1])
+        (filepath, filename) = os.path.split(parse_object.path)
+        urlretrieve(img[1], os.path.join(pt, filename))
+        
+        ext = filename.split('.')[-1]
+        if ext == 'gif':
+            im = ImagePIL.open(os.path.join(pt, filename))
+            im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+
+def sub(g):
+    start = g.group('start')
+    alt = g.group('alt')
+    url = g.group('url')
+    parse_object = urlparse(url)
+    (filepath, filename) = os.path.split(parse_object.path)
+    ext = filename.split('.')[-1]
+    if ext != 'gif':
+        url = os.path.join ("images", filename)
+    else:
+        url = os.path.join ("images", filename.split('.')[0]+'.png')
+
+    end = g.group('end')
+    return start + alt + url + end
+
+def markdown_to_out(md_text):
+    return re.sub(r'(?P<start>.*!\[)(?P<alt>.*\]\()(?P<url>\S*)(?P<end>\))', sub, md_text)
+                    
 def MEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
         
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
+    
+    #create resources directory
+    ph = os.path.join(tutorial.get_prod_path(), tutorial.images)
+    os.makedirs(ph)
     
     #convert markdown file to html file
     fichiers=[] 
@@ -1991,11 +2046,31 @@ def MEP(tutorial):
             md_file_contenu = md_file.read()
             md_file.close()
             
+            #convert to out format
+            out_file = open(fichier, "w")
+            out_file.write(markdown_to_out(md_file_contenu))
+            out_file.close()
+            
             html_file = open(fichier+'.html', "w")
             html_file.write(emarkdown(md_file_contenu.decode('utf-8')))
             html_file.close()
+            
+            #download images
+            url_imgs = get_url_images(md_file_contenu.decode('utf-8'), ph)
     
+    #load markdown out
+    contenu = export_tutorial_to_md(tutorial)
     
+    out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
+    out_file.write(smart_str(contenu).replace('°', 'o'))
+    out_file.close()
+    
+    #load pandoc
+    os.chdir(tutorial.get_prod_path())
+    os.system("pandoc -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
+    os.system("pandoc -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
+    os.chdir(settings.SITE_ROOT)
+
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
@@ -2222,4 +2297,3 @@ def dislike_note(request):
             note.save()
 
     return redirect(note.get_absolute_url())
-    

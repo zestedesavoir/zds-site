@@ -39,7 +39,9 @@ class CustomBlockProcessor(BlockProcessor):
         
         for line in block.split("\n"):
             if inBlck and len(line.strip()) >= 1 and line[0] == "|":
-                if line[1] == ' ':
+                if len(line) <= 1 :
+                    cblck.append(line[1:])
+                elif line[1] == ' ':
                     cblck.append(line[2:])
                 else:
                     cblck.append(line[1:])

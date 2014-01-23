@@ -2,7 +2,8 @@
 
 import markdown
 from markdown.util import etree
-
+from markdown.blockprocessors import BlockProcessor
+import re
 
 class VideoExtension(markdown.Extension):
     def __init__(self, configs={}):
@@ -25,74 +26,110 @@ class VideoExtension(markdown.Extension):
         for key, value in configs:
             self.setConfig(key, value)
 
-    def add_inline(self, md, name, klass, re):
-        pattern = klass(re)
-        pattern.md = md
-        pattern.ext = self
-        md.inlinePatterns.add(name, pattern, "<reference")
+    def add_inline(self, md, name, klass, pat):
+        RE = r'(^|\n)!\(' + pat + r'\)'
+        md.parser.blockprocessors.add("video-"+name, VideoBProcessor(md, name, klass, RE, self.config), "_begin")
 
     def extendMarkdown(self, md, md_globals):
         self.add_inline(md, 'dailymotion', Dailymotion,
-            r'([^(]|^)https?://www\.dailymotion\.com/video/(?P<dailymotionid>[a-z0-9]+)(_[\w\-]*)?')
+            r'https?://www\.dailymotion\.com/video/(?P<dailymotionid>[a-z0-9]+)(_[\w\-]*)?')
         self.add_inline(md, 'metacafe', Metacafe,
-            r'([^(]|^)http://www\.metacafe\.com/watch/(?P<metacafeid>\d+)/?(:?.+/?)')
+            r'http://www\.metacafe\.com/watch/(?P<metacafeid>\d+)/?(:?.+/?)')
         self.add_inline(md, 'veoh', Veoh,
-            r'([^(]|^)http://www\.veoh\.com/\S*(#watch%3D|watch/)(?P<veohid>\w+)')
+            r'http://www\.veoh\.com/\S*(#watch%3D|watch/)(?P<veohid>\w+)')
         self.add_inline(md, 'vimeo', Vimeo,
-            r'([^(]|^)http://(www.|)vimeo\.com/(?P<vimeoid>\d+)\S*')
+            r'http://(www.|)vimeo\.com/(?P<vimeoid>\d+)\S*')
         self.add_inline(md, 'yahoo', Yahoo,
-            r'([^(]|^)http://screen\.yahoo\.com/.+/?')
+            r'http://screen\.yahoo\.com/.+/?')
         self.add_inline(md, 'youtube', Youtube,
-            r'([^(]|^)https?://www\.youtube\.com/watch\?\S*v=(?P<youtubeid>\S[^&/]+)')
+            r'https?://www\.youtube\.com/watch\?\S*v=(?P<youtubeid>\S[^&/]+)')
         self.add_inline(md, 'youtube_short', Youtube,
-            r'([^(]|^)https?://youtu\.be/(?P<youtubeid>\S[^?&/]+)?')
+            r'https?://youtu\.be/(?P<youtubeid>\S[^?&/]+)?')
 
+class VideoBProcessor(BlockProcessor):
+    def __init__(self, md, name, klass, patt, config):
+        self.md    = md
+        self.name  = name
+        self.klass = klass(config)
+        self.RE    = re.compile(patt)
+    
+    def test(self, parent, block):
+        return bool(self.RE.search(block))
 
-class Dailymotion(markdown.inlinepatterns.Pattern):
+    def run(self, parent, blocks):
+        block = blocks.pop(0)
+        
+        m = self.RE.search(block)
+
+        before = block[:m.start()]
+        after  = block[m.end():]
+
+        if before:
+            self.parser.parseBlocks(parent, [before])
+        
+        el = self.klass.handleMatch(m)
+        parent.append(el)
+
+        if after:
+            blocks.insert(0, after)
+
+class Dailymotion(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = 'http://www.dailymotion.com/embed/video/%s' % m.group('dailymotionid')
-        width = self.ext.config['dailymotion_width'][0]
-        height = self.ext.config['dailymotion_height'][0]
+        width = self.config['dailymotion_width'][0]
+        height = self.config['dailymotion_height'][0]
         return render_iframe(url, width, height)
 
 
-class Metacafe(markdown.inlinepatterns.Pattern):
+class Metacafe(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = 'http://www.metacafe.com/embed/%s/' % m.group('metacafeid')
-        width = self.ext.config['metacafe_width'][0]
-        height = self.ext.config['metacafe_height'][0]
+        width = self.config['metacafe_width'][0]
+        height = self.config['metacafe_height'][0]
         return render_iframe(url, width, height)
 
 
-class Veoh(markdown.inlinepatterns.Pattern):
+class Veoh(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = 'http://www.veoh.com/videodetails2.swf?permalinkId=%s' % m.group('veohid')
-        width = self.ext.config['veoh_width'][0]
-        height = self.ext.config['veoh_height'][0]
+        width = self.config['veoh_width'][0]
+        height = self.config['veoh_height'][0]
         return flash_object(url, width, height)
 
 
-class Vimeo(markdown.inlinepatterns.Pattern):
+class Vimeo(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = 'http://player.vimeo.com/video/%s' % m.group('vimeoid')
-        width = self.ext.config['vimeo_width'][0]
-        height = self.ext.config['vimeo_height'][0]
+        width = self.config['vimeo_width'][0]
+        height = self.config['vimeo_height'][0]
         return render_iframe(url, width, height)
 
 
-class Yahoo(markdown.inlinepatterns.Pattern):
+class Yahoo(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = m.string + '?format=embed&player_autoplay=false'
-        width = self.ext.config['yahoo_width'][0]
-        height = self.ext.config['yahoo_height'][0]
+        width = self.config['yahoo_width'][0]
+        height = self.config['yahoo_height'][0]
         return render_iframe(url, width, height)
 
 
-class Youtube(markdown.inlinepatterns.Pattern):
+class Youtube(object):
+    def __init__(self, config):
+        self.config = config
     def handleMatch(self, m):
         url = 'http://www.youtube.com/embed/%s' % m.group('youtubeid')
-        width = self.ext.config['youtube_width'][0]
-        height = self.ext.config['youtube_height'][0]
+        width = self.config['youtube_width'][0]
+        height = self.config['youtube_height'][0]
         return render_iframe(url, width, height)
 
 

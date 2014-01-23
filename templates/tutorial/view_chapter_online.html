@@ -26,9 +26,9 @@
 
 {% with tutorial=chapter.get_tutorial %}
     {% with authors=tutorial.authors.all %}
-        {% include "tutorial/view_chapter_pager.html" %}
+        {% include "tutorial/view_chapter_online_pager.html" %}
         {% include "tutorial/view_chapter_online_common.part.html" %}
-        {% include "tutorial/view_chapter_pager.html" %}
+        {% include "tutorial/view_chapter_online_pager.html" %}
     {% endwith %}
 {% endwith %}
 
