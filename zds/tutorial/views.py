@@ -2062,7 +2062,7 @@ def MEP(tutorial):
     contenu = export_tutorial_to_md(tutorial)
     
     out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
-    out_file.write(smart_str(contenu).decode('utf-8'))
+    out_file.write(contenu.decode('utf-8').encode('utf-8'))
     out_file.close()
     
     #load pandoc
