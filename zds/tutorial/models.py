@@ -116,16 +116,16 @@ class Tutorial(models.Model):
         return Chapter.objects.get(tutorial__pk=self.pk)
     
     def in_beta(self):
-        return self.sha_beta != None
+        return (self.sha_beta != None) and (self.sha_beta != '') 
     
     def in_validation(self):
-        return self.sha_validation != None
+        return (self.sha_validation != None) and (self.sha_validation != '') 
     
     def in_drafting(self):
-        return self.sha_draft != None
+        return (self.sha_draft != None) and (self.sha_draft != '') 
     
     def on_line(self):
-        return self.sha_public != None
+        return (self.sha_public != None) and (self.sha_public != '') 
     
     def is_mini(self):
         return self.type == 'MINI'

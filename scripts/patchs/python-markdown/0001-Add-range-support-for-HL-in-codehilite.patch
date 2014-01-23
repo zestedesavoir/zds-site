@@ -1,7 +1,7 @@
 From 0d86a317f4d962ff2490604f3b7103a80d2a2fd9 Mon Sep 17 00:00:00 2001
 From: Christophe Gabard <christophe.gabard@gmail.com>
 Date: Sun, 12 Jan 2014 17:54:29 +0100
-Subject: [PATCH] Add range support for HL in codehilite
+Subject: [PATCH 1/2] Add range support for HL in codehilite
 
 ---
  markdown/extensions/codehilite.py  | 31 ++++++++++++++++++++++++-------
