@@ -1985,8 +1985,10 @@ def download_epub(request):
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
     
-    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.epub'), "rb").read(), mimetype='application/epub+zip')
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.epub'), "rb").read(), mimetype='application/epub')
     response['Content-Disposition'] = 'attachment; filename={0}.epub'.format(tutorial.slug)
+    
+    return response
     
 def get_url_images(md_text, pt):
     regex = ur"!\[(.*)\]\((\S*)\)"
@@ -2049,15 +2051,15 @@ def MEP(tutorial):
     #load markdown out
     contenu = export_tutorial_to_md(tutorial)
     
-    phout=os.path.join(settings.REPO_PATH, tutorial.slug)
-    
-    out_file = open(os.path.join(phout, tutorial.slug+'.md'), "w")
+    out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
     out_file.write(smart_str(contenu))
     out_file.close()
     
     #load pandoc
-    os.system("pandoc "+tutorial.slug+".md -o "+tutorial.slug+".pdf")
-    os.system("pandoc "+tutorial.slug+".md -o "+tutorial.slug+".epub")
+    os.chdir(tutorial.get_prod_path())
+    os.system("pandoc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
+    os.system("pandoc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
+    os.chdir(settings.SITE_ROOT)
 
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
