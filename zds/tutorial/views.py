@@ -1,4 +1,5 @@
 # coding: utf-8
+from PIL import Image as ImagePIL
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
@@ -17,7 +18,9 @@ import os
 import os.path
 import re
 import shutil
+from urllib import urlretrieve
 import urllib
+from urlparse import urlparse
 import zipfile
 
 from git import *
@@ -29,7 +32,7 @@ from zds.utils import render_template, slugify
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.tutorials import get_blob, export_tutorial_to_html
+from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
     EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
@@ -636,7 +639,7 @@ def modify_tutorial(request):
         
         elif 'invalid-tuto' in request.POST:
             UNMEP(tutorial)
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_public).all()[0]
+            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
             validation.status = 'PENDING'
             validation.date_validation = None
             validation.save()
@@ -1711,22 +1714,6 @@ def import_tuto(request):
                             
                             
                             extract_count += 1
-                            
-                    #download images 
-                    if 'images' in request.FILES :
-                        zfile = zipfile.ZipFile(request.FILES['images'])
-                        for i in zfile.namelist():
-                            ph = tutorial.get_path() + os.sep + i
-                            try:
-                                data = zfile.read(i)
-                                fp = open(ph, "wb")
-                                fp.write(data)
-                                fp.close()
-                            except:
-                                try: os.makedirs(ph)
-                                except: pass
-                                    
-                        zfile.close()
                         
                     return redirect(tutorial.get_absolute_url())
             else: 
@@ -1987,27 +1974,64 @@ def download_pdf(request):
     '''Download a tutorial'''
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
-        
-    contenu = export_tutorial_to_html(tutorial)
     
-    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
-    
-    html_file = open(os.path.join(ph, tutorial.slug+'.md'), "w")
-    html_file.write(smart_str(contenu))
-    html_file.close()
-    
-    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
-    
-    response = HttpResponse(open(os.path.join(ph, tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
-    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.pdf'), "rb").read(), mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename={0}.pdf'.format(tutorial.slug)
 
     return response
 
+@can_read_now
+def download_epub(request):
+    '''Download a tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+    
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.epub'), "rb").read(), mimetype='application/epub')
+    response['Content-Disposition'] = 'attachment; filename={0}.epub'.format(tutorial.slug)
+    
+    return response
+    
+def get_url_images(md_text, pt):
+    regex = ur"!\[(.*)\]\((\S*)\)"
+    imgs = re.findall(regex, md_text)
+    
+    for img in imgs:
+        parse_object = urlparse(img[1])
+        (filepath, filename) = os.path.split(parse_object.path)
+        urlretrieve(img[1], os.path.join(pt, filename))
+        
+        ext = filename.split('.')[-1]
+        if ext == 'gif':
+            im = ImagePIL.open(os.path.join(pt, filename))
+            im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+
+def sub(g):
+    start = g.group('start')
+    alt = g.group('alt')
+    url = g.group('url')
+    parse_object = urlparse(url)
+    (filepath, filename) = os.path.split(parse_object.path)
+    ext = filename.split('.')[-1]
+    if ext != 'gif':
+        url = os.path.join ("images", filename)
+    else:
+        url = os.path.join ("images", filename.split('.')[0]+'.png')
+
+    end = g.group('end')
+    return start + alt + url + end
+
+def markdown_to_out(md_text):
+    return re.sub(r'(?P<start>.*!\[)(?P<alt>.*\]\()(?P<url>\S*)(?P<end>\))', sub, md_text)
+                    
 def MEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
         
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
+    
+    #create resources directory
+    ph = os.path.join(tutorial.get_prod_path(), tutorial.images)
+    os.makedirs(ph)
     
     #convert markdown file to html file
     fichiers=[] 
@@ -2022,11 +2046,31 @@ def MEP(tutorial):
             md_file_contenu = md_file.read()
             md_file.close()
             
+            #convert to out format
+            out_file = open(fichier, "w")
+            out_file.write(markdown_to_out(md_file_contenu))
+            out_file.close()
+            
             html_file = open(fichier+'.html', "w")
             html_file.write(emarkdown(md_file_contenu.decode('utf-8')))
             html_file.close()
+            
+            #download images
+            url_imgs = get_url_images(md_file_contenu.decode('utf-8'), ph)
     
+    #load markdown out
+    contenu = export_tutorial_to_md(tutorial)
     
+    out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
+    out_file.write(smart_str(contenu))
+    out_file.close()
+    
+    #load pandoc
+    os.chdir(tutorial.get_prod_path())
+    os.system("pandoc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
+    os.system("pandoc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
+    os.chdir(settings.SITE_ROOT)
+
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
@@ -2253,4 +2297,3 @@ def dislike_note(request):
             note.save()
 
     return redirect(note.get_absolute_url())
-    
