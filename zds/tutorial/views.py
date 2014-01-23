@@ -1,4 +1,5 @@
 # coding: utf-8
+from PIL import Image as ImagePIL
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
@@ -1998,6 +1999,11 @@ def get_url_images(md_text, pt):
         parse_object = urlparse(img[1])
         (filepath, filename) = os.path.split(parse_object.path)
         urlretrieve(img[1], os.path.join(pt, filename))
+        
+        ext = filename.split('.')[-1]
+        if ext == 'gif':
+            im = ImagePIL.open(os.path.join(pt, filename))
+            im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
 
 def sub(g):
     start = g.group('start')
@@ -2005,12 +2011,16 @@ def sub(g):
     url = g.group('url')
     parse_object = urlparse(url)
     (filepath, filename) = os.path.split(parse_object.path)
-    url = os.path.join ("images", filename)
+    ext = filename.split('.')[-1]
+    if ext != 'gif':
+        url = os.path.join ("images", filename)
+    else:
+        url = os.path.join ("images", filename.split('.')[0]+'.png')
+
     end = g.group('end')
     return start + alt + url + end
 
 def markdown_to_out(md_text):
-    #chaine = re.sub(r'!\[(.*)\]\((\S*)\)', r'!\[\1\]\((\S*)\)', md_text)
     return re.sub(r'(?P<start>.*!\[)(?P<alt>.*\]\()(?P<url>\S*)(?P<end>\))', sub, md_text)
                     
 def MEP(tutorial):
