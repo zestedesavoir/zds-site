@@ -121,7 +121,7 @@
             right: 0;
             width: 50px;
             height: 100%;
-            @include background-image(linear-gradient(left, transparent, #e7ebec 75%));
+            @include background-image(linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75)));
         }
 
         ul {
@@ -345,6 +345,16 @@
         &.helpful .message:after {
             border-right-color: $helpful-background;
         }
+    }
+
+
+
+    /* ==============
+       ALL: Main / Pagination
+       ============== */
+    .pagination {
+        border: 1px solid #d2d5d6;
+        margin-left: calc(2% + 80px);
     }
 
 
