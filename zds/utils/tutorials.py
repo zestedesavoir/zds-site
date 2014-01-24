@@ -118,9 +118,11 @@ def export_tutorial_to_md(tutorial):
     tuto['conclu'] = c_contenu
     
     tuto['image'] = tutorial.image
+    tuto['title'] = tutorial.title
     tuto['is_mini'] = tutorial.is_mini()
     tuto['authors'] = tutorial.authors
     tuto['subcategory'] = tutorial.subcategory
+    tuto['pubdate'] = tutorial.pubdate
     tuto['pk'] = tutorial.pk
     tuto['slug'] = tutorial.slug
      
