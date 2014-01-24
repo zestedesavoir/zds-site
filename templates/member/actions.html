@@ -24,13 +24,33 @@
                 </a>
             </li>
             <li>
+                <a href="{% url "zds.member.views.articles" %}">
+                    Voir vos articles
+                </a>
+            </li>
+            <li>
                 <a href="{% url "zds.member.views.tutorials" %}">
-                    Voir vos publications
+                    Voir vos tutoriels
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.gallery.views.gallery_list" %}">
+                    Consultez vos galeries d'images
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.member.views.settings_profile" %}">
                     Paramètres de votre profil
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.list_validation" %}">
+                    Administration des tutoriels
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.article.views.list_validation" %}">
+                    Administration des articles
                 </a>
             </li>
             <li>
