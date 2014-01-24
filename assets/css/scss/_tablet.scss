@@ -22,6 +22,12 @@
                 overflow-x: hidden;
                 overflow-y: auto;
 
+                .dropdown-empty-message {
+                    color: rgba(255, 255, 255, .5);
+                    text-align: center;
+                    line-height: 60px;
+                }
+
                 &::-webkit-scrollbar { 
                     width: 10px;
                     height: 10px;

@@ -894,6 +894,50 @@
 }
 
 
+/* ==============
+    ALL: Main / Pagination
+   ============== */
+.pagination {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #d2d5d6;
+    border-bottom: 1px solid #d2d5d6;
+    background: #FBFBFB;
+    height: 40px;
+    margin-bottom: 20px;
+
+    li {
+        float: left;
+
+        a {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: #084561;
+            min-width: 45px;
+            height: 40px;
+            line-height: 40px;
+            @include transition;
+            
+            &.current {
+                height: 38px;
+                color: #808080;
+                background: #F4F6F6;
+                margin-top: -1px;
+                border-left: 1px solid #d2d5d6;
+                border-bottom: 3px solid #d2d5d6;
+                border-right: 2px solid #d2d5d6;
+            }
+
+            &[href]:hover,
+            &[href]:focus {
+                background: #d2d5d6;
+            }
+        }
+    }
+}
+
 
 /* ==============
     ALL: Main / Article, Tutorial, Forum message
@@ -971,8 +1015,8 @@ $helpful-background: #e9f9dc;
             position: absolute;
             top: 0;
 
-            &:hover,
-            &:focus {
+            &[href]:hover,
+            &[href]:focus {
                 height: 58px;
                 width: 58px;
                 border: 1px solid #DDD;
@@ -1045,6 +1089,7 @@ $helpful-background: #e9f9dc;
         border: 1px solid #D2D5D6;
         border-right-width: 2px;
         border-bottom-width: 3px;
+        min-height: 75px;
 
         .message-metadata {
             display: inline-block;
@@ -1088,6 +1133,18 @@ $helpful-background: #e9f9dc;
 
             p:first-child {
                 margin-top: 7px;
+            }
+
+            textarea {
+                margin: 10px 0 10px -1px;
+                padding: 10px 1%;
+                width: 98%;
+                border: 1px solid #d2d5d6;
+                background-color: transparent;
+
+                &:focus {
+                    outline-color: #999;
+                }
             }
         }
 
@@ -1153,12 +1210,35 @@ $helpful-background: #e9f9dc;
             }
         }
 
+        .message-buttons {
+            margin: 0 0 0 10px;
+            padding: 0;
+            list-style: none;
+            border-bottom: none;
+
+            a {
+                text-indent: -9999px;
+                width: 0;
+
+                &:after {
+                    left: 12px !important;
+                }
+            }
+        }
+
+        .message-submit {
+            margin-left: auto;
+        }
+
         .message-actions,
-        .message-karma {
+        .message-buttons,
+        .message-karma,
+        .message-submit {
             @include display(flex);
 
             a,
-            span {
+            span,
+            button {
                 display: block;
                 float: left;
                 background-color: #edefef;
@@ -1167,9 +1247,13 @@ $helpful-background: #e9f9dc;
                 color: #999;
                 height: 27px;
                 line-height: 30px;
-                padding: 0 10px 0 30px;
+                padding: 0 10px;
                 margin-left: 1px;
                 @include transition;
+
+                &.ico-after {
+                    padding-left: 30px;
+                }
 
                 &:after {
                     top: 7px;
@@ -1178,10 +1262,32 @@ $helpful-background: #e9f9dc;
                     @include opacity(.5);
                 }
             }
-            a {
+            button {
+                padding: 0 15px;
+                height: 30px;
+                border-top: none;
+                border-right: none;
+                border-left: none;
+                
+                &[type=submit] {
+                    background: #084561;
+                    border-bottom-color: #084561;
+                    color: #DDD;
+
+                    &:hover,
+                    &:focus {
+                        color: #FFF;
+                        background: #396A81;
+                        border-bottom-color: #396A81;
+                    }
+                }
+            }
+            a,
+            button {
                 &:hover,
                 &:focus {
                     border-bottom-color: #999;
+                    outline: none;
 
                     &:after {
                         @include opacity(1);
@@ -1189,10 +1295,13 @@ $helpful-background: #e9f9dc;
                 }
             }
         }
-        .message-actions a {
+        .message-actions a,
+        .message-buttons a,
+        .message-karma button {
             &:hover,
             &:focus {
                 color: #555;
+                text-decoration: none;
             }
         }
     }
