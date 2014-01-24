@@ -2062,13 +2062,13 @@ def MEP(tutorial):
     contenu = export_tutorial_to_md(tutorial)
     
     out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
-    out_file.write(smart_str(contenu).replace('°', 'o'))
+    out_file.write(smart_str(contenu).replace('°', 'o').replace('−','-'))
     out_file.close()
     
     #load pandoc
     os.chdir(tutorial.get_prod_path())
-    os.system("pandoc -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
-    os.system("pandoc -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
+    os.system("pandoc -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
+    os.system("pandoc -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
     os.chdir(settings.SITE_ROOT)
 
 def UNMEP(tutorial):
