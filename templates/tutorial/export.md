@@ -1,26 +1,16 @@
 {% load emarkdown %}{% load humane_date %}{% load profile %}{% load markup %}
-
-{% if tutorial.image %}![]({{tutorial.image.thumb.url }}){% endif %}
-Tutoriel {% if not tutorial.is_mini %}étendu{% endif %} rédigé par :
-{% for member in tutorial.authors.all %}
-{% with profile=member|profile %}
-* [{{ member.username }}]({{ member.get_absolute_url }})
-{% endwith %}
-{% endfor %}
-
-Catégories du tutoriel :
-{% for category in tutorial.subcategory.all %}
-* {{ category.title }}
-{% endfor %}
+% {{ tutorial.title }}
+% {% for member in tutorial.authors.all %} {{ member.username }}, {% endfor %}
 
 {% if tutorial.intro %}
+#Introduction
 {{ tutorial.intro|safe }}
 {% endif %}
 
 {% if tutorial.is_mini %}
 {# Small tutorial #}
 {% for extract in chapter.extracts %}
-#[{{ extract.title }}](#{{ extract.position_in_chapter }}-{{ extract.title|slugify }})
+#{{ extract.title }}
 {% if extract.txt %}
 {{ extract.txt|safe }}
 {% endif %}
@@ -30,7 +20,7 @@ Catégories du tutoriel :
 
 {% if parts %}
 {% for part in parts %}
-#[Partie {{ part.position_in_tutorial }} : {{ part.title }}]({% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %})
+#Partie {{ part.position_in_tutorial }} : {{ part.title }}
 
 {% include "tutorial/view_part_export_common.part.md" %}
 {% endfor %}
@@ -39,5 +29,6 @@ Catégories du tutoriel :
 {% endif %}
 
 {% if tutorial.conclu %}
+#Conclusion
 {{ tutorial.conclu|safe }}
 {% endif %}
