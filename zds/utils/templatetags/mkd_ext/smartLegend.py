@@ -75,6 +75,10 @@ class CodeParser(InFigureParser):
                         return False
         return False
 
+class QuoteParser(InFigureParser):
+    def detect(self, parent, element, legend):
+        return  (legend.attrib["type"] == "unknown" or legend.attrib["type"] == "Source") and element.tag=="blockquote"
+
 
 class TableParser(object):
     def detect(self, parent, element, legend):
@@ -106,7 +110,8 @@ class SmartLegendProcessor(Treeprocessor):
                             EquationParser(),
                             CodeParser(md),
                             TableParser(),
-                            VideoParser() )
+                            VideoParser(),
+                            QuoteParser())
     
     def run(self, root):
         root = self.parse_legend(root)
@@ -205,7 +210,7 @@ class LegendProcessor(BlockProcessor):
     def __init__(self, parser, md):
         BlockProcessor.__init__(self, parser)
         self.md = md
-        self.RE = re.compile(r'(^|\n)((?P<typelegend>Figure|Table|Code|Equation|Video)[ ]{0,1})*\:(?P<txtlegend>.*?)(\n|$)')
+        self.RE = re.compile(r'(^|\n)((?P<typelegend>Figure|Table|Code|Equation|Video|Source)[ ]{0,1})*\:[ ]{0,1}(?P<txtlegend>.*?)(\n|$)')
 
     def test(self, parent, block):
         mLeg = self.RE.search(block)
