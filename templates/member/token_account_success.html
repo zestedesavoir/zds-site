@@ -1,0 +1,28 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+    Confirmation d'inscription réussie
+{% endblock %}
+
+{% block headline %}
+    Confirmation d'inscription réussie
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="current"><a href="#">Confirmation d'inscription</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <p>
+            Vous avez confirmé votre email sur le site. <a href="{% url "zds.member.views.details" user.username %}">Voir votre profil</a>.
+        </p>
+        <p>
+            Vous pouvez maintenant poster des messages sur le site.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

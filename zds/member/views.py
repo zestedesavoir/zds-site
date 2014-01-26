@@ -24,7 +24,7 @@ from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
     ChangeUserForm, ForgotPasswordForm, NewPasswordForm
-from .models import Profile, TokenForgotPassword, Ban
+from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 
 @can_read_now
 def index(request):
@@ -341,14 +341,43 @@ def register_view(request):
                 data['username'],
                 data['email'],
                 data['password'])
+            user.is_active=False
+            user.save()
             profile = Profile(user=user, show_email=False, show_sign=True, hover_or_click=True)
             profile.last_ip_address = get_client_ip(request)
             profile.save()
             user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
-            return render_template('member/register_success.html')
-        else:
-            return render_template('member/register.html', {'form': form})
+            
+            # Generate a valid token during one hour.
+            uuidToken = str(uuid.uuid4())
+            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0, seconds=0)
+            token = TokenRegister(user=user, token = uuidToken, date_end = date_end)
+            token.save()
+
+            #send email
+            subject = "ZDS - Confirmation d'inscription"
+            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            message_html = get_template('email/confirm_register.html').render(
+                            Context({
+                                'username': user.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+            message_txt = get_template('email/confirm_register.txt').render(
+                            Context({
+                                'username': user.username,
+                                'url': token.get_absolute_url(),
+                            })
+                        )
+
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
+            msg.attach_alternative(message_html, "text/html")
+            msg.send()
+            
+            return render_template('member/register_success.html', {
+                'user': user
+            })
+
 
     form = RegisterForm()
     return render_template('member/register.html', {
@@ -433,6 +462,27 @@ def new_password(request):
         'form': form
     })
 
+def active_account(request):
+    '''Active token for a user'''
+    try:
+        token = request.GET['token']
+    except KeyError:
+        return redirect(reverse('zds.pages.views.home'))
+
+    token = get_object_or_404(TokenRegister, token = token)
+    usr = token.user
+    # User can't confirm his request if it is too late.
+    if datetime.now() > token.date_end:
+        return render_template('member/token_account_failed.html')    
+    
+    usr.is_active = True
+    usr.save()
+    
+    token.delete()
+    
+    
+    return render_template('member/token_account_success.html', {'user':usr})
+    
 def get_client_ip(request):
     '''Retrieve the real IP address of the client'''
     if request.META.has_key('HTTP_X_REAL_IP'): # nginx
