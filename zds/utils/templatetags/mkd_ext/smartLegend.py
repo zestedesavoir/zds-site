@@ -93,7 +93,7 @@ class VideoParser(InFigureParser):
     def detect(self, parent, element, legend):
         lelems = list(element.iter())
         return  (legend.attrib["type"] == "unknown" or legend.attrib["type"] == "Video") \
-                and element.tag=="iframe" 
+                and element.tag=="video" 
 
 
 class SmartLegendProcessor(Treeprocessor):
