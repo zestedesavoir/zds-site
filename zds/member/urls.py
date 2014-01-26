@@ -22,4 +22,5 @@ urlpatterns = patterns('',
     url(r'^inscription$', views.register_view),
     url(r'^reinitialisation$', views.forgot_password),
     url(r'^new_password$', views.new_password),
+    url(r'^activation$', views.active_account),
 )
