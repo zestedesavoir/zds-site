@@ -132,15 +132,18 @@ class Profile(models.Model):
             return self.can_read
     
     def can_write_now(self):
-        if self.end_ban_write:
-            return self.can_write or (self.end_ban_write < datetime.now())
+        if self.user.is_active:
+            if self.end_ban_write:
+                return self.can_write or (self.end_ban_write < datetime.now())
+            else:
+                return self.can_write
         else:
-            return self.can_write
+            return False
 
 class TokenForgotPassword(models.Model):
     class Meta:
-        verbose_name = 'Token'
-        verbose_name_plural = 'Tokens'
+        verbose_name = 'Token de mot de passe oublié'
+        verbose_name_plural = 'Tokens de mots de passe oubliés'
 
     user = models.ForeignKey(User, verbose_name='Utilisateur')
     token = models.CharField(max_length=100)
@@ -149,7 +152,25 @@ class TokenForgotPassword(models.Model):
     def get_absolute_url(self):
         '''Absolute URL to the new password page'''
         return reverse('zds.member.views.new_password')+'?token={0}'.format(self.token)
-        
+
+
+class TokenRegister(models.Model):
+    class Meta:
+        verbose_name = 'Token d\'inscription'
+        verbose_name_plural = 'Tokens  d\'inscription'
+
+    user = models.ForeignKey(User, verbose_name='Utilisateur')
+    token = models.CharField(max_length=100)
+    date_end = models.DateTimeField('Date de fin')
+
+    def get_absolute_url(self):
+        '''Absolute URL to the active account page'''
+        return reverse('zds.member.views.active_account')+'?token={0}'.format(self.token)
+    
+    def __unicode__(self):
+        '''Textual forum of a profile'''
+        return u"{0} - {1}".format(self.user.username, self.date_end)
+            
 class Ban(models.Model):
     class Meta:
         verbose_name = 'Sanction'
