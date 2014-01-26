@@ -68,7 +68,9 @@ class VideoBProcessor(BlockProcessor):
             self.parser.parseBlocks(parent, [before])
         
         el = self.klass.handleMatch(m)
-        parent.append(el)
+        vid = etree.Element("video")
+        vid.append(el)
+        parent.append(vid)
 
         if after:
             blocks.insert(0, after)
