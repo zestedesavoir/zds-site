@@ -20,7 +20,8 @@ def git_version(request):
     """
     repo = Repo(settings.SITE_ROOT)
     v = repo.head.commit.hexsha
+    br = repo.active_branch
 
     return {
-        'git_version': v
+        'git_version': br+'-'+v[:5]
     }
