@@ -147,6 +147,7 @@ def reservation(request, validation_pk):
 # Tutorial
 @can_read_now
 @login_required
+@permission_required('tutorial.change_tutorial')
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -169,14 +170,13 @@ def diff(request, tutorial_pk, tutorial_slug):
     })
 
 @can_read_now
-@permission_required('tutorial.change_tutorial')
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    if not tutorial.on_line \
-       and request.user not in tutorial.authors.all():
+    if (not request.user.has_perm('tutorial.change_tutorial'))\
+       and (request.user not in tutorial.authors.all()):
         raise Http404
 
     # Make sure the URL is well-formed
@@ -199,7 +199,7 @@ def history(request, tutorial_pk, tutorial_slug):
 def activ_beta(request, tutorial_pk, version):
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+    if request.user not in tutorial.authors.all():
         raise Http404
     tutorial.sha_beta = version
     tutorial.save()
@@ -211,7 +211,7 @@ def activ_beta(request, tutorial_pk, version):
 def desactiv_beta(request, tutorial_pk, version):
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if tutorial.authors.all().filter(pk = request.user.pk).count() == 0:
+    if request.user not in tutorial.authors.all():
         raise Http404
     tutorial.sha_beta = None
     tutorial.save()
@@ -219,7 +219,6 @@ def desactiv_beta(request, tutorial_pk, version):
     return redirect(tutorial.get_absolute_url_beta())
 
 @can_read_now
-@permission_required('tutorial.change_tutorial')
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
@@ -231,8 +230,9 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     
-    if not beta \
-       and request.user not in tutorial.authors.all():
+    if (not request.user.has_perm('forum.change_tutorial'))\
+       and (request.user not in tutorial.authors.all())\
+       and not beta :
         raise Http404
 
     # Make sure the URL is well-formed
@@ -717,7 +717,6 @@ def modify_tutorial(request):
 
 # Part
 @can_read_now
-@permission_required('tutorial.change_tutorial')
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
@@ -727,8 +726,12 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
         sha = tutorial.sha_draft
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if not tutorial.on_line \
-       and not request.user in tutorial.authors.all():
+    
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    
+    if (not request.user.has_perm('forum.change_tutorial'))\
+       and (request.user not in tutorial.authors.all())\
+       and not beta :
         raise Http404
     
     final_part = None
@@ -981,7 +984,6 @@ def edit_part(request):
 
 # Chapter
 @can_read_now
-@permission_required('tutorial.change_tutorial')
 @login_required
 def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
@@ -997,8 +999,11 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
         sha = None
 
     tutorial = chapter.get_tutorial()
-    if not tutorial.on_line \
-       and not request.user in tutorial.authors.all():
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    
+    if (not request.user.has_perm('forum.change_tutorial'))\
+       and (request.user not in tutorial.authors.all())\
+       and not beta :
         raise Http404
 
     if not tutorial_slug == slugify(tutorial.title)\
