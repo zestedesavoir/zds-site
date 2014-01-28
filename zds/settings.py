@@ -96,26 +96,40 @@ STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
 # You will need yuglify to be installed
 PIPELINE_JS = {
-    'zds': {
+    'modernizr' : {
         'source_filenames': (
             'js/vendor/custom.modernizr.js',
+        ),
+        'output_filename': 'js/modernizr.js'
+    }, 
+    'css3-mediaqueries' : {
+        'source_filenames': (
+            'js/vendor/css3-mediaqueries.js',
+        ),
+        'output_filename': 'js/css3-mediaqueries.js'
+    },
+    'main-js': {
+        'source_filenames': (
             'js/vendor/jquery.js',
-            'js/foundation.min.js',
+
             'js/custom/ajax-csrf.js',
             'js/custom/editor.js',
-            'js/custom/foundation-migrate.js',
+
+            'js/custom/mobile-menu.js',
+            'js/custom/accessibility-links.js',
+            'js/custom/dropdown-menu.js',
+            'js/custom/data-click.js',
         ),
-        'output_filename': 'js/zds.js'
+        'output_filename': 'js/main.js'
     }
 }
 
 PIPELINE_CSS = {
-    'zds': {
+    'main-css': {
         'source_filenames': (
-            'css/zestedesavoir.css',
-            'css/editor.css',
+            'css/main.css',
         ),
-        'output_filename': 'css/zds.css'
+        'output_filename': 'css/design.css'
     }
 }
 

@@ -1,0 +1,368 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Wide screen support, for wide and extra-wide
+   ========================================================================== */
+
+
+
+@media only screen and (min-width: 960px) {
+    html,
+    body,
+    .page-container {
+        height: 100%;
+    }
+
+
+    .main-container {
+        min-height: calc(100% - 93px);
+    }
+    .home .main-container {
+        min-height: calc(100% - 95px);
+    }
+
+
+
+    .screen {
+        display: inline;
+    }
+
+    .wrapper {
+        width: 95%;
+        margin: 0 2.5%;
+    }
+
+
+
+    // CSS3 Effects
+    .header-container {
+        z-index: 1;
+        position: relative;
+        @include box-shadow(0 1px 5px rgba(0, 0, 0, .25));
+    }
+
+
+
+    /* ============
+       Header
+       ============ */
+
+    .header-logo {
+        float: left;
+        text-align: left;
+        width: 240px;
+    }
+
+    .header-container .header-menu {
+        float: left;
+        width: 34%;
+        margin-left: .5%;
+
+        .header-menu-list > li > a {
+            max-width: 150px;
+        }
+    }
+
+    .dropdown {
+        top: 60px;
+    }
+    .has-dropdown {
+        position: relative;
+        text-indent: -7px;
+
+        &:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 47%;
+            left: 83%;
+            height: 0;
+            width: 0;
+            border: 6px solid transparent;
+            border-top: 6px solid rgba(255, 255, 255, .7);
+        }
+        &:hover:after,
+        &:focus:after,
+        &.active:after {
+            border-top: 6px solid #FFF;
+        }
+    }
+    
+    .logbox .dropdown.my-account-dropdown ul li {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .lt-ie9 .dropdown {
+        top: 90px;
+    }
+
+    .header-right {
+        float: right;
+        width: 230px;
+
+        .dropdown {
+            right: 2.5%;
+        }
+    }
+
+    .ariane {
+        position: relative;
+        display: block;
+        float: left;
+        width: calc(100% - 230px);
+        height: 30px;
+
+        &:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 100%;
+            @include background-image(linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75)));
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            li {
+                position: relative;
+                display: inline-block;
+                padding-right: 30px;
+                line-height: 30px;
+
+                a {
+                    text-decoration: none;
+                    color: #084561;
+                }
+
+                &:not(:last-child):after {
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    right: 7px;
+                    content: " ";
+                    height: 30px;
+                    width: 15px;
+                    background-image: $sprite;
+                    background-repeat: no-repeat;
+                    @include sprite-pos($sprite, 'ariane');
+                    @include opacity(.2);
+                }
+            }
+        }
+    }
+
+    .search {
+        &:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            left: -20px;
+            height: 30px;
+            width: 20px;
+            @include background(linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0)));
+        }
+        form {
+            input {
+                padding: 8px 10px;
+                height: 14px;
+                width: 150px;
+            }
+            button {
+                height: 30px;
+                line-height: 30px;
+                width: 30px;
+
+                &:after {
+                    top: 7px;
+                }
+            }
+        }
+        .search-more {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+
+
+
+    /* ============
+       Main
+       ============ */
+
+    .main {
+        @include display(flex);
+        @include flex-direction(row-reverse);
+        height: 100%;
+        margin-left: 0;
+        padding-left: 2.5%;
+
+        .content-container {
+            width: 80%;
+            margin-right: 0;
+
+            h1,
+            h2 {
+                margin-left: 1px;
+            }
+
+            .content-col {
+                width: 49.5%;
+                margin: 0 0 0 1%;
+                float: left;
+
+                &:first-child {
+                    margin: 0;
+                }
+            }
+        }
+
+        .sidebar {
+            width: 22.5%;
+            background-color: #E3E5E5;
+            border-bottom: none;
+
+            &,
+            h3 {
+                @include background-image(
+                    linear-gradient(right, rgba(0, 0, 0, .05), transparent 15px)
+                );
+            }
+
+            h3,
+            h4,
+            ul li {
+                padding-left: 11.5%;
+            }
+
+            h3:first-child {
+                margin-top: 31px;
+            }
+
+            h4[data-chap-num] {
+                padding-left: calc(11% + 25px);
+
+                &:before {
+                    left: 11%;
+                }
+            }
+
+            &.sommaire ul li.current {
+                margin-top: 0 !important;
+                padding-top: 5px;
+                margin-bottom: 5px;
+                background-color: #d8dada;
+
+                ul {
+                    margin-top: 5px;
+                    padding-top: 5px;
+                    padding-bottom: 5px;
+                    margin-left: calc(-11% - 10px);
+                    width: calc(111% + 10px);
+                    @include background(
+                        linear-gradient(top, rgba(0, 0, 0, .07), transparent 15px),
+                        linear-gradient(bottom, rgba(0, 0, 0, .07), transparent 15px)
+                    );
+
+                    a {
+                        padding-left: calc(11% + 30px);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /* ============
+       Main / Home
+       ============ */
+    .home .main {
+        .content-container {
+            width: 79%;
+            margin-left: 1.5%;
+        }
+
+        .sidebar {
+            margin-top: 30px;
+            border-top: 1px solid #FFF;
+
+            h3:first-child {
+                margin-top: 0;
+            }
+        }
+    }
+
+
+    /* ============
+       Main / Forum
+       ============ */
+    .forum-message {
+        margin: 0 0 25px 2%;
+
+        .user,
+        .message {
+            &:after {
+                content: " ";
+                display: block;
+                position: absolute;
+                top: 10px;
+                height: 0;
+                width: 0;
+                border: 20px solid transparent;
+                border-left: 0;
+            }
+        }
+
+        .user {
+            position: absolute;
+            padding-top: 60px;
+            top: 0;
+            left: 0;
+
+            &:after {
+                left: 60px;
+                border-right-color: #D2D4D6;
+            }
+        }
+        .message {
+            margin-left: 80px;
+
+            &:after {
+                top: 9px;
+                left: -19px;
+                border-right-color: #FBFBFB;
+            }
+        }
+        &.helpful .message:after {
+            border-right-color: $helpful-background;
+        }
+    }
+
+
+
+    /* ==============
+       ALL: Main / Pagination
+       ============== */
+    .pagination {
+        border: 1px solid #d2d5d6;
+        margin-left: calc(2% + 80px);
+    }
+
+
+
+    /* ==============
+        ALL: Main / Content Wrappers
+       ============== */
+    .content-wrapper {
+        margin: 0 0 0 1.5%;
+    }
+}
