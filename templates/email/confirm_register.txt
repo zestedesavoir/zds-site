@@ -1,19 +1,9 @@
-<html lang="fr">
-<head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
-<body>
-<br />
 Bonjour <strong>{{username}}</strong>,
-<br />
-<br />
-Merci de votre inscription sur <a href="http://zestedesavoir.com">Zeste de Savoir</a>. Pour activer votre profil, cliquez sur le lien client-dessous:
-<br />
-http://zestedesavoir.com{{url}}.
-<br />
-Cordialement,
-<br />
-<br />
-L'équipe ZesteDeSavoir
 
-</body>
+Merci de votre inscription sur <a href="http://zestedesavoir.com">Zeste de Savoir</a>. Pour activer votre profil, cliquez sur le lien client-dessous:
+
+http://zestedesavoir.com{{url}}.
+
+Cordialement,
+
+L'équipe ZesteDeSavoir
