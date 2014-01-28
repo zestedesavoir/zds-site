@@ -1,7 +1,12 @@
 #############
-## DataBase
+## Zeste de Savoir
 #############
 base.db
+.sass-cache/
+/static
+/tutoriels-private
+/tutoriels-public
+/media
 
 
 #############
