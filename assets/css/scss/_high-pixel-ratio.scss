@@ -1,0 +1,153 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Override for high pixel ratio screens : HD icons
+   ========================================================================== */
+
+
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 4/3), only screen and (min-device-pixel-ratio: 1.3), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx){ 
+    .header-logo-link {
+        background-size: 100%;
+        background-image: url('../images/logo@2x.png');
+    }
+    .ico,
+    .ico-after:after,
+    .ariane ul li:not(:last-child):after {
+        background-size: round(image-width(sprite-path($sprite2x)) / 2) round(image-height(sprite-path($sprite2x)) / 2) !important;
+        background-image: $sprite2x !important;
+    }
+
+    .js.enable-mobile-menu .page-container .mobile-menu-btn:after {
+        @include sprite-pos($sprite2x, 'menu', true);
+    }
+
+    .logbox .notifs-links .ico-link .notif-text {
+        &.ico-messages {
+            @include sprite-pos($sprite2x, 'messages', true);
+        }
+        &.ico-notifs {
+            @include sprite-pos($sprite2x, 'notifications', true);
+        }
+        &.ico-alerts {
+            @include sprite-pos($sprite2x, 'alerts', true);
+        }
+        &.ico-gear {
+            @include sprite-pos($sprite2x, 'gear', true);
+        }
+    }
+
+    .ariane ul li:not(:last-child):after {
+        @include sprite-pos($sprite2x, 'ariane', true);
+    }
+
+    .search form button:after {
+        @include sprite-pos($sprite2x, 'search', true);
+    }
+
+    .main .content-container h2 {
+        &.ico-articles {
+            @include sprite-pos($sprite2x, 'articles', true);
+        }
+        &.ico-tutorials {
+            @include sprite-pos($sprite2x, 'tutorials', true);
+        }
+    }
+
+
+    /* ==============
+        ALL: Icons
+       ============== */
+    .ico-after {
+        &.view {
+            &:after {
+                @include sprite-pos($sprite2x, 'view', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'view-blue', true);
+            }
+        }
+        &.edit:after {
+            @include sprite-pos($sprite2x, 'edit', true);
+        }
+        &.alert:after {
+            @include sprite-pos($sprite2x, 'alert', true);
+        }
+        &.cite:after {
+            @include sprite-pos($sprite2x, 'cite', true);
+        }
+
+        &.tick {
+            &:after {
+                @include sprite-pos($sprite2x, 'tick', true);
+            }
+            &.active:after {
+                @include sprite-pos($sprite2x, 'tick-active', true);
+            }
+        }
+
+        &.upvote {
+            &:after {
+                @include sprite-pos($sprite2x, 'thumb-up', true);
+            }
+            &.voted:after {
+                @include sprite-pos($sprite2x, 'thumb-up-voted', true);
+            }
+        }
+        &.downvote {
+            &:after {
+                @include sprite-pos($sprite2x, 'thumb-down', true);
+            }
+            &.voted:after {
+                @include sprite-pos($sprite2x, 'thumb-down-voted', true);
+            }
+        }
+
+        &.lock {
+            &:after {
+                @include sprite-pos($sprite2x, 'lock', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'lock-blue', true);
+            }
+        }
+        &.cross {
+            &:after {
+                @include sprite-pos($sprite2x, 'cross', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'cross-blue', true);
+            }
+            &.red:after {
+                @include sprite-pos($sprite2x, 'cross-red', true);
+            }
+        }
+        &.pin {
+            &:after {
+                @include sprite-pos($sprite2x, 'pin', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'pin-blue', true);
+            }
+        }
+        &.arrow-right {
+            &:after {
+                @include sprite-pos($sprite2x, 'arrow-right', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'arrow-right-blue', true);
+            }
+        }
+        &.star {
+            &:after {
+                @include sprite-pos($sprite2x, 'star', true);
+            }
+            &.yellow:after {
+                @include sprite-pos($sprite2x, 'star-yellow', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'star-blue', true);
+            }
+        }
+    }
+}
