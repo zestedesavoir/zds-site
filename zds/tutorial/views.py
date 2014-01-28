@@ -10,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+from django.core.files import File
+from collections import OrderedDict
 import glob
 import json
 from lxml import etree
@@ -1524,6 +1526,39 @@ def find_tuto(request, pk_user):
             'tutos': tutos, 'usr':u,
         })
 
+def upload_images(request, tutorial):
+    mapping = OrderedDict()
+    #download images 
+    if 'images' in request.FILES :
+        zfile = zipfile.ZipFile(request.FILES['images'])
+        for i in zfile.namelist():
+            ph = os.path.join(settings.MEDIA_ROOT,"tutorial", str(tutorial.pk), i)
+            ph_temp = os.path.join(tutorial.get_path(), i)
+            try:
+                data = zfile.read(i)
+                fp = open(ph_temp, "wb")
+                fp.write(data)
+                fp.close()
+                f = File(open(os.path.join(tutorial.get_path(), i),'r'))
+                pic = Image()
+                pic.gallery = tutorial.gallery
+                pic.physical.save(ph, f, save = True)
+                
+                mapping[i]=pic.physical.url
+                
+            except IOError: 
+                try: os.makedirs(ph_temp)
+                except: pass
+
+        zfile.close()
+    return mapping
+
+def replace_real_url(md_text, dict):
+    for dt_old, dt_new in dict.iteritems():
+        md_text=md_text.replace(dt_old, dt_new)
+    
+    return md_text
+
 @can_write_and_read_now
 @login_required
 def import_tuto(request):
@@ -1578,12 +1613,16 @@ def import_tuto(request):
                         
                         tutorial.save()
                         
+                        mapping = upload_images(request, tutorial)
+                        
                         maj_repo_tuto(request,
                                       new_slug_path=tuto_path, 
                                       tuto=tutorial, 
-                                      introduction=tutorial_intro.text, 
-                                      conclusion=tutorial_conclu.text,
+                                      introduction= replace_real_url(tutorial_intro.text, mapping), 
+                                      conclusion= replace_real_url(tutorial_conclu.text, mapping),
                                       action = 'add')
+                        
+                        
                         
                         tutorial.authors.add(request.user)
                         part_count = 1
@@ -1605,7 +1644,7 @@ def import_tuto(request):
                             
                             part.save()
                             
-                            maj_repo_part(request, None, part_path, part, part_intro.text, part_conclu.text, action='add')
+                            maj_repo_part(request, None, part_path, part, replace_real_url(part_intro.text, mapping), replace_real_url(part_conclu.text, mapping), action='add')
                             
                             
                             chapter_count = 1
@@ -1630,8 +1669,8 @@ def import_tuto(request):
                                 maj_repo_chapter(request,
                                                  new_slug_path=chapter_path, 
                                                  chapter=chapter, 
-                                                 introduction=chapter_intro.text, 
-                                                 conclusion=chapter_conclu.text,
+                                                 introduction= replace_real_url(chapter_intro.text, mapping), 
+                                                 conclusion= replace_real_url(chapter_conclu.text, mapping),
                                                  action='add')
                                 
                                 
@@ -1648,7 +1687,7 @@ def import_tuto(request):
                                     extract.text = extract.get_path(relative=True)
                                     extract.save()
 
-                                    maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=extract_text.text, action= 'add')
+                                    maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=replace_real_url(extract_text.text, mapping), action= 'add')
                                     
                                     
                                     extract_count += 1
@@ -1689,11 +1728,13 @@ def import_tuto(request):
                         
                         tutorial.save()
                         
+                        mapping = upload_images(request, tutorial)
+                        
                         maj_repo_tuto(request,
                                       new_slug_path=tuto_path, 
                                       tuto=tutorial, 
-                                      introduction=tutorial_intro.text, 
-                                      conclusion=tutorial_conclu.text,
+                                      introduction= replace_real_url(tutorial_intro.text, mapping), 
+                                      conclusion= replace_real_url(tutorial_conclu.text, mapping),
                                       action = 'add')
                         
                         tutorial.authors.add(request.user)
@@ -1715,11 +1756,11 @@ def import_tuto(request):
                             
                             extract.save()
                             
-                            maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=extract_text.text, action='add')
+                            maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=replace_real_url(extract_text.text, mapping), action='add')
                             
                             
                             extract_count += 1
-                        
+                    
                     return redirect(tutorial.get_absolute_url())
             else: 
                 raise Http404
@@ -1766,7 +1807,7 @@ def maj_repo_tuto(request, old_slug_path=None, new_slug_path=None, tuto=None, in
             repo = Repo(new_slug_path)
             msg='Modification du tutoriel'
         elif action == 'add' :
-            os.makedirs(new_slug_path, mode=0777)
+            if not os.path.exists(new_slug_path) : os.makedirs(new_slug_path, mode=0777)
             repo = Repo.init(new_slug_path, bare=False)
             msg='Creation du tutoriel'
         
@@ -1816,7 +1857,7 @@ def maj_repo_part(request, old_slug_path=None, new_slug_path=None, part=None, in
             os.rename(old_slug_path, new_slug_path)
             msg='Modification de la partie '
         elif action == 'add' :
-            os.makedirs(new_slug_path, mode=0777)
+            if not os.path.exists(new_slug_path) : os.makedirs(new_slug_path, mode=0777)
             msg='Creation de la partie '
         
         index.add([slugify(part.title)])
@@ -1867,7 +1908,7 @@ def maj_repo_chapter(request, old_slug_path=None, new_slug_path=None, chapter=No
             os.rename(old_slug_path, new_slug_path)
             msg='Modification du chapitre '
         elif action == 'add' :
-            os.makedirs(new_slug_path, mode=0777)
+            if not os.path.exists(new_slug_path) : os.makedirs(new_slug_path, mode=0777)
             msg='Creation du chapitre '
 
         
@@ -1997,36 +2038,52 @@ def download_epub(request):
     return response
     
 def get_url_images(md_text, pt):
-    regex = ur"!\[(.*)\]\((\S*)\)"
+    regex = ur"(!\[.*?\]\()(.+?)(\))"
     imgs = re.findall(regex, md_text)
     
     for img in imgs:
         parse_object = urlparse(img[1])
-        (filepath, filename) = os.path.split(parse_object.path)
-        urlretrieve(img[1], os.path.join(pt, filename))
         
-        ext = filename.split('.')[-1]
-        if ext == 'gif':
-            im = ImagePIL.open(os.path.join(pt, filename))
-            im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+        if parse_object.scheme in ('http', 'https'):
+            (filepath, filename) = os.path.split(parse_object.path)
+            urlretrieve(img[1], os.path.join(pt, img[1]))
+            ext = filename.split('.')[-1]
+            if ext == 'gif':
+                im = ImagePIL.open(os.path.join(pt, img[1]))
+                im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+        else :
+            srcfile = settings.SITE_ROOT + img[1]
+            dstroot = pt + img[1]
+            dstdir =  os.path.dirname(dstroot)
+
+            if not os.path.exists(dstdir) : os.makedirs(dstdir)
+            shutil.copy(srcfile, dstroot)
+            
+            ext = dstroot.split('.')[-1]
+            if ext == 'gif':
+                im = ImagePIL.open(dstroot)
+                im.save(os.path.join(dstroot.split('.')[0]+'.png'))
+        
 
 def sub(g):
     start = g.group('start')
-    alt = g.group('alt')
     url = g.group('url')
     parse_object = urlparse(url)
     (filepath, filename) = os.path.split(parse_object.path)
     ext = filename.split('.')[-1]
-    if ext != 'gif':
-        url = os.path.join ("images", filename)
-    else:
-        url = os.path.join ("images", filename.split('.')[0]+'.png')
+    if ext == 'gif':
+        if parse_object.scheme in ('http', 'https'):
+            url = os.path.join ("images", filename.split('.')[0]+'.png')
+        else:
+            url = url.split('.')[0][1:]+'.png'
+    else :
+        url = url[1:]
 
     end = g.group('end')
-    return start + alt + url + end
+    return start + url + end
 
 def markdown_to_out(md_text):
-    return re.sub(r'(?P<start>.*!\[)(?P<alt>.*\]\()(?P<url>\S*)(?P<end>\))', sub, md_text)
+    return re.sub(r'(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))', sub, md_text)
                     
 def MEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
@@ -2035,8 +2092,6 @@ def MEP(tutorial):
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
     
     #create resources directory
-    ph = os.path.join(tutorial.get_prod_path(), tutorial.images)
-    os.makedirs(ph)
     
     #convert markdown file to html file
     fichiers=[] 
@@ -2051,6 +2106,9 @@ def MEP(tutorial):
             md_file_contenu = md_file.read()
             md_file.close()
             
+            #download images
+            get_url_images(md_file_contenu.decode('utf-8'), tutorial.get_prod_path())
+            
             #convert to out format
             out_file = open(fichier, "w")
             out_file.write(markdown_to_out(md_file_contenu))
@@ -2060,8 +2118,7 @@ def MEP(tutorial):
             html_file.write(emarkdown(md_file_contenu.decode('utf-8')))
             html_file.close()
             
-            #download images
-            url_imgs = get_url_images(md_file_contenu.decode('utf-8'), ph)
+            
     
     #load markdown out
     contenu = export_tutorial_to_md(tutorial)
