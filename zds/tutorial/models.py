@@ -48,6 +48,10 @@ class Tutorial(models.Model):
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
                               blank=True, null=True)
+    
+    gallery = models.ForeignKey(Gallery,
+                              verbose_name='Galerie d\'images',
+                              blank=True, null=True)
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
