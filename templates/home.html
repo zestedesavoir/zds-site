@@ -37,12 +37,14 @@ class="active"
                         {{ article.pubdate|humane_date }} -
                         <a href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }} réactions</a>
                     </p>
+                    {% if article.image %}
                     <a href="{{ article.get_absolute_url_online }}" 
                        tabindex="-1"
-                       style="background-image: url({{ article.image.thumb.url }})" 
+                       style="background-image: url({{ article.image.url }})" 
                        class="article-illu">
-                        <img src="{{ article.image.thumb.url }}" alt="">
+                        <img src="{{ article.image.url }}" alt="">
                     </a>
+                    {% endif %}
                     <p class="resume">
                         {{ article.subtitle }}
                     </p>
