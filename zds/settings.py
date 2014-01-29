@@ -13,7 +13,7 @@ else:
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
+#INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 ADMINS = (
     ('user', 'mail'),
