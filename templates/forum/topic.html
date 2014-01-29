@@ -99,6 +99,55 @@
 
 {% block content %}
 
+{% for post in posts %}
+<article class="forum-message">
+    <div class="user" id="p{{ post.id }}">
+        <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
+            {% with profile=post.author|profile %}
+            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+            {% endwith %}
+        </a>
+        <span class="badge banned">Banni</span>
+    </div>
+    <div class="message">
+        {% if user.is_authenticated %}
+        <ul class="message-actions">
+            <li><a href="#" class="ico-after alert">Signaler</a></li>
+            {% if not topic.is_locked and not topic.antispam %}
+            <li><a href="/forums/message/nouveau?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="ico-after cite">Citer</a></li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+        <div class="message-metadata">
+            <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
+            <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|humane_date }}</a>
+        </div>
+
+        <div class="message-content">
+            {{ post.text|emarkdown }}
+        </div>
+
+        <div class="message-bottom">
+            {% with profile=post.author|profile %}
+                <p class="signature">
+                {{profile.sign|emarkdown}}
+                </p>
+            {% endwith %}
+            {% if user.is_authenticated %}
+            <div class="message-karma">
+                {% if topic.author == user and post.author != user %}
+                <a href="/forums/message/utile?message={{ post.pk }}" class="tick ico-after">Cette réponse m'a aidé</a>
+                {% endif %}
+                <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="upvote {% if post.like > post.dislike %}voted{% endif%} ico-after">+{{post.like}}</a>
+                <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="downvote {% if post.like < post.dislike %}voted{% endif%} ico-after">-{{post.dislike}}</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</article>
+{% endfor %}
+
 <div class="row" id="resolu" {% if not topic.is_solved %}style="display: none;"{% endif %}>
     <div class="large-12 columns">
         <div class="alert-box success">
