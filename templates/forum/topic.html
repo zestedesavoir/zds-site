@@ -107,7 +107,6 @@
             <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
             {% endwith %}
         </a>
-        <span class="badge banned">Banni</span>
     </div>
     <div class="message">
         {% if user.is_authenticated %}
@@ -159,194 +158,47 @@
 
 {% include "forum/topic_pagination.part.html" with position="top" %}
 
-<div class="row">
-{% for post in posts %}
-<div class="post {% if forloop.first and nb > 1 %}before{% endif %} {% if post.is_useful %}useful{% endif %} {% if perms.forum.change_topic and post.alerts.all.count > 0 %} alert-box {% endif %}">
-        <div class="large-12 columns post-head" id="p{{ post.id }}">
-            <div class="large-2 columns post-nickname">
-                <p>
-                    <a href="{{ post.author.get_absolute_url }}">
-                        {{ post.author.username }}
-                    </a>
-                </p>
-            </div>
-            <div class="large-10 columns">
-                <div class="left">
-                <p>
-                    <a href="#p{{ post.pk }}">#</a>
-                    {{ post.pubdate|humane_date }}
-                    {% if not post.is_visible %}
-                        Masqué par {{ post.editor }} : <i>{{ post.text_hidden }}</i>
-                    {% elif not post.update = None %}
-                        (Edité {{ post.update|humane_date }} par {{ post.editor }} )
-                    {% endif %}
-                    {% if forloop.first and nb > 1 %}
-                        &ndash; page précédente
-                    {% endif %}
-                </p>
-                </div>
-                <form  action="{% url "zds.forum.views.edit_post" %}?message={{post.pk}}" method="POST">
-                {% if post.is_visible %}
-                <div class="right">
-                    {% if user.is_authenticated %}
-                        
-                        <div class="button-group">
-                            {% if topic.author == user and post.author != user %}
-                                <a href="/forums/message/utile?message={{ post.pk }}" class="button small {% if not post.is_useful %}secondary{% else %}success{% endif %}">
-                                    <i class="icon-thumbs-up"></i>
-                                    Cette réponse m'a aidé
-                                </a>
-                            {% endif %}
-
-                            {% if post.author == user or perms.forum.change_post %}
-                                <a href="/forums/message/editer?message={{ post.pk }}" class="button secondary small">
-                                    <i class="fi-pencil"></i>
-                                    Éditer
-                                </a>
-                                {% if not post == post.topic.first_post %}
-                                <a href="#" class="button secondary small" data-dropdown="delete-drop-{{post.pk}}">
-                                    Masquer
-                                </a>
-                                {% endif %}
-                                <div id="delete-drop-{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
-                                    <p>
-                                        Êtes vous certains de vouloir masquer ce message ? cette action est irreversible pour les simples membres
-                                    </p>
-                                    {% if perms.forum.change_post %}
-                                    <input type="text" name="text_hidden" class="expand" placeholder="Message de masquage" />
-                                    {% endif %}
-                                    <button type="submit" name="delete-post" class="button expand alert">
-                                        Confirmer
-                                    </button>
-                                </div>
-                            {% endif %}
-                            {% if post.author != user or perms.forum.change_post %}
-                                <a href="#" class="button secondary small" data-dropdown="signal-drop-{{post.pk}}">
-                                    Signaler
-                                </a>
-                                <div id="signal-drop-{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
-                                    <p>
-                                        Pour quelle raison signalez vous ce message ?
-                                    </p>
-                                    <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
-                                    <button type="submit" name="signal-post" class="button expand alert">
-                                        Confirmer le signalement
-                                    </button>
-                                </div>
-                            {% endif %}
-
-                            {% if not topic.is_locked and not topic.antispam %}
-                                <a href="/forums/message/nouveau?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
-                                    class="button secondary small">
-                                    <i class="fi-quote-left"></i>
-                                    Citer
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-                {% elif perms.forum.change_post %}
-                <div class="right">
-                    <a href="#" class="button secondary small" data-dropdown="show-drop-{{post.pk}}">
-                        Afficher
-                    </a>
-                    <div id="show-drop-{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
-                        <p>
-                            Ce message a été masqué par un modérateur, souhaitez vous réellement l'afficher ?
-                        </p>
-                        <button type="submit" name="show-post" class="button expand alert">
-                            Confirmer
-                        </button>
-                    </div>
-                </div>
-                {% endif %}
-                {% csrf_token %}
-                </form>
-            </div>
-        </div>
-        {% if post.is_visible %}
-        <div class="row post-content">
-            <div class="large-2 columns hide-for-small post-avatar">
-                {% with profile=post.author|profile %}
-                    <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
-                    {% if perms.member.show_ip %}
-                    <p>{{ post.ip_address }}</p>
-                    {% endif %}
-                {% endwith %}
-                <p></p>
-            </div>
-            <div class="large-10 columns">
-                <div class="row">
-                    {{ post.text|emarkdown }}
-                </div>
-                <div class="row right">
-                    <div class="large-12 columns">
-                    <span>+{{post.like}}</span>
-                    <a class="button small radius secondary " href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }} "><i class="fi-like size-18 {% if post.like > post.dislike %}good{% endif%}"></i> </a>
-                    <span>-{{post.dislike}}</span>
-                    <a class="button small radius secondary " href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }} "> <i class="fi-dislike size-18 {% if post.like < post.dislike %}bad{% endif%}"></i></a>
-                    </div>
-                </div>
-                <div class="row">
-                    <hr />
-                </div>
-                <div class="row">
-                    <p>
-                    {% with profile=post.author|profile %}
-                        {{profile.sign|emarkdown}}
-                    {% endwith %}
-                    </p>
-                </div>
-                {% if post.alerts.all.count > 0 and perms.forum.change_topic %}
-                    <div class="row">
-                        <hr />
-                    </div>
-                    {% for alert in post.alerts.all %}
-                    <div class="row">
-                        <p><i>{{alert.pubdate|humane_date}}</i> par {{ alert.author.username }}: <strong>{{alert.text}}</strong></p>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
-{% endfor %}
-</div>
-{% include "forum/topic_pagination.part.html" with position="bottom" %}
-
 {% if user.is_authenticated %}
-<hr />
-<form action="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}"
-method="POST" id="submit_form">
-    <div class="row">
-        <div class="large-12 columns">
-            <h3>Ajouter une réponse</h3>
-            {% include "misc/editor.part.html" %}
-            <textarea id='id_text' name="text" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                placeholder="Votre message au format Markdown.">{% spaceless %}
-                    {% if topic.is_locked %}
-                        Ce sujet est verrouillé.
-                    {% elif topic.antispam  %}
-                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
-                    {% endif %}
-                {% endspaceless %}</textarea>
+{% with profile=user|profile%}
+<section>
+    <form action="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}" class="forum-message" method="POST" id="submit_form">
+        <div class="user">
+            <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
         </div>
-    </div>
-    <div class="row">
-        <div class="large-8 large-centered columns" style="text-align: center;">
-            <button class="button btn-primary" type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %} name="answer">
-                <i class="icon-reply"></i>
-                Répondre
-            </button>
-            <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
-                Prévisualiser
-            </button>
+        <div class="message">
+            <ul class="message-actions">
+                <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
+            </ul>
+
+            <ul class="message-metadata message-buttons">
+                <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
+            </ul>
+
+            <div class="message-content">
+                <textarea name="text" id="md_text" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% endif %}</textarea>
+            </div>
+
+            <div class="message-bottom">
+                <div class="message-submit">
+                    <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>Aperçu</button>
+                    <button type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %} name="answer">Envoyer</button>
+                </div>
+            </div>
         </div>
-    </div>
-    <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
-    {% csrf_token %}
-</form>
+        <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
+        {% csrf_token %}
+    </form>
+</section>
+{% endwith %}
 {% endif %}
 
 {% endblock %}
