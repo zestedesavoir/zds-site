@@ -79,6 +79,34 @@ class PrivateTopic(models.Model):
         
         except PrivatePost.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_post(self):
+        '''
+        Return the first post the user has unread
+        '''
+        try:
+            print('-----> GOOO')
+            post = PrivateTopicRead.objects\
+            .select_related()\
+            .filter(privatetopic=self, user=get_current_user())
+            
+            if len(post)==0:
+                last_private_post = self.first_post()
+            else: 
+                last_private_post = post.latest('privatepost__pubdate').privatepost
+            
+            print('-----> last_private_post: '+str(last_private_post))
+            
+            last_private_post_position = last_private_post.position_in_topic
+            print('-----> last_private_post_position: '+str(last_private_post_position))
+            next_private_post_position = last_private_post_position+1
+            print('-----> next_private_post_position: '+str(next_private_post_position))
+            
+            next_private_post = PrivatePost.objects.get(privatetopic__pk = self.pk, position_in_topic = next_private_post_position)
+            
+            return next_private_post
+        except PrivatePost.DoesNotExist:
+            return self.last_read_post(self)
 
     def antispam(self, user=None):
         '''

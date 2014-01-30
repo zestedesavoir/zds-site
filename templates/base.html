@@ -3,6 +3,7 @@
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
+{% load humane_date %}
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js enable-mobile-menu lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -184,17 +185,22 @@
                                         <span class="dropdown-title">Messagerie</span>
                                         <ul class="dropdown-list">
                                             {% for topic in unread_topics %}
+                                                {% with first_unread=topic.first_unread_post %}
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
-                                                        <span class="username">PSEUDO</span>
-                                                        <span class="date">HH:MM</span>
+                                                        {% with p=first_unread.author|profile %}
+                                                        <img src="{{ p.get_avatar_url }}" alt="">
+                                                        <span class="username">{{ first_unread.author.username }}</span>
+                                                        <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
+                                                        {% endwith %}
                                                     </a>
                                                 </li>
+                                                {% endwith %}
                                             {% endfor %}
 
                                             {% for topic in read_topics %}
+                                                {% with last_read=topic.last_read_post %}
                                                 <li>
                                                     {% with last_answer=topic.get_last_answer %}
                                                     <a href="
@@ -204,13 +210,16 @@
                                                             {{ topic.first_post.get_absolute_url }}
                                                         {% endif %}"
                                                     >
-                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
-                                                        <span class="username">PSEUDO</span>
-                                                        <span class="date">HH:MM</span>
+                                                        {% with p=last_read.author|profile %}
+                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <span class="username">{{ last_read.author.username }}</span>
+                                                        <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
+                                                        {% endwith %}
                                                     </a>
                                                     {% endwith %}
                                                 </li>
+                                                {% endwith %}
                                             {% endfor %}
 
                                             {% if read_topics|length = 0 and unread_topics|length = 0 %}
@@ -242,19 +251,25 @@
 
                                     <div class="dropdown">
                                         <span class="dropdown-title">Notifications</span>
+
                                         <ul class="dropdown-list">
                                             {% for topic in unread_topics %}
+                                                {% with first_unread=topic.first_unread_post %}
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
-                                                        <span class="username">PSEUDO</span>
-                                                        <span class="date">HH:MM</span>
+                                                        {% with p=first_unread.author|profile %}
+                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <span class="username">{{ first_unread.author.username }}</span>
+                                                        <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
+                                                        {% endwith %}
                                                     </a>
                                                 </li>
+                                                {% endwith %}
                                             {% endfor %}
 
                                             {% for topic in read_topics %}
+                                                {% with last_read=topic.last_read_post %}
                                                 <li>
                                                     {% with last_answer=topic.get_last_answer %}
                                                     <a href="
@@ -264,13 +279,16 @@
                                                             {{ topic.first_post.get_absolute_url }}
                                                         {% endif %}"
                                                     >
-                                                        <img src="http://lorempicsum.com/nemo/30/30/1" alt="">
-                                                        <span class="username">PSEUDO</span>
-                                                        <span class="date">HH:MM</span>
+                                                        {% with p=last_read.author|profile %}
+                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <span class="username">{{ last_read.author.username }}</span>
+                                                        <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
+                                                        {% endwith %}
                                                     </a>
                                                     {% endwith %}
                                                 </li>
+                                                {% endwith %}
                                             {% endfor %}
 
                                             {% if read_topics|length = 0 and unread_topics|length = 0 %}
@@ -496,6 +514,31 @@
 
 
 
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                processEscapes: true,
+            },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            messageStyle: "none",
+        });
+    </script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
     
+    <!-- Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-27730868-1', 'zestedesavoir.com');
+      ga('send', 'pageview');
+    
+    </script>
+    <!-- Analytics -->
 </body>
 </html>
