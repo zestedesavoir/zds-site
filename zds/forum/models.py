@@ -174,6 +174,24 @@ class Topic(models.Model):
                 .latest('post__pubdate').post
         except Post.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_post(self):
+        '''
+        Return the first post the user has unread
+        '''
+        try:
+            last_post = TopicRead.objects\
+                .select_related()\
+                .filter(topic=self, user=get_current_user())\
+                .latest('post__pubdate').post
+            
+            last_post_position = last_post.position
+            next_post_position = last_post_position+1
+            next_post = Post.objects.get(topic__pk = self.pk, position = next_post_position)
+            
+            return next_post
+        except Post.DoesNotExist:
+            return self.last_read_post(self)
 
     def is_followed(self, user=None):
         '''
