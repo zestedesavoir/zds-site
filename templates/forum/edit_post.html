@@ -1,11 +1,12 @@
 {% extends "forum/base.html" %}
+{% load profile %}
 
 {% block title %}
     Éditer un message
 {% endblock %}
 
 {% block headline %}
-    Éditer un message
+    Éditer un message : {{ post.topic.title }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -16,57 +17,62 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <form action="#previsualisation" method="POST">
-            {% if topic %}
-            <fieldset>
-                <legend>Sujet</legend>
-                <div class="control-group">
-                    <label class="control-label" for="id_title">Titre</label>
-                    <div class="controls">
-                        <input type="text" name="title" id="id_title"
-                            class="input-xxlarge" value="{{ topic.title }}" />
-                    </div>
+{% with profile=user|profile%}
+<section>
+    <form action="#previsualisation" method="POST" class="forum-message" id="submit_form">
+        <div class="user">
+            <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+        </div>
+        <div class="message">
+        {% if topic %}
+        
+            <div class="message-content">
+                <label class="control-label" for="id_title">Titre</label>
+                <div class="controls">
+                    <input type="text" name="title" id="id_title"
+                        class="input-xxlarge" value="{{ topic.title }}" />
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="id_subtitle">Sous titre</label>
-                    <div class="controls">
-                        <input type="text" name="subtitle" id="id_subtitle"
-                            class="input-xxlarge" value="{{ topic.subtitle }}" />
-                    </div>
+            </div>
+            <div class="message-content">
+                <label class="control-label" for="id_subtitle">Sous titre</label>
+                <div class="controls">
+                    <input type="text" name="subtitle" id="id_subtitle"
+                        class="input-xxlarge" value="{{ topic.subtitle }}" />
                 </div>
-            </fieldset>
-            {% endif %}
-            {% include "misc/editor.part.html" %}
-            <fieldset>
-                <legend>Message</legend>
-                <div class="control-group">
-                    <label class="control-label" for="id_text">Texte</label>
-                    <div class="controls">
-                        <textarea id="id_text" name="text"
-                            class="input-block-level" rows="20">{{ text }}</textarea>
-                    </div>
-                </div>
-            </fieldset>
+            </div>
+        {% endif %}
+            <ul class="message-actions">
+                <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
+            </ul>
 
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    Éditer
-                </button>
+            <ul class="message-metadata message-buttons">
+                <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
+            </ul>
 
-                <button type="submit" name="preview" class="button secondary">
-                    Prévisualisation
-                </button>
-
-                <a href="{{ post.get_absolute_url }}" class="button secondary">Annuler</a>
+            <div class="message-content">
+                <textarea name="text" id="md_text" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
             </div>
 
-            {% csrf_token %}
-        </form>
-    </div>
-</div>
-
+            <div class="message-bottom">
+                <div class="message-submit">
+                    <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>Aperçu</button>
+                    <button type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %} name="answer">Envoyer</button>
+                </div>
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+</section>
+{% endwith %}
 {% include "forum/previsualization.part.html" %}
 
 {% endblock %}
