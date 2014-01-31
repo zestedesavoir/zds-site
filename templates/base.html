@@ -96,7 +96,7 @@
                     >
                         <ul class="header-menu-list">
                             <li>
-                                <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link">
+                                <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
                                     Tutoriels
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
@@ -127,12 +127,12 @@
                                 </div>
                             </li>
                             <li>
-                                <a href="{% url "zds.article.views.index" %}" class="mobile-menu-link">
+                                <a href="{% url "zds.article.views.index" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
                                     Articles
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link">
+                                <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
                                     Forums
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
@@ -318,7 +318,7 @@
                                         </a>
 
                                         <div class="dropdown">
-                                            <span class="dropdown-title">Notifications</span>
+                                            <span class="dropdown-title">Alertes Modération</span>
                                             <ul class="dropdown-list">
                                                 {% for post in posts %}
                                                     <li>
@@ -447,49 +447,27 @@
                 
                 <main class="content-container" role="main" id="content">
                     {% block content_out %}
-                        <h2>{% block headline %}{% endblock %}</h2>
-                        
-                        <div class="headline-actions">{% block headline-actions %}{% endblock %}</div>
+                        <section>
+                            <h2>{% block headline %}{% endblock %}</h2>
+                            <h3>{% block headline-sub %}{% endblock %}</h3>
+                            <div class="row">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert-box {{ message.tags }}">
+                                            <span>{{ message }}</span>
+                                            <a href="#" class="close">&times;</a>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
 
-                        <div class="row">
-                            {% block headline-sub %}{% endblock %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert-box {{ message.tags }}">
-                                        <span>{{ message }}</span>
-                                        <a href="#" class="close">&times;</a>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        {% block content %}{% endblock %}
+                            {% block content %}{% endblock %}
+                        </section>
                     {% endblock %}
                 </main>
                 
-
-                <aside class="sidebar mobile-menu-bloc mobile-menu-hide"
-                       data-title="{% block sidebar_title %}Catégories de tutoriels{% endblock %}"
-                >
-                    {% block sidebar %}
-                        <h3>Catégories <span class="wide">de tutoriels</span></h3>
-
-                        {% with categories='.'|top_categories_tuto %}
-                        {% for category in categories %}
-                            <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
-                            <ul>
-                                {% for catofsubcat in category.get_subcategories %}
-                                    <li>
-                                        <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                            {{ catofsubcat.subcategory }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endfor %}
-                        {% endwith %}
-                    {% endblock %}
-                </aside>
+                {% block sidebar %}
+                {% endblock %}
 
             </div> <!-- #main -->
         </div> <!-- #main-container -->
