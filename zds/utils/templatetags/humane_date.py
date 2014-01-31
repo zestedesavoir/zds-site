@@ -75,8 +75,8 @@ def humane_date(date, conf={}):
         year, week, weekday = date.isocalendar()
         return year, week
 
-    secondes = ('seconde', abs(diff).seconds % 60)
-    minutes = ('minute', abs(diff).seconds // 60 % 60)
+    secondes = ('sec', abs(diff).seconds % 60)
+    minutes = ('min', abs(diff).seconds // 60 % 60)
     heures = ('heure', abs(diff).seconds // 60 // 60 % 24)
     jours = ('jour', abs(diff).days % 31)
     mois = ('mois', int(abs(diff).days % 365 // 30.5))

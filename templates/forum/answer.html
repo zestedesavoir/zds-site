@@ -4,11 +4,7 @@
 {% endblock %}
 
 {% block headline %}
-    Répondre au sujet
-{% endblock %}
-
-{% block headline-sub %}
-    {{ topic.title }}
+    Répondre au sujet : {{ topic.title }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -30,36 +26,44 @@
     </div>
 </div>
 {% endif %}
-
-<div class="row">
-    <div class="large-12 columns">
-        <form action="#previsualisation" method="POST">
-            <textarea class="input-block-level md_editor" name="text" rows="20" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-ok icon-white"></i>
-                    Répondre
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    <i class="icon-eye-open"></i>
-                    Prévisualisation
-                </button>
-
-                <a href="{{ topic.get_absolute_url }}" class="button secondary">
-                    <i class="icon-remove"></i>
-                    Annuler
-                </a>
-            </div>
-
-            <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
-            {% csrf_token %}
-        </form>
+<section>
+    <form action="#previsualisation" method="POST" class="forum-message" id="submit_form">
+    <div class="user">
+        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
     </div>
-</div>
+    <div class="message">
+        <ul class="message-actions">
+            <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
+        </ul>
 
+        <ul class="message-metadata message-buttons">
+            <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
+            <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
+        </ul>
+
+        <div class="message-content">
+            <textarea name="text" id="md_text" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
+        </div>
+
+        <div class="message-bottom">
+            <div class="message-submit">
+                <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>Aperçu</button>
+                <button type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %} name="answer">Envoyer</button>
+            </div>
+        </div>
+        <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
+        {% csrf_token %}
+    </div>
+    </form>
+</section>
 {% if text %}
     {% include "forum/previsualization.part.html" %}
 {% endif %}
