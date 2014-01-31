@@ -19,12 +19,7 @@
 {% endblock %}
 
 {% block headline-actions %}
-    {% if user.is_authenticated %}
-        <a href="/forums/sujet/nouveau?forum={{ forum.pk }}" class="button">
-            <i class="icon-plus"></i>
-            Nouveau sujet
-        </a>
-    {% endif %}
+    <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
 {% endblock %}
 
 {% block content %}
