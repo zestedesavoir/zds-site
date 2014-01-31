@@ -209,7 +209,6 @@ def new(request):
             'form': form, 'forum': forum
         })
 
-@require_POST
 @can_write_and_read_now
 @login_required
 def edit(request):
@@ -217,24 +216,24 @@ def edit(request):
     Edit the given topic
     '''
     try:
-        topic_pk = request.POST['topic']
+        topic_pk = request.GET['topic']
     except KeyError:
         raise Http404
 
     try:
-        page = int(request.POST['page'])
+        page = int(request.GET['page'])
     except KeyError:
         page = 1
 
-    data = request.POST
+    data = request.GET
     resp = {}
 
     g_topic = get_object_or_404(Topic, pk=topic_pk)
 
     if 'follow' in data:
         resp['follow'] = follow(g_topic)
-    if request.user == g_topic.author:
-        # Author actions
+
+    if request.user == g_topic.author or request.user.has_perm('forum.change_topic'):
         if 'solved' in data:
             g_topic.is_solved = not g_topic.is_solved
             resp['solved'] = g_topic.is_solved
@@ -439,12 +438,17 @@ def useful_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
-
+    
+    print('----------------> CHECK <---------------')
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
         raise Http404
-
+    
+    print('----------------> {0} <---------------'.format(post.is_useful))
+    
     post.is_useful = not post.is_useful
+    
+    print('----------------> {0} <---------------'.format(post.is_useful))
     post.save()
 
     return redirect(post.get_absolute_url())
