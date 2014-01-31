@@ -17,7 +17,7 @@ class CommentsExtension(Extension):
     
     def extendMarkdown(self, md, md_globals):
         md.registerExtension(self)
-        md.preprocessors.add("comments", CommentsProcessor(md, self.config), "_begin")
+        md.preprocessors.add("comments", CommentsProcessor(md, self.config), ">fenced_code_block")
 
 class CommentsProcessor(Preprocessor):
     
