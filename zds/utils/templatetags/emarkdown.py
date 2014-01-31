@@ -88,6 +88,8 @@ def get_markdown_instance(Inline = False):
     if Inline:
         md.parser.blockprocessors.clear()
         md.preprocessors.pop("reference")
+        md.inlinePatterns.pop("image_link")
+        md.inlinePatterns.pop("image_reference")
     return md
     
 register = template.Library()
