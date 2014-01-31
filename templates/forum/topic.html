@@ -9,9 +9,7 @@
 {% endblock %}
 
 {% block headline %}
-    <a href="{{ topic.get_absolute_url }}">
-        {{ topic.title }}
-    </a>
+    {{ topic.title }}
 {% endblock %}
 
 {% block headline-sub %}
@@ -25,74 +23,29 @@
 {% endblock %}
 
 {% block headline-actions %}
-    {% if user.is_authenticated %}
-        <form action="{% url "zds.forum.views.edit" %}" method="POST"
-        class="topic-actions" id="edit_form">
-            <input type="hidden" name="topic" value="{{ topic.pk }}" />
-            <input type="hidden" name="page" value="{{ nb }}">
-            <div class="button-group">
-                <a href="/forums/sujet/nouveau?forum={{ topic.forum.pk }}" class="button small">
-                    <i class="icon-plus"></i>
-                    Nouveau
-                </a>
-                {% if topic.author.pk == user.pk %}
-                <button type="submit" name="solved" id="resolu_btn" class="button small {% if topic.is_solved %}success{% else %}secondary{% endif %}">
-                    <i class="icon-ok"></i>
-                    {% if topic.is_solved %}
-                        Résolu
-                    {% else %}
-                        Résolu ?
-                    {% endif %}
-                </button>
-                {% endif %}
-                <button class="button small {% if not topic.is_followed %}secondary{% endif %}" type="submit" name="follow" id="follow_btn">
-                    <i class="icon-star"></i>
-                    {% if topic.is_followed %}
-                        Suivi
-                    {% else %}
-                        Suivre
-                    {% endif %}
-                </button>
-            </div>
-
-            {% csrf_token %}
-        </form>
-
-        {% if perms.forum.change_topic %}
-            <form action="{% url "zds.forum.views.edit" %}" method="POST" class="topic-actions">
-                <input type="hidden" name="topic" value="{{ topic.pk }}" />
-
-                <a href="#" class="button secondary dropdown" data-dropdown="staff-dropdown">
-                    Staff
-                </a>
-                <div id="staff-dropdown" class="f-dropdown content" data-dropdown-content>
-                    <div class="switch">
-                        <input id="lock-off" name="lock" type="radio" {% if not topic.is_locked %}checked="checked"{% endif %}>
-                        <label for="lock-off" onclick="">Verouiller</label>
-
-                        <input id="lock-on" name="lock" type="radio" {% if topic.is_locked %}checked="checked"{% endif %}>
-                        <label for="lock-on" onclick="">Verouillé</label>
-
-                        <span></span>
-                    </div>
-
-                    <div class="switch">
-                        <input id="sticky-off" name="sticky" type="radio" {% if not topic.is_sticky %}checked="checked"{% endif %}>
-                        <label for="sticky-off" onclick="">Post-it</label>
-
-                        <input id="sticky-on" name="sticky" type="radio" {% if topic.is_sticky %}checked="checked"{% endif %}>
-                        <label for="sticky-on" onclick="">Post-it</label>
-
-                        <span></span>
-                    </div>
-
-                    <a href="javascript:;" class="button validate">
-                        Valider
-                    </a>
-                </div>
-
-                {% csrf_token %}
-            </form>
+    <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
+    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+        {% if topic.is_solved %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" class="ico-after tick active">Non résolu</a></li>
+        {% else %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" class="ico-after tick active">Marquer comme résolu</a></li>
+        {% endif %}
+    {% endif %}
+    {% if topic.is_followed %}
+        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1" class="ico-after view blue">Ne plus suivre ce sujet</a></li>
+    {% else %}
+        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1" class="ico-after view blue">Suivre ce sujet</a></li>
+    {% endif %}
+    {% if perms.forum.change_topic %}
+        {% if topic.is_locked %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" class="ico-after">Dévérouiller</a></li>
+        {% else %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true" class="ico-after">Vérouiller le sujet</a></li>
+        {% endif %}
+        {% if topic.is_sticky %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false" class="ico-after">Enlever du Post-It</a></li>
+        {% else %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true" class="ico-after">Marquer en Post-It</a></li>
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -100,7 +53,7 @@
 {% block content %}
 
 {% for post in posts %}
-<article class="forum-message">
+<article class="forum-message {% if post.is_useful %} helpful {% endif %}">
     <div class="user" id="p{{ post.id }}">
         <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
             {% with profile=post.author|profile %}
@@ -129,9 +82,7 @@
 
         <div class="message-bottom">
             {% with profile=post.author|profile %}
-                <p class="signature">
-                {{profile.sign|emarkdown}}
-                </p>
+                <p class="signature">{{profile.sign|emarkdown}}</p>
             {% endwith %}
             {% if user.is_authenticated %}
             <div class="message-karma">
@@ -204,19 +155,6 @@
 {% endblock %}
 
 {% block additionnal-js %}
-    {% if perms.forum.change_topic %}
-        <script>
-            $('.topic-actions .validate').click(function() {
-                var lock = $('#lock-on').is(':checked');
-                var sticky = $('#sticky-on').is(':checked');
-                $.post('{% url "zds.forum.views.edit" %}', {
-                    topic: {{ topic.pk}},
-                    lock: lock.toString(),
-                    sticky: sticky.toString(),
-                })
-            });
-        </script>
-    {% endif %}
     <script>
         /* anwser check */
         $('#submit_form').submit(function(e){
@@ -225,43 +163,6 @@
                 e.preventDefault();
             }
         })
-        /* on button press, store it */
-        $('#edit_form button[type="submit"]').on('click', function() {
-            $('#edit_form').data('button', this.name);    
-        });
-        /* on submit */
-        $('#edit_form').submit(function(e){
-            e.preventDefault();
-            /* build data */
-            var button = $(this).data('button');
-            var data = { topic: {{ topic.pk }}};
-            data[button] = 'true';
-            /* post data */
-            $.post('{% url "zds.forum.views.edit" %}', data, function(data){
-                    if ('solved' in data) {
-                        if (data.solved) {
-                            $('#resolu').fadeIn();
-                            $('#resolu_btn').removeClass('secondary');
-                            $('#resolu_btn').addClass('success');
-                            $('#resolu_btn').html('Résolu');
-                        } else {
-                            $('#resolu').fadeOut();
-                            $('#resolu_btn').removeClass('success');
-                            $('#resolu_btn').addClass('secondary');
-                            $('#resolu_btn').html('Résolu ?');
-                        }
-                    }
-                    if ('follow' in data) {
-                        if (data.follow) {
-                            $('#follow_btn').removeClass('secondary');
-                            $('#follow_btn').html('Suivi');
-                        } else {
-                            $('#follow_btn').addClass('secondary');
-                            $('#follow_btn').html('Suivre');
-                        }
-                    }
-                }, 'json'); 
-        });
     </script>
 {% endblock %}
 
