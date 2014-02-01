@@ -1,0 +1,41 @@
+{% load emarkdown %}
+{% load humane_date %}
+{% load profile %}
+{% load roman %}
+
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
+        <h3><span class="wide">Sommaire</span></h3>
+        {% if tutorial.is_mini %}
+        {# Small tutorial #}
+            {% if chapter.extracts %}
+                {% for extract in chapter.extracts %}
+                    <h4>
+                        <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
+                    </h4>
+                {% endfor %}
+            {% endif %}
+        {% else %}
+        {# Large tutorial #}
+            {% if parts %}
+                {% for part in parts %}
+                    <h4>
+                        <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                            {{ part.position_in_tutorial|roman }}. {{ part.title }}
+                        </a>
+                    </h4>
+                    {% with chapters=part.chapters %}
+                            {% for chapter in chapters %}
+                            <h5><a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.position_in_part }}. {{ chapter.title }}</a></h5>
+                                {% for extract in chapter.extracts %}
+                                <h6>
+                                    <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
+                                </h6>
+                                {% endfor %}
+                            {% endfor %}
+                    {% endwith %}
+                {% endfor %}
+            {% endif %}
+            <hr />
+
+        {% endif %}
+</div>
