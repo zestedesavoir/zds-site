@@ -12,10 +12,6 @@
 {{ chapter.title }}
 {% endblock %}
 
-{% block headline-actions %}
-    
-{% endblock %}
-
 {% block breadcrumb %}
     <li><a href="{{ chapter.part.tutorial.get_absolute_url_online }}">{{ chapter.part.tutorial.title }}</a></li>
     <li><a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}">{{ chapter.part.title }}</a></li>
@@ -32,4 +28,17 @@
     {% endwith %}
 {% endwith %}
 
+{% endblock %}
+
+{% block headline-actions %}
+	{% with tutorial=chapter.part.tutorial %}
+	{% with parts=chapter.part.tutorial.parts %}
+    	{% include "tutorial/toc_common_online.html" %}
+    {% endwith %}
+    {% endwith %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
+        <h3><span class="wide">Télécharger</span></h3>
+        <h4><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></h4>
+        <h4><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></h4>
+    </div>
 {% endblock %}

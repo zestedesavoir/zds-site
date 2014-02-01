@@ -109,7 +109,7 @@ class Tutorial(models.Model):
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
 
-    def get_parts(self):
+    def parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('position_in_tutorial')
@@ -393,7 +393,7 @@ class Part(models.Model):
             self.slug,
         ])
 
-    def get_chapters(self):
+    def chapters(self):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 
@@ -504,7 +504,7 @@ class Chapter(models.Model):
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
 
-    def get_extracts(self):
+    def extracts(self):
         return Extract.objects.all()\
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
