@@ -97,7 +97,7 @@
 
         <div class="message-bottom">
             {% with profile=post.author|profile %}
-                <p class="signature">{{profile.sign|emarkdown_inline}}</p>
+                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
             {% endwith %}
             {% if user.is_authenticated %}
             <div class="message-karma">
