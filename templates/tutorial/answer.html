@@ -1,4 +1,6 @@
 {% extends "tutorial/base.html" %}
+{% load profile %}
+
 {% block title %}
     Répondre à l'tutorial
 {% endblock %}
@@ -18,45 +20,11 @@
 
 {% block content %}
 
-{% if newnote %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="alert-box alert">
-            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
-            pendant que vous rédigiez le votre.
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div class="row">
-    <div class="large-12 columns">
-        <form action="#previsualisation" method="post">
-            <textarea class="input-block-level md_editor" name="text" rows="20" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-ok icon-white"></i>
-                    Répondre
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    <i class="icon-eye-open"></i>
-                    Prévisualisation
-                </button>
-
-                <a href="{{ tutorial.get_absolute_url }}" class="button secondary">
-                    <i class="icon-remove"></i>
-                    Annuler
-                </a>
-            </div>
-
-            <input type="hidden" name="last_note" value="{{ last_note_pk }}" />
-            {% csrf_token %}
-        </form>
-    </div>
-</div>
+{% with topic=tutorial %}
+    {% with profile=user|profile %}
+        {% include "forum/comment.part.html" %}
+    {% endwith %}
+{% endwith %}
 
 {% if text %}
     {% include "forum/previsualization.part.html" %}

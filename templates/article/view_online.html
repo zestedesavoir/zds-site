@@ -18,10 +18,25 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="button secondary small expand">
-        <i class="fi-download"></i>
-        Télécharger
-    </a>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+        <h3><span class="wide">Tags</span></h3>
+        {% for category in tags.all %}
+            <h4>{{ category.title }}</h4>
+        {% endfor %}
+    </div>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+        <h3><span class="wide">Auteurs</span></h3>
+        {% for author in authors.all %}
+                {% with profile=author|profile %}
+                <h4><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></h4>
+                {% endwith %}
+        {% endfor %}
+    </div>
+
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+        <h3><span class="wide">Télécharger</span></h3>
+        <h4><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></h4>
+    </div>
 {% endblock %}
 
 {% block content %}
@@ -32,224 +47,114 @@
 
 <div class="row">
     <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if article.thumbnail %}
-            <img src="{{article.thumbnail.url }}"/>
-            {% endif %}
-        </div>
-        <div class="large-12 columns">
-        <p>
-            Rédigé par
-            {% for author in authors.all %}
-                {% with member=author %}
-                    {% include "member/member_item_common.part.html" %}
-                {% endwith %}
-            {% endfor %}
-            <br />
-            Tags :
-            {% for category in tags.all %}
-                <span class="label">{{ category.title }}</span>
-            {% endfor %}
-        </p>
-        </div>
         {{ article.txt|safe }}
     </div>
 </div>
 
-
 {% include "article/view_pager.part.html" %}
 
 
-{% with topic=article %}
-{% include "forum/topic_pagination.part.html" with position="top" %}
-{% endwith %}
-<div class="row">
-    <h1>Réactions</h1>
+<h1>Réactions</h1>
+    {% with topic=article %}
+    {% include "forum/topic_pagination.part.html" with position="top" %}
+    {% endwith %}
 {% for reaction in reactions %}
-<div class="reaction {% if forloop.first and nb > 1 %}before{% endif %} {% if reaction.is_useful %}useful{% endif %} {% if perms.article.change_article and reaction.alerts.all.count > 0 %} alert-box {% endif %}">
-        <div class="large-12 columns reaction-head" id="p{{ reaction.id }}">
-            <div class="large-2 columns reaction-nickname">
-                <p>
-                    <a href="{{ reaction.author.get_absolute_url }}">
-                        {{ reaction.author.username }}
-                    </a>
-                </p>
-            </div>
-            <div class="large-10 columns">
-                <div class="left">
-                <p>
-                    <a href="#p{{ reaction.pk }}">#</a>
-                    {{ reaction.pubdate|humane_date }}
-                    {% if not reaction.is_visible %}
-                        Masqué par {{ reaction.editor }} : <i>{{ reaction.text_hidden }}</i>
-                    {% elif not reaction.update = None %}
-                        (Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )
-                    {% endif %}
-                    {% if forloop.first and nb > 1 %}
-                        &ndash; page précédente
-                    {% endif %}
-                </p>
-                </div>
-                <form  action="{% url "zds.article.views.edit_reaction" %}?message={{reaction.pk}}" method="post">
-                {% if reaction.is_visible %}
-                <div class="right">
-                    {% if user.is_authenticated %}
-                        
-                        <div class="button-group">
-                            {% if perms.article.change_reaction %}
-                                <a href="/articles/message/editer?message={{ reaction.pk }}" class="button secondary small">
-                                    <i class="fi-pencil"></i>
-                                    Éditer
-                                </a>
-                                {% if not reaction == article.first_reaction %}
-                                <a href="#" class="button secondary small" data-dropdown="delete-drop-{{reaction.pk}}">
-                                    Masquer
-                                </a>
-                                {% endif %}
-                                <div id="delete-drop-{{reaction.pk}}" class="f-dropdown small content" data-dropdown-content>
-                                    <p>
-                                        Êtes vous certains de vouloir masquer ce message ? cette action est irreversible pour les simples membres
-                                    </p>
-                                    {% if perms.article.change_reaction %}
-                                    <input type="text" name="text_hidden" class="expand" placeholder="Message de masquage" />
-                                    {% endif %}
-                                    <button type="submit" name="delete-reaction" class="button expand alert">
-                                        Confirmer
-                                    </button>
-                                </div>
-                            {% endif %}
-                            {% if reaction.author != user or perms.article.change_reaction %}
-                                <a href="#" class="button secondary small" data-dropdown="signal-drop-{{reaction.pk}}">
-                                    Signaler
-                                </a>
-                                <div id="signal-drop-{{reaction.pk}}" class="f-dropdown small content" data-dropdown-content>
-                                    <p>
-                                        Pour quelle raison signalez vous ce message ?
-                                    </p>
-                                    <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors article, ..." />
-                                    <button type="submit" name="signal-reaction" class="button expand alert">
-                                        Confirmer le signalement
-                                    </button>
-                                </div>
-                            {% endif %}
-
-                            {% if not article.is_locked and not article.antispam %}
-                                <a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}"
-                                    class="button secondary small">
-                                    <i class="fi-quote-left"></i>
-                                    Citer
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-                {% elif perms.article.change_reaction %}
-                <div class="right">
-                    <a href="#" class="button secondary small" data-dropdown="show-drop-{{reaction.pk}}">
-                        Afficher
-                    </a>
-                    <div id="show-drop-{{reaction.pk}}" class="f-dropdown small content" data-dropdown-content>
-                        <p>
-                            Ce message a été masqué par un modérateur, souhaitez vous réellement l'afficher ?
-                        </p>
-                        <button type="submit" name="show-reaction" class="button expand alert">
-                            Confirmer
-                        </button>
-                    </div>
-                </div>
-                {% endif %}
-                {% csrf_token %}
-                </form>
-            </div>
-        </div>
-        {% if reaction.is_visible %}
-        <div class="row reaction-content">
-            <div class="large-2 columns hide-for-small reaction-avatar">
-                {% with profile=reaction.author|profile %}
-                    <img src="{{ profile.get_avatar_url }}" width="80" height="80" alt="Avatar" />
-                    {% if perms.member.show_ip %}
-                    <p>{{ reaction.ip_address }}</p>
-                    {% endif %}
-                {% endwith %}
-                <p></p>
-            </div>
-            <div class="large-10 columns">
-                <div class="row">
-                    {{ reaction.text|emarkdown }}
-                </div>
-                <div class="row right">
-                    <div class="large-12 columns">
-                    <span>+{{reaction.like}}</span>
-                    <a class="button small radius secondary " href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }} "><i class="fi-like size-18 {% if reaction.like > reaction.dislike %}good{% endif%}"></i> </a>
-                    <span>-{{reaction.dislike}}</span>
-                    <a class="button small radius secondary " href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }} "> <i class="fi-dislike size-18 {% if reaction.like < reaction.dislike %}bad{% endif%}"></i></a>
-                    </div>
-                </div>
-                <div class="row">
-                    <hr />
-                </div>
-                <div class="row">
-                    <p>
-                    {% with profile=reaction.author|profile %}
-                        {{profile.sign|emarkdown}}
-                    {% endwith %}
-                    </p>
-                </div>
-                {% if reaction.alerts.all.count > 0 and perms.article.change_article %}
-                    <div class="row">
-                        <hr />
-                    </div>
-                    {% for alert in reaction.alerts.all %}
-                    <div class="row">
-                        <p><i>{{alert.pubdate|humane_date}}</i> par {{ alert.author.username }}: <strong>{{alert.text}}</strong></p>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
+<article class="forum-message">
+    <div class="user" id="p{{ reaction.id }}">
+        <a href="{{ reaction.author.get_absolute_url }}" class="avatar-link">
+            {% with profile=reaction.author|profile %}
+            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+            {% endwith %}
+        </a>
     </div>
+    <div class="message">
+        {% if user.is_authenticated %}
+        <ul class="message-actions">
+            {% if reaction.author = user or perms.article.change_reaction %}
+            <li><a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="ico-after edit">Editer</a></li>
+            {% endif %}
+            <li><a href="#" class="ico-after alert">Signaler</a></li>
+            {% if not article.is_locked and not article.antispam %}
+            <li><a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="ico-after cite">Citer</a></li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+        <div class="message-metadata">
+            <a href="{{ reaction.author.get_absolute_url }}" class="username">{{ reaction.author.username }}</a>
+            <a href="#p{{ reaction.pk }}" class="date">{{ reaction.pubdate|humane_date }}</a>
+            {% if not reaction.is_visible %}
+                <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
+            {% elif not reaction.update = None %}
+                <i>(Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )</i>
+            {% endif %}
+        </div>
+
+        <div class="message-content">
+            {{ reaction.text|emarkdown }}
+        </div>
+
+        <div class="message-bottom">
+            {% with profile=reaction.author|profile %}
+                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
+            {% endwith %}
+            {% if user.is_authenticated %}
+            <div class="message-karma">
+                <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}" class="upvote {% if reaction.like > reaction.dislike %}voted{% endif%} ico-after">+{{reaction.like}}</a>
+                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" class="downvote {% if reaction.like < reaction.dislike %}voted{% endif%} ico-after">-{{reaction.dislike}}</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</article>
 {% endfor %}
-</div>
+
 {% with topic=article %}
 {% include "forum/topic_pagination.part.html" with position="bottom" %}
 {% endwith %}
 
 {% if user.is_authenticated %}
-<hr />
-<form action="{% url "zds.article.views.answer" %}?article={{ article.pk }}"
-method="post" id="submit_form">
-    <div class="row">
-        <div class="large-12 columns">
-            <h3>Ajouter une réponse</h3>
-            {% include "misc/editor.part.html" %}
-            <textarea id='id_text' name="text" rows="10" {% if article.is_locked or article.antispam %}disabled{% endif %}
-                placeholder="Votre message au format Markdown.">{% spaceless %}
-                    {% if article.is_locked %}
-                        Ce article est verrouillé.
-                    {% elif article.antispam  %}
-                        Vous ne pouvez pas encore répondre dans ce article (protection antispam de 15 min).
-                    {% endif %}
-                {% endspaceless %}</textarea>
+{% with profile=user|profile%}
+<section>
+    <form action="{% url "zds.article.views.answer" %}?article={{ article.pk }}" class="forum-message" method="POST" id="submit_form">
+        <div class="user">
+            <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
         </div>
-    </div>
-    <div class="row">
-        <div class="large-8 large-centered columns" style="text-align: center;">
-            <button class="button btn-primary" type="submit" {% if article.is_locked or article.antispam %}disabled{% endif %} name="reaction">
-                <i class="icon-reply"></i>
-                Répondre
-            </button>
-            <button type="submit" name="preview" class="button secondary" {% if article.is_locked or article.antispam %}disabled{% endif %}>
-                Prévisualiser
-            </button>
+        <div class="message">
+            <ul class="message-actions">
+                <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
+            </ul>
+
+            <ul class="message-metadata message-buttons">
+                <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
+                <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
+            </ul>
+
+            <div class="message-content">
+                <textarea name="text" id="md_text" cols="30" rows="10" {% if article.is_locked or article.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if article.is_locked %}Ce article est verrouillé.{% elif article.antispam  %}Vous ne pouvez pas encore poster dans ce article (protection antispam de 15 min).{% endif %}</textarea>
+            </div>
+
+            <div class="message-bottom">
+                <div class="message-submit">
+                    <button type="submit" name="preview" class="button secondary" {% if article.is_locked or article.antispam %}disabled{% endif %}>Aperçu</button>
+                    <button type="submit" {% if article.is_locked or article.antispam %}disabled{% endif %} name="answer">Envoyer</button>
+                </div>
+            </div>
         </div>
-    </div>
-    <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
-    {% csrf_token %}
-</form>
+        <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
+        {% csrf_token %}
+    </form>
+</section>
+{% endwith %}
 {% endif %}
-
-
 {% endblock %}
 
 {% block additionnal-js %}
