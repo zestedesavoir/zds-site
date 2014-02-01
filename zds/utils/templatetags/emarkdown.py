@@ -23,6 +23,7 @@ from zds.utils.templatetags.mkd_ext.smartLegend import SmartLegendExtension
 from zds.utils.templatetags.mkd_ext.headerDec import DownHeaderExtension
 
 def get_markdown_instance(Inline = False):
+    
     # create extensions :
     sub_ext         = SubSuperscriptExtension() # Sub and Superscript support
     del_ext         = DelExtension()            # Del support
@@ -86,7 +87,7 @@ def get_markdown_instance(Inline = False):
                             lazy_ol             = True,         # Enable smart ordered list start support
                             )
     if Inline:
-        md.parser.blockprocessors.clear()
+        #md.parser.blockprocessors.clear()
         md.preprocessors.pop("reference")
         md.inlinePatterns.pop("image_link")
         md.inlinePatterns.pop("image_reference")
@@ -106,4 +107,5 @@ def emarkdown(text):
 
 @register.filter(needs_autoescape=False)
 def emarkdown_inline(text):
-    return mark_safe('{0}'.format(get_markdown_instance(Inline = True).convert(text).encode('utf-8')))
+    
+    return mark_safe('{0}'.format(get_markdown_instance(Inline = True).convert(text).encode('utf-8').strip()))
