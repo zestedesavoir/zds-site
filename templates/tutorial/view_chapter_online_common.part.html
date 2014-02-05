@@ -3,66 +3,27 @@
 
 
 {% with extracts=chapter.extracts %}
-    <div class="row">
-        <div class="large-12 columns">
-            {% if chapter.type == 'BIG' %}
-                {% if chapter.intro %}
-                    {{ chapter.intro|safe }}
-                {% else %}
-                    <p>Aucune introduction.</p>
-                {% endif %}
-            {% endif %}
-            {% if extracts %}
-                <ul>
-                    {% for extract in extracts %}
-                        <li>
-                            <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                                {{ extract.title }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>
-                    Aucun extrait.
-                </p>
-            {% endif %}
-        </div>
-    </div>
-
-    <hr />
+    {% if chapter.type == 'BIG' %}
+        {% if chapter.intro %}
+            {{ chapter.intro|safe }}
+        {% endif %}
+    {% endif %}
 
     {% for extract in extracts %}
-    <div class="row">
-        <div class="large-12 columns">
-            <h2 id="{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                    {{ extract.title }}
-                </a>
-            </h2>
-            {% if extract.txt %}
-                {{ extract.txt|safe }}
-            {% else %}
-                <p>
-                    Cet extrait est vide.
-                </p>
-            {% endif %}
-        </div>
-    </div>
+        <h2 id="{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+            <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                {{ extract.title }}
+            </a>
+        </h2>
+        {% if extract.txt %}
+            {{ extract.txt|safe }}
+        {% endif %}
     {% endfor %}
 
-    <hr />
-
     {% if chapter.type == 'BIG' %}
-    <div class="row">
-        <div class="large-12 columns">
-            {% if chapter.get_conclusion_online %}
-                {{ chapter.get_conclusion_online|safe }}
-            {% else %}
-                <p>Aucune conclusion.</p>
-            {% endif %}
-        </div>
-    </div>
+        {% if chapter.get_conclusion_online %}
+            {{ chapter.get_conclusion_online|safe }}
+        {% endif %}
     {% endif %}
 
 {% endwith %}
