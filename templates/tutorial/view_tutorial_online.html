@@ -8,9 +8,6 @@
 {% endblock %}
 
 {% block headline %}
-    {{ tutorial.title }}<br />
-    <small>{{ tutorial.description }}</small>
-    
     <h1 class="illu">
         {% if tutorial.image %}
             <img src="{{tutorial.image.thumb.url }}" alt=""/>
