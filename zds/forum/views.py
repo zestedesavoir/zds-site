@@ -461,7 +461,8 @@ def like_post(request):
         post_pk = request.GET['message']
     except KeyError:
         raise Http404
-
+    
+    resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
     
@@ -483,7 +484,13 @@ def like_post(request):
             post.like=post.like-1
             post.save()
 
-    return redirect(post.get_absolute_url())
+    resp['upvotes'] = post.like
+    resp['downvotes'] = post.dislike
+    
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(post.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -493,7 +500,8 @@ def dislike_post(request):
         post_pk = request.GET['message']
     except KeyError:
         raise Http404
-
+    
+    resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
 
@@ -514,8 +522,14 @@ def dislike_post(request):
             CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).all().delete()
             post.dislike=post.dislike-1
             post.save()
-
-    return redirect(post.get_absolute_url())
+    
+    resp['upvotes'] = post.like
+    resp['downvotes'] = post.dislike
+    
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(post.get_absolute_url())
 
 @can_read_now
 def find_topic(request, user_pk):
