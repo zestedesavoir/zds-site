@@ -3,13 +3,13 @@
 {% load profile %}
 {% load roman %}
 
-<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Sommaire">
-        <h3><span class="wide">Sommaire</span></h3>
+<div class="mobile-menu-bloc" data-title="Sommaire du tutoriel">
+        <h3>Sommaire</h3>
         {% if tutorial.is_mini %}
         {# Small tutorial #}
             {% if chapter.extracts %}
                 {% for extract in chapter.extracts %}
-                    <h4>
+                    <h4 data-chap-num="{{ extract.position_in_chapter }}">
                         <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
                     </h4>
                 {% endfor %}
@@ -18,20 +18,26 @@
         {# Large tutorial #}
             {% if parts %}
                 {% for part in parts %}
-                    <h4>
-                        <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                    <h4 data-chap-num="{{ part.position_in_tutorial|roman }}">
+                        <a class="mobile-menu-link" href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
                             {{ part.position_in_tutorial|roman }}. {{ part.title }}
                         </a>
                     </h4>
                     {% with chapters=part.chapters %}
+                        <ul>
                             {% for chapter in chapters %}
-                            <h5><a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.position_in_part }}. {{ chapter.title }}</a></h5>
+                            <li>
+                                <a data-ss-chap-num="{{ chapter.position_in_part }}" href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.title }}</a>
+                                <ul>
                                 {% for extract in chapter.extracts %}
-                                <h6>
+                                <li>
                                     <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
-                                </h6>
+                                </li>
                                 {% endfor %}
+                                </ul>
+                            </li>
                             {% endfor %}
+                        </ul>
                     {% endwith %}
                 {% endfor %}
             {% endif %}
