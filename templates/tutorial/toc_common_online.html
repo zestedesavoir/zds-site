@@ -20,21 +20,23 @@
                 {% for part in parts %}
                     <h4 data-chap-num="{{ part.position_in_tutorial|roman }}">
                         <a class="mobile-menu-link" href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
-                            {{ part.position_in_tutorial|roman }}. {{ part.title }}
+                            {{ part.title }}
                         </a>
                     </h4>
                     {% with chapters=part.chapters %}
                         <ul>
                             {% for chapter in chapters %}
-                            <li>
+                            <li class="{% if chapter_current.pk = chapter.pk %}current{% endif %}">
                                 <a data-ss-chap-num="{{ chapter.position_in_part }}" href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.title }}</a>
-                                <ul>
-                                {% for extract in chapter.extracts %}
-                                <li>
-                                    <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
-                                </li>
-                                {% endfor %}
-                                </ul>
+                                {% if chapter_current.pk = chapter.pk %}
+                                        <ul>
+                                        {% for extract in chapter.extracts %}
+                                        <li>
+                                            <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
+                                        </li>
+                                        {% endfor %}
+                                        </ul>
+                                {% endif %}
                             </li>
                             {% endfor %}
                         </ul>
