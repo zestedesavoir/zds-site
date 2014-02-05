@@ -10,6 +10,29 @@
 {% block headline %}
     {{ tutorial.title }}<br />
     <small>{{ tutorial.description }}</small>
+    
+    <h1 class="illu">
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ tutorial.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in tutorial.subcategory.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+        {% for member in tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -18,93 +41,54 @@
 
 {% block headline-actions %}
     {% include "tutorial/toc_common_online.html" %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3><span class="wide">Télécharger</span></h3>
-        <h4><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></h4>
-        <h4><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></h4>
-    </div>
+    <h3><span class="wide">Télécharger</span></h3>
+    <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
+        <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
+        <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
+    </ul>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}"/>
-            {% endif %}
-        </div>
-        <div class="large-6 columns">
+
+{% if tutorial.get_introduction_online %}
+    {{ tutorial.get_introduction_online|safe }}
+{% else %}
+    <p>Aucune introduction.</p>
+{% endif %}
+{% if tutorial.is_mini %}
+{# Small tutorial #}
+
+    {% with authors=tutorial.authors.all %}
+        {% include "tutorial/view_chapter_online_common.part.html" %}
+    {% endwith %}
+{% else %}
+{# Large tutorial #}
+
+    <hr />
+    {% if parts %}
+        {% for part in parts %}
+            <h2>
+                <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                    Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                </a>
+            </h2>
+            {% include "tutorial/view_part_online_common.part.html" %}
+        {% endfor %}
+    {% else %}
         <p>
-            Tutoriel
-            {% if not tutorial.is_mini %}
-                étendu
-            {% endif %}
-            rédigé par
-            {% for member in tutorial.authors.all %}
-                {% if forloop.counter > 1 %}
-                    {% if forloop.last %}
-                        et
-                    {% else %}
-                        ,
-                    {% endif %}
-                {% endif %}
-                {% include "member/member_item_common.part.html" %}
-            {% endfor %}.
+            Il n'y a actuellement aucune partie dans ce tutoriel.
         </p>
-        </div>
-        <div class="large-5 columns">
-            <p>
-            {% for category in tutorial.subcategory.all %}
-                <span class="label">{{ category.title }}</span>
-            {% endfor %}
-            </p>
-        </div>
-    </div>
-</div>
+    {% endif %}
+    <hr />
 
-<div class="row">
-    <div class="large-12 columns">
-        {% if tutorial.get_introduction_online %}
-            {{ tutorial.get_introduction_online|safe }}
-        {% else %}
-            <p>Aucune introduction.</p>
-        {% endif %}
-        {% if tutorial.is_mini %}
-        {# Small tutorial #}
+{% endif %}
 
-            {% with authors=tutorial.authors.all %}
-                {% include "tutorial/view_chapter_online_common.part.html" %}
-            {% endwith %}
-        {% else %}
-        {# Large tutorial #}
-
-            <hr />
-            {% if parts %}
-                {% for part in parts %}
-                    <h2>
-                        <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
-                            Partie {{ part.position_in_tutorial }} : {{ part.title }}
-                        </a>
-                    </h2>
-                    {% include "tutorial/view_part_online_common.part.html" %}
-                {% endfor %}
-            {% else %}
-                <p>
-                    Il n'y a actuellement aucune partie dans ce tutoriel.
-                </p>
-            {% endif %}
-            <hr />
-
-        {% endif %}
-
-        {% if tutorial.get_conclusion_online %}
-            {{ tutorial.get_conclusion_online|safe }}
-        {% else %}
-            <p>Aucune conclusion.</p>
-        {% endif %}
-    </div>
-</div>
-
+{% if tutorial.get_conclusion_online %}
+    {{ tutorial.get_conclusion_online|safe }}
+{% else %}
+    <p>Aucune conclusion.</p>
+{% endif %}
+ 
 <h1>Commentaires</h1>
     {% with topic=tutorial %}
     {% include "forum/topic_pagination.part.html" with position="top" %}
