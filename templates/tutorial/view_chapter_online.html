@@ -6,10 +6,45 @@
 {% endblock %}
 
 {% block headline %}
-{% if chapter.thumbnail %}
-<img src="{{chapter.thumbnail.url }}"/>
-{% endif %}
-{{ chapter.title }}
+    <h1 class="illu">
+        {% if chapter.image %}
+            <img src="{{chapter.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
+    {% if chapter.tutorial %}
+    	    <ul class="taglist">
+	    {% for category in chapter.tutorial.subcategory.all %}
+	        <li><a href="#">{{ category.title }}</a></li>
+	    {% endfor %}
+	    </ul>
+	    <div class="authors content-wrapper">
+	        <span class="authors-label">Auteurs : </span>
+	        <ul>
+	        {% for member in chapter.tutorial.authors.all %}
+	            <li>
+	                {% include "member/member_item_common.part.html" %}
+	            </li>
+	        {% endfor %}.
+	        </ul>
+	    </div>
+    {% else %}
+            <ul class="taglist">
+    	    {% for category in chapter.part.tutorial.subcategory.all %}
+	        <li><a href="#">{{ category.title }}</a></li>
+	    {% endfor %}
+	    </ul>
+	    <div class="authors content-wrapper">
+	        <span class="authors-label">Auteurs : </span>
+	        <ul>
+	        {% for member in chapter.part.tutorial.authors.all %}
+	            <li>
+	                {% include "member/member_item_common.part.html" %}
+	            </li>
+	        {% endfor %}.
+	        </ul>
+	    </div>
+    {% endif %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -33,12 +68,9 @@
 {% block headline-actions %}
 	{% with tutorial=chapter.part.tutorial %}
 	{% with parts=chapter.part.tutorial.parts %}
-    	{% include "tutorial/toc_common_online.html" %}
+	{% with chapter_current=chapter %}
+	    {% include "tutorial/toc_common_online.html" %}
     {% endwith %}
     {% endwith %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
-        <h3><span class="wide">Télécharger</span></h3>
-        <h4><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></h4>
-        <h4><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></h4>
-    </div>
+    {% endwith %}
 {% endblock %}
