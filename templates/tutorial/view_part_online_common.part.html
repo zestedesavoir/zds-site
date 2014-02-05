@@ -7,15 +7,7 @@
         {% with chapters=part.chapters %}            
             {% if part.intro %}
                 {{ part.intro|safe }}
-            {% else %}
-                <p>Pas d'introduction.</p>
             {% endif %}
-
-            <p>
-                {% if chapters.count = 0 %}
-                Il n'y a aucun chapitre dans cette partie.
-                {% endif %}
-            </p>
 
             <ul>
                 {% for chapter in chapters %}
@@ -37,8 +29,6 @@
 
             {% if part.conclu %}
                 {{ part.conclu|safe}}
-            {% else %}
-                <p>Pas de conclusion.</p>
             {% endif %}
         {% endwith %}
     {% endwith %}
