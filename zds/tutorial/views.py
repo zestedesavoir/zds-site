@@ -2316,6 +2316,7 @@ def like_note(request):
     except KeyError:
         raise Http404
 
+    resp = {}
     note = get_object_or_404(Note, pk=note_pk)
     user = request.user
     
@@ -2336,8 +2337,14 @@ def like_note(request):
             CommentLike.objects.filter(user__pk=user.pk, comments__pk=note_pk).all().delete()
             note.like=note.like-1
             note.save()
-
-    return redirect(note.get_absolute_url())
+    
+    resp['upvotes'] = note.like
+    resp['downvotes'] = note.dislike
+    
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(note.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
