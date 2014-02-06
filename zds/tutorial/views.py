@@ -2016,6 +2016,7 @@ def download(request):
     return response
 
 @can_read_now
+@permission_required('tutorial.change_tutorial')
 def download_markdown(request):
     '''Download a markdown tutorial'''
 
