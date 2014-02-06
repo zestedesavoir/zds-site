@@ -439,16 +439,13 @@ def useful_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
     
-    print('----------------> CHECK <---------------')
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
         raise Http404
     
-    print('----------------> {0} <---------------'.format(post.is_useful))
     
     post.is_useful = not post.is_useful
     
-    print('----------------> {0} <---------------'.format(post.is_useful))
     post.save()
 
     return redirect(post.get_absolute_url())
