@@ -15,6 +15,8 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 #INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
+
+
 ADMINS = (
     ('user', 'mail'),
 )
@@ -56,6 +58,8 @@ USE_L10N = True
 USE_TZ = False
 
 SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+
+SIRE_URL = 'http://zestedesavoir.com'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
