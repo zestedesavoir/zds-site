@@ -708,6 +708,7 @@ def like_reaction(request):
     except KeyError:
         raise Http404
 
+    resp = {}
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
     user = request.user
     
@@ -728,8 +729,14 @@ def like_reaction(request):
             CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).all().delete()
             reaction.like=reaction.like-1
             reaction.save()
-
-    return redirect(reaction.get_absolute_url())
+            
+    resp['upvotes'] = reaction.like
+    resp['downvotes'] = reaction.dislike
+    
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(reaction.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
