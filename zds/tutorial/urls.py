@@ -55,7 +55,7 @@ urlpatterns = patterns('',
     url(r'^telecharger/$', views.download),
     url(r'^telecharger/pdf/$', views.download_pdf),
     url(r'^telecharger/epub/$', views.download_epub),
-    url(r'^telecharger_pdf/$', views.download_pdf),
+    url(r'^telecharger/md/$', views.download_markdown),
     url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
     url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
     
