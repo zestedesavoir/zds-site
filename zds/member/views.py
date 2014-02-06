@@ -360,13 +360,13 @@ def register_view(request):
             message_html = get_template('email/confirm_register.html').render(
                             Context({
                                 'username': user.username,
-                                'url': token.get_absolute_url(),
+                                'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
             message_txt = get_template('email/confirm_register.txt').render(
                             Context({
                                 'username': user.username,
-                                'url': token.get_absolute_url(),
+                                'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
 
@@ -407,13 +407,13 @@ def forgot_password(request):
             message_html = get_template('email/confirm_forgot_password.html').render(
                             Context({
                                 'username': usr.username,
-                                'url': token.get_absolute_url(),
+                                'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
             message_txt = get_template('email/confirm_forgot_password.txt').render(
                             Context({
                                 'username': usr.username,
-                                'url': token.get_absolute_url(),
+                                'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
                 
