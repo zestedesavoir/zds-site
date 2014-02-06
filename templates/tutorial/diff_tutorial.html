@@ -7,100 +7,58 @@
 {{ tutorial.title }}
 {% endblock %}
 
+{% block sidebar %}
+{% endblock %}
 {% block headline %}
-    {{ tutorial.title }}<br />
-    <small>{{ tutorial.description }}</small>
+    <h1 class="illu">
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ tutorial.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in tutorial.subcategory.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+        {% for member in tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ tutorial.title }}</a></li>
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li class="current"><a href="#">Historique</a></li>
 {% endblock %}
 
 {% block headline-actions %}
 {% endblock %}
 
 {% block content %}
+<h2>Nouveaux Fichiers</h2>
+{% for add in path_add %}
+    {% with add_next=add.b_blob|repo_blob %}
+    <h3>{{ add.a_blob.path }}</h3>
+    {{ ''|diff_text:add_next|safe }}
+    {% endwith %}
+{% endfor %}
 
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}"/>
-            {% endif %}
-        </div>
-        <div class="large-11 columns">
-        <p>
-            Tutoriel
-            {% if not tutorial.is_mini %}
-                étendu
-            {% endif %}
-            rédigé par
-            {% for member in tutorial.authors.all %}
-                {% if forloop.counter > 1 %}
-                    {% if forloop.last %}
-                        et
-                    {% else %}
-                        ,
-                    {% endif %}
-                {% endif %}
-                {% include "member/member_item_common.part.html" %}
-            {% endfor %}.
-        </p>
-    </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="large-12 columns">
-            <h4>Fichiers Ajoutés</h4>
-            {% for add in path_add %}
-                <div class="large-12 columns">
-                    {{ add.b_blob.path }}
-                    <div class="panel">
-                        {{ add.b_blob|repo_blob |truncatechars:500 | emarkdown }}
-                    </div>
-                </div>
-            {% endfor %}
-            <h4>Fichiers Rennomés</h4>
-            {% for ren in path_ren %}
-                <div class="large-6 columns">
-                    {{ ren.a_blob.path }}
-                    <div class="panel">
-                        {{ ren.a_blob|repo_blob |truncatechars:500 | emarkdown}}
-                    </div>
-                </div>
-                <div class="large-6 columns">
-                    {{ ren.b_blob.path }}
-                    <div class="panel">
-                        {{ ren.b_blob|repo_blob |truncatechars:500 | emarkdown }}
-                    </div>
-                </div>
-            {% endfor %}
-            <h4>Fichiers Supprimés</h4>
-            {% for del in path_del %}
-                <div class="large-12 columns">
-                    {{ del.a_blob.path }}
-                    <div class="panel">
-                        {{ del.a_blob|repo_blob |truncatechars:500 | emarkdown}}
-                    </div>
-                </div>
-            {% endfor %}
-            <h4>Fichiers Mis à jour</h4>
-            {% for maj in path_maj %}
-                <div class="large-6 columns">
-                    {{ maj.a_blob.path }}
-                    <div class="panel">
-                        {{ maj.a_blob|repo_blob |truncatechars:500 | emarkdown}}
-                    </div>
-                </div>
-                <div class="large-6 columns">
-                    {{ maj.b_blob.path }}
-                    <div class="panel">
-                        {{ maj.b_blob|repo_blob |truncatechars:500 | emarkdown }}
-                    </div>
-                </div>
-            {% endfor %}
-    </div>
-</div>
+<h2>Fichiers Modifiés</h2>
+{% for maj in path_maj %}
+    {% with maj_next=maj.b_blob|repo_blob %}
+    {% with maj_prev=maj.a_blob|repo_blob %}
+    <h3>{{ maj.a_blob.path }}</h3>
+    {{ maj_prev|diff_text:maj_next|safe }}
+    {% endwith %}
+    {% endwith %} 
+{% endfor %}
 
 {% endblock %}
