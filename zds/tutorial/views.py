@@ -2016,8 +2016,20 @@ def download(request):
     return response
 
 @can_read_now
+@permission_required('tutorial.change_tutorial')
+def download_markdown(request):
+    '''Download a markdown tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+    
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
+    response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
+
+    return response
+    
+@can_read_now
 def download_pdf(request):
-    '''Download a tutorial'''
+    '''Download a pdf tutorial'''
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
     
@@ -2028,7 +2040,7 @@ def download_pdf(request):
 
 @can_read_now
 def download_epub(request):
-    '''Download a tutorial'''
+    '''Download an epub tutorial'''
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
     
