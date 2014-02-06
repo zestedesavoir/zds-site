@@ -68,7 +68,13 @@ class RegisterForm(forms.Form):
         if User.objects.filter(username=username).count() > 0:
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
-
+            
+        # Check that the email is unique
+        email = cleaned_data.get('email')
+        if User.objects.filter(email=email).count() > 0:
+            msg = u'Votre email est déjà utilisée'
+            self._errors['email'] = self.error_class([msg])
+            
         return cleaned_data
 
 
