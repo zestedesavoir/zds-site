@@ -1,0 +1,118 @@
+/* ===== Zeste de Savoir ====================================================
+   Updated by: Alex-D / Alexandre Demode
+   ---------------------------------
+   Form style
+   ========================================================================== */
+
+
+
+.main-container form {
+    width: 100%;
+
+    &.form-alone {
+        width: 90%;
+        max-width: 500px;
+        padding: 0 5%;
+        margin: 20px auto;
+    }
+
+
+
+    fieldset {
+        border-top: 1px solid #DDD;
+        border-bottom: 3px solid #DDD;
+        background: #EFEFEF;
+        padding: 0 4%;
+
+        legend {
+            padding: 0 10px;
+            border-top: 1px solid #DDD;
+            border-bottom: 3px solid #FCFCFC;
+            background: #EFEFEF;
+        }
+    }
+
+
+
+    p {
+        position: relative;
+    }
+
+    label {
+        display: block;
+        color: #555;
+        height: 30px;
+        line-height: 30px;
+    }
+    .form-error {
+        display: block;
+        font-size: 13px;
+        color: #C0392B;
+    }
+
+    input,
+    textarea {
+        border: 1px solid #D2D5D6;
+
+        &:focus {
+            outline-color: #999;
+        }
+
+        &.field-error,
+        &:invalid {
+            border-color: #C0392B;
+
+            &:focus {
+                outline-color: #C0392B;
+            }
+        }
+    }
+    input,
+    textarea,
+    button {
+        @include transition;
+    }
+
+    input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
+        width: calc(98% - 2px);
+        padding: 0 1%;
+    }
+    textarea {
+        width: calc(98% - 2px);
+        padding: 10px 1%;
+    }
+
+    input,
+    button,
+    .btn {
+        display: block;
+        height: 30px;
+    }
+    .btn {
+        line-height: 30px;
+    }
+
+    input[type=radio],
+    input[type=checkbox] {
+        float: left;
+        margin-right: 5px;
+    }
+
+    input[type=submit],
+    input[type=reset],
+    button,
+    .btn-submit {
+        background: #084561;
+        color: #DDD;
+        padding: 0 15px;
+        border: none;
+        float: right;
+        text-decoration: none;
+        margin-left: 1px;
+
+        &:hover,
+        &:focus {
+            background: #396A81;
+        }
+    }
+}
