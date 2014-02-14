@@ -65,7 +65,7 @@ def list(request):
     })
     
 @can_read_now
-@permission_required('article.change_article')
+@permission_required('article.change_article', raise_exception=True)
 @login_required
 def list_validation(request):
     '''Display articles list in validation'''
@@ -117,7 +117,7 @@ def list_validation(request):
     })
 
 @can_read_now
-@permission_required('article.change_article')
+@permission_required('article.change_article', raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
     '''Display articles list in validation'''
@@ -166,7 +166,7 @@ def history(request, article_pk, article_slug):
     })
 
 @can_read_now
-@permission_required('article.change_article')
+@permission_required('article.change_article', raise_exception=True)
 @login_required
 def view(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
