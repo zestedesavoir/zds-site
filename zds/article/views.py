@@ -68,7 +68,7 @@ def view(request, article_pk, article_slug):
     # Only authors of the article and staff can view article in offline.
     if not request.user.has_perm('forum.change_article')\
         and request.user not in article.authors.all():
-        raise Http404
+        raise PermissionDenied
 
     # The slug of the article must to be right.
     if article_slug != slugify(article.title):
@@ -234,22 +234,24 @@ def new(request):
 @can_write_and_read_now
 @login_required
 def edit(request):
-    '''Edit article identified by given GET paramter'''
+    '''Edit article identified by given GET parameter'''
     try:
         article_pk = request.GET['article']
     except KeyError:
         raise Http404
 
     article = get_object_or_404(Article, pk=article_pk)
-    json = article.load_json()
 
-    # Make sure the user is allowed to do it
-    if not request.user in article.authors.all():
+    # Only authors of the article and staff can edit article.
+    if not request.user.has_perm('forum.change_article')\
+        and request.user not in article.authors.all():
         raise PermissionDenied
 
+    json = article.load_json()
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
+            # Update article with data.
             data = form.data
             old_slug = article.get_path()
             article.title = data['title']
@@ -274,7 +276,6 @@ def edit(request):
             
             return redirect(article.get_absolute_url())
     else:
-
         form = ArticleForm({
             'title': json['title'],
             'description': json['description'],
