@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
@@ -343,7 +344,7 @@ def edit(request):
 
     # Make sure the user is allowed to do it
     if not request.user in article.authors.all():
-        raise Http404
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
