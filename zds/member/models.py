@@ -118,6 +118,14 @@ class Profile(models.Model):
     def get_articles(self):
         '''Get all articles of the user'''
         return Article.objects.filter(authors__in=[self.user]).all()
+
+    def get_public_articles(self):
+        '''Get all public articles of the user'''
+        return Article.objects.filter(authors__in=[self.user], sha_public__isnull=False).all()
+
+    def get_draft_articles(self):
+        '''Get all draft articles of the user'''
+        return Article.objects.filter(authors__in=[self.user], sha_public__isnull=True, sha_draft__isnull=False).all()
     
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
