@@ -49,7 +49,7 @@
 
 <div class="row">
     <div class="large-12 columns">
-        <h2>À la une</h2>
+        <a href="{% url "zds.member.views.articles" %}">All</a> - <a href="{% url "zds.member.views.articles" %}?type=public">Public</a> - <a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a>
         {% if articles %}
             <div class="article-items">
                 {% for article in articles %}
@@ -60,7 +60,11 @@
                         {% endif %}
                     </div>
                     <div class="large-10 columns">
-                        <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% if article.is_visible %}
+                            <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% else %}
+                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                        {% endif %}
                         <p>{{ article.description }}</p>
                     </div>
                     <div class="large-1 columns">

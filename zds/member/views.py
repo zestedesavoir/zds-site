@@ -126,9 +126,21 @@ def tutorials(request):
 @login_required
 def articles(request):
     '''Returns all articles of the authenticated user'''
-    profile = Profile.objects.get(user=request.user)
+    # The type indicate what the user would like to display.
+    # We can display public, draft or all user's articles.
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
 
-    user_articles = profile.get_articles()
+    # Retrieves all articles of the current user.
+    profile = Profile.objects.get(user=request.user)
+    if type == 'draft':
+        user_articles = profile.get_draft_articles()
+    elif type == 'public':
+        user_articles = profile.get_public_articles()
+    else:
+        user_articles = profile.get_articles()
 
     return render_template('article/index.html', {
         'articles': user_articles,
