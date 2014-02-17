@@ -142,7 +142,7 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render_template('article/index.html', {
+    return render_template('article/index_member.html', {
         'articles': user_articles,
     })
 

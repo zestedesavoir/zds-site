@@ -49,6 +49,7 @@
 
 <div class="row">
     <div class="large-12 columns">
+        <a href="{% url "zds.member.views.articles" %}">All</a> - <a href="{% url "zds.member.views.articles" %}?type=public">Public</a> - <a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a>
         {% if articles %}
             <div class="article-items">
                 {% for article in articles %}
