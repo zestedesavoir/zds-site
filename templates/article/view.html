@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load markup %}
 {% load humane_date %}
+{% load profile %}
 
 {% block title %}
     {{ article.title }}
@@ -20,96 +21,51 @@
     {% if user.is_authenticated %}
         <form action="{% url "zds.article.views.modify" %}" method="post">
             {% if validation.0 %}
-            <div class="button-group">
-                <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
-            </div>
-            <br />
-            {% endif %}
-            {% if not version = article.sha_validation and not version = article.sha_public and user in authors.all %}
-            <button type="submit" name="pending" class="button expand alert">
-                Demander la validation
-            </button>
-            <div id="valid-modal" class="reveal-modal" style="display: none">
-              <h5>Commentaires de validation</h5>
-              <textarea name="comment"> </textarea>
-              <button name="pending" class="expand success">Faire valider
-              </buton>
-              <a class="close-reveal-modal">&#215;</a>
-            </div>
-            <div class="button-group">
-                <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="button small">
-                    <i class="icon-pencil"></i>
-                    Éditer
-                </a>
-                <a href="#" class="button secondary small" data-dropdown="delete-drop">
-                    Supprimer
-                </a>
-                <div id="delete-drop" class="f-dropdown content small" data-dropdown-content>
-                    <p>
-                        Si vous supprimez ce article, il sera alors impossible de le modifier/consulter de nouveau.
-                    </p>
-                    <button type="submit" name="delete" class="button expand alert">
-                        <i class="icon-remove"></i>
-                        Confirmer la suppression
-                    </button>
-                </div>
-            </div>
-            <br />
-            {% elif perms.article.change_article and not version = article.sha_public%}
-                <div class="button-group">
-                    <a href="#" class="button small success" data-dropdown="valid-drop">
-                        <i class="fi-check"></i>
-                        Valider
-                    </a>
-                    <a href="#" class="button small alert" data-dropdown="reject-drop">
-                        <i class="fi-x"></i>
-                        Rejeter
-                    </a>
-                    <div id="valid-drop" class="f-dropdown content small" data-dropdown-content>
-                        <p>
-                            Vous vous appretez à mettre en ligne ce article, êtes vous certains de votre action ? Si oui avez vous un commentaire de validation à soumettre ?
-                        </p>
-                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                        <button type="submit" name="valid-article" class="button expand success">
-                            Confirmer la publication
-                        </button>
-                    </div>
-                    <div id="reject-drop" class="f-dropdown content small" data-dropdown-content>
-                        <p>
-                            Vous vous appretez à rejeter ce article ? Si vous êtes certain de votre action, pouvez expliquer pourquoi ce rejet ?
-                        </p>
-                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                        <button type="submit" name="reject-article" class="button expand alert">
-                            Confirmer le rejet
-                        </button>
-                    </div>
-                </div>
-                <br />
+            <h4>{{ validation.0.get_status_display }}</h4>
             {% endif %}
 
-            
-            
-            
-            
-            <a href="{% url "zds.article.views.history" article.pk article.slug %}" class="button secondary small expand">
-                <i class="fi-info"></i>
-                Historique des versions
-            </a>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+                <h3><span class="wide">Tags</span></h3>
+                {% for category in tags.all %}
+                    <h4>{{ category.title }}</h4>
+                {% endfor %}
+            </div>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+                <h3><span class="wide">Auteurs</span></h3>
+                {% for author in authors.all %}
+                        {% with profile=author|profile %}
+                        <h4><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></h4>
+                        {% endwith %}
+                {% endfor %}
+            </div>
+
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+                <h3><span class="wide">Opérations</span></h3>
+            {% if not version = article.sha_validation and not version = article.sha_public and user in authors.all %}
+                <h4><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></h4>
+                <button type="submit" name="delete">Supprimer</button><br />
+
+                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+                <button type="submit" name="pending">Demander la validation</button>
+                <button type="submit" name="delete">Confirmer la suppression</button>
+            {%endif%}
+
+                <h4><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></h4>
+            </div>
+
             {% if perms.article.change_article and article.sha_public = version %}
-                <div class="button-group">
-                    <a href="#" class="button small alert" data-dropdown="invalid-drop">
-                        <i class="fi-x"></i>
-                        Dépublier
-                    </a>
-                    <div id="invalid-drop" class="f-dropdown content small" data-dropdown-content>
-                        <p>
-                            Vous vous appretez à Dépublier ce article, êtes vous certains de vouloir le faire ?
-                        </p>
-                        <button type="submit" name="invalid-article" class="button expand alert">
-                            Confirmer la dépublication
-                        </button>
-                    </div>
-                </div>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+                <h3><span class="wide">Administration</span></h3>
+                <button type="submit" name="invalid-article">Confirmer la dépublication</button>
+            </div>
+            {% elif perms.article.change_article and article.sha_validation = version %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+                <h3><span class="wide">Administration</span></h3>
+                <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                <button type="submit" name="valid-article">Confirmer la publication</button>
+                <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                <button type="submit" name="reject-article">Confirmer le rejet</button>
+            </div>
             {% endif %}
 
             <input type="hidden" name="article" value="{{ article.pk }}" />
@@ -118,10 +74,11 @@
         </form>
         
     {% endif %}
-    <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="button secondary small expand">
-        <i class="fi-download"></i>
-        Télécharger
-    </a>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+        <h3><span class="wide">Télécharger</span></h3>
+        <h4><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></h4>
+    </div>
+    
 {% endblock %}
 
 {% block content %}
@@ -137,35 +94,10 @@
             <img src="{{article.thumbnail.url }}"/>
             {% endif %}
         </div>
-        <div class="large-12 columns">
-        <p>
-            Rédigé par
-            {% for author in authors.all %}
-                {% with member=author %}
-                    {% include "member/member_item_common.part.html" %}
-                {% endwith %}
-            {% endfor %}
-            <br />
-            Tags : 
-            {% for category in tags.all %}
-                <span class="label">{{ category.title }}</span>
-            {% endfor %}
-        </p>
+        <div>
+            {{ article.txt|emarkdown }}
         </div>
-        {{ article.txt|emarkdown }}
     </div>
 </div>
-
-{% if article.is_visible %}
-    {% include "article/view_pager.part.html" %}
-{% else %}
-<div class="row">
-    <div class="large-12 columns">
-        <p>
-            Cet article n'a pas encore été mis en ligne.
-        </p>
-    </div>
-</div>
-{% endif %}
 
 {% endblock %}
