@@ -33,7 +33,9 @@ from .models import Article, get_prev_article, get_next_article, Validation, \
 
 @can_read_now
 def index(request):
-    '''Display all public articles.'''
+    '''Display all public articles of the website.'''
+    # The tag indicate what the category article the user would 
+    # like to display. We can display all subcategories for articles.
     try:
         tag = request.GET['tag']
     except KeyError:
@@ -45,6 +47,8 @@ def index(request):
             .order_by('-pubdate')\
             .all()
     else:
+        # TODO We must use this tag to retrieve list of articles
+        # of the tag specified.
         article = None
 
     return render_template('article/index.html', {
