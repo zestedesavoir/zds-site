@@ -57,107 +57,6 @@ def index(request):
     return render_template('article/index.html', {
         'articles': article,
     })
-    
-@can_read_now
-@permission_required('article.change_article', raise_exception=True)
-@login_required
-def list_validation(request):
-    '''Display articles list in validation'''
-    try:
-        type = request.GET['type']
-    except KeyError:
-        type=None
-    
-    try:
-        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
-    except KeyError:
-        subcategory=None
-
-    if type == 'orphan':
-        if subcategory == None:
-            validations = Validation.objects \
-                            .filter(validator__isnull=True) \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()
-    elif type == 'reserved':
-        if subcategory == None:
-            validations = Validation.objects \
-                            .filter(validator__isnull=False) \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()        
-    else:
-        if subcategory == None:
-            validations = Validation.objects \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()
-    
-    return render_template('article/validation.html', {
-        'validations': validations,
-    })
-
-@can_read_now
-@permission_required('article.change_article', raise_exception=True)
-@login_required
-def reservation(request, validation_pk):
-    '''Display articles list in validation'''
-    
-    validation = get_object_or_404(Validation, pk=validation_pk)
-    
-    if validation.validator :
-        validation.validator = None
-        validation.date_reserve = None
-        validation.status = 'PENDING'
-        validation.save()
-        
-        return redirect(reverse('zds.article.views.list_validation'))
-    
-    else:
-        validation.validator = request.user
-        validation.date_reserve = datetime.now()
-        validation.status = 'PENDING_V'
-        validation.save()
-        return redirect(validation.article.get_absolute_url())
-
-@can_read_now
-@login_required
-def history(request, article_pk, article_slug):
-    '''Display an article'''
-    article = get_object_or_404(Article, pk=article_pk)
-
-    if not article.on_line \
-       and not request.user.has_perm('article.change_article') \
-       and request.user not in article.authors.all():
-        raise Http404
-
-    # Make sure the URL is well-formed
-    if not article_slug == slugify(article.title):
-        return redirect(article.get_absolute_url())
-
-
-    repo = Repo(article.get_path())
-    tree = repo.heads.master.commit.tree
-    
-    logs = repo.head.reference.log()
-    logs = sorted(logs, key=attrgetter('time'), reverse=True)
-    
-    return render_template('article/history.html', {
-        'article': article, 'logs':logs
-    })
 
 @can_read_now
 @permission_required('article.change_article', raise_exception=True)
@@ -517,11 +416,110 @@ def download(request):
 
     return response
 
-# Deprecated URLs
+# Validation
 
-def deprecated_view_redirect(request, article_pk, article_slug):
+@can_read_now
+@permission_required('article.change_article', raise_exception=True)
+@login_required
+def list_validation(request):
+    '''Display articles list in validation'''
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type=None
+    
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except KeyError:
+        subcategory=None
+
+    if type == 'orphan':
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+    elif type == 'reserved':
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False) \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
+    else:
+        if subcategory == None:
+            validations = Validation.objects \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+    
+    return render_template('article/validation.html', {
+        'validations': validations,
+    })
+
+@can_read_now
+@permission_required('article.change_article', raise_exception=True)
+@login_required
+def reservation(request, validation_pk):
+    '''Display articles list in validation'''
+    
+    validation = get_object_or_404(Validation, pk=validation_pk)
+    
+    if validation.validator :
+        validation.validator = None
+        validation.date_reserve = None
+        validation.status = 'PENDING'
+        validation.save()
+        
+        return redirect(reverse('zds.article.views.list_validation'))
+    
+    else:
+        validation.validator = request.user
+        validation.date_reserve = datetime.now()
+        validation.status = 'PENDING_V'
+        validation.save()
+        return redirect(validation.article.get_absolute_url())
+
+@can_read_now
+@login_required
+def history(request, article_pk, article_slug):
+    '''Display an article'''
     article = get_object_or_404(Article, pk=article_pk)
-    return redirect(article.get_absolute_url(), permanent=True)
+
+    if not article.on_line \
+       and not request.user.has_perm('article.change_article') \
+       and request.user not in article.authors.all():
+        raise Http404
+
+    # Make sure the URL is well-formed
+    if not article_slug == slugify(article.title):
+        return redirect(article.get_absolute_url())
+
+
+    repo = Repo(article.get_path())
+    tree = repo.heads.master.commit.tree
+    
+    logs = repo.head.reference.log()
+    logs = sorted(logs, key=attrgetter('time'), reverse=True)
+    
+    return render_template('article/history.html', {
+        'article': article, 'logs':logs
+    })
+
+# Reactions at an article.
 
 def MEP(article, sha):
     #convert markdown file to html file
@@ -765,4 +763,8 @@ def dislike_reaction(request):
 
     return redirect(reaction.get_absolute_url())
     
+# Deprecated URLs
 
+def deprecated_view_redirect(request, article_pk, article_slug):
+    article = get_object_or_404(Article, pk=article_pk)
+    return redirect(article.get_absolute_url(), permanent=True)
