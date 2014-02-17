@@ -62,23 +62,33 @@ def index(request):
 @permission_required('article.change_article', raise_exception=True)
 @login_required
 def view(request, article_pk, article_slug):
-    '''Show the given article if exists and is visible'''
-    article = get_object_or_404(Article, pk=article_pk)
+    '''Show the given offline article if exists'''
+    article = get_object_or_404(Article, pk = article_pk)
 
-    if article.authors.filter(pk = request.user.pk).count()==0:
+    # Only authors of the article and staff can view article in offline.
+    if not request.user.has_perm('forum.change_article')\
+        and request.user not in article.authors.all():
         raise Http404
-    
-    try:
-        sha = request.GET['version']
-    except KeyError:
-        sha = article.sha_draft
 
+    # The slug of the article must to be right.
     if article_slug != slugify(article.title):
         return redirect(article.get_absolute_url())
     
-    #find the good manifest file
+    # Retrieve sha given by the user. This sha must to be exist.
+    # If it doesn't exist, we take draft version of the article.
+    try:
+        sha = request.GET['version']
+        if article.sha_public != sha\
+            or article.sha_validation != sha\
+            or article.sha_draft != sha:
+            raise Http404
+    except (KeyError, Http404):
+        sha = article.sha_draft
+    
+    # Find the good manifest file
     repo = Repo(article.get_path())
 
+    # Load the article.
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
     article_version = json.loads(manifest)
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
@@ -87,7 +97,7 @@ def view(request, article_pk, article_slug):
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-    validation = Validation.objects.filter(article__pk=article.pk, version = sha)
+    validation = Validation.objects.filter(article__pk = article.pk, version = sha)
     
     return render_template('article/view.html', {
         'article': article_version,
