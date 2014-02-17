@@ -26,9 +26,9 @@
             <br />
             {% endif %}
             {% if not version = article.sha_validation and not version = article.sha_public and user in authors.all %}
-            <a href="#" class="button secondary small expand" data-reveal-id="valid-modal">
+            <button type="submit" name="pending" class="button expand alert">
                 Demander la validation
-            </a>
+            </button>
             <div id="valid-modal" class="reveal-modal" style="display: none">
               <h5>Commentaires de validation</h5>
               <textarea name="comment"> </textarea>

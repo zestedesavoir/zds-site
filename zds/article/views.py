@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
 import json
 from lxml import etree
 from operator import itemgetter, attrgetter
@@ -288,13 +289,11 @@ def edit(request):
     })
 
 @can_write_and_read_now
+@require_POST
 @login_required
 def modify(request):
-    if not request.method == 'POST':
-        raise Http404
-
+    '''Modify status of the article'''
     data = request.POST
-
     article_pk = data['article']
     article = get_object_or_404(Article, pk=article_pk)
     
@@ -341,7 +340,7 @@ def modify(request):
             
             return redirect(article.get_absolute_url()+'?version='+validation.version)
     
-    #User actions
+    # User actions
     if request.user in article.authors.all():
         if 'delete' in data:
             article.delete()
