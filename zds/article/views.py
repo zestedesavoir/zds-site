@@ -33,36 +33,22 @@ from .models import Article, get_prev_article, get_next_article, Validation, \
 
 @can_read_now
 def index(request):
-    '''Displayy articles list'''
-    
+    '''Display all public articles.'''
     try:
         tag = request.GET['tag']
     except KeyError:
-        tag=None
+        tag = None
         
-    if tag == None :
-        article = Article.objects.all()\
+    if tag == None:
+        article = Article.objects\
             .filter(sha_public__isnull=False)\
-            .order_by('-pubdate')
+            .order_by('-pubdate')\
+            .all()
     else:
         article = None
 
     return render_template('article/index.html', {
         'articles': article,
-    })
-
-@can_read_now
-def list(request):
-    '''Display articles list'''
-    try:
-        articles = Article.objects.all() \
-            .filter(sha_draft__isnull=False) \
-            .order_by("-update")
-    except:
-        articles = None
-        
-    return render_template('article/index.html', {
-        'articles': articles,
     })
     
 @can_read_now

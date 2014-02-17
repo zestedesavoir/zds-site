@@ -24,7 +24,6 @@ urlpatterns = patterns('',
 
 
     url(r'^$', views.index),
-    url(r'^liste/$', views.list),
     url(r'^telecharger/$', views.download),
     url(r'^historique/(?P<article_pk>\d+)/(?P<article_slug>.+)/$', views.history),
     
