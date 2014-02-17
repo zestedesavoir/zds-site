@@ -23,7 +23,7 @@ from zds.member.views import get_client_ip
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
-from zds.utils.models import Category, CommentLike, CommentDislike, Alert
+from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -37,19 +37,22 @@ def index(request):
     # The tag indicate what the category article the user would 
     # like to display. We can display all subcategories for articles.
     try:
-        tag = request.GET['tag']
-    except KeyError:
+        tag = get_object_or_404(SubCategory, title = request.GET['tag'])
+    except (KeyError, Http404):
         tag = None
         
     if tag == None:
         article = Article.objects\
-            .filter(sha_public__isnull=False)\
+            .filter(sha_public__isnull = False)\
             .order_by('-pubdate')\
             .all()
     else:
-        # TODO We must use this tag to retrieve list of articles
-        # of the tag specified.
-        article = None
+        # The tag isn't None. We can use it to retrieve all articles
+        # in the subcategory specified.
+        article = Article.objects\
+            .filter(sha_public__isnull = False, subcategory__in = [tag])\
+            .order_by('-pubdate')\
+            .all()
 
     return render_template('article/index.html', {
         'articles': article,
