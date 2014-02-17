@@ -114,15 +114,11 @@ def view_online(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
     
-    try:
-        sha = request.GET['version']
-    except KeyError:
-        sha = article.sha_draft
-
+    # The slug of the article must to be right.
     if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
+        return redirect(article.get_absolute_url_online())
     
-    #find the good manifest file
+    # Load the article.
     article_version = article.load_json()
     txt = open(os.path.join(article.get_path(), article_version['text']+'.html'), "r")
     article_version['txt'] = txt.read()
@@ -130,25 +126,29 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['is_locked'] = article.is_locked
+
+    # If the user is authenticated
     if request.user.is_authenticated():
+        # We check if he can post an article or not with 
+        # antispam filter.
         article_version['antispam'] = article.antispam()
-    
-    #find reactions
-    if request.user.is_authenticated():
+        # If the user is never read, we mark this article read.
         if never_read(article):
             mark_read(article)
-            
+       
+    # Find all reactions of the article.
     reactions = Reaction.objects\
-                .filter(article__pk=article.pk)\
+                .filter(article__pk = article.pk)\
                 .order_by('position')\
                 .all()
-            
+    
+    # Retrieve pk of the last reaction. If there aren't reactions
+    # for the article, we initialize this last reaction at 0.
+    last_reaction_pk = 0
     if article.last_reaction:
         last_reaction_pk = article.last_reaction.pk
-    else:
-        last_reaction_pk = 0
     
-    # Handle pagination
+    # Handle pagination.
     paginator = Paginator(reactions, settings.POSTS_PER_PAGE)
 
     try:
@@ -177,7 +177,6 @@ def view_online(request, article_pk, article_slug):
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
-        'version': sha,
         'prev': get_prev_article(article),
         'next': get_next_article(article),
         'reactions': res,
