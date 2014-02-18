@@ -141,6 +141,11 @@
                 a {
                     text-decoration: none;
                     color: #084561;
+
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                    }
                 }
 
                 &:not(:last-child):after {
@@ -306,7 +311,7 @@
        Main / Forum
        ============ */
     .forum-message {
-        margin: 0 0 25px 2%;
+        margin: 0 0 25px;
 
         .user,
         .message {
