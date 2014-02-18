@@ -88,6 +88,9 @@ class Article(models.Model):
     
     def in_validation(self):
         return self.sha_validation != None
+
+    def is_draft(self):
+        return self.sha_draft != None
     
     def get_path(self, relative=False):
         if relative:
