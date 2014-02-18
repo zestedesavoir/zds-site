@@ -68,7 +68,7 @@ def view(request, article_pk, article_slug):
 
     # Only authors of the article and staff can view article in offline.
     if not request.user.has_perm('forum.change_article')\
-        and request.user not in article.authors.all():
+        or request.user not in article.authors.all():
         raise PermissionDenied
 
     # The slug of the article must to be right.
