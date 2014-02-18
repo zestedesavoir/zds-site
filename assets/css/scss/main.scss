@@ -18,7 +18,7 @@ $default-transition-duration: .15s;
 
 $sprite: sprite-map("sprite/*.png");
 $sprite2x: sprite-map("sprite@2x/*.png");
-// $sprite: $sprite2x;
+//$sprite: $sprite2x;
 
 
 
@@ -54,6 +54,7 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 @import "base";
 
 @import "all-supports";
+@import "form";
 
 // Fluid layout
 @import "mobile";
