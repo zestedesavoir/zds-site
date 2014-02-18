@@ -61,6 +61,8 @@ class Article(models.Model):
                                       blank=True, null=True, max_length=80)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80)
+    sha_rereading = models.CharField('Sha1 de la version en relecture',
+                                 blank=True, null=True, max_length=80)
     
     text = models.CharField('chemin relatif du texte',blank=True, null=True, max_length=200)
     
