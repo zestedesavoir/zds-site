@@ -34,10 +34,15 @@
     </div>
 
     {% if perms.article.change_article and article.sha_public = version %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-        <h3><span class="wide">Administration</span></h3>
-        <button type="submit" name="invalid-article">Confirmer la dépublication</button>
-    </div>
+    <form action="{% url "zds.article.views.modify" %}" method="post">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
+            <h3><span class="wide">Administration</span></h3>
+            <button type="submit" name="invalid-article">Confirmer la dépublication</button>
+        </div>
+        <input type="hidden" name="article" value="{{ article.pk }}" />
+        <input type="hidden" name="version" value="{{ version }}" />
+        {% csrf_token %}
+    </form>
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">

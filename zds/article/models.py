@@ -269,6 +269,7 @@ STATUS_CHOICES = (
         ('PENDING_V', 'En cours de validation'),
         ('ACCEPT', 'Publié'),
         ('REJECT', 'Rejeté'),
+        ('REREADING', 'Relecture'),
     )
 
 class Reaction(Comment):

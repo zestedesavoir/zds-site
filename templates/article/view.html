@@ -41,25 +41,36 @@
 
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
                 <h3><span class="wide">Opérations</span></h3>
-            {% if not version = article.sha_validation and not version = article.sha_public and user in authors.all %}
+            {% if user in authors.all or article.sha_rereading = version %}
                 <h4><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></h4>
-                <button type="submit" name="delete">Supprimer</button><br />
-
+            {% endif %}
+            {% if user in authors.all and not article.sha_rereading = version and not article.sha_validation = version and not article.sha_public = version %}
+                <button type="submit" name="rereading">Demander des contributions</button>
+            {% endif %}
+            {% if article.sha_rereading = version %}
                 <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
                 <button type="submit" name="pending">Demander la validation</button>
+            {% endif %}
+            {% if user in authors.all or perms.article.change_article %}
                 <button type="submit" name="delete">Confirmer la suppression</button>
             {%endif%}
 
                 <h4><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></h4>
             </div>
 
-            {% if perms.article.change_article and article.sha_validation = version %}
+            {% if perms.article.change_article %}
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
                 <h3><span class="wide">Administration</span></h3>
+                {% if article.sha_validation = version %}
                 <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
                 <button type="submit" name="valid-article">Confirmer la publication</button>
                 <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
                 <button type="submit" name="reject-article">Confirmer le rejet</button>
+                {% elif article.sha_rereading = version %}
+                <button type="submit" name="invalid-rereading">Retirer de la relecture</button>
+                {% else %}
+                Nothing to do here.
+                {% endif %}
             </div>
             {% endif %}
 
