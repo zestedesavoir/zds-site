@@ -72,7 +72,7 @@ def index(request):
     })
 
 @can_read_now
-@permission_required('tutorial.change_tutorial')
+@permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
@@ -124,7 +124,7 @@ def list_validation(request):
     })
 
 @can_read_now
-@permission_required('tutorial.change_tutorial')
+@permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
     '''Display tutorials list in validation'''
@@ -149,7 +149,11 @@ def reservation(request, validation_pk):
 # Tutorial
 @can_read_now
 @login_required
+<<<<<<< HEAD
 @permission_required('tutorial.change_tutorial')
+=======
+@permission_required('tutorial.change_tutorial', raise_exception=True)
+>>>>>>> origin/dev
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -2016,7 +2020,11 @@ def download(request):
     return response
 
 @can_read_now
+<<<<<<< HEAD
 @permission_required('tutorial.change_tutorial')
+=======
+@permission_required('tutorial.change_tutorial', raise_exception=True)
+>>>>>>> origin/dev
 def download_markdown(request):
     '''Download a markdown tutorial'''
 
