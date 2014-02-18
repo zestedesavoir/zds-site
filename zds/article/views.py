@@ -30,7 +30,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import ArticleForm, ReactionForm, AlertForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
-    Reaction, never_read, mark_read
+    Reaction, never_read, mark_read, STATUS_CHOICES
 
 @can_read_now
 def index(request):

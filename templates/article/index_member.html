@@ -60,7 +60,7 @@
                         {% endif %}
                     </div>
                     <div class="large-10 columns">
-                        {% if not article.sha_public = '' or not article.sha_public = None %}
+                        {% if article.on_line %}
                             <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
                         {% else %}
                             <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
