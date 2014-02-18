@@ -265,11 +265,11 @@ def get_next_article(g_article):
         return None
 
 STATUS_CHOICES = (
-        ('PENDING', 'En attente d\'un validateur'),
-        ('PENDING_V', 'En cours de validation'),
-        ('ACCEPT', 'Publié'),
-        ('REJECT', 'Rejeté'),
+        ('DRAFT', 'Brouillon'),
         ('REREADING', 'Relecture'),
+        ('PENDING', 'En attente d\'un validateur'),
+        ('RESERVED', 'En cours de validation'),
+        ('PUBLISHED', 'Publié'),
     )
 
 class Reaction(Comment):
@@ -350,7 +350,7 @@ class Validation(models.Model):
                                            blank=True, null=True)
     comment_validator = models.TextField('Commentaire du validateur', 
                                          blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='DRAFT')
     
     def __unicode__(self):
         return self.article.title
