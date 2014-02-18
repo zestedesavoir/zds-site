@@ -290,108 +290,6 @@ def edit(request):
         'article': article, 'form': form
     })
 
-@can_write_and_read_now
-@require_POST
-@login_required
-def modify(request):
-    '''Modify status of the article'''
-    data = request.POST
-    article_pk = data['article']
-    article = get_object_or_404(Article, pk=article_pk)
-    
-    # Validator actions
-    if request.user.has_perm('article.change_article'):
-        if 'valid-article' in request.POST:
-            MEP(article, article.sha_validation)
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            article.sha_public = validation.version
-            article.sha_validation = ''
-            article.sha_rereading = ''
-            article.pubdate = datetime.now()
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-        
-        elif 'reject-article' in request.POST:
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            article.sha_validation = ''
-            article.sha_public = None
-            article.sha_rereading = ''
-            article.pubdate = None
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-        
-        elif 'invalid-article' in request.POST:
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_public).all()[0]
-            validation.status = 'PENDING'
-            validation.date_validation = None
-            validation.save()
-            
-            article.sha_validation = validation.version
-            article.sha_public = None
-            article.sha_rereading = ''
-            article.pubdate = None
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-
-        elif 'invalid-rereading' in request.POST:
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_rereading).all()[0]
-            validation.status = 'REJECT'
-            validation.date_validation = None
-            validation.save()
-            
-            article.sha_validation = ''
-            article.sha_public = None
-            article.sha_rereading = ''
-            article.pubdate = None
-            article.save()
-            
-            return redirect(article.get_absolute_url())
-    
-    # User actions
-    if request.user in article.authors.all():
-        if 'delete' in data:
-            article.delete()
-            return redirect('/articles/')
-        elif 'pending' in request.POST:
-            validation = Validation()
-            validation.article = article
-            validation.date_proposition = datetime.now()
-            validation.comment_authors = request.POST['comment']
-            validation.version = request.POST['version']
-            
-            validation.save()
-            
-            validation.article.sha_validation = request.POST['version']
-            validation.article.save()
-            
-            return redirect(article.get_absolute_url())
-        elif 'rereading' in request.POST:
-            validation = Validation()
-            validation.status = 'REREADING'
-            validation.article = article
-            validation.date_proposition = datetime.now()
-            validation.version = request.POST['version']
-
-            validation.save()
-
-            validation.article.sha_rereading = request.POST['version']
-            validation.article.save()
-
-    return redirect(article.get_absolute_url())
-
 @can_read_now
 def find_article(request, name):
     u = get_object_or_404(User, username=name)
@@ -457,6 +355,134 @@ def download(request):
     return response
 
 # Validation
+
+@can_write_and_read_now
+@require_POST
+@login_required
+def modify(request):
+    '''Modify status of the article'''
+    data = request.POST
+    article_pk = data['article']
+    article = get_object_or_404(Article, pk=article_pk)
+    
+    # Validator actions
+    if request.user.has_perm('article.change_article'):
+        # A validator would like to invalid an article rereading.
+        # We must come back to sha_draft with the current sha of 
+        # validation.
+        if 'invalid-rereading' in request.POST:
+            validation = Validation.objects.get(article__pk=article.pk)
+            validation.status = 'DRAFT'
+            validation.save()
+            
+            # Update all sha excepted sha_public because we can
+            # contribute at an article after his publication.
+            article.sha_validation = None
+            article.sha_rereading = None
+            article.sha_draft = validation.version
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        # A validator would like to invalid an article in validation.
+        # We must come back to sha_draft with the current sha of
+        # validation.
+        elif 'reject-article' in request.POST:
+            validation = Validation.objects.get(article__pk=article.pk)
+            validation.comment_validator = request.POST['comment-r']
+            validation.status = 'DRAFT'
+            validation.save()
+            
+            # Update all sha excepted sha_public because we can
+            # contribute at an article after his publication.
+            article.sha_validation = None
+            article.sha_rereading = None
+            article.sha_draft = validation.version
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        # A validator would like to invalid an article published. We must
+        # come back to sha_validation with the current sha of validation.
+        elif 'invalid-article' in request.POST:
+            validation = Validation.objects.get(article__pk=article.pk)
+            validation.status = 'PENDING'
+            validation.save()
+            
+            # Only update sha_validation because contributors can 
+            # contribute on rereading version or there can be an 
+            # published version of the article.
+            article.sha_validation = validation.version
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        # A validatir would like to valid an article in validation. We
+        # must update sha_public with the current sha of the validation.
+        elif 'valid-article' in request.POST:
+            MEP(article, article.sha_validation)
+            validation = Validation.objects.get(article__pk=article.pk)
+            validation.comment_validator = request.POST['comment-v']
+            validation.status = 'PUBLISHED'
+            validation.date_validation = datetime.now()
+            validation.save()
+            
+            # Update sha_public and sha_draft with the sha of validation.
+            # So, the user can continue to edit his article in offline.
+            article.sha_public = validation.version
+            article.sha_validation = None
+            article.sha_rereading = None
+            article.sha_draft = validation.version
+            article.pubdate = datetime.now()
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+    
+    # User actions
+    if request.user in article.authors.all():
+        if 'delete' in data:
+            article.delete()
+            return redirect('/articles/')
+
+        # User would like to have a rereading and external contributions.
+        # So we mist save the current sha (version) of the article to his
+        # sha_rereading.
+        elif 'rereading' in request.POST:
+            try:
+                validation = get_object_or_404(Validation, article__pk=article.pk)
+            except Http404:
+                validation = Validation()
+            validation.status = 'REREADING'
+            validation.article = article
+            validation.date_proposition = datetime.now()
+            validation.version = request.POST['version']
+
+            validation.save()
+
+            validation.article.sha_rereading = request.POST['version']
+            validation.article.save()
+
+        # User would like to validate his article. So we must save the 
+        # current sha (version) of the article to his sha_validation.
+        elif 'pending' in request.POST:
+            try:
+                validation = get_object_or_404(Validation, article__pk=article.pk)
+            except Http404:
+                validation = Validation()
+            validation.status = 'PENDING'
+            validation.article = article
+            validation.date_proposition = datetime.now()
+            validation.comment_authors = request.POST['comment']
+            validation.version = request.POST['version']
+            
+            validation.save()
+            
+            validation.article.sha_validation = request.POST['version']
+            validation.article.save()
+            
+            return redirect(article.get_absolute_url())
+
+    return redirect(article.get_absolute_url())
 
 @can_read_now
 @permission_required('article.change_article', raise_exception=True)
