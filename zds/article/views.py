@@ -509,11 +509,13 @@ def list_validation(request):
         if subcategory == None:
             validations = Validation.objects \
                             .filter(validator__isnull=True) \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
 
@@ -522,11 +524,13 @@ def list_validation(request):
         if subcategory == None:
             validations = Validation.objects \
                             .filter(validator__isnull=False) \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()        
     
@@ -534,11 +538,13 @@ def list_validation(request):
     else:
         if subcategory == None:
             validations = Validation.objects \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(article__subcategory__in=[subcategory]) \
+                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
     
