@@ -413,8 +413,8 @@ def modify(request):
             validation.save()
             
             # Only update sha_validation because contributors can 
-            # contribute on rereading version or there can be an 
-            # published version of the article.
+            # contribute on rereading version.
+            article.sha_public = None
             article.sha_validation = validation.version
             article.save()
             
