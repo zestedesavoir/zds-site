@@ -48,8 +48,8 @@ def index(request):
             .order_by('-pubdate')\
             .all()
     else:
-        # The tag isn't None. We can use it to retrieve all articles
-        # in the subcategory specified.
+        # The tag isn't None and exist in the system. We can use it to retrieve 
+        # all articles in the subcategory specified.
         article = Article.objects\
             .filter(sha_public__isnull = False, subcategory__in = [tag])\
             .order_by('-pubdate')\
