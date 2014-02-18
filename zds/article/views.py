@@ -81,7 +81,8 @@ def view(request, article_pk, article_slug):
         sha = request.GET['version']
         if article.sha_public != sha\
             or article.sha_validation != sha\
-            or article.sha_draft != sha:
+            or article.sha_draft != sha\
+            or article.sha_rereading != sha:
             raise Http404
     except (KeyError, Http404):
         sha = article.sha_draft
@@ -97,6 +98,7 @@ def view(request, article_pk, article_slug):
     article_version['slug'] = article.slug
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
+    article_version['sha_rereading'] = article.sha_rereading
 
     validation = Validation.objects.filter(article__pk = article.pk, version = sha)
     
@@ -309,6 +311,7 @@ def modify(request):
             
             article.sha_public = validation.version
             article.sha_validation = ''
+            article.sha_rereading = ''
             article.pubdate = datetime.now()
             article.save()
             
@@ -322,6 +325,8 @@ def modify(request):
             validation.save()
             
             article.sha_validation = ''
+            article.sha_public = None
+            article.sha_rereading = ''
             article.pubdate = None
             article.save()
             
@@ -334,11 +339,26 @@ def modify(request):
             validation.save()
             
             article.sha_validation = validation.version
-            article.sha_public = ''
+            article.sha_public = None
+            article.sha_rereading = ''
             article.pubdate = None
             article.save()
             
             return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        elif 'invalid-rereading' in request.POST:
+            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_rereading).all()[0]
+            validation.status = 'REJECT'
+            validation.date_validation = None
+            validation.save()
+            
+            article.sha_validation = ''
+            article.sha_public = None
+            article.sha_rereading = ''
+            article.pubdate = None
+            article.save()
+            
+            return redirect(article.get_absolute_url())
     
     # User actions
     if request.user in article.authors.all():
@@ -366,6 +386,9 @@ def modify(request):
             validation.version = request.POST['version']
 
             validation.save()
+
+            validation.article.sha_rereading = request.POST['version']
+            validation.article.save()
 
     return redirect(article.get_absolute_url())
 
