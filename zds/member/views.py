@@ -144,6 +144,7 @@ def articles(request):
 
     return render_template('article/index_member.html', {
         'articles': user_articles,
+        'type': type,
     })
 
 # settings for public profile
