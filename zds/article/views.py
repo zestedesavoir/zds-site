@@ -358,6 +358,14 @@ def modify(request):
             validation.article.save()
             
             return redirect(article.get_absolute_url())
+        elif 'rereading' in request.POST:
+            validation = Validation()
+            validation.status = 'REREADING'
+            validation.article = article
+            validation.date_proposition = datetime.now()
+            validation.version = request.POST['version']
+
+            validation.save()
 
     return redirect(article.get_absolute_url())
 
