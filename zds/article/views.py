@@ -492,16 +492,19 @@ def modify(request):
 @login_required
 def list_validation(request):
     '''Display articles list in validation'''
+    # Retrieve type of the validation. Default value is all validations.
     try:
         type = request.GET['type']
     except KeyError:
-        type=None
+        type = None
     
+    # Get subcategory to filter validations.
     try:
         subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
-    except KeyError:
-        subcategory=None
+    except (KeyError, Http404) :
+        subcategory = None
 
+    # Orphan validation. There aren't validator attached to the validations.
     if type == 'orphan':
         if subcategory == None:
             validations = Validation.objects \
@@ -513,6 +516,8 @@ def list_validation(request):
                             .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
+
+    # Reserved validation. There are a validator attached to the validations.
     elif type == 'reserved':
         if subcategory == None:
             validations = Validation.objects \
@@ -524,6 +529,8 @@ def list_validation(request):
                             .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()        
+    
+    # Default, we display all validations.
     else:
         if subcategory == None:
             validations = Validation.objects \
