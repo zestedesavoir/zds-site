@@ -20,10 +20,6 @@
 {% block headline-actions %}
     {% if user.is_authenticated %}
         <form action="{% url "zds.article.views.modify" %}" method="post">
-            {% if validation.0 %}
-            <h4>{{ validation.0.get_status_display }}</h4>
-            {% endif %}
-
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
                 <h3><span class="wide">Tags</span></h3>
                 {% for category in tags.all %}
