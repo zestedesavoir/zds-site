@@ -59,11 +59,7 @@
                         {% endif %}
                     </div>
                     <div class="large-10 columns">
-                        {% if article.on_line %}
-                            <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
-                        {% else %}
-                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                        {% endif %}
+                        <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
                         <p>{{ article.description }}</p>
                     </div>
                     <div class="large-1 columns">
