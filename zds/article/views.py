@@ -247,7 +247,7 @@ def edit(request):
 
     # Only authors of the article and staff can edit article.
     if not request.user.has_perm('forum.change_article')\
-        and request.user not in article.authors.all():
+        or request.user not in article.authors.all():
         raise PermissionDenied
 
     json = article.load_json()
