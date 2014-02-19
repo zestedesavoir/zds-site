@@ -51,9 +51,6 @@
                 {% if article.sha_draft = version %}
                 <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
                 {% endif %}
-                {% if not article.sha_rereading = version and not article.sha_validation = version and not article.sha_public = version %}
-                <li><button type="submit" name="rereading">Demander des contributions</button></li>
-                {% endif %}
                 {% if not article.sha_validation = version and not article.sha_public = version %}
                 <li>
                     <button type="submit" name="pending">Demander la validation</button>
@@ -80,8 +77,6 @@
                     <button type="submit" name="reject-article">Confirmer le rejet</button>
                     <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
                 </li>
-                {% elif article.sha_rereading = version %}
-                <li><button type="submit" name="invalid-rereading">Retirer de la relecture</button></li>
                 {% else %}
                 <li>Nothing to do here.</li>
                 {% endif %}
