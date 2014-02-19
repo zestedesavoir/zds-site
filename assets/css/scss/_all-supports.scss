@@ -1244,7 +1244,7 @@ $helpful-background: #e9f9dc;
             margin: 0 10px 0;
             padding-top: 1px;
 
-            p:first-child {
+            & > p:first-child {
                 margin-top: 7px;
             }
 
@@ -1347,6 +1347,7 @@ $helpful-background: #e9f9dc;
             button {
                 display: block;
                 float: left;
+                cursor: pointer;
                 background-color: #edefef;
                 border-bottom: 3px solid #edefef;
                 text-decoration: none;

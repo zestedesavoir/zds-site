@@ -10,31 +10,77 @@
    Interface
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-/* Buttons */
-.zform-button {
-    background: #fff;
-    border: 1px solid #fff;
-    border-radius: 3px;
-    color: #333;
-    cursor: pointer;
-    display: inline-block;
-    height: 22px;
-    line-height: 22px;
-    margin-right: 2px;
-    opacity: 0.7;
-    text-align: center;
-    vertical-align: middle;
-    text-decoration: none;
-    width: 16px;
-    height: 16px;
-    background-position: center center;
-    background-repeat: no-repeat;
-    padding: 2px;
+.zform-toolbar {
+    @include display(flex);
+    margin: 0 0 0 10px;
+    padding: 0;
+    list-style: none;
+    border-bottom: none;
 
-    &:hover,
-    &:focus {
-        border: 1px solid #FD9F26;
-        opacity: 1;
+    a,
+    button {
+        display: block;
+        float: left;
+        cursor: pointer;
+        background-color: #edefef;
+        border-bottom: 3px solid #edefef;
+        text-decoration: none;
+        color: #999;
+        height: 27px;
+        line-height: 30px;
+        padding: 0 10px;
+        margin-left: 1px;
+        text-indent: -9999px;
+        width: 0;
+        @include transition;
+
+        .zform-popup {
+            text-indent: 0;
+            line-height: 20px;
+        }
+
+        &.ico-after {
+            padding-left: 30px;
+        }
+
+        &:after {
+            top: 7px;
+            left: 12px;
+            @include transition;
+            @include opacity(.5);
+        }        
+    }
+    button {
+        padding: 0 15px;
+        height: 30px;
+        border-top: none;
+        border-right: none;
+        border-left: none;
+        
+        &[type=submit] {
+            background: #084561;
+            border-bottom-color: #084561;
+            color: #DDD;
+
+            &:hover,
+            &:focus {
+                color: #FFF;
+                background: #396A81;
+                border-bottom-color: #396A81;
+            }
+        }
+    }
+    a,
+    button {
+        &:hover,
+        &:focus {
+            border-bottom-color: #999;
+            outline: none;
+
+            &:after {
+                @include opacity(1);
+            }
+        }
     }
 }
 

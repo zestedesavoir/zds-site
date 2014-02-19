@@ -6,14 +6,21 @@
 
 
 
-.main-container form {
-    width: 100%;
+.main-container {
 
-    &.form-alone {
-        width: 90%;
-        max-width: 500px;
-        padding: 0 5%;
-        margin: 20px auto;
+    form {
+        width: 100%;
+
+        &.form-alone {
+            width: 90%;
+            max-width: 500px;
+            padding: 0 5%;
+            margin: 20px auto;
+        }
+
+        p {
+            position: relative;
+        }
     }
 
 
@@ -33,10 +40,6 @@
     }
 
 
-
-    p {
-        position: relative;
-    }
 
     label {
         display: block;
