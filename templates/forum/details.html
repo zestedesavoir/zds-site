@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
+    <li><a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
 {% endblock %}
 
 {% block content %}
