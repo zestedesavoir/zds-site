@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block content-filter %}
-                        {% if type = 'draft' and article.is_draft %}
-                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                        {% else %}
+                        {% if type = 'public' and article.on_line %}
                             <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% else %}
+                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
                         {% endif %}
 {% endblock %}
