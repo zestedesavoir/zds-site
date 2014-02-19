@@ -60,7 +60,9 @@
                     <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
                 </li>
                 {% endif %}
+                {% if article.sha_public = None %}
                 <li><button type="submit" name="delete">Confirmer la suppression</button></li>
+                {% endif %}
                 <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
         </div>
         {% endif %}
@@ -92,7 +94,7 @@
         {% csrf_token %}
     </form>
     {% endif %}
-    
+
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
         <ul>
