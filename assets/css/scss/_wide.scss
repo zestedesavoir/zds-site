@@ -203,6 +203,14 @@
     /* ============
        Main
        ============ */
+    body.no-sidebar .main {
+        .content-container {
+            width: 100%;
+        }
+        .sidebar {
+            display: none;
+        }
+    }
 
     .main {
         @include display(flex);
