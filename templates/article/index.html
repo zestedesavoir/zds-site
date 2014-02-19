@@ -39,6 +39,7 @@
             <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
             {% if user.is_authenticated %}
             <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+            {% block headline-actions-filter %}{% endblock %}
             {% endif %}
         </ul>
 
@@ -59,7 +60,9 @@
                         {% endif %}
                     </div>
                     <div class="large-10 columns">
+                        {% block content-filter %}
                         <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% endblock %}
                         <p>{{ article.description }}</p>
                     </div>
                     <div class="large-1 columns">
