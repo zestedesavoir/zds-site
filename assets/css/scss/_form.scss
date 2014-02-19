@@ -1,19 +1,26 @@
 /* ===== Zeste de Savoir ====================================================
-   Updated by: Alex-D / Alexandre Demode
+   Author: Alex-D / Alexandre Demode
    ---------------------------------
    Form style
    ========================================================================== */
 
 
 
-.main-container form {
-    width: 100%;
+.main-container {
 
-    &.form-alone {
-        width: 90%;
-        max-width: 500px;
-        padding: 0 5%;
-        margin: 20px auto;
+    form {
+        width: 100%;
+
+        &.form-alone {
+            width: 90%;
+            max-width: 500px;
+            padding: 0 5%;
+            margin: 20px auto;
+        }
+
+        p {
+            position: relative;
+        }
     }
 
 
@@ -27,16 +34,12 @@
         legend {
             padding: 0 10px;
             border-top: 1px solid #DDD;
-            border-bottom: 3px solid #FCFCFC;
+            border-bottom: 3px solid #DDD;
             background: #EFEFEF;
         }
     }
 
 
-
-    p {
-        position: relative;
-    }
 
     label {
         display: block;
