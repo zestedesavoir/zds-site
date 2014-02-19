@@ -194,7 +194,8 @@
         
         setup: function(textareaId) {
             var elemTexta = document.getElementById(textareaId);
-            var elemTools = document.createElement("aside");
+            var elemTools = document.createElement("ul");
+            elemTools.className = "zform-toolbar";
             
             elemTexta.parentNode.insertBefore(elemTools, elemTexta);
             
@@ -222,7 +223,7 @@
             var groups = this.buttons.split("#");
             var buttons;
             
-            var elemButton, currentButton;
+            var elemButtonLi, elemButton, currentButton;
             var elemPopup;
             
             for (var g=0, cg=groups.length; g<cg; g++) {
@@ -234,12 +235,14 @@
                         continue;   
                     }
 
-                    elemButton = elemTools.appendChild(document.createElement("a"));
+                    elemButtonLi = elemTools.appendChild(document.createElement("li"));
+                    elemButton = elemButtonLi.appendChild(document.createElement("a"));
                     elemButton.style.position = "relative";
                     
-                    elemButton.className = "zform-button zform-button-" + buttons[b];
+                    elemButton.className = "ico-after zform-button zform-button-" + buttons[b];
                     elemButton.setAttribute("data-zform-textarea", textareaId);
                     elemButton.title = currentButton.title;
+                    elemButton.innerText = currentButton.title;
                     
                     if (currentButton.action) {
                         elemButton.href = "#";
@@ -292,8 +295,8 @@
             var modals = document.getElementsByTagName("section");
             
             for (var i=0, c=modals.length; i<c; i++) {
-                if (modals[i].className = "zform-modal") {
-                    modals[i].style.display = "none";   
+                if (modals[i].className === "zform-modal") {
+                    modals[i].style.display = "none";
                 }   
             }
             
@@ -313,9 +316,10 @@
         
         buildTitles: function(elemPopup, currentButton, textareaId, elemItem) {
             for (var i=1; i<=4; i++) {
-                elemItem = elemPopup.appendChild(document.createElement("div"));
-                elemItem.className = "zform-button zform-subbutton zform-button-title" + i;
-                elemItem.title = "Titre de niveau " + 1;
+                elemItem = elemPopup.appendChild(document.createElement("a"));
+                elemItem.className = "ico-after zform-button zform-subbutton zform-button-title" + i;
+                elemItem.title = "Titre de niveau " + i;
+                elemItem.innerText = "Titre de niveau " + i;
                 this.addEvent(elemItem, "mousedown", (function(_this, _textareaId, _options) {
                     return function(event) {
                         event.preventDefault(); // IE madafaker
@@ -331,9 +335,10 @@
             var ids = ["information", "question", "attention", "error", "secret"];
             
             for (var i=0; i<5; i++) {
-                elemItem = elemPopup.appendChild(document.createElement("div"));
-                elemItem.className = "zform-button zform-subbutton zform-button-" + ids[i];
+                elemItem = elemPopup.appendChild(document.createElement("a"));
+                elemItem.className = "ico-after zform-button zform-subbutton zform-button-" + ids[i];
                 elemItem.title = this.tags[ids[i]].title;
+                elemItem.innerText = this.tags[ids[i]].title;
                 this.addEvent(elemItem, "mousedown", (function(_this, _textareaId, _options) {
                     return function(event) {
                         event.preventDefault(); // IE
