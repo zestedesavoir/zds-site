@@ -20,53 +20,70 @@
 {% block headline-actions %}
     {% if user.is_authenticated %}
         <form action="{% url "zds.article.views.modify" %}" method="post">
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-                <h3><span class="wide">Tags</span></h3>
+            {% if tags %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tags">
+                <h3>Tags</h3>
+                <ul>
                 {% for category in tags.all %}
-                    <h4>{{ category.title }}</h4>
+                    <li><a href="{% url "zds.article.views.index" %}?tag={{category.title}}">{{ category.title }}</a></li>
                 {% endfor %}
+                </ul>
             </div>
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-                <h3><span class="wide">Contributeurs</span></h3>
+            {% endif %}
+            
+            {% if authors %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Contributeurs">
+                <h3>Contributeurs</h3>
+                <ul>
                 {% for author in authors.all %}
-                        {% with profile=author|profile %}
-                        <h4><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></h4>
-                        {% endwith %}
+                    {% with profile=author|profile %}
+                    <li><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></li>
+                    {% endwith %}
                 {% endfor %}
+                </ul>
             </div>
+            {% endif %}
 
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-                <h3><span class="wide">Opérations</span></h3>
-            {% if user in authors.all or article.sha_rereading = version %}
-                <h4><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></h4>
-            {% endif %}
-            {% if user in authors.all and not article.sha_rereading = version and not article.sha_validation = version and not article.sha_public = version %}
-                <button type="submit" name="rereading">Demander des contributions</button>
-            {% endif %}
-            {% if article.sha_rereading = version %}
-                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
-                <button type="submit" name="pending">Demander la validation</button>
-            {% endif %}
             {% if user in authors.all or perms.article.change_article %}
-                <button type="submit" name="delete">Confirmer la suppression</button>
-            {%endif%}
-
-                <h4><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></h4>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Opérations">
+                <h3>Opérations</h3>
+                <ul>
+                    {% if article.sha_rereading = version %}
+                    <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
+                    {% endif %}
+                    {% if not article.sha_rereading = version and not article.sha_validation = version and not article.sha_public = version %}
+                    <li><button type="submit" name="rereading">Demander des contributions</button></li>
+                    {% endif %}
+                    {% if not article.sha_validation = version and not article.sha_public = version %}
+                    <li>
+                        <button type="submit" name="pending">Demander la validation</button>
+                        <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+                    </li>
+                    {% endif %}
+                    <li><button type="submit" name="delete">Confirmer la suppression</button></li>
+                    <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
             </div>
+            {% endif %}
 
             {% if perms.article.change_article %}
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-                <h3><span class="wide">Administration</span></h3>
-                {% if article.sha_validation = version %}
-                <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                <button type="submit" name="valid-article">Confirmer la publication</button>
-                <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                <button type="submit" name="reject-article">Confirmer le rejet</button>
-                {% elif article.sha_rereading = version %}
-                <button type="submit" name="invalid-rereading">Retirer de la relecture</button>
-                {% else %}
-                Nothing to do here.
-                {% endif %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+                <h3>Admin<span class="wide">istration</span></h3>
+                <ul>
+                    {% if article.sha_validation = version %}
+                    <li>
+                        <button type="submit" name="valid-article">Confirmer la publication</button>
+                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                    </li>
+                    <li>
+                        <button type="submit" name="reject-article">Confirmer le rejet</button>
+                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                    </li>
+                    {% elif article.sha_rereading = version %}
+                    <li><button type="submit" name="invalid-rereading">Retirer de la relecture</button></li>
+                    {% else %}
+                    <li>Nothing to do here.</li>
+                    {% endif %}
+                </ul>
             </div>
             {% endif %}
 
@@ -76,9 +93,11 @@
         </form>
         
     {% endif %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-        <h3><span class="wide">Télécharger</span></h3>
-        <h4><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></h4>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+        <h3>Télécharger</h3>
+        <ul>
+            <li><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></li>
+        </ul>
     </div>
     
 {% endblock %}
