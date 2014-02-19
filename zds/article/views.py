@@ -60,16 +60,15 @@ def index(request):
     })
 
 @can_read_now
-@permission_required('article.change_article', raise_exception=True)
 @login_required
 def view(request, article_pk, article_slug):
     '''Show the given offline article if exists'''
     article = get_object_or_404(Article, pk = article_pk)
 
     # Only authors of the article and staff can view article in offline.
-    if not request.user.has_perm('forum.change_article')\
-        or request.user not in article.authors.all():
-        raise PermissionDenied
+    if request.user not in article.authors.all():
+        if not request.user.has_perm('forum.change_article'):
+            raise PermissionDenied
 
     # The slug of the article must to be right.
     if article_slug != slugify(article.title):
@@ -81,8 +80,7 @@ def view(request, article_pk, article_slug):
         sha = request.GET['version']
         if article.sha_public != sha\
             or article.sha_validation != sha\
-            or article.sha_draft != sha\
-            or article.sha_rereading != sha:
+            or article.sha_draft != sha:
             raise Http404
     except (KeyError, Http404):
         sha = article.sha_draft
@@ -99,7 +97,6 @@ def view(request, article_pk, article_slug):
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
-    article_version['sha_rereading'] = article.sha_rereading
 
     validation = Validation.objects.filter(article__pk = article.pk, version = sha)
     
@@ -247,9 +244,9 @@ def edit(request):
     article = get_object_or_404(Article, pk=article_pk)
 
     # Only authors of the article and staff can edit article.
-    if not request.user.has_perm('forum.change_article')\
-        or request.user not in article.authors.all():
-        raise PermissionDenied
+    if request.user not in article.authors.all():
+        if not request.user.has_perm('forum.change_article'):
+            raise PermissionDenied
 
     json = article.load_json()
     if request.method == 'POST':
@@ -371,27 +368,11 @@ def modify(request):
     
     # Validator actions
     if request.user.has_perm('article.change_article'):
-        # A validator would like to invalid an article rereading.
-        # We must come back to sha_draft with the current sha of 
-        # validation.
-        if 'invalid-rereading' in request.POST:
-            validation = Validation.objects.get(article__pk=article.pk)
-            validation.status = 'DRAFT'
-            validation.save()
-            
-            # Update all sha excepted sha_public because we can
-            # contribute at an article after his publication.
-            article.sha_validation = None
-            article.sha_rereading = None
-            article.sha_draft = validation.version
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
 
         # A validator would like to invalid an article in validation.
         # We must come back to sha_draft with the current sha of
         # validation.
-        elif 'reject-article' in request.POST:
+        if 'reject-article' in request.POST:
             validation = Validation.objects.get(article__pk=article.pk)
             validation.comment_validator = request.POST['comment-r']
             validation.status = 'DRAFT'
@@ -400,7 +381,6 @@ def modify(request):
             # Update all sha excepted sha_public because we can
             # contribute at an article after his publication.
             article.sha_validation = None
-            article.sha_rereading = None
             article.sha_draft = validation.version
             article.save()
             
@@ -435,7 +415,6 @@ def modify(request):
             # So, the user can continue to edit his article in offline.
             article.sha_public = validation.version
             article.sha_validation = None
-            article.sha_rereading = None
             article.sha_draft = validation.version
             article.pubdate = datetime.now()
             article.save()
@@ -447,24 +426,6 @@ def modify(request):
         if 'delete' in data:
             article.delete()
             return redirect('/articles/')
-
-        # User would like to have a rereading and external contributions.
-        # So we mist save the current sha (version) of the article to his
-        # sha_rereading.
-        elif 'rereading' in request.POST:
-            try:
-                validation = get_object_or_404(Validation, article__pk=article.pk)
-            except Http404:
-                validation = Validation()
-            validation.status = 'REREADING'
-            validation.article = article
-            validation.date_proposition = datetime.now()
-            validation.version = request.POST['version']
-
-            validation.save()
-
-            validation.article.sha_rereading = request.POST['version']
-            validation.article.save()
 
         # User would like to validate his article. So we must save the 
         # current sha (version) of the article to his sha_validation.

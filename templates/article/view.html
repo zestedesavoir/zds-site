@@ -48,7 +48,7 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Opérations">
             <h3>Opérations</h3>
             <ul>
-                {% if article.sha_rereading = version %}
+                {% if article.sha_draft = version %}
                 <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
                 {% endif %}
                 {% if not article.sha_rereading = version and not article.sha_validation = version and not article.sha_public = version %}
