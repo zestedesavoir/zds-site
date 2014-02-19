@@ -147,6 +147,21 @@ def articles(request):
         'type': type,
     })
 
+
+@can_read_now
+@login_required
+def actions(request):
+    '''
+    Show avaible actions for current user, like a customized homepage.
+    This may be very temporary.
+    '''
+
+    # TODO: Seriously improve this page, and see if cannot be merged in
+    #       zds.pages.views.home since it will be more coherent to give an
+    #       enhanced homepage for registered users
+
+    return render_template('member/actions.html')
+
 # settings for public profile
 
 @can_write_and_read_now
