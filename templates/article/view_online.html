@@ -18,27 +18,40 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-        <h3><span class="wide">Tags</span></h3>
+    {% if tags %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tags">
+        <h3>Tags</h3>
+        <ul>
         {% for category in tags.all %}
-            <h4>{{ category.title }}</h4>
+            <li><a href="{% url "zds.article.views.index" %}?tag={{category.title}}">{{ category.title }}</a></li>
         {% endfor %}
+        </ul>
     </div>
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-        <h3><span class="wide">Contributeurs</span></h3>
+    {% endif %}
+
+    {% if authors %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Contributeurs">
+        <h3>Contributeurs</h3>
+        <ul>
         {% for author in authors.all %}
             {% with profile=author|profile %}
-            <h4><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></h4>
+            <li><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></li>
             {% endwith %}
         {% endfor %}
+        </ul>
     </div>
+    {% endif %}
 
-    {% if perms.article.change_article and article.sha_public = version %}
+    {% if perms.article.change_article %}
     <form action="{% url "zds.article.views.modify" %}" method="post">
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Informations">
-            <h3><span class="wide">Administration</span></h3>
-            <button type="submit" name="invalid-article">Confirmer la dépublication</button>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li><button type="submit" name="delete">Confirmer la suppression</button></li>
+                <li><button type="submit" name="invalid-article">Confirmer la dépublication</button></li>
+            </ul>
         </div>
+
         <input type="hidden" name="article" value="{{ article.pk }}" />
         <input type="hidden" name="version" value="{{ version }}" />
         {% csrf_token %}
@@ -46,8 +59,10 @@
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3><span class="wide">Télécharger</span></h3>
-        <h4><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></h4>
+        <h3>Télécharger</h3>
+        <ul>
+            <li><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></li>
+        </ul>
     </div>
 {% endblock %}
 
