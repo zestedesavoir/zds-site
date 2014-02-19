@@ -55,6 +55,25 @@
     }
 
 
+
+    /* ==============
+        Markdown icons
+       ============== */
+    .information:after {
+        @include sprite-pos($sprite, 'information');
+    }
+    .question {
+        @include sprite-pos($sprite, 'question');
+    }
+    .error {
+        @include sprite-pos($sprite, 'error');
+    }
+    .warning {
+        @include sprite-pos($sprite, 'warning');
+    }
+
+
+
     /* ==============
         ALL: Icons
        ============== */
