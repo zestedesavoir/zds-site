@@ -188,12 +188,14 @@
                                                 {% with first_unread=topic.first_unread_post %}
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                        {% comment %}
                                                         {% with p=first_unread.author|profile %}
                                                         <img src="{{ p.get_avatar_url }}" alt="">
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
                                                         {% endwith %}
+                                                        {% endcomment %}
                                                     </a>
                                                 </li>
                                                 {% endwith %}
