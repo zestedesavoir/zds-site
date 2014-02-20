@@ -517,6 +517,35 @@ def list_validation(request):
     })
 
 @can_read_now
+@login_required
+@permission_required('article.change_article', raise_exception=True)
+def history_validation(request, article_pk):
+    '''History of the validation of an article'''
+    article = get_object_or_404(Article, pk = article_pk)
+
+    # Get subcategory to filter validations.
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except (KeyError, Http404) :
+        subcategory = None
+
+    if subcategory == None:
+        validations = Validation.objects \
+                            .filter(article__pk = article_pk) \
+                            .order_by("date_proposition") \
+                            .all()
+    else:
+        validations = Validation.objects \
+                            .filter(article__pk = article_pk, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+
+    return render_template('article/history_validation.html', {
+        'validations': validations,
+        'article': article,
+    })
+
+@can_read_now
 @permission_required('article.change_article', raise_exception=True)
 @login_required
 def reservation(request, validation_pk):

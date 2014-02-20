@@ -77,9 +77,8 @@
                     <button type="submit" name="reject-article">Confirmer le rejet</button>
                     <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
                 </li>
-                {% else %}
-                <li>Nothing to do here.</li>
                 {% endif %}
+                <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
             </ul>
         </div>
         {% endif %}
