@@ -51,7 +51,7 @@
                 {% if article.sha_draft = version %}
                 <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
                 {% endif %}
-                {% if not article.sha_validation = version and not article.sha_public = version %}
+                {% if article.sha_validation = None and not article.sha_public = version %}
                 <li>
                     <button type="submit" name="pending">Demander la validation</button>
                     <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
@@ -68,7 +68,7 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>Admin<span class="wide">istration</span></h3>
             <ul>
-                {% if article.sha_validation = version %}
+                {% if not article.sha_validation = None %}
                 <li>
                     <button type="submit" name="valid-article">Confirmer la publication</button>
                     <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
