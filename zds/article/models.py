@@ -266,11 +266,10 @@ def get_next_article(g_article):
         return None
 
 STATUS_CHOICES = (
-        ('DRAFT', 'Brouillon'),
-        ('REREADING', 'Relecture'),
         ('PENDING', 'En attente d\'un validateur'),
         ('RESERVED', 'En cours de validation'),
         ('PUBLISHED', 'Publié'),
+        ('REJECTED', 'Rejeté')
     )
 
 class Reaction(Comment):
@@ -360,10 +359,10 @@ class Validation(models.Model):
         return self.status == 'PENDING'
     
     def is_pending_valid(self):
-        return self.status == 'PENDING_V'
+        return self.status == 'RESERVED'
     
     def is_accept(self):
-        return self.status == 'ACCEPT'
+        return self.status == 'PUBLISHED'
     
     def is_reject(self):
-        return self.status == 'REJECT'
+        return self.status == 'REJECTED'

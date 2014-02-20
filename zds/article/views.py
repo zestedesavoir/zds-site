@@ -371,18 +371,21 @@ def modify(request):
     if request.user.has_perm('article.change_article'):
 
         # A validator would like to invalid an article in validation.
-        # We must come back to sha_draft with the current sha of
+        # We must mark article rejected with the current sha of
         # validation.
         if 'reject-article' in request.POST:
-            validation = Validation.objects.get(article__pk=article.pk)
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_validation)\
+                            .latest('date_proposition')
             validation.comment_validator = request.POST['comment-r']
-            validation.status = 'DRAFT'
+            validation.status = 'REJECTED'
+            validation.date_validation = datetime.now()
             validation.save()
             
-            # Update all sha excepted sha_public because we can
-            # contribute at an article after his publication.
+            # Remove sha_validation because we rejected this version
+            # of the article.
             article.sha_validation = None
-            article.sha_draft = validation.version
+            article.pubdate = None
             article.save()
             
             return redirect(article.get_absolute_url()+'?version='+validation.version)
@@ -390,14 +393,18 @@ def modify(request):
         # A validator would like to invalid an article published. We must
         # come back to sha_validation with the current sha of validation.
         elif 'invalid-article' in request.POST:
-            validation = Validation.objects.get(article__pk=article.pk)
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_public)\
+                            .latest('date_proposition')
             validation.status = 'PENDING'
+            validation.date_validation = None
             validation.save()
             
             # Only update sha_validation because contributors can 
             # contribute on rereading version.
             article.sha_public = None
             article.sha_validation = validation.version
+            article.pubdate = None
             article.save()
             
             return redirect(article.get_absolute_url()+'?version='+validation.version)
@@ -406,17 +413,18 @@ def modify(request):
         # must update sha_public with the current sha of the validation.
         elif 'valid-article' in request.POST:
             MEP(article, article.sha_validation)
-            validation = Validation.objects.get(article__pk=article.pk)
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_validation)\
+                            .latest('date_proposition')
             validation.comment_validator = request.POST['comment-v']
             validation.status = 'PUBLISHED'
             validation.date_validation = datetime.now()
             validation.save()
             
-            # Update sha_public and sha_draft with the sha of validation.
+            # Update sha_public with the sha of validation. We don't update sha_draft.
             # So, the user can continue to edit his article in offline.
             article.sha_public = validation.version
             article.sha_validation = None
-            article.sha_draft = validation.version
             article.pubdate = datetime.now()
             article.save()
             
@@ -431,10 +439,7 @@ def modify(request):
         # User would like to validate his article. So we must save the 
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
-            try:
-                validation = get_object_or_404(Validation, article__pk=article.pk)
-            except Http404:
-                validation = Validation()
+            validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
             validation.date_proposition = datetime.now()
@@ -472,13 +477,11 @@ def list_validation(request):
         if subcategory == None:
             validations = Validation.objects \
                             .filter(validator__isnull=True) \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
 
@@ -487,13 +490,11 @@ def list_validation(request):
         if subcategory == None:
             validations = Validation.objects \
                             .filter(validator__isnull=False) \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()        
     
@@ -501,13 +502,11 @@ def list_validation(request):
     else:
         if subcategory == None:
             validations = Validation.objects \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
                             .filter(article__subcategory__in=[subcategory]) \
-                            .exclude(article__sha_validation = None)\
                             .order_by("date_proposition") \
                             .all()
     
@@ -534,7 +533,7 @@ def reservation(request, validation_pk):
     else:
         validation.validator = request.user
         validation.date_reserve = datetime.now()
-        validation.status = 'PENDING_V'
+        validation.status = 'RESERVED'
         validation.save()
         return redirect(validation.article.get_absolute_url())
 
