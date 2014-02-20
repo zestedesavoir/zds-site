@@ -476,12 +476,12 @@ def list_validation(request):
     if type == 'orphan':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=True) \
+                            .filter(validator__isnull=True, status = 'PENDING') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull=True, status = 'PENDING', article__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
 
@@ -489,12 +489,12 @@ def list_validation(request):
     elif type == 'reserved':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=False) \
+                            .filter(validator__isnull=False, status = 'PENDING') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull=False, status = 'PENDING', article__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()        
     
@@ -502,11 +502,12 @@ def list_validation(request):
     else:
         if subcategory == None:
             validations = Validation.objects \
+                            .filter(status = 'PENDING') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(article__subcategory__in=[subcategory]) \
+                            .filter(status = 'PENDING', article__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
     

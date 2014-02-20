@@ -350,7 +350,7 @@ class Validation(models.Model):
                                            blank=True, null=True)
     comment_validator = models.TextField('Commentaire du validateur', 
                                          blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='DRAFT')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     
     def __unicode__(self):
         return self.article.title
