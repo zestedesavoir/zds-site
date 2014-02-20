@@ -438,7 +438,7 @@ def modify(request):
 
         # User would like to validate his article. So we must save the 
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST:
+        elif 'pending' in request.POST and article.sha_validation == None:
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
