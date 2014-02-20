@@ -49,6 +49,7 @@
             <ul>
                 <li><a href="{{ article.get_absolute_url }}">Version offline</a></li>
                 <li><button type="submit" name="invalid-article">Confirmer la dépublication</button></li>
+                <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
             </ul>
         </div>
 
