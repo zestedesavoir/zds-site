@@ -33,14 +33,15 @@
 {% block headline-actions %}
     <div class="button-group">
 
-        {% include "article/feeds.part.html" %}
-
-        {% if user.is_authenticated %}
-            <a href="{% url "zds.article.views.new" %}" class="button">
-                <i class="icon-plus"></i>
-                Nouvel article
-            </a>
-        {% endif %}
+        <a href="#" class="button secondary dropdown" data-dropdown="articles-drop-feeds">Flux</a><br />
+        <ul id="articles-drop-feeds" class="f-dropdown">
+            <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
+            <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+            {% block headline-actions-filter %}{% endblock %}
+            {% endif %}
+        </ul>
 
     </div>
 {% endblock %}
@@ -49,7 +50,6 @@
 
 <div class="row">
     <div class="large-12 columns">
-        <h2>À la une</h2>
         {% if articles %}
             <div class="article-items">
                 {% for article in articles %}
@@ -60,7 +60,9 @@
                         {% endif %}
                     </div>
                     <div class="large-10 columns">
+                        {% block content-filter %}
                         <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% endblock %}
                         <p>{{ article.description }}</p>
                     </div>
                     <div class="large-1 columns">
