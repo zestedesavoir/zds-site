@@ -1,0 +1,16 @@
+{% extends "article/index.html" %}
+
+{% block headline-actions-filter %}
+            <h3><span class="wide">Filtres</span></h3>
+            <li><a href="{% url "zds.member.views.articles" %}">All</a></li>
+            <li><a href="{% url "zds.member.views.articles" %}?type=public">Public</a></li>
+            <li><a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a><li>
+{% endblock %}
+
+{% block content-filter %}
+                        {% if type = 'public' and article.on_line %}
+                            <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+                        {% else %}
+                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                        {% endif %}
+{% endblock %}
