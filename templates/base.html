@@ -4,6 +4,7 @@
 {% load interventions %}
 {% load topbar %}
 {% load humane_date %}
+{% load captureas %}
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js enable-mobile-menu lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -190,7 +191,7 @@
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                         {% comment %}
                                                         {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url }}" alt="">
+                                                        <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                         {% endwith %}
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
@@ -211,13 +212,14 @@
                                                         {% else %}
                                                             {{ topic.first_post.get_absolute_url }}
                                                         {% endif %}"
+                                                       class="read"
                                                     >
                                                         {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                        {% endwith %}
                                                         <span class="username">{{ last_read.author.username }}</span>
                                                         <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
-                                                        {% endwith %}
                                                     </a>
                                                     {% endwith %}
                                                 </li>
@@ -260,7 +262,7 @@
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                         {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
@@ -280,9 +282,10 @@
                                                         {% else %}
                                                             {{ topic.first_post.get_absolute_url }}
                                                         {% endif %}"
+                                                       class="read"
                                                     >
                                                         {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                         <span class="username">{{ last_read.author.username }}</span>
                                                         <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
@@ -451,17 +454,23 @@
                     {% block content_out %}
                         <section>
                             <h2>{% block headline %}{% endblock %}</h2>
-                            <h3>{% block headline-sub %}{% endblock %}</h3>
-                            <div class="row">
-                                {% if messages %}
-                                    {% for message in messages %}
-                                        <div class="alert-box {{ message.tags }}">
-                                            <span>{{ message }}</span>
-                                            <a href="#" class="close">&times;</a>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
+
+                            {% captureas headlinesub %}{% spaceless %}
+                                {% block headline-sub %}{% endblock %}
+                            {% endspaceless %}{% endcaptureas %}
+
+                            {% if headlinesub %}
+                                <h3 class="subtitle">{{ headlinesub }}</h3>
+                            {% endif %}
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert-box {{ message.tags }}">
+                                        <span>{{ message }}</span>
+                                        <a href="#" class="close">&times;</a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
 
                             {% block content %}{% endblock %}
                         </section>

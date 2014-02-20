@@ -1,44 +1,49 @@
 {% extends "forum/base.html" %}
 {% load humane_date %}
 
+
 {% block title %}
     {{ forum.title }}
 {% endblock %}
+
 
 {% block headline %}
     {{ forum.title }}
 {% endblock %}
 
+
 {% block headline-sub %}
     {{ forum.subtitle }}
 {% endblock %}
 
+
 {% block breadcrumb %}
     <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
-    <li class="current"><a href="javascript:;">{{ forum.title }}</a></li>
+    <li>{{ forum.title }}</li>
 {% endblock %}
+
 
 {% block headline-actions %}
     <li><a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
 {% endblock %}
 
+
 {% block content %}
 
-<div class="row">
-{% if sticky_topics %}
-    <div class="forum-entries forum-entries-sticky">
-        {% for topic in sticky_topics %}
+    {% if sticky_topics %}
+        <div class="forum-entries forum-entries-sticky">
+            {% for topic in sticky_topics %}
+                {% include "forum/details_row.part.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="forum-entries">
+        {% for topic in topics %}
             {% include "forum/details_row.part.html" %}
         {% endfor %}
     </div>
-{% endif %}
 
-<div class="forum-entries">
-    {% for topic in topics %}
-        {% include "forum/details_row.part.html" %}
-    {% endfor %}
-</div>
-</div>
-{% include "forum/details_pagination.part.html" with position="bottom" %}
+    {% include "forum/topic_pagination.part.html" with position="bottom" %}
 
 {% endblock %}

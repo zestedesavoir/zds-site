@@ -2,58 +2,62 @@
 {% load emarkdown %}
 {% load markup %}
 
+
 {% block title %}
     Nouveau sujet
 {% endblock %}
+
 
 {% block headline %}
     Nouveau sujet
 {% endblock %}
 
+
 {% block breadcrumb %}
     <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
     <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-    <li class="current"><a href="javascript:;">Nouveau sujet</a></li>
+    <li>Nouveau sujet</li>
 {% endblock %}
 
+
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <form action="" method="POST">
-            <input type="text" placeholder="Titre" name="title" class="input-xxlarge" value="{{ title }}" /><br />
-            <input type="text" placeholder="Sous-titre" name="subtitle" class="input-xxlarge" value="{{ subtitle }}" /><br />
-            <textarea class="input-block-level" rows="20" name="text" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
+    <form action="" method="POST">
+        <p>
+            <label for="title">Titre</label>
+            <input type="text" id="title" name="title" value="{{ title }}" />
+        </p>
+        <p>
+            <label for="subtitle">Sous-titre</label>
+            <input type="text" id="subtitle" name="subtitle" value="{{ subtitle }}" />
+        </p>
+        <p>
+            <label for="text">Sous-titre</label>
+            <textarea id="text" name="text" class="md-editor" placeholder="Votre message au format Markdown" rows="20"
+                >{{ text }}</textarea>
+        </p>
 
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-plus icon-white"></i>
-                    Nouveau sujet
-                </button>
+        <p>
+            <button type="submit" class="btn btn-submit">
+                Nouveau sujet
+            </button>
 
-                <button type="submit" name="preview" class="button secondary">
-                    Prévisualisation
-                </button>
+            <button type="submit" name="preview" class="btn btn-submit">
+                Prévisualisation
+            </button>
 
-                <a href="{{ forum.get_absolute_url }}" class="button secondary">
-                    Retour
-                </a>
-            </div>
+            <a href="{{ forum.get_absolute_url }}" class="btn btn-cancel">
+                Retour
+            </a>
+        </p>
 
-            {% csrf_token %}
-        </form>
-    </div>
-</div>
+        {% csrf_token %}
+    </form>
 
-{% if text %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="panel">
+    {% if text %}
+        <div class="preview">
             <h5>Prévisualisation de votre message</h5>
+
             {{ text|emarkdown }}
         </div>
-    </div>
-</div>
-{% endif %}
-
+    {% endif %}
 {% endblock %}

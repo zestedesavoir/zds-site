@@ -8,42 +8,38 @@
     </div>
 </div>
 {% endif %}
+
 <section>
     <form action="#previsualisation" method="POST" class="forum-message" id="submit_form">
     <div class="user">
         <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
     </div>
     <div class="message">
-        <ul class="message-actions">
-            <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
-        </ul>
-
-        <ul class="message-metadata message-buttons">
-            <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
-            <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
-        </ul>
-
         <div class="message-content">
-            <textarea name="text" id="md_text" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
+            <textarea name="text" id="text" class="md-editor" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
         </div>
 
         <div class="message-bottom">
             <div class="message-submit">
-                <button type="submit" name="preview" class="button secondary" {% if topic.is_locked or topic.antispam %}disabled{% endif %}>Aperçu</button>
-                <button type="submit" {% if topic.is_locked or topic.antispam %}disabled{% endif %} name="answer">Envoyer</button>
+                <button type="submit"
+                        name="preview"
+                        class="btn"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
+                    Aperçu
+                </button>
+
+                <button type="submit"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                        name="answer"
+                        class="btn btn-submit">
+                    Envoyer
+                </button>
             </div>
         </div>
-        <input type="hidden" name="last_note" value="{{ last_note_pk }}" />
+
+        <input type="hidden" name="last_note"     value="{{ last_note_pk }}" />
         <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
-        <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
+        <input type="hidden" name="last_post"     value="{{ last_post_pk }}" />
         {% csrf_token %}
     </div>
     </form>

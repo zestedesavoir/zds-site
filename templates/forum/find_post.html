@@ -3,24 +3,29 @@
 {% load profile %}
 {% load emarkdown %}
 
+
 {% block title %}
     Messages postés par {{ usr.username }}
 {% endblock %}
+
 
 {% block headline %}
     Messages postés par "{{ usr.username }}""
 {% endblock %}
 
+
 {% block breadcrumb %}
     {% with profile=usr|profile %}
         <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li ><a href="{% url "zds.forum.views.find_post" usr.username %}">Messages postés</a></li>
-    <li class="current"><a href="#">Recherche</a></li>
+    <li><a href="{% url "zds.forum.views.find_post" usr.username %}">Messages postés</a></li>
+    <li>Recherche</li>
 {% endblock %}
 
+
 {% block content %}
-{% include "forum/details_pagination.part.html" with position="top" %}
+    {% include "forum/details_pagination.part.html" with position="top" %}
+
     <div class="row">
         <table>
           <thead>
@@ -53,6 +58,5 @@
         </table>
     </div>
 
-{% include "forum/details_pagination.part.html" with position="bottom" %}
-
+    {% include "forum/details_pagination.part.html" with position="bottom" %}
 {% endblock %}

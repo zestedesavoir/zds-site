@@ -7,12 +7,14 @@
         {{ topic.first_post.pubdate|humane_date }} -
         <a href="{{ topic.get_last_answer.get_absolute_url }}">23 réactions</a>
     </p>
+    
     <a href="{{ topic.first_post.get_absolute_url }}" 
        tabindex="-1"
        style="background-image: url(http://lorempicsum.com/nemo/700/200/3)" 
        class="article-illu">
         <img src="http://lorempicsum.com/nemo/700/200/3" alt="">
     </a>
+
     <p class="resume">
     	{{ topic.subtitle }}
     </p>

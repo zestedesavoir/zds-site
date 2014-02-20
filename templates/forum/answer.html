@@ -1,31 +1,35 @@
 {% extends "forum/base.html" %}
 {% load profile %}
 
+
 {% block title %}
     Répondre au sujet
 {% endblock %}
 
+
 {% block headline %}
-    Répondre au sujet : {{ topic.title }}
+    Répondre au sujet {{ topic.title }}
 {% endblock %}
+
 
 {% block breadcrumb %}
     <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
     <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
     <li><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></li>
-    <li class="current"><a href="javascript:;">Répondre au sujet</a></li>
+    <li>Répondre au sujet</li>
 {% endblock %}
+
 
 {% block content %}
 
-{% with topic=topic %}
-    {% with profile=user|profile %}
-        {% include "forum/comment.part.html" %}
+    {% with topic=topic %}
+        {% with profile=user|profile %}
+            {% include "forum/comment.part.html" %}
+        {% endwith %}
     {% endwith %}
-{% endwith %}
 
-{% if text %}
-    {% include "forum/previsualization.part.html" %}
-{% endif %}
+    {% if text %}
+        {% include "forum/previsualization.part.html" %}
+    {% endif %}
 
 {% endblock %}

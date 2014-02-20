@@ -1,20 +1,19 @@
 {% load humane_date %}
 {% load upfirstletter %}
 
+
 <div class="forum-entry
     {% if topic.is_locked %}
         forum-entry-locked
-    {% else %}
-        {% if topic.is_solved %}
+    {% elseif topic.is_solved %}
         forum-entry-solved
-        {% endif %}
     {% endif %}">
+
     <div class="forum-entry-title
-    {% if user.is_authenticated %}
-        {% if topic.never_read %}
-            unread
-        {% endif %}
+    {% if user.is_authenticated and topic.never_read %}
+        unread
     {% endif %}">
+
         <a href="{{ topic.get_absolute_url }}">
             {{ topic.title }}
         </a>

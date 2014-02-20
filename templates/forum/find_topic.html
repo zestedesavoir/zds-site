@@ -3,39 +3,43 @@
 {% load profile %}
 {% load emarkdown %}
 
+
 {% block title %}
     Sujets crées par {{ usr.username }}
 {% endblock %}
+
 
 {% block headline %}
     Sujets crées par "{{ usr.username }}""
 {% endblock %}
 
+
 {% block breadcrumb %}
     {% with profile=usr|profile %}
-        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+        <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li ><a href="{% url "zds.forum.views.find_topic" usr.username %}">Sujets crées</a></li>
-    <li class="current"><a href="#">Recherche</a></li>
+    <li><a href="{% url "zds.forum.views.find_topic" usr.username %}">Sujets crées</a></li>
+    <li>Recherche</li>
 {% endblock %}
 
+
 {% block content %}
-{% include "forum/details_pagination.part.html" with position="top" %}
-    <div class="row">
-        <table>
-          <thead>
+    {% include "forum/details_pagination.part.html" with position="top" %}
+
+    <table>
+        <thead>
             <tr>
-              <th width="15%">Sujet</th>
-              <th width="10%">Quand</th>
-              <th width="30%">Extrait</th>
+                <th width="15%">Sujet</th>
+                <th width="10%">Quand</th>
+                <th width="30%">Extrait</th>
             </tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
             {% for topic in topics %}
             <tr>
                 <td>
                     <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
-                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
+                    <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
                         {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
                     </div>
                 </td>
@@ -49,10 +53,8 @@
                 </td>
             </tr>
             {% endfor %}
-          </tbody>
-        </table>
-    </div>
+        </tbody>
+    </table>
 
-{% include "forum/details_pagination.part.html" with position="bottom" %}
-
+    {% include "forum/details_pagination.part.html" with position="bottom" %}
 {% endblock %}

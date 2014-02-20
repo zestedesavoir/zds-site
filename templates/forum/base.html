@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% load interventions %}
 
+
 {% block title_base %}
     &#183; Forums
 {% endblock %}
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.forum.views.index" %}">Forums</a></li>
 {% endblock %}
 
+
 {% block menu_forum %}
     current
 {% endblock %}
+
 
 {% block sidebar %}
 <aside class="sidebar mobile-menu-hide">
@@ -26,24 +30,56 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
         <h3>Sujets suivis</h3>
         <ul>
-        	{% with topics=user|interventions_topics %}
-            {% with unread_topics=topics.unread %}
-            {% for topic in unread_topics %}
+    	{% with topics=user|interventions_topics %}
+            {% for topic in topics.unread %}
             <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-                <a href="{{topic.get_absolute_url}}" class="unread {% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
+                   class="ico-after cross red stop-follow action-hover" 
+                   data-title="Ne plus suivre">
+                    Ne plus suivre
+                </a>
+                <a href="{{topic.get_absolute_url}}"
+                   class="unread
+                            {% if topic.is_solved or topic.is_locked %}
+                                ico-after
+
+                                {% if topic.is_solved %}
+                                    tick active
+                                {% endif %}
+                                {% if topic.is_locked %}
+                                    lock
+                                {% endif %}
+                            {% endif %}"
+                   data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
+                    {{topic.title}}
+                </a>
             </li>
             {% endfor %}
-            {% endwith %}
-            {% with read_topics=topics.read %}
-            {% for topic in read_topics %}
+
+            {% for topic in topics.read %}
             <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-                <a href="{{topic.get_absolute_url}}" class="{% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
+                   class="ico-after cross red stop-follow action-hover" 
+                   data-title="Ne plus suivre">
+                    Ne plus suivre
+                </a>
+                <a href="{{topic.get_absolute_url}}"
+                   class="  {% if topic.is_solved or topic.is_locked %}
+                                ico-after
+
+                                {% if topic.is_solved %}
+                                    tick active
+                                {% endif %}
+                                {% if topic.is_locked %}
+                                    lock
+                                {% endif %}
+                            {% endif %}"
+                   data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
+                    {{topic.title}}
+                </a>
             </li>
             {% endfor %}
-            {% endwith %}
-            {% endwith %}
+        {% endwith %}
         </ul>
     </div>
     {% endif %}
