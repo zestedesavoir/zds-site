@@ -38,11 +38,9 @@ class ArticleForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
 
-        self.helper.layout1 = Layout(
+        self.helper.layout = Layout(
             Field('title'),
             Field('description'),
-        )
-        self.helper.layout2 = Layout(
             Field('text'),
             Field('image'),
             Field('subcategory'),
