@@ -64,6 +64,9 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 @import "wide";
 @import "extra-wide";
 
+// Dependencies
+@import "pygments";
+
 // Retina-like support
 @import "high-pixel-ratio";
 
