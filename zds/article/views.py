@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 import json
 from lxml import etree
 from operator import itemgetter, attrgetter
@@ -489,7 +490,7 @@ def list_validation(request):
     elif type == 'reserved':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=False, status = 'PENDING') \
+                            .filter(validator__isnull=False, status = 'RESERVED') \
                             .order_by("date_proposition") \
                             .all()
         else :
@@ -502,7 +503,7 @@ def list_validation(request):
     else:
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(status = 'PENDING') \
+                            .filter(Q(status = 'PENDING') | Q(status = 'RESERVED'))\
                             .order_by("date_proposition") \
                             .all()
         else :
