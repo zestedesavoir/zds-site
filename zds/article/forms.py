@@ -49,7 +49,6 @@ class ArticleForm(forms.Form):
             Field('subcategory'),
             ButtonHolder(
                 Submit('submit', 'Valider'),
-                Reset('reset', 'Reset'),
             ),
         )
 
