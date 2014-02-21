@@ -335,7 +335,9 @@ def login_view(request):
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
-    return render_template('member/login.html', csrf_tk)
+    return render_template('member/login.html', {
+        'form': form,
+    })
 
 @login_required
 def logout_view(request):
