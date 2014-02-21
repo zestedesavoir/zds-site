@@ -39,7 +39,6 @@ class ArticleForm(forms.Form):
         super(ArticleForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-alone'
-        self.helper.form_action = reverse('zds.article.views.new')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
