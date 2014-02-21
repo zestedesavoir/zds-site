@@ -337,6 +337,7 @@ def login_view(request):
     csrf_tk['next_page'] = next_page
     return render_template('member/login.html', {
         'form': form,
+        'csrf_tk': csrf_tk,
     })
 
 @login_required
