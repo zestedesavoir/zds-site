@@ -1,19 +1,65 @@
 # coding: utf-8
 
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Div, Fieldset, Submit, Field, \
-    HTML
+from crispy_forms.layout import Layout, Div, Fieldset, Submit, Field, \
+    HTML, ButtonHolder, Reset
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from zds.member.models import Profile
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(max_length=76, widget=forms.PasswordInput)
+    username = forms.CharField(
+        label = 'Identifiant',
+        max_length = 30,
+        required = True,
+    )
 
+    password = forms.CharField(
+        label = 'Mot magique',
+        max_length = 76, 
+        required = True,
+        widget = forms.PasswordInput,
+    )
+
+    autoconnect = forms.MultipleChoiceField(
+        label = '',
+        choices = (
+            ('connect', "Connexion automatique"),
+        ),
+        initial = 'connect',
+        widget = forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_action = reverse('zds.member.views.login_view')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('username'),
+            Field('password'),
+            Field('autoconnect'),
+            HTML(u"""
+                <a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>
+            """),
+            ButtonHolder(
+                Submit('submit', 'Se connecter'),
+                Reset('reset', u'Réinitialiser'),
+                HTML("""
+                    <a class="btn btn-submit" href="/">Annuler</a>
+                """),
+                HTML("""
+                    {% csrf_token %}
+                """),
+            ),
+        )
 
 class RegisterForm(forms.Form):
     email = forms.EmailField(label='Adresse email')
