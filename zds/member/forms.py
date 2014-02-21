@@ -46,50 +46,59 @@ class LoginForm(forms.Form):
             Field('username'),
             Field('password'),
             Field('autoconnect'),
-            HTML(u"""
-                <a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>
-            """),
+            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
             ButtonHolder(
                 Submit('submit', 'Se connecter'),
                 Reset('reset', u'Réinitialiser'),
-                HTML("""
-                    <a class="btn btn-submit" href="/">Annuler</a>
-                """),
-                HTML("""
-                    {% csrf_token %}
-                """),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                HTML('{% csrf_token %}'),
             ),
         )
 
 class RegisterForm(forms.Form):
-    email = forms.EmailField(label='Adresse email')
-    username = forms.CharField(label='Nom d\'utilisateur', max_length=30)
-    password = forms.CharField(
-        label='Mot de passe', max_length=76, widget=forms.PasswordInput
+    email = forms.EmailField(
+        label = 'Adresse e-mail',
+        max_length = 100,
+        required = True,
     )
+
+    username = forms.CharField(
+        label = 'Nom d\'utilisateur', 
+        max_length = 30,
+        required = True,
+    )
+
+    password = forms.CharField(
+        label = 'Mot de passe', 
+        max_length = 76,
+        required = True,
+        widget = forms.PasswordInput
+    )
+
     password_confirm = forms.CharField(
-        label='Confirmation', max_length=76, widget=forms.PasswordInput
+        label = 'Confirmation', 
+        max_length = 76,
+        required = True,
+        widget = forms.PasswordInput
     )
 
     def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Identifiants',
-                Field('username'),
-                Field('password'),
-                Field('password_confirm'),
-                Field('email'),
-            ),
-            Div(
+            Field('username'),
+            Field('password'),
+            Field('password_confirm'),
+            Field('email'),
+            ButtonHolder(
                 Submit('submit', 'Valider mon inscription'),
-                HTML('<a href="/" class="button secondary">Annuler</a>'),
-                css_class='button-group'
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-        super(RegisterForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super(RegisterForm, self).clean()
