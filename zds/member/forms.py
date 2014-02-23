@@ -291,7 +291,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_old'),
             Field('password_new'),
             Field('password_confirm'),
-            Div(
+            ButtonHolder(
                 Submit('submit', 'Changer'),
                 Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
@@ -333,50 +333,54 @@ class ChangePasswordForm(forms.Form):
 # Reset the password
 
 class ForgotPasswordForm(forms.Form):
-    username = forms.CharField(label='Nom d\'utilisateur', max_length=30, required=False)
+    username = forms.CharField(
+        label = 'Nom d\'utilisateur', 
+        max_length = 30, 
+        required = True
+    )
 
     def __init__(self, *args, **kwargs):
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Identifiants',
-                Field('username'),
-            ),
-            Div(
+            Field('username'),
+            ButtonHolder(
                 Submit('submit', 'Envoyer'),
-                HTML('<a href="/" class="button secondary">Annuler</a>'),
-                css_class='button-group'
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
-        label='Mot de passe', max_length=76, widget=forms.PasswordInput
+        label='Mot de passe', 
+        max_length=76, 
+        widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
-        label='Confirmation', max_length=76, widget=forms.PasswordInput
+        label='Confirmation', 
+        max_length=76, 
+        widget=forms.PasswordInput
     )
 
     def __init__(self, *args, **kwargs):
+        super(NewPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Mot de passe',
-                Field('password'),
-                Field('password_confirm'),
-            ),
-            Div(
+            Field('password'),
+            Field('password_confirm'),
+            ButtonHolder(
                 Submit('submit', 'Envoyer'),
-                HTML('<a href="/" class="button secondary">Annuler</a>'),
-                css_class='button-group'
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-        super(NewPasswordForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super(NewPasswordForm, self).clean()
