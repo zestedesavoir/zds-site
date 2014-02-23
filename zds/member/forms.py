@@ -221,27 +221,42 @@ class ProfileForm(forms.Form):
 class ChangeUserForm(forms.Form):
     
     username_new = forms.CharField(
-        label='Nouveau pseudo ',
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
+        label = 'Nouveau pseudo',
+        max_length = 30,
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Ne mettez rien pour conserver l\'ancien'
+            }
+        )
+    )
     
     email_new = forms.EmailField(
-        label='Nouvel email ',
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'Ne mettez rien pour conserver l\'ancien'}))
+        label = 'Nouvel e-mail',
+        max_length = 100,
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Ne mettez rien pour conserver l\'ancien'
+            }
+        )
+    )
     
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        super(ChangeUserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
-
-        self.user = user
 
         self.helper.layout = Layout(
             Field('username_new'),
             Field('email_new'),
-            Submit('submit', 'Changer'),
+            ButtonHolder(
+                Submit('submit', 'Changer'),
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+            ),
         )
-        super(ChangeUserForm, self).__init__(*args, **kwargs)
         
 # to update a password
 
