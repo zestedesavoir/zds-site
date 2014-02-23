@@ -262,31 +262,41 @@ class ChangeUserForm(forms.Form):
 
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
-        label='Nouveau mot de passe ', max_length=76, widget=forms.PasswordInput)
+        label='Nouveau mot de passe', 
+        max_length=76, 
+        widget=forms.PasswordInput
+    )
+
     password_old = forms.CharField(
-        label='Mot de passe actuel ', max_length=76, widget=forms.PasswordInput)
+        label='Mot de passe actuel',
+        max_length=76,
+        widget=forms.PasswordInput
+    )
+
     password_confirm = forms.CharField(
-        label='Confirmer le nouveau mot de passe ', max_length=76, widget=forms.PasswordInput)
+        label='Confirmer le nouveau mot de passe',
+        max_length=76,
+        widget=forms.PasswordInput
+    )
 
     def __init__(self, user, *args, **kwargs):
+        super(ChangePasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.user = user
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Mot de passe',
-                Field('password_old'),
-                Field('password_new'),
-                Field('password_confirm'),
-            ),
+            Field('password_old'),
+            Field('password_new'),
+            Field('password_confirm'),
             Div(
-                Submit('submit', 'Changer mon mot de passe'),
-                css_class='button-group'
+                Submit('submit', 'Changer'),
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-        super(ChangePasswordForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super(ChangePasswordForm, self).clean()
@@ -300,9 +310,9 @@ class ChangePasswordForm(forms.Form):
             user_exist = authenticate(
                 username=self.user.username, password=password_old
             )
+            # Check if the user exist with old informations.
             if not user_exist and password_old != "":
-                self._errors['password_old'] = self.error_class(
-                    [u'Mot de passe incorrect.'])
+                self._errors['password_old'] = self.error_class([u'Mot de passe incorrect.'])
                 if 'password_old' in cleaned_data:
                     del cleaned_data['password_old']
 
