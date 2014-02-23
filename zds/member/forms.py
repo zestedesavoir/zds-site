@@ -136,87 +136,86 @@ class RegisterForm(forms.Form):
 # update extra information about user
 class ProfileForm(forms.Form):
     biography = forms.CharField(
-        label='Biographie',
-        required=False,
-        widget=forms.Textarea(
-            attrs={'placeholder': 'Votre biographie au format Markdown.'}))
+        label = 'Biographie',
+        required = False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre biographie au format Markdown.'
+            }
+        )
+    )
+
     site = forms.CharField(
-        label='Site internet',
-        required=False,
-        max_length=128,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Lien vers votre site internet personnel '
-                   '(ne pas oublier le http:// ou https:// devant).'}))
-    show_email = forms.BooleanField(
-        label='Afficher mon adresse mail publiquement',
-        required=False)
-    
-    show_sign = forms.BooleanField(
-        label='Afficher les signatures des autres membres',
-        required=False)
-    
-    hover_or_click = forms.BooleanField(
-        label='Derouler les menus au survol de la souris ou au clic',
-        required=False)
+        label = 'Site internet',
+        required = False,
+        max_length = 128,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Lien vers votre site internet personnel (ne pas oublier le http:// ou https:// devant).'
+            }
+        )
+    )
     
     avatar_url = forms.CharField(
-        label='Avatar',
-        required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Lien vers un avatar externe '
-                   '(laisser vide pour utiliser Gravatar).'}))
-    sign = forms.CharField(
-        label='Signature',
-        required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Elle apparaitra dans les messages de forums. '}
-            ))
-    def __init__(self, user, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
+        label = 'Avatar',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
+            }
+        )
+    )
 
-        self.user = user
-        profile = Profile.objects.get(user=self.user)
+    sign = forms.CharField(
+        label = 'Signature',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Elle apparaitra dans les messages de forums. '
+            }
+        )
+    )
+
+    options = forms.MultipleChoiceField(
+        label = '',
+        choices = (
+            ('show_email', "Afficher mon adresse e-mail publiquement"),
+            ('show_sign', "Afficher les signatures des autres membres"),
+            ('hover_or_click', u"Dérouler les menus au survol de la souris ou au clic")
+        ),
+        widget = forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
 
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})
-        value_checked_email = ''
+
         if 'show_email' in initial and initial['show_email']:
-            value_checked_email = 'checked'
+            self.fields['options'].initial = 'show_email'
         
-        value_checked_sign = ''
         if 'show_sign' in initial and initial['show_sign']:
-            value_checked_sign = 'checked'
-            
-        value_checked_hover_or_click = ''
+            self.fields['options'].initial += 'show_sign'
+        
         if 'hover_or_click' in initial and initial['hover_or_click']:
-            value_checked_hover_or_click = 'checked'
+            self.fields['options'].initial += 'hover_or_click'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Public',
-                Field('biography'),
-                Field('site'),
-                Field('avatar_url'),
-                Field('sign'),
-                # inline checkbox is not supported by crispy form
-                HTML('<div id="div_id_show_email" class="ctrlHolder checkbox" style="padding-top:10px">\
-                <label for="id_show_email" > <input id="id_show_email" type="checkbox" class="checkboxinput" name="show_email" ' + value_checked_email + '/>\
-                Afficher mon adresse mail publiquement</label></div>'),
-                HTML('<div id="div_id_show_sign" class="ctrlHolder checkbox" style="padding-top:10px">\
-                <label for="id_show_sign" > <input id="id_show_sign" type="checkbox" class="checkboxinput" name="show_sign" ' + value_checked_sign + '/>\
-                Afficher les signatures des autres membres</label></div>'),
-                HTML('<div id="div_id_hover_or_click" class="ctrlHolder checkbox" style="padding-top:10px">\
-                <label for="id_hover_or_click" > <input id="id_hover_or_click" type="checkbox" class="checkboxinput" name="hover_or_click" ' + value_checked_hover_or_click + '/>\
-                Derouler les menus au survol de la souris ou au clic</label></div>'),
-            ),
-            Div(
+            Field('biography'),
+            Field('site'),
+            Field('avatar_url'),
+            Field('sign'),
+            Field('options'),
+            ButtonHolder(
                 Submit('submit', 'Editer mon profil'),
-                css_class='button-group'
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-        super(ProfileForm, self).__init__(*args, **kwargs)
-
 
 #to update email/username
 class ChangeUserForm(forms.Form):
