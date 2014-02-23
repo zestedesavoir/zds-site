@@ -249,7 +249,7 @@ def settings_user(request):
     profile = get_object_or_404(Profile, user__pk=request.user.pk)
     
     if request.method == 'POST':
-        form = ChangeUserForm(request.user, request.POST)
+        form = ChangeUserForm(request.POST)
         c = {
             'form': form,
         }
@@ -277,7 +277,7 @@ def settings_user(request):
         else:
             return render_to_response('member/settings_user.html', c, RequestContext(request))
     else:
-        form = ChangeUserForm(request.user)
+        form = ChangeUserForm()
         c = {
             'form': form,
         }
