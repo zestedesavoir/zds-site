@@ -26,12 +26,12 @@ class LoginForm(forms.Form):
         widget = forms.PasswordInput,
     )
 
-    autoconnect = forms.MultipleChoiceField(
+    remember = forms.MultipleChoiceField(
         label = '',
         choices = (
-            ('connect', "Connexion automatique"),
+            ('remember', "Connexion automatique"),
         ),
-        initial = 'connect',
+        initial = 'remember',
         widget = forms.CheckboxSelectMultiple,
     )
 
@@ -45,7 +45,7 @@ class LoginForm(forms.Form):
         self.helper.layout = Layout(
             Field('username'),
             Field('password'),
-            Field('autoconnect'),
+            Field('remember'),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
             ButtonHolder(
                 Submit('submit', 'Se connecter'),
