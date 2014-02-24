@@ -1,4 +1,5 @@
 {% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Nouvelle galerie
@@ -9,30 +10,13 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="javascript:;">Nouvelle galerie</a></li>
+    <li class="current"><a href="#">Nouvelle galerie</a></li>
 {% endblock %}
 
 {% block content %}
-	<div class="row">
+<div class="row">
     <div class="large-12 columns">
-        <form action="{% url "zds.gallery.views.new_gallery" %}" method="POST">
-            <input type="text" placeholder="Titre" name="title" />
-            <br />
-            <input type="text" placeholder="Sous-titre" name="subtitle">
-            <br />
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-plus icon-white"></i>
-                    Créer
-                </button>
-
-                <a href="{% url "zds.gallery.views.gallery_list" %}" class="button secondary">
-                    Retour
-                </a>
-            </div>
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
