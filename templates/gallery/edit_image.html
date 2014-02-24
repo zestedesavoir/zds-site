@@ -1,4 +1,5 @@
 {% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Éditer une image
@@ -18,28 +19,13 @@
 {% endblock %}
 
 {% block content %}
-	<div class="row">
+<div class="row">
     <div class="large-12 columns">
         <div class="large-6 columns">
             <img src="{{ image.physical.url }}" alt="" />
         </div>
         <div class="large-6 columns">
-            <form action="{% url "zds.gallery.views.edit_image" gallery.pk image.pk %}" method="POST">
-                <input type="text" placeholder="Titre" name="title" value="{{ image.title }}" /><br />
-                <input type="text" placeholder="Légende" name="legend" value="{{ image.legend }}" /><br />
-
-                <div style="text-align: center;">
-                    <button type="submit" class="button">
-                        <i class="icon-plus icon-white"></i>
-                        Éditer
-                    </button>
-
-                    <a href="{{ gallery.get_absolute_url }}" class="button secondary">
-                        Retour
-                    </a>
-                </div>
-                {% csrf_token %}
-            </form>
+            {% crispy form %}
         </div>
     </div>
 </div>

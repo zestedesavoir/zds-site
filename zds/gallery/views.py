@@ -162,26 +162,31 @@ def edit_image(request, gal_pk, img_pk):
     img = get_object_or_404(Image, pk=img_pk)
 
     if request.method == 'POST':
-        form = ImageForm(request.POST)
-        if form.is_valid():
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid()\
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST['title']
             img.legend = request.POST['legend']
+            img.physical = request.FILES['physical']
+            img.slug = slugify(request.FILES['physical'])
             img.update = datetime.now()
 
             img.save()
 
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
-        else:
-            # TODO: add errors to the form and return it
-            raise Http404
     else:
-        form = ImageForm()  # A empty, unbound form
-        return render_template('gallery/edit_image.html', {
-            'form': form,
-            'gallery': gal,
-            'image': img
-        })
+        form = ImageForm(initial = {
+                'title': img.title,
+                'legend': img.legend,
+                'physical': img.physical,
+            })
+    
+    return render_template('gallery/edit_image.html', {
+        'form': form,
+        'gallery': gal,
+        'image': img
+    })
 
 @can_write_and_read_now
 @login_required
@@ -221,7 +226,7 @@ def new_image(request, gal_pk):
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() \
-           and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img = Image()
             img.physical = request.FILES['physical']
             img.gallery = gal
