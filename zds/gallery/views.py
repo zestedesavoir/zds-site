@@ -210,9 +210,7 @@ def modify_image(request):
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
-    '''
-    Creates a new image
-    '''
+    '''Creates a new image'''
     gal = get_object_or_404(Gallery, pk=gal_pk)
 
     if request.method == 'POST':
