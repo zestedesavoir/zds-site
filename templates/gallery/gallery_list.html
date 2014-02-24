@@ -1,11 +1,11 @@
 {% extends "gallery/base.html" %}
 
 {% block title %}
-    Index
+   Liste des galeries
 {% endblock %}
 
 {% block headline %}
-    Galeries
+   Liste des galeries
 {% endblock %}
 
 {% block breadcrumb %}
@@ -14,56 +14,22 @@
 
 {% block content %}
 <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_gallery" %}">
-<div class="row">
-    <div class="small-12 columns">
-        <div class="small-3 columns">
-            <a href="{% url "zds.gallery.views.new_gallery" %}" class="button">Nouvelle galerie</a>
+    <div class="row">
+        <div class="small-12 columns">
+            {% for gallery in galleries %}
+            <dl>
+                <dd>
+                    {% if gallery.is_write %}
+                    <input name="items" type="checkbox" value="{{ gallery.gallery.pk }}" />
+                    {% endif %}
+                    <a href="{{ gallery.gallery.get_absolute_url }}">{{ gallery.gallery.title }} ({{ gallery.gallery.get_images.count }})</a><br />
+                    {{ gallery.gallery.subtitle }}
+                </dd>
+            </dl>
+            {% endfor %}
         </div>
-        <div class="small-2 columns">
-            <button type="submit" name="delete_multi" class="button secondary">
-                Supprimer
-            </button>
-        </div>
+        <button type="submit" name="delete_multi" class="button secondary">Supprimer</button>
     </div>
-</div>
-<div class="row">
-    <div class="small-12 columns">
-        {% for gallery in galleries %}
-            <div class="small-6 columns expand">
-                <div class="panel">
-                    <div class="row">
-                        <div class="small-8 columns">
-                            <h3><a href="{{ gallery.gallery.get_absolute_url }}">{{ gallery.gallery.title }} ({{ gallery.gallery.get_images.count }})</a></h3>
-                        </div>
-                        <div class="small-1 columns">
-                            <p>
-                            {% if gallery.is_write %}
-                                <input name="items" type="checkbox" value="{{ gallery.gallery.pk }}" />
-                            {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    <p>
-                        {{ gallery.gallery.subtitle }}
-                    </p>
-                    <ul class="clearing-thumbs clearing-feature" data-clearing>
-                        {% for img in gallery.gallery.get_images %}
-                            {% if gallery.gallery.get_last_image.pk == img.pk %}
-                                <li class="clearing-featured-img fix-height visible">
-                            {% else %}
-                                <li class="fix-height">
-                            {% endif %}
-                                    <a href="{{ img.physical.url }}">
-                                        <img alt="" src="{{ img.physical.url }}" style="max-width:180px ;max-height:180px" data-caption="{{ img.legend }}" />
-                                    </a>
-                                </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-{% csrf_token %}
+    {% csrf_token %}
 </form>
 {% endblock %}
