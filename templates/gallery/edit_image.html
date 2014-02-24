@@ -10,7 +10,11 @@
 
 {% block breadcrumb %}
     <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
-    <li class="current"><a href="javascript:;">Éditer une Image</a></li>
+    <li class="current"><a href="#">Éditer une Image</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+            <li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
 {% endblock %}
 
 {% block content %}
