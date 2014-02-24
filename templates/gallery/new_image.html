@@ -1,4 +1,5 @@
 {% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Nouvelle image
@@ -10,43 +11,14 @@
 
 {% block breadcrumb %}
     <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
-    <li class="current"><a href="javascript:;">Nouvelle image</a></li>
+    <li class="current"><a href="#">Nouvelle image</a></li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <form action="{% url "zds.gallery.views.new_image" gallery.pk %}" method="POST" enctype="multipart/form-data">
-            <input type="file" id="id_physical" name="physical" onchange="load_field()"/><br />
-            <input type="text" id="id_titre" placeholder="Titre" name="title" /><br />
-            <input type="text" placeholder="Légende" name="legend" /><br />
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-plus icon-white"></i>
-                    Créer
-                </button>
-
-                <a href="{{ gallery.get_absolute_url }}" class="button secondary">
-                    Retour
-                </a>
-            </div>
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
-{% endblock %}
-{% block additionnal-js %}
-    <script>
-        function load_field() {
-            var ph=document.getElementById("id_physical");
-            var tab=ph.value.split('\\');
-            var lib=tab[tab.length-1];
-
-            if($('#id_titre').val() == '') {
-                $('#id_titre').val(lib);
-            }
-        }
-    </script>
 {% endblock %}
