@@ -1,4 +1,5 @@
 {% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
 {% load profile %}
 
 {% block title %}
@@ -34,15 +35,7 @@
             {% endfor %}
         </p>
         {% if gallery_mode.is_write %}
-        <form action="{% url "zds.gallery.views.modify_gallery" %}"
-            method="post">
-            <input type="text" name="user" placeholder="Nom de l'utilisateur">
-            <input type="hidden" name="gallery" value={{ gallery.pk }}>
-            <button name="adduser" class="button secondary">
-                Ajouter un membre
-            </button>
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
         {% endif %}
     </div>
 </div>
