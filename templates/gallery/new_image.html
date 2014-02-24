@@ -14,11 +14,14 @@
     <li class="current"><a href="#">Nouvelle image</a></li>
 {% endblock %}
 
+{% block headline-actions %}
+			<li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
         {% crispy form %}
     </div>
 </div>
-
 {% endblock %}
