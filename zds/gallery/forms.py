@@ -6,12 +6,7 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
-    Reset, HTML
-
-class UserGalleryForm(forms.Form):
-    user= forms.CharField('Membre', required=False)
-    gallery = forms.CharField('Gallery', required=False)
-    mode = forms.CharField('Mode', required=False)
+    Reset, HTML, Hidden
     
 class GalleryForm(forms.Form):
     title = forms.CharField(
@@ -37,6 +32,47 @@ class GalleryForm(forms.Form):
             Field('subtitle'),
             ButtonHolder(
                 Submit('submit', u'Créer'),
+                Reset('reset', u'Réinitialiser'),
+                HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
+            ),
+        )
+
+class UserGalleryForm(forms.Form):
+    user = forms.CharField(
+        label = 'Membre',
+        max_length = 80,
+        required = True,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Nom de l\'utilisateur'
+            }
+        )
+    )
+
+    mode = forms.ChoiceField(
+        label = '',
+        choices = (
+            ('R', "En mode lecture"),
+            ('W', "En mode écriture"),
+        ),
+        required = True,
+        widget = forms.RadioSelect,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(UserGalleryForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('user', autocomplete='off'),
+            Field('mode'),
+            Hidden('gallery', '{{ gallery.pk }}'),
+            Hidden('adduser', 'True'),
+            ButtonHolder(
+                Submit('submit', 'Ajouter'),
                 Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
@@ -72,7 +108,7 @@ class ImageForm(forms.Form):
             Field('legend'),
             Field('physical'),
             ButtonHolder(
-                Submit('submit', u'Créer'),
+                Submit('submit', u'Ajouter'),
                 Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
