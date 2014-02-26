@@ -86,28 +86,26 @@ def cat_details(request, cat_slug):
 
 @can_read_now
 def topic(request, topic_pk, topic_slug):
-    '''
-    Display a thread and its posts using a pager
-    '''
+    '''Display a thread and its posts using a pager'''
     # TODO: Clean that up
-    g_topic = get_object_or_404(Topic, pk=topic_pk)
+    topic = get_object_or_404(Topic, pk=topic_pk)
     
-    if not g_topic.forum.can_read(request.user):
-        raise Http404
     # Check link
-    if not topic_slug == slugify(g_topic.title):
-        return redirect(g_topic.get_absolute_url())
+    if not topic_slug == slugify(topic.title):
+        return redirect(topic.get_absolute_url())
 
+    # If the user is authenticated and has never read topic, we mark it as read.
     if request.user.is_authenticated():
-        if never_read(g_topic):
-            mark_read(g_topic)
+        if never_read(topic):
+            mark_read(topic)
 
+    # Retrieves all posts of the topoc and use paginator with them.
     posts = Post.objects\
-                .filter(topic__pk=g_topic.pk)\
+                .filter(topic__pk=topic.pk)\
                 .order_by('position')\
                 .all()
 
-    last_post_pk = g_topic.last_message.pk
+    last_post_pk = topic.last_message.pk
 
     # Handle pagination
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
@@ -137,11 +135,17 @@ def topic(request, topic_pk, topic_slug):
     for post in posts:
         res.append(post)
 
+    # Build form to send a post for the current topic.
+    form = PostForm(topic, request.user)
+
     return render_template('forum/topic.html', {
-        'topic': g_topic, 'posts': res, 'categories': categories,
+        'topic': topic, 
+        'posts': res, 
+        'categories': categories,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_post_pk': last_post_pk
+        'last_post_pk': last_post_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -268,21 +272,14 @@ def edit(request):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to a topic
-    '''
+    '''Adds an answer from a user to a topic'''
     try:
         topic_pk = request.GET['sujet']
     except KeyError:
         raise Http404
     
+    # Retrieve current tutorial.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
-    
-    if not g_topic.forum.can_read(request.user):
-        raise Http404
-    
-    posts = Post.objects.filter(topic=g_topic).order_by('-pubdate')[:3]
-    last_post_pk = g_topic.last_message.pk
 
     # Making sure posting is allowed
     if g_topic.is_locked:
@@ -291,22 +288,34 @@ def answer(request):
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
         raise Http404
+    
+    # Retrieve 3 last posts of the currenta tutorial.
+    posts = Post.objects\
+                .filter(topic = g_topic)\
+                .order_by('-pubdate')[:3]
+    last_post_pk = g_topic.last_message.pk
 
-    # If we just sent data
+    # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
         newpost = last_post_pk != int(data['last_post'])
-
+        
         # Using the « preview button », the « more » button or new post
-        if 'preview' in data or 'more' in data or newpost:
+        if 'preview' in data or newpost:
+            form = PostForm(g_topic, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('forum/answer.html', {
-                'text': data['text'], 'topic': g_topic, 'posts': posts,
-                'last_post_pk': last_post_pk, 'newpost': newpost
+                'text': data['text'], 
+                'topic': g_topic, 
+                'last_post_pk': last_post_pk, 
+                'newpost': newpost,
+                'form': form
             })
 
         # Saving the message
         else:
-            form = PostForm(request.POST)
+            form = PostForm(g_topic, request.user, request.POST)
             if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
@@ -331,6 +340,7 @@ def answer(request):
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -345,9 +355,14 @@ def answer(request):
             text = u'{0}\nSource:[{1}]({2})'.format(text,
                 post_cite.author.username, post_cite.get_absolute_url())
 
+        form = PostForm(g_topic, request.user, initial = {
+            'text': text
+        })
         return render_template('forum/answer.html', {
-            'topic': g_topic, 'text': text, 'posts': posts,
-            'last_post_pk': last_post_pk
+            'topic': g_topic, 
+            'posts': posts,
+            'last_post_pk': last_post_pk,
+            'form': form
         })
 
 @can_write_and_read_now
