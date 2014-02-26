@@ -31,7 +31,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from crispy_forms.layout import Field
 
-from .forms import ArticleForm, ReactionForm, AlertForm
+from .forms import ArticleForm, ReactionForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read, STATUS_CHOICES
 

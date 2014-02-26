@@ -91,6 +91,3 @@ class ReactionForm(forms.Form):
                 placeholder = u'Cet article est verrouillé.',
                 disabled = True
             )
-
-class AlertForm(forms.Form):
-    text = forms.CharField()
