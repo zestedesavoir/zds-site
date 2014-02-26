@@ -728,7 +728,8 @@ def edit_reaction(request):
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the reaction
+    # must to be the user logged.
     if reaction.author != request.user:
         if request.method == 'GET' and request.user.has_perm('article.change_reaction'):
             messages.add_message(
@@ -737,6 +738,9 @@ def edit_reaction(request):
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(reaction.author.username))
             reaction.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -761,10 +765,18 @@ def edit_reaction(request):
                 alert.pubdate = datetime.now()
                 alert.save()
                 reaction.alerts.add(alert)
+        
         # Using the preview button
         if 'preview' in request.POST:
+            form = ReactionForm(g_article, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
             return render_template('article/edit_reaction.html', {
-                'reaction': reaction, 'article': g_article, 'text': request.POST['text'],
+                'reaction': reaction, 
+                'article': g_article, 
+                'text': request.POST['text'],
+                'form': form
             })
         
         if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
@@ -780,8 +792,15 @@ def edit_reaction(request):
         return redirect(reaction.get_absolute_url())
 
     else:
+        form = ReactionForm(g_article, request.user, initial = {
+            'text': reaction.text
+        })
+        form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
         return render_template('article/edit_reaction.html', {
-            'reaction': reaction, 'article': g_article, 'text': reaction.text
+            'reaction': reaction, 
+            'article': g_article, 
+            'text': reaction.text,
+            'form': form
         })
 
 
