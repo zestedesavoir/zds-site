@@ -4,8 +4,10 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit, Field, Reset
+from crispy_forms.layout import Layout, ButtonHolder, Submit, Field, Hidden, Div
+from crispy_forms.bootstrap import StrictButton
 from zds.utils.models import SubCategory
+from zds.utils.forms import CommonLayoutEditor
 
 
 class ArticleForm(forms.Form):
@@ -57,8 +59,38 @@ class ArticleForm(forms.Form):
         return super(ArticleForm, self).clean()
 
 class ReactionForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea)
+    text = forms.CharField(
+        label = '',
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
 
+    def __init__(self, article, user, *args, **kwargs):
+        super(ReactionForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.article.views.answer') + '?article=' + str(article.pk)
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutEditor(),
+            Hidden('last_reaction', '{{ last_reaction_pk }}'),
+        )
+
+        if article.antispam(user):
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Vous ne pouvez pas encore poster sur cet article (protection antispam de 15 min).',
+                disabled = True
+            )
+        elif article.is_locked:
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Cet article est verrouillé.',
+                disabled = True
+            )
 
 class AlertForm(forms.Form):
     text = forms.CharField()
