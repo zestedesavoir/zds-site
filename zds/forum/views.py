@@ -160,15 +160,19 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            return render_template('forum/new.html', {
-                'forum': forum,
+            form = TopicForm(initial = {
                 'title': request.POST['title'],
                 'subtitle': request.POST['subtitle'],
+                'text': request.POST['text']
+            })
+            return render_template('forum/new.html', {
+                'forum': forum,
+                'form': form,
                 'text': request.POST['text'],
             })
 
         form = TopicForm(request.POST)
-        if form.is_valid() and data['text'].strip() !='':
+        if form.is_valid() and request.POST['text'].strip() !='':
             data = form.data
             # Creating the thread
             n_topic = Topic()
@@ -206,7 +210,8 @@ def new(request):
 
         form = TopicForm()
         return render_template('forum/new.html', {
-            'form': form, 'forum': forum
+            'forum': forum,
+            'form': form,
         })
 
 @can_write_and_read_now
