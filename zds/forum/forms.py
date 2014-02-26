@@ -76,6 +76,3 @@ class PostForm(forms.Form):
                 placeholder = u'Ce topic est verrouillé.',
                 disabled = True
             )
-
-class AlertForm(forms.Form):
-    text = forms.CharField()
