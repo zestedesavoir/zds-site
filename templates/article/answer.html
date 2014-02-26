@@ -1,4 +1,6 @@
 {% extends "article/base.html" %}
+{% load crispy_forms_tags %}
+
 {% block title %}
     Répondre à l'article
 {% endblock %}
@@ -31,30 +33,7 @@
 
 <div class="row">
     <div class="large-12 columns">
-        <form action="#previsualisation" method="post">
-            <textarea class="input-block-level md_editor" name="text" rows="20" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-ok icon-white"></i>
-                    Répondre
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    <i class="icon-eye-open"></i>
-                    Prévisualisation
-                </button>
-
-                <a href="{{ article.get_absolute_url }}" class="button secondary">
-                    <i class="icon-remove"></i>
-                    Annuler
-                </a>
-            </div>
-
-            <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
