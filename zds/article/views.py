@@ -698,10 +698,12 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                reaction_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                reaction_cite.author.username, reaction_cite.get_absolute_url())
 
-        form = ReactionForm(article, request.user)
+        form = ReactionForm(article, request.user, initial = {
+            'text': text
+        })
         return render_template('article/answer.html', {
             'article': article,
             'text': text,
