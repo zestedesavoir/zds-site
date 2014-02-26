@@ -55,10 +55,6 @@ class ArticleForm(forms.Form):
             CommonLayoutEditor(),
         )
 
-    def clean(self):
-        self._errors['subcategory'] = None
-        return super(ArticleForm, self).clean()
-
 class ReactionForm(forms.Form):
     text = forms.CharField(
         label = '',
