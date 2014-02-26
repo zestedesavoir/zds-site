@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -379,10 +380,11 @@ def edit_post(request):
     post = get_object_or_404(Post, pk=post_pk)
 
     g_topic = None
-    if post.position == 1:
+    if post.position >= 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the post
+    # must to be the user logged.
     if post.author != request.user:
         if request.method == 'GET' and request.user.has_perm('forum.change_post'):
             messages.add_message(
@@ -391,6 +393,9 @@ def edit_post(request):
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(post.author.username))
             post.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -415,13 +420,18 @@ def edit_post(request):
                 alert.pubdate = datetime.now()
                 alert.save()
                 post.alerts.add(alert)
+        
         # Using the preview button
         if 'preview' in request.POST:
-            if g_topic:
-                g_topic = Topic(title=request.POST['title'],
-                                subtitle=request.POST['subtitle'])
+            form = PostForm(g_topic, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
-                'post': post, 'topic': g_topic, 'text': request.POST['text'],
+                'post': post, 
+                'topic': g_topic, 
+                'text': request.POST['text'],
+                'form': form,
             })
         
         if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
@@ -431,20 +441,21 @@ def edit_post(request):
                 post.text_html = emarkdown(request.POST['text'])
                 post.update = datetime.now()
                 post.editor = request.user
-            
-            # Modifying the thread info
-            if g_topic:
-                g_topic.title = request.POST['title']
-                g_topic.subtitle = request.POST['subtitle']
-                g_topic.save()
         
         post.save()
         
         return redirect(post.get_absolute_url())
 
     else:
+        form = PostForm(g_topic, request.user, initial = {
+            'text': post.text
+        })
+        form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
         return render_template('forum/edit_post.html', {
-            'post': post, 'topic': g_topic, 'text': post.text
+            'post': post, 
+            'topic': g_topic, 
+            'text': post.text,
+            'form': form
         })
 
 
