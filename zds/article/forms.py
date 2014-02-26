@@ -21,9 +21,13 @@ class ArticleForm(forms.Form):
     )
     
     text = forms.CharField(
-        label='Texte',
-        required=False,
-        widget=forms.Textarea
+        label = 'Texte',
+        required = False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
     
     image = forms.ImageField(
@@ -46,12 +50,9 @@ class ArticleForm(forms.Form):
         self.helper.layout = Layout(
             Field('title', autocomplete='off'),
             Field('description', autocomplete='off'),
-            Field('text'),
             Field('image'),
             Field('subcategory'),
-            ButtonHolder(
-                Submit('submit', 'Valider'),
-            ),
+            CommonLayoutEditor(),
         )
 
     def clean(self):
