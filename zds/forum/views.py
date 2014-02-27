@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -279,7 +280,7 @@ def answer(request):
     except KeyError:
         raise Http404
     
-    # Retrieve current tutorial.
+    # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
 
     # Making sure posting is allowed
@@ -290,7 +291,7 @@ def answer(request):
     if g_topic.antispam(request.user):
         raise Http404
     
-    # Retrieve 3 last posts of the currenta tutorial.
+    # Retrieve 3 last posts of the currenta topic.
     posts = Post.objects\
                 .filter(topic = g_topic)\
                 .order_by('-pubdate')[:3]
