@@ -724,12 +724,12 @@ def modify_tutorial(request):
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
+    
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     try:
         sha = request.GET['version']
     except KeyError:
         sha = tutorial.sha_draft
-
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     

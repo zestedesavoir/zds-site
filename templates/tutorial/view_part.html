@@ -19,7 +19,13 @@
 
 <div class="row">
     <div class="large-12 columns">
-        {% include "tutorial/view_part_common.part.html" %}
+    	{% if part.chapters %}
+        <ul>
+        {% for chapter in part.chapters %}
+        	<li>{{ chapter.slug }}</li>
+        {% endfor %}
+    	</ul>
+    	{% endif %}
     </div>
 </div>
 
