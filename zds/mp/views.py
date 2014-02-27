@@ -125,30 +125,33 @@ def topic(request, topic_pk, topic_slug):
 @can_write_and_read_now
 @login_required
 def new(request):
-    '''
-    Creates a new private topic 
-    '''
-    authenticated_user = request.user
+    '''Creates a new private topic'''
     
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            return render_template('mp/new.html', {
+            form = PrivateTopicForm(initial = {
                 'participants': request.POST['participants'],
                 'title': request.POST['title'],
                 'subtitle': request.POST['subtitle'],
+                'text': request.POST['text'],
+            })
+            return render_template('mp/new.html', {
+                'form': form,
                 'text': request.POST['text'],
             })
                 
         form = PrivateTopicForm(request.POST)
         if form.is_valid():
             data = form.data
-            #control participant
-            ctrl=[]
+
+            # Retrieve all participants of the MP.
+            ctrl = []
             list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
                 p = get_object_or_404(User, username=part)
-                if authenticated_user == p:
+                # We don't the author of the MP.
+                if request.user == p:
                     continue
                 ctrl.append(p)
             
@@ -160,6 +163,7 @@ def new(request):
             n_topic.author = request.user
             n_topic.save()
             
+            # Add all participants on the MP.
             for part in ctrl:
                 n_topic.participants.add(part)
 
@@ -200,19 +204,10 @@ def new(request):
 
             return redirect(n_topic.get_absolute_url())
 
-        else:
-            # TODO: add errors to the form and return it
-            raise Http404
-    else:
-        form = PrivateTopicForm()
-        if 'username' in request.GET:
-            user = request.GET['username']
-            u=get_object_or_404(User, username=user)
-        else :
-            u=''
-        return render_template('mp/new.html', {
-            'participants': u,
-        })
+    form = PrivateTopicForm()
+    return render_template('mp/new.html', {
+        'form': form,
+    })
 
 @can_write_and_read_now 
 @login_required
