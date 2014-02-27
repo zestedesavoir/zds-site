@@ -94,35 +94,39 @@ class PartForm(forms.Form):
     )
 
     introduction = forms.CharField(
+        label = 'Introduction',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     conclusion = forms.CharField(
+        label = 'Conclusion',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
+        super(PartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Général',
-                Field('title')
-            ),
-            Fieldset(
-                u'Contenu',
-                Field('introduction'),
-                Field('conclusion')
-            ),
+            Field('title'),
+            Field('introduction'),
+            Field('conclusion'),
             ButtonHolder(
-                Submit('submit', 'Valider'),
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
             )
         )
-        super(PartForm, self).__init__(*args, **kwargs)
-
 
 class ChapterForm(forms.Form):
     title = forms.CharField(

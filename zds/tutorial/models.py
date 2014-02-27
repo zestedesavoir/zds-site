@@ -109,7 +109,7 @@ class Tutorial(models.Model):
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
 
-    def parts(self):
+    def get_parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('position_in_tutorial')

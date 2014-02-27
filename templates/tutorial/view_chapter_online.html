@@ -67,7 +67,7 @@
 
 {% block headline-actions %}
 	{% with tutorial=chapter.part.tutorial %}
-	{% with parts=chapter.part.tutorial.parts %}
+	{% with parts=chapter.part.tutorial.get_parts %}
 	{% with chapter_current=chapter %}
 	    {% include "tutorial/toc_common_online.html" %}
     {% endwith %}
