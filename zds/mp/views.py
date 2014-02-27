@@ -6,12 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
+from django.db.models import Q
 
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
@@ -384,34 +386,38 @@ def edit_post(request):
     tp = get_object_or_404(PrivateTopic, pk=post.privatetopic.pk)
     last = get_object_or_404(PrivatePost, pk=tp.last_message.pk)
     if not  last.pk == post.pk :
-        raise Http404
+        raise PermissionDenied
     
     g_topic = None
-    if post.position_in_topic == 1:
+    if post.position_in_topic >= 1:
         g_topic = get_object_or_404(PrivateTopic, pk=post.privatetopic.pk)
 
-    
-    
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the post
+    # must to be the user logged.
     if post.author != request.user:
-        if not request.user.has_perm('mp.change_post'):
-            raise Http404
-        elif request.method == 'GET':
+        if request.method == 'GET' and request.user.has_perm('mp.change_post'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(post.author.username))
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
 
         # Using the preview button
         if 'preview' in request.POST:
-            if g_topic:
-                g_topic = Topic(title=request.POST['title'],
-                                subtitle=request.POST['subtitle'])
+            form = PrivatePostForm(g_topic, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message=' + str(post_pk)
             return render_template('mp/edit_post.html', {
-                'post': post, 'topic': g_topic, 'text': request.POST['text'],
+                'post': post, 
+                'topic': g_topic, 
+                'text': request.POST['text'],
+                'form': form,
             })
 
         # The user just sent data, handle them
@@ -419,15 +425,16 @@ def edit_post(request):
         post.update = datetime.now()
         post.save()
 
-        # Modifying the thread info
-        if g_topic:
-            g_topic.title = request.POST['title']
-            g_topic.subtitle = request.POST['subtitle']
-            g_topic.save()
-
         return redirect(post.get_absolute_url())
 
     else:
+        form = PrivatePostForm(g_topic, request.user, initial = {
+            'text': post.text
+        })
+        form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message=' + str(post_pk)
         return render_template('mp/edit_post.html', {
-            'post': post, 'topic': g_topic, 'text': post.text
+            'post': post, 
+            'topic': g_topic, 
+            'text': post.text,
+            'form': form,
         })
