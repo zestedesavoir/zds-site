@@ -1,6 +1,7 @@
 {% extends "mp/base.html" %}
 {% load emarkdown %}
 {% load markup %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Nouvel MP
@@ -11,36 +12,13 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="javascript:;">Nouvel MP</a></li>
+    <li class="current"><a href="#">Nouvel MP</a></li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <form action="" method="POST">
-            <input type="text" placeholder="Participants (séparés par une virgule)" name="participants" class="input-xxlarge" value="{{ participants }}" /><br />
-            <input type="text" placeholder="Titre" name="title" class="input-xxlarge" value="{{ title }}" /><br />
-            <input type="text" placeholder="Sous-titre" name="subtitle" class="input-xxlarge" value="{{ subtitle }}" /><br />
-            <textarea class="input-block-level" rows="20" name="text" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-plus icon-white"></i>
-                    Nouvel MP
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    Prévisualisation
-                </button>
-
-                <a href="{{ forum.get_absolute_url }}" class="button secondary">
-                    Retour
-                </a>
-            </div>
-
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
