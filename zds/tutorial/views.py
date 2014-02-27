@@ -36,8 +36,8 @@ from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
-from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
-    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
+    ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -512,6 +512,8 @@ def add_tutorial(request):
             maj_repo_tuto(request,
                           new_slug_path=tutorial.get_path(), 
                           tuto = tutorial,
+                          introduction=data['introduction'], 
+                          conclusion=data['conclusion'],
                           action = 'add')
             
             return redirect(tutorial.get_absolute_url())
@@ -537,7 +539,7 @@ def edit_tutorial(request):
         raise Http404
 
     if request.method == 'POST':
-        form = EditTutorialForm(request.POST, request.FILES)
+        form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
             old_slug = tutorial.get_path()
@@ -587,7 +589,7 @@ def edit_tutorial(request):
         else:
             licence=None
             
-        form = EditTutorialForm({
+        form = TutorialForm({
             'title': json['title'],
             'licence': licence,
             'description': json['description'],
