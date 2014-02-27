@@ -115,11 +115,16 @@ def topic(request, topic_pk, topic_slug):
     for post in posts:
         res.append(post)
 
+    # Build form to add an answer for the current topid.
+    form = PrivatePostForm(g_topic, request.user)
+
     return render_template('mp/topic.html', {
-        'topic': g_topic, 'posts': res,
+        'topic': g_topic, 
+        'posts': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_post_pk': last_post_pk
+        'last_post_pk': last_post_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -253,29 +258,40 @@ def answer(request):
     except KeyError:
         raise Http404
 
-    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
-    posts = PrivatePost.objects.filter(privatetopic=g_topic).order_by('-pubdate')[:3]
-    last_post_pk = g_topic.last_message.pk
+    # Retrieve current topic.
+    g_topic = get_object_or_404(PrivateTopic, pk = topic_pk)
 
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
         raise Http404
+
+    # Retrieve 3 last posts of the currenta topic.
+    posts = PrivatePost.objects\
+                .filter(privatetopic = g_topic)\
+                .order_by('-pubdate')[:3]
+    last_post_pk = g_topic.last_message.pk
     
-    # If we just sent data
+    # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
         newpost = last_post_pk != int(data['last_post'])
 
         # Using the « preview button », the « more » button or new post
-        if 'preview' in data or 'more' in data or newpost:
+        if 'preview' in data or newpost:
+            form = PrivatePostForm(g_topic, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('mp/answer.html', {
-                'text': data['text'], 'topic': g_topic, 'posts': posts,
-                'last_post_pk': last_post_pk, 'newpost': newpost
+                'text': data['text'], 
+                'topic': g_topic, 
+                'last_post_pk': last_post_pk, 
+                'newpost': newpost,
+                'form': form,
             })
 
         # Saving the message
         else:
-            form = PrivatePostForm(request.POST)
+            form = PrivatePostForm(g_topic, request.user, request.POST)
             if form.is_valid():
                 data = form.data
 
@@ -337,12 +353,18 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                post_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                post_cite.author.username, post_cite.get_absolute_url())
 
+        form = PrivatePostForm(g_topic, request.user, initial = {
+            'text': text
+        })
         return render_template('mp/answer.html', {
-            'topic': g_topic, 'text': text, 'posts': posts,
-            'last_post_pk': last_post_pk
+            'topic': g_topic, 
+            'text': text, 
+            'posts': posts,
+            'last_post_pk': last_post_pk,
+            'form': form
         })
 
 @can_write_and_read_now
