@@ -114,12 +114,25 @@ def modify_profile(request, user_pk):
 @login_required
 def tutorials(request):
     '''Returns all tutorials of the authenticated user'''
-    profile = Profile.objects.get(user=request.user)
+    # The type indicate what the user would like to display.
+    # We can display public, draft or all user's tutorials.
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
 
-    user_tutorials = profile.get_tutos()
-    
-    return render_template('member/publications.html', {
-        'user_tutorials': user_tutorials,
+    # Retrieves all tutorials of the current user.
+    profile = Profile.objects.get(user=request.user)
+    if type == 'draft':
+        user_tutorials = profile.get_draft_tutos()
+    elif type == 'public':
+        user_tutorials = profile.get_public_tutos()
+    else:
+        user_tutorials = profile.get_tutos()
+
+    return render_template('tutorial/index_member.html', {
+        'tutorials': user_tutorials,
+        'type': type,
     })
 
 @can_read_now
