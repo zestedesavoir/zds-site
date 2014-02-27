@@ -67,7 +67,7 @@ def index(request):
         except:
             tutorials = None
         
-    return render_template('tutorial/index_online.html', {
+    return render_template('tutorial/index.html', {
         'tutorials': tutorials,
     })
 
@@ -462,7 +462,7 @@ def add_tutorial(request):
             
             # add create date
             tutorial.create_at = datetime.now()
-            tutorial.update = datetime.now()
+            tutorial.pubdate = datetime.now()
             
             # Creating the gallery
             gal = Gallery()

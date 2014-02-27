@@ -1,0 +1,24 @@
+{% extends "tutorial/index.html" %}
+
+{% block headline-sub-actions %}
+    <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer</a></li>
+{% endblock %}
+
+{% block headline-actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3><span class="wide">Filtres</span></h3>
+        <ul>
+            <li><a href="{% url "zds.member.views.tutorials" %}">All</a></li>
+            <li><a href="{% url "zds.member.views.tutorials" %}?type=public">Public</a></li>
+            <li><a href="{% url "zds.member.views.tutorials" %}?type=draft">Draft</a><li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content-filter %}
+                        {% if type = 'public' and tuto.on_line %}
+                            <a href="{{ tuto.get_absolute_url_online }}">{{ tuto.title }}</a>
+                        {% else %}
+                            <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
+                        {% endif %}
+{% endblock %}

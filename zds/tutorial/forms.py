@@ -4,6 +4,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div
 from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder
+from crispy_forms.bootstrap import StrictButton
+
 from django import forms
 from django.conf import settings
 
@@ -16,16 +18,21 @@ class TutorialForm(forms.Form):
         label='Titre',
         max_length=80
     )
-    
-    image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
 
     description = forms.CharField(
-        max_length=200
+        label = 'Description',
+        max_length = 200,
+        required = False,
     )
     
-    type = forms.ChoiceField(choices=TYPE_CHOICES)
+    image = forms.ImageField(
+        label = 'Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
+        required = False
+    )
+    
+    type = forms.ChoiceField(
+        choices=TYPE_CHOICES
+    )
 
     subcategory = forms.ModelMultipleChoiceField(
         label = "Sous-catégories de votre tuto",
@@ -35,12 +42,14 @@ class TutorialForm(forms.Form):
     
     licence = forms.ModelChoiceField(
         label = "Licence de votre publication",
-        queryset=Licence.objects.all(),
+        queryset = Licence.objects.all(),
         required = False,
     )
 
     def __init__(self, *args, **kwargs):
+        super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -50,10 +59,10 @@ class TutorialForm(forms.Form):
             Field('image'),
             Field('subcategory'),
             Field('licence'),
-            Submit('submit', 'Valider')
+            ButtonHolder(
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+            ),
         )
-        super(TutorialForm, self).__init__(*args, **kwargs)
-
 
 class EditTutorialForm(forms.Form):
     title = forms.CharField(
