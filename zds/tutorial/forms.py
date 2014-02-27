@@ -29,6 +29,26 @@ class TutorialForm(forms.Form):
         label = 'Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
         required = False
     )
+
+    introduction = forms.CharField(
+        label = 'Introduction',
+        required=False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
+
+    conclusion = forms.CharField(
+        label = 'Conclusion',
+        required=False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
     
     type = forms.ChoiceField(
         choices=TYPE_CHOICES
@@ -57,65 +77,14 @@ class TutorialForm(forms.Form):
             Field('description'),
             Field('type'),
             Field('image'),
+            Field('introduction', css_class = 'md-editor'),
+            Field('conclusion', css_class = 'md-editor'),
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
                 StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
             ),
         )
-
-class EditTutorialForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    description = forms.CharField(
-        max_length=200
-    )
-    
-    image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
-
-
-    introduction = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-
-    conclusion = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-    
-    licence = forms.ModelChoiceField(
-        label = "Licence de votre publication",
-        queryset=Licence.objects.all(),
-        required = False,
-    ) 
-
-    subcategory = forms.ModelMultipleChoiceField(
-        label = "Sous-catégories",
-        queryset = SubCategory.objects.all(),
-        required = True,
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('description'),
-            Field('image'),
-            Field('licence'),
-            Field('introduction'),
-            Field('conclusion'),
-            Field('subcategory'),
-            Submit('submit', 'Valider')
-        )
-        super(EditTutorialForm, self).__init__(*args, **kwargs)
 
 
 class PartForm(forms.Form):
