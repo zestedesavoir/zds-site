@@ -37,7 +37,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
-    ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
+    ExtractForm, ImportForm, NoteForm, AlertForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -1426,7 +1426,7 @@ def edit_extract(request):
         raise Http404
 
     if request.method == 'POST':
-        form = EditExtractForm(request.POST)
+        form = ExtractForm(request.POST)
         if form.is_valid():
             data = form.data
             old_slug = extract.get_path()
@@ -1452,7 +1452,7 @@ def edit_extract(request):
             
             return redirect(extract.get_absolute_url())
     else:
-        form = EditExtractForm({
+        form = ExtractForm({
             'title': extract.title,
             'text': extract.get_text(),
         })
