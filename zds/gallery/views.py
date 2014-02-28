@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
@@ -37,11 +38,13 @@ def gallery_details(request, gal_pk, gal_slug):
     gal = get_object_or_404(Gallery, pk=gal_pk)
     gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
     images = gal.get_images()
+    form = UserGalleryForm()
 
     return render_template('gallery/gallery_details.html', {
         'gallery': gal,
         'gallery_mode': gal_mode,
-        'images': images
+        'images': images,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -81,12 +84,10 @@ def new_gallery(request):
         })
 
 @can_write_and_read_now
+@require_POST
 @login_required
 def modify_gallery(request):
     '''Modify gallery instance'''
-
-    if request.method != 'POST':
-        raise Http404
 
     # Global actions
 
@@ -112,30 +113,34 @@ def modify_gallery(request):
 
     # Gallery-specific actions
 
-    try:
-        gal_pk = request.POST['gallery']
-    except KeyError:
-        raise Http404
+    elif 'adduser' in request.POST:
+        try:
+            gal_pk = request.POST['gallery']
+        except KeyError:
+            raise Http404
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
+        gallery = get_object_or_404(Gallery, pk = gal_pk)
+        user = get_object_or_404(User, username = request.POST['user'])
 
-    # Disallow actions to read-only members
-    if gal_mode.mode != 'W':
-        raise Http404
+        # If a user is already in a user gallery, we don't add him.
+        galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
+        if galleries.count() > 0:
+            return redirect(gallery.get_absolute_url())
 
-    if 'adduser' in request.POST:
+        # Disallow actions to read-only members
+        gal_mode = get_object_or_404(UserGallery, gallery=gallery, user=request.user)
+        if gal_mode.mode != 'W':
+            raise Http404
+
         form = UserGalleryForm(request.POST)
-        u = get_object_or_404(User, username=request.POST['user'])
         if form.is_valid():
             ug = UserGallery()
-            ug.user = u
-            ug.gallery = gal
-            ug.mode = 'W'
+            ug.user = user
+            ug.gallery = gallery
+            ug.mode = request.POST['mode']
             ug.save()
 
-
-    return redirect(gal.get_absolute_url())
+    return redirect(gallery.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -157,26 +162,31 @@ def edit_image(request, gal_pk, img_pk):
     img = get_object_or_404(Image, pk=img_pk)
 
     if request.method == 'POST':
-        form = ImageForm(request.POST)
-        if form.is_valid():
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid()\
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST['title']
             img.legend = request.POST['legend']
+            img.physical = request.FILES['physical']
+            img.slug = slugify(request.FILES['physical'])
             img.update = datetime.now()
 
             img.save()
 
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
-        else:
-            # TODO: add errors to the form and return it
-            raise Http404
     else:
-        form = ImageForm()  # A empty, unbound form
-        return render_template('gallery/edit_image.html', {
-            'form': form,
-            'gallery': gal,
-            'image': img
-        })
+        form = ImageForm(initial = {
+                'title': img.title,
+                'legend': img.legend,
+                'physical': img.physical,
+            })
+    
+    return render_template('gallery/edit_image.html', {
+        'form': form,
+        'gallery': gal,
+        'image': img
+    })
 
 @can_write_and_read_now
 @login_required
@@ -210,15 +220,13 @@ def modify_image(request):
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
-    '''
-    Creates a new image
-    '''
+    '''Creates a new image'''
     gal = get_object_or_404(Gallery, pk=gal_pk)
 
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() \
-           and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img = Image()
             img.physical = request.FILES['physical']
             img.gallery = gal
