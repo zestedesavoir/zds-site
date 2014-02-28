@@ -947,23 +947,29 @@ def edit_part(request):
         part_pk = int(request.GET['partie'])
     except KeyError:
         raise Http404
+    
     part = get_object_or_404(Part, pk=part_pk)
+
     # Make sure the user is allowed to do that
     if not request.user in part.tutorial.authors.all():
         raise Http404
-    
     
     if request.method == 'POST':
         form = PartForm(request.POST)
         if form.is_valid():
             data = form.data
             
+            # Update title and his slug.
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
             old_slug = part.get_path()
+
+            # Update path for introduction and conclusion.
+            part.introduction = os.path.join(new_slug, 'introduction.md')
+            part.conclusion = os.path.join(new_slug, 'conclusion.md')
             
             part.save()
-            
+
             maj_repo_part(request,
                           old_slug_path = old_slug, 
                           new_slug_path = new_slug, 
