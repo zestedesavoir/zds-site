@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -86,28 +88,26 @@ def cat_details(request, cat_slug):
 
 @can_read_now
 def topic(request, topic_pk, topic_slug):
-    '''
-    Display a thread and its posts using a pager
-    '''
+    '''Display a thread and its posts using a pager'''
     # TODO: Clean that up
-    g_topic = get_object_or_404(Topic, pk=topic_pk)
+    topic = get_object_or_404(Topic, pk=topic_pk)
     
-    if not g_topic.forum.can_read(request.user):
-        raise Http404
     # Check link
-    if not topic_slug == slugify(g_topic.title):
-        return redirect(g_topic.get_absolute_url())
+    if not topic_slug == slugify(topic.title):
+        return redirect(topic.get_absolute_url())
 
+    # If the user is authenticated and has never read topic, we mark it as read.
     if request.user.is_authenticated():
-        if never_read(g_topic):
-            mark_read(g_topic)
+        if never_read(topic):
+            mark_read(topic)
 
+    # Retrieves all posts of the topoc and use paginator with them.
     posts = Post.objects\
-                .filter(topic__pk=g_topic.pk)\
+                .filter(topic__pk=topic.pk)\
                 .order_by('position')\
                 .all()
 
-    last_post_pk = g_topic.last_message.pk
+    last_post_pk = topic.last_message.pk
 
     # Handle pagination
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
@@ -137,11 +137,17 @@ def topic(request, topic_pk, topic_slug):
     for post in posts:
         res.append(post)
 
+    # Build form to send a post for the current topic.
+    form = PostForm(topic, request.user)
+
     return render_template('forum/topic.html', {
-        'topic': g_topic, 'posts': res, 'categories': categories,
+        'topic': topic, 
+        'posts': res, 
+        'categories': categories,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_post_pk': last_post_pk
+        'last_post_pk': last_post_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -160,15 +166,19 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            return render_template('forum/new.html', {
-                'forum': forum,
+            form = TopicForm(initial = {
                 'title': request.POST['title'],
                 'subtitle': request.POST['subtitle'],
+                'text': request.POST['text']
+            })
+            return render_template('forum/new.html', {
+                'forum': forum,
+                'form': form,
                 'text': request.POST['text'],
             })
 
         form = TopicForm(request.POST)
-        if form.is_valid() and data['text'].strip() !='':
+        if form.is_valid() and request.POST['text'].strip() !='':
             data = form.data
             # Creating the thread
             n_topic = Topic()
@@ -206,7 +216,8 @@ def new(request):
 
         form = TopicForm()
         return render_template('forum/new.html', {
-            'form': form, 'forum': forum
+            'forum': forum,
+            'form': form,
         })
 
 @can_write_and_read_now
@@ -263,21 +274,14 @@ def edit(request):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to a topic
-    '''
+    '''Adds an answer from a user to a topic'''
     try:
         topic_pk = request.GET['sujet']
     except KeyError:
         raise Http404
     
+    # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
-    
-    if not g_topic.forum.can_read(request.user):
-        raise Http404
-    
-    posts = Post.objects.filter(topic=g_topic).order_by('-pubdate')[:3]
-    last_post_pk = g_topic.last_message.pk
 
     # Making sure posting is allowed
     if g_topic.is_locked:
@@ -286,22 +290,34 @@ def answer(request):
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
         raise Http404
+    
+    # Retrieve 3 last posts of the currenta topic.
+    posts = Post.objects\
+                .filter(topic = g_topic)\
+                .order_by('-pubdate')[:3]
+    last_post_pk = g_topic.last_message.pk
 
-    # If we just sent data
+    # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
         newpost = last_post_pk != int(data['last_post'])
-
+        
         # Using the « preview button », the « more » button or new post
-        if 'preview' in data or 'more' in data or newpost:
+        if 'preview' in data or newpost:
+            form = PostForm(g_topic, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('forum/answer.html', {
-                'text': data['text'], 'topic': g_topic, 'posts': posts,
-                'last_post_pk': last_post_pk, 'newpost': newpost
+                'text': data['text'], 
+                'topic': g_topic, 
+                'last_post_pk': last_post_pk, 
+                'newpost': newpost,
+                'form': form
             })
 
         # Saving the message
         else:
-            form = PostForm(request.POST)
+            form = PostForm(g_topic, request.user, request.POST)
             if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
@@ -326,6 +342,7 @@ def answer(request):
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -340,9 +357,14 @@ def answer(request):
             text = u'{0}\nSource:[{1}]({2})'.format(text,
                 post_cite.author.username, post_cite.get_absolute_url())
 
+        form = PostForm(g_topic, request.user, initial = {
+            'text': text
+        })
         return render_template('forum/answer.html', {
-            'topic': g_topic, 'text': text, 'posts': posts,
-            'last_post_pk': last_post_pk
+            'topic': g_topic, 
+            'posts': posts,
+            'last_post_pk': last_post_pk,
+            'form': form
         })
 
 @can_write_and_read_now
@@ -359,10 +381,11 @@ def edit_post(request):
     post = get_object_or_404(Post, pk=post_pk)
 
     g_topic = None
-    if post.position == 1:
+    if post.position >= 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the post
+    # must to be the user logged.
     if post.author != request.user:
         if request.method == 'GET' and request.user.has_perm('forum.change_post'):
             messages.add_message(
@@ -371,6 +394,9 @@ def edit_post(request):
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(post.author.username))
             post.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -395,13 +421,18 @@ def edit_post(request):
                 alert.pubdate = datetime.now()
                 alert.save()
                 post.alerts.add(alert)
+        
         # Using the preview button
         if 'preview' in request.POST:
-            if g_topic:
-                g_topic = Topic(title=request.POST['title'],
-                                subtitle=request.POST['subtitle'])
+            form = PostForm(g_topic, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
-                'post': post, 'topic': g_topic, 'text': request.POST['text'],
+                'post': post, 
+                'topic': g_topic, 
+                'text': request.POST['text'],
+                'form': form,
             })
         
         if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
@@ -411,20 +442,21 @@ def edit_post(request):
                 post.text_html = emarkdown(request.POST['text'])
                 post.update = datetime.now()
                 post.editor = request.user
-            
-            # Modifying the thread info
-            if g_topic:
-                g_topic.title = request.POST['title']
-                g_topic.subtitle = request.POST['subtitle']
-                g_topic.save()
         
         post.save()
         
         return redirect(post.get_absolute_url())
 
     else:
+        form = PostForm(g_topic, request.user, initial = {
+            'text': post.text
+        })
+        form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
         return render_template('forum/edit_post.html', {
-            'post': post, 'topic': g_topic, 'text': post.text
+            'post': post, 
+            'topic': g_topic, 
+            'text': post.text,
+            'form': form
         })
 
 

@@ -29,7 +29,9 @@ from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike,
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import ArticleForm, ReactionForm, AlertForm
+from crispy_forms.layout import Field
+
+from .forms import ArticleForm, ReactionForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read, STATUS_CHOICES
 
@@ -175,6 +177,9 @@ def view_online(request, article_pk, article_slug):
 
     for reaction in reactions:
         res.append(reaction)
+
+    # Build form to send a reaction for the current article.
+    form = ReactionForm(article, request.user)
     
     return render_template('article/view_online.html', {
         'article': article_version,
@@ -185,7 +190,8 @@ def view_online(request, article_pk, article_slug):
         'reactions': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_reaction_pk': last_reaction_pk 
+        'last_reaction_pk': last_reaction_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -611,66 +617,76 @@ def MEP(article, sha):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to an article
-    '''
+    '''Adds an answer from a user to an article'''
     try:
         article_pk = request.GET['article']
     except KeyError:
         raise Http404
     
-    g_article = get_object_or_404(Article, pk=article_pk)
-    
-    reactions = Reaction.objects.filter(article=g_article).order_by('-pubdate')[:3]
-    
-    if g_article.last_reaction:
-        last_reaction_pk = g_article.last_reaction.pk
-    else:
-        last_reaction_pk=0
+    # Retrieve current article.
+    article = get_object_or_404(Article, pk = article_pk)
 
     # Making sure reactioning is allowed
-    if g_article.is_locked:
-        raise Http404
+    if article.is_locked:
+        raise PermissionDenied
 
     # Check that the user isn't spamming
-    if g_article.antispam(request.user):
-        raise Http404
+    if article.antispam(request.user):
+        raise PermissionDenied
 
-    # If we just sent data
+    # Retrieve 3 last reactions of the currenta article.
+    reactions = Reaction.objects\
+                    .filter(article = article)\
+                    .order_by('-pubdate')[:3]
+    
+    # If there is a last reaction for the article, we save his pk.
+    # Otherwise, we save 0.
+    if article.last_reaction:
+        last_reaction_pk = article.last_reaction.pk
+    else:
+        last_reaction_pk = 0
+
+    # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
         newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
-        if 'preview' in data or 'more' in data or newreaction:
+        if 'preview' in data or newreaction:
+            form = ReactionForm(article, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('article/answer.html', {
-                'text': data['text'], 'article': g_article, 'reactions': reactions,
-                'last_reaction_pk': last_reaction_pk, 'newreaction': newreaction
+                'article': article, 
+                'last_reaction_pk': last_reaction_pk, 
+                'newreaction': newreaction,
+                'form': form
             })
 
         # Saving the message
         else:
-            form = ReactionForm(request.POST)
-            if form.is_valid() and data['text'].strip() !='':
+            form = ReactionForm(article, request.user, request.POST)
+            if form.is_valid() and data['text'].strip() != '':
                 data = form.data
 
                 reaction = Reaction()
-                reaction.article = g_article
+                reaction.article = article
                 reaction.author = request.user
                 reaction.text = data['text']
                 reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
-                reaction.position = g_article.get_reaction_count() + 1
+                reaction.position = article.get_reaction_count() + 1
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
-                g_article.last_reaction = reaction
-                g_article.save()
+                article.last_reaction = reaction
+                article.save()
 
                 return redirect(reaction.get_absolute_url())
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -682,12 +698,18 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                reaction_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                reaction_cite.author.username, reaction_cite.get_absolute_url())
 
+        form = ReactionForm(article, request.user, initial = {
+            'text': text
+        })
         return render_template('article/answer.html', {
-            'article': g_article, 'text': text, 'reactions': reactions,
-            'last_reaction_pk': last_reaction_pk
+            'article': article,
+            'text': text,
+            'reactions': reactions,
+            'last_reaction_pk': last_reaction_pk,
+            'form': form
         })
 
 @can_write_and_read_now
@@ -708,7 +730,8 @@ def edit_reaction(request):
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the reaction
+    # must to be the user logged.
     if reaction.author != request.user:
         if request.method == 'GET' and request.user.has_perm('article.change_reaction'):
             messages.add_message(
@@ -717,6 +740,9 @@ def edit_reaction(request):
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(reaction.author.username))
             reaction.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -741,10 +767,18 @@ def edit_reaction(request):
                 alert.pubdate = datetime.now()
                 alert.save()
                 reaction.alerts.add(alert)
+        
         # Using the preview button
         if 'preview' in request.POST:
+            form = ReactionForm(g_article, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
             return render_template('article/edit_reaction.html', {
-                'reaction': reaction, 'article': g_article, 'text': request.POST['text'],
+                'reaction': reaction, 
+                'article': g_article, 
+                'text': request.POST['text'],
+                'form': form
             })
         
         if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
@@ -760,8 +794,15 @@ def edit_reaction(request):
         return redirect(reaction.get_absolute_url())
 
     else:
+        form = ReactionForm(g_article, request.user, initial = {
+            'text': reaction.text
+        })
+        form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
         return render_template('article/edit_reaction.html', {
-            'reaction': reaction, 'article': g_article, 'text': reaction.text
+            'reaction': reaction, 
+            'article': g_article, 
+            'text': reaction.text,
+            'form': form
         })
 
 

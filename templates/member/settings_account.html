@@ -6,12 +6,6 @@
     <li class="current"><a href="#">Compte</a></li>
 {% endblock %}
 
-{% block subnav %}
-    <dd><a href="{% url "zds.member.views.settings_profile" %}">Profil</a></dd>
-    <dd class="active"><a href="{% url "zds.member.views.settings_account" %}">Compte</a></dd>
-    <dd ><a href="{% url "zds.member.views.settings_user" %}">Pseudo/Email</a></dd>
-{% endblock %}
-
 {% block settings_form %}
 <div class="row">
     <div class="large-12 columns">

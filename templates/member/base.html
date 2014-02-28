@@ -7,3 +7,9 @@
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.member.views.index" %}">Membres</a></li>
 {% endblock %}
+
+{% block sidebar %}
+<aside class="sidebar mobile-menu-hide">
+	{% block headline-actions %}{% endblock %}
+</aside>
+{% endblock %}

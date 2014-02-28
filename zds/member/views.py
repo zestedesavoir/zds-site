@@ -172,16 +172,16 @@ def settings_profile(request):
     profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
-        form = ProfileForm(request.user, request.POST)
+        form = ProfileForm(request.POST)
         c = {
             'form': form,
         }
         if form.is_valid():
             profile.biography = form.data['biography']
             profile.site = form.data['site']
-            profile.show_email = 'show_email' in form.data
-            profile.show_sign = 'show_sign' in form.data
-            profile.hover_or_click = 'hover_or_click' in form.data
+            profile.show_email = 'show_email' in form.cleaned_data.get('options')
+            profile.show_sign = 'show_sign' in form.cleaned_data.get('options')
+            profile.hover_or_click = 'hover_or_click' in form.cleaned_data.get('options')
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
@@ -200,7 +200,7 @@ def settings_profile(request):
         else:
             return render_to_response('member/settings_profile.html', c, RequestContext(request))
     else:
-        form = ProfileForm(request.user, initial={
+        form = ProfileForm(initial={
             'biography': profile.biography,
             'site': profile.site,
             'avatar_url': profile.avatar_url,
@@ -249,7 +249,7 @@ def settings_user(request):
     profile = get_object_or_404(Profile, user__pk=request.user.pk)
     
     if request.method == 'POST':
-        form = ChangeUserForm(request.user, request.POST)
+        form = ChangeUserForm(request.POST)
         c = {
             'form': form,
         }
@@ -277,7 +277,7 @@ def settings_user(request):
         else:
             return render_to_response('member/settings_user.html', c, RequestContext(request))
     else:
-        form = ChangeUserForm(request.user)
+        form = ChangeUserForm()
         c = {
             'form': form,
         }
@@ -335,7 +335,10 @@ def login_view(request):
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
-    return render_template('member/login.html', csrf_tk)
+    return render_template('member/login.html', {
+        'form': form,
+        'csrf_tk': csrf_tk,
+    })
 
 @login_required
 def logout_view(request):

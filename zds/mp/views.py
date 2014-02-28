@@ -6,12 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
+from django.db.models import Q
 
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
@@ -115,40 +117,48 @@ def topic(request, topic_pk, topic_slug):
     for post in posts:
         res.append(post)
 
+    # Build form to add an answer for the current topid.
+    form = PrivatePostForm(g_topic, request.user)
+
     return render_template('mp/topic.html', {
-        'topic': g_topic, 'posts': res,
+        'topic': g_topic, 
+        'posts': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_post_pk': last_post_pk
+        'last_post_pk': last_post_pk,
+        'form': form
     })
 
 @can_write_and_read_now
 @login_required
 def new(request):
-    '''
-    Creates a new private topic 
-    '''
-    authenticated_user = request.user
+    '''Creates a new private topic'''
     
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            return render_template('mp/new.html', {
+            form = PrivateTopicForm(initial = {
                 'participants': request.POST['participants'],
                 'title': request.POST['title'],
                 'subtitle': request.POST['subtitle'],
+                'text': request.POST['text'],
+            })
+            return render_template('mp/new.html', {
+                'form': form,
                 'text': request.POST['text'],
             })
                 
         form = PrivateTopicForm(request.POST)
         if form.is_valid():
             data = form.data
-            #control participant
-            ctrl=[]
+
+            # Retrieve all participants of the MP.
+            ctrl = []
             list_part = data['participants'].replace(',',' ').split()
             for part in list_part:
                 p = get_object_or_404(User, username=part)
-                if authenticated_user == p:
+                # We don't the author of the MP.
+                if request.user == p:
                     continue
                 ctrl.append(p)
             
@@ -160,6 +170,7 @@ def new(request):
             n_topic.author = request.user
             n_topic.save()
             
+            # Add all participants on the MP.
             for part in ctrl:
                 n_topic.participants.add(part)
 
@@ -200,19 +211,10 @@ def new(request):
 
             return redirect(n_topic.get_absolute_url())
 
-        else:
-            # TODO: add errors to the form and return it
-            raise Http404
-    else:
-        form = PrivateTopicForm()
-        if 'username' in request.GET:
-            user = request.GET['username']
-            u=get_object_or_404(User, username=user)
-        else :
-            u=''
-        return render_template('mp/new.html', {
-            'participants': u,
-        })
+    form = PrivateTopicForm()
+    return render_template('mp/new.html', {
+        'form': form,
+    })
 
 @can_write_and_read_now 
 @login_required
@@ -258,29 +260,40 @@ def answer(request):
     except KeyError:
         raise Http404
 
-    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
-    posts = PrivatePost.objects.filter(privatetopic=g_topic).order_by('-pubdate')[:3]
-    last_post_pk = g_topic.last_message.pk
+    # Retrieve current topic.
+    g_topic = get_object_or_404(PrivateTopic, pk = topic_pk)
 
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
         raise Http404
+
+    # Retrieve 3 last posts of the currenta topic.
+    posts = PrivatePost.objects\
+                .filter(privatetopic = g_topic)\
+                .order_by('-pubdate')[:3]
+    last_post_pk = g_topic.last_message.pk
     
-    # If we just sent data
+    # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
         newpost = last_post_pk != int(data['last_post'])
 
         # Using the « preview button », the « more » button or new post
-        if 'preview' in data or 'more' in data or newpost:
+        if 'preview' in data or newpost:
+            form = PrivatePostForm(g_topic, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('mp/answer.html', {
-                'text': data['text'], 'topic': g_topic, 'posts': posts,
-                'last_post_pk': last_post_pk, 'newpost': newpost
+                'text': data['text'], 
+                'topic': g_topic, 
+                'last_post_pk': last_post_pk, 
+                'newpost': newpost,
+                'form': form,
             })
 
         # Saving the message
         else:
-            form = PrivatePostForm(request.POST)
+            form = PrivatePostForm(g_topic, request.user, request.POST)
             if form.is_valid():
                 data = form.data
 
@@ -342,12 +355,18 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                post_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                post_cite.author.username, post_cite.get_absolute_url())
 
+        form = PrivatePostForm(g_topic, request.user, initial = {
+            'text': text
+        })
         return render_template('mp/answer.html', {
-            'topic': g_topic, 'text': text, 'posts': posts,
-            'last_post_pk': last_post_pk
+            'topic': g_topic, 
+            'text': text, 
+            'posts': posts,
+            'last_post_pk': last_post_pk,
+            'form': form
         })
 
 @can_write_and_read_now
@@ -367,34 +386,38 @@ def edit_post(request):
     tp = get_object_or_404(PrivateTopic, pk=post.privatetopic.pk)
     last = get_object_or_404(PrivatePost, pk=tp.last_message.pk)
     if not  last.pk == post.pk :
-        raise Http404
+        raise PermissionDenied
     
     g_topic = None
-    if post.position_in_topic == 1:
+    if post.position_in_topic >= 1:
         g_topic = get_object_or_404(PrivateTopic, pk=post.privatetopic.pk)
 
-    
-    
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the post
+    # must to be the user logged.
     if post.author != request.user:
-        if not request.user.has_perm('mp.change_post'):
-            raise Http404
-        elif request.method == 'GET':
+        if request.method == 'GET' and request.user.has_perm('mp.change_post'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(post.author.username))
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
 
         # Using the preview button
         if 'preview' in request.POST:
-            if g_topic:
-                g_topic = Topic(title=request.POST['title'],
-                                subtitle=request.POST['subtitle'])
+            form = PrivatePostForm(g_topic, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message=' + str(post_pk)
             return render_template('mp/edit_post.html', {
-                'post': post, 'topic': g_topic, 'text': request.POST['text'],
+                'post': post, 
+                'topic': g_topic, 
+                'text': request.POST['text'],
+                'form': form,
             })
 
         # The user just sent data, handle them
@@ -402,15 +425,16 @@ def edit_post(request):
         post.update = datetime.now()
         post.save()
 
-        # Modifying the thread info
-        if g_topic:
-            g_topic.title = request.POST['title']
-            g_topic.subtitle = request.POST['subtitle']
-            g_topic.save()
-
         return redirect(post.get_absolute_url())
 
     else:
+        form = PrivatePostForm(g_topic, request.user, initial = {
+            'text': post.text
+        })
+        form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message=' + str(post_pk)
         return render_template('mp/edit_post.html', {
-            'post': post, 'topic': g_topic, 'text': post.text
+            'post': post, 
+            'topic': g_topic, 
+            'text': post.text,
+            'form': form,
         })

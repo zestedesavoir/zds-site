@@ -143,13 +143,10 @@ class Profile(models.Model):
             return self.can_read
     
     def can_write_now(self):
-        if self.user.is_active:
-            if self.end_ban_write:
-                return self.can_write or (self.end_ban_write < datetime.now())
-            else:
-                return self.can_write
+        if self.end_ban_write:
+            return self.can_write or (self.end_ban_write < datetime.now())
         else:
-            return False
+            return self.can_write
 
 class TokenForgotPassword(models.Model):
     class Meta:
