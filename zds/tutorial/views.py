@@ -780,7 +780,9 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
         cpt_p+=1
 
     return render_template('tutorial/view_part.html', {
-        'part': final_part, 'version':sha
+        'tutorial': tutorial,
+        'part': final_part, 
+        'version':sha
     })
 
 @can_read_now

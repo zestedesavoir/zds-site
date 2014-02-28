@@ -392,7 +392,7 @@ class Part(models.Model):
             self.slug,
         ])
 
-    def chapters(self):
+    def get_chapters(self):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 

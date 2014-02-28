@@ -22,14 +22,6 @@
 
 {% block content %}
 
-{% if chapter.part %}
-<div class="row">
-    <div class="large-12 columns">
-        {% include "tutorial/chapter_common.part.html" %}
-    </div>
-</div>
-{% endif %}
-
 <div class="row">
     <div class="large-12 columns">
         {% crispy form %}
