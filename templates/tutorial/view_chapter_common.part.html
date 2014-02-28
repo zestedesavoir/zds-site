@@ -53,7 +53,7 @@
                 </a>
             </h2>
 
-            {% if user in authors %}
+            {# {% if user in authors %} #}
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="custom right">
                     <input type="hidden" name="extract" value="{{ extract.pk }}" />
                     <input type="hidden" name="move" value="" />
@@ -105,7 +105,7 @@
                     </div>
                     {% csrf_token %}
                 </form>
-            {% endif %}
+            {# {% endif %} #}
             {% if extract.txt %}
                 {{ extract.txt|emarkdown }}
             {% else %}

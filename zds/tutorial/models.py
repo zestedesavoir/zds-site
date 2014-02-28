@@ -109,7 +109,7 @@ class Tutorial(models.Model):
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
 
-    def parts(self):
+    def get_parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('position_in_tutorial')
@@ -192,7 +192,6 @@ class Tutorial(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
@@ -393,7 +392,7 @@ class Part(models.Model):
             self.slug,
         ])
 
-    def chapters(self):
+    def get_chapters(self):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 
@@ -418,7 +417,6 @@ class Part(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
