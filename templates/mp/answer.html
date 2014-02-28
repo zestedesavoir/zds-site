@@ -1,4 +1,6 @@
 {% extends "mp/base.html" %}
+{% load crispy_forms_tags %}
+
 {% block title %}
     Répondre au MP
 {% endblock %}
@@ -13,7 +15,7 @@
 
 {% block breadcrumb %}
     <li><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></li>
-    <li class="current"><a href="javascript:;">Répondre au MP</a></li>
+    <li class="current"><a href="#">Répondre au MP</a></li>
 {% endblock %}
 
 {% block content %}
@@ -29,34 +31,9 @@
 </div>
 {% endif %}
 
-{% include "misc/editor.part.html" %}
-
 <div class="row">
     <div class="large-12 columns">
-        <form action="#previsualisation" method="POST">
-            <textarea class="input-block-level" name="text" rows="20" id="id_text"
-                placeholder="Contenu de votre message au format Markdown.">{{ text }}</textarea>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    <i class="icon-ok icon-white"></i>
-                    Répondre
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    <i class="icon-eye-open"></i>
-                    Prévisualisation
-                </button>
-
-                <a href="{{ topic.get_absolute_url }}" class="button secondary">
-                    <i class="icon-remove"></i>
-                    Annuler
-                </a>
-            </div>
-
-            <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
