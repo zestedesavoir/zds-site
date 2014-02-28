@@ -234,29 +234,6 @@ class ExtractForm(forms.Form):
             )
         )
 
-class EditExtractForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    text = forms.CharField(
-        label='Texte',
-        required=False,
-        widget=forms.Textarea
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('text'),
-            Submit('submit', 'Modifier'),
-        )
-        super(EditExtractForm, self).__init__(*args, **kwargs)
-
 class ImportForm(forms.Form):
 
     file = forms.FileField(
