@@ -211,28 +211,28 @@ class ExtractForm(forms.Form):
     )
 
     text = forms.CharField(
-        label='Texte',
+        label = 'Texte',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
+        super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('title'),
             Field('text'),
-            Div(
-                Submit('submit', 'Ajouter'),
-                Submit(
-                    'submit_continue', 'Ajouter et continuer',
-                    css_class='secondary'),
-                css_class='button-group'
+            ButtonHolder(
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
             )
         )
-        super(ExtractForm, self).__init__(*args, **kwargs)
-
 
 class EditExtractForm(forms.Form):
     title = forms.CharField(
