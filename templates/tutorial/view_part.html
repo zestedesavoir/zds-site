@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block headline-sub-actions %}
-    <li><a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a></li>
+    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
     <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer</a></li>
 {% endblock %}
 
@@ -27,7 +27,7 @@
     	{% if part.chapters %}
         <ul>
         {% for chapter in part.chapters %}
-        	<li>{{ chapter.slug }}</li>
+        	<li><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.slug }}</a></li>
         {% endfor %}
     	</ul>
     	{% endif %}
