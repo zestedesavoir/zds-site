@@ -133,48 +133,43 @@ class ChapterForm(forms.Form):
         label='Titre',
         max_length=80
     )
+    
+    image = forms.ImageField(
+        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
+        required=False
+    )
 
     introduction = forms.CharField(
         required=False,
         widget=forms.Textarea
     )
-    
-    image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
 
     conclusion = forms.CharField(
+        label = 'Conclusion',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
+        super(ChapterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Général',
-                Field('title'),
-                Field('image'),
-            ),
-            Fieldset(
-                u'Contenu',
-                Field('introduction'),
-                Field('conclusion')
-            ),
+            Field('title'),
+            Field('image'),
+            Field('introduction'),
+            Field('conclusion'),
             ButtonHolder(
-                Div(
-                    Submit('submit', 'Ajouter'),
-                    Submit(
-                        'submit_continue', 'Ajouter et continuer',
-                        css_class='secondary'),
-                    css_class='button-group'
-                ),
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+                StrictButton('Ajouter et continuer', type = 'submit_continue', css_class = 'btn-submit'),
             )
         )
-        super(ChapterForm, self).__init__(*args, **kwargs)
-
 
 class EmbdedChapterForm(forms.Form):
     introduction = forms.CharField(
