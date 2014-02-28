@@ -192,7 +192,6 @@ class Tutorial(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
@@ -418,7 +417,6 @@ class Part(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()

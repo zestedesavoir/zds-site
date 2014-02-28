@@ -15,6 +15,11 @@
     <li class="current"><a href="#">{{ part.title }}</a></li>
 {% endblock %}
 
+{% block headline-sub-actions %}
+    <li><a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer</a></li>
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
