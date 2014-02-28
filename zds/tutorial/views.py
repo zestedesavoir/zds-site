@@ -36,8 +36,8 @@ from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
-from .forms import TutorialForm, EditTutorialForm, PartForm, ChapterForm, \
-    EmbdedChapterForm, ExtractForm, EditExtractForm, ImportForm, NoteForm, AlertForm
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
+    ExtractForm, ImportForm, NoteForm, AlertForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -67,7 +67,7 @@ def index(request):
         except:
             tutorials = None
         
-    return render_template('tutorial/index_online.html', {
+    return render_template('tutorial/index.html', {
         'tutorials': tutorials,
     })
 
@@ -462,7 +462,7 @@ def add_tutorial(request):
             
             # add create date
             tutorial.create_at = datetime.now()
-            tutorial.update = datetime.now()
+            tutorial.pubdate = datetime.now()
             
             # Creating the gallery
             gal = Gallery()
@@ -512,6 +512,8 @@ def add_tutorial(request):
             maj_repo_tuto(request,
                           new_slug_path=tutorial.get_path(), 
                           tuto = tutorial,
+                          introduction=data['introduction'], 
+                          conclusion=data['conclusion'],
                           action = 'add')
             
             return redirect(tutorial.get_absolute_url())
@@ -537,7 +539,7 @@ def edit_tutorial(request):
         raise Http404
 
     if request.method == 'POST':
-        form = EditTutorialForm(request.POST, request.FILES)
+        form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
             old_slug = tutorial.get_path()
@@ -587,7 +589,7 @@ def edit_tutorial(request):
         else:
             licence=None
             
-        form = EditTutorialForm({
+        form = TutorialForm({
             'title': json['title'],
             'licence': licence,
             'description': json['description'],
@@ -722,12 +724,12 @@ def modify_tutorial(request):
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     '''Display a part'''
+    
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     try:
         sha = request.GET['version']
     except KeyError:
         sha = tutorial.sha_draft
-
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     
@@ -778,7 +780,9 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
         cpt_p+=1
 
     return render_template('tutorial/view_part.html', {
-        'part': final_part, 'version':sha
+        'tutorial': tutorial,
+        'part': final_part, 
+        'version':sha
     })
 
 @can_read_now
@@ -945,23 +949,29 @@ def edit_part(request):
         part_pk = int(request.GET['partie'])
     except KeyError:
         raise Http404
+    
     part = get_object_or_404(Part, pk=part_pk)
+
     # Make sure the user is allowed to do that
     if not request.user in part.tutorial.authors.all():
         raise Http404
-    
     
     if request.method == 'POST':
         form = PartForm(request.POST)
         if form.is_valid():
             data = form.data
             
+            # Update title and his slug.
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
             old_slug = part.get_path()
+
+            # Update path for introduction and conclusion.
+            part.introduction = os.path.join(new_slug, 'introduction.md')
+            part.conclusion = os.path.join(new_slug, 'conclusion.md')
             
             part.save()
-            
+
             maj_repo_part(request,
                           old_slug_path = old_slug, 
                           new_slug_path = new_slug, 
@@ -1416,7 +1426,7 @@ def edit_extract(request):
         raise Http404
 
     if request.method == 'POST':
-        form = EditExtractForm(request.POST)
+        form = ExtractForm(request.POST)
         if form.is_valid():
             data = form.data
             old_slug = extract.get_path()
@@ -1442,7 +1452,7 @@ def edit_extract(request):
             
             return redirect(extract.get_absolute_url())
     else:
-        form = EditExtractForm({
+        form = ExtractForm({
             'title': extract.title,
             'text': extract.get_text(),
         })
