@@ -105,7 +105,7 @@
             var listTexta = document.getElementsByTagName("textarea");
             
             for (var i=0, c=listTexta.length; i<c; i++) {
-                if (~listTexta[i].className.indexOf("md_editor")) {
+                if ((~listTexta[i].className.indexOf("md_editor")) || listTexta[i].id === 'md_text') {
                     this.setup(listTexta[i].id);    
                 }
             }
