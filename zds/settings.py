@@ -59,7 +59,7 @@ USE_TZ = False
 
 SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
-SIRE_URL = 'http://zestedesavoir.com'
+SITE_URL = 'http://zestedesavoir.com'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
