@@ -120,7 +120,7 @@ class PrivateTopic(models.Model):
 
         last_user_privateposts = PrivatePost.objects\
             .filter(privatetopic=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
 
         if last_user_privateposts and last_user_privateposts[0] == self.get_last_answer():

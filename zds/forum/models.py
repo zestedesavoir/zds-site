@@ -220,7 +220,7 @@ class Topic(models.Model):
 
         last_user_posts = Post.objects\
             .filter(topic=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
 
         if last_user_posts and last_user_posts[0] == self.get_last_answer():
