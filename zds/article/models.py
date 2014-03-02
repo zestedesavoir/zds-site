@@ -218,7 +218,7 @@ class Article(models.Model):
 
         last_user_reactions = Reaction.objects\
             .filter(article=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
 
         if last_user_reactions and last_user_reactions[0] == self.get_last_reaction():
