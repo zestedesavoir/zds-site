@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
 from django.core.files import File
+from django.db.models import Q
 from collections import OrderedDict
 import glob
 import json
@@ -75,45 +76,54 @@ def index(request):
 @login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
+    # Retrieve type of the validation. Default value is all validations.
     try:
         type = request.GET['type']
     except KeyError:
-        type=None
+        type = None
 
+    # Get subcategory to filter validations.
     try:
         subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
-    except KeyError:
-        subcategory=None
+    except (KeyError, Http404) :
+        subcategory = None
 
+    # Orphan validation. There aren't validator attached to the validations.
     if type == 'orphan':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=True) \
+                            .filter(validator__isnull = True, status = 'PENDING') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=True, tutorial__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull = True, status = 'PENDING', tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
+    
+    # Reserved validation. There are a validator attached to the validations.
     elif type == 'reserved':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=False) \
+                            .filter(validator__isnull = False, status = 'PENDING_V') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=False, tutorial__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull = False, status = 'PENDING_V', tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()        
+    
+    # Default, we display all validations.
     else:
         if subcategory == None:
             validations = Validation.objects \
+                            .filter(Q(status = 'PENDING') | Q(status = 'PENDING_V')) \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
+                            .filter(Q(status = 'PENDING') | Q(status = 'PENDING_V')) \
                             .filter(tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
