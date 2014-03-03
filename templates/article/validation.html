@@ -53,7 +53,9 @@ Liste des Articles soumis en validation
                     </td>
                     <td>
                         {% for subcategory in validation.article.subcategory.all %}
-                        <a href="{% url "zds.article.views.list_validation" %}?subcategory={{subcategory.pk}}" class="secondary" >{{ subcategory.title }}</a><br />
+                        <p>
+                            <a href="{% url "zds.article.views.list_validation" %}?subcategory={{subcategory.pk}}" class="secondary" >{{ subcategory.title }}</a>
+                        <p>
                         {% endfor %}
                     </td>
                     <td>
