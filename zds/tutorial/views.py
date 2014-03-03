@@ -31,7 +31,8 @@ from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
-from zds.utils.models import Category, Licence, CommentLike, CommentDislike
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike,\
+    SubCategory
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
@@ -44,29 +45,27 @@ from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
 
 @can_read_now
 def index(request):
-    '''Display tutorials list'''
-    
+    '''Display all public tutorials of the website.'''
+    # The tag indicate what the category tutorial the user would 
+    # like to display. We can display all subcategories for tutorials.
     try:
-        tag = request.GET['tag']
-    except KeyError:
-        tag=None
+        tag = get_object_or_404(SubCategory, title = request.GET['tag'])
+    except (KeyError, Http404):
+        tag = None
         
-    if tag == None :
-        try:
-            tutorials = Tutorial.objects.all() \
+    if tag == None:
+        tutorials = Tutorial.objects \
                 .filter(sha_public__isnull=False) \
-                .order_by("-pubdate")
-        except:
-            tutorials = None
+                .order_by("-pubdate")\
+                .all()
     else:
-        try:
-            tutorials = Tutorial.objects.all() \
-                .filter(sha_public__isnull=False, 
-                        subcategory__in=[tag]) \
-                .order_by("-pubdate")
-        except:
-            tutorials = None
-        
+        # The tag isn't None and exist in the system. We can use it to retrieve 
+        # all tutorials in the subcategory specified.
+        tutorials = Tutorial.objects \
+                .filter(sha_public__isnull = False, subcategory__in = [tag]) \
+                .order_by("-pubdate") \
+                .all()
+
     return render_template('tutorial/index.html', {
         'tutorials': tutorials,
     })
