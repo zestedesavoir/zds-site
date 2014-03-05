@@ -199,6 +199,24 @@ def view_online(request, article_pk, article_slug):
 def new(request):
     '''Create a new article'''
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            form = ArticleForm(initial = {
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory')
+            })
+            return render_template('article/new.html', {
+                'text': request.POST['text'],
+                'form': form
+            })
+
+        # Otherwise, the user would like submit his article.
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
