@@ -232,31 +232,33 @@ def desactiv_beta(request, tutorial_pk, version):
 @can_read_now
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
-    '''Display a tutorial'''
+    '''Show the given offline tutorial if exists'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    try:
-        sha = request.GET['version']
-    except KeyError:
-        sha = tutorial.sha_draft
-    
-    beta = tutorial.in_beta() and sha == tutorial.sha_beta
-    
-    if (not request.user.has_perm('forum.change_tutorial'))\
-       and (request.user not in tutorial.authors.all())\
-       and not beta :
-        raise Http404
+
+    # Only authors of the tutorial and staff can view tutorial in offline.
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     # Make sure the URL is well-formed
     if not tutorial_slug == slugify(tutorial.title):
         return redirect(tutorial.get_absolute_url())
 
+    # Retrieve sha given by the user. This sha must to be exist.
+    # If it doesn't exist, we take draft version of the article.
+    try:
+        sha = request.GET['version']
+    except KeyError:
+        sha = tutorial.sha_draft
+
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
     
-    #find the good manifest file
+    # Find the good manifest file
     repo = Repo(tutorial.get_path())
 
+    # Load the tutorial.
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
     mandata = json.loads(manifest)
 
@@ -276,8 +278,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 cpt+=1
         else:
             chapter = None
-        #chapter = Chapter.objects.get(tutorial=tutorial)
-        
+    
+    # If it's a big tutorial, fetch parts.
     else:
         parts = mandata['parts']
         cpt_p=1
@@ -313,7 +315,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = sha)
 
     return render_template('tutorial/view_tutorial.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts, 'version':sha, 'validation': validation
+        'tutorial': tutorial, 
+        'chapter': chapter, 
+        'parts': parts, 
+        'version':sha, 
+        'validation': validation
     })
 
 @can_read_now
@@ -321,7 +327,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
-    if not tutorial.on_line :
+    # If the tutorial isn't online, we raise 404 error.
+    if not tutorial.on_line:
         raise Http404
 
     # Make sure the URL is well-formed
@@ -400,20 +407,23 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 
             cpt_p+=1
     
-    #find notes
+    # If the user is authenticated
     if request.user.is_authenticated():
+        # If the user is never read, we mark this tutorial read.
         if never_read(tutorial):
             mark_read(tutorial)
-            
+    
+    # Find all notes of the tutorial.
     notes = Note.objects\
                 .filter(tutorial__pk=tutorial.pk)\
                 .order_by('position')\
                 .all()
-            
+    
+    # Retrieve pk of the last note. If there aren't notes
+    # for the tutorial, we initialize this last note at 0.
+    last_note_pk = 0
     if tutorial.last_note:
         last_note_pk = tutorial.last_note.pk
-    else:
-        last_note_pk = 0
     
     # Handle pagination
     paginator = Paginator(notes, settings.POSTS_PER_PAGE)
@@ -441,7 +451,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         res.append(note)
         
     return render_template('tutorial/view_tutorial_online.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts,
+        'tutorial': tutorial, 
+        'chapter': chapter, 
+        'parts': parts,
         'notes': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
