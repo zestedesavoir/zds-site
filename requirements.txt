@@ -1,12 +1,11 @@
-fabric
+fabric==1.8.0
 django>=1.5,<1.6
-markdown>=2.1
-bleach
+bleach==1.2.2
 pygments
 south
-pytz
-pil
-PyYAML
+pytz==2013d
+pillow==2.0.0
+PyYAML==3.10
 defusedxml
 django-dynamic-fixture
 django-crispy-forms
@@ -22,7 +21,6 @@ django-oauth2-provider
 django-guardian
 django-haystack
 lxml
-GitPython
 pygal
 httplib2
 pysolr
