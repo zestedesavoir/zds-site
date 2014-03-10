@@ -102,10 +102,9 @@ def humane_time(t, conf={}):
 
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
-    return mark_safe('{0}'.format(get_markdown_instance(Inline = False).convert(text).encode('utf-8')))
-
+    return mark_safe(get_markdown_instance(Inline = False).convert(text).encode('utf-8'))
 
 @register.filter(needs_autoescape=False)
 def emarkdown_inline(text):
     
-    return mark_safe('{0}'.format(get_markdown_instance(Inline = True).convert(text).encode('utf-8').strip()))
+    return mark_safe(get_markdown_instance(Inline = True).convert(text).encode('utf-8').strip())
