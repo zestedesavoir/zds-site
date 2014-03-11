@@ -241,6 +241,42 @@ def reject_tutorial(request):
     
     return redirect(tutorial.get_absolute_url())
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def valid_tutorial(request):
+    '''Staff valid tutorial of an author'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If 'valid-tuto' isn't in POST request, staff don't would like valid
+    # the tutorial and we redirect him to the tutorial.
+    if not 'valid-tuto' in request.POST:
+        redirect(tutorial.get_absolute_url())
+
+    MEP(tutorial)
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
+                    .latest('date_proposition')
+    validation.comment_validator = request.POST['comment-v']
+    validation.status = 'ACCEPT'
+    validation.date_validation = datetime.now()
+    validation.save()
+    
+    # Update sha_public with the sha of validation. We don't update sha_draft.
+    # So, the user can continue to edit his tutorial in offline.
+    tutorial.sha_public = validation.version
+    tutorial.sha_validation = None
+    tutorial.pubdate = datetime.now()
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
+
 # User actions on tutorial.
 
 @can_write_and_read_now
