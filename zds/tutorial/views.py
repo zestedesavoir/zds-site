@@ -275,6 +275,39 @@ def ask_validation(request):
     return redirect(tutorial.get_absolute_url())
 
 @can_write_and_read_now
+@login_required
+@require_POST
+def delete_tutorial(request):
+    '''User would like delete his tutorial'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        tutorial_pk = None
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
+    # If 'delete' isn't in POST request, user don't would like delete
+    # his tutorial and we redirect him to the tutorial.
+    if not 'delete' in request.POST:
+        redirect(tutorial.get_absolute_url())
+
+    # Delete the tutorial on the repo and on the database.
+    old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
+    maj_repo_tuto(request,
+                  old_slug_path=old_slug,
+                  tuto = tutorial,
+                  action = 'del')
+    tutorial.delete()
+    
+    return redirect(reverse('zds.tutorial.views.index'))
+
+@can_write_and_read_now
 def modify_tutorial(request):
     if not request.method == 'POST':
         raise Http404
@@ -358,33 +391,6 @@ def modify_tutorial(request):
             tutorial.save()
 
             return redirect(redirect_url)
-
-        elif 'delete' in request.POST:
-            old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
-            
-            maj_repo_tuto(request,
-                          old_slug_path=old_slug,
-                          tuto = tutorial,
-                          action = 'del')
-            
-            tutorial.delete()
-            
-            return redirect('/tutoriels/')
-        
-        elif 'pending' in request.POST:
-            validation = Validation()
-            validation.tutorial = tutorial
-            validation.date_proposition = datetime.now()
-            validation.comment_authors = request.POST['comment']
-            validation.version = request.POST['version']
-            
-            validation.save()
-            
-            validation.tutorial.sha_validation = request.POST['version']
-            validation.tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
 
     # No action performed, raise 404
     raise Http404
