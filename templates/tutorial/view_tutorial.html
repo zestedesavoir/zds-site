@@ -15,8 +15,7 @@
     <li class="current"><a href="#">{{ tutorial.title }}</a></li>
 {% endblock %}
 
-{% block headline-sub-actions %}            
-    <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
+{% block headline-sub-actions %}
         {% if validation.0 %}
         <div class="button-group">
             <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
@@ -42,16 +41,22 @@
 
         {% if not version = tutorial.sha_validation %}
         <li>
-            <button type="submit" name="pending">Demander la validation</button>
-            <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+            <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
+                <button type="submit" name="pending">Demander la validation</button>
+                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+                <input type="hidden" name="version" value="{{ version }}" />
+                {% csrf_token %}
+            </form>
         </li>
         {% endif %}
-        <li><button type="submit" name="delete">Supprimer</button></li>
-
-        <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-        <input type="hidden" name="version" value="{{ version }}" />
-        {% csrf_token %}
-    </form>
+        <li>
+            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
+                <button type="submit" name="delete">Supprimer</button>
+                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+                <input type="hidden" name="version" value="{{ version }}" />
+            </form>
+        </li>
 {% endblock %}
 
 {% block headline-actions %}
