@@ -73,6 +73,8 @@ def index(request):
         'tutorials': tutorials,
     })
 
+# Staff actions.
+
 @can_read_now
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
@@ -156,8 +158,7 @@ def reservation(request, validation_pk):
         validation.status = 'PENDING_V'
         validation.save()
         return redirect(validation.tutorial.get_absolute_url())
-    
-# Tutorial
+
 @can_read_now
 @login_required
 @permission_required('tutorial.change_tutorial', raise_exception=True)
@@ -188,9 +189,9 @@ def history(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    if (not request.user.has_perm('tutorial.change_tutorial'))\
-       and (request.user not in tutorial.authors.all()):
-        raise Http404
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     # Make sure the URL is well-formed
     if not tutorial_slug == slugify(tutorial.title):
