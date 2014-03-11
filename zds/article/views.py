@@ -81,18 +81,19 @@ def view(request, article_pk, article_slug):
     # If it doesn't exist, we take draft version of the article.
     try:
         sha = request.GET['version']
-        if article.sha_public != sha\
-            or article.sha_validation != sha\
-            or article.sha_draft != sha:
-            raise Http404
-    except (KeyError, Http404):
+    except KeyError:
         sha = article.sha_draft
     
     # Find the good manifest file
     repo = Repo(article.get_path())
 
     # Load the article.
-    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    try:
+        manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    except:
+        sha = article.sha_draft
+        manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    
     article_version = json.loads(manifest)
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version['pk'] = article.pk
