@@ -36,6 +36,7 @@ python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
 ```
+**NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
 
 ### Données de test
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
