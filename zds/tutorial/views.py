@@ -277,6 +277,40 @@ def valid_tutorial(request):
     
     return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def invalid_tutorial(request):
+    '''Staff invalid tutorial of an author'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If 'invalid-tuto' isn't in POST request, staff don't would like invalid
+    # the tutorial and we redirect him to the tutorial.
+    if not 'invalid-tuto' in request.POST:
+        redirect(tutorial.get_absolute_url())
+
+    UNMEP(tutorial)
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_public)\
+                    .latest('date_proposition')
+    validation.status = 'PENDING'
+    validation.date_validation = None
+    validation.save()
+    
+    # Only update sha_validation because contributors can contribute on rereading version.
+    tutorial.sha_public = None
+    tutorial.sha_validation = validation.version
+    tutorial.pubdate = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
+
 # User actions on tutorial.
 
 @can_write_and_read_now
@@ -385,21 +419,6 @@ def modify_tutorial(request):
     tutorial_pk = request.POST['tutorial']
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    # Validator actions
-    if request.user.has_perm('tutorial.change_tutorial'):
-        if 'invalid-tuto' in request.POST:
-            UNMEP(tutorial)
-            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
-            validation.status = 'PENDING'
-            validation.date_validation = None
-            validation.save()
-            
-            tutorial.sha_validation = validation.version
-            tutorial.sha_public = ''
-            tutorial.pubdate = None
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
     # User actions
     if request.user in tutorial.authors.all():
         if 'add_author' in request.POST:

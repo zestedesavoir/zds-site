@@ -84,7 +84,14 @@
                 </form>
             </li>
             {% if tutorial.on_line %}
-            <li><button type="submit" name="invalid-tuto">Dépublier</button></li>
+            <li>
+                <form action="{% url "zds.tutorial.views.invalid_tutorial" %}" method="post">
+                    <button type="submit" name="invalid-tuto">Dépublier</button>
+                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+                    <input type="hidden" name="version" value="{{ version }}" />
+                    {% csrf_token %}
+                </form>
+            </li>
             {% endif %}
         </ul>
     </div>
