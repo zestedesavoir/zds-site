@@ -246,7 +246,7 @@ def ask_validation(request):
     try:
         tutorial_pk = request.POST['tutorial']
     except KeyError:
-        tutorial_pk = None
+        raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff,
@@ -283,7 +283,7 @@ def delete_tutorial(request):
     try:
         tutorial_pk = request.POST['tutorial']
     except KeyError:
-        tutorial_pk = None
+        raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff,
@@ -714,16 +714,19 @@ def add_tutorial(request):
 @can_write_and_read_now
 @login_required
 def edit_tutorial(request):
+    '''Edit a tutorial'''
+    # Retrieve current tutorial;
     try:
         tutorial_pk = request.GET['tutoriel']
     except KeyError:
         raise Http404
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    json = tutorial.load_json()
 
-    if not request.user in tutorial.authors.all():
-        raise Http404
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     if request.method == 'POST':
         form = TutorialForm(request.POST, request.FILES)
@@ -771,6 +774,7 @@ def edit_tutorial(request):
             
             return redirect(tutorial.get_absolute_url())
     else:
+        json = tutorial.load_json()
         if 'licence' in json:
             licence=Licence.objects.filter(code=json['licence']).all()[0]
         else:
