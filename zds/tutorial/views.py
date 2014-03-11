@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
@@ -205,13 +206,17 @@ def history(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'logs':logs
     })
 
+# User actions on tutorial.
+
 @can_write_and_read_now
 @login_required
 def activ_beta(request, tutorial_pk, version):
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
     if request.user not in tutorial.authors.all():
-        raise Http404
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
     tutorial.sha_beta = version
     tutorial.save()
     
@@ -220,14 +225,131 @@ def activ_beta(request, tutorial_pk, version):
 @can_write_and_read_now
 @login_required
 def desactiv_beta(request, tutorial_pk, version):
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
     if request.user not in tutorial.authors.all():
-        raise Http404
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
     tutorial.sha_beta = None
     tutorial.save()
     
     return redirect(tutorial.get_absolute_url_beta())
+
+@can_write_and_read_now
+def modify_tutorial(request):
+    if not request.method == 'POST':
+        raise Http404
+
+    tutorial_pk = request.POST['tutorial']
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
+    # Validator actions
+    if request.user.has_perm('tutorial.change_tutorial'):
+        if 'valid-tuto' in request.POST:
+            MEP(tutorial)
+            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
+            validation.comment_validator = request.POST['comment-v']
+            validation.status = 'ACCEPT'
+            validation.date_validation = datetime.now()
+            validation.save()
+            
+            tutorial.sha_public = validation.version
+            tutorial.sha_validation = ''
+            tutorial.pubdate = datetime.now()
+            tutorial.save()
+            
+            return redirect(tutorial.get_absolute_url())
+        
+        elif 'reject-tuto' in request.POST:
+            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
+            validation.comment_validator = request.POST['comment-r']
+            validation.status = 'REJECT'
+            validation.date_validation = datetime.now()
+            validation.save()
+            
+            tutorial.sha_validation = ''
+            tutorial.pubdate = None
+            tutorial.save()
+            
+            return redirect(tutorial.get_absolute_url())
+        
+        elif 'invalid-tuto' in request.POST:
+            UNMEP(tutorial)
+            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
+            validation.status = 'PENDING'
+            validation.date_validation = None
+            validation.save()
+            
+            tutorial.sha_validation = validation.version
+            tutorial.sha_public = ''
+            tutorial.pubdate = None
+            tutorial.save()
+            
+            return redirect(tutorial.get_absolute_url())
+    # User actions
+    if request.user in tutorial.authors.all():
+        if 'add_author' in request.POST:
+            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
+                '?tutoriel={0}'.format(tutorial.pk)
+
+            author_username = request.POST['author']
+            author = None
+            try:
+                author = User.objects.get(username=author_username)
+            except User.DoesNotExist:
+                return redirect(redirect_url)
+
+            tutorial.authors.add(author)
+            tutorial.save()
+
+            return redirect(redirect_url)
+
+        elif 'remove_author' in request.POST:
+            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
+                '?tutoriel={0}'.format(tutorial.pk)
+
+            # Avoid orphan tutorials
+            if tutorial.authors.all().count() <= 1:
+                raise Http404
+
+            author_pk = request.POST['author']
+            author = get_object_or_404(User, pk=author_pk)
+
+            tutorial.authors.remove(author)
+            tutorial.save()
+
+            return redirect(redirect_url)
+
+        elif 'delete' in request.POST:
+            old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
+            
+            maj_repo_tuto(request,
+                          old_slug_path=old_slug,
+                          tuto = tutorial,
+                          action = 'del')
+            
+            tutorial.delete()
+            
+            return redirect('/tutoriels/')
+        
+        elif 'pending' in request.POST:
+            validation = Validation()
+            validation.tutorial = tutorial
+            validation.date_proposition = datetime.now()
+            validation.comment_authors = request.POST['comment']
+            validation.version = request.POST['version']
+            
+            validation.save()
+            
+            validation.tutorial.sha_validation = request.POST['version']
+            validation.tutorial.save()
+            
+            return redirect(tutorial.get_absolute_url())
+        
+
+    # No action performed, raise 404
+    raise Http404
 
 @can_read_now
 @login_required
@@ -622,123 +744,6 @@ def edit_tutorial(request):
     return render_template('tutorial/edit_tutorial.html', {
         'tutorial': tutorial, 'form': form
     })
-
-
-@can_write_and_read_now
-def modify_tutorial(request):
-    if not request.method == 'POST':
-        raise Http404
-
-    tutorial_pk = request.POST['tutorial']
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
-    # Validator actions
-    if request.user.has_perm('tutorial.change_tutorial'):
-        if 'valid-tuto' in request.POST:
-            MEP(tutorial)
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_public = validation.version
-            tutorial.sha_validation = ''
-            tutorial.pubdate = datetime.now()
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'reject-tuto' in request.POST:
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_validation = ''
-            tutorial.pubdate = None
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'invalid-tuto' in request.POST:
-            UNMEP(tutorial)
-            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
-            validation.status = 'PENDING'
-            validation.date_validation = None
-            validation.save()
-            
-            tutorial.sha_validation = validation.version
-            tutorial.sha_public = ''
-            tutorial.pubdate = None
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-    # User actions
-    if request.user in tutorial.authors.all():
-        if 'add_author' in request.POST:
-            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
-                '?tutoriel={0}'.format(tutorial.pk)
-
-            author_username = request.POST['author']
-            author = None
-            try:
-                author = User.objects.get(username=author_username)
-            except User.DoesNotExist:
-                return redirect(redirect_url)
-
-            tutorial.authors.add(author)
-            tutorial.save()
-
-            return redirect(redirect_url)
-
-        elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
-                '?tutoriel={0}'.format(tutorial.pk)
-
-            # Avoid orphan tutorials
-            if tutorial.authors.all().count() <= 1:
-                raise Http404
-
-            author_pk = request.POST['author']
-            author = get_object_or_404(User, pk=author_pk)
-
-            tutorial.authors.remove(author)
-            tutorial.save()
-
-            return redirect(redirect_url)
-
-        elif 'delete' in request.POST:
-            old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
-            
-            maj_repo_tuto(request,
-                          old_slug_path=old_slug,
-                          tuto = tutorial,
-                          action = 'del')
-            
-            tutorial.delete()
-            
-            return redirect('/tutoriels/')
-        
-        elif 'pending' in request.POST:
-            validation = Validation()
-            validation.tutorial = tutorial
-            validation.date_proposition = datetime.now()
-            validation.comment_authors = request.POST['comment']
-            validation.version = request.POST['version']
-            
-            validation.save()
-            
-            validation.tutorial.sha_validation = request.POST['version']
-            validation.tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-
-    # No action performed, raise 404
-    raise Http404
-
 
 # Part
 @can_read_now
