@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 before_install:
-  - sudo apt-get --reinstall install -qq language-pack-fr
+  - sudo apt-get --reinstall install -qq language-pack-fr language-pack-en
 install: 
   - "pip install -r requirements.txt"
   - "cd scripts && ./UseUpdatedGitPython.sh && cd .."
