@@ -62,6 +62,7 @@ urlpatterns = patterns('',
     url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
     url(r'^suppression/$', views.delete_tutorial),
     url(r'^validation/tutoriel$', views.ask_validation),
+    url(r'^validation/reject$', views.reject_tutorial),
 
 #Validation
     url(r'^validation/$', views.list_validation),
