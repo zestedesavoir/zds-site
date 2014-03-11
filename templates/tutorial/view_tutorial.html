@@ -16,13 +16,6 @@
 {% endblock %}
 
 {% block headline-sub-actions %}
-    {% if validation.0 %}
-    <div class="button-group">
-        <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
-    </div>
-    <br />
-    {% endif %}
-
     {% if not tutorial.in_beta %}
     <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
     {% else %}
