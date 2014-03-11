@@ -1,3 +1,5 @@
+[![Build Status](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir.png?token=Cu35XY4F6RcYoPgjjcbA)](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir)
+
 ZesteDeSavoir
 =============
 Site internet communautaire codé à l'aide du Framework Django 1.5.
