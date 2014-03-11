@@ -208,6 +208,39 @@ def history(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'logs':logs
     })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def reject_tutorial(request):
+    '''Staff reject tutorial of an author'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If 'reject' isn't in POST request, staff don't would like reject
+    # the tutorial and we redirect him to the tutorial.
+    if not 'reject' in request.POST:
+        redirect(tutorial.get_absolute_url())
+
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
+                    .latest('date_proposition')
+    validation.comment_validator = request.POST['comment-r']
+    validation.status = 'REJECT'
+    validation.date_validation = datetime.now()
+    validation.save()
+    
+    # Remove sha_validation because we rejected this version of the tutorial.
+    tutorial.sha_validation = None
+    tutorial.pubdate = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url())
+
 # User actions on tutorial.
 
 @can_write_and_read_now
@@ -329,19 +362,6 @@ def modify_tutorial(request):
             tutorial.sha_public = validation.version
             tutorial.sha_validation = ''
             tutorial.pubdate = datetime.now()
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'reject-tuto' in request.POST:
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_validation = ''
-            tutorial.pubdate = None
             tutorial.save()
             
             return redirect(tutorial.get_absolute_url())
