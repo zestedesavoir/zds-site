@@ -7,62 +7,13 @@ Site internet communautaire codé à l'aide du Framework Django 1.5.
 
 Fonctionnalités implementées
 ----------------------------
-### La gestion forums
-#### Un membre peut :
-* Créer un topic
-* Editer son topic
-* Marquer son topic comme résolu
-* Poster dans un topic (avec des smileys)
-* Liker/Disliker un post
-* Signaler un post aux modérateurs
 
-#### Un staff peut :
-* Faire tout ce que fait un membre simple
-* Masquer un message alerté
-* Marquer n'importe quel sujet comme résolu
-* Marquer un sujet en post-it
-* Déplacer un topic dans un autre forum
-* Verouiller un topic
-
-### La gestion des membres
-#### Un membre peut :
-* Modifier son profil (bio, site, avatar, signature)
-* Modifier ses préférences
-    * Affichage publique de son adresse mail
-    * Affichage de la signature des membres
-    * Menu déroulant au clic ou au survol
-* Modifier son mot de passe
-* Modifier son pseudo
-* Modifier son adresse mail
-
-#### Un staff peut :
-* Faire tout ce que fait un membre simple
-* bannir un membre (temporaire ou à vie)
-* mettre un membre en lecture seule (temporaire ou à vie)
-
-### La gestion des tutoriels
-#### Un membre peut :
-* Créer un tutoriels (big, mini)
-* Importer un tutoriel du sdz au format .tuto
-* Consulter l'historique de rédaction
-* Envoyer une version de l'historique en validation
-* Supprimer son tutoriel/partie/chapitre
-
-#### Un staff peut :
-* Faire tout ce que fait un membre simple
-* Consulter un tutoriel hors ligne
-* Réserver un tutoriel envoyé en validation
-* Accepter/Rejeter un tutoriel arrivé en validation
-
-### La gestion des Message Privés
-#### Un membre peut :
-* Créer un MP
-* Ajouter des membres au MP
-* Sortir d'un MP sans supprimer la conversation
-* Editer son message si la dernière réponse postée est la sienne
-
-#### Un staff peut :
-* Faire tout ce que fait un membre simple
+- La gestion du forum
+- La gestion des membres
+- La gestion des tutoriels
+- La gestion des articles
+- La gestion des message Privés
+- La gestion des galleries d'images
 
 Fonctionnalités à venir
 -----------------------
@@ -73,33 +24,21 @@ Comment démarrer une instance de ZdS ?
 ### Pré-requis
 - Python 2.7
 - Pip
-- Ruby
-- Ruby Gems
 
 ### Commandes
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
 ```console
-gem install compass
-gem install zurb-foundation
 pip install --user -r requirements.txt
+cd scripts && ./UseUpdatedGitPython.sh && cd ..
+cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
 python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
 ```
-Pour appliquer le pacth de correction du module gitpython (obligatoire), executez :
 
-```console
-cd scripts && ./UseUpdatedGitPython.sh && cd ..
-```
-
-Si vous voulez utiliser la meme version de python-markdown que sur le serveur, incluant la mise en évidence de lignes de codes particulières exécutez :
-
-```console
-cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
-```
-
-Pour bénéficier de données statiques, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
+### Données de test
+Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
 python manage.py loaddata fixtures/users.yaml
@@ -121,4 +60,15 @@ Cela va créer plusieurs entitées :
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
 
-Pour plus de détails consultez l'[article dans le wiki](https://github.com/Taluu/ZesteDeSavoir/wiki) (pas encore terminé)
+### Conseil de developpement
+
+Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant les commandes suivantes :
+
+```console
+python manage.py test forum
+python manage.py test member
+```
+
+En savoir plus
+--------------
+- [Comment déployer ZDS sur un serveur de production ?](https://github.com/Taluu/ZesteDeSavoir/blob/dev/doc/deploy.md)
