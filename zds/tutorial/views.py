@@ -387,22 +387,7 @@ def modify_tutorial(request):
 
     # Validator actions
     if request.user.has_perm('tutorial.change_tutorial'):
-        if 'valid-tuto' in request.POST:
-            MEP(tutorial)
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_public = validation.version
-            tutorial.sha_validation = ''
-            tutorial.pubdate = datetime.now()
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'invalid-tuto' in request.POST:
+        if 'invalid-tuto' in request.POST:
             UNMEP(tutorial)
             validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
             validation.status = 'PENDING'
