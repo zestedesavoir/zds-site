@@ -66,7 +66,7 @@
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
             <li>
-                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
+                <form action="{% url "zds.tutorial.views.valid_tutorial" %}" method="post">
                     <button type="submit" name="valid-tuto">Confirmer la publication</button>
                     <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
