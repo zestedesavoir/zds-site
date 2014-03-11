@@ -64,6 +64,7 @@ urlpatterns = patterns('',
     url(r'^validation/tutoriel$', views.ask_validation),
     url(r'^validation/reject$', views.reject_tutorial),
     url(r'^validation/valid$', views.valid_tutorial),
+    url(r'^validation/invalid$', views.invalid_tutorial),
 
 #Validation
     url(r'^validation/$', views.list_validation),
