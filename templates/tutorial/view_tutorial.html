@@ -51,10 +51,11 @@
         </li>
         {% endif %}
         <li>
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
+            <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
                 <button type="submit" name="delete">Supprimer</button>
                 <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
                 <input type="hidden" name="version" value="{{ version }}" />
+                {% csrf_token %}
             </form>
         </li>
 {% endblock %}
