@@ -239,7 +239,7 @@ def reject_tutorial(request):
     tutorial.pubdate = None
     tutorial.save()
     
-    return redirect(tutorial.get_absolute_url())
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
 
 @can_write_and_read_now
 @login_required
