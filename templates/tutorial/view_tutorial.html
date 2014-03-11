@@ -16,70 +16,78 @@
 {% endblock %}
 
 {% block headline-sub-actions %}
-        {% if validation.0 %}
-        <div class="button-group">
-            <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
-        </div>
-        <br />
-        {% endif %}
+    {% if validation.0 %}
+    <div class="button-group">
+        <span class="label expand round {% if validation.0.status = 'ACCEPT' %}success{% elif validation.0.status = 'REJECT' %}alert{% elif validation.0.status = 'PENDING' or validation.0.status = 'PENDING_VALID' %}{% else %}secondary{% endif %}">{{ validation.0.get_status_display }} </span>
+    </div>
+    <br />
+    {% endif %}
 
-        {% if not tutorial.in_beta %}
-        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+    {% if not tutorial.in_beta %}
+    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+    {% else %}
+    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+    {% endif %}
+    
+    <li>
+        {% if not tutorial.is_mini %}
+        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
         {% else %}
-        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
         {% endif %}
-        
-        <li>
-            {% if not tutorial.is_mini %}
-            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
-            {% else %}
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
-            {% endif %}
-        </li>
-        <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
-        <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
+    </li>
+    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
+    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
 
-        {% if not version = tutorial.sha_validation %}
-        <li>
-            <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
-                <button type="submit" name="pending">Demander la validation</button>
-                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
-                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                <input type="hidden" name="version" value="{{ version }}" />
-                {% csrf_token %}
-            </form>
-        </li>
-        {% endif %}
-        <li>
-            <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
-                <button type="submit" name="delete">Supprimer</button>
-                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                <input type="hidden" name="version" value="{{ version }}" />
-                {% csrf_token %}
-            </form>
-        </li>
+    {% if not version = tutorial.sha_validation %}
+    <li>
+        <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
+            <button type="submit" name="pending">Demander la validation</button>
+            <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            <input type="hidden" name="version" value="{{ version }}" />
+            {% csrf_token %}
+        </form>
+    </li>
+    {% endif %}
+    <li>
+        <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
+            <button type="submit" name="delete">Supprimer</button>
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            <input type="hidden" name="version" value="{{ version }}" />
+            {% csrf_token %}
+        </form>
+    </li>
 {% endblock %}
 
 {% block headline-actions %}
     {% if perms.tutorial.change_tutorial%}
-    <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
-            <h3>Admin<span class="wide">istration</span></h3>
-            <ul>
-                <li>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
+        <h3>Admin<span class="wide">istration</span></h3>
+        <ul>
+            <li>
+                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
                     <button type="submit" name="valid-tuto">Confirmer la publication</button>
                     <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                </li>
-                <li>
+                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+                    <input type="hidden" name="version" value="{{ version }}" />
+                    {% csrf_token %}
+                </form>
+            </li>
+            <li>
+                <form action="{% url "zds.tutorial.views.reject_tutorial" %}" method="post">
                     <button type="submit" name="reject-tuto">Confirmer le rejet</button>
                     <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                </li>
-                {% if tutorial.on_line %}
-                <li><button type="submit" name="invalid-tuto">Dépublier</button></li>
-                {% endif %}
-            </ul>
-        </div>
-    </form>
+                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+                    <input type="hidden" name="version" value="{{ version }}" />
+                    {% csrf_token %}
+                </form>
+            </li>
+            {% if tutorial.on_line %}
+            <li><button type="submit" name="invalid-tuto">Dépublier</button></li>
+            {% endif %}
+        </ul>
+    </div>
     {% endif %}
 {% endblock %}
 
