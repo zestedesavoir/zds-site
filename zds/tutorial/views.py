@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
 from django.core.files import File
 from django.db.models import Q
 from collections import OrderedDict
@@ -235,6 +236,43 @@ def desactiv_beta(request, tutorial_pk, version):
     tutorial.save()
     
     return redirect(tutorial.get_absolute_url_beta())
+
+@can_write_and_read_now
+@login_required
+@require_POST
+def ask_validation(request):
+    '''User ask validation for his tutorial'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        tutorial_pk = None
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
+    # If 'pending' isn't in POST request, user don't would like validate
+    # his tutorial and we redirect him to the tutorial.
+    if not 'pending' in request.POST:
+        redirect(tutorial.get_absolute_url())
+
+    # We create and save validation object of the tutorial.
+    validation = Validation()
+    validation.tutorial = tutorial
+    validation.date_proposition = datetime.now()
+    validation.comment_authors = request.POST['comment']
+    validation.version = request.POST['version']
+    
+    validation.save()
+    
+    validation.tutorial.sha_validation = request.POST['version']
+    validation.tutorial.save()
+
+    return redirect(tutorial.get_absolute_url())
 
 @can_write_and_read_now
 def modify_tutorial(request):
