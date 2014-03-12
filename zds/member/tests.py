@@ -64,6 +64,8 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
         
         self.assertEquals(User.objects.get(username='firm1').is_active, True)
+    
+    
         
         
         
