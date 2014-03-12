@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import *
 from zds.forum.factories import *
 from .models import Post, Forum, Topic, Category
+from zds.utils.models import CommentLike, CommentDislike 
 
 
 class ForumMemberTests(TestCase):
@@ -179,4 +180,151 @@ class ForumMemberTests(TestCase):
         
         #check edit data
         self.assertEqual(Post.objects.get(pk=post2.pk).editor, self.user)
+    
+    def test_quote_post(self):
+        '''
+        To test when a member quote anyone post
+        '''
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        post2 = PostFactory(topic=topic1, author=user1, position = 2)
+        post3 = PostFactory(topic=topic1, author=user1, position = 3)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.answer')+'?sujet={0}&cite={0}'.format(topic1.pk, post2.pk),
+                        follow=True)
+        
+        self.assertEqual(result.status_code, 200)
+    
+    def test_like_post(self):
+        '''
+        Test when a member like any post
+        '''
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        post2 = PostFactory(topic=topic1, author=user1, position = 2)
+        post3 = PostFactory(topic=topic1, author=self.user, position = 3)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.like_post')+'?message={0}'.format(post2.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentLike.objects.all().count(), 1)
+        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
+        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post1.pk).all().count(), 0)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post2.pk).all().count(), 1)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post3.pk).all().count(), 0)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.like_post')+'?message={0}'.format(post1.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentLike.objects.all().count(), 1)
+        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
+        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post1.pk).all().count(), 0)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post2.pk).all().count(), 1)
+        self.assertEqual(CommentLike.objects.filter(comments__pk=post3.pk).all().count(), 0)
+    
+    def test_dislike_post(self):
+        '''
+        Test when a member dislike any post
+        '''
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        post2 = PostFactory(topic=topic1, author=user1, position = 2)
+        post3 = PostFactory(topic=topic1, author=self.user, position = 3)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.dislike_post')+'?message={0}'.format(post2.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentDislike.objects.all().count(), 1)
+        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
+        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post1.pk).all().count(), 0)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post2.pk).all().count(), 1)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post3.pk).all().count(), 0)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.like_post')+'?message={0}'.format(post1.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentDislike.objects.all().count(), 1)
+        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
+        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
+        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
+        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post1.pk).all().count(), 0)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post2.pk).all().count(), 1)
+        self.assertEqual(CommentDislike.objects.filter(comments__pk=post3.pk).all().count(), 0)
+    
+    def test_useful_post(self):
+        '''
+        To test when a member mark a post is usefull
+        '''
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        post2 = PostFactory(topic=topic1, author=user1, position = 2)
+        post3 = PostFactory(topic=topic1, author=user1, position = 3)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.useful_post')+'?message={0}'.format(post2.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        
+        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
+        self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
+        
+        #useful the first post
+        result = self.client.get(
+                        reverse('zds.forum.views.useful_post')+'?message={0}'.format(post1.pk),
+                        follow=False)
+        self.assertEqual(result.status_code, 404)
+        
+        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
+        self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
+        
+        #useful if you aren't author
+        topic2 = TopicFactory(forum=self.forum11, author=user1)
+        post4 = PostFactory(topic=topic1, author=user1, position = 1)
+        post5 = PostFactory(topic=topic1, author=self.user, position = 2)
+        
+        result = self.client.get(
+                        reverse('zds.forum.views.useful_post')+'?message={0}'.format(post5.pk),
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 404)
+        
+        self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        
+        
+        
         
