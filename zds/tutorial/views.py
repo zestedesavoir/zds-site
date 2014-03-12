@@ -208,6 +208,35 @@ def history(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'logs':logs
     })
 
+@can_read_now
+@login_required
+@permission_required('tutorial.change_tutorial', raise_exception=True)
+def history_validation(request, tutorial_pk):
+    '''History of the validation of a tutorial'''
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # Get subcategory to filter validations.
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except (KeyError, Http404) :
+        subcategory = None
+
+    if subcategory == None:
+        validations = Validation.objects \
+                            .filter(tutorial__pk = tutorial_pk) \
+                            .order_by("date_proposition") \
+                            .all()
+    else:
+        validations = Validation.objects \
+                            .filter(tutorial__pk = tutorial_pk, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+
+    return render_template('tutorial/history_validation.html', {
+        'validations': validations,
+        'tutorial': tutorial,
+    })
+
 @can_write_and_read_now
 @login_required
 @require_POST
