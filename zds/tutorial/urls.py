@@ -69,6 +69,7 @@ urlpatterns = patterns('',
     url(r'^validation/reject$', views.reject_tutorial),
     url(r'^validation/valid$', views.valid_tutorial),
     url(r'^validation/invalid$', views.invalid_tutorial),
+    url(r'^validation/historique/(?P<tutorial_pk>\d+)/$', views.history_validation),
     
 #Reactions
     url(r'^message/editer$', views.edit_note),
