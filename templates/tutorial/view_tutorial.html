@@ -16,12 +16,9 @@
 {% endblock %}
 
 {% block headline-sub-actions %}
-    {% if not tutorial.in_beta %}
-    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
-    {% else %}
-    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+    {% if tutorial.sha_draft = version %}
+    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
     {% endif %}
-    
     <li>
         {% if not tutorial.is_mini %}
         <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
@@ -29,10 +26,14 @@
         <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
         {% endif %}
     </li>
-    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
+    {% if not tutorial.in_beta %}
+    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+    {% else %}
+    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+    {% endif %}
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
 
-    {% if not version = tutorial.sha_validation %}
+    {% if tutorial.sha_validation = None %}
     <li>
         <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
             <button type="submit" name="pending">Demander la validation</button>
@@ -43,6 +44,7 @@
         </form>
     </li>
     {% endif %}
+    {% if tutorial.sha_public = None %}
     <li>
         <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
             <button type="submit" name="delete">Supprimer</button>
@@ -51,6 +53,7 @@
             {% csrf_token %}
         </form>
     </li>
+    {% endif %}
 {% endblock %}
 
 {% block headline-actions %}
@@ -58,6 +61,8 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
+            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+            {% if not tutorial.sha_validation = None %}
             <li>
                 <form action="{% url "zds.tutorial.views.valid_tutorial" %}" method="post">
                     <button type="submit" name="valid-tuto">Confirmer la publication</button>
@@ -76,6 +81,7 @@
                     {% csrf_token %}
                 </form>
             </li>
+            {% endif %}
             {% if tutorial.on_line %}
             <li>
                 <form action="{% url "zds.tutorial.views.invalid_tutorial" %}" method="post">
@@ -86,7 +92,6 @@
                 </form>
             </li>
             {% endif %}
-            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
         </ul>
     </div>
     {% endif %}
