@@ -41,7 +41,8 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
-    ExtractForm, ImportForm, NoteForm, AlertForm
+    ExtractForm, ImportForm, NoteForm, AlertForm, AskValidationForm,\
+    ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -253,7 +254,7 @@ def reject_tutorial(request):
     validation = Validation.objects\
                     .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
                     .latest('date_proposition')
-    validation.comment_validator = request.POST['comment-r']
+    validation.comment_validator = request.POST['text']
     validation.status = 'REJECT'
     validation.date_validation = datetime.now()
     validation.save()
@@ -282,7 +283,7 @@ def valid_tutorial(request):
     validation = Validation.objects\
                     .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
                     .latest('date_proposition')
-    validation.comment_validator = request.POST['comment-v']
+    validation.comment_validator = request.POST['text']
     validation.status = 'ACCEPT'
     validation.date_validation = datetime.now()
     validation.save()
@@ -298,15 +299,10 @@ def valid_tutorial(request):
 
 @can_write_and_read_now
 @login_required
-@require_POST
 @permission_required('tutorial.change_tutorial', raise_exception = True)
-def invalid_tutorial(request):
+def invalid_tutorial(request, tutorial_pk):
     '''Staff invalid tutorial of an author'''
-    # Retrieve current tutorial;
-    try:
-        tutorial_pk = request.POST['tutorial']
-    except KeyError:
-        raise Http404
+    # Retrieve current tutorial
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
 
     UNMEP(tutorial)
@@ -377,7 +373,7 @@ def ask_validation(request):
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
-    validation.comment_authors = request.POST['comment']
+    validation.comment_authors = request.POST['text']
     validation.version = request.POST['version']
     
     validation.save()
@@ -389,14 +385,9 @@ def ask_validation(request):
 
 @can_write_and_read_now
 @login_required
-@require_POST
-def delete_tutorial(request):
+def delete_tutorial(request, tutorial_pk):
     '''User would like delete his tutorial'''
-    # Retrieve current tutorial;
-    try:
-        tutorial_pk = request.POST['tutorial']
-    except KeyError:
-        raise Http404
+    # Retrieve current tutorial
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff,
@@ -545,12 +536,19 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = sha)
 
+    formAskValidation = AskValidationForm()
+    formValid = ValidForm()
+    formReject = RejectForm()
+
     return render_template('tutorial/view_tutorial.html', {
         'tutorial': tutorial, 
         'chapter': chapter, 
         'parts': parts, 
         'version':sha, 
-        'validation': validation
+        'validation': validation,
+        'formAskValidation': formAskValidation,
+        'formValid': formValid,
+        'formReject': formReject
     })
 
 @can_read_now

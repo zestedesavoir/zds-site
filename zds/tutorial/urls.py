@@ -60,7 +60,7 @@ urlpatterns = patterns('',
 # user actions
     url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.activ_beta),
     url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
-    url(r'^suppression/$', views.delete_tutorial),
+    url(r'^suppression/(?P<tutorial_pk>\d+)/$', views.delete_tutorial),
     url(r'^validation/tutoriel$', views.ask_validation),
 
 #Validation
@@ -68,7 +68,7 @@ urlpatterns = patterns('',
     url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation),
     url(r'^validation/reject$', views.reject_tutorial),
     url(r'^validation/valid$', views.valid_tutorial),
-    url(r'^validation/invalid$', views.invalid_tutorial),
+    url(r'^validation/invalid/(?P<tutorial_pk>\d+)/$', views.invalid_tutorial),
     url(r'^validation/historique/(?P<tutorial_pk>\d+)/$', views.history_validation),
     
 #Reactions
