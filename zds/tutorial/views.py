@@ -41,8 +41,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
-    ExtractForm, ImportForm, NoteForm, AlertForm, AskValidationForm,\
-    ValidForm, RejectForm
+    ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -678,6 +677,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     for note in notes:
         res.append(note)
+
+    # Build form to send a note for the current tutorial.
+    form = NoteForm(tutorial, request.user)
         
     return render_template('tutorial/view_tutorial_online.html', {
         'tutorial': tutorial, 
@@ -686,7 +688,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         'notes': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_note_pk': last_note_pk 
+        'last_note_pk': last_note_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -2338,7 +2341,7 @@ def answer(request):
 
         # Saving the message
         else:
-            form = NoteForm(request.POST)
+            form = NoteForm(g_tutorial, request.user, request.POST)
             if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 

@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load humane_date %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 {{ tutorial.title }}
@@ -155,42 +156,10 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
 <section>
-    <form action="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}" class="forum-message" method="POST" id="submit_form">
-        <div class="user">
-            <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-        </div>
-        <div class="message">
-            <ul class="message-actions">
-                <li><a href="javascript:void(null);" class="ico-after alert">Fullscreen</a></li>
-            </ul>
-
-            <ul class="message-metadata message-buttons">
-                <li><a href="javascript:void(null);" class="ico-after">Gras</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Italique</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Barré</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Titre 1</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Titre 2</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Séparateur horizontal</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Lien</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Image</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Code</a></li>
-                <li><a href="javascript:void(null);" class="ico-after">Citation</a></li>
-            </ul>
-
-            <div class="message-content">
-                <textarea name="text" id="md_text" cols="30" rows="10" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if tutorial.is_locked %}Ce tutorial est verrouillé.{% elif tutorial.antispam  %}Vous ne pouvez pas encore poster dans ce tutorial (protection antispam de 15 min).{% endif %}</textarea>
-            </div>
-
-            <div class="message-bottom">
-                <div class="message-submit">
-                    <button type="submit" name="preview" class="button secondary" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %}>Aperçu</button>
-                    <button type="submit" {% if tutorial.is_locked or tutorial.antispam %}disabled{% endif %} name="answer">Envoyer</button>
-                </div>
-            </div>
-        </div>
-        <input type="hidden" name="last_note" value="{{ last_note_pk }}" />
-        {% csrf_token %}
-    </form>
+    <div class="user">
+        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+    </div>
+    {% crispy form %}
 </section>
 {% endwith %}
 {% endif %}
