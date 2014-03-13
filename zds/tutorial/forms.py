@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.models import Category, SubCategory, Licence
-from zds.utils.forms import CommonLayoutModalText
+from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 
 
 class TutorialForm(forms.Form):
@@ -258,12 +258,43 @@ class ImportForm(forms.Form):
         )
         super(ImportForm, self).__init__(*args, **kwargs)
 
+# Notes
+
 class NoteForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea)
+    text = forms.CharField(
+        label = '',
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
 
+    def __init__(self, tutorial, user, *args, **kwargs):
+        super(NoteForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.answer') + '?tutorial=' + str(tutorial.pk)
+        self.helper.form_method = 'post'
 
-class AlertForm(forms.Form):
-    text = forms.CharField()
+        self.helper.layout = Layout(
+            CommonLayoutEditor(),
+            Hidden('last_note', '{{ last_note_pk }}'),
+        )
+
+        if tutorial.antispam(user):
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
+                disabled = True
+            )
+        elif tutorial.is_locked:
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Ce tutoriel est verrouillé.',
+                disabled = True
+            )
+
+# Validations.
 
 class AskValidationForm(forms.Form):
 
