@@ -2333,10 +2333,16 @@ def answer(request):
         newnote = last_note_pk != int(data['last_note'])
 
         # Using the « preview button », the « more » button or new note
-        if 'preview' in data or 'more' in data or newnote:
+        if 'preview' in data or newnote:
+            form = NoteForm(g_tutorial, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('tutorial/answer.html', {
-                'text': data['text'], 'tutorial': g_tutorial, 'notes': notes,
-                'last_note_pk': last_note_pk, 'newnote': newnote
+                'text': data['text'], 
+                'tutorial': g_tutorial, 
+                'last_note_pk': last_note_pk, 
+                'newnote': newnote,
+                'form': form
             })
 
         # Saving the message
