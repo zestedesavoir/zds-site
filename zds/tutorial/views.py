@@ -2379,12 +2379,19 @@ def answer(request):
             for line in note_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                note_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                note_cite.author.username, note_cite.get_absolute_url())
+
+        form = NoteForm(g_tutorial, request.user, initial = {
+            'text': text
+        })
 
         return render_template('tutorial/answer.html', {
-            'tutorial': g_tutorial, 'text': text, 'notes': notes,
-            'last_note_pk': last_note_pk
+            'tutorial': g_tutorial, 
+            'text': text, 
+            'notes': notes,
+            'last_note_pk': last_note_pk,
+            'form': form
         })
 
 @can_write_and_read_now
