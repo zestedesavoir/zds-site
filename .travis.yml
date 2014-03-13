@@ -3,7 +3,8 @@ python:
   - "2.7"
 before_install:
   - sudo aptitude install language-pack-fr
-install: 
+install:
+  - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"
   - "cd scripts && ./UseUpdatedGitPython.sh && cd .."
   - "cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd .."
