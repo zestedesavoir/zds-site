@@ -250,11 +250,6 @@ def reject_tutorial(request):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
 
-    # If 'reject' isn't in POST request, staff don't would like reject
-    # the tutorial and we redirect him to the tutorial.
-    if not 'reject' in request.POST:
-        redirect(tutorial.get_absolute_url())
-
     validation = Validation.objects\
                     .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
                     .latest('date_proposition')
@@ -282,11 +277,6 @@ def valid_tutorial(request):
     except KeyError:
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
-
-    # If 'valid-tuto' isn't in POST request, staff don't would like valid
-    # the tutorial and we redirect him to the tutorial.
-    if not 'valid-tuto' in request.POST:
-        redirect(tutorial.get_absolute_url())
 
     MEP(tutorial)
     validation = Validation.objects\
@@ -318,11 +308,6 @@ def invalid_tutorial(request):
     except KeyError:
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
-
-    # If 'invalid-tuto' isn't in POST request, staff don't would like invalid
-    # the tutorial and we redirect him to the tutorial.
-    if not 'invalid-tuto' in request.POST:
-        redirect(tutorial.get_absolute_url())
 
     UNMEP(tutorial)
     validation = Validation.objects\
@@ -388,11 +373,6 @@ def ask_validation(request):
         if not request.user.has_perm('forum.change_tutorial'):
             raise PermissionDenied
 
-    # If 'pending' isn't in POST request, user don't would like validate
-    # his tutorial and we redirect him to the tutorial.
-    if not 'pending' in request.POST:
-        redirect(tutorial.get_absolute_url())
-
     # We create and save validation object of the tutorial.
     validation = Validation()
     validation.tutorial = tutorial
@@ -424,11 +404,6 @@ def delete_tutorial(request):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('forum.change_tutorial'):
             raise PermissionDenied
-
-    # If 'delete' isn't in POST request, user don't would like delete
-    # his tutorial and we redirect him to the tutorial.
-    if not 'delete' in request.POST:
-        redirect(tutorial.get_absolute_url())
 
     # Delete the tutorial on the repo and on the database.
     old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
