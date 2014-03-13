@@ -33,7 +33,7 @@
     {% endif %}
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
 
-    {% if tutorial.sha_validation = None %}
+    {% if not tutorial.in_validation %}
     <li>
         <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
             <button type="submit" name="pending">Demander la validation</button>
@@ -44,7 +44,7 @@
         </form>
     </li>
     {% endif %}
-    {% if tutorial.sha_public = None %}
+    {% if not tutorial.on_line %}
     <li>
         <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
             <button type="submit" name="delete">Supprimer</button>
@@ -62,7 +62,7 @@
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-            {% if not tutorial.sha_validation = None %}
+            {% if tutorial.in_validation %}
             <li>
                 <form action="{% url "zds.tutorial.views.valid_tutorial" %}" method="post">
                     <button type="submit" name="valid-tuto">Confirmer la publication</button>
