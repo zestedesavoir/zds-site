@@ -44,14 +44,7 @@
         <ul>
             <li><a href="{{ tutorial.get_absolute_url }}">Version offline</a></li>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-            <li>
-                <form action="{% url "zds.tutorial.views.invalid_tutorial" %}" method="post">
-                    <button type="submit" name="invalid-tuto">Dépublier</button>
-                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                    <input type="hidden" name="version" value="{{ version }}" />
-                    {% csrf_token %}
-                </form>
-            </li>
+            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
         </ul>
     </div>
     {% endif %}
