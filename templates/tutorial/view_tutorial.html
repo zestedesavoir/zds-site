@@ -1,6 +1,7 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
 {% load repo_reader %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 {{ tutorial.title }}
@@ -32,26 +33,13 @@
     <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
     {% endif %}
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
+    {% if not tutorial.on_line %}
+    <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
+    {% endif %}
 
     {% if not tutorial.in_validation %}
     <li>
-        <form action="{% url "zds.tutorial.views.ask_validation" %}" method="post">
-            <button type="submit" name="pending">Demander la validation</button>
-            <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
-            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-            <input type="hidden" name="version" value="{{ version }}" />
-            {% csrf_token %}
-        </form>
-    </li>
-    {% endif %}
-    {% if not tutorial.on_line %}
-    <li>
-        <form action="{% url "zds.tutorial.views.delete_tutorial" %}" method="post">
-            <button type="submit" name="delete">Supprimer</button>
-            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-            <input type="hidden" name="version" value="{{ version }}" />
-            {% csrf_token %}
-        </form>
+        {% crispy formAskValidation %}
     </li>
     {% endif %}
 {% endblock %}
@@ -62,34 +50,15 @@
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+            {% if tutorial.on_line %}
+            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+            {% endif %}
             {% if tutorial.in_validation %}
             <li>
-                <form action="{% url "zds.tutorial.views.valid_tutorial" %}" method="post">
-                    <button type="submit" name="valid-tuto">Confirmer la publication</button>
-                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                    <input type="hidden" name="version" value="{{ version }}" />
-                    {% csrf_token %}
-                </form>
+                {% crispy formValid %}
             </li>
             <li>
-                <form action="{% url "zds.tutorial.views.reject_tutorial" %}" method="post">
-                    <button type="submit" name="reject-tuto">Confirmer le rejet</button>
-                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                    <input type="hidden" name="version" value="{{ version }}" />
-                    {% csrf_token %}
-                </form>
-            </li>
-            {% endif %}
-            {% if tutorial.on_line %}
-            <li>
-                <form action="{% url "zds.tutorial.views.invalid_tutorial" %}" method="post">
-                    <button type="submit" name="invalid-tuto">Dépublier</button>
-                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                    <input type="hidden" name="version" value="{{ version }}" />
-                    {% csrf_token %}
-                </form>
+                {% crispy formReject %}
             </li>
             {% endif %}
         </ul>
