@@ -7,10 +7,13 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
 from django.core.files import File
+from django.db.models import Q
 from collections import OrderedDict
 import glob
 import json
@@ -31,90 +34,101 @@ from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
-from zds.utils.models import Category, Licence, CommentLike, CommentDislike
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike,\
+    SubCategory
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
-    ExtractForm, ImportForm, NoteForm, AlertForm
+    ExtractForm, ImportForm, NoteForm, AlertForm, AskValidationForm,\
+    ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
 
 @can_read_now
 def index(request):
-    '''Display tutorials list'''
-    
+    '''Display all public tutorials of the website.'''
+    # The tag indicate what the category tutorial the user would 
+    # like to display. We can display all subcategories for tutorials.
     try:
-        tag = request.GET['tag']
-    except KeyError:
-        tag=None
+        tag = get_object_or_404(SubCategory, title = request.GET['tag'])
+    except (KeyError, Http404):
+        tag = None
         
-    if tag == None :
-        try:
-            tutorials = Tutorial.objects.all() \
+    if tag == None:
+        tutorials = Tutorial.objects \
                 .filter(sha_public__isnull=False) \
-                .order_by("-pubdate")
-        except:
-            tutorials = None
+                .order_by("-pubdate")\
+                .all()
     else:
-        try:
-            tutorials = Tutorial.objects.all() \
-                .filter(sha_public__isnull=False, 
-                        subcategory__in=[tag]) \
-                .order_by("-pubdate")
-        except:
-            tutorials = None
-        
+        # The tag isn't None and exist in the system. We can use it to retrieve 
+        # all tutorials in the subcategory specified.
+        tutorials = Tutorial.objects \
+                .filter(sha_public__isnull = False, subcategory__in = [tag]) \
+                .order_by("-pubdate") \
+                .all()
+
     return render_template('tutorial/index.html', {
         'tutorials': tutorials,
     })
+
+# Staff actions.
 
 @can_read_now
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
 def list_validation(request):
     '''Display tutorials list in validation'''
+    # Retrieve type of the validation. Default value is all validations.
     try:
         type = request.GET['type']
     except KeyError:
-        type=None
+        type = None
 
+    # Get subcategory to filter validations.
     try:
         subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
-    except KeyError:
-        subcategory=None
+    except (KeyError, Http404) :
+        subcategory = None
 
+    # Orphan validation. There aren't validator attached to the validations.
     if type == 'orphan':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=True) \
+                            .filter(validator__isnull = True, status = 'PENDING') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=True, tutorial__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull = True, status = 'PENDING', tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
+    
+    # Reserved validation. There are a validator attached to the validations.
     elif type == 'reserved':
         if subcategory == None:
             validations = Validation.objects \
-                            .filter(validator__isnull=False) \
+                            .filter(validator__isnull = False, status = 'PENDING_V') \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
-                            .filter(validator__isnull=False, tutorial__subcategory__in=[subcategory]) \
+                            .filter(validator__isnull = False, status = 'PENDING_V', tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()        
+    
+    # Default, we display all validations.
     else:
         if subcategory == None:
             validations = Validation.objects \
+                            .filter(Q(status = 'PENDING') | Q(status = 'PENDING_V')) \
                             .order_by("date_proposition") \
                             .all()
         else :
             validations = Validation.objects \
+                            .filter(Q(status = 'PENDING') | Q(status = 'PENDING_V')) \
                             .filter(tutorial__subcategory__in=[subcategory]) \
                             .order_by("date_proposition") \
                             .all()
@@ -145,8 +159,7 @@ def reservation(request, validation_pk):
         validation.status = 'PENDING_V'
         validation.save()
         return redirect(validation.tutorial.get_absolute_url())
-    
-# Tutorial
+
 @can_read_now
 @login_required
 @permission_required('tutorial.change_tutorial', raise_exception=True)
@@ -177,9 +190,9 @@ def history(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    if (not request.user.has_perm('tutorial.change_tutorial'))\
-       and (request.user not in tutorial.authors.all()):
-        raise Http404
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     # Make sure the URL is well-formed
     if not tutorial_slug == slugify(tutorial.title):
@@ -196,13 +209,129 @@ def history(request, tutorial_pk, tutorial_slug):
         'tutorial': tutorial, 'logs':logs
     })
 
+@can_read_now
+@login_required
+@permission_required('tutorial.change_tutorial', raise_exception=True)
+def history_validation(request, tutorial_pk):
+    '''History of the validation of a tutorial'''
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # Get subcategory to filter validations.
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except (KeyError, Http404) :
+        subcategory = None
+
+    if subcategory == None:
+        validations = Validation.objects \
+                            .filter(tutorial__pk = tutorial_pk) \
+                            .order_by("date_proposition") \
+                            .all()
+    else:
+        validations = Validation.objects \
+                            .filter(tutorial__pk = tutorial_pk, tutorial__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+
+    return render_template('tutorial/history_validation.html', {
+        'validations': validations,
+        'tutorial': tutorial,
+    })
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def reject_tutorial(request):
+    '''Staff reject tutorial of an author'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
+                    .latest('date_proposition')
+    validation.comment_validator = request.POST['text']
+    validation.status = 'REJECT'
+    validation.date_validation = datetime.now()
+    validation.save()
+    
+    # Remove sha_validation because we rejected this version of the tutorial.
+    tutorial.sha_validation = None
+    tutorial.pubdate = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def valid_tutorial(request):
+    '''Staff valid tutorial of an author'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    MEP(tutorial)
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
+                    .latest('date_proposition')
+    validation.comment_validator = request.POST['text']
+    validation.status = 'ACCEPT'
+    validation.date_validation = datetime.now()
+    validation.save()
+    
+    # Update sha_public with the sha of validation. We don't update sha_draft.
+    # So, the user can continue to edit his tutorial in offline.
+    tutorial.sha_public = validation.version
+    tutorial.sha_validation = None
+    tutorial.pubdate = datetime.now()
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
+
+@can_write_and_read_now
+@login_required
+@permission_required('tutorial.change_tutorial', raise_exception = True)
+def invalid_tutorial(request, tutorial_pk):
+    '''Staff invalid tutorial of an author'''
+    # Retrieve current tutorial
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    UNMEP(tutorial)
+    validation = Validation.objects\
+                    .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_public)\
+                    .latest('date_proposition')
+    validation.status = 'PENDING'
+    validation.date_validation = None
+    validation.save()
+    
+    # Only update sha_validation because contributors can contribute on rereading version.
+    tutorial.sha_public = None
+    tutorial.sha_validation = validation.version
+    tutorial.pubdate = None
+    tutorial.save()
+    
+    return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
+
+# User actions on tutorial.
+
 @can_write_and_read_now
 @login_required
 def activ_beta(request, tutorial_pk, version):
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
     if request.user not in tutorial.authors.all():
-        raise Http404
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
     tutorial.sha_beta = version
     tutorial.save()
     
@@ -211,43 +340,147 @@ def activ_beta(request, tutorial_pk, version):
 @can_write_and_read_now
 @login_required
 def desactiv_beta(request, tutorial_pk, version):
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
     if request.user not in tutorial.authors.all():
-        raise Http404
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
     tutorial.sha_beta = None
     tutorial.save()
     
     return redirect(tutorial.get_absolute_url_beta())
 
+@can_write_and_read_now
+@login_required
+@require_POST
+def ask_validation(request):
+    '''User ask validation for his tutorial'''
+    # Retrieve current tutorial;
+    try:
+        tutorial_pk = request.POST['tutorial']
+    except KeyError:
+        raise Http404
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
+    # We create and save validation object of the tutorial.
+    validation = Validation()
+    validation.tutorial = tutorial
+    validation.date_proposition = datetime.now()
+    validation.comment_authors = request.POST['text']
+    validation.version = request.POST['version']
+    
+    validation.save()
+    
+    validation.tutorial.sha_validation = request.POST['version']
+    validation.tutorial.save()
+
+    return redirect(tutorial.get_absolute_url())
+
+@can_write_and_read_now
+@login_required
+def delete_tutorial(request, tutorial_pk):
+    '''User would like delete his tutorial'''
+    # Retrieve current tutorial
+    tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
+
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
+    # Delete the tutorial on the repo and on the database.
+    old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
+    maj_repo_tuto(request,
+                  old_slug_path=old_slug,
+                  tuto = tutorial,
+                  action = 'del')
+    tutorial.delete()
+    
+    return redirect(reverse('zds.tutorial.views.index'))
+
+@can_write_and_read_now
+def modify_tutorial(request):
+    if not request.method == 'POST':
+        raise Http404
+
+    tutorial_pk = request.POST['tutorial']
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
+    # User actions
+    if request.user in tutorial.authors.all():
+        if 'add_author' in request.POST:
+            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
+                '?tutoriel={0}'.format(tutorial.pk)
+
+            author_username = request.POST['author']
+            author = None
+            try:
+                author = User.objects.get(username=author_username)
+            except User.DoesNotExist:
+                return redirect(redirect_url)
+
+            tutorial.authors.add(author)
+            tutorial.save()
+
+            return redirect(redirect_url)
+
+        elif 'remove_author' in request.POST:
+            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
+                '?tutoriel={0}'.format(tutorial.pk)
+
+            # Avoid orphan tutorials
+            if tutorial.authors.all().count() <= 1:
+                raise Http404
+
+            author_pk = request.POST['author']
+            author = get_object_or_404(User, pk=author_pk)
+
+            tutorial.authors.remove(author)
+            tutorial.save()
+
+            return redirect(redirect_url)
+
+    # No action performed, raise 404
+    raise Http404
+
 @can_read_now
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
-    '''Display a tutorial'''
+    '''Show the given offline tutorial if exists'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    try:
-        sha = request.GET['version']
-    except KeyError:
-        sha = tutorial.sha_draft
-    
-    beta = tutorial.in_beta() and sha == tutorial.sha_beta
-    
-    if (not request.user.has_perm('forum.change_tutorial'))\
-       and (request.user not in tutorial.authors.all())\
-       and not beta :
-        raise Http404
+
+    # Only authors of the tutorial and staff can view tutorial in offline.
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     # Make sure the URL is well-formed
     if not tutorial_slug == slugify(tutorial.title):
         return redirect(tutorial.get_absolute_url())
 
+    # Retrieve sha given by the user. This sha must to be exist.
+    # If it doesn't exist, we take draft version of the article.
+    try:
+        sha = request.GET['version']
+    except KeyError:
+        sha = tutorial.sha_draft
+
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
     
-    #find the good manifest file
+    # Find the good manifest file
     repo = Repo(tutorial.get_path())
 
+    # Load the tutorial.
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
     mandata = json.loads(manifest)
 
@@ -267,8 +500,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 cpt+=1
         else:
             chapter = None
-        #chapter = Chapter.objects.get(tutorial=tutorial)
-        
+    
+    # If it's a big tutorial, fetch parts.
     else:
         parts = mandata['parts']
         cpt_p=1
@@ -303,8 +536,19 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = sha)
 
+    formAskValidation = AskValidationForm()
+    formValid = ValidForm()
+    formReject = RejectForm()
+
     return render_template('tutorial/view_tutorial.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts, 'version':sha, 'validation': validation
+        'tutorial': tutorial, 
+        'chapter': chapter, 
+        'parts': parts, 
+        'version':sha, 
+        'validation': validation,
+        'formAskValidation': formAskValidation,
+        'formValid': formValid,
+        'formReject': formReject
     })
 
 @can_read_now
@@ -312,7 +556,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     '''Display a tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
-    if not tutorial.on_line :
+    # If the tutorial isn't online, we raise 404 error.
+    if not tutorial.on_line:
         raise Http404
 
     # Make sure the URL is well-formed
@@ -391,20 +636,23 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 
             cpt_p+=1
     
-    #find notes
+    # If the user is authenticated
     if request.user.is_authenticated():
+        # If the user is never read, we mark this tutorial read.
         if never_read(tutorial):
             mark_read(tutorial)
-            
+    
+    # Find all notes of the tutorial.
     notes = Note.objects\
                 .filter(tutorial__pk=tutorial.pk)\
                 .order_by('position')\
                 .all()
-            
+    
+    # Retrieve pk of the last note. If there aren't notes
+    # for the tutorial, we initialize this last note at 0.
+    last_note_pk = 0
     if tutorial.last_note:
         last_note_pk = tutorial.last_note.pk
-    else:
-        last_note_pk = 0
     
     # Handle pagination
     paginator = Paginator(notes, settings.POSTS_PER_PAGE)
@@ -432,7 +680,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         res.append(note)
         
     return render_template('tutorial/view_tutorial_online.html', {
-        'tutorial': tutorial, 'chapter': chapter, 'parts': parts,
+        'tutorial': tutorial, 
+        'chapter': chapter, 
+        'parts': parts,
         'notes': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
@@ -527,16 +777,19 @@ def add_tutorial(request):
 @can_write_and_read_now
 @login_required
 def edit_tutorial(request):
+    '''Edit a tutorial'''
+    # Retrieve current tutorial;
     try:
         tutorial_pk = request.GET['tutoriel']
     except KeyError:
         raise Http404
-
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    json = tutorial.load_json()
 
-    if not request.user in tutorial.authors.all():
-        raise Http404
+    # If the user isn't an author of the tutorial or isn't in the staff,
+    # he hasn't permission to execute this method:
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     if request.method == 'POST':
         form = TutorialForm(request.POST, request.FILES)
@@ -584,6 +837,7 @@ def edit_tutorial(request):
             
             return redirect(tutorial.get_absolute_url())
     else:
+        json = tutorial.load_json()
         if 'licence' in json:
             licence=Licence.objects.filter(code=json['licence']).all()[0]
         else:
@@ -601,123 +855,6 @@ def edit_tutorial(request):
     return render_template('tutorial/edit_tutorial.html', {
         'tutorial': tutorial, 'form': form
     })
-
-
-@can_write_and_read_now
-def modify_tutorial(request):
-    if not request.method == 'POST':
-        raise Http404
-
-    tutorial_pk = request.POST['tutorial']
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
-    # Validator actions
-    if request.user.has_perm('tutorial.change_tutorial'):
-        if 'valid-tuto' in request.POST:
-            MEP(tutorial)
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_public = validation.version
-            tutorial.sha_validation = ''
-            tutorial.pubdate = datetime.now()
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'reject-tuto' in request.POST:
-            validation = Validation.objects.filter(tutorial__pk=tutorial.pk, version = tutorial.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            tutorial.sha_validation = ''
-            tutorial.pubdate = None
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-        elif 'invalid-tuto' in request.POST:
-            UNMEP(tutorial)
-            validation = Validation.objects.get(tutorial__pk=tutorial.pk, version = tutorial.sha_public)
-            validation.status = 'PENDING'
-            validation.date_validation = None
-            validation.save()
-            
-            tutorial.sha_validation = validation.version
-            tutorial.sha_public = ''
-            tutorial.pubdate = None
-            tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-    # User actions
-    if request.user in tutorial.authors.all():
-        if 'add_author' in request.POST:
-            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
-                '?tutoriel={0}'.format(tutorial.pk)
-
-            author_username = request.POST['author']
-            author = None
-            try:
-                author = User.objects.get(username=author_username)
-            except User.DoesNotExist:
-                return redirect(redirect_url)
-
-            tutorial.authors.add(author)
-            tutorial.save()
-
-            return redirect(redirect_url)
-
-        elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.tutorial.views.edit_tutorial') + \
-                '?tutoriel={0}'.format(tutorial.pk)
-
-            # Avoid orphan tutorials
-            if tutorial.authors.all().count() <= 1:
-                raise Http404
-
-            author_pk = request.POST['author']
-            author = get_object_or_404(User, pk=author_pk)
-
-            tutorial.authors.remove(author)
-            tutorial.save()
-
-            return redirect(redirect_url)
-
-        elif 'delete' in request.POST:
-            old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
-            
-            maj_repo_tuto(request,
-                          old_slug_path=old_slug,
-                          tuto = tutorial,
-                          action = 'del')
-            
-            tutorial.delete()
-            
-            return redirect('/tutoriels/')
-        
-        elif 'pending' in request.POST:
-            validation = Validation()
-            validation.tutorial = tutorial
-            validation.date_proposition = datetime.now()
-            validation.comment_authors = request.POST['comment']
-            validation.version = request.POST['version']
-            
-            validation.save()
-            
-            validation.tutorial.sha_validation = request.POST['version']
-            validation.tutorial.save()
-            
-            return redirect(tutorial.get_absolute_url())
-        
-
-    # No action performed, raise 404
-    raise Http404
-
 
 # Part
 @can_read_now
