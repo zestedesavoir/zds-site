@@ -2302,44 +2302,47 @@ def UNMEP(tutorial):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to an tutorial
-    '''
+    '''Adds an answer from a user to an tutorial'''
     try:
         tutorial_pk = request.GET['tutorial']
     except KeyError:
         raise Http404
     
-    g_tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    
-    notes = Note.objects.filter(tutorial=g_tutorial).order_by('-pubdate')[:3]
-    
-    if g_tutorial.last_note:
-        last_note_pk = g_tutorial.last_note.pk
-    else:
-        last_note_pk=0
+    # Retrieve current tutorial.
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    # Making sure noteing is allowed
-    if g_tutorial.is_locked:
-        raise Http404
+    # Making sure reactioning is allowed
+    if tutorial.is_locked:
+        raise PermissionDenied
 
     # Check that the user isn't spamming
-    if g_tutorial.antispam(request.user):
-        raise Http404
+    if tutorial.antispam(request.user):
+        raise PermissionDenied
 
-    # If we just sent data
+    # Retrieve 3 last notes of the current tutorial.
+    notes = Note.objects\
+                .filter(tutorial = tutorial)\
+                .order_by('-pubdate')[:3]
+    
+    # If there is a last notes for the tutorial, we save his pk.
+    # Otherwise, we save 0.
+    last_note_pk = 0
+    if tutorial.last_note:
+        last_note_pk = tutorial.last_note.pk
+
+    # User would like preview his post or post a new note on the tutorial.
     if request.method == 'POST':
         data = request.POST
         newnote = last_note_pk != int(data['last_note'])
 
         # Using the « preview button », the « more » button or new note
         if 'preview' in data or newnote:
-            form = NoteForm(g_tutorial, request.user, initial = {
+            form = NoteForm(tutorial, request.user, initial = {
                 'text': data['text']
             })
             return render_template('tutorial/answer.html', {
                 'text': data['text'], 
-                'tutorial': g_tutorial, 
+                'tutorial': tutorial, 
                 'last_note_pk': last_note_pk, 
                 'newnote': newnote,
                 'form': form
@@ -2347,27 +2350,28 @@ def answer(request):
 
         # Saving the message
         else:
-            form = NoteForm(g_tutorial, request.user, request.POST)
+            form = NoteForm(tutorial, request.user, request.POST)
             if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 note = Note()
-                note.tutorial = g_tutorial
+                note.tutorial = tutorial
                 note.author = request.user
                 note.text = data['text']
                 note.text_html = emarkdown(data['text'])
                 note.pubdate = datetime.now()
-                note.position = g_tutorial.get_note_count() + 1
+                note.position = tutorial.get_note_count() + 1
                 note.ip_address = get_client_ip(request)
                 note.save()
 
-                g_tutorial.last_note = note
-                g_tutorial.save()
+                tutorial.last_note = note
+                tutorial.save()
 
                 return redirect(note.get_absolute_url())
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -2382,12 +2386,12 @@ def answer(request):
             text = u'{0}\nSource:[{1}]({2})'.format(text,
                 note_cite.author.username, note_cite.get_absolute_url())
 
-        form = NoteForm(g_tutorial, request.user, initial = {
+        form = NoteForm(tutorial, request.user, initial = {
             'text': text
         })
 
         return render_template('tutorial/answer.html', {
-            'tutorial': g_tutorial, 
+            'tutorial': tutorial, 
             'text': text, 
             'notes': notes,
             'last_note_pk': last_note_pk,
