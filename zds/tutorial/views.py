@@ -2416,15 +2416,19 @@ def edit_note(request):
     if note.position >= 1:
         g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the note
+    # must to be the user logged.
     if note.author != request.user:
         if request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(note.author.username))
+                .format(reaction.author.username))
             note.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -2451,8 +2455,15 @@ def edit_note(request):
                 note.alerts.add(alert)
         # Using the preview button
         if 'preview' in request.POST:
+            form = NoteForm(g_tutorial, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.tutorial.views.edit_note') + '?message=' + str(note_pk)
             return render_template('tutorial/edit_note.html', {
-                'note': note, 'tutorial': g_tutorial, 'text': request.POST['text'],
+                'note': note, 
+                'tutorial': g_tutorial, 
+                'text': request.POST['text'],
+                'form': form
             })
         
         if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
@@ -2468,8 +2479,15 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
 
     else:
+        form = NoteForm(g_tutorial, request.user, initial = {
+            'text': note.text
+        })
+        form.helper.form_action = reverse('zds.tutorial.views.edit_note') + '?message=' + str(note_pk)
         return render_template('tutorial/edit_note.html', {
-            'note': note, 'tutorial': g_tutorial, 'text': note.text
+            'note': note, 
+            'tutorial': g_tutorial, 
+            'text': note.text,
+            'form': form
         })
 
 
