@@ -50,8 +50,6 @@ urlpatterns = patterns('',
 
     url(r'^$', views.index),
     url(r'^importer/$', views.import_tuto),
-    url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.activ_beta),
-    url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
     url(r'^telecharger/$', views.download),
     url(r'^telecharger/pdf/$', views.download_pdf),
     url(r'^telecharger/epub/$', views.download_epub),
@@ -59,9 +57,19 @@ urlpatterns = patterns('',
     url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
     url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
     
+# user actions
+    url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.activ_beta),
+    url(r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$', views.desactiv_beta),
+    url(r'^suppression/(?P<tutorial_pk>\d+)/$', views.delete_tutorial),
+    url(r'^validation/tutoriel$', views.ask_validation),
+
 #Validation
     url(r'^validation/$', views.list_validation),
     url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation),
+    url(r'^validation/reject$', views.reject_tutorial),
+    url(r'^validation/valid$', views.valid_tutorial),
+    url(r'^validation/invalid/(?P<tutorial_pk>\d+)/$', views.invalid_tutorial),
+    url(r'^validation/historique/(?P<tutorial_pk>\d+)/$', views.history_validation),
     
 #Reactions
     url(r'^message/editer$', views.edit_note),

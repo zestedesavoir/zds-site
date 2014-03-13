@@ -37,6 +37,18 @@
 {% endblock %}
 
 {% block headline-actions %}
+
+    {% if perms.tutorial.change_tutorial%}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
+        <h3>Admin<span class="wide">istration</span></h3>
+        <ul>
+            <li><a href="{{ tutorial.get_absolute_url }}">Version offline</a></li>
+            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+        </ul>
+    </div>
+    {% endif %}
+
     {% include "tutorial/toc_common_online.html" %}
 {% endblock %}
 

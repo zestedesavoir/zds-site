@@ -1,43 +1,26 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/validation.html" %}
 {% load humane_date %}
 
 {% block title %}
-    Liste des tutoriels soumis en validation
+Historique de validation du tutoriel
 {% endblock %}
 
 {% block meta %}
-    <meta name="description" content="Les tutoriels vous permettent d'apprendre
-    sur divers sujets axés autour de la programmation et de l'informatique." />
-{% endblock %}
-
-{% block header %}
-    <h1>
-        <i class="fi-book icon-large"></i>
-        Tutoriels
-    </h1>
-    <p>
-        Les tutoriels vous permettent <strong>d'apprendre</strong> sur divers sujets axés autour de la programmation et de l'informatique.
-    </p>
+    <meta name="description" content="" />
 {% endblock %}
 
 {% block headline %}
-    Liste des tutoriels soumis en validation
+Historique de validation du tutoriel
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current"><a href="#">Historique</a></li>
+{% endblock %}
+
+{% block headline-actions %}
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <dl class="sub-nav">
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}" class="button">Zone de validation</a></dd>
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="button">En cours de validation</a></dd>
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="button">En attente de validateur</a></dd>
-        </dl>
-    </div>
-</div>
 <div class="row">
     <div class="large-12 columns">
         {% if validations %}
@@ -104,5 +87,4 @@
         {% endif %}
     </div>
 </div>
-
 {% endblock %}
