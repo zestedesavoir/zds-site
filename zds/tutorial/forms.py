@@ -3,14 +3,16 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div
 from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
-    ButtonHolder
+    ButtonHolder, Hidden
 from crispy_forms.bootstrap import StrictButton
 
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.models import Category, SubCategory, Licence
+from zds.utils.forms import CommonLayoutModalText
 
 
 class TutorialForm(forms.Form):
@@ -262,3 +264,84 @@ class NoteForm(forms.Form):
 
 class AlertForm(forms.Form):
     text = forms.CharField()
+
+class AskValidationForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire pour votre demande.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(AskValidationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.ask_validation')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Demander la validation', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
+
+class ValidForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire de publication.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ValidForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.valid_tutorial')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Publier', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
+
+class RejectForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire de rejet.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(RejectForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.reject_tutorial')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Rejeter', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
