@@ -1563,46 +1563,70 @@ def add_extract(request):
 @login_required
 def edit_extract(request):
     '''Edit extract'''
-
     try:
         extract_pk = request.GET['extrait']
     except KeyError:
         raise Http404
-
     extract = get_object_or_404(Extract, pk=extract_pk)
     
-    b = extract.chapter.part
-    if b and (not request.user in extract.chapter.part.tutorial.authors.all())\
-            or not b and (not request.user in
-                          extract.chapter.tutorial.authors.all()):
-        raise Http404
+    part = extract.chapter.part
+    # If part exist, we check if the user is in authors of the tutorial of the part or
+    # If part doesn't exist, we check if the user is in authors of the tutorial of the chapter.
+    if (part and not request.user in extract.chapter.part.tutorial.authors.all())\
+        or (not part and not request.user in extract.chapter.tutorial.authors.all()):
+        # If the user isn't an author or a staff, we raise an exception.
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     if request.method == 'POST':
-        form = ExtractForm(request.POST)
-        if form.is_valid():
-            data = form.data
-            old_slug = extract.get_path()
-            
-            extract.title = data['title']
-            extract.text = extract.get_path(relative=True)
-            
-            if extract.chapter.tutorial:
-                chapter_part = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
-            else:
-                chapter_part = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
-            new_slug = os.path.join(chapter_part, slugify(data['title'])+'.md')
-            
-            extract.save()
-            
-            maj_repo_extract(request,
-                             old_slug_path=old_slug, 
-                             new_slug_path=new_slug, 
-                             extract=extract, 
-                             text=data['text'],
-                             action = 'maj')
-            
-            
-            return redirect(extract.get_absolute_url())
+        data = request.POST
+
+        # Using the « preview button »
+        if 'preview' in data:
+            form = ExtractForm(initial = {
+                'title': data['title'],
+                'text': data['text']
+            })
+            return render_template('tutorial/edit_extract.html', {
+                'extract': extract, 
+                'form': form,
+                'text': data['text']
+            })
+
+        # Edit extract.
+        else:
+            form = ExtractForm(request.POST)
+            if form.is_valid():
+                data = form.data
+                old_slug = extract.get_path()
+                
+                extract.title = data['title']
+                extract.text = extract.get_path(relative=True)
+                
+                # Get path for mini-tuto
+                if extract.chapter.tutorial:
+                    chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+                    chapter_part = os.path.join(chapter_tutorial_path, extract.chapter.slug)
+
+                # Get path for big-tuto
+                else:
+                    chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+                    chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
+                    chapter_part = os.path.join(chapter_part_path, extract.chapter.slug)
+
+                # Use path retrieve before and use it to create the new slug.
+                new_slug = os.path.join(chapter_part, slugify(data['title'])+'.md')
+                
+                extract.save()
+                
+                maj_repo_extract(request,
+                                 old_slug_path=old_slug, 
+                                 new_slug_path=new_slug, 
+                                 extract=extract, 
+                                 text=data['text'],
+                                 action = 'maj')
+                
+                return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm({
             'title': extract.title,
@@ -1610,7 +1634,8 @@ def edit_extract(request):
         })
 
     return render_template('tutorial/edit_extract.html', {
-        'extract': extract, 'form': form
+        'extract': extract, 
+        'form': form
     })
 
 @can_write_and_read_now
