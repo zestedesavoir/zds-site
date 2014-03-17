@@ -186,7 +186,7 @@ def diff(request, tutorial_pk, tutorial_slug):
 @can_read_now
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
-    '''Display a tutorial'''
+    '''History of the tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
@@ -449,6 +449,8 @@ def modify_tutorial(request):
 
     # No action performed, raise 404
     raise Http404
+
+# Tutorials.
 
 @can_read_now
 @login_required
@@ -859,7 +861,8 @@ def edit_tutorial(request):
         'tutorial': tutorial, 'form': form
     })
 
-# Part
+# Parts.
+
 @can_read_now
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
@@ -1134,7 +1137,8 @@ def edit_part(request):
     })
 
 
-# Chapter
+# Chapters.
+
 @can_read_now
 @login_required
 def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
@@ -1500,7 +1504,8 @@ def edit_chapter(request):
     })
 
 
-# Extract
+# Extracts.
+
 @can_read_now
 @login_required
 def add_extract(request):
