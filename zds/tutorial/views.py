@@ -1510,46 +1510,53 @@ def edit_chapter(request):
 @login_required
 def add_extract(request):
     '''Add extract'''
-
     try:
         chapter_pk = int(request.GET['chapitre'])
     except KeyError:
         raise Http404
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
 
-    notify = None
-
     if request.method == 'POST':
-        form = ExtractForm(request.POST)
-        if form.is_valid():
-            data = form.data
-            extract = Extract()
-            extract.chapter = chapter
-            extract.position_in_chapter = chapter.get_extract_count() + 1
-            extract.title = data['title']
-            
-            extract.text = extract.get_path(relative=True)
-            extract.save()
-            
-            maj_repo_extract(request,
-                             new_slug_path=extract.get_path(), 
-                             extract=extract, 
-                             text=data['text'],
-                             action='add')
-            
+        data = request.POST
 
-            if 'submit_continue' in request.POST:
-                form = ExtractForm()
-                messages.success(
-                    request, u'Extrait « {0} » ajouté avec succès.'
-                    .format(extract.title))
-            else:
+        # Using the « preview button »
+        if 'preview' in data:
+            form = ExtractForm(initial = {
+                'title': data['title'],
+                'text': data['text']
+            })
+            return render_template('tutorial/new_extract.html', {
+                'chapter': chapter, 
+                'form': form,
+                'text': data['text']
+            })
+
+        # Save extract.
+        else:
+            form = ExtractForm(request.POST)
+            if form.is_valid():
+                data = form.data
+                extract = Extract()
+                extract.chapter = chapter
+                extract.position_in_chapter = chapter.get_extract_count() + 1
+                extract.title = data['title']
+                
+                extract.text = extract.get_path(relative=True)
+                extract.save()
+                
+                maj_repo_extract(request,
+                                 new_slug_path=extract.get_path(), 
+                                 extract=extract, 
+                                 text=data['text'],
+                                 action='add')
+                
                 return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm()
 
     return render_template('tutorial/new_extract.html', {
-        'chapter': chapter, 'form': form, 'notify': notify
+        'chapter': chapter, 
+        'form': form
     })
 
 @can_write_and_read_now
