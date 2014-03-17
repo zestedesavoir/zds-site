@@ -1516,6 +1516,15 @@ def add_extract(request):
         raise Http404
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
 
+    part = chapter.part
+    # If part exist, we check if the user is in authors of the tutorial of the part or
+    # If part doesn't exist, we check if the user is in authors of the tutorial of the chapter.
+    if (part and not request.user in chapter.part.tutorial.authors.all())\
+        or (not part and not request.user in chapter.tutorial.authors.all()):
+        # If the user isn't an author or a staff, we raise an exception.
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
+
     if request.method == 'POST':
         data = request.POST
 
