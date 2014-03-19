@@ -1663,24 +1663,31 @@ def modify_extract(request):
     chapter = extract.chapter
 
     if 'delete' in data:
-        old_pos = extract.position_in_chapter
-        for extract_c in extract.chapter.get_extracts():
-            if old_pos <= extract_c.position_in_chapter:
-                extract_c.position_in_chapter = extract_c.position_in_chapter \
-                    - 1
+        pos_current_extract = extract.position_in_chapter
+        for extract_c in extract.chapter.extracts():
+            if pos_current_extract <= extract_c.position_in_chapter:
+                extract_c.position_in_chapter = extract_c.position_in_chapter - 1
                 extract_c.save()
 
+        # Get path for mini-tuto
         if extract.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
+            chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+            chapter_path = os.path.join(chapter_tutorial_path, extract.chapter.slug)
+
+        # Get path for big-tuto
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
+            chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+            chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
+            chapter_path = os.path.join(chapter_part_path, extract.chapter.slug)
+
+        # Use path retrieve before and use it to create the new slug.
         old_slug = os.path.join(chapter_path, slugify(extract.title)+'.md')
         
         maj_repo_extract(request,
                          old_slug_path=old_slug, 
                          extract=extract,
                          action = 'del')
-        
+
         extract.delete()
         return redirect(chapter.get_absolute_url())
 
