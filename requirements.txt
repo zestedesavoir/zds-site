@@ -9,11 +9,11 @@ pillow==2.0.0
 PyYAML==3.10
 defusedxml
 django-dynamic-fixture
-django-crispy-forms
+crispy-forms-foundation==0.2.3
+django-crispy-forms==1.3.2
 django-simple-captcha
 django-email-obfuscator
 django-debug-toolbar
-crispy-forms-foundation
 django-pipeline
 djangorestframework
 django-filter
