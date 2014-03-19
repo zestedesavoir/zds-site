@@ -2477,7 +2477,7 @@ def edit_note(request):
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(reaction.author.username))
+                .format(note.author.username))
             note.alerts.all().delete()
         # The user isn't the author and staff, he didn't have permission for this.
         else:
