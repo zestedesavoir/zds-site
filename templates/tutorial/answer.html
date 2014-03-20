@@ -1,5 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Répondre à l'tutorial
@@ -15,16 +16,27 @@
 
 {% block breadcrumb %}
     <li class="current"><a href="#">{{ tutorial.title }}</a></li>
-    <li class="current"><a href="javascript:;">Répondre au tutoriel</a></li>
+    <li class="current"><a href="#">Répondre au tutoriel</a></li>
 {% endblock %}
 
 {% block content %}
 
-{% with topic=tutorial %}
-    {% with profile=user|profile %}
-        {% include "forum/comment.part.html" %}
-    {% endwith %}
-{% endwith %}
+{% if newnote %}
+<div class="row">
+    <div class="large-12 columns">
+        <div class="alert-box alert">
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+            pendant que vous rédigiez le votre.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% crispy form %}
+    </div>
+</div>
 
 {% if text %}
     {% include "forum/previsualization.part.html" %}
