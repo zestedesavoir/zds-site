@@ -41,8 +41,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
 from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
-    ExtractForm, ImportForm, NoteForm, AlertForm, AskValidationForm,\
-    ValidForm, RejectForm
+    ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
@@ -187,7 +186,7 @@ def diff(request, tutorial_pk, tutorial_slug):
 @can_read_now
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
-    '''Display a tutorial'''
+    '''History of the tutorial'''
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
@@ -451,6 +450,8 @@ def modify_tutorial(request):
     # No action performed, raise 404
     raise Http404
 
+# Tutorials.
+
 @can_read_now
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
@@ -678,6 +679,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     for note in notes:
         res.append(note)
+
+    # Build form to send a note for the current tutorial.
+    form = NoteForm(tutorial, request.user)
         
     return render_template('tutorial/view_tutorial_online.html', {
         'tutorial': tutorial, 
@@ -686,7 +690,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         'notes': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_note_pk': last_note_pk 
+        'last_note_pk': last_note_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -856,7 +861,8 @@ def edit_tutorial(request):
         'tutorial': tutorial, 'form': form
     })
 
-# Part
+# Parts.
+
 @can_read_now
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
@@ -1131,7 +1137,8 @@ def edit_part(request):
     })
 
 
-# Chapter
+# Chapters.
+
 @can_read_now
 @login_required
 def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
@@ -1497,97 +1504,138 @@ def edit_chapter(request):
     })
 
 
-# Extract
+# Extracts.
+
 @can_read_now
 @login_required
 def add_extract(request):
     '''Add extract'''
-
     try:
         chapter_pk = int(request.GET['chapitre'])
     except KeyError:
         raise Http404
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
 
-    notify = None
+    part = chapter.part
+    # If part exist, we check if the user is in authors of the tutorial of the part or
+    # If part doesn't exist, we check if the user is in authors of the tutorial of the chapter.
+    if (part and not request.user in chapter.part.tutorial.authors.all())\
+        or (not part and not request.user in chapter.tutorial.authors.all()):
+        # If the user isn't an author or a staff, we raise an exception.
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     if request.method == 'POST':
-        form = ExtractForm(request.POST)
-        if form.is_valid():
-            data = form.data
-            extract = Extract()
-            extract.chapter = chapter
-            extract.position_in_chapter = chapter.get_extract_count() + 1
-            extract.title = data['title']
-            
-            extract.text = extract.get_path(relative=True)
-            extract.save()
-            
-            maj_repo_extract(request,
-                             new_slug_path=extract.get_path(), 
-                             extract=extract, 
-                             text=data['text'],
-                             action='add')
-            
+        data = request.POST
 
-            if 'submit_continue' in request.POST:
-                form = ExtractForm()
-                messages.success(
-                    request, u'Extrait « {0} » ajouté avec succès.'
-                    .format(extract.title))
-            else:
+        # Using the « preview button »
+        if 'preview' in data:
+            form = ExtractForm(initial = {
+                'title': data['title'],
+                'text': data['text']
+            })
+            return render_template('tutorial/new_extract.html', {
+                'chapter': chapter, 
+                'form': form,
+                'text': data['text']
+            })
+
+        # Save extract.
+        else:
+            form = ExtractForm(request.POST)
+            if form.is_valid():
+                data = form.data
+                extract = Extract()
+                extract.chapter = chapter
+                extract.position_in_chapter = chapter.get_extract_count() + 1
+                extract.title = data['title']
+                
+                extract.text = extract.get_path(relative=True)
+                extract.save()
+                
+                maj_repo_extract(request,
+                                 new_slug_path=extract.get_path(), 
+                                 extract=extract, 
+                                 text=data['text'],
+                                 action='add')
+                
                 return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm()
 
     return render_template('tutorial/new_extract.html', {
-        'chapter': chapter, 'form': form, 'notify': notify
+        'chapter': chapter, 
+        'form': form
     })
 
 @can_write_and_read_now
 @login_required
 def edit_extract(request):
     '''Edit extract'''
-
     try:
         extract_pk = request.GET['extrait']
     except KeyError:
         raise Http404
-
     extract = get_object_or_404(Extract, pk=extract_pk)
     
-    b = extract.chapter.part
-    if b and (not request.user in extract.chapter.part.tutorial.authors.all())\
-            or not b and (not request.user in
-                          extract.chapter.tutorial.authors.all()):
-        raise Http404
+    part = extract.chapter.part
+    # If part exist, we check if the user is in authors of the tutorial of the part or
+    # If part doesn't exist, we check if the user is in authors of the tutorial of the chapter.
+    if (part and not request.user in extract.chapter.part.tutorial.authors.all())\
+        or (not part and not request.user in extract.chapter.tutorial.authors.all()):
+        # If the user isn't an author or a staff, we raise an exception.
+        if not request.user.has_perm('forum.change_tutorial'):
+            raise PermissionDenied
 
     if request.method == 'POST':
-        form = ExtractForm(request.POST)
-        if form.is_valid():
-            data = form.data
-            old_slug = extract.get_path()
-            
-            extract.title = data['title']
-            extract.text = extract.get_path(relative=True)
-            
-            if extract.chapter.tutorial:
-                chapter_part = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
-            else:
-                chapter_part = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
-            new_slug = os.path.join(chapter_part, slugify(data['title'])+'.md')
-            
-            extract.save()
-            
-            maj_repo_extract(request,
-                             old_slug_path=old_slug, 
-                             new_slug_path=new_slug, 
-                             extract=extract, 
-                             text=data['text'],
-                             action = 'maj')
-            
-            
-            return redirect(extract.get_absolute_url())
+        data = request.POST
+
+        # Using the « preview button »
+        if 'preview' in data:
+            form = ExtractForm(initial = {
+                'title': data['title'],
+                'text': data['text']
+            })
+            return render_template('tutorial/edit_extract.html', {
+                'extract': extract, 
+                'form': form,
+                'text': data['text']
+            })
+
+        # Edit extract.
+        else:
+            form = ExtractForm(request.POST)
+            if form.is_valid():
+                data = form.data
+                old_slug = extract.get_path()
+                
+                extract.title = data['title']
+                extract.text = extract.get_path(relative=True)
+                
+                # Get path for mini-tuto
+                if extract.chapter.tutorial:
+                    chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+                    chapter_part = os.path.join(chapter_tutorial_path, extract.chapter.slug)
+
+                # Get path for big-tuto
+                else:
+                    chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+                    chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
+                    chapter_part = os.path.join(chapter_part_path, extract.chapter.slug)
+
+                # Use path retrieve before and use it to create the new slug.
+                new_slug = os.path.join(chapter_part, slugify(data['title'])+'.md')
+                
+                extract.save()
+                
+                maj_repo_extract(request,
+                                 old_slug_path=old_slug, 
+                                 new_slug_path=new_slug, 
+                                 extract=extract, 
+                                 text=data['text'],
+                                 action = 'maj')
+                
+                return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm({
             'title': extract.title,
@@ -1595,7 +1643,8 @@ def edit_extract(request):
         })
 
     return render_template('tutorial/edit_extract.html', {
-        'extract': extract, 'form': form
+        'extract': extract, 
+        'form': form
     })
 
 @can_write_and_read_now
@@ -1614,24 +1663,31 @@ def modify_extract(request):
     chapter = extract.chapter
 
     if 'delete' in data:
-        old_pos = extract.position_in_chapter
-        for extract_c in extract.chapter.get_extracts():
-            if old_pos <= extract_c.position_in_chapter:
-                extract_c.position_in_chapter = extract_c.position_in_chapter \
-                    - 1
+        pos_current_extract = extract.position_in_chapter
+        for extract_c in extract.chapter.extracts():
+            if pos_current_extract <= extract_c.position_in_chapter:
+                extract_c.position_in_chapter = extract_c.position_in_chapter - 1
                 extract_c.save()
 
+        # Get path for mini-tuto
         if extract.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug), extract.chapter.slug)
+            chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+            chapter_path = os.path.join(chapter_tutorial_path, extract.chapter.slug)
+
+        # Get path for big-tuto
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug), extract.chapter.part.slug), extract.chapter.slug)
+            chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+            chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
+            chapter_path = os.path.join(chapter_part_path, extract.chapter.slug)
+
+        # Use path retrieve before and use it to create the new slug.
         old_slug = os.path.join(chapter_path, slugify(extract.title)+'.md')
         
         maj_repo_extract(request,
                          old_slug_path=old_slug, 
                          extract=extract,
                          action = 'del')
-        
+
         extract.delete()
         return redirect(chapter.get_absolute_url())
 
@@ -2299,66 +2355,76 @@ def UNMEP(tutorial):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to an tutorial
-    '''
+    '''Adds an answer from a user to an tutorial'''
     try:
         tutorial_pk = request.GET['tutorial']
     except KeyError:
         raise Http404
     
-    g_tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    
-    notes = Note.objects.filter(tutorial=g_tutorial).order_by('-pubdate')[:3]
-    
-    if g_tutorial.last_note:
-        last_note_pk = g_tutorial.last_note.pk
-    else:
-        last_note_pk=0
+    # Retrieve current tutorial.
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    # Making sure noteing is allowed
-    if g_tutorial.is_locked:
-        raise Http404
+    # Making sure reactioning is allowed
+    if tutorial.is_locked:
+        raise PermissionDenied
 
     # Check that the user isn't spamming
-    if g_tutorial.antispam(request.user):
-        raise Http404
+    if tutorial.antispam(request.user):
+        raise PermissionDenied
 
-    # If we just sent data
+    # Retrieve 3 last notes of the current tutorial.
+    notes = Note.objects\
+                .filter(tutorial = tutorial)\
+                .order_by('-pubdate')[:3]
+    
+    # If there is a last notes for the tutorial, we save his pk.
+    # Otherwise, we save 0.
+    last_note_pk = 0
+    if tutorial.last_note:
+        last_note_pk = tutorial.last_note.pk
+
+    # User would like preview his post or post a new note on the tutorial.
     if request.method == 'POST':
         data = request.POST
         newnote = last_note_pk != int(data['last_note'])
 
         # Using the « preview button », the « more » button or new note
-        if 'preview' in data or 'more' in data or newnote:
+        if 'preview' in data or newnote:
+            form = NoteForm(tutorial, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('tutorial/answer.html', {
-                'text': data['text'], 'tutorial': g_tutorial, 'notes': notes,
-                'last_note_pk': last_note_pk, 'newnote': newnote
+                'text': data['text'], 
+                'tutorial': tutorial, 
+                'last_note_pk': last_note_pk, 
+                'newnote': newnote,
+                'form': form
             })
 
         # Saving the message
         else:
-            form = NoteForm(request.POST)
+            form = NoteForm(tutorial, request.user, request.POST)
             if form.is_valid() and data['text'].strip() !='':
                 data = form.data
 
                 note = Note()
-                note.tutorial = g_tutorial
+                note.tutorial = tutorial
                 note.author = request.user
                 note.text = data['text']
                 note.text_html = emarkdown(data['text'])
                 note.pubdate = datetime.now()
-                note.position = g_tutorial.get_note_count() + 1
+                note.position = tutorial.get_note_count() + 1
                 note.ip_address = get_client_ip(request)
                 note.save()
 
-                g_tutorial.last_note = note
-                g_tutorial.save()
+                tutorial.last_note = note
+                tutorial.save()
 
                 return redirect(note.get_absolute_url())
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -2370,12 +2436,19 @@ def answer(request):
             for line in note_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                note_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                note_cite.author.username, note_cite.get_absolute_url())
+
+        form = NoteForm(tutorial, request.user, initial = {
+            'text': text
+        })
 
         return render_template('tutorial/answer.html', {
-            'tutorial': g_tutorial, 'text': text, 'notes': notes,
-            'last_note_pk': last_note_pk
+            'tutorial': tutorial, 
+            'text': text, 
+            'notes': notes,
+            'last_note_pk': last_note_pk,
+            'form': form
         })
 
 @can_write_and_read_now
@@ -2396,7 +2469,8 @@ def edit_note(request):
     if note.position >= 1:
         g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
 
-    # Making sure the user is allowed to do that
+    # Making sure the user is allowed to do that. Author of the note
+    # must to be the user logged.
     if note.author != request.user:
         if request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
             messages.add_message(
@@ -2405,6 +2479,9 @@ def edit_note(request):
                 u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
                 .format(note.author.username))
             note.alerts.all().delete()
+        # The user isn't the author and staff, he didn't have permission for this.
+        else:
+            raise PermissionDenied
 
     if request.method == 'POST':
         
@@ -2431,8 +2508,15 @@ def edit_note(request):
                 note.alerts.add(alert)
         # Using the preview button
         if 'preview' in request.POST:
+            form = NoteForm(g_tutorial, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.tutorial.views.edit_note') + '?message=' + str(note_pk)
             return render_template('tutorial/edit_note.html', {
-                'note': note, 'tutorial': g_tutorial, 'text': request.POST['text'],
+                'note': note, 
+                'tutorial': g_tutorial, 
+                'text': request.POST['text'],
+                'form': form
             })
         
         if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
@@ -2448,8 +2532,15 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
 
     else:
+        form = NoteForm(g_tutorial, request.user, initial = {
+            'text': note.text
+        })
+        form.helper.form_action = reverse('zds.tutorial.views.edit_note') + '?message=' + str(note_pk)
         return render_template('tutorial/edit_note.html', {
-            'note': note, 'tutorial': g_tutorial, 'text': note.text
+            'note': note, 
+            'tutorial': g_tutorial, 
+            'text': note.text,
+            'form': form
         })
 
 
