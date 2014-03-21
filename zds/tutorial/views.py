@@ -365,7 +365,7 @@ def ask_validation(request):
     # If the user isn't an author of the tutorial or isn't in the staff,
     # he hasn't permission to execute this method:
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     # We create and save validation object of the tutorial.
