@@ -12,3 +12,4 @@ install:
 script: 
   - python manage.py test member
   - python manage.py test forum
+  - python manage.py test tutorial
