@@ -29,6 +29,8 @@ class BigTutorialFactory(factory.DjangoModelFactory):
             os.makedirs(path, mode=0777)
         
         man = export_tutorial(tuto)
+        repo = Repo.init(path, bare=False)
+        repo = Repo(path)
         
         file = open(os.path.join(path,'manifest.json'), "w")
         file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
@@ -39,9 +41,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         file = open(os.path.join(path,tuto.conclusion), "w")
         file.write(u'Test')
         file.close()
-        
-        repo = Repo(path)
-        repo.index.add([path, os.path.join(path,'manifest.json')])
+        repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         repo.index.commit("Init Tuto")
         
         return tuto
@@ -65,6 +65,8 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
             os.makedirs(path, mode=0777)
         
         man = export_tutorial(tuto)
+        repo = Repo.init(path, bare=False)
+        repo = Repo(path)
         
         file = open(os.path.join(path,'manifest.json'), "w")
         file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
@@ -76,8 +78,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
         file.write(u'Test')
         file.close()
         
-        repo = Repo(path)
-        repo.index.add([path, os.path.join(path,'manifest.json'),os.path.join(path,tuto.introduction), os.path.join(path,tuto.conclusion) ])
+        repo.index.add(['manifest.json',tuto.introduction, tuto.conclusion])
         repo.index.commit("Init Tuto")
             
         return tuto    
@@ -98,7 +99,6 @@ class PartFactory(factory.DjangoModelFactory):
         
         if not os.path.isdir(path):
             os.makedirs(path, mode=0777)
-            repo.index.add([path])
         
         part.introduction = os.path.join(part.slug,'introduction.md')
         part.conclusion = os.path.join(part.slug,'conclusion.md')
@@ -107,11 +107,11 @@ class PartFactory(factory.DjangoModelFactory):
         file = open(os.path.join(tutorial.get_path(),part.introduction), "w")
         file.write(u'Test')
         file.close()
-        repo.index.add([os.path.join(tutorial.get_path(),part.introduction)])
+        repo.index.add([part.introduction])
         file = open(os.path.join(tutorial.get_path(),part.conclusion), "w")
         file.write(u'Test')
         file.close()
-        repo.index.add([os.path.join(tutorial.get_path(),part.conclusion)])
+        repo.index.add([part.conclusion])
         
         if tutorial:
             tutorial.sha_draft = 'PART-AAAA'
@@ -122,7 +122,7 @@ class PartFactory(factory.DjangoModelFactory):
             file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
             file.close()
             
-            repo.index.add([os.path.join(tutorial.get_path(),'manifest.json')])
+            repo.index.add(['manifest.json'])
         
         repo.index.commit("Init Part")
         
@@ -155,8 +155,6 @@ class ChapterFactory(factory.DjangoModelFactory):
             file = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
             file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
             file.close()
-            
-            repo.index.add([tutorial.get_path()])
                 
         elif part:
             chapter.introduction = os.path.join(part.slug, chapter.slug, 'introduction.md')
@@ -177,7 +175,7 @@ class ChapterFactory(factory.DjangoModelFactory):
             file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
             file.close()
             
-            repo.index.add([part.tutorial.get_path(), os.path.join(part.tutorial.get_path(),chapter.introduction), os.path.join(part.tutorial.get_path(),chapter.conclusion)])
+            repo.index.add([chapter.introduction, chapter.conclusion])
         
         repo.index.commit("Init Chapter")
         
