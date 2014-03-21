@@ -226,11 +226,8 @@ class Tutorial(models.Model):
                 .order_by('-pubdate')[0]
         except:
             last_note = None
-
-        if last_note == self.first_note():
-            return None
-        else:
-            return last_note
+        
+        return last_note
 
     def first_note(self):
         '''
@@ -270,7 +267,7 @@ class Tutorial(models.Model):
             .filter(tutorial=self)\
             .filter(author=user)\
             .order_by('-pubdate')
-
+        
         if last_user_notes and last_user_notes[0] == self.get_last_note():
             last_user_note = last_user_notes[0]
             t = timezone.now() - last_user_note.pubdate

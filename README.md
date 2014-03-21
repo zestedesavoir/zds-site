@@ -70,6 +70,7 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 ```console
 python manage.py test forum
 python manage.py test member
+python manage.py test tutorial
 ```
 
 En savoir plus
