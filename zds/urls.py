@@ -3,19 +3,67 @@
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.models import User, Group
-from django.contrib.sitemaps import GenericSitemap
 
-from zds.forum.models import Category, Forum
+from django.contrib.sitemaps import GenericSitemap, Sitemap
 
 import pages.views
 import settings
+from zds.article.models import Article
+from zds.forum.models import Category, Forum, Topic
+from zds.tutorial.models import Tutorial
+
 
 # SiteMap data
+class TutoSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 1
+    
+    def items(self):
+        return Tutorial.objects.filter(sha_public__isnull=False)
+         
+    def lastmod(self, tuto):
+        if tuto.update == None:
+            return tuto.pubdate
+        else:
+            return tuto.update
+         
+    def location(self, tuto):
+        return tuto.get_absolute_url_online()
+    
+class ArticleSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 1
+    
+    def items(self):
+        return Article.objects.filter(sha_public__isnull=False)
+         
+    def lastmod(self, article):
+        if article.update == None:
+            return article.pubdate
+        else:
+            return article.update
+         
+    def location(self, article):
+        return article.get_absolute_url_online()
+    
 sitemaps = {
-#    'blog': GenericSitemap(info_dict, priority=0.6),
-    'categories':   GenericSitemap({'queryset': Category.objects.all()}, priority=0.7),
-    'forums':       GenericSitemap({'queryset': Forum.objects.filter(group__isnull=True)}, priority=0.7),
+    'tutos':        TutoSitemap,
+    'articles':     ArticleSitemap,
+    'categories':   GenericSitemap(
+                        {'queryset': Category.objects.all()},
+                        changefreq = 'yearly',
+                        priority=0.7
+                    ),
+    'forums':       GenericSitemap(
+                        {'queryset': Forum.objects.filter(group__isnull=True)},
+                        changefreq = 'yearly',
+                        priority=0.7
+                    ),
+    'topics':       GenericSitemap(
+                        {'queryset': Topic.objects.filter(is_locked=False), 'date_field': 'pubdate'},
+                        changefreq = 'hourly',
+                        priority=0.7
+                    ),
 }
 
 
