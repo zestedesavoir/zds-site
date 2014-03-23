@@ -2471,8 +2471,8 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note
     # must to be the user logged.
-    if note.author != request.user:
-        if request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+    if note.author != request.user and request.method == 'GET' :
+        if request.user.has_perm('tutorial.change_note'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
