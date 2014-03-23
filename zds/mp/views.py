@@ -211,7 +211,16 @@ def new(request):
 
             return redirect(n_topic.get_absolute_url())
 
-    form = PrivateTopicForm()
+    if 'username' in request.GET:
+        try:
+            #check that username in url is in the database
+            dest = User.objects.get(username=request.GET['username']).username
+        except KeyError:
+            dest = None
+    
+    form = PrivateTopicForm(initial = {
+                    'participants': dest
+                })
     return render_template('mp/new.html', {
         'form': form,
     })
