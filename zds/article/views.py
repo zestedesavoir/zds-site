@@ -750,16 +750,16 @@ def edit_reaction(request):
 
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
-    if reaction.author != request.user and not request.user.has_perm('tutorial.change_note') :
+    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') :
         raise PermissionDenied
         
-    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_reaction'):
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
             u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-            .format(note.author.username))
-        note.alerts.all().delete()
+            .format(reaction.author.username))
+        reaction.alerts.all().delete()
 
     if request.method == 'POST':
         
