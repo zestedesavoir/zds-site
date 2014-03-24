@@ -8,8 +8,11 @@
 {% endblock %}
 
 {% block headline %}
-    {{ tutorial.title }}<br />
-    <small>{{ tutorial.description }}</small>
+    {{ tutorial.title }}
+{% endblock %}
+
+{% block headline-sub %}
+    {{ tutorial.description }}
 {% endblock %}
 
 {% block breadcrumb %}

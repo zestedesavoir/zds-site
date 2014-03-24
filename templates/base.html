@@ -448,8 +448,8 @@
                 <main class="content-container" role="main" id="content">
                     {% block content_out %}
                         <section>
-                            <h2>{% block headline %}{% endblock %}</h2>
-                            <h3>{% block headline-sub %}{% endblock %}</h3>
+                            {% block headline %}{% endblock %}
+                            {% block headline-sub %}{% endblock %}
                             <div class="row">
                                 {% if messages %}
                                     {% for message in messages %}
