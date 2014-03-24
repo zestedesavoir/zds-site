@@ -25,7 +25,8 @@ class ArticleForm(forms.Form):
         required = False,
         widget = forms.Textarea(
             attrs = {
-                'placeholder': 'Votre message au format Markdown.'
+                'placeholder': 'Votre message au format Markdown.',
+                'required':'required'
             }
         )
     )
@@ -60,7 +61,8 @@ class ReactionForm(forms.Form):
         label = '',
         widget = forms.Textarea(
             attrs = {
-                'placeholder': 'Votre message au format Markdown.'
+                'placeholder': 'Votre message au format Markdown.',
+                'required':'required'
             }
         )
     )
