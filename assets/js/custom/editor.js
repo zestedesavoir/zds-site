@@ -23,7 +23,7 @@
         tags: {
             bold:       { title: "Gras",                        start: "**",                end: "**"   },
             italic:     { title: "Italique",                    start: "*",                 end: "*"    },
-            strike:     { title: "Barré",                       start: "--",                end: "--"   },
+            strike:     { title: "Barré",                       start: "~~",                end: "~~"   },
             sup:        { title: "Exposant",                    start: "^",                 end: "^"    },
             sub:        { title: "Indice",                      start: "~",                 end: "~"    },
             abbr:       { title: "Abréviation" },
