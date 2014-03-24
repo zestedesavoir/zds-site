@@ -21,6 +21,10 @@
     </div>
 </div>
 
-{% include "forum/previsualization.part.html" %}
+{% if form.text.value %}
+    {% with text=form.text.value %}
+        {% include "forum/previsualization.part.html" %}
+    {% endwith %}
+{% endif %}
 
 {% endblock %}
