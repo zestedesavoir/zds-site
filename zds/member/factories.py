@@ -52,17 +52,14 @@ class StaffFactory(factory.DjangoModelFactory):
 class ProfileFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Profile
     
+    user = factory.SubFactory(UserFactory)
+    
     last_ip_address = '192.168.2.1'
     site = 'www.zestedesavoir.com'
-    biography = factory.LazyAttribute(lambda a:'My name is {0} and I i\'m the guy who kill the bad guys '.format(a.username.lower()))
+    
+    @factory.lazy_attribute
+    def biography(self):
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+    
     sign = 'Please look my flavour'
     
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        user = kwargs.pop('user', None)
-        profile = super(ProfileFactory, cls)._prepare(create, **kwargs)
-        if user:
-            profile.user = user
-            profile.save()
-        
-        return profile
