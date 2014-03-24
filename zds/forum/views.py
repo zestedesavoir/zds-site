@@ -386,8 +386,8 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user:
-        if request.method == 'GET' and request.user.has_perm('forum.change_post'):
+    if post.author != request.user and request.method == 'GET' :
+        if request.user.has_perm('forum.change_post'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
