@@ -725,7 +725,6 @@ def answer(request):
         })
         return render_template('article/answer.html', {
             'article': article,
-            'text': text,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
             'form': form
@@ -795,7 +794,6 @@ def edit_reaction(request):
             return render_template('article/edit_reaction.html', {
                 'reaction': reaction, 
                 'article': g_article, 
-                'text': request.POST['text'],
                 'form': form
             })
         
@@ -819,7 +817,6 @@ def edit_reaction(request):
         return render_template('article/edit_reaction.html', {
             'reaction': reaction, 
             'article': g_article, 
-            'text': reaction.text,
             'form': form
         })
 
