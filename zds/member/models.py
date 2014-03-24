@@ -30,7 +30,7 @@ class Profile(models.Model):
                 ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.ForeignKey(User, unique=True, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur')
     
     last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True,  null=True)
 
@@ -186,6 +186,6 @@ class Ban(models.Model):
     user = models.ForeignKey(User, verbose_name='Sanctionné')
     moderator = models.ForeignKey(User, verbose_name='Moderateur',
                                      related_name='bans')
-    type = models.CharField('Type',  max_length=15)
+    type = models.CharField('Type',  max_length=80)
     text = models.TextField('Explication de la sanction')
     pubdate = models.DateTimeField('Date de publication', blank=True, null=True)
