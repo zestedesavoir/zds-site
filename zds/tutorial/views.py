@@ -1537,7 +1537,6 @@ def add_extract(request):
             return render_template('tutorial/new_extract.html', {
                 'chapter': chapter, 
                 'form': form,
-                'text': data['text']
             })
 
         # Save extract.
@@ -1599,7 +1598,6 @@ def edit_extract(request):
             return render_template('tutorial/edit_extract.html', {
                 'extract': extract, 
                 'form': form,
-                'text': data['text']
             })
 
         # Edit extract.
@@ -2394,7 +2392,6 @@ def answer(request):
                 'text': data['text']
             })
             return render_template('tutorial/answer.html', {
-                'text': data['text'], 
                 'tutorial': tutorial, 
                 'last_note_pk': last_note_pk, 
                 'newnote': newnote,
@@ -2445,7 +2442,6 @@ def answer(request):
 
         return render_template('tutorial/answer.html', {
             'tutorial': tutorial, 
-            'text': text, 
             'notes': notes,
             'last_note_pk': last_note_pk,
             'form': form
@@ -2514,7 +2510,6 @@ def edit_note(request):
             return render_template('tutorial/edit_note.html', {
                 'note': note, 
                 'tutorial': g_tutorial, 
-                'text': request.POST['text'],
                 'form': form
             })
         
@@ -2538,7 +2533,6 @@ def edit_note(request):
         return render_template('tutorial/edit_note.html', {
             'note': note, 
             'tutorial': g_tutorial, 
-            'text': note.text,
             'form': form
         })
 
