@@ -415,7 +415,14 @@ def edit_post(request):
             raise PermissionDenied
 
     if request.method == 'POST':
-
+        if not 'text' in request.POST:
+            #if preview mode return on
+            if 'preview' in request.POST:
+                return redirect(reverse('zds.mp.views.edit_post') + '?message=' + str(post_pk))
+            #disallow send mp
+            else:
+                raise PermissionDenied
+               
         # Using the preview button
         if 'preview' in request.POST:
             form = PrivatePostForm(g_topic, request.user, initial = {
