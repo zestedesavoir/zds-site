@@ -10,8 +10,28 @@
 {% endblock %}
 
 {% block headline %}
-    <a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a><br />
-    <small>{{ article.description }}</small>
+    <h1 class="illu">
+        {% if article.image %}
+            <img src="{{article.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ article.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in tags.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs :  </span>
+        <ul>
+        {% for member in authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -19,29 +39,6 @@
 {% endblock %}
 
 {% block headline-actions %}
-    {% if tags %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tags">
-        <h3>Tags</h3>
-        <ul>
-        {% for category in tags.all %}
-            <li><a href="{% url "zds.article.views.index" %}?tag={{category.title}}">{{ category.title }}</a></li>
-        {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    {% if authors %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Contributeurs">
-        <h3>Contributeurs</h3>
-        <ul>
-        {% for author in authors.all %}
-            {% with profile=author|profile %}
-            <li><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></li>
-            {% endwith %}
-        {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
 
     {% if perms.article.change_article %}
     <form action="{% url "zds.article.views.modify" %}" method="post">
