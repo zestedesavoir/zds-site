@@ -77,18 +77,98 @@ class MemberTests(TestCase):
         login_check = self.client.login(username=staff.username, password='hostel77')
         self.assertEqual(login_check, True)
         
-        user = ProfileFactory()
-        
-        # Test: LS
+        # Test: LS        
+        user_ls = ProfileFactory()
         result = self.client.post(
-                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user.user.id}), 
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ls.user.id}), 
                         {'ls': '', 'ls-text': 'Texte de test pour LS'},
                         follow=False)
-        
-        # Refresh profile from DB
-        user = Profile.objects.get(id = user.id)
-        
+        user = Profile.objects.get(id = user_ls.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertFalse(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, 'Lecture Seule')
+        self.assertEqual(ban.text, 'Texte de test pour LS')
+        
+        # Test: Un-LS
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ls.user.id}), 
+                        {'un-ls': '', 'unls-text': 'Texte de test pour un-LS'},
+                        follow=False)
+        user = Profile.objects.get(id = user_ls.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, u'Authorisation d\'écrire')
+        self.assertEqual(ban.text, 'Texte de test pour un-LS')
+                
+        # Test: LS temp
+        user_ls_temp = ProfileFactory()
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ls_temp.user.id}), 
+                        {'ls-temp': '', 'ls-jrs': 10, 'ls-temp-text': 'Texte de test pour LS TEMP'},
+                        follow=False)
+        user = Profile.objects.get(id = user_ls_temp.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertFalse(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNotNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, 'Lecture Seule Temporaire')
+        self.assertEqual(ban.text, 'Texte de test pour LS TEMP')
+                
+        # Test: BAN        
+        user_ban = ProfileFactory()
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ban.user.id}), 
+                        {'ban': '', 'ban-text': 'Texte de test pour BAN'},
+                        follow=False)
+        user = Profile.objects.get(id = user_ban.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(user.can_write)
+        self.assertFalse(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, u'Ban définitif')
+        self.assertEqual(ban.text, 'Texte de test pour BAN')
+        
+        # Test: un-BAN        
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ban.user.id}), 
+                        {'un-ban': '', 'unban-text': 'Texte de test pour BAN'},
+                        follow=False)
+        user = Profile.objects.get(id = user_ban.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, 'Authorisation de se connecter')
+        self.assertEqual(ban.text, 'Texte de test pour BAN')
+        
+        # Test: BAN temp
+        user_ban_temp = ProfileFactory()
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user_ban_temp.user.id}), 
+                        {'ban-temp': '', 'ban-jrs': 10, 'ban-temp-text': 'Texte de test pour BAN TEMP'},
+                        follow=False)
+        user = Profile.objects.get(id = user_ban_temp.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(user.can_write)
+        self.assertFalse(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNotNone(user.end_ban_read)
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        self.assertEqual(ban.type, 'Ban Temporaire')
+        self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
         
         
