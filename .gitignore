@@ -232,3 +232,5 @@ $RECYCLE.BIN/
 /media
 /articles-data
 /apache-solr
+/include
+/lib
