@@ -10,13 +10,11 @@
 {% endblock %}
 
 {% block headline %}
-    <a href="{{ topic.get_absolute_url }}">
-        {{ topic.title }}
-    </a>
+    <h2>{{ topic.title }}</h2>
 {% endblock %}
 
 {% block headline-sub %}
-    {{ topic.subtitle }}
+    <h3 class="subtitle">{{ topic.subtitle }}</h3>
 {% endblock %}
 
 {% block breadcrumb %}

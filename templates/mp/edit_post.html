@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block headline %}
-    Éditer un message
+    <h2>Éditer un message : {{topic.title}}</h2>
+{% endblock %}
+
+{% block headline-sub %}
+    <h3 class="subtitle">{{ topic.subtitle }}</h3>
 {% endblock %}
 
 {% block breadcrumb %}
