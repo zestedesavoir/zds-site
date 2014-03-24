@@ -189,7 +189,7 @@
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                         {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url }}" alt="">
+                                                        <img src="{{ p.get_avatar_url }}" alt="" class="avatar" />
                                                         {% endwith %}
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
@@ -211,7 +211,7 @@
                                                         {% endif %}"
                                                     >
                                                         {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
                                                         <span class="username">{{ last_read.author.username }}</span>
                                                         <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
@@ -258,7 +258,7 @@
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                         {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
@@ -280,7 +280,7 @@
                                                         {% endif %}"
                                                     >
                                                         {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="">
+                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
                                                         <span class="username">{{ last_read.author.username }}</span>
                                                         <span class="date">{{ last_read.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
