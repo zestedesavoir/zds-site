@@ -104,7 +104,7 @@ class MemberTests(TestCase):
         self.assertTrue(user.can_read)
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Authorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
                 
@@ -120,7 +120,7 @@ class MemberTests(TestCase):
         self.assertTrue(user.can_read)
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Lecture Seule Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour LS TEMP')
                 
@@ -136,7 +136,7 @@ class MemberTests(TestCase):
         self.assertFalse(user.can_read)
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
         
@@ -151,7 +151,7 @@ class MemberTests(TestCase):
         self.assertTrue(user.can_read)
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Authorisation de se connecter')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
         
@@ -167,7 +167,7 @@ class MemberTests(TestCase):
         self.assertFalse(user.can_read)
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id = user.user.id).order_by('-pubdate')[0]
+        ban = Ban.objects.filter(user__id = user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Ban Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
         
