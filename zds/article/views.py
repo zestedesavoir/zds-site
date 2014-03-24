@@ -751,8 +751,8 @@ def edit_reaction(request):
 
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
-    if reaction.author != request.user:
-        if request.method == 'GET' and request.user.has_perm('article.change_reaction'):
+    if reaction.author != request.user and request.method == 'GET':
+        if request.user.has_perm('article.change_reaction'):
             messages.add_message(
                 request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
