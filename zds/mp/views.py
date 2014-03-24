@@ -145,7 +145,6 @@ def new(request):
             })
             return render_template('mp/new.html', {
                 'form': form,
-                'text': request.POST['text'],
             })
                 
         form = PrivateTopicForm(request.POST)
@@ -293,7 +292,6 @@ def answer(request):
                 'text': data['text']
             })
             return render_template('mp/answer.html', {
-                'text': data['text'], 
                 'topic': g_topic, 
                 'last_post_pk': last_post_pk, 
                 'newpost': newpost,
@@ -372,7 +370,6 @@ def answer(request):
         })
         return render_template('mp/answer.html', {
             'topic': g_topic, 
-            'text': text, 
             'posts': posts,
             'last_post_pk': last_post_pk,
             'form': form
@@ -425,7 +422,6 @@ def edit_post(request):
             return render_template('mp/edit_post.html', {
                 'post': post, 
                 'topic': g_topic, 
-                'text': request.POST['text'],
                 'form': form,
             })
 
