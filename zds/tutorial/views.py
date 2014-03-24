@@ -2471,17 +2471,16 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note
     # must to be the user logged.
-    if note.author != request.user and request.method == 'GET' :
-        if request.user.has_perm('tutorial.change_note'):
-            messages.add_message(
-                request, messages.WARNING,
-                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(note.author.username))
-            note.alerts.all().delete()
-        # The user isn't the author and staff, he didn't have permission for this.
-        else:
-            raise PermissionDenied
+    if note.author != request.user and not request.user.has_perm('tutorial.change_note') :
+        raise PermissionDenied
+        
+    if note.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+        messages.add_message(
+            request, messages.WARNING,
+            u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+            u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+            .format(note.author.username))
+        note.alerts.all().delete()
 
     if request.method == 'POST':
         
