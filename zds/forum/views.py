@@ -386,17 +386,16 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user and request.method == 'GET' :
-        if request.user.has_perm('forum.change_post'):
-            messages.add_message(
-                request, messages.WARNING,
-                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(post.author.username))
-            post.alerts.all().delete()
-        # The user isn't the author and staff, he didn't have permission for this.
-        else:
-            raise PermissionDenied
+    if post.author != request.user and not request.user.has_perm('tutorial.change_note') :
+        raise PermissionDenied
+        
+    if post.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+        messages.add_message(
+            request, messages.WARNING,
+            u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+            u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+            .format(note.author.username))
+        note.alerts.all().delete()
 
     if request.method == 'POST':
         
