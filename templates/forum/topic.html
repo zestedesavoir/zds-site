@@ -10,11 +10,10 @@
 {% endblock %}
 
 {% block headline %}
-    {{ topic.title }}
+    <h2>{{ topic.title }}</h2>
 {% endblock %}
-
 {% block headline-sub %}
-    {{ topic.subtitle }}
+    <h3 class="subtitle">{{ topic.subtitle }}</h3>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -60,6 +59,7 @@
         </div>
     </div>
 </div>
+<div class="content-wrapper">
 {% for post in posts %}
 <article class="forum-message {% if post.is_useful %} helpful {% endif %}">
     <div class="user" id="p{{ post.id }}">
@@ -68,6 +68,9 @@
             <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
             {% endwith %}
         </a>
+        {% if perms.forum.change_post %}
+            <span class="badge staff">Staff</span>
+        {% endif %}
     </div>
     <div class="message">
         {% if user.is_authenticated %}
@@ -113,7 +116,7 @@
     </div>
 </article>
 {% endfor %}
-
+</div>
 {% include "forum/topic_pagination.part.html" with position="top" %}
 
 {% if user.is_authenticated %}

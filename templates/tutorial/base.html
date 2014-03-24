@@ -12,6 +12,14 @@
     current
 {% endblock %}
 
+{% block content_out %}
+    <article>
+        <header>{% block headline %}{% endblock %}</header>
+        <section class="article-content content-wrapper">{% block content %}{% endblock %}</section>
+    </article>
+{% endblock %}
+
+
 {% block sidebar %}
 <aside class="sidebar sommaire mobile-menu-hide">
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
