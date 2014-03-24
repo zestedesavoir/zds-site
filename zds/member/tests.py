@@ -1,14 +1,16 @@
 # coding: utf-8
 
 from django.contrib.auth.models import User
-from django.test import TestCase
-from django.conf import settings
+from django.core import mail
 from django.core.urlresolvers import reverse
 
-from zds.member.factories import *
+from django.conf import settings
+from django.test import TestCase
+
 from zds.forum.factories import *
-from .models import Profile, TokenRegister
-from django.core import mail
+from zds.member.factories import *
+
+from .models import Profile, TokenRegister, Ban
 
 
 class MemberTests(TestCase):
@@ -66,6 +68,27 @@ class MemberTests(TestCase):
         self.assertEquals(User.objects.get(username='firm1').is_active, True)
     
     
+    def test_sanctions(self):
+        '''
+        Test various sanctions
+        '''
         
+        staff = StaffFactory()
+        login_check = self.client.login(username=staff.username, password='hostel77')
+        self.assertEqual(login_check, True)
+        
+        user = ProfileFactory()
+        
+        # Test: LS
+        result = self.client.post(
+                        reverse('zds.member.views.modify_profile', kwargs={'user_pk':user.user.id}), 
+                        {'ls': '', 'ls-text': 'Texte de test pour LS'},
+                        follow=False)
+        
+        # Refresh profile from DB
+        user = Profile.objects.get(id = user.id)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertFalse(user.can_write)
         
         
