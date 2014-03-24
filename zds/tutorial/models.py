@@ -265,7 +265,7 @@ class Tutorial(models.Model):
 
         last_user_notes = Note.objects\
             .filter(tutorial=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
         
         if last_user_notes and last_user_notes[0] == self.get_last_note():
