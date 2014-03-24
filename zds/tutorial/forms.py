@@ -266,7 +266,8 @@ class NoteForm(forms.Form):
         label = '',
         widget = forms.Textarea(
             attrs = {
-                'placeholder': 'Votre message au format Markdown.'
+                'placeholder': 'Votre message au format Markdown.',
+                'required':'required'
             }
         )
     )
