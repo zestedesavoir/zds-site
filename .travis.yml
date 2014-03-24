@@ -13,3 +13,7 @@ script:
   - python manage.py test member
   - python manage.py test forum
   - python manage.py test tutorial
+  - python manage.py test mp
+  - coverage run --source='.' manage.py test member forum tutorial mp
+after_success:
+  - coveralls
