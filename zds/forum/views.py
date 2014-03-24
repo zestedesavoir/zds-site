@@ -381,7 +381,7 @@ def edit_post(request):
     post = get_object_or_404(Post, pk=post_pk)
 
     g_topic = None
-    if post.position >= 1:
+    if post.position <= 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
 
     # Making sure the user is allowed to do that. Author of the post
@@ -442,15 +442,28 @@ def edit_post(request):
                 post.text_html = emarkdown(request.POST['text'])
                 post.update = datetime.now()
                 post.editor = request.user
-        
+
+            # Modifying the thread info
+            if g_topic:
+                g_topic.title = request.POST['title']
+                g_topic.subtitle = request.POST['subtitle']
+                g_topic.save()
+
         post.save()
         
         return redirect(post.get_absolute_url())
 
     else:
-        form = PostForm(g_topic, request.user, initial = {
-            'text': post.text
-        })
+        if g_topic:
+            form = TopicForm(g_topic, request.user, initial = {
+                'title ': g_topic.title,
+                'subtitle': g_topic.subtitle,
+                'text': post.text
+            })
+        else:
+            form = PostForm(g_topic, request.user, initial = {
+                'text': post.text
+            })
         form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
         return render_template('forum/edit_post.html', {
             'post': post, 
