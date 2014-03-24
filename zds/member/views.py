@@ -529,6 +529,6 @@ def date_to_chart(posts):
     
     for post in posts:
         t = post.pubdate.timetuple()
-        lst[t.tm_hour+1][(t.tm_wday+1)%7]=lst[t.tm_hour+1][(t.tm_wday+1)%7]+1
+        lst[t.tm_hour][(t.tm_wday+1)%7]=lst[t.tm_hour][(t.tm_wday+1)%7]+1
         
     return lst
