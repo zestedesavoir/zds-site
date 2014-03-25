@@ -5,8 +5,11 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
+from crispy_forms_foundation.layout import ButtonHolder
+from crispy_forms.bootstrap import StrictButton
 
 from zds.utils.forms import CommonLayoutEditor
+from zds.forum.models import Forum
 
 
 class TopicForm(forms.Form):
@@ -78,3 +81,25 @@ class PostForm(forms.Form):
                 placeholder = u'Ce topic est verrouillé.',
                 disabled = True
             )
+
+class MoveTopicForm(forms.Form):
+    
+    forum = forms.ModelChoiceField(
+        label = "Forum",
+        queryset = Forum.objects.all(),
+        required = True,
+    )
+
+    def __init__(self, topic, *args, **kwargs):
+        super(MoveTopicForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.forum.views.move_topic') + '?topic=' + str(topic.pk)
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('forum'),
+            ButtonHolder(
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+            )
+        )
