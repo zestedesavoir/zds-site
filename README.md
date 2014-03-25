@@ -1,4 +1,5 @@
 [![Build Status](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir.png?token=Cu35XY4F6RcYoPgjjcbA)](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir)
+[![Licnce GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
 
 ZesteDeSavoir
 =============
@@ -68,9 +69,7 @@ Cela va créer plusieurs entitées :
 Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant les commandes suivantes :
 
 ```console
-python manage.py test forum
-python manage.py test member
-python manage.py test tutorial
+python manage.py test member forum tutorial mp
 ```
 
 En savoir plus
