@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     # Viewing a thread
     url(r'^sujet/nouveau$', views.new),
     url(r'^sujet/editer$', views.edit),
+    url(r'^sujet/deplacer$', views.move_topic),
     url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)$', views.topic),
     url(r'^sujets/(?P<user_pk>.+)', views.find_topic),
 
