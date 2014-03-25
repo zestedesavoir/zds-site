@@ -8,7 +8,28 @@
 {% endblock %}
 
 {% block headline %}
-    {{ tutorial.title }}
+    <h1 class="illu">
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ tutorial.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in tutorial.subcategory.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+        {% for member in tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
 {% endblock %}
 
 {% block headline-sub %}
@@ -70,50 +91,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}"/>
-            {% endif %}
+    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+        <div>
+            Attention, cette version du tutoriel est en BETA
         </div>
-        <div class="large-6 columns">
-        <p>
-            Tutoriel
-            {% if not tutorial.is_mini %}
-                étendu
-            {% endif %}
-            rédigé par
-            {% for member in tutorial.authors.all %}
-                {% if forloop.counter > 1 %}
-                    {% if forloop.last %}
-                        et
-                    {% else %}
-                        ,
-                    {% endif %}
-                {% endif %}
-                {% include "member/member_item_common.part.html" %}
-            {% endfor %}.
-        </p>
-        </div>
-        <div class="large-5 columns">
-            <p>
-            {% for category in tutorial.subcategory.all %}
-                <span class="label">{{ category.title }}</span>
-            {% endfor %}
-            </p>
-        </div>
-    </div>
-</div>
-{% if tutorial.in_beta and tutorial.sha_beta == version %}
-<div class="row">
-    <div class="large-12 columns alert-box">
-        Attention, cette version du tutoriel est en BETA
-    </div>
-</div>
-{% endif %}
-<div class="row">
-    <div class="large-12 columns">
+    {% endif %}
     {% with tuto_version=tutorial|repo_tuto:version %}
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
@@ -155,6 +137,4 @@
             <p>Aucune conclusion.</p>
         {% endif %}
     {% endwith %}
-    </div>
-</div>
 {% endblock %}
