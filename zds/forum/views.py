@@ -227,14 +227,16 @@ def new(request):
 @login_required
 @require_POST
 def move_topic(request):
-
+    # only staff can move topic
+    if not request.user.has_perm('forum.change_topic'):
+        raise PermissionDenied
+    
     try:
-        topic_pk = request.GET['topic']
+        topic_pk = request.GET['sujet']
     except KeyError:
         raise Http404
     
-    data = request.POST
-    forum = get_object_or_404(Forum, pk=data['forum'])
+    forum = get_object_or_404(Forum, pk=request.POST['forum'])
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
