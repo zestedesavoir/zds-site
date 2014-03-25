@@ -93,7 +93,7 @@ class MoveTopicForm(forms.Form):
     def __init__(self, topic, *args, **kwargs):
         super(MoveTopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.forum.views.move_topic') + '?topic=' + str(topic.pk)
+        self.helper.form_action = reverse('zds.forum.views.move_topic') + '?sujet=' + str(topic.pk)
         self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
