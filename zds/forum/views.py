@@ -13,7 +13,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 import json
 
-from forms import TopicForm, PostForm
+from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, never_read, mark_read
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
@@ -139,6 +139,8 @@ def topic(request, topic_pk, topic_slug):
 
     # Build form to send a post for the current topic.
     form = PostForm(topic, request.user)
+    
+    form_move = MoveTopicForm(topic=topic)
 
     return render_template('forum/topic.html', {
         'topic': topic, 
@@ -147,7 +149,8 @@ def topic(request, topic_pk, topic_slug):
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
         'last_post_pk': last_post_pk,
-        'form': form
+        'form': form,
+        'form_move': form_move
     })
 
 @can_write_and_read_now
@@ -220,6 +223,24 @@ def new(request):
             'form': form,
         })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+def move_topic(request):
+
+    try:
+        topic_pk = request.GET['topic']
+    except KeyError:
+        raise Http404
+    
+    data = request.POST
+    forum = get_object_or_404(Forum, pk=data['forum'])
+    topic = get_object_or_404(Topic, pk=topic_pk)
+    topic.forum = forum
+    topic.save()
+    
+    return redirect(topic.get_absolute_url())
+    
 @can_write_and_read_now
 @login_required
 def edit(request):
