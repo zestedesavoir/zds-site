@@ -6,11 +6,47 @@
 {% endblock %}
 
 {% block headline %}
-{% if chapter.thumbnail %}
-<img src="{{chapter.thumbnail.url }}"/>
-{% endif %}
-{{ chapter.title }}
+    <h1 class="illu">
+        {% if chapter.image %}
+            <img src="{{chapter.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
+    {% if chapter.tutorial %}
+            <ul class="taglist">
+        {% for category in chapter.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.tutorial.authors.all %}
+                <li>
+                    {% include "member/member_item_common.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
+    {% else %}
+            <ul class="taglist">
+            {% for category in chapter.part.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.part.tutorial.authors.all %}
+                <li>
+                    {% include "member/member_item_common.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
+
 
 {% block headline-sub-actions %}
     {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}

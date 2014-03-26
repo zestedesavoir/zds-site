@@ -6,8 +6,29 @@
 {% endblock %}
 
 {% block headline %}
-    Partie {{ part.position_in_tutorial }} : {{ part.title }}<br />
-    <small>{{ part.tutorial.title }}</small>
+    <h1 class="illu">
+        {{ part.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in part.tutorial.subcategory.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+        {% for member in part.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ part.tutorial.description }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -21,17 +42,13 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
-    	{% if part.chapters %}
-        <ul>
-        {% for chapter in part.chapters %}
-        	<li><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.slug }}</a></li>
-        {% endfor %}
-    	</ul>
-    	{% endif %}
-    </div>
-</div>
-
+	{% if part.chapters %}
+    <ul>
+    {% for chapter in part.chapters %}
+    	<li>
+            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.slug }}</a></h3>
+        </li>
+    {% endfor %}
+	</ul>
+	{% endif %}
 {% endblock %}

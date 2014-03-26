@@ -271,6 +271,21 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note1.pk).dislike, 0)
         self.assertEqual(Note.objects.get(pk=note2.pk).dislike, 0)
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
+    
+    def test_import_tuto(self):
+        '''
+        Test import of big tuto
+        '''
+        result = self.client.post(
+                        reverse('zds.tutorial.views.import_tuto'), 
+                        {
+                          'file': open(settings.SITE_ROOT + '/fixtures/tuto/temps-reel-avec-irrlicht/temps-reel-avec-irrlicht.tuto', 'r'),
+                          'images': open(settings.SITE_ROOT + '/fixtures/tuto/temps-reel-avec-irrlicht/images.zip', 'r')
+                        },
+                        follow=False)
+        self.assertEqual(result.status_code, 302)
+        
+        self.assertEqual(Tutorial.objects.all().count(), 2)
         
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH): shutil.rmtree(settings.REPO_PATH)

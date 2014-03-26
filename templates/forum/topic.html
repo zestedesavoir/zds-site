@@ -47,6 +47,7 @@
         {% else %}
             <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true" class="ico-after">Marquer en Post-It</a></li>
         {% endif %}
+        {% crispy form_move %}
     {% endif %}
 {% endblock %}
 
