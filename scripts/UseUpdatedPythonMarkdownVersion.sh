@@ -4,18 +4,15 @@ mkdir temp
 cd temp
 
 # clone repository
-git clone git://github.com/waylan/Python-Markdown.git python-markdown
+git clone https://github.com/zeste-de-savoir/Python-ZMarkdown.git python-markdown
 cd python-markdown
 
 # checkout the correct commit
-git checkout 73fdecaf2cf00d85b7c933f5b8d186d74a80ff2a
-
-# apply patch for supporting range line numbering
-git apply ../../patchs/python-markdown/0001-Add-range-support-for-HL-in-codehilite.patch
-git apply ../../patchs/python-markdown/0002-linenostart-support.patch
+git checkout 2.4-zds 
 
 # install
-python2 setup.py install --user
+python setup.py install --user
+sudo python setup.py install
 
 # cleanning
 cd ..
