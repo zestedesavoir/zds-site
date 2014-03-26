@@ -12,13 +12,15 @@
             <ul>
                 {% for chapter in chapters %}
                 <li>
-                    <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</a>
+                    <h3><a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</a></h3>
                     <ul>
                         {% for extract in chapter.extracts %}
                         <li>
+                            <h4>
                             <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
                                 {{ extract.title }}
                             </a>
+                        </h4>
                         </li>
                         {% endfor %}
                     </ul>

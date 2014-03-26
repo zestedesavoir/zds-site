@@ -325,6 +325,40 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
         
+    def test_move_topic(self):
+        '''
+        Test topic move
+        '''
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        post2 = PostFactory(topic=topic1, author=user1, position = 2)
+        post3 = PostFactory(topic=topic1, author=self.user, position = 3)
         
+        #not staff member can't move topic
+        result = self.client.post(
+                        reverse('zds.forum.views.move_topic')+'?sujet={0}'.format(topic1.pk),
+                        {
+                          'forum': self.forum12
+                        },
+                        follow=False)
         
+        self.assertEqual(result.status_code, 403)
+        
+        #test with staff
+        staff1 = StaffFactory()
+        self.assertEqual(self.client.login(username=staff1.username, password='hostel77'), True)
+        
+        result = self.client.post(
+                        reverse('zds.forum.views.move_topic')+'?sujet={0}'.format(topic1.pk),
+                        {
+                          'forum': self.forum12.pk
+                        },
+                        follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        
+        #check value
+        self.assertEqual(Topic.objects.get(pk=topic1.pk).forum.pk, self.forum12.pk)
+                
         
