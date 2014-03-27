@@ -192,9 +192,10 @@ class ProfileForm(forms.Form):
 
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})
-
+        self.fields['options'].initial = ''
+        
         if 'show_email' in initial and initial['show_email']:
-            self.fields['options'].initial = 'show_email'
+            self.fields['options'].initial += 'show_email'
         
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
