@@ -190,7 +190,7 @@ def history(request, tutorial_pk, tutorial_slug):
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     # Make sure the URL is well-formed
@@ -328,7 +328,7 @@ def activ_beta(request, tutorial_pk, version):
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     tutorial.sha_beta = version
@@ -342,7 +342,7 @@ def desactiv_beta(request, tutorial_pk, version):
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     tutorial.sha_beta = None
@@ -392,7 +392,7 @@ def delete_tutorial(request, tutorial_pk):
     # If the user isn't an author of the tutorial or isn't in the staff,
     # he hasn't permission to execute this method:
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     # Delete the tutorial on the repo and on the database.
@@ -460,7 +460,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     # Only authors of the tutorial and staff can view tutorial in offline.
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     # Make sure the URL is well-formed
@@ -793,7 +793,7 @@ def edit_tutorial(request):
     # If the user isn't an author of the tutorial or isn't in the staff,
     # he hasn't permission to execute this method:
     if request.user not in tutorial.authors.all():
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     if request.method == 'POST':
@@ -876,7 +876,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     
-    if (not request.user.has_perm('forum.change_tutorial'))\
+    if (not request.user.has_perm('tutorial.change_tutorial'))\
        and (request.user not in tutorial.authors.all())\
        and not beta :
         raise Http404
@@ -1157,7 +1157,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     tutorial = chapter.get_tutorial()
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     
-    if (not request.user.has_perm('forum.change_tutorial'))\
+    if (not request.user.has_perm('tutorial.change_tutorial'))\
        and (request.user not in tutorial.authors.all())\
        and not beta :
         raise Http404
@@ -1522,7 +1522,7 @@ def add_extract(request):
     if (part and not request.user in chapter.part.tutorial.authors.all())\
         or (not part and not request.user in chapter.tutorial.authors.all()):
         # If the user isn't an author or a staff, we raise an exception.
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     if request.method == 'POST':
@@ -1583,7 +1583,7 @@ def edit_extract(request):
     if (part and not request.user in extract.chapter.part.tutorial.authors.all())\
         or (not part and not request.user in extract.chapter.tutorial.authors.all()):
         # If the user isn't an author or a staff, we raise an exception.
-        if not request.user.has_perm('forum.change_tutorial'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
 
     if request.method == 'POST':
