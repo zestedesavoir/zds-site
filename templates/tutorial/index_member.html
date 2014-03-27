@@ -16,9 +16,33 @@
 {% endblock %}
 
 {% block content-filter %}
-                        {% if type = 'public' and tuto.on_line %}
-                            <a href="{{ tuto.get_absolute_url_online }}">{{ tuto.title }}</a>
-                        {% else %}
-                            <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
-                        {% endif %}
+    {% if type = 'public' and tuto.on_line %}
+        <a href="{{ tuto.get_absolute_url_online }}">{{ tuto.title }}</a>
+    {% else %}
+        <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    {% if tutorials %}
+    {% for tuto in tutorials %}
+        <article>
+            <a href="{{ tuto.get_absolute_url }}">
+                {% if tuto.image %}
+                <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar"/>
+                {% endif %}
+                <div class="tutorial-infos">
+                    <h3>{{ tuto.title }}</h3>
+                    <p class="article-metadata">
+                        crée {{tuto.create_at|humane_date}}
+                    </p>
+                </div>
+            </a>
+        </article>
+    {% endfor %}
+    {% else %}
+    <p>Aucun tutoriel disponible.</p>
+    {% endif %}
+
 {% endblock %}
