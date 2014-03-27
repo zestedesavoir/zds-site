@@ -70,7 +70,7 @@ def view(request, article_pk, article_slug):
 
     # Only authors of the article and staff can view article in offline.
     if request.user not in article.authors.all():
-        if not request.user.has_perm('forum.change_article'):
+        if not request.user.has_perm('article.change_article'):
             raise PermissionDenied
 
     # The slug of the article must to be right.
@@ -272,7 +272,7 @@ def edit(request):
 
     # Only authors of the article and staff can edit article.
     if request.user not in article.authors.all():
-        if not request.user.has_perm('forum.change_article'):
+        if not request.user.has_perm('article.change_article'):
             raise PermissionDenied
 
     json = article.load_json()
