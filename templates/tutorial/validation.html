@@ -21,21 +21,24 @@
 {% endblock %}
 
 {% block headline %}
-    Liste des tutoriels soumis en validation
+    <h1>Liste des tutoriels soumis en validation</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <li class="current"><a href="#">Index</a></li>
 {% endblock %}
 
+{% block headline-actions %}
+    <h3>Navigation</h3>
+    <ul>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}" class="button">Zone de validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="button">En cours de validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="button">En attente de validateur</a></li>
+    </ul>
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <dl class="sub-nav">
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}" class="button">Zone de validation</a></dd>
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="button">En cours de validation</a></dd>
-            <dd><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="button">En attente de validateur</a></dd>
-        </dl>
     </div>
 </div>
 <div class="row">
