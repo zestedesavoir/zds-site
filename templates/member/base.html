@@ -13,3 +13,10 @@
 	{% block headline-actions %}{% endblock %}
 </aside>
 {% endblock %}
+
+{% block content_out %}
+    <article>
+        <header>{% block headline %}{% endblock %}</header>
+        <section class="article-content content-wrapper">{% block content %}{% endblock %}</section>
+    </article>
+{% endblock %}

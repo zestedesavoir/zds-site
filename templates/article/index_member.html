@@ -1,10 +1,10 @@
 {% extends "article/index.html" %}
 
 {% block headline-actions-filter %}
-            <h3><span class="wide">Filtres</span></h3>
-            <li><a href="{% url "zds.member.views.articles" %}">All</a></li>
-            <li><a href="{% url "zds.member.views.articles" %}?type=public">Public</a></li>
-            <li><a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a><li>
+    <h3><span class="wide">Filtres</span></h3>
+    <li><a href="{% url "zds.member.views.articles" %}">All</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}?type=public">Public</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a><li>
 {% endblock %}
 
 {% block content-filter %}

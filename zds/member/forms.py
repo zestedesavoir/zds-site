@@ -49,7 +49,6 @@ class LoginForm(forms.Form):
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
             ButtonHolder(
                 Submit('submit', 'Se connecter'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
                 HTML('{% csrf_token %}'),
             ),
@@ -95,7 +94,6 @@ class RegisterForm(forms.Form):
             Field('email'),
             ButtonHolder(
                 Submit('submit', 'Valider mon inscription'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
@@ -212,7 +210,6 @@ class ProfileForm(forms.Form):
             Field('options'),
             ButtonHolder(
                 Submit('submit', 'Editer mon profil'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
@@ -253,7 +250,6 @@ class ChangeUserForm(forms.Form):
             Field('email_new'),
             ButtonHolder(
                 Submit('submit', 'Changer'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             ),
         )
@@ -293,7 +289,6 @@ class ChangePasswordForm(forms.Form):
             Field('password_confirm'),
             ButtonHolder(
                 Submit('submit', 'Changer'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
@@ -349,7 +344,6 @@ class ForgotPasswordForm(forms.Form):
             Field('username'),
             ButtonHolder(
                 Submit('submit', 'Envoyer'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
@@ -377,7 +371,6 @@ class NewPasswordForm(forms.Form):
             Field('password_confirm'),
             ButtonHolder(
                 Submit('submit', 'Envoyer'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
