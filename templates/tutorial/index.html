@@ -1,4 +1,5 @@
 {% extends "tutorial/base.html" %}
+{% load humane_date %}
 
 {% block title %}
     Liste des tutoriels
@@ -10,7 +11,7 @@
 {% endblock %}
 
 {% block headline %}
-    Liste des tutoriels
+    <h2 class="ico ico-tutorials">Liste des tutoriels</h2>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -19,35 +20,24 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% if tutorials %}
-        <div class="tutorial-items">
-        {% for tuto in tutorials %}
-            <div class="row article-publication-item">
-                <div class="large-1 columns">
-                    {% if tuto.image %}
-                    <img src="{{tuto.image.thumb.url }}"/>
-                    {% endif %}
+    {% if tutorials %}
+    {% for tuto in tutorials %}
+        <article>
+            <a href="{{ tuto.get_absolute_url }}">
+                {% if tuto.image %}
+                <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar"/>
+                {% endif %}
+                <div class="tutorial-infos">
+                    <h3>{{ tuto.title }}</h3>
+                    <p class="article-metadata">
+                        crée {{tuto.create_at|humane_date}}
+                    </p>
                 </div>
-                <div class="large-10 columns">
-                    {% block content-filter %}
-                    <a href="{{ tuto.get_absolute_url_online }}">{{ tuto.title }}</a>
-                    {% endblock %}
-                    <p>{{ tuto.description }}</p>
-                </div>
-                <div class="large-1 columns">
-                    {% with date=tuto.pubdate %}
-                        {% include "misc/datebox.part.html" %}
-                    {% endwith %}
-                </div>
-            </div>
-        {% endfor %}
-        </div>
-        {% else %}
-        <p>Aucun tutoriel disponible.</p>
-        {% endif %}
-    </div>
-</div>
+            </a>
+        </article>
+    {% endfor %}
+    {% else %}
+    <p>Aucun tutoriel disponible.</p>
+    {% endif %}
 
 {% endblock %}
