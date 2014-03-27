@@ -8,9 +8,39 @@
 {% endblock %}
 
 {% block content-filter %}
-                        {% if type = 'public' and article.on_line %}
-                            <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
-                        {% else %}
-                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+    {% if type = 'public' and article.on_line %}
+        <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
+    {% else %}
+        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        {% if articles %}
+            <div class="article-items">
+                {% for article in articles %}
+                <article>
+                    <a href="{{ article.get_absolute_url }}">
+                        {% if article.image %}
+                        <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
                         {% endif %}
+                        <div class="article-infos">
+                            <h3>{{ article.title }}</h3>
+                            <p class="article-metadata">
+                                crée {{article.create_at|humane_date}}
+                            </p>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun article disponible.</p>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
