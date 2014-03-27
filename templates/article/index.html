@@ -47,7 +47,7 @@
             <div class="article-items">
                 {% for article in articles %}
                 <article>
-                    <a href="{{ article.get_absolute_url }}">
+                    <a href="{{ article.get_absolute_url_online }}">
                         {% if article.image %}
                         <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
                         {% endif %}
