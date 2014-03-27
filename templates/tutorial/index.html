@@ -23,7 +23,7 @@
     {% if tutorials %}
     {% for tuto in tutorials %}
         <article>
-            <a href="{{ tuto.get_absolute_url }}">
+            <a href="{{ tuto.get_absolute_url_online }}">
                 {% if tuto.image %}
                 <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar"/>
                 {% endif %}
