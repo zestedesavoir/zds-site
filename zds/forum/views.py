@@ -139,6 +139,7 @@ def topic(request, topic_pk, topic_slug):
 
     # Build form to send a post for the current topic.
     form = PostForm(topic, request.user)
+    form.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(topic.pk)
     
     form_move = MoveTopicForm(topic=topic)
 
@@ -330,6 +331,7 @@ def answer(request):
             form = PostForm(g_topic, request.user, initial = {
                 'text': data['text']
             })
+            form.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
             return render_template('forum/answer.html', {
                 'text': data['text'], 
                 'topic': g_topic, 
@@ -383,6 +385,7 @@ def answer(request):
         form = PostForm(g_topic, request.user, initial = {
             'text': text
         })
+        form.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
         return render_template('forum/answer.html', {
             'topic': g_topic, 
             'posts': posts,
@@ -409,16 +412,16 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user and not request.user.has_perm('tutorial.change_note') :
+    if post.author != request.user and not request.user.has_perm('forum.change_post') :
         raise PermissionDenied
         
-    if post.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
+    if post.author != request.user and request.method == 'GET' and request.user.has_perm('forum.change_post'):
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
             u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-            .format(note.author.username))
-        note.alerts.all().delete()
+            .format(post.author.username))
+        post.alerts.all().delete()
 
     if request.method == 'POST':
         
@@ -486,6 +489,7 @@ def edit_post(request):
             form = PostForm(g_topic, request.user, initial = {
                 'text': post.text
             })
+        
         form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
         return render_template('forum/edit_post.html', {
             'post': post, 
@@ -674,4 +678,3 @@ def deprecated_feed_messages_rss(request):
 
 def deprecated_feed_messages_atom(request):
     return redirect('/forums/flux/messages/atom/', permanent=True)
-
