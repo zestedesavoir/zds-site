@@ -179,7 +179,6 @@ class ProfileForm(forms.Form):
         choices = (
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures des autres membres"),
-            ('hover_or_click', u"Dérouler les menus au survol de la souris ou au clic")
         ),
         widget = forms.CheckboxSelectMultiple,
     )
@@ -199,9 +198,6 @@ class ProfileForm(forms.Form):
         
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
-        
-        if 'hover_or_click' in initial and initial['hover_or_click']:
-            self.fields['options'].initial += 'hover_or_click'
 
         self.helper.layout = Layout(
             Field('biography'),
