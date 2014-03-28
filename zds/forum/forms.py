@@ -45,7 +45,24 @@ class TopicForm(forms.Form):
             Field('subtitle', autocomplete='off'),
             CommonLayoutEditor(),
         )
+        
+    def clean(self):
+        cleaned_data = super(TopicForm, self).clean()
 
+        title = cleaned_data.get('title')
+        text = cleaned_data.get('text')
+        
+        if title.strip() == '':
+            self._errors['subtitle'] = self.error_class([u'Le champ titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        if text.strip() == '':
+            self._errors['text'] = self.error_class([u'Le champ text ne peut être vide'])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+        
+        return cleaned_data
 
 class PostForm(forms.Form):
     text = forms.CharField(
@@ -81,6 +98,18 @@ class PostForm(forms.Form):
                 placeholder = u'Ce topic est verrouillé.',
                 disabled = True
             )
+    
+    def clean(self):
+        cleaned_data = super(TopicForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text.strip() == '':
+            self._errors['text'] = self.error_class([u'Le champ text ne peut être vide'])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+        
+        return cleaned_data
 
 class MoveTopicForm(forms.Form):
     
