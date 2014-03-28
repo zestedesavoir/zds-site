@@ -53,7 +53,7 @@ class TopicForm(forms.Form):
         text = cleaned_data.get('text')
         
         if title.strip() == '':
-            self._errors['subtitle'] = self.error_class([u'Le champ titre ne peut être vide'])
+            self._errors['title'] = self.error_class([u'Le champ titre ne peut être vide'])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
         
