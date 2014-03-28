@@ -214,7 +214,7 @@ def new(request):
         try:
             #check that username in url is in the database
             dest = User.objects.get(username=request.GET['username']).username
-        except KeyError:
+        except:
             dest = None
     
     form = PrivateTopicForm(initial = {
