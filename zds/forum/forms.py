@@ -78,7 +78,6 @@ class PostForm(forms.Form):
     def __init__(self, topic, user, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(topic.pk)
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
