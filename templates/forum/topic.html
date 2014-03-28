@@ -101,9 +101,15 @@
         </div>
 
         <div class="message-bottom">
-            {% with profile=post.author|profile %}
-                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
-            {% endwith %}
+        	{% if user.is_authenticated %}
+				{% with profile_user=user|profile %}
+					{% if profile_user.show_sign %}
+			            {% with profile=post.author|profile %}
+			                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
+			            {% endwith %}
+		            {% endif %}
+		        {% endwith %}
+	        {% endif %}
             {% if user.is_authenticated %}
             <div class="message-karma">
                 {% if topic.author == user and post.author != user %}
@@ -121,7 +127,7 @@
 {% include "forum/topic_pagination.part.html" with position="top" %}
 
 {% if user.is_authenticated %}
-{% with profile=user|profile%}
+{% with profile=user|profile %}
 <section>
     <div class="user">
         <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
