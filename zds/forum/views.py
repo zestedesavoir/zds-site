@@ -449,13 +449,13 @@ def edit_post(request):
         
         # Using the preview button
         if 'preview' in request.POST:
-            form = PostForm(g_topic, request.user, initial = {
+            form = PostForm(post.topic, request.user, initial = {
                 'text': request.POST['text']
             })
             form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
                 'post': post, 
-                'topic': g_topic, 
+                'topic': post.topic, 
                 'text': request.POST['text'],
                 'form': form,
             })
@@ -486,14 +486,14 @@ def edit_post(request):
                 'text': post.text
             })
         else:
-            form = PostForm(g_topic, request.user, initial = {
+            form = PostForm(post.topic, request.user, initial = {
                 'text': post.text
             })
         
         form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
         return render_template('forum/edit_post.html', {
             'post': post, 
-            'topic': g_topic, 
+            'topic': post.topic, 
             'text': post.text,
             'form': form
         })
