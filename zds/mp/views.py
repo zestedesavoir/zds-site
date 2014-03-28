@@ -216,6 +216,8 @@ def new(request):
             dest = User.objects.get(username=request.GET['username']).username
         except:
             dest = None
+    else:
+        dest = None
     
     form = PrivateTopicForm(initial = {
                     'participants': dest
