@@ -100,7 +100,7 @@ class PostForm(forms.Form):
             )
     
     def clean(self):
-        cleaned_data = super(TopicForm, self).clean()
+        cleaned_data = super(PostForm, self).clean()
 
         text = cleaned_data.get('text')
 
