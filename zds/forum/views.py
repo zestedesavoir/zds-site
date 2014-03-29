@@ -1,28 +1,28 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_POST
 import json
+
+from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import Http404, HttpResponse
+from django.views.decorators.http import require_POST
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, never_read, mark_read
-from zds.member.models import Profile
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike
 from zds.utils.paginator import paginator_range
-from zds.member.models import Profile
-from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils.templatetags.emarkdown import emarkdown
+
 
 @can_read_now
 def index(request):
@@ -309,11 +309,11 @@ def answer(request):
 
     # Making sure posting is allowed
     if g_topic.is_locked:
-        raise Http404
+        raise PermissionDenied
 
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
-        raise Http404
+        raise PermissionDenied
     
     # Retrieve 3 last posts of the currenta topic.
     posts = Post.objects\
