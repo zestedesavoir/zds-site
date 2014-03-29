@@ -315,10 +315,6 @@ def answer(request):
     if g_topic.antispam(request.user):
         raise PermissionDenied
     
-    # Retrieve 3 last posts of the currenta topic.
-    posts = Post.objects\
-                .filter(topic = g_topic)\
-                .order_by('-pubdate')[:3]
     last_post_pk = g_topic.last_message.pk
 
     # User would like preview his post or post a new post on the topic.
@@ -386,6 +382,11 @@ def answer(request):
             'text': text
         })
         form.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
+        
+        # Retrieve 3 last posts of the currenta topic.
+        posts = Post.objects\
+                .filter(topic = g_topic)\
+                .order_by('-pubdate')[:3]
         return render_template('forum/answer.html', {
             'topic': g_topic, 
             'posts': posts,
