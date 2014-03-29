@@ -176,9 +176,10 @@ class ProfileForm(forms.Form):
 
     options = forms.MultipleChoiceField(
         label = '',
+        required = False,
         choices = (
             ('show_email', "Afficher mon adresse e-mail publiquement"),
-            ('show_sign', "Afficher les signatures des autres membres"),
+            ('show_sign', "Afficher les signatures"),
         ),
         widget = forms.CheckboxSelectMultiple,
     )
