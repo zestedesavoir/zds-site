@@ -362,3 +362,23 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Topic.objects.get(pk=topic1.pk).forum.pk, self.forum12.pk)
                 
         
+    def test_answer_empty(self):
+        '''
+        Test behaviour on empty answer
+        '''
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        
+        result = self.client.post(
+                        reverse('zds.forum.views.answer')+'?sujet={0}'.format(topic1.pk), 
+                        {
+                          'last_post' : topic1.last_message.pk,
+                          'text': u' '
+                        },
+                        follow=False)
+        
+        # Empty text --> preview = HTTP 200 + "Prévisualisation" in HTML
+        self.assertContains(result, 'Prévisualisation')
+
+
+        
