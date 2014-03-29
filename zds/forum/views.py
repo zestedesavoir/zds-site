@@ -11,6 +11,7 @@ import json
 
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.transaction import commit_on_success
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_POST
 
@@ -156,6 +157,7 @@ def topic(request, topic_pk, topic_slug):
 
 @can_write_and_read_now
 @login_required
+@commit_on_success
 def new(request):
     '''
     Creates a new topic in a forum
@@ -297,6 +299,7 @@ def edit(request):
 
 @can_write_and_read_now
 @login_required
+@commit_on_success
 def answer(request):
     '''Adds an answer from a user to a topic'''
     try:
@@ -402,6 +405,7 @@ def answer(request):
 
 @can_write_and_read_now
 @login_required
+@commit_on_success
 def edit_post(request):
     '''
     Edit the given user's post
