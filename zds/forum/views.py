@@ -339,7 +339,7 @@ def answer(request):
         # Saving the message
         else:
             form = PostForm(g_topic, request.user, request.POST)
-            if form.is_valid() and data['text'].strip() !='':
+            if form.is_valid():
                 data = form.data
 
                 post = Post()
@@ -361,7 +361,13 @@ def answer(request):
 
                 return redirect(post.get_absolute_url())
             else:
-                raise Http404
+                return render_template('forum/answer.html', {
+                    'text': data['text'], 
+                    'topic': g_topic, 
+                    'last_post_pk': last_post_pk, 
+                    'newpost': newpost,
+                    'form': form
+                })
 
     # Actions from the editor render to answer.html.
     else:
