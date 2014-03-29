@@ -1,14 +1,15 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User
-from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from zds.member.factories import *
-from zds.forum.factories import *
-from .models import Post, Forum, Topic, Category
+from django.conf import settings
+from django.test import TestCase
+
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.member.factories import UserFactory, StaffFactory
 from zds.utils.models import CommentLike, CommentDislike 
+
+from .models import Post, Topic
 
 
 class ForumMemberTests(TestCase):
@@ -361,4 +362,23 @@ class ForumMemberTests(TestCase):
         #check value
         self.assertEqual(Topic.objects.get(pk=topic1.pk).forum.pk, self.forum12.pk)
                 
+        
+    def test_answer_empty(self):
+        '''
+        Test behaviour on empty answer
+        '''
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position = 1)
+        
+        result = self.client.post(
+                        reverse('zds.forum.views.answer')+'?sujet={0}'.format(topic1.pk), 
+                        {
+                          'last_post' : topic1.last_message.pk,
+                          'text': u' '
+                        },
+                        follow=False)
+
+        # Empty text --> preview = HTTP 200 + post not saved (only 1 post in topic)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(Post.objects.filter(topic = topic1.pk).count(), 1)
         
