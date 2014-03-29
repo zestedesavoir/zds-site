@@ -1,14 +1,15 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User
-from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from zds.member.factories import *
-from zds.forum.factories import *
-from .models import Post, Forum, Topic, Category
+from django.conf import settings
+from django.test import TestCase
+
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.member.factories import UserFactory, StaffFactory
 from zds.utils.models import CommentLike, CommentDislike 
+
+from .models import Post, Topic
 
 
 class ForumMemberTests(TestCase):
@@ -376,9 +377,8 @@ class ForumMemberTests(TestCase):
                           'text': u' '
                         },
                         follow=False)
-        
-        # Empty text --> preview = HTTP 200 + "Prévisualisation" in HTML
-        self.assertContains(result, 'Prévisualisation')
 
-
+        # Empty text --> preview = HTTP 200 + post not saved (only 1 post in topic)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(Post.objects.filter(topic = topic1.pk).count(), 1)
         
