@@ -382,3 +382,29 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(Post.objects.filter(topic = topic1.pk).count(), 1)
         
+    def test_mandatory_fields_on_new(self):
+        '''
+        Test handeling of mandatory fields on new topic creation
+        '''
+        init_topic_count = Topic.objects.all().count()
+        
+        # Empty fields
+        response = self.client.post(
+            reverse('zds.forum.views.new')+'?forum={0}'.format(self.forum12.pk), 
+            {
+            },
+            follow=False)        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Topic.objects.all().count(), init_topic_count)
+        
+        # Blank data
+        response = self.client.post(
+            reverse('zds.forum.views.new')+'?forum={0}'.format(self.forum12.pk), 
+            {
+                'title': u' ',
+                'text': u' ',
+            },
+            follow=False)        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Topic.objects.all().count(), init_topic_count)
+        
