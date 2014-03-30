@@ -157,8 +157,6 @@ class Tutorial(models.Model):
         else :
             man_path=path
         
-        print('------------> '+str(man_path))
-        
         if os.path.isfile(man_path):
             json_data=open(man_path)
             data = json.load(json_data)
