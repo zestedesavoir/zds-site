@@ -7,7 +7,16 @@
 {% endblock %}
 
 {% block headline %}
-    Éditer le tutoriel
+    <h1 class="illu">
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+        {% endif %}
+        Editer le tutoriel : {{ tutorial.title }}
+    </h1>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ tutorial.description }}
 {% endblock %}
 
 {% block breadcrumb %}
