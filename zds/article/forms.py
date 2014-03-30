@@ -1,32 +1,41 @@
 # coding: utf-8
 
-from django import forms
 from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit, Field, Hidden, Div
-from crispy_forms.bootstrap import StrictButton
-from zds.utils.models import SubCategory
+from crispy_forms.layout import Layout, Field, Hidden
+from django import forms
+
 from zds.utils.forms import CommonLayoutEditor
+from zds.utils.models import SubCategory
 
 
 class ArticleForm(forms.Form):
     title = forms.CharField(
         label='Titre',
         max_length=80,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
 
     description = forms.CharField(
         max_length=200,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
     
     text = forms.CharField(
         label = 'Texte',
-        required = False,
         widget = forms.Textarea(
             attrs = {
                 'placeholder': 'Votre message au format Markdown.',
-                'required':'required'
+                'required': 'required',
             }
         )
     )
@@ -55,6 +64,30 @@ class ArticleForm(forms.Form):
             Field('subcategory'),
             CommonLayoutEditor(),
         )
+        
+    def clean(self):
+        cleaned_data = super(ArticleForm, self).clean()
+
+        title = cleaned_data.get('title')
+        description = cleaned_data.get('description')
+        text = cleaned_data.get('text')
+        
+        if title is not None and title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ Titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        if description is not None and description.strip() == '':
+            self._errors['description'] = self.error_class([u'Le champ Description ne peut être vide'])
+            if 'description' in cleaned_data:
+                del cleaned_data['description']
+        
+        if text is not None and text.strip() == '':
+            self._errors['text'] = self.error_class([u'Le champ Texte ne peut être vide'])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+        
+        return cleaned_data
 
 class ReactionForm(forms.Form):
     text = forms.CharField(
