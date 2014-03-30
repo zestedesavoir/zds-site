@@ -288,7 +288,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Tutorial.objects.all().count(), 2)
         
     def tearDown(self):
-        #if os.path.isdir(settings.REPO_PATH): shutil.rmtree(settings.REPO_PATH)
-        #if os.path.isdir(settings.REPO_PATH_PROD): shutil.rmtree(settings.REPO_PATH_PROD)
+        if os.path.isdir(settings.REPO_PATH): shutil.rmtree(settings.REPO_PATH)
+        if os.path.isdir(settings.REPO_PATH_PROD): shutil.rmtree(settings.REPO_PATH_PROD)
         if os.path.isdir(settings.REPO_ARTICLE_PATH): shutil.rmtree(settings.REPO_ARTICLE_PATH)
         if os.path.isdir(settings.MEDIA_ROOT): shutil.rmtree(settings.MEDIA_ROOT)
