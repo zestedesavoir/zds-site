@@ -30,7 +30,7 @@ class ArticleTests(TestCase):
             {
             },
             follow=False)        
-        self.assertEqual(response.status_code, 200, response)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Article.objects.all().count(), 0)
         
         # Blank data
@@ -42,5 +42,5 @@ class ArticleTests(TestCase):
                 'text': u' ',
             },
             follow=False)        
-        self.assertEqual(response.status_code, 200, response)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Article.objects.all().count(), 0)
