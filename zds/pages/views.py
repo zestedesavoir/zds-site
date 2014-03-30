@@ -1,19 +1,44 @@
 # coding: utf-8
 
-from zds.forum.models import get_last_topics
-from zds.tutorial.models import get_last_tutorials
+from collections import OrderedDict
+from django.core.urlresolvers import reverse
+import json
+from zds.utils import slugify
+
+from git import *
 from zds.article.models import get_last_articles
-from zds.utils import render_template
+from zds.forum.models import get_last_topics
 from zds.member.decorator import can_read_now
+from zds.tutorial.models import get_last_tutorials
+from zds.utils import render_template
+from zds.utils.tutorials import get_blob
+
 
 @can_read_now
 def home(request):
     '''
     Display the home page with last topics added
     '''
+    
+    tutos = []
+    for tuto in get_last_tutorials():
+        data = tuto.load_json_for_public()
+        data['pk']=tuto.pk
+        data['image']=tuto.image
+        data['gallery']=tuto.gallery
+        data['pubdate']=tuto.pubdate
+        data['update']=tuto.update
+        data['subcategory']=tuto.subcategory
+        data['get_absolute_url_online']=reverse('zds.tutorial.views.view_tutorial_online', 
+                                                   args=[tuto.pk, 
+                                                         slugify(data['title'])])
+        
+        
+        tutos.append(data)
+    
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
-        'last_tutorials': get_last_tutorials(),
+        'last_tutorials': tutos,
         'last_articles': get_last_articles(),
     })
 

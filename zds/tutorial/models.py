@@ -141,11 +141,19 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(settings.REPO_PATH, self.slug)
+            return os.path.join(settings.REPO_PATH, str(self.pk)+'_'+self.slug)
     
     def get_prod_path(self):
-        return os.path.join(settings.REPO_PATH_PROD, self.slug)
+        data = self.load_json_for_public()
+        return os.path.join(settings.REPO_PATH_PROD, str(self.pk)+'_'+ slugify(data['title']))
     
+    
+    def load_json_for_public(self):
+        repo = Repo(self.get_path())
+        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        data = json.loads(mantuto)
+        
+        return data
         
     def load_json(self, path=None, online = False):
         
@@ -399,7 +407,7 @@ class Part(models.Model):
         if relative:
             return self.slug
         else:
-            return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+            return os.path.join(os.path.join(settings.REPO_PATH, str(self.tutorial.pk)+'_'+self.tutorial.slug), self.slug)
     
     def get_introduction(self):
         intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
@@ -536,9 +544,9 @@ class Chapter(models.Model):
                 chapter_path = os.path.join(self.part.slug, self.slug)
         else:
             if self.tutorial:
-                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, str(self.tutorial.pk)+'_'+self.tutorial.slug), self.slug)
             else:
-                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(self.part.tutorial.pk)+'_'+self.part.tutorial.slug), self.part.slug), self.slug)
             
         return chapter_path
     
@@ -654,17 +662,17 @@ class Extract(models.Model):
                 chapter_path = os.path.join(self.chapter.part.slug, self.chapter.slug)
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, str(self.chapter.tutorial.pk)+'_'+self.chapter.tutorial.slug), self.chapter.slug)
             else:
-                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(self.chapter.part.tutorial.pk)+'_'+self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
     def get_prod_path(self):
         if self.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.tutorial.slug), self.chapter.slug)
+            chapter_path = os.path.join(os.path.join(settings.REPO_PATH_PROD, str(self.chapter.tutorial.pk)+'_'+self.chapter.tutorial.slug), self.chapter.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH_PROD, str(self.chapter.part.tutorial.pk)+'_'+self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md.html') 
     
