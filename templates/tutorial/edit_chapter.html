@@ -6,7 +6,16 @@
 {% endblock %}
 
 {% block headline %}
-    Éditer le chapitre
+    <h1 class="illu">
+        {% if chapter.image %}
+            <img src="{{chapter.image.thumb.url }}" alt=""/>
+        {% endif %}
+        Editer le chapitre : {{ part.title }}
+    </h1>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ chapter.description }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -21,11 +30,5 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
         {% crispy form %}
-    </div>
-</div>
-
 {% endblock %}
