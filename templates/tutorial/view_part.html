@@ -1,4 +1,5 @@
 {% extends "tutorial/base.html" %}
+{% load emarkdown %}
 {% load markup %}
 
 {% block title %}
@@ -32,23 +33,35 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url }}">{{ part.tutorial.title }}</a></li>
+    <li><a href="{{ part.tutorial.get_absolute_url }}?version={{version}}">{{ part.tutorial.title }}</a></li>
     <li class="current"><a href="#">{{ part.title }}</a></li>
 {% endblock %}
 
 {% block headline-sub-actions %}
     <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
-    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer</a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
 {% endblock %}
 
 {% block content %}
+    {% if part.intro %}
+        {{ part.intro|emarkdown }}
+    {% else %}
+        <p>Aucune introduction.</p>
+    {% endif %}
+
 	{% if part.chapters %}
     <ul>
     {% for chapter in part.chapters %}
     	<li>
-            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.slug }}</a></h3>
+            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
         </li>
     {% endfor %}
 	</ul>
 	{% endif %}
+
+    {% if part.conclu %}
+        {{ part.conclu|emarkdown }}
+    {% else %}
+        <p>Aucune conclusion.</p>
+    {% endif %}
 {% endblock %}

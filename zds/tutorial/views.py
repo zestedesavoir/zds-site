@@ -559,11 +559,11 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     
     # If the tutorial isn't online, we raise 404 error.
     if not tutorial.on_line:
-        raise Http404
-
+        raise PermissionDenied
+    
     # Make sure the URL is well-formed
     if not tutorial_slug == slugify(tutorial.title):
-        return redirect(tutorial.get_absolute_url())
+        return redirect(tutorial.get_absolute_url_online())
 
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
@@ -571,7 +571,13 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     #find the good manifest file
     mandata = tutorial.load_json(online=True)
-
+    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
+    mandata['get_absolute_url'] = tutorial.get_absolute_url()
+    mandata['get_introduction_online'] = tutorial.get_introduction_online()
+    mandata['get_conclusion_online'] = tutorial.get_conclusion_online()
+    
+    mandata['slug'] = slugify(mandata['title'])
+    mandata['pk'] = tutorial.pk
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
@@ -600,7 +606,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         parts = mandata['parts']
         cpt_p=1
         for part in parts :
-            part['tutorial'] = tutorial
+            part['tutorial'] = mandata
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
@@ -684,7 +690,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     form = NoteForm(tutorial, request.user)
         
     return render_template('tutorial/view_tutorial_online.html', {
-        'tutorial': tutorial, 
+        'tutorial': mandata, 
         'chapter': chapter, 
         'parts': parts,
         'notes': res,
@@ -897,7 +903,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
             part['intro'] = get_blob(repo.commit(sha).tree, part['introduction'])
-            part['conclu'] = get_blob(repo.commit(sha).tree, part['conclusion'])    
+            part['conclu'] = get_blob(repo.commit(sha).tree, part['conclusion'])
     
             cpt_c=1
             for chapter in part['chapters'] :
@@ -945,7 +951,7 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     
     final_part = None
     #find the good manifest file
-    mandata = tutorial.load_json()
+    mandata = tutorial.load_json(online=True)
     
     parts = mandata['parts']
     cpt_p=1
@@ -1020,8 +1026,8 @@ def add_part(request):
             part.position_in_tutorial = tutorial.get_parts().count() + 1
             
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
-            part.introduction = os.path.join(new_slug, 'introduction.md')
-            part.conclusion = os.path.join(new_slug, 'conclusion.md')
+            part.introduction = os.path.join(slugify(data['title']), 'introduction.md')
+            part.conclusion = os.path.join(slugify(data['title']), 'conclusion.md')
             
             part.save()
             
@@ -1110,8 +1116,8 @@ def edit_part(request):
             old_slug = part.get_path()
 
             # Update path for introduction and conclusion.
-            part.introduction = os.path.join(new_slug, 'introduction.md')
-            part.conclusion = os.path.join(new_slug, 'conclusion.md')
+            part.introduction = os.path.join(slugify(data['title']), 'introduction.md')
+            part.conclusion = os.path.join(slugify(data['title']), 'conclusion.md')
             
             part.save()
 
@@ -1182,7 +1188,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     for part in parts :
         cpt_c=1
         part['slug'] = slugify(part['title'])
-        part['get_absolute_url'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
+        part['get_absolute_url'] = reverse('zds.tutorial.views.view_part', args=[tutorial.pk,tutorial.slug,part['slug']])
         part['tutorial'] = tutorial
         for chapter in part['chapters'] :
             chapter['part'] = part
@@ -1238,8 +1244,11 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         return redirect(chapter_bd.get_absolute_url())
 
     #find the good manifest file
-    mandata = tutorial.load_json()
-    
+    mandata = tutorial.load_json(online=True)
+    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
+    mandata['get_absolute_url'] = tutorial.get_absolute_url()
+    mandata['slug'] = slugify(mandata['title'])
+    mandata['pk'] = tutorial.pk
     parts = mandata['parts']
     cpt_p=1
     
@@ -1339,8 +1348,8 @@ def add_chapter(request):
                     chapter.conclusion = os.path.join(chapter.slug, 'conclusion.md')
                 else:
                     chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), chapter.slug)
-                    chapter.introduction = os.path.join(os.path.join(chapter.part.tutorial.slug, chapter.slug), 'introduction.md')
-                    chapter.conclusion = os.path.join(os.path.join(chapter.part.tutorial.slug, chapter.slug), 'conclusion.md')
+                    chapter.introduction = os.path.join(os.path.join(chapter.part.slug, slugify(data['title'])), 'introduction.md')
+                    chapter.conclusion = os.path.join(os.path.join(chapter.part.slug, slugify(data['title'])), 'conclusion.md')
                 new_slug = os.path.join(chapter_path , slugify(data['title']))
                 
                 chapter.save()

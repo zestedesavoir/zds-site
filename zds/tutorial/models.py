@@ -148,6 +148,7 @@ class Tutorial(models.Model):
     
         
     def load_json(self, path=None, online = False):
+        
         if path==None:
             if online :
                 man_path=os.path.join(self.get_prod_path(),'manifest.json')
@@ -155,6 +156,7 @@ class Tutorial(models.Model):
                 man_path=os.path.join(self.get_path(),'manifest.json')
         else :
             man_path=path
+        
         if os.path.isfile(man_path):
             json_data=open(man_path)
             data = json.load(json_data)
