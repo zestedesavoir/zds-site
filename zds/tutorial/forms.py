@@ -15,11 +15,30 @@ from zds.utils.models import Category, SubCategory, Licence
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 
 
-class TutorialForm(forms.Form):
+class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80
+        max_length=80,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
+    
+    def clean(self):
+        cleaned_data = super(FormWithTitle, self).clean()
+
+        title = cleaned_data.get('title')
+        
+        if title is not None and title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ Titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        return cleaned_data
+
+class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
         label = 'Description',
@@ -60,6 +79,11 @@ class TutorialForm(forms.Form):
         label = "Sous-catégories de votre tuto",
         queryset = SubCategory.objects.all(),
         required = True,
+        widget = forms.SelectMultiple(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
     
     licence = forms.ModelChoiceField(
@@ -88,12 +112,7 @@ class TutorialForm(forms.Form):
             ),
         )
 
-
-class PartForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
+class PartForm(FormWithTitle):
 
     introduction = forms.CharField(
         label = 'Introduction',
@@ -130,12 +149,8 @@ class PartForm(forms.Form):
             )
         )
 
-class ChapterForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-    
+class ChapterForm(FormWithTitle):
+   
     image = forms.ImageField(
         label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
         required=False
@@ -172,6 +187,7 @@ class ChapterForm(forms.Form):
                 StrictButton('Ajouter et continuer', type = 'submit_continue', css_class = 'btn-submit'),
             )
         )
+    
 
 class EmbdedChapterForm(forms.Form):
     introduction = forms.CharField(
@@ -207,11 +223,7 @@ class EmbdedChapterForm(forms.Form):
         super(EmbdedChapterForm, self).__init__(*args, **kwargs)
 
 
-class ExtractForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
+class ExtractForm(FormWithTitle):
 
     text = forms.CharField(
         label = 'Texte',
@@ -237,6 +249,7 @@ class ExtractForm(forms.Form):
                 StrictButton(u'Aperçu', type = 'submit', css_class = 'btn-submit', name = 'preview'),
             )
         )
+
 
 class ImportForm(forms.Form):
 
