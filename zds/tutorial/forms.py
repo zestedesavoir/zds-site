@@ -18,7 +18,12 @@ from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 class TutorialForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80
+        max_length=80,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
 
     description = forms.CharField(
@@ -60,6 +65,11 @@ class TutorialForm(forms.Form):
         label = "Sous-catégories de votre tuto",
         queryset = SubCategory.objects.all(),
         required = True,
+        widget = forms.SelectMultiple(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
     
     licence = forms.ModelChoiceField(
@@ -88,6 +98,17 @@ class TutorialForm(forms.Form):
             ),
         )
 
+    def clean(self):
+        cleaned_data = super(TutorialForm, self).clean()
+
+        title = cleaned_data.get('title')
+        
+        if title is not None and title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ Titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        return cleaned_data
 
 class PartForm(forms.Form):
     title = forms.CharField(
