@@ -15,7 +15,12 @@ from zds.forum.models import Forum
 class TopicForm(forms.Form):
     title = forms.CharField(
     	label = 'Titre',
-    	max_length = 80
+    	max_length = 80,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
 
     subtitle = forms.CharField(
@@ -52,12 +57,12 @@ class TopicForm(forms.Form):
         title = cleaned_data.get('title')
         text = cleaned_data.get('text')
         
-        if title.strip() == '':
+        if title is not None and title.strip() == '':
             self._errors['title'] = self.error_class([u'Le champ titre ne peut être vide'])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
         
-        if text.strip() == '':
+        if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class([u'Le champ text ne peut être vide'])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
