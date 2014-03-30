@@ -37,6 +37,7 @@
         	{% if perms.tutorial.change_tutorial %}
         	<li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
         	{% endif %}
+            <li><a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">HTML</a></li>
             <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
             <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
             {% endif %}

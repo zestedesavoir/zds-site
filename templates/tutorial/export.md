@@ -1,6 +1,7 @@
 {% load emarkdown %}{% load humane_date %}{% load profile %}{% load markup %}
 % {{ tutorial.title }}
-% {% for member in tutorial.authors.all %} {{ member.username }}, {% endfor %}
+% {% for member in tutorial.authors.all %}{{ member.username|title }}, {% endfor %}
+% {{ tutorial.pubdate|date:"d F, Y" }}
 
 {% if tutorial.intro %}
 #Introduction
