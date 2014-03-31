@@ -277,8 +277,8 @@ def valid_tutorial(request):
     except KeyError:
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk = tutorial_pk)
-
-    MEP(tutorial)
+    
+    MEP(tutorial, tutorial.sha_validation)
     validation = Validation.objects\
                     .filter(tutorial__pk = tutorial_pk, version = tutorial.sha_validation)\
                     .latest('date_proposition')
@@ -396,7 +396,7 @@ def delete_tutorial(request, tutorial_pk):
             raise PermissionDenied
 
     # Delete the tutorial on the repo and on the database.
-    old_slug = os.path.join(settings.REPO_PATH, tutorial.slug)
+    old_slug = os.path.join(settings.REPO_PATH, str(tutorial.pk)+'_'+tutorial.slug)
     maj_repo_tuto(request,
                   old_slug_path=old_slug,
                   tuto = tutorial,
@@ -560,17 +560,14 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # If the tutorial isn't online, we raise 404 error.
     if not tutorial.on_line:
         raise PermissionDenied
-    
-    # Make sure the URL is well-formed
-    if not tutorial_slug == slugify(tutorial.title):
-        return redirect(tutorial.get_absolute_url_online())
 
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
 
     #find the good manifest file
-    mandata = tutorial.load_json(online=True)
+    mandata = tutorial.load_json_for_public()
+    #mandata = tutorial.load_json(online=True)
     mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
     mandata['get_absolute_url'] = tutorial.get_absolute_url()
     mandata['get_introduction_online'] = tutorial.get_introduction_online()
@@ -578,6 +575,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     
     mandata['slug'] = slugify(mandata['title'])
     mandata['pk'] = tutorial.pk
+    mandata['on_line'] = tutorial.on_line
+
+    
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
@@ -828,7 +828,7 @@ def edit_tutorial(request):
                 img.save()
                 tutorial.image = img
             
-            new_slug = os.path.join(settings.REPO_PATH, slugify(data['title']))
+            new_slug = os.path.join(settings.REPO_PATH, str(tutorial.pk)+'_'+slugify(data['title']))
             
             tutorial.save()
             
@@ -943,15 +943,10 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     tutorial = part.tutorial
     if not tutorial.on_line :
         raise Http404
-
-    # Make sure the URL is well-formed
-    if not tutorial_slug == slugify(tutorial.title)\
-            or not part_slug == slugify(part.title):
-        return redirect(part.get_absolute_url())
     
     final_part = None
     #find the good manifest file
-    mandata = tutorial.load_json(online=True)
+    mandata = tutorial.load_json_for_public()
     
     parts = mandata['parts']
     cpt_p=1
@@ -1025,7 +1020,7 @@ def add_part(request):
             part.title = data['title']
             part.position_in_tutorial = tutorial.get_parts().count() + 1
             
-            new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
+            new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(part.tutorial.pk)+'_'+part.tutorial.slug), slugify(data['title']))
             part.introduction = os.path.join(slugify(data['title']), 'introduction.md')
             part.conclusion = os.path.join(slugify(data['title']), 'conclusion.md')
             
@@ -1079,7 +1074,7 @@ def modify_part(request):
             if old_pos <= tut_p.position_in_tutorial:
                 tut_p.position_in_tutorial = tut_p.position_in_tutorial - 1
                 tut_p.save()
-        old_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), part.slug)
+        old_slug = os.path.join(os.path.join(settings.REPO_PATH, str(part.tutorial.pk)+'_'+part.tutorial.slug), part.slug)
         
         
         maj_repo_part(request,
@@ -1112,7 +1107,7 @@ def edit_part(request):
             
             # Update title and his slug.
             part.title = data['title']
-            new_slug = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(data['title']))
+            new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(part.tutorial.pk)+'_'+part.tutorial.slug), slugify(data['title']))
             old_slug = part.get_path()
 
             # Update path for introduction and conclusion.
@@ -1238,13 +1233,8 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
     if not tutorial.on_line :
         raise Http404
 
-    if not tutorial_slug == slugify(tutorial.title)\
-        or not part_slug == slugify(chapter_bd.part.title)\
-            or not chapter_slug == slugify(chapter_bd.title):
-        return redirect(chapter_bd.get_absolute_url())
-
     #find the good manifest file
-    mandata = tutorial.load_json(online=True)
+    mandata = tutorial.load_json_for_public()
     mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
     mandata['get_absolute_url'] = tutorial.get_absolute_url()
     mandata['slug'] = slugify(mandata['title'])
@@ -1343,11 +1333,11 @@ def add_chapter(request):
                     chapter.image = img
                 
                 if chapter.tutorial:
-                    chapter_path = os.path.join(os.path.join(settings.REPO_PATH, chapter.tutorial.slug), chapter.slug)
+                    chapter_path = os.path.join(os.path.join(settings.REPO_PATH, str(chapter.tutorial.pk)+'_'+chapter.tutorial.slug), chapter.slug)
                     chapter.introduction = os.path.join(chapter.slug, 'introduction.md')
                     chapter.conclusion = os.path.join(chapter.slug, 'conclusion.md')
                 else:
-                    chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), chapter.slug)
+                    chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(chapter.part.tutorial.pk)+'_'+chapter.part.tutorial.slug), chapter.part.slug), chapter.slug)
                     chapter.introduction = os.path.join(os.path.join(chapter.part.slug, slugify(data['title'])), 'introduction.md')
                     chapter.conclusion = os.path.join(os.path.join(chapter.part.slug, slugify(data['title'])), 'conclusion.md')
                 new_slug = os.path.join(chapter_path , slugify(data['title']))
@@ -1466,9 +1456,9 @@ def edit_chapter(request):
             data = form.data
             if chapter.part:
                 if chapter.tutorial:
-                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, chapter.tutorial.slug), slugify(data['title']))
+                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(chapter.tutorial.pk)+'_'+chapter.tutorial.slug), slugify(data['title']))
                 else:
-                    new_slug = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), slugify(data['title']))
+                    new_slug = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(chapter.part.tutorial.pk)+'_'+chapter.part.tutorial.slug), chapter.part.slug), slugify(data['title']))
                     
                 chapter.title = data['title']
                 # Create image
@@ -1621,12 +1611,12 @@ def edit_extract(request):
                 
                 # Get path for mini-tuto
                 if extract.chapter.tutorial:
-                    chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+                    chapter_tutorial_path = os.path.join(settings.REPO_PATH, str(extract.chapter.tutorial.pk)+'_'+extract.chapter.tutorial.slug)
                     chapter_part = os.path.join(chapter_tutorial_path, extract.chapter.slug)
 
                 # Get path for big-tuto
                 else:
-                    chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+                    chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, str(extract.chapter.part.tutorial.pk)+'_'+extract.chapter.part.tutorial.slug)
                     chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
                     chapter_part = os.path.join(chapter_part_path, extract.chapter.slug)
 
@@ -1678,12 +1668,12 @@ def modify_extract(request):
 
         # Get path for mini-tuto
         if extract.chapter.tutorial:
-            chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug)
+            chapter_tutorial_path = os.path.join(settings.REPO_PATH, str(extract.chapter.tutorial.pk)+'_'+extract.chapter.tutorial.slug)
             chapter_path = os.path.join(chapter_tutorial_path, extract.chapter.slug)
 
         # Get path for big-tuto
         else:
-            chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug)
+            chapter_part_tutorial_path = os.path.join(settings.REPO_PATH, str(extract.chapter.part.tutorial.pk)+'_'+extract.chapter.part.tutorial.slug)
             chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.slug)
             chapter_path = os.path.join(chapter_part_path, extract.chapter.slug)
 
@@ -1819,9 +1809,9 @@ def import_tuto(request):
             
                         tutorial.gallery = gal
                         
-                        tuto_path = os.path.join(settings.REPO_PATH, slugify(tutorial.title))
-                        
                         tutorial.save()
+                        
+                        tuto_path = os.path.join(settings.REPO_PATH, str(tutorial.pk)+'_'+slugify(tutorial.title))
                         
                         mapping = upload_images(request, tutorial)
                         
@@ -1850,7 +1840,7 @@ def import_tuto(request):
                             part.introduction = os.path.join(slugify(part_title.text.strip()),'introduction.md')
                             part.conclusion = os.path.join(slugify(part_title.text.strip()),'conclusion.md')
                             
-                            part_path = os.path.join(os.path.join(settings.REPO_PATH, part.tutorial.slug), slugify(part.title))
+                            part_path = os.path.join(os.path.join(settings.REPO_PATH, str(part.tutorial.pk)+'_'+part.tutorial.slug), slugify(part.title))
                             
                             part.save()
                             
@@ -1872,7 +1862,7 @@ def import_tuto(request):
                                 chapter.introduction = os.path.join(part.slug,os.path.join(slugify(chapter_title.text.strip()),'introduction.md'))
                                 chapter.conclusion = os.path.join(part.slug,os.path.join(slugify(chapter_title.text.strip()),'conclusion.md'))  
                                 
-                                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug), chapter.part.slug), slugify(chapter.title))
+                                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(chapter.part.tutorial.pk)+'_'+chapter.part.tutorial.slug), chapter.part.slug), slugify(chapter.title))
                                 
                                 chapter.save()
                                 
@@ -1898,7 +1888,6 @@ def import_tuto(request):
                                     extract.save()
 
                                     maj_repo_extract(request,new_slug_path=extract.get_path(), extract=extract, text=replace_real_url(extract_text.text, mapping), action= 'add')
-                                    
                                     
                                     extract_count += 1
                                     
@@ -1934,9 +1923,9 @@ def import_tuto(request):
             
                         tutorial.gallery = gal
                         
-                        tuto_path = os.path.join(settings.REPO_PATH, slugify(tutorial.title))
-                        
                         tutorial.save()
+                        
+                        tuto_path = os.path.join(settings.REPO_PATH, str(tutorial.pk)+'_'+slugify(tutorial.title))
                         
                         mapping = upload_images(request, tutorial)
                         
@@ -2100,10 +2089,10 @@ def maj_repo_part(request, old_slug_path=None, new_slug_path=None, part=None, in
         
 def maj_repo_chapter(request, old_slug_path=None, new_slug_path=None, chapter=None, introduction=None, conclusion=None, action=None):
     if(chapter.tutorial):
-        repo = Repo(os.path.join(settings.REPO_PATH, chapter.tutorial.slug))
+        repo = Repo(os.path.join(settings.REPO_PATH, str(chapter.tutorial.pk)+'_'+chapter.tutorial.slug))
         ph=chapter.slug
     else:
-        repo = Repo(os.path.join(settings.REPO_PATH, chapter.part.tutorial.slug))
+        repo = Repo(os.path.join(settings.REPO_PATH, str(chapter.part.tutorial.pk)+'_'+chapter.part.tutorial.slug))
         ph=os.path.join(chapter.part.slug, slugify(chapter.title))
         
     index = repo.index
@@ -2161,10 +2150,10 @@ def maj_repo_chapter(request, old_slug_path=None, new_slug_path=None, chapter=No
     
 def maj_repo_extract(request, old_slug_path=None, new_slug_path=None, extract=None, text=None, action=None):
     if(extract.chapter.tutorial):
-        repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.tutorial.slug))
+        repo = Repo(os.path.join(settings.REPO_PATH, str(extract.chapter.tutorial.pk)+'_'+extract.chapter.tutorial.slug))
         ph=extract.chapter.slug
     else:
-        repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.slug))
+        repo = Repo(os.path.join(settings.REPO_PATH, str(extract.chapter.part.tutorial.pk)+'_'+extract.chapter.part.tutorial.slug))
         ph=os.path.join(extract.chapter.part.slug, slugify(extract.chapter.title))
 
     index = repo.index
@@ -2216,7 +2205,7 @@ def download(request):
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
-    ph=os.path.join(settings.REPO_PATH, tutorial.slug)
+    ph=os.path.join(settings.REPO_PATH, str(tutorial.pk)+'_'+tutorial.slug)
     repo = Repo(ph)
     repo.archive(open(ph+".tar",'w'))
     
@@ -2234,6 +2223,17 @@ def download_markdown(request):
     
     response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "rb").read(), mimetype='application/txt')
     response['Content-Disposition'] = 'attachment; filename={0}.md'.format(tutorial.slug)
+
+    return response
+
+@can_read_now
+def download_html(request):
+    '''Download a pdf tutorial'''
+
+    tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+    
+    response = HttpResponse(open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.html'), "rb").read(), mimetype='text/html')
+    response['Content-Disposition'] = 'attachment; filename={0}.html'.format(tutorial.slug)
 
     return response
     
@@ -2260,20 +2260,27 @@ def download_epub(request):
     return response
     
 def get_url_images(md_text, pt):
+    '''
+    find images urls in markdown text and download this
+    '''
     regex = ur"(!\[.*?\]\()(.+?)(\))"
     imgs = re.findall(regex, md_text)
     
     for img in imgs:
+        #decompose images
         parse_object = urlparse(img[1])
         
+        #if link is http type
         if parse_object.scheme in ('http', 'https'):
             (filepath, filename) = os.path.split(parse_object.path)
+            # download image 
             urlretrieve(img[1], os.path.join(pt, img[1]))
             ext = filename.split('.')[-1]
+            # if image is gif, convert to png 
             if ext == 'gif':
                 im = ImagePIL.open(os.path.join(pt, img[1]))
                 im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
-        else :
+        else : # relative link
             srcfile = settings.SITE_ROOT + img[1]
             dstroot = pt + img[1]
             dstdir =  os.path.dirname(dstroot)
@@ -2282,12 +2289,13 @@ def get_url_images(md_text, pt):
             shutil.copy(srcfile, dstroot)
             
             ext = dstroot.split('.')[-1]
+            # if image is gif, convert to png 
             if ext == 'gif':
                 im = ImagePIL.open(dstroot)
                 im.save(os.path.join(dstroot.split('.')[0]+'.png'))
         
 
-def sub(g):
+def sub_urlimg(g):
     start = g.group('start')
     url = g.group('url')
     parse_object = urlparse(url)
@@ -2305,45 +2313,60 @@ def sub(g):
     return start + url + end
 
 def markdown_to_out(md_text):
-    return re.sub(r'(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))', sub, md_text)
+    return re.sub(r'(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))', sub_urlimg, md_text)
                     
-def MEP(tutorial):
+def MEP(tutorial, sha):
+    repo = Repo(tutorial.get_path())
+    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    
+    tutorial_version = json.loads(manifest)
+    
     if os.path.isdir(tutorial.get_prod_path()):
         shutil.rmtree(tutorial.get_prod_path())
         
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
     
-    #create resources directory
+    # collect md files
     
-    #convert markdown file to html file
     fichiers=[] 
-    for root, dirs, files in os.walk(tutorial.get_prod_path()): 
-        for i in files: 
-            fichiers.append(os.path.join(root, i))
+    fichiers.append(tutorial_version['introduction'])
+    fichiers.append(tutorial_version['conclusion'])
+    if 'parts' in tutorial_version:
+        for part in tutorial_version['parts']:
+            fichiers.append(part['introduction'])
+            fichiers.append(part['conclusion'])
+            if 'chapters' in part:
+                for chapter in part['chapters']:
+                    fichiers.append(chapter['introduction'])
+                    fichiers.append(chapter['conclusion'])
+                    if 'extracts' in chapter:
+                        for extract in chapter['extracts']:
+                             fichiers.append(extract['text'])
     
+    if 'chapter' in tutorial_version:
+        chapter = tutorial_version['chapter']
+        if 'extracts' in tutorial_version['chapter']:
+            for extract in chapter['extracts']:
+                 fichiers.append(extract['text'])
+
+    #convert markdown file to html file
     for fichier in fichiers:
-        ext = fichier.split('.')[-1]
-        if ext == 'md':
-            md_file = open(fichier, "r")
-            md_file_contenu = md_file.read()
-            md_file.close()
+        md_file_contenu = get_blob(repo.commit(sha).tree, fichier)
+        #download images
+        get_url_images(md_file_contenu, tutorial.get_prod_path())
+        
+        #convert to out format
+        out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
+        out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
+        out_file.close()
             
-            #download images
-            get_url_images(md_file_contenu.decode('utf-8'), tutorial.get_prod_path())
-            
-            #convert to out format
-            out_file = open(fichier, "w")
-            out_file.write(markdown_to_out(md_file_contenu))
-            out_file.close()
-            
-            html_file = open(fichier+'.html', "w")
-            html_file.write(emarkdown(md_file_contenu.decode('utf-8')))
-            html_file.close()
-            
+        html_file = open(os.path.join(tutorial.get_prod_path(), fichier+'.html'), "w")
+        html_file.write(emarkdown(md_file_contenu))
+        html_file.close()          
             
     
     #load markdown out
-    contenu = export_tutorial_to_md(tutorial)
+    contenu = export_tutorial_to_md(tutorial).lstrip()
     
     out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
     out_file.write(smart_str(contenu).replace('°', 'o').replace('−','-'))
@@ -2351,7 +2374,8 @@ def MEP(tutorial):
     
     #load pandoc
     os.chdir(tutorial.get_prod_path())
-    os.system("pandoc -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
+    os.system("pandoc --latex-engine=xelatex -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".html")
+    os.system("pandoc --latex-engine=xelatex -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".pdf")
     os.system("pandoc -s -S --toc "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".md -o "+os.path.join(tutorial.get_prod_path(), tutorial.slug)+".epub")
     os.chdir(settings.SITE_ROOT)
 

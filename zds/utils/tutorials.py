@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from django.template.loader import get_template
 import os
+from datetime import datetime
 
 from git import *
 from zds.utils import slugify
@@ -122,7 +123,8 @@ def export_tutorial_to_md(tutorial):
     tuto['is_mini'] = tutorial.is_mini()
     tuto['authors'] = tutorial.authors
     tuto['subcategory'] = tutorial.subcategory
-    tuto['pubdate'] = tutorial.pubdate
+    tuto['pubdate'] = datetime.now()
+    
     tuto['pk'] = tutorial.pk
     tuto['slug'] = tutorial.slug
      
