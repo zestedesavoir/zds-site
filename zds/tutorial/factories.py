@@ -15,7 +15,6 @@ class BigTutorialFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(lambda n: 'Description du Tutoriel No{0}'.format(n))
     type='BIG'
-    sha_draft = 'BIG-AAAA'
     create_at = datetime.now()
     introduction = 'introduction.md'
     conclusion = 'conclusion.md'
@@ -42,8 +41,9 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         file.write(u'Test')
         file.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
-        repo.index.commit("Init Tuto")
+        cm=repo.index.commit("Init Tuto")
         
+        tuto.sha_draft=cm.hexsha
         return tuto
     
 class MiniTutorialFactory(factory.DjangoModelFactory):
@@ -52,7 +52,6 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(lambda n: 'Description du Tutoriel No{0}'.format(n))
     type='MINI'
-    sha_draft = 'MINI-AAAA'
     create_at = datetime.now()
     introduction = 'introduction.md'
     conclusion = 'conclusion.md'
@@ -79,8 +78,9 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
         file.close()
         
         repo.index.add(['manifest.json',tuto.introduction, tuto.conclusion])
-        repo.index.commit("Init Tuto")
-            
+        cm = repo.index.commit("Init Tuto")
+        
+        tuto.sha_draft=cm.hexsha
         return tuto    
     
     
@@ -114,7 +114,6 @@ class PartFactory(factory.DjangoModelFactory):
         repo.index.add([part.conclusion])
         
         if tutorial:
-            tutorial.sha_draft = 'PART-AAAA'
             tutorial.save()
             
             man = export_tutorial(tutorial)
@@ -124,8 +123,12 @@ class PartFactory(factory.DjangoModelFactory):
             
             repo.index.add(['manifest.json'])
         
-        repo.index.commit("Init Part")
+        cm = repo.index.commit("Init Part")
         
+        if tutorial:
+            tutorial.sha_draft=cm.hexsha
+            tutorial.save()
+            
         return part
 
 class ChapterFactory(factory.DjangoModelFactory):
@@ -147,7 +150,6 @@ class ChapterFactory(factory.DjangoModelFactory):
         if tutorial:
             chapter.introduction = ''
             chapter.conclusion = ''
-            tutorial.sha_draft = 'CHAPTER-AAAA'
             tutorial.save()
             repo = Repo(tutorial.get_path())
             
@@ -166,7 +168,6 @@ class ChapterFactory(factory.DjangoModelFactory):
             file = open(os.path.join(part.tutorial.get_path(),chapter.conclusion), "w")
             file.write(u'Test')
             file.close()
-            part.tutorial.sha_draft = 'CHAPTER-AAAA'
             part.tutorial.save()
             repo = Repo(part.tutorial.get_path())
             
@@ -177,7 +178,16 @@ class ChapterFactory(factory.DjangoModelFactory):
             
             repo.index.add([chapter.introduction, chapter.conclusion])
         
-        repo.index.commit("Init Chapter")
+        cm=repo.index.commit("Init Chapter")
+        
+        if tutorial:
+            tutorial.sha_draft=cm.hexsha
+            tutorial.save()
+        elif part:
+            part.tutorial.sha_draft=cm.hexsha
+            part.tutorial.save()
+        
+            
         
         return chapter
     
@@ -197,7 +207,6 @@ class ExtractFactory(factory.DjangoModelFactory):
             elif chapter.part:
                 chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
                 chapter.part.tutorial.save()
-        
         
         return extract
 
