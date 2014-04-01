@@ -36,6 +36,18 @@ class GalleryForm(forms.Form):
                 HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
         )
+    
+    def clean(self):
+        cleaned_data = super(GalleryForm, self).clean()
+
+        title = cleaned_data.get('title')
+        
+        if title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        return cleaned_data
 
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
