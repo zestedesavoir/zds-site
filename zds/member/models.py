@@ -146,6 +146,11 @@ class Profile(models.Model):
             return self.can_write or (self.end_ban_write < datetime.now())
         else:
             return self.can_write
+    
+    def get_followed_topics(self):
+        '''Followed topics'''
+        return Topic.objects.filter(topicfollowed__user=self.user)\
+          .order_by('-last_message__pubdate')
 
 class TokenForgotPassword(models.Model):
     class Meta:
