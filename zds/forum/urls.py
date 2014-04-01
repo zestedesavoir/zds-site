@@ -42,4 +42,7 @@ urlpatterns = patterns('',
 
     # Home
     url(r'^$', views.index),
+    
+    # Followed topics
+    url(r'^notifications$', views.followed_topics),
 )
