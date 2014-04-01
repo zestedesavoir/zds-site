@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -36,7 +37,10 @@ def gallery_details(request, gal_pk, gal_slug):
     '''
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+    except:
+        raise PermissionDenied
     images = gal.get_images()
     form = UserGalleryForm()
 
@@ -75,8 +79,9 @@ def new_gallery(request):
             return redirect(gal.get_absolute_url())
 
         else:
-            # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('gallery/new_gallery.html', {
+                'form': form
+            })
     else:
         form = GalleryForm()
         return render_template('gallery/new_gallery.html', {
@@ -100,7 +105,7 @@ def modify_gallery(request):
 
         # Check that the user has the RW right on each gallery
         if perms < len(l):
-            raise Http404
+            raise PermissionDenied
 
         # Delete all the permissions on all the selected galleries
         UserGallery.objects.filter(gallery__pk__in=l).delete()
@@ -130,7 +135,7 @@ def modify_gallery(request):
         # Disallow actions to read-only members
         gal_mode = get_object_or_404(UserGallery, gallery=gallery, user=request.user)
         if gal_mode.mode != 'W':
-            raise Http404
+            raise PermissionDenied
 
         form = UserGalleryForm(request.POST)
         if form.is_valid():
@@ -205,7 +210,7 @@ def modify_image(request):
 
     # Only allow RW users to modify images
     if gal_mode.mode != 'W':
-        raise Http404
+        raise PermissionDenied
 
     if 'delete' in request.POST:
         img = get_object_or_404(Image, pk=request.POST['image'])
