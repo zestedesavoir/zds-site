@@ -488,8 +488,8 @@ def edit_post(request):
 
     else:
         if g_topic:
-            form = TopicForm(g_topic, request.user, initial = {
-                'title ': g_topic.title,
+            form = TopicForm(initial = {
+                'title': g_topic.title,
                 'subtitle': g_topic.subtitle,
                 'text': post.text
             })
