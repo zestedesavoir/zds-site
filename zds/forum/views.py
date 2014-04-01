@@ -663,6 +663,31 @@ def find_post(request, user_pk):
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
 
+@login_required
+@can_read_now
+def followed_topics(request):
+    followed_topics = request.user.get_profile().get_followed_topics()
+
+    # Paginator
+    paginator = Paginator(followed_topics, settings.FOLLOWED_TOPICS_PER_PAGE)
+    page = request.GET.get('page')
+
+    try:
+        shown_topics = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_topics = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_topics = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    return render_template('forum/followed_topics.html', {
+        'followed_topics': shown_topics,
+        'pages': paginator_range(page, paginator.num_pages),
+        'nb': page
+    })
+
 # Deprecated URLs
 
 def deprecated_topic_redirect(request, topic_pk, topic_slug):
