@@ -251,6 +251,25 @@ class ChangeUserForm(forms.Form):
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             ),
         )
+    
+    def clean(self):
+        cleaned_data = super(ChangeUserForm, self).clean()
+
+        # Check that the password and it's confirmation match
+        username_new = cleaned_data.get('username_new')
+        email_new = cleaned_data.get('email_new')
+        
+        if username_new!=None:
+            if username_new.strip()!='':
+                if User.objects.filter(username=username_new).count()>=1:
+                    self._errors['username_new'] = self.error_class([u'Ce nom d\'utilisateur est déjà utilisé'])
+        
+        if email_new!=None:
+            if email_new.strip()!='':
+                if User.objects.filter(email=email_new).count()>=1:
+                    self._errors['email_new'] = self.error_class([u'Votre email est déjà utilisée'])
+            
+        return cleaned_data
         
 # to update a password
 
@@ -345,6 +364,17 @@ class ForgotPasswordForm(forms.Form):
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
+    
+    def clean(self):
+        cleaned_data = super(ForgotPasswordForm, self).clean()
+
+        # Check that the password and it's confirmation match
+        username = cleaned_data.get('username')
+        
+        if User.objects.filter(username=username).count()==0:
+            self._errors['username'] = self.error_class([u'Ce nom d\'utilisateur n\'existe pas'])
+            
+        return cleaned_data
 
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
