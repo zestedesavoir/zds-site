@@ -133,8 +133,11 @@ def modify_gallery(request):
             return redirect(gallery.get_absolute_url())
 
         # Disallow actions to read-only members
-        gal_mode = get_object_or_404(UserGallery, gallery=gallery, user=request.user)
-        if gal_mode.mode != 'W':
+        try:
+            gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+            if gal_mode.mode != 'W':
+                raise PermissionDenied
+        except:
             raise PermissionDenied
 
         form = UserGalleryForm(request.POST)
@@ -206,10 +209,12 @@ def modify_image(request):
         raise Http404
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
-
-    # Only allow RW users to modify images
-    if gal_mode.mode != 'W':
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        # Only allow RW users to modify images
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
         raise PermissionDenied
 
     if 'delete' in request.POST:
@@ -245,8 +250,10 @@ def new_image(request, gal_pk):
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
         else:
-            # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('gallery/new_image.html', {
+            'form': form,
+            'gallery': gal
+            })
     else:
         form = ImageForm()  # A empty, unbound form
         return render_template('gallery/new_image.html', {
