@@ -125,13 +125,7 @@ def modify_gallery(request):
             raise Http404
 
         gallery = get_object_or_404(Gallery, pk = gal_pk)
-        user = get_object_or_404(User, username = request.POST['user'])
-
-        # If a user is already in a user gallery, we don't add him.
-        galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
-        if galleries.count() > 0:
-            return redirect(gallery.get_absolute_url())
-
+        
         # Disallow actions to read-only members
         try:
             gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
@@ -139,14 +133,31 @@ def modify_gallery(request):
                 raise PermissionDenied
         except:
             raise PermissionDenied
-
+        
         form = UserGalleryForm(request.POST)
+        
         if form.is_valid():
+            user = get_object_or_404(User, username = request.POST['user'])
+    
+            # If a user is already in a user gallery, we don't add him.
+            galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
+            if galleries.count() > 0:
+                return redirect(gallery.get_absolute_url())
+    
+            
+            
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
             ug.mode = request.POST['mode']
             ug.save()
+        else:
+            return render_template('gallery/gallery_details.html', {
+                    'gallery': gallery,
+                    'gallery_mode': gal_mode,
+                    'images': gallery.get_images(),
+                    'form': form
+                })
 
     return redirect(gallery.get_absolute_url())
 
