@@ -1,22 +1,24 @@
 # coding: utf-8
 from datetime import datetime, timedelta
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, SiteProfileNotAvailable
-from django.core.context_processors import csrf
+from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
-from django.template import RequestContext
-from django.template.loader import get_template
-from django.core.mail import EmailMultiAlternatives
 from django.template import Context
+from django.template import RequestContext
 import os
 import uuid
 
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.context_processors import csrf
+from django.db import transaction
+from django.template.loader import get_template
 import pygal
+
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -25,6 +27,7 @@ from zds.utils.tokens import generate_token
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
     ChangeUserForm, ForgotPasswordForm, NewPasswordForm
 from .models import Profile, TokenForgotPassword, Ban, TokenRegister
+
 
 @can_read_now
 def index(request):
@@ -69,6 +72,7 @@ def details(request, user_name):
 
 @can_write_and_read_now
 @login_required
+@transaction.commit_on_success
 def modify_profile(request, user_pk):
     '''Modifies sanction of a user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
@@ -114,25 +118,52 @@ def modify_profile(request, user_pk):
 @login_required
 def tutorials(request):
     '''Returns all tutorials of the authenticated user'''
-    profile = Profile.objects.get(user=request.user)
+    # The type indicate what the user would like to display.
+    # We can display public, draft or all user's tutorials.
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
 
-    user_tutorials = profile.get_tutos()
-    
-    return render_template('member/publications.html', {
-        'user_tutorials': user_tutorials,
+    # Retrieves all tutorials of the current user.
+    profile = Profile.objects.get(user=request.user)
+    if type == 'draft':
+        user_tutorials = profile.get_draft_tutos()
+    elif type == 'public':
+        user_tutorials = profile.get_public_tutos()
+    else:
+        user_tutorials = profile.get_tutos()
+
+    return render_template('tutorial/index_member.html', {
+        'tutorials': user_tutorials,
+        'type': type,
     })
 
 @can_read_now
 @login_required
 def articles(request):
     '''Returns all articles of the authenticated user'''
+    # The type indicate what the user would like to display.
+    # We can display public, draft or all user's articles.
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+
+    # Retrieves all articles of the current user.
     profile = Profile.objects.get(user=request.user)
+    if type == 'draft':
+        user_articles = profile.get_draft_articles()
+    elif type == 'public':
+        user_articles = profile.get_public_articles()
+    else:
+        user_articles = profile.get_articles()
 
-    user_articles = profile.get_articles()
-
-    return render_template('article/index.html', {
+    return render_template('article/index_member.html', {
         'articles': user_articles,
+        'type': type,
     })
+
 
 @can_read_now
 @login_required
@@ -158,16 +189,16 @@ def settings_profile(request):
     profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
-        form = ProfileForm(request.user, request.POST)
+        form = ProfileForm(request.POST)
         c = {
             'form': form,
         }
         if form.is_valid():
             profile.biography = form.data['biography']
             profile.site = form.data['site']
-            profile.show_email = 'show_email' in form.data
-            profile.show_sign = 'show_sign' in form.data
-            profile.hover_or_click = 'hover_or_click' in form.data
+            profile.show_email = 'show_email' in form.cleaned_data.get('options')
+            profile.show_sign = 'show_sign' in form.cleaned_data.get('options')
+            profile.hover_or_click = 'hover_or_click' in form.cleaned_data.get('options')
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
@@ -186,13 +217,12 @@ def settings_profile(request):
         else:
             return render_to_response('member/settings_profile.html', c, RequestContext(request))
     else:
-        form = ProfileForm(request.user, initial={
+        form = ProfileForm(initial={
             'biography': profile.biography,
             'site': profile.site,
             'avatar_url': profile.avatar_url,
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
-            'hover_or_click': profile.hover_or_click,
             'sign': profile.sign}
         )
         c = {
@@ -235,7 +265,7 @@ def settings_user(request):
     profile = get_object_or_404(Profile, user__pk=request.user.pk)
     
     if request.method == 'POST':
-        form = ChangeUserForm(request.user, request.POST)
+        form = ChangeUserForm(request.POST)
         c = {
             'form': form,
         }
@@ -263,7 +293,7 @@ def settings_user(request):
         else:
             return render_to_response('member/settings_user.html', c, RequestContext(request))
     else:
-        form = ChangeUserForm(request.user)
+        form = ChangeUserForm()
         c = {
             'form': form,
         }
@@ -321,7 +351,10 @@ def login_view(request):
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
-    return render_template('member/login.html', csrf_tk)
+    return render_template('member/login.html', {
+        'form': form,
+        'csrf_tk': csrf_tk,
+    })
 
 @login_required
 def logout_view(request):
@@ -499,6 +532,6 @@ def date_to_chart(posts):
     
     for post in posts:
         t = post.pubdate.timetuple()
-        lst[t.tm_hour+1][(t.tm_wday+1)%7]=lst[t.tm_hour+1][(t.tm_wday+1)%7]+1
+        lst[t.tm_hour][(t.tm_wday+1)%7]=lst[t.tm_hour][(t.tm_wday+1)%7]+1
         
     return lst

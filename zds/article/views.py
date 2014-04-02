@@ -7,9 +7,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
+from django.db.models import Q
 import json
 from lxml import etree
 from operator import itemgetter, attrgetter
@@ -22,179 +25,84 @@ from zds.member.views import get_client_ip
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
-from zds.utils.models import Category, CommentLike, CommentDislike, Alert
+from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import ArticleForm, ReactionForm, AlertForm
+from crispy_forms.layout import Field
+
+from .forms import ArticleForm, ReactionForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
-    Reaction, never_read, mark_read
+    Reaction, never_read, mark_read, STATUS_CHOICES
 
 @can_read_now
 def index(request):
-    '''Displayy articles list'''
-    
+    '''Display all public articles of the website.'''
+    # The tag indicate what the category article the user would 
+    # like to display. We can display all subcategories for articles.
     try:
-        tag = request.GET['tag']
-    except KeyError:
-        tag=None
+        tag = get_object_or_404(SubCategory, title = request.GET['tag'])
+    except (KeyError, Http404):
+        tag = None
         
-    if tag == None :
-        article = Article.objects.all()\
-            .filter(sha_public__isnull=False)\
-            .order_by('-pubdate')
+    if tag == None:
+        article = Article.objects\
+            .filter(sha_public__isnull = False)\
+            .order_by('-pubdate')\
+            .all()
     else:
-        article = None
+        # The tag isn't None and exist in the system. We can use it to retrieve 
+        # all articles in the subcategory specified.
+        article = Article.objects\
+            .filter(sha_public__isnull = False, subcategory__in = [tag])\
+            .order_by('-pubdate')\
+            .all()
 
     return render_template('article/index.html', {
         'articles': article,
     })
 
 @can_read_now
-def list(request):
-    '''Display articles list'''
-    try:
-        articles = Article.objects.all() \
-            .filter(sha_draft__isnull=False) \
-            .order_by("-update")
-    except:
-        articles = None
-        
-    return render_template('article/index.html', {
-        'articles': articles,
-    })
-    
-@can_read_now
-@permission_required('article.change_article', raise_exception=True)
-@login_required
-def list_validation(request):
-    '''Display articles list in validation'''
-    try:
-        type = request.GET['type']
-    except KeyError:
-        type=None
-    
-    try:
-        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
-    except KeyError:
-        subcategory=None
-
-    if type == 'orphan':
-        if subcategory == None:
-            validations = Validation.objects \
-                            .filter(validator__isnull=True) \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(validator__isnull=True, article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()
-    elif type == 'reserved':
-        if subcategory == None:
-            validations = Validation.objects \
-                            .filter(validator__isnull=False) \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(validator__isnull=False, article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()        
-    else:
-        if subcategory == None:
-            validations = Validation.objects \
-                            .order_by("date_proposition") \
-                            .all()
-        else :
-            validations = Validation.objects \
-                            .filter(article__subcategory__in=[subcategory]) \
-                            .order_by("date_proposition") \
-                            .all()
-    
-    return render_template('article/validation.html', {
-        'validations': validations,
-    })
-
-@can_read_now
-@permission_required('article.change_article', raise_exception=True)
-@login_required
-def reservation(request, validation_pk):
-    '''Display articles list in validation'''
-    
-    validation = get_object_or_404(Validation, pk=validation_pk)
-    
-    if validation.validator :
-        validation.validator = None
-        validation.date_reserve = None
-        validation.status = 'PENDING'
-        validation.save()
-        
-        return redirect(reverse('zds.article.views.list_validation'))
-    
-    else:
-        validation.validator = request.user
-        validation.date_reserve = datetime.now()
-        validation.status = 'PENDING_V'
-        validation.save()
-        return redirect(validation.article.get_absolute_url())
-
-@can_read_now
-@login_required
-def history(request, article_pk, article_slug):
-    '''Display an article'''
-    article = get_object_or_404(Article, pk=article_pk)
-
-    if not article.on_line \
-       and not request.user.has_perm('article.change_article') \
-       and request.user not in article.authors.all():
-        raise Http404
-
-    # Make sure the URL is well-formed
-    if not article_slug == slugify(article.title):
-        return redirect(article.get_absolute_url())
-
-
-    repo = Repo(article.get_path())
-    tree = repo.heads.master.commit.tree
-    
-    logs = repo.head.reference.log()
-    logs = sorted(logs, key=attrgetter('time'), reverse=True)
-    
-    return render_template('article/history.html', {
-        'article': article, 'logs':logs
-    })
-
-@can_read_now
-@permission_required('article.change_article', raise_exception=True)
 @login_required
 def view(request, article_pk, article_slug):
-    '''Show the given article if exists and is visible'''
-    article = get_object_or_404(Article, pk=article_pk)
+    '''Show the given offline article if exists'''
+    article = get_object_or_404(Article, pk = article_pk)
 
-    if article.authors.filter(pk = request.user.pk).count()==0:
-        raise Http404
+    # Only authors of the article and staff can view article in offline.
+    if request.user not in article.authors.all():
+        if not request.user.has_perm('article.change_article'):
+            raise PermissionDenied
+
+    # The slug of the article must to be right.
+    if article_slug != slugify(article.title):
+        return redirect(article.get_absolute_url())
     
+    # Retrieve sha given by the user. This sha must to be exist.
+    # If it doesn't exist, we take draft version of the article.
     try:
         sha = request.GET['version']
     except KeyError:
         sha = article.sha_draft
-
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
     
-    #find the good manifest file
+    # Find the good manifest file
     repo = Repo(article.get_path())
 
-    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    # Load the article.
+    try:
+        manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    except:
+        sha = article.sha_draft
+        manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    
     article_version = json.loads(manifest)
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
+    article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-    validation = Validation.objects.filter(article__pk=article.pk, version = sha)
+    validation = Validation.objects.filter(article__pk = article.pk, version = sha)
     
     return render_template('article/view.html', {
         'article': article_version,
@@ -211,15 +119,11 @@ def view_online(request, article_pk, article_slug):
     '''Show the given article if exists and is visible'''
     article = get_object_or_404(Article, pk=article_pk)
     
-    try:
-        sha = request.GET['version']
-    except KeyError:
-        sha = article.sha_draft
-
+    # The slug of the article must to be right.
     if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
+        return redirect(article.get_absolute_url_online())
     
-    #find the good manifest file
+    # Load the article.
     article_version = article.load_json()
     txt = open(os.path.join(article.get_path(), article_version['text']+'.html'), "r")
     article_version['txt'] = txt.read()
@@ -227,25 +131,30 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['is_locked'] = article.is_locked
+    article_version['get_absolute_url'] = article.get_absolute_url()
+
+    # If the user is authenticated
     if request.user.is_authenticated():
+        # We check if he can post an article or not with 
+        # antispam filter.
         article_version['antispam'] = article.antispam()
-    
-    #find reactions
-    if request.user.is_authenticated():
+        # If the user is never read, we mark this article read.
         if never_read(article):
             mark_read(article)
-            
+       
+    # Find all reactions of the article.
     reactions = Reaction.objects\
-                .filter(article__pk=article.pk)\
+                .filter(article__pk = article.pk)\
                 .order_by('position')\
                 .all()
-            
+    
+    # Retrieve pk of the last reaction. If there aren't reactions
+    # for the article, we initialize this last reaction at 0.
+    last_reaction_pk = 0
     if article.last_reaction:
         last_reaction_pk = article.last_reaction.pk
-    else:
-        last_reaction_pk = 0
     
-    # Handle pagination
+    # Handle pagination.
     paginator = Paginator(reactions, settings.POSTS_PER_PAGE)
 
     try:
@@ -269,18 +178,21 @@ def view_online(request, article_pk, article_slug):
 
     for reaction in reactions:
         res.append(reaction)
+
+    # Build form to send a reaction for the current article.
+    form = ReactionForm(article, request.user)
     
     return render_template('article/view_online.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
-        'version': sha,
         'prev': get_prev_article(article),
         'next': get_next_article(article),
         'reactions': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
-        'last_reaction_pk': last_reaction_pk 
+        'last_reaction_pk': last_reaction_pk,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -288,6 +200,24 @@ def view_online(request, article_pk, article_slug):
 def new(request):
     '''Create a new article'''
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            form = ArticleForm(initial = {
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory')
+            })
+            return render_template('article/new.html', {
+                'text': request.POST['text'],
+                'form': form
+            })
+
+        # Otherwise, the user would like submit his article.
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
@@ -332,22 +262,24 @@ def new(request):
 @can_write_and_read_now
 @login_required
 def edit(request):
-    '''Edit article identified by given GET paramter'''
+    '''Edit article identified by given GET parameter'''
     try:
         article_pk = request.GET['article']
     except KeyError:
         raise Http404
 
     article = get_object_or_404(Article, pk=article_pk)
+
+    # Only authors of the article and staff can edit article.
+    if request.user not in article.authors.all():
+        if not request.user.has_perm('article.change_article'):
+            raise PermissionDenied
+
     json = article.load_json()
-
-    # Make sure the user is allowed to do it
-    if not request.user in article.authors.all():
-        raise Http404
-
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
+            # Update article with data.
             data = form.data
             old_slug = article.get_path()
             article.title = data['title']
@@ -372,7 +304,6 @@ def edit(request):
             
             return redirect(article.get_absolute_url())
     else:
-
         form = ArticleForm({
             'title': json['title'],
             'description': json['description'],
@@ -384,86 +315,14 @@ def edit(request):
         'article': article, 'form': form
     })
 
-@can_write_and_read_now
-@login_required
-def modify(request):
-    if not request.method == 'POST':
-        raise Http404
-
-    data = request.POST
-
-    article_pk = data['article']
-    article = get_object_or_404(Article, pk=article_pk)
-    
-    # Validator actions
-    if request.user.has_perm('article.change_article'):
-        if 'valid-article' in request.POST:
-            MEP(article, article.sha_validation)
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'ACCEPT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            article.sha_public = validation.version
-            article.sha_validation = ''
-            article.pubdate = datetime.now()
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-        
-        elif 'reject-article' in request.POST:
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_validation).all()[0]
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECT'
-            validation.date_validation = datetime.now()
-            validation.save()
-            
-            article.sha_validation = ''
-            article.pubdate = None
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-        
-        elif 'invalid-article' in request.POST:
-            validation = Validation.objects.filter(article__pk=article.pk, version = article.sha_public).all()[0]
-            validation.status = 'PENDING'
-            validation.date_validation = None
-            validation.save()
-            
-            article.sha_validation = validation.version
-            article.sha_public = ''
-            article.pubdate = None
-            article.save()
-            
-            return redirect(article.get_absolute_url()+'?version='+validation.version)
-    
-    #User actions
-    if request.user in article.authors.all():
-        if 'delete' in data:
-            article.delete()
-            return redirect('/articles/')
-        elif 'pending' in request.POST:
-            validation = Validation()
-            validation.article = article
-            validation.date_proposition = datetime.now()
-            validation.comment_authors = request.POST['comment']
-            validation.version = request.POST['version']
-            
-            validation.save()
-            
-            validation.article.sha_validation = request.POST['version']
-            validation.article.save()
-            
-            return redirect(article.get_absolute_url())
-
-    return redirect(article.get_absolute_url())
-
 @can_read_now
 def find_article(request, name):
-    u = get_object_or_404(User, username=name)
-    articles=Article.objects.all().filter(author=u)\
-                          .order_by('-pubdate')
+    '''Find an article from his author'''
+    user = get_object_or_404(User, username=name)
+    articles = Article.objects\
+                    .filter(author = user)\
+                    .order_by('-pubdate')\
+                    .all()
     # Paginator
     
     return render_template('article/find_article.html', {
@@ -523,11 +382,244 @@ def download(request):
 
     return response
 
-# Deprecated URLs
+# Validation
 
-def deprecated_view_redirect(request, article_pk, article_slug):
+@can_write_and_read_now
+@require_POST
+@login_required
+def modify(request):
+    '''Modify status of the article'''
+    data = request.POST
+    article_pk = data['article']
     article = get_object_or_404(Article, pk=article_pk)
-    return redirect(article.get_absolute_url(), permanent=True)
+    
+    # Validator actions
+    if request.user.has_perm('article.change_article'):
+
+        # A validator would like to invalid an article in validation.
+        # We must mark article rejected with the current sha of
+        # validation.
+        if 'reject-article' in request.POST:
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_validation)\
+                            .latest('date_proposition')
+            validation.comment_validator = request.POST['comment-r']
+            validation.status = 'REJECTED'
+            validation.date_validation = datetime.now()
+            validation.save()
+            
+            # Remove sha_validation because we rejected this version
+            # of the article.
+            article.sha_validation = None
+            article.pubdate = None
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        # A validator would like to invalid an article published. We must
+        # come back to sha_validation with the current sha of validation.
+        elif 'invalid-article' in request.POST:
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_public)\
+                            .latest('date_proposition')
+            validation.status = 'PENDING'
+            validation.date_validation = None
+            validation.save()
+            
+            # Only update sha_validation because contributors can 
+            # contribute on rereading version.
+            article.sha_public = None
+            article.sha_validation = validation.version
+            article.pubdate = None
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+
+        # A validatir would like to valid an article in validation. We
+        # must update sha_public with the current sha of the validation.
+        elif 'valid-article' in request.POST:
+            MEP(article, article.sha_validation)
+            validation = Validation.objects\
+                            .filter(article__pk = article.pk, version = article.sha_validation)\
+                            .latest('date_proposition')
+            validation.comment_validator = request.POST['comment-v']
+            validation.status = 'PUBLISHED'
+            validation.date_validation = datetime.now()
+            validation.save()
+            
+            # Update sha_public with the sha of validation. We don't update sha_draft.
+            # So, the user can continue to edit his article in offline.
+            article.sha_public = validation.version
+            article.sha_validation = None
+            article.pubdate = datetime.now()
+            article.save()
+            
+            return redirect(article.get_absolute_url()+'?version='+validation.version)
+    
+    # User actions
+    if request.user in article.authors.all():
+        if 'delete' in data:
+            article.delete()
+            return redirect('/articles/')
+
+        # User would like to validate his article. So we must save the 
+        # current sha (version) of the article to his sha_validation.
+        elif 'pending' in request.POST and article.sha_validation == None:
+            validation = Validation()
+            validation.status = 'PENDING'
+            validation.article = article
+            validation.date_proposition = datetime.now()
+            validation.comment_authors = request.POST['comment']
+            validation.version = request.POST['version']
+            
+            validation.save()
+            
+            validation.article.sha_validation = request.POST['version']
+            validation.article.save()
+            
+            return redirect(article.get_absolute_url())
+
+    return redirect(article.get_absolute_url())
+
+@can_read_now
+@permission_required('article.change_article', raise_exception=True)
+@login_required
+def list_validation(request):
+    '''Display articles list in validation'''
+    # Retrieve type of the validation. Default value is all validations.
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+    
+    # Get subcategory to filter validations.
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except (KeyError, Http404) :
+        subcategory = None
+
+    # Orphan validation. There aren't validator attached to the validations.
+    if type == 'orphan':
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, status = 'PENDING') \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=True, status = 'PENDING', article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+
+    # Reserved validation. There are a validator attached to the validations.
+    elif type == 'reserved':
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, status = 'RESERVED') \
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(validator__isnull=False, status = 'PENDING', article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()        
+    
+    # Default, we display all validations.
+    else:
+        if subcategory == None:
+            validations = Validation.objects \
+                            .filter(Q(status = 'PENDING') | Q(status = 'RESERVED'))\
+                            .order_by("date_proposition") \
+                            .all()
+        else :
+            validations = Validation.objects \
+                            .filter(status = 'PENDING', article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+    
+    return render_template('article/validation.html', {
+        'validations': validations,
+    })
+
+@can_read_now
+@login_required
+@permission_required('article.change_article', raise_exception=True)
+def history_validation(request, article_pk):
+    '''History of the validation of an article'''
+    article = get_object_or_404(Article, pk = article_pk)
+
+    # Get subcategory to filter validations.
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET['subcategory'])
+    except (KeyError, Http404) :
+        subcategory = None
+
+    if subcategory == None:
+        validations = Validation.objects \
+                            .filter(article__pk = article_pk) \
+                            .order_by("date_proposition") \
+                            .all()
+    else:
+        validations = Validation.objects \
+                            .filter(article__pk = article_pk, article__subcategory__in=[subcategory]) \
+                            .order_by("date_proposition") \
+                            .all()
+
+    return render_template('article/history_validation.html', {
+        'validations': validations,
+        'article': article,
+    })
+
+@can_read_now
+@permission_required('article.change_article', raise_exception=True)
+@login_required
+def reservation(request, validation_pk):
+    '''Display articles list in validation'''
+    
+    validation = get_object_or_404(Validation, pk=validation_pk)
+    
+    if validation.validator :
+        validation.validator = None
+        validation.date_reserve = None
+        validation.status = 'PENDING'
+        validation.save()
+        
+        return redirect(reverse('zds.article.views.list_validation'))
+    
+    else:
+        validation.validator = request.user
+        validation.date_reserve = datetime.now()
+        validation.status = 'RESERVED'
+        validation.save()
+        return redirect(validation.article.get_absolute_url())
+
+@can_read_now
+@login_required
+def history(request, article_pk, article_slug):
+    '''Display an article'''
+    article = get_object_or_404(Article, pk=article_pk)
+
+    if not article.on_line \
+       and not request.user.has_perm('article.change_article') \
+       and request.user not in article.authors.all():
+        raise Http404
+
+    # Make sure the URL is well-formed
+    if not article_slug == slugify(article.title):
+        return redirect(article.get_absolute_url())
+
+
+    repo = Repo(article.get_path())
+    tree = repo.heads.master.commit.tree
+    
+    logs = repo.head.reference.log()
+    logs = sorted(logs, key=attrgetter('time'), reverse=True)
+    
+    return render_template('article/history.html', {
+        'article': article, 'logs':logs
+    })
+
+# Reactions at an article.
 
 def MEP(article, sha):
     #convert markdown file to html file
@@ -544,66 +636,76 @@ def MEP(article, sha):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from a user to an article
-    '''
+    '''Adds an answer from a user to an article'''
     try:
         article_pk = request.GET['article']
     except KeyError:
         raise Http404
     
-    g_article = get_object_or_404(Article, pk=article_pk)
-    
-    reactions = Reaction.objects.filter(article=g_article).order_by('-pubdate')[:3]
-    
-    if g_article.last_reaction:
-        last_reaction_pk = g_article.last_reaction.pk
-    else:
-        last_reaction_pk=0
+    # Retrieve current article.
+    article = get_object_or_404(Article, pk = article_pk)
 
     # Making sure reactioning is allowed
-    if g_article.is_locked:
-        raise Http404
+    if article.is_locked:
+        raise PermissionDenied
 
     # Check that the user isn't spamming
-    if g_article.antispam(request.user):
-        raise Http404
+    if article.antispam(request.user):
+        raise PermissionDenied
 
-    # If we just sent data
+    # Retrieve 3 last reactions of the currenta article.
+    reactions = Reaction.objects\
+                    .filter(article = article)\
+                    .order_by('-pubdate')[:3]
+    
+    # If there is a last reaction for the article, we save his pk.
+    # Otherwise, we save 0.
+    if article.last_reaction:
+        last_reaction_pk = article.last_reaction.pk
+    else:
+        last_reaction_pk = 0
+
+    # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
         newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
-        if 'preview' in data or 'more' in data or newreaction:
+        if 'preview' in data or newreaction:
+            form = ReactionForm(article, request.user, initial = {
+                'text': data['text']
+            })
             return render_template('article/answer.html', {
-                'text': data['text'], 'article': g_article, 'reactions': reactions,
-                'last_reaction_pk': last_reaction_pk, 'newreaction': newreaction
+                'article': article, 
+                'last_reaction_pk': last_reaction_pk, 
+                'newreaction': newreaction,
+                'form': form
             })
 
         # Saving the message
         else:
-            form = ReactionForm(request.POST)
-            if form.is_valid() and data['text'].strip() !='':
+            form = ReactionForm(article, request.user, request.POST)
+            if form.is_valid() and data['text'].strip() != '':
                 data = form.data
 
                 reaction = Reaction()
-                reaction.article = g_article
+                reaction.article = article
                 reaction.author = request.user
                 reaction.text = data['text']
                 reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
-                reaction.position = g_article.get_reaction_count() + 1
+                reaction.position = article.get_reaction_count() + 1
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
-                g_article.last_reaction = reaction
-                g_article.save()
+                article.last_reaction = reaction
+                article.save()
 
                 return redirect(reaction.get_absolute_url())
             else:
                 raise Http404
 
+    # Actions from the editor render to answer.html.
     else:
         text = ''
 
@@ -615,12 +717,17 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'**{0} a écrit :**\n{1}\n'.format(
-                reaction_cite.author.username, text)
+            text = u'{0}\nSource:[{1}]({2})'.format(text,
+                reaction_cite.author.username, reaction_cite.get_absolute_url())
 
+        form = ReactionForm(article, request.user, initial = {
+            'text': text
+        })
         return render_template('article/answer.html', {
-            'article': g_article, 'text': text, 'reactions': reactions,
-            'last_reaction_pk': last_reaction_pk
+            'article': article,
+            'reactions': reactions,
+            'last_reaction_pk': last_reaction_pk,
+            'form': form
         })
 
 @can_write_and_read_now
@@ -641,15 +748,18 @@ def edit_reaction(request):
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
 
-    # Making sure the user is allowed to do that
-    if reaction.author != request.user:
-        if request.method == 'GET' and request.user.has_perm('article.change_reaction'):
-            messages.add_message(
-                request, messages.WARNING,
-                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(reaction.author.username))
-            reaction.alerts.all().delete()
+    # Making sure the user is allowed to do that. Author of the reaction
+    # must to be the user logged.
+    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') :
+        raise PermissionDenied
+        
+    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_reaction'):
+        messages.add_message(
+            request, messages.WARNING,
+            u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+            u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+            .format(reaction.author.username))
+        reaction.alerts.all().delete()
 
     if request.method == 'POST':
         
@@ -674,10 +784,17 @@ def edit_reaction(request):
                 alert.pubdate = datetime.now()
                 alert.save()
                 reaction.alerts.add(alert)
+        
         # Using the preview button
         if 'preview' in request.POST:
+            form = ReactionForm(g_article, request.user, initial = {
+                'text': request.POST['text']
+            })
+            form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
             return render_template('article/edit_reaction.html', {
-                'reaction': reaction, 'article': g_article, 'text': request.POST['text'],
+                'reaction': reaction, 
+                'article': g_article, 
+                'form': form
             })
         
         if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
@@ -693,8 +810,14 @@ def edit_reaction(request):
         return redirect(reaction.get_absolute_url())
 
     else:
+        form = ReactionForm(g_article, request.user, initial = {
+            'text': reaction.text
+        })
+        form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
         return render_template('article/edit_reaction.html', {
-            'reaction': reaction, 'article': g_article, 'text': reaction.text
+            'reaction': reaction, 
+            'article': g_article, 
+            'form': form
         })
 
 
@@ -771,4 +894,8 @@ def dislike_reaction(request):
 
     return redirect(reaction.get_absolute_url())
     
+# Deprecated URLs
 
+def deprecated_view_redirect(request, article_pk, article_slug):
+    article = get_object_or_404(Article, pk=article_pk)
+    return redirect(article.get_absolute_url(), permanent=True)

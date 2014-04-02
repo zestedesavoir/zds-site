@@ -1,4 +1,4 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base.html" %} 
 {% load markup %}
 
 {% block title %}
@@ -6,77 +6,103 @@
 {% endblock %}
 
 {% block headline %}
-{% if chapter.thumbnail %}
-<img src="{{chapter.thumbnail.url }}"/>
-{% endif %}
-{{ chapter.title }}
+    <h1 class="illu">
+        {% if chapter.image %}
+            <img src="{{chapter.image.thumb.url }}" alt=""/>
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
+    {% if chapter.tutorial %}
+            <ul class="taglist">
+        {% for category in chapter.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.tutorial.authors.all %}
+                <li>
+                    {% include "member/member_item_common.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
+    {% else %}
+            <ul class="taglist">
+            {% for category in chapter.part.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.part.tutorial.authors.all %}
+                <li>
+                    {% include "member/member_item_common.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
 
-{% block headline-actions %}
+
+{% block headline-sub-actions %}
     {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}
+        <li><a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}" class="button">Éditer le chapître</a></li>
+        <li><a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}">Ajouter un extrait</a></li>
         <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST">
-            <div class="button-group">
-                <a href="/tutoriels/editer/chapitre?chapitre={{ chapter.pk }}" class="button">
-                    <i class="icon-pencil"></i>
-                    Éditer
-                </a>
-                {% if chapter.part %}
-                <button type="submit" name="delete" class="button secondary">
-                    <i class="icon-remove"></i>
-                    Supprimer
-                </button>
-                {% endif %}
-           </div>
-           
+            {% if chapter.part %}
+            <li><button type="submit" name="delete">Supprimer</button></li>
+            {% endif %}
             <input type="hidden" name="chapter" value="{{ chapter.pk }}" />
             {% csrf_token %}
         </form>
         {% if chapter.part %}
-            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="custom">
-                    <div>
-                        <select name="move_target" class="select-autosubmit">
-                            <option>Déplacer</option>
-                        {% if chapter.position_in_part > 1 %}
-                            <option value="{{ chapter.position_in_part|add:"-1" }}">Monter</option>
-                        {% endif %}
-                        {% if chapter.position_in_part < chapter.part.get_chapters.count %}
-                            <option value="{{ chapter.position_in_part|add:"1" }}">Descendre</option>
-                        {% endif %}
-                            <option disabled>&mdash; Déplacer avant</option>
-                        {% for chapter_mv in chapter.part.get_chapters %}
-                            {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"-1" != chapter.position_in_part %}
-                            <option value="{% if chapter_mv.position_in_part < chapter.position_in_part %}{{ chapter_mv.position_in_part }}{% else %}{{ chapter_mv.position_in_part|add:"-1" }}{% endif %}">
-                                    Chapitre {{ chapter_mv.position_in_part }} : {{ chapter_mv.title }}
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                        <option disabled>&mdash; Déplacer après</option>
-                        {% for chapter_mv in chapter.part.get_chapters %}
-                            {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"1" != chapter.position_in_part %}
-                            <option value="{% if chapter_mv.position_in_part < chapter.position_in_part %}{{ chapter_mv.position_in_part|add:"1" }}{% else %}{{ chapter_mv.position_in_part }}{% endif %}">
-                                    Chapitre {{ chapter_mv.position_in_part }} : {{ chapter_mv.title }}
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                        </select>
-                        <noscript>
-                            <button type="submit" class="button">
-                                Déplacer
-                            </button>
-                        </noscript>
-                    </div>
+        <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="custom">
+            <select name="move_target" class="select-autosubmit">
+                <option>Déplacer</option>
+            {% if chapter.position_in_part > 1 %}
+                <option value="{{ chapter.position_in_part|add:"-1" }}">Monter</option>
+            {% endif %}
+            {% if chapter.position_in_part < chapter.part.get_chapters.count %}
+                <option value="{{ chapter.position_in_part|add:"1" }}">Descendre</option>
+            {% endif %}
+                <option disabled>&mdash; Déplacer avant</option>
+            {% for chapter_mv in chapter.part.get_chapters %}
+                {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"-1" != chapter.position_in_part %}
+                <option value="{% if chapter_mv.position_in_part < chapter.position_in_part %}{{ chapter_mv.position_in_part }}{% else %}{{ chapter_mv.position_in_part|add:"-1" }}{% endif %}">
+                        Chapitre {{ chapter_mv.position_in_part }} : {{ chapter_mv.title }}
+                </option>
+                {% endif %}
+            {% endfor %}
+            <option disabled>&mdash; Déplacer après</option>
+            {% for chapter_mv in chapter.part.get_chapters %}
+                {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"1" != chapter.position_in_part %}
+                <option value="{% if chapter_mv.position_in_part < chapter.position_in_part %}{{ chapter_mv.position_in_part|add:"1" }}{% else %}{{ chapter_mv.position_in_part }}{% endif %}">
+                        Chapitre {{ chapter_mv.position_in_part }} : {{ chapter_mv.title }}
+                </option>
+                {% endif %}
+            {% endfor %}
+            </select>
+            <noscript>
+                <button type="submit" class="button">
+                    Déplacer
+                </button>
+            </noscript>
 
-                <input type="hidden" name="move" value="" />
-                <input type="hidden" name="chapter" value="{{ chapter.pk }}" />
-                {% csrf_token %}
-            </form>
+            <input type="hidden" name="move" value="" />
+            <input type="hidden" name="chapter" value="{{ chapter.pk }}" />
+            {% csrf_token %}
+        </form>
         {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">{{ chapter.part.tutorial.title }}</a></li>
-    <li><a href="{{ chapter.part.get_absolute_url }}">{{ chapter.part.title }}</a></li>
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ chapter.part.tutorial.title }}</a></li>
+    <li><a href="{{ chapter.part.get_absolute_url }}?version={{version}}">{{ chapter.part.title }}</a></li>
     <li class="current"><a href="#">{{ chapter.title }}</a></li>
 {% endblock %}
 

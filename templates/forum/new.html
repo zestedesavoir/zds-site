@@ -1,6 +1,7 @@
 {% extends "forum/base.html" %}
 {% load emarkdown %}
 {% load markup %}
+{% load crispy_forms_tags %}
 
 
 {% block title %}
@@ -9,7 +10,7 @@
 
 
 {% block headline %}
-    Nouveau sujet
+    <h2>Nouveau sujet</h2>
 {% endblock %}
 
 
@@ -21,43 +22,11 @@
 
 
 {% block content %}
-    <form action="" method="POST">
-        <p>
-            <label for="title">Titre</label>
-            <input type="text" id="title" name="title" value="{{ title }}" />
-        </p>
-        <p>
-            <label for="subtitle">Sous-titre</label>
-            <input type="text" id="subtitle" name="subtitle" value="{{ subtitle }}" />
-        </p>
-        <p>
-            <label for="text">Sous-titre</label>
-            <textarea id="text" name="text" class="md-editor" placeholder="Votre message au format Markdown" rows="20"
-                >{{ text }}</textarea>
-        </p>
-
-        <p>
-            <button type="submit" class="btn btn-submit">
-                Nouveau sujet
-            </button>
-
-            <button type="submit" name="preview" class="btn btn-submit">
-                Prévisualisation
-            </button>
-
-            <a href="{{ forum.get_absolute_url }}" class="btn btn-cancel">
-                Retour
-            </a>
-        </p>
-
-        {% csrf_token %}
-    </form>
+    {% crispy form %}
 
     {% if text %}
-        <div class="preview">
-            <h5>Prévisualisation de votre message</h5>
+        <h5>Prévisualisation de votre message</h5>
 
-            {{ text|emarkdown }}
-        </div>
+        {{ text|emarkdown }}
     {% endif %}
 {% endblock %}

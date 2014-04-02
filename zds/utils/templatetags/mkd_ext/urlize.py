@@ -47,6 +47,17 @@ URLIZE_RE = '(%s)' % '|'.join([
     r'[^(<\s]+\.(?:com|net|org)\b',
 ])
 
+class CorrectURLProcessor(markdown.treeprocessors.Treeprocessor):
+    def __init__(self):
+        markdown.treeprocessors.Treeprocessor.__init__(self)
+        
+    def run(self, node):
+        
+        for child in node.getiterator():
+            if child.tag == 'a' and 'href' in child.attrib and  child.attrib['href'].split('://')[0] not in ('http','https','ftp'):
+                child.attrib['href'] = 'http://' + child.attrib['href']
+        return node
+
 class UrlizePattern(markdown.inlinepatterns.Pattern):
     """ Return a link Element given an autolink (`http://example/com`). """
     def handleMatch(self, m):
@@ -74,6 +85,7 @@ class UrlizeExtension(markdown.Extension):
     def extendMarkdown(self, md, md_globals):
         """ Replace autolink with UrlizePattern """
         md.inlinePatterns['autolink'] = UrlizePattern(URLIZE_RE, md)
+        md.treeprocessors.add('CorrectURLProcessor', CorrectURLProcessor(), '_end')
 
 def makeExtension(configs=None):
     return UrlizeExtension(configs=configs)

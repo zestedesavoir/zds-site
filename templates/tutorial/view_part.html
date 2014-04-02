@@ -1,4 +1,5 @@
 {% extends "tutorial/base.html" %}
+{% load emarkdown %}
 {% load markup %}
 
 {% block title %}
@@ -6,21 +7,61 @@
 {% endblock %}
 
 {% block headline %}
-    Partie {{ part.position_in_tutorial }} : {{ part.title }}<br />
-    <small>{{ part.tutorial.title }}</small>
+    <h1 class="illu">
+        {{ part.title }}
+    </h1>
+    <ul class="taglist">
+    {% for category in part.tutorial.subcategory.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+        {% for member in part.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}.
+        </ul>
+    </div>
+{% endblock %}
+
+{% block headline-sub %}
+    {{ part.tutorial.description }}
 {% endblock %}
 
 {% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url }}">{{ part.tutorial.title }}</a></li>
+    <li><a href="{{ part.tutorial.get_absolute_url }}?version={{version}}">{{ part.tutorial.title }}</a></li>
     <li class="current"><a href="#">{{ part.title }}</a></li>
 {% endblock %}
 
+{% block headline-sub-actions %}
+    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
+{% endblock %}
+
 {% block content %}
+    {% if part.intro %}
+        {{ part.intro|emarkdown }}
+    {% else %}
+        <p>Aucune introduction.</p>
+    {% endif %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% include "tutorial/view_part_common.part.html" %}
-    </div>
-</div>
+	{% if part.chapters %}
+    <ul>
+    {% for chapter in part.chapters %}
+    	<li>
+            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
+        </li>
+    {% endfor %}
+	</ul>
+	{% endif %}
 
+    {% if part.conclu %}
+        {{ part.conclu|emarkdown }}
+    {% else %}
+        <p>Aucune conclusion.</p>
+    {% endif %}
 {% endblock %}

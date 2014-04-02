@@ -7,8 +7,10 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
@@ -35,13 +37,18 @@ def gallery_details(request, gal_pk, gal_slug):
     '''
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+    except:
+        raise PermissionDenied
     images = gal.get_images()
+    form = UserGalleryForm()
 
     return render_template('gallery/gallery_details.html', {
         'gallery': gal,
         'gallery_mode': gal_mode,
-        'images': images
+        'images': images,
+        'form': form
     })
 
 @can_write_and_read_now
@@ -72,8 +79,9 @@ def new_gallery(request):
             return redirect(gal.get_absolute_url())
 
         else:
-            # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('gallery/new_gallery.html', {
+                'form': form
+            })
     else:
         form = GalleryForm()
         return render_template('gallery/new_gallery.html', {
@@ -81,12 +89,10 @@ def new_gallery(request):
         })
 
 @can_write_and_read_now
+@require_POST
 @login_required
 def modify_gallery(request):
     '''Modify gallery instance'''
-
-    if request.method != 'POST':
-        raise Http404
 
     # Global actions
 
@@ -99,7 +105,7 @@ def modify_gallery(request):
 
         # Check that the user has the RW right on each gallery
         if perms < len(l):
-            raise Http404
+            raise PermissionDenied
 
         # Delete all the permissions on all the selected galleries
         UserGallery.objects.filter(gallery__pk__in=l).delete()
@@ -112,30 +118,48 @@ def modify_gallery(request):
 
     # Gallery-specific actions
 
-    try:
-        gal_pk = request.POST['gallery']
-    except KeyError:
-        raise Http404
+    elif 'adduser' in request.POST:
+        try:
+            gal_pk = request.POST['gallery']
+        except KeyError:
+            raise Http404
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
-
-    # Disallow actions to read-only members
-    if gal_mode.mode != 'W':
-        raise Http404
-
-    if 'adduser' in request.POST:
+        gallery = get_object_or_404(Gallery, pk = gal_pk)
+        
+        # Disallow actions to read-only members
+        try:
+            gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+            if gal_mode.mode != 'W':
+                raise PermissionDenied
+        except:
+            raise PermissionDenied
+        
         form = UserGalleryForm(request.POST)
-        u = get_object_or_404(User, username=request.POST['user'])
+        
         if form.is_valid():
+            user = get_object_or_404(User, username = request.POST['user'])
+    
+            # If a user is already in a user gallery, we don't add him.
+            galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
+            if galleries.count() > 0:
+                return redirect(gallery.get_absolute_url())
+    
+            
+            
             ug = UserGallery()
-            ug.user = u
-            ug.gallery = gal
-            ug.mode = 'W'
+            ug.user = user
+            ug.gallery = gallery
+            ug.mode = request.POST['mode']
             ug.save()
+        else:
+            return render_template('gallery/gallery_details.html', {
+                    'gallery': gallery,
+                    'gallery_mode': gal_mode,
+                    'images': gallery.get_images(),
+                    'form': form
+                })
 
-
-    return redirect(gal.get_absolute_url())
+    return redirect(gallery.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -157,26 +181,31 @@ def edit_image(request, gal_pk, img_pk):
     img = get_object_or_404(Image, pk=img_pk)
 
     if request.method == 'POST':
-        form = ImageForm(request.POST)
-        if form.is_valid():
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid()\
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST['title']
             img.legend = request.POST['legend']
+            img.physical = request.FILES['physical']
+            img.slug = slugify(request.FILES['physical'])
             img.update = datetime.now()
 
             img.save()
 
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
-        else:
-            # TODO: add errors to the form and return it
-            raise Http404
     else:
-        form = ImageForm()  # A empty, unbound form
-        return render_template('gallery/edit_image.html', {
-            'form': form,
-            'gallery': gal,
-            'image': img
-        })
+        form = ImageForm(initial = {
+                'title': img.title,
+                'legend': img.legend,
+                'physical': img.physical,
+            })
+    
+    return render_template('gallery/edit_image.html', {
+        'form': form,
+        'gallery': gal,
+        'image': img
+    })
 
 @can_write_and_read_now
 @login_required
@@ -191,11 +220,13 @@ def modify_image(request):
         raise Http404
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
-    gal_mode = get_object_or_404(UserGallery, gallery=gal, user=request.user)
-
-    # Only allow RW users to modify images
-    if gal_mode.mode != 'W':
-        raise Http404
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        # Only allow RW users to modify images
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
 
     if 'delete' in request.POST:
         img = get_object_or_404(Image, pk=request.POST['image'])
@@ -210,15 +241,13 @@ def modify_image(request):
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
-    '''
-    Creates a new image
-    '''
+    '''Creates a new image'''
     gal = get_object_or_404(Gallery, pk=gal_pk)
 
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() \
-           and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img = Image()
             img.physical = request.FILES['physical']
             img.gallery = gal
@@ -232,8 +261,10 @@ def new_image(request, gal_pk):
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
         else:
-            # TODO: add errors to the form and return it
-            raise Http404
+            return render_template('gallery/new_image.html', {
+            'form': form,
+            'gallery': gal
+            })
     else:
         form = ImageForm()  # A empty, unbound form
         return render_template('gallery/new_image.html', {

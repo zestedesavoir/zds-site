@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block headline %}
-    Nouvel extrait
+    <h1 class="illu">
+        Nouvel Extrait
+    </h1>
 {% endblock %}
 
 {% block headline-sub %}
@@ -32,14 +34,14 @@
 
 <div class="row">
     <div class="large-12 columns">
-        {% include "tutorial/extract_common.part.html" %}
-    </div>
-</div>
-
-<div class="row">
-    <div class="large-12 columns">
         {% crispy form %}
     </div>
 </div>
+
+{% if form.text.value %}
+    {% with text=form.text.value %}
+        {% include "forum/previsualization.part.html" %}
+    {% endwith %}
+{% endif %}
 
 {% endblock %}

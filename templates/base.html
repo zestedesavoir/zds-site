@@ -189,14 +189,12 @@
                                                 {% with first_unread=topic.first_unread_post %}
                                                 <li>
                                                     <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                        {% comment %}
                                                         {% with p=first_unread.author|profile %}
                                                         <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                         {% endwith %}
                                                         <span class="username">{{ first_unread.author.username }}</span>
                                                         <span class="date">{{ first_unread.pubdate|humane_date }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
-                                                        {% endcomment %}
                                                     </a>
                                                 </li>
                                                 {% endwith %}
@@ -302,7 +300,7 @@
                                                 </li>
                                             {% endif %}
                                         </ul>
-                                        <a href="#" class="dropdown-link-all">
+                                        <a href="{% url "zds.forum.views.followed_topics" %}" class="dropdown-link-all">
                                             Toutes les notifications
                                         </a>
                                     </div>
@@ -526,7 +524,6 @@
     
       ga('create', 'UA-27730868-1', 'zestedesavoir.com');
       ga('send', 'pageview');
-    
     </script>
     <!-- Analytics -->
 </body>

@@ -109,7 +109,7 @@ class Tutorial(models.Model):
     def get_edit_url(self):
         return '/tutorial/editer?tutorial={0}'.format(self.pk)
 
-    def parts(self):
+    def get_parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('position_in_tutorial')
@@ -141,13 +141,22 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(settings.REPO_PATH, self.slug)
+            return os.path.join(settings.REPO_PATH, str(self.pk)+'_'+self.slug)
     
     def get_prod_path(self):
-        return os.path.join(settings.REPO_PATH_PROD, self.slug)
+        data = self.load_json_for_public()
+        return os.path.join(settings.REPO_PATH_PROD, str(self.pk)+'_'+ slugify(data['title']))
     
+    
+    def load_json_for_public(self):
+        repo = Repo(self.get_path())
+        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        data = json.loads(mantuto)
+        
+        return data
         
     def load_json(self, path=None, online = False):
+        
         if path==None:
             if online :
                 man_path=os.path.join(self.get_prod_path(),'manifest.json')
@@ -155,6 +164,7 @@ class Tutorial(models.Model):
                 man_path=os.path.join(self.get_path(),'manifest.json')
         else :
             man_path=path
+        
         if os.path.isfile(man_path):
             json_data=open(man_path)
             data = json.load(json_data)
@@ -192,7 +202,6 @@ class Tutorial(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
@@ -227,11 +236,8 @@ class Tutorial(models.Model):
                 .order_by('-pubdate')[0]
         except:
             last_note = None
-
-        if last_note == self.first_note():
-            return None
-        else:
-            return last_note
+        
+        return last_note
 
     def first_note(self):
         '''
@@ -269,9 +275,9 @@ class Tutorial(models.Model):
 
         last_user_notes = Note.objects\
             .filter(tutorial=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
-
+        
         if last_user_notes and last_user_notes[0] == self.get_last_note():
             last_user_note = last_user_notes[0]
             t = timezone.now() - last_user_note.pubdate
@@ -393,7 +399,7 @@ class Part(models.Model):
             self.slug,
         ])
 
-    def chapters(self):
+    def get_chapters(self):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
 
@@ -401,7 +407,7 @@ class Part(models.Model):
         if relative:
             return self.slug
         else:
-            return os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+            return os.path.join(os.path.join(settings.REPO_PATH, str(self.tutorial.pk)+'_'+self.tutorial.slug), self.slug)
     
     def get_introduction(self):
         intro = open(os.path.join(self.tutorial.get_path(), self.introduction), "r")
@@ -418,7 +424,6 @@ class Part(models.Model):
         return intro_contenu.decode('utf-8')
     
     def get_conclusion(self):
-        
         conclu = open(os.path.join(self.tutorial.get_path(), self.conclusion), "r")
         conclu_contenu = conclu.read()
         conclu.close()
@@ -539,9 +544,9 @@ class Chapter(models.Model):
                 chapter_path = os.path.join(self.part.slug, self.slug)
         else:
             if self.tutorial:
-                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.tutorial.slug), self.slug)
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, str(self.tutorial.pk)+'_'+self.tutorial.slug), self.slug)
             else:
-                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.part.tutorial.slug), self.part.slug), self.slug)
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(self.part.tutorial.pk)+'_'+self.part.tutorial.slug), self.part.slug), self.slug)
             
         return chapter_path
     
@@ -657,17 +662,17 @@ class Extract(models.Model):
                 chapter_path = os.path.join(self.chapter.part.slug, self.chapter.slug)
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, self.chapter.tutorial.slug), self.chapter.slug)
+                chapter_path = os.path.join(os.path.join(settings.REPO_PATH, str(self.chapter.tutorial.pk)+'_'+self.chapter.tutorial.slug), self.chapter.slug)
             else:
-                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+                chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH, str(self.chapter.part.tutorial.pk)+'_'+self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md') 
     
     def get_prod_path(self):
         if self.chapter.tutorial:
-            chapter_path = os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.tutorial.slug), self.chapter.slug)
+            chapter_path = os.path.join(os.path.join(settings.REPO_PATH_PROD, str(self.chapter.tutorial.pk)+'_'+self.chapter.tutorial.slug), self.chapter.slug)
         else:
-            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH_PROD, self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
+            chapter_path = os.path.join(os.path.join(os.path.join(settings.REPO_PATH_PROD, str(self.chapter.part.tutorial.pk)+'_'+self.chapter.part.tutorial.slug), self.chapter.part.slug), self.chapter.slug)
             
         return os.path.join(chapter_path, slugify(self.title)+'.md.html') 
     

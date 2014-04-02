@@ -1,70 +1,34 @@
 {% extends "article/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     Éditer un message
 {% endblock %}
 
 {% block headline %}
-    Éditer un message
+    <h2>Editer le commentaire de l'article : {{article.title}}</h2>
+{% endblock %}
+
+{% block headline-sub %}
+    <h3 class="subtitle">{{ article.description }}</h3>
 {% endblock %}
 
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></li>
-    <li class="current"><a href="javascript:;">Éditer un message</a></li>
+    <li class="current"><a href="#">Éditer un message</a></li>
 {% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <form action="#previsualisation" method="POST">
-            {% if topic %}
-            <fieldset>
-                <legend>Sujet</legend>
-                <div class="control-group">
-                    <label class="control-label" for="id_title">Titre</label>
-                    <div class="controls">
-                        <input type="text" name="title" id="id_title"
-                            class="input-xxlarge" value="{{ topic.title }}" />
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="id_subtitle">Sous titre</label>
-                    <div class="controls">
-                        <input type="text" name="subtitle" id="id_subtitle"
-                            class="input-xxlarge" value="{{ topic.subtitle }}" />
-                    </div>
-                </div>
-            </fieldset>
-            {% endif %}
-            {% include "misc/editor.part.html" %}
-            <fieldset>
-                <legend>Message</legend>
-                <div class="control-group">
-                    <label class="control-label" for="id_text">Texte</label>
-                    <div class="controls">
-                        <textarea id="id_text" name="text"
-                            class="input-block-level" rows="20">{{ text }}</textarea>
-                    </div>
-                </div>
-            </fieldset>
-
-            <div style="text-align: center;">
-                <button type="submit" class="button">
-                    Éditer
-                </button>
-
-                <button type="submit" name="preview" class="button secondary">
-                    Prévisualisation
-                </button>
-
-                <a href="{{ reaction.get_absolute_url }}" class="button secondary">Annuler</a>
-            </div>
-
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </div>
 </div>
 
-{% include "forum/previsualization.part.html" %}
+{% if form.text.value %}
+    {% with text=form.text.value %}
+        {% include "forum/previsualization.part.html" %}
+    {% endwith %}
+{% endif %}
 
 {% endblock %}

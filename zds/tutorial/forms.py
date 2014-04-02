@@ -3,44 +3,99 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div
 from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
-    ButtonHolder
+    ButtonHolder, Hidden
+from crispy_forms.bootstrap import StrictButton
+
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.models import Category, SubCategory, Licence
+from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 
 
-class TutorialForm(forms.Form):
+class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80
+        max_length=80,
+        widget = forms.TextInput(
+            attrs = {
+                'required': 'required',
+            }
+        )
+    )
+    
+    def clean(self):
+        cleaned_data = super(FormWithTitle, self).clean()
+
+        title = cleaned_data.get('title')
+        
+        if title is not None and title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ Titre ne peut être vide'])
+            if 'title' in cleaned_data:
+                del cleaned_data['title']
+        
+        return cleaned_data
+
+class TutorialForm(FormWithTitle):
+
+    description = forms.CharField(
+        label = 'Description',
+        max_length = 200,
+        required = False,
     )
     
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
+        label = 'Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
+        required = False
+    )
 
-    description = forms.CharField(
-        max_length=200
+    introduction = forms.CharField(
+        label = 'Introduction',
+        required=False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
+
+    conclusion = forms.CharField(
+        label = 'Conclusion',
+        required=False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
     
-    type = forms.ChoiceField(choices=TYPE_CHOICES)
+    type = forms.ChoiceField(
+        choices=TYPE_CHOICES
+    )
 
     subcategory = forms.ModelMultipleChoiceField(
         label = "Sous-catégories de votre tuto",
         queryset = SubCategory.objects.all(),
         required = True,
+        widget = forms.SelectMultiple(
+            attrs = {
+                'required': 'required',
+            }
+        )
     )
     
     licence = forms.ModelChoiceField(
         label = "Licence de votre publication",
-        queryset=Licence.objects.all(),
+        queryset = Licence.objects.all(),
         required = False,
     )
 
     def __init__(self, *args, **kwargs):
+        super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -48,151 +103,91 @@ class TutorialForm(forms.Form):
             Field('description'),
             Field('type'),
             Field('image'),
+            Field('introduction', css_class = 'md-editor'),
+            Field('conclusion', css_class = 'md-editor'),
             Field('subcategory'),
             Field('licence'),
-            Submit('submit', 'Valider')
+            ButtonHolder(
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+            ),
         )
-        super(TutorialForm, self).__init__(*args, **kwargs)
 
-
-class EditTutorialForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    description = forms.CharField(
-        max_length=200
-    )
-    
-    image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
-
+class PartForm(FormWithTitle):
 
     introduction = forms.CharField(
+        label = 'Introduction',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     conclusion = forms.CharField(
+        label = 'Conclusion',
         required=False,
-        widget=forms.Textarea
-    )
-    
-    licence = forms.ModelChoiceField(
-        label = "Licence de votre publication",
-        queryset=Licence.objects.all(),
-        required = False,
-    ) 
-
-    subcategory = forms.ModelMultipleChoiceField(
-        label = "Sous-catégories",
-        queryset = SubCategory.objects.all(),
-        required = True,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
+        super(PartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('description'),
-            Field('image'),
-            Field('licence'),
             Field('introduction'),
             Field('conclusion'),
-            Field('subcategory'),
-            Submit('submit', 'Valider')
-        )
-        super(EditTutorialForm, self).__init__(*args, **kwargs)
-
-
-class PartForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    introduction = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-
-    conclusion = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Fieldset(
-                u'Général',
-                Field('title')
-            ),
-            Fieldset(
-                u'Contenu',
-                Field('introduction'),
-                Field('conclusion')
-            ),
             ButtonHolder(
-                Submit('submit', 'Valider'),
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
             )
         )
-        super(PartForm, self).__init__(*args, **kwargs)
 
-
-class ChapterForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    introduction = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-    
+class ChapterForm(FormWithTitle):
+   
     image = forms.ImageField(
         label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required=False)
+        required=False
+    )
 
-    conclusion = forms.CharField(
+    introduction = forms.CharField(
         required=False,
         widget=forms.Textarea
     )
 
+    conclusion = forms.CharField(
+        label = 'Conclusion',
+        required=False,
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
+        super(ChapterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Fieldset(
-                u'Général',
-                Field('title'),
-                Field('image'),
-            ),
-            Fieldset(
-                u'Contenu',
-                Field('introduction'),
-                Field('conclusion')
-            ),
+            Field('title'),
+            Field('image'),
+            Field('introduction'),
+            Field('conclusion'),
             ButtonHolder(
-                Div(
-                    Submit('submit', 'Ajouter'),
-                    Submit(
-                        'submit_continue', 'Ajouter et continuer',
-                        css_class='secondary'),
-                    css_class='button-group'
-                ),
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+                StrictButton('Ajouter et continuer', type = 'submit_continue', css_class = 'btn-submit'),
             )
         )
-        super(ChapterForm, self).__init__(*args, **kwargs)
-
+    
 
 class EmbdedChapterForm(forms.Form):
     introduction = forms.CharField(
@@ -211,6 +206,7 @@ class EmbdedChapterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -227,58 +223,33 @@ class EmbdedChapterForm(forms.Form):
         super(EmbdedChapterForm, self).__init__(*args, **kwargs)
 
 
-class ExtractForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
+class ExtractForm(FormWithTitle):
 
     text = forms.CharField(
-        label='Texte',
+        label = 'Texte',
         required=False,
-        widget=forms.Textarea
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
+        super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('title'),
             Field('text'),
-            Div(
-                Submit('submit', 'Ajouter'),
-                Submit(
-                    'submit_continue', 'Ajouter et continuer',
-                    css_class='secondary'),
-                css_class='button-group'
+            ButtonHolder(
+                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+                StrictButton(u'Aperçu', type = 'submit', css_class = 'btn-submit', name = 'preview'),
             )
         )
-        super(ExtractForm, self).__init__(*args, **kwargs)
 
-
-class EditExtractForm(forms.Form):
-    title = forms.CharField(
-        label='Titre',
-        max_length=80
-    )
-
-    text = forms.CharField(
-        label='Texte',
-        required=False,
-        widget=forms.Textarea
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('text'),
-            Submit('submit', 'Modifier'),
-        )
-        super(EditExtractForm, self).__init__(*args, **kwargs)
 
 class ImportForm(forms.Form):
 
@@ -293,6 +264,7 @@ class ImportForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -302,9 +274,122 @@ class ImportForm(forms.Form):
         )
         super(ImportForm, self).__init__(*args, **kwargs)
 
+# Notes
+
 class NoteForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea)
+    text = forms.CharField(
+        label = '',
+        widget = forms.Textarea(
+            attrs = {
+                'placeholder': 'Votre message au format Markdown.',
+                'required':'required'
+            }
+        )
+    )
 
+    def __init__(self, tutorial, user, *args, **kwargs):
+        super(NoteForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.answer') + '?tutorial=' + str(tutorial.pk)
+        self.helper.form_method = 'post'
 
-class AlertForm(forms.Form):
-    text = forms.CharField()
+        self.helper.layout = Layout(
+            CommonLayoutEditor(),
+            Hidden('last_note', '{{ last_note_pk }}'),
+        )
+
+        if tutorial.antispam(user):
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
+                disabled = True
+            )
+        elif tutorial.is_locked:
+            self.helper['text'].wrap(
+                Field, 
+                placeholder = u'Ce tutoriel est verrouillé.',
+                disabled = True
+            )
+
+# Validations.
+
+class AskValidationForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire pour votre demande.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(AskValidationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.ask_validation')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Demander la validation', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
+
+class ValidForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire de publication.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ValidForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.valid_tutorial')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Publier', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
+
+class RejectForm(forms.Form):
+
+    text = forms.CharField(
+        label = '',
+        required = False,
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': 'Commentaire de rejet.'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(RejectForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.reject_tutorial')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton('Rejeter', type = 'submit', css_class = 'btn-submit'),
+            ),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )

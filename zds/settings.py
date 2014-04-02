@@ -59,7 +59,7 @@ USE_TZ = False
 
 SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
-SIRE_URL = 'http://zestedesavoir.com'
+SITE_URL = 'http://127.0.0.1:8000'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.markup',
+    'django.contrib.sitemaps',
 
     'south',
     'crispy_forms',
@@ -275,6 +276,7 @@ TOPICS_PER_PAGE = 21
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
+FOLLOWED_TOPICS_PER_PAGE = 21
 
 HAYSTACK_CONNECTIONS = {
     'default': {

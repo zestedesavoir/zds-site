@@ -3,6 +3,7 @@
 {% load markup %}
 {% load humane_date %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 
 {% block title %}
@@ -11,12 +12,12 @@
 
 
 {% block headline %}
-    {{ topic.title }}
+    <h2>{{ topic.title }}</h2>
 {% endblock %}
 
 
 {% block headline-sub %}
-    {{ topic.subtitle }}
+    <h3 class="subtitle">{{ topic.subtitle }}</h3>
 {% endblock %}
 
 
@@ -100,6 +101,7 @@
                 </a>
             </li>
         {% endif %}
+        {% crispy form_move %}
     {% endif %}
 {% endblock %}
 
@@ -114,146 +116,119 @@
 
     {% include "forum/topic_pagination.part.html" with position="top" %}
 
-    {% for post in posts %}
-    <article class="forum-message {% if post.is_useful %}helpful{% endif %}">
-        <div class="user" id="p{{ post.id }}">
-            <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
-                {% with profile=post.author|profile %}
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                {% endwith %}
-            </a>
-        </div>
-
-        <div class="message">
-            {% if user.is_authenticated %}
-            <ul class="message-actions">
-                {% if post.author = user or perms.forum.change_post %}
-                <li>
-                    <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}"
-                       class="ico-after edit">
-                        Editer
-                    </a>
-                </li>
-                {% endif %}
-
-                <li>
-                    <a href="#" class="ico-after alert">
-                        Signaler
-                    </a>
-                </li>
-                {% if not topic.is_locked and not topic.antispam %}
-                <li>
-                    <a href="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
-                       class="ico-after cite">
-                        Citer
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-            {% endif %}
-
-            <div class="message-metadata">
-                <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-                <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|humane_date }}</a>
+    <div class="content-wrapper">
+        {% for post in posts %}
+        <article class="forum-message {% if post.is_useful %}helpful{% endif %}">
+            <div class="user" id="p{{ post.id }}">
+                <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
+                    {% with profile=post.author|profile %}
+                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                    {% endwith %}
+                </a>
             </div>
 
-            <div class="message-content">
-                {{ post.text|emarkdown }}
-
-                {% if not post.is_visible %}
-                    <hr>
-                    <p>
-                        <em>Masqué par {{ post.editor }} : {{ post.text_hidden }}</em>
-                    </p>
-                {% elif not post.update = None %}
-                    <hr>
-                    <p>
-                        <em>(Edité {{ post.update|humane_date }} par {{ post.editor }} )</em>
-                    </p>
-                {% endif %}
-            </div>
-
-            <div class="message-bottom">
-                {% with profile=post.author|profile %}
-                    <p class="signature">{{ profile.sign|emarkdown_inline }}</p>
-                {% endwith %}
-
+            <div class="message">
                 {% if user.is_authenticated %}
-                <div class="message-karma">
-                    {% if topic.author == user and post.author != user %}
-                        <a href="/forums/message/utile?message={{ post.pk }}" class="ico-after tick">
-                            Cette réponse m'a aidé
+                <ul class="message-actions">
+                    {% if post.author = user or perms.forum.change_post %}
+                    <li>
+                        <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}"
+                           class="ico-after edit">
+                            Editer
                         </a>
+                    </li>
                     {% endif %}
 
-                    <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}"
-                       class="ico-after upvote {% if post.like > post.dislike %}voted{% endif%}">
-                        +{{post.like}}
-                    </a>
-                    <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}"
-                       class="ico-after downvote {% if post.like < post.dislike %}voted{% endif%}">
-                        -{{post.dislike}}
-                    </a>
-                </div>
+                    <li>
+                        <a href="#" class="ico-after alert">
+                            Signaler
+                        </a>
+                    </li>
+                    {% if not topic.is_locked and not topic.antispam %}
+                    <li>
+                        <a href="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
+                           class="ico-after cite">
+                            Citer
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
                 {% endif %}
+
+                <div class="message-metadata">
+                    <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
+                    <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|humane_date }}</a>
+                </div>
+
+                <div class="message-content">
+                    {{ post.text|emarkdown }}
+
+                    {% if not post.is_visible %}
+                        <hr>
+                        <p>
+                            <em>Masqué par {{ post.editor }} : {{ post.text_hidden }}</em>
+                        </p>
+                    {% elif not post.update = None %}
+                        <hr>
+                        <p>
+                            <em>(Edité {{ post.update|humane_date }} par {{ post.editor }} )</em>
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="message-bottom">
+
+                    {% if user.is_authenticated %}
+                        {% with profile_user=user|profile %}
+                            {% if profile_user.show_sign %}
+                                {% with profile=post.author|profile %}
+                                    <p class="signature">
+                                        {{profile.sign|emarkdown_inline}}
+                                    </p>
+                                {% endwith %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <div class="message-karma">
+                            {% if topic.author == user and post.author != user %}
+                                <a href="/forums/message/utile?message={{ post.pk }}" class="ico-after tick">
+                                    Cette réponse m'a aidé
+                                </a>
+                            {% endif %}
+
+                            <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}"
+                               class="ico-after upvote {% if post.like > post.dislike %}voted{% endif%}">
+                                +{{post.like}}
+                            </a>
+                            <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}"
+                               class="ico-after downvote {% if post.like < post.dislike %}voted{% endif%}">
+                                -{{post.dislike}}
+                            </a>
+                        </div>
+                    {% else %}
+                        {% with profile=post.author|profile %}
+                            <p class="signature">
+                                {{ profile.sign|emarkdown_inline }}
+                            </p>
+                        {% endwith %}
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    </article>
-    {% endfor %}
+        </article>
+        {% endfor %}
+    </div>
 
     {% include "forum/topic_pagination.part.html" with position="bottom" %}
 
     {% if user.is_authenticated %}
-    {% with profile=user|profile%}
-    <section>
-        <form action="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}" class="forum-message" method="POST" id="submit_form">
+        {% with profile=user|profile %}
+        <section>
             <div class="user">
                 <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
             </div>
 
-            <div class="message">
-                <div class="message-content">
-                    <textarea name="text" id="text" class="md-editor" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% endif %}</textarea>
-                </div>
-
-                <div class="message-bottom">
-                    <div class="message-submit">
-                        <button type="submit"
-                                name="preview"
-                                class="btn"
-                                {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
-                            Aperçu
-                        </button>
-
-                        <button type="submit"
-                                {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                                name="answer" 
-                                class="btn btn-submit">
-                            Envoyer
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <input type="hidden" name="last_post" value="{{ last_post_pk }}" />
-
-            {% csrf_token %}
-        </form>
-    </section>
-    {% endwith %}
+            {% crispy form %}
+        </section>
+        {% endwith %}
     {% endif %}
-
-{% endblock %}
-
-
-{% block additionnal-js %}
-    <script>
-        /* anwser check */
-        $('#submit_form').submit(function(e){
-            if ((!$(this).find('textarea').val()) || ($(this).find('textarea').val().trim()=='')) {
-                alert('Votre message ne peut pas être vide.');
-                e.preventDefault();
-            }
-        })
-    </script>
 {% endblock %}

@@ -86,6 +86,9 @@ class Article(models.Model):
     
     def in_validation(self):
         return self.sha_validation != None
+
+    def is_draft(self):
+        return self.sha_draft != None
     
     def get_path(self, relative=False):
         if relative:
@@ -215,7 +218,7 @@ class Article(models.Model):
 
         last_user_reactions = Reaction.objects\
             .filter(article=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
 
         if last_user_reactions and last_user_reactions[0] == self.get_last_reaction():
@@ -264,9 +267,9 @@ def get_next_article(g_article):
 
 STATUS_CHOICES = (
         ('PENDING', 'En attente d\'un validateur'),
-        ('PENDING_V', 'En cours de validation'),
-        ('ACCEPT', 'Publié'),
-        ('REJECT', 'Rejeté'),
+        ('RESERVED', 'En cours de validation'),
+        ('PUBLISHED', 'Publié'),
+        ('REJECTED', 'Rejeté')
     )
 
 class Reaction(Comment):
@@ -356,10 +359,10 @@ class Validation(models.Model):
         return self.status == 'PENDING'
     
     def is_pending_valid(self):
-        return self.status == 'PENDING_V'
+        return self.status == 'RESERVED'
     
     def is_accept(self):
-        return self.status == 'ACCEPT'
+        return self.status == 'PUBLISHED'
     
     def is_reject(self):
-        return self.status == 'REJECT'
+        return self.status == 'REJECTED'

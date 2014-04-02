@@ -24,13 +24,13 @@ urlpatterns = patterns('',
 
 
     url(r'^$', views.index),
-    url(r'^liste/$', views.list),
     url(r'^telecharger/$', views.download),
     url(r'^historique/(?P<article_pk>\d+)/(?P<article_slug>.+)/$', views.history),
     
     #Validation
     url(r'^validation/$', views.list_validation),
     url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation),
+    url(r'^validation/historique/(?P<article_pk>\d+)/$', views.history_validation),
     
     #Reactions
     url(r'^message/editer$', views.edit_reaction),

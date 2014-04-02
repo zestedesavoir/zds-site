@@ -1,5 +1,6 @@
 {% extends "forum/base.html" %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 
 {% block title %}
@@ -21,15 +22,23 @@
 
 
 {% block content %}
-
-    {% with topic=topic %}
-        {% with profile=user|profile %}
-            {% include "forum/comment.part.html" %}
-        {% endwith %}
-    {% endwith %}
-
-    {% if text %}
-        {% include "forum/previsualization.part.html" %}
+    {% if newpost %}
+    {# TODO: clean ce code : utiliser les alertes de Django #}
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="alert-box alert">
+                <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+                pendant que vous rédigiez le votre.
+            </div>
+        </div>
+    </div>
     {% endif %}
 
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% with text=form.text.value %}
+            {% include "forum/previsualization.part.html" %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}

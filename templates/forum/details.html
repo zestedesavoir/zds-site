@@ -8,7 +8,7 @@
 
 
 {% block headline %}
-    {{ forum.title }}
+    <h1>{{ forum.title }}</h1>
 {% endblock %}
 
 
@@ -29,7 +29,6 @@
 
 
 {% block content %}
-
     {% if sticky_topics %}
         <div class="forum-entries forum-entries-sticky">
             {% for topic in sticky_topics %}
@@ -45,5 +44,4 @@
     </div>
 
     {% include "forum/topic_pagination.part.html" with position="bottom" %}
-
 {% endblock %}

@@ -172,7 +172,7 @@ class Topic(models.Model):
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-        except Post.DoesNotExist:
+        except:
             return self.first_post()
     
     def first_unread_post(self):
@@ -190,7 +190,7 @@ class Topic(models.Model):
             next_post = Post.objects.get(topic__pk = self.pk, position = next_post_position)
             
             return next_post
-        except Post.DoesNotExist:
+        except:
             return self.last_read_post(self)
 
     def is_followed(self, user=None):
@@ -220,7 +220,7 @@ class Topic(models.Model):
 
         last_user_posts = Post.objects\
             .filter(topic=self)\
-            .filter(author=user)\
+            .filter(author=user.pk)\
             .order_by('-pubdate')
 
         if last_user_posts and last_user_posts[0] == self.get_last_answer():

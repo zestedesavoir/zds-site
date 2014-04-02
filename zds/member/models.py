@@ -1,5 +1,6 @@
 # coding: utf-8
 from datetime import datetime
+from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -13,8 +14,9 @@ from zds.utils.models import Alert
 from zds.tutorial.models import Tutorial
 from zds.article.models import Article
 
-
+import os
 import uuid
+import pygeoip
 
 
 class Profile(models.Model):
@@ -28,7 +30,7 @@ class Profile(models.Model):
                 ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.ForeignKey(User, unique=True, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur')
     
     last_ip_address = models.CharField('Adresse IP', max_length=15, blank=True,  null=True)
 
@@ -68,13 +70,10 @@ class Profile(models.Model):
     
     def get_city(self):
         ''' return physical adress by geolocalisation '''
-        try:
-            from django.contrib.gis.geoip import GeoIP
-            g = GeoIP()
-            geo = g.city(self.last_ip_address)
-            return u'{0}, {1}'.format(str(geo['city']), str(geo['country_name']))
-        except:
-            return u'Ankh-Morpork, Discworld'
+        gic = pygeoip.GeoIP(os.path.join(settings.GEOIP_PATH,'GeoLiteCity.dat'))
+        geo = gic.record_by_addr(self.last_ip_address)
+
+        return u'{0} ({1}) : {2}'.format(str(geo['city']), str(geo['postal_code']), str(geo['country_name']))
     
     def get_avatar_url(self):
         '''Avatar URL (using custom URL or Gravatar)'''
@@ -101,7 +100,7 @@ class Profile(models.Model):
     
     def get_draft_tutos(self):
         '''Tutorial in draft'''
-        return Tutorial.objects.filter(authors__in=[self.user], sha_public__isnull=True, sha_draft__isnull=False).all()
+        return Tutorial.objects.filter(authors__in=[self.user], sha_draft__isnull=False).all()
     
     def get_public_tutos(self):
         '''Tutorial in public'''
@@ -118,6 +117,14 @@ class Profile(models.Model):
     def get_articles(self):
         '''Get all articles of the user'''
         return Article.objects.filter(authors__in=[self.user]).all()
+
+    def get_public_articles(self):
+        '''Get all public articles of the user'''
+        return Article.objects.filter(authors__in=[self.user], sha_public__isnull=False).all()
+
+    def get_draft_articles(self):
+        '''Get all draft articles of the user'''
+        return Article.objects.filter(authors__in=[self.user], sha_draft__isnull=False).all()
     
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -135,13 +142,15 @@ class Profile(models.Model):
             return self.can_read
     
     def can_write_now(self):
-        if self.user.is_active:
-            if self.end_ban_write:
-                return self.can_write or (self.end_ban_write < datetime.now())
-            else:
-                return self.can_write
+        if self.end_ban_write:
+            return self.can_write or (self.end_ban_write < datetime.now())
         else:
-            return False
+            return self.can_write
+    
+    def get_followed_topics(self):
+        '''Followed topics'''
+        return Topic.objects.filter(topicfollowed__user=self.user)\
+          .order_by('-last_message__pubdate')
 
 class TokenForgotPassword(models.Model):
     class Meta:
@@ -182,6 +191,6 @@ class Ban(models.Model):
     user = models.ForeignKey(User, verbose_name='Sanctionné')
     moderator = models.ForeignKey(User, verbose_name='Moderateur',
                                      related_name='bans')
-    type = models.CharField('Type',  max_length=15)
+    type = models.CharField('Type',  max_length=80)
     text = models.TextField('Explication de la sanction')
     pubdate = models.DateTimeField('Date de publication', blank=True, null=True)

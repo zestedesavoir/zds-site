@@ -23,7 +23,7 @@
         tags: {
             bold:       { title: "Gras",                        start: "**",                end: "**"   },
             italic:     { title: "Italique",                    start: "*",                 end: "*"    },
-            strike:     { title: "Barré",                       start: "--",                end: "--"   },
+            strike:     { title: "Barré",                       start: "~~",                end: "~~"   },
             sup:        { title: "Exposant",                    start: "^",                 end: "^"    },
             sub:        { title: "Indice",                      start: "~",                 end: "~"    },
             abbr:       { title: "Abréviation" },
@@ -105,7 +105,7 @@
             var listTexta = document.getElementsByTagName("textarea");
             
             for (var i=0, c=listTexta.length; i<c; i++) {
-                if (~listTexta[i].className.indexOf("md-editor")) {
+                if (/md.editor/.test(listTexta[i].className)) {
                     this.setup(listTexta[i].id);    
                 }
             }
@@ -575,5 +575,4 @@
             _this.init();
         };
     }) (zForm));
-
 })();

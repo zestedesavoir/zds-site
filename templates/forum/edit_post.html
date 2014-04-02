@@ -1,5 +1,6 @@
 {% extends "forum/base.html" %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 
 {% block title %}
@@ -8,7 +9,7 @@
 
 
 {% block headline %}
-    Éditer un message : {{ post.topic.title }}
+    <h2>Éditer un message : {{ post.topic.title }}</h2>
 {% endblock %}
 
 
@@ -23,53 +24,13 @@
 {% block content %}
     {% with profile=user|profile%}
     <section>
-        <form action="#previsualisation" method="POST" class="forum-message" id="submit_form">
-            <div class="user">
-                <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-            </div>
-            <div class="message">
-                {% if topic %}
-                <div class="message-content">
-                    <label class="control-label" for="id_title">Titre</label>
-                    <div class="controls">
-                        <input type="text" name="title" id="id_title" value="{{ topic.title }}" />
-                    </div>
-                </div>
-                <div class="message-content">
-                    <label class="control-label" for="id_subtitle">Sous titre</label>
-                    <div class="controls">
-                        <input type="text" name="subtitle" id="id_subtitle" value="{{ topic.subtitle }}" />
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="message-content">
-                    <textarea name="text" id="text" class="md-editor" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
-                </div>
-
-                <div class="message-bottom">
-                    <div class="message-submit">
-                        <button type="submit"
-                                name="preview"
-                                class="btn"
-                                {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
-                            Aperçu
-                        </button>
-
-                        <button type="submit"
-                                {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                                name="answer"
-                                class="btn btn-submit">
-                            Envoyer
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {% csrf_token %}
-        </form>
+        {% crispy form %}
     </section>
     {% endwith %}
 
-    {% include "forum/previsualization.part.html" %}
+    {% if form.text.value %}
+        {% with text=form.text.value %}
+            {% include "forum/previsualization.part.html" %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "article/base.html" %}
+{% load humane_date %}
 
 {% block title %}
     Liste des articles
@@ -11,19 +12,8 @@
     différents domaines de l'informatique." />
 {% endblock %}
 
-{% block header %}
-    <h1>
-        <i class="icon-file-text icon-large"></i>
-        Articles
-    </h1>
-    <p>
-        Les articles sont rédigés par la communauté ; ils permettent aussi bien de <strong>se tenir informé des dernières innovations</strong> du moment
-        que de <strong>découvrir de nouvelles notions</strong> liées aux différents domaines de l'informatique.
-    </p>
-{% endblock %}
-
 {% block headline %}
-    Liste des articles
+    <h2 class="ico ico-articles">Liste des articles<h2>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -31,16 +21,20 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <div class="button-group">
-
-        {% include "article/feeds.part.html" %}
-
-        {% if user.is_authenticated %}
-            <a href="{% url "zds.article.views.new" %}" class="button">
-                <i class="icon-plus"></i>
-                Nouvel article
-            </a>
-        {% endif %}
+    {% if user.is_authenticated %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filter">
+            <ul>
+            {% block headline-actions-filter %}{% endblock %}
+            </ul>
+        </div>
+    {% endif %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Flux">
+        <h3>Flux</h3>
+        <ul>
+            <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+            <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
+            <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
+        </ul>
 
     </div>
 {% endblock %}
@@ -49,28 +43,22 @@
 
 <div class="row">
     <div class="large-12 columns">
-        <h2>À la une</h2>
         {% if articles %}
             <div class="article-items">
                 {% for article in articles %}
-                <div class="row article-publication-item">
-                    <div class="large-1 columns">
-                        {% if article.thumbnail %}
-                            <img src="{{article.thumbnail.url }}"/>
+                <article>
+                    <a href="{{ article.get_absolute_url_online }}">
+                        {% if article.image %}
+                        <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
                         {% endif %}
-                    </div>
-                    <div class="large-10 columns">
-                        <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
-                        <p>{{ article.description }}</p>
-                    </div>
-                    <div class="large-1 columns">
-                        <div class="date-box">
-                            {% with date=article.pubdate %}
-                                {% include "misc/datebox.part.html" %}
-                            {% endwith %}
+                        <div class="article-infos">
+                            <h3>{{ article.title }}</h3>
+                            <p class="article-metadata">
+                                crée {{article.pubdate|humane_date}}
+                            </p>
                         </div>
-                    </div>
-                </div>
+                    </a>
+                </article>
                 {% endfor %}
             </div>
         {% else %}

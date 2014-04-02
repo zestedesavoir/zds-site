@@ -6,16 +6,22 @@
 {% endblock %}
 
 {% block headline %}
-   Paramètres
+	<h1>
+        Paramètres
+    </h1>
+{% endblock %}
+
+{% block headline-actions %}
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li><a href="{% url "zds.member.views.settings_profile" %}">Profil</a></li>
+        <li><a href="{% url "zds.member.views.settings_account" %}">Compte</a></li>
+        <li ><a href="{% url "zds.member.views.settings_user" %}">Pseudo/Email</a></li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="large-12 columns">
-            <dl class="sub-nav">
-                {% block subnav %}{% endblock %}
-            </dl>
-        </div>
-    </div>
     {% block settings_form %}{% endblock %}
 {% endblock %}
