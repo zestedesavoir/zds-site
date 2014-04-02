@@ -61,7 +61,8 @@ def get_markdown_instance(Inline = False):
                                                 # Footnotes place marker can be set with the PLACE_MARKER option
             'tables',                           # Tables support, included in python-markdown
             'fenced_code',                      # Extended syntaxe for code block support, included in python-markdown
-            'codehilite(linenums=True)',        # Code hightlight support, with line numbers, included in python-markdwon
+            'codehilite(linenums=True,guess_lang=False)',
+                                                # Code hightlight support, with line numbers, included in python-markdwon
             customblock_ext,                    # CustomBlock support
             video_ext,                          # Video support
             preprocess_ext,                     # Preprocess support
