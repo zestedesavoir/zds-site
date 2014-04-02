@@ -33,7 +33,6 @@ class GalleryForm(forms.Form):
             Field('subtitle'),
             ButtonHolder(
                 Submit('submit', u'Créer'),
-                HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
         )
     
@@ -85,7 +84,6 @@ class UserGalleryForm(forms.Form):
             Hidden('adduser', 'True'),
             ButtonHolder(
                 Submit('submit', 'Ajouter'),
-                HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
         )
         
