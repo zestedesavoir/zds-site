@@ -3,6 +3,7 @@
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
@@ -32,7 +33,6 @@ class GalleryForm(forms.Form):
             Field('subtitle'),
             ButtonHolder(
                 Submit('submit', u'Créer'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
         )
@@ -85,10 +85,19 @@ class UserGalleryForm(forms.Form):
             Hidden('adduser', 'True'),
             ButtonHolder(
                 Submit('submit', 'Ajouter'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="{% url "zds.gallery.views.gallery_list" %}">Annuler</a>'),
             ),
         )
+        
+    def clean(self):
+        cleaned_data = super(UserGalleryForm, self).clean()
+
+        user = cleaned_data.get('user')
+        
+        if User.objects.filter(username=user).count() == 0:
+            self._errors['user'] = self.error_class([u'Ce nom d\'utilisateur n\'existe pas'])
+        
+        return cleaned_data
 
 class ImageForm(forms.Form):
     title = forms.CharField(
@@ -121,7 +130,6 @@ class ImageForm(forms.Form):
             Field('physical'),
             ButtonHolder(
                 Submit('submit', u'Ajouter'),
-                Reset('reset', u'Réinitialiser'),
                 HTML('<a class="btn btn-submit" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
