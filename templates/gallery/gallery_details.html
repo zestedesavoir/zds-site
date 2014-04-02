@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block headline-sub %}
-    {{ gallery.subtitle }}
+    <h3 class="subtitle">{{ gallery.subtitle }}</h3>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -24,28 +24,34 @@
 
 {% block content %}
 <div class="row">
-    <div class="large-12 columns">
-        <p>
-            Membres partageant cette galerie :
+    <div class="authors content-wrapper">
+        <span class="authors-label">Membres partageant cette galerie : </span>
+        <ul>
             {% for u in gallery.get_users %}
                 {% with member=u.user %}
+                <li>
                     {% include "member/member_item_common.part.html" %}
-                    (<i class="fi-{{ u.mode|mode }} size-18"></i>)
+                </li>
+                <li>
+                    ({{u.mode}})
+                </li>
                 {% endwith %}
             {% endfor %}
-        </p>
-        {% if gallery_mode.is_write %}
-        {% crispy form %}
-        {% endif %}
+        </ul>
     </div>
+    {% if gallery_mode.is_write %}
+    <div>
+        {% crispy form %}
+    </div>
+    {% endif %}
+    
 </div>
-<div class="row">
-    <div class="large-12 columns">
+<div>
         <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
             <input type="hidden" name="gallery" value="{{ gallery.pk }}">
             <div class="row">
                 <div class="large-8 columns">   
-                    <h3>Images</h3>
+                    <h2>Images</h2>
                 </div>
             </div>
             <table>
@@ -80,6 +86,5 @@
             <button name="delete_multi">Supprimer</button>
         {% csrf_token %}
         </form>
-    </div>
 </div>
 {% endblock %}
