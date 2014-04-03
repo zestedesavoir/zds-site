@@ -179,11 +179,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-
-    # Custom context processors
-    'zds.utils.context_processors.versions',
-    'zds.utils.context_processors.git_version',
+    'django.contrib.messages.context_processors.messages'
 )
 
 INSTALLED_APPS = (
