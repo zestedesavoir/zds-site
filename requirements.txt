@@ -28,6 +28,4 @@ pysolr
 factory-boy==2.2.1
 django-discover-runner==0.4
 django-taggit
-markdown
-GitPython
 pygeoip==0.3.1
