@@ -21,6 +21,7 @@ from models import PrivateTopic, PrivatePost, \
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
+from django.views.decorators.http import require_POST
 
 @can_read_now
 @login_required
@@ -76,7 +77,7 @@ def topic(request, topic_pk, topic_slug):
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
     
     if not g_topic.author == request.user and not request.user in list(g_topic.participants.all()):
-         raise Http404
+         raise PermissionDenied
     
     # Check link
     if not topic_slug == slugify(g_topic.title):
@@ -148,6 +149,7 @@ def new(request):
             })
                 
         form = PrivateTopicForm(request.POST)
+        
         if form.is_valid():
             data = form.data
 
@@ -210,32 +212,35 @@ def new(request):
 
             return redirect(n_topic.get_absolute_url())
 
-    if 'username' in request.GET:
-        try:
-            #check that username in url is in the database
-            dest = User.objects.get(username=request.GET['username']).username
-        except:
-            dest = None
+        else:
+            return render_template('mp/new.html', {
+                'form': form,
+            })
     else:
-        dest = None
-    
-    form = PrivateTopicForm(initial = {
-                    'participants': dest
-                })
-    return render_template('mp/new.html', {
-        'form': form,
-    })
+        if 'username' in request.GET:
+            try:
+                #check that username in url is in the database
+                dest = User.objects.get(username=request.GET['username']).username
+            except:
+                dest = None
+        else:
+            dest = None
+        
+        form = PrivateTopicForm(initial = {
+                        'participants': dest
+                    })
+        return render_template('mp/new.html', {
+            'form': form,
+        })
 
 @can_write_and_read_now 
 @login_required
+@require_POST
 def edit(request):
     '''
     Edit the given topic
     '''
     authenticated_user = request.user
-
-    if not request.method == 'POST':
-        raise Http404
 
     try:
         topic_pk = request.POST['privatetopic']
@@ -275,7 +280,7 @@ def answer(request):
 
     # Check that the user isn't spamming
     if g_topic.antispam(request.user):
-        raise Http404
+        raise PermissionDenied
 
     # Retrieve 3 last posts of the currenta topic.
     posts = PrivatePost.objects\
@@ -351,7 +356,12 @@ def answer(request):
 
                 return redirect(post.get_absolute_url())
             else:
-                raise Http404
+                return render_template('mp/answer.html', {
+                    'topic': g_topic, 
+                    'last_post_pk': last_post_pk, 
+                    'newpost': newpost,
+                    'form': form,
+                })
 
     else:
         text = ''
