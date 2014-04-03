@@ -31,7 +31,40 @@ Comment démarrer une instance de ZdS ?
 
 **NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
 
-### Commandes
+### Installation d'une version locale de ZDS
+
+**NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
+
+####Installation sur **Windows 8** et plus
+
+- Téléchargez et installez les outils suivants :
+    - [MinGW](http://sourceforge.net/projects/mingw/files/latest/download)
+    - git
+/!\ Démarrez PowerShell en mode administrateur/!\
+- [Téléchargez et installez Python 2.7](https://www.python.org/ftp/python/2.7.5/python-2.7.5.msi)
+- Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
+- Installez pip : `easy_install pip`
+- Désactivez la sécurité sur les script powershell `Set-ExecutionPolicy RemoteSigned`
+- Installez Virtualenv avec les commandes suivante : 
+    - `pip install virtualenv`
+    - `pip install virtualenvwrapper-powershell`
+- Créez votre workspace dédié à zds
+    - `set $env:WORKON_HOME`
+    - `mkdir '~\.virtualenvs'`
+    - `Import-Module virtualenvwrapper`
+    - `New-VirtualEnvironment zdsenv --no-site-packages`
+- Cloner le dépot git *via la console git*(et pas via powershell) windows: `git clone https://github.com/Taluu/ZesteDeSavoir.git`
+- Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
+    - `easy_install lxml`
+    - `pip install -r requirements.txt`
+    - `cd scripts`
+    - `UseUpdatedWinGitPython.sh`
+    - `UseUpdatedWinZMarkdown.sh`
+    - `python manage.py syncdb`
+    - `python manage.py migrate`
+    - `python2 manage.py runserver`
+
+####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
 ```console
@@ -42,7 +75,7 @@ cd scripts && sudo ./UseUpdatedPythonMarkdownVersion.sh && cd ..
 /usr/bin/env python2 manage.py migrate
 /usr/bin/env python2 manage.py runserver
 ```
-**NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
+
 
 ### Données de test
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
