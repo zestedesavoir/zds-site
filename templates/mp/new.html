@@ -4,15 +4,15 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-    Nouvel MP
+    Nouveau Messae Privé
 {% endblock %}
 
 {% block headline %}
-    Nouvel MP
+    <h2>Nouveau Messae Privé</h2>
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Nouvel MP</a></li>
+    <li class="current"><a href="#">Nouveau Messae Privé</a></li>
 {% endblock %}
 
 {% block content %}
@@ -22,15 +22,11 @@
     </div>
 </div>
 
-{% if text %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="panel">
-            <h5>Prévisualisation de votre message</h5>
-            {{ text|emarkdown }}
-        </div>
-    </div>
-</div>
+{% if form.text.value %}
+    {% with text=form.text.value %}
+        {% include "forum/previsualization.part.html" %}
+    {% endwith %}
 {% endif %}
+
 
 {% endblock %}

@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
+from django.contrib.auth.models import User
 
 from zds.utils.forms import CommonLayoutEditor
 
@@ -14,14 +15,20 @@ class PrivateTopicForm(forms.Form):
     	label = 'Participants',
     	widget = forms.TextInput(
             attrs = {
-                'placeholder': u'Les participants doivent être séparés par une virgule.'
+                'placeholder': u'Les participants doivent être séparés par une virgule.',
+                'required':'required'
             }
         )
     )
 
     title = forms.CharField(
     	label = 'Titre',
-    	max_length=80
+    	max_length=80,
+        widget = forms.TextInput(
+            attrs = {
+                'required':'required'
+            }
+        )
     )
 
     subtitle = forms.CharField(
@@ -53,6 +60,30 @@ class PrivateTopicForm(forms.Form):
             Field('subtitle', autocomplete='off'),
             CommonLayoutEditor(),
         )
+    
+    def clean(self):
+        cleaned_data = super(PrivateTopicForm, self).clean()
+        
+        participants = cleaned_data.get('participants')
+        title = cleaned_data.get('title')
+        text = cleaned_data.get('text')
+        
+        if participants is not None and participants.strip() == '':
+            self._errors['participants'] = self.error_class([u'Le champ participants ne peut être vide'])
+        
+        if participants is not None and participants.strip() != '':
+            receivers = participants.strip().split(',')
+            for receiver in receivers:
+                if User.objects.filter(username=receiver.strip()).count()==0:
+                    self._errors['participants'] = self.error_class([u'Un des participants saisi est introuvable'])
+                    
+        if title is not None and title.strip() == '':
+            self._errors['title'] = self.error_class([u'Le champ titre ne peut être vide'])
+        
+        if text is not None and text.strip() == '':
+            self._errors['text'] = self.error_class([u'Le champ text ne peut être vide'])
+        
+        return cleaned_data
 
 
 class PrivatePostForm(forms.Form):
@@ -83,3 +114,13 @@ class PrivatePostForm(forms.Form):
                 placeholder = u'Vous ne pouvez pas encore poster sur ce MP (protection antispam de 15 min).',
                 disabled = True
             )
+    
+    def clean(self):
+        cleaned_data = super(PrivatePostForm, self).clean()
+        
+        text = cleaned_data.get('text')
+        
+        if text is not None and text.strip() == '':
+            self._errors['text'] = self.error_class([u'Le champ text ne peut être vide'])
+        
+        return cleaned_data
