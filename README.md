@@ -25,7 +25,7 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Tal
 Comment démarrer une instance de ZdS ?
 --------------------------------------
 ### Pré-requis
-- Python 2.7
+- Python 2.7 (avec les fichiers de developpement, la paquet `python-dev` sous Ubuntu)
 - Pip
 - git
 
