@@ -1,11 +1,9 @@
-fabric==1.8.0
 django>=1.5,<1.6
 bleach==1.2.2
 pygments
 coverage==3.7.1
 south
 pytz==2013d
-pillow==2.0.0
 PyYAML==3.10
 defusedxml
 django-dynamic-fixture
@@ -27,7 +25,5 @@ httplib2
 pysolr
 factory-boy==2.2.1
 django-discover-runner==0.4
-django-taggit
-markdown
-GitPython
 pygeoip==0.3.1
+pillow

@@ -156,7 +156,6 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -179,11 +178,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-
-    # Custom context processors
-    'zds.utils.context_processors.versions',
-    'zds.utils.context_processors.git_version',
+    'django.contrib.messages.context_processors.messages'
 )
 
 INSTALLED_APPS = (
@@ -201,8 +196,6 @@ INSTALLED_APPS = (
     'crispy_forms_foundation',
     'captcha',
     'email_obfuscator',
-    'debug_toolbar',
-    'taggit',
     'pipeline',
     'haystack',
 
