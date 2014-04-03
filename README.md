@@ -27,17 +27,20 @@ Comment démarrer une instance de ZdS ?
 ### Pré-requis
 - Python 2.7
 - Pip
+- git
+
+**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
 
 ### Commandes
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
 ```console
 pip install --user -r requirements.txt
-cd scripts && ./UseUpdatedGitPython.sh && cd ..
-cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd ..
-python manage.py syncdb
-python manage.py migrate
-python manage.py runserver
+cd scripts && sudo ./UseUpdatedGitPython.sh && cd ..
+cd scripts && sudo ./UseUpdatedPythonMarkdownVersion.sh && cd ..
+/usr/bin/env python2 manage.py syncdb
+/usr/bin/env python2 manage.py migrate
+/usr/bin/env python2 manage.py runserver
 ```
 **NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
 
@@ -45,11 +48,11 @@ python manage.py runserver
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-python manage.py loaddata fixtures/users.yaml
-python manage.py loaddata fixtures/forums.yaml
-python manage.py loaddata fixtures/topics.yaml
-python manage.py loaddata fixtures/mps.yaml
-python manage.py loaddata fixtures/categories.yaml
+/usr/bin/env python2 manage.py loaddata fixtures/users.yaml
+/usr/bin/env python2 manage.py loaddata fixtures/forums.yaml
+/usr/bin/env python2 manage.py loaddata fixtures/topics.yaml
+/usr/bin/env python2 manage.py loaddata fixtures/mps.yaml
+/usr/bin/env python2 manage.py loaddata fixtures/categories.yaml
 ```
 
 Cela va créer plusieurs entitées :
