@@ -11,7 +11,7 @@ cd python-markdown
 git checkout 2.4-zds.2.1
 
 # install
-/usr/bin/env python2 setup.py install
+python setup.py install --user
 
 # cleanning
 cd ..
