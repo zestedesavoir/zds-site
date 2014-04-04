@@ -8,7 +8,7 @@ git clone https://github.com/zeste-de-savoir/Python-ZMarkdown.git python-markdow
 cd python-markdown
 
 # checkout the correct commit
-git checkout 2.4-zds.2 
+git checkout 2.4-zds.2.1
 
 # install
 /usr/bin/env python2 setup.py install
