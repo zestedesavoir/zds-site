@@ -35,34 +35,37 @@ Comment démarrer une instance de ZdS ?
 
 **NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
 
-####Installation sur **Windows 8** et plus
+####Installation sur **Windows 7, 8** et plus
 
 - Téléchargez et installez les outils suivants :
+    - [PowerShell 3.0+](http://www.microsoft.com/fr-fr/download/details.aspx?id=40855)
     - [MinGW](http://sourceforge.net/projects/mingw/files/latest/download)
-    - git
-/!\ Démarrez PowerShell en mode administrateur/!\
+    - [Git](http://git-scm.com/download/win) (Git pour Eclipse ne suffit pas ; associez les .sh)
 - [Téléchargez et installez Python 2.7](https://www.python.org/ftp/python/2.7.5/python-2.7.5.msi)
-- Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
+- Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) **en mode administrateur** et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
+- Redémarrez Powershell
 - Installez pip : `easy_install pip`
 - Désactivez la sécurité sur les script powershell `Set-ExecutionPolicy RemoteSigned`
 - Installez Virtualenv avec les commandes suivante : 
     - `pip install virtualenv`
     - `pip install virtualenvwrapper-powershell`
-- Créez votre workspace dédié à zds
+- Créez votre workspace dédié à ZdS
     - `set $env:WORKON_HOME`
     - `mkdir '~\.virtualenvs'`
     - `Import-Module virtualenvwrapper`
     - `New-VirtualEnvironment zdsenv --no-site-packages`
-- Cloner le dépot git *via la console git*(et pas via powershell) windows: `git clone https://github.com/Taluu/ZesteDeSavoir.git`
+- Cloner le dépot git *via la console git* (et pas via powershell) windows: `git clone https://github.com/Taluu/ZesteDeSavoir.git`
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - `easy_install lxml`
     - `pip install -r requirements.txt`
     - `cd scripts`
-    - `UseUpdatedWinGitPython.sh`
-    - `UseUpdatedWinZMarkdown.sh`
+    - `./UseUpdatedWinGitPython.sh`
+    - `./UseUpdatedWinZMarkdown.sh`
+    - `cd ..`
     - `python manage.py syncdb`
     - `python manage.py migrate`
-    - `python2 manage.py runserver`
+    - `python manage.py runserver`
+- Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
 
 ####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
