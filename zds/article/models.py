@@ -53,7 +53,7 @@ class Article(models.Model):
     image = models.ImageField(upload_to=image_path, blank=True, null=True)
     thumbnail = models.ImageField(upload_to=image_path, blank=True, null=True)
 
-    is_visible = models.BooleanField('Visible en rédaction')
+    is_visible = models.BooleanField('Visible en rédaction', default = False)
     
     sha_public = models.CharField('Sha1 de la version publique',
                                   blank=True, null=True, max_length=80)
