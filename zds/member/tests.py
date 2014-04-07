@@ -37,7 +37,6 @@ class MemberTests(TestCase):
                         {'username': 'firm1','password': 'hostel77','remember': 'remember'},
                         follow=False)
         #good password then redirection
-        print(result)
         self.assertEqual(result.status_code, 302)
         
     
