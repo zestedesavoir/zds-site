@@ -123,9 +123,9 @@ class Topic(models.Model):
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
-    is_solved = models.BooleanField('Est résolu')
-    is_locked = models.BooleanField('Est verrouillé')
-    is_sticky = models.BooleanField('Est en post-it')
+    is_solved = models.BooleanField('Est résolu', default = False)
+    is_locked = models.BooleanField('Est verrouillé', default = False)
+    is_sticky = models.BooleanField('Est en post-it', default = False)
 
     def __unicode__(self):
         '''
