@@ -10,10 +10,7 @@ install:
   - "cd scripts && ./UseUpdatedGitPython.sh && cd .."
   - "cd scripts && ./UseUpdatedPythonMarkdownVersion.sh && cd .."
 script: 
-  - python manage.py test member
-  - python manage.py test forum
-  - python manage.py test tutorial
-  - python manage.py test mp
-  - coverage run --source='.' manage.py test member forum tutorial mp
+  - python manage.py test
+  - coverage run --source='.' manage.py test
 after_success:
   - coveralls
