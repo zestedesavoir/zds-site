@@ -148,7 +148,8 @@ class Topic(models.Model):
         '''
         last_post = Post.objects.all()\
             .filter(topic__pk=self.pk)\
-            .order_by('-pubdate')[0]
+            .order_by('-pubdate')\
+            .first()
 
         if last_post == self.first_post():
             return None
@@ -161,7 +162,8 @@ class Topic(models.Model):
         '''
         return Post.objects\
             .filter(topic=self)\
-            .order_by('pubdate')[0]
+            .order_by('pubdate')\
+            .first()
 
     def last_read_post(self):
         '''

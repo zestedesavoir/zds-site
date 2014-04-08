@@ -186,12 +186,10 @@ class Article(models.Model):
         '''
         Return the first post of a topic, written by topic's author
         '''
-        try:
-            return Reaction.objects\
-                .filter(article=self)\
-                .order_by('pubdate')[0]
-        except:
-            return None
+        return Reaction.objects\
+            .filter(article=self)\
+            .order_by('pubdate')\
+            .first()
 
     def last_read_reaction(self):
         '''
@@ -247,23 +245,19 @@ def get_last_articles():
 
 
 def get_prev_article(g_article):
-    try:
-        return Article.objects\
-            .filter(sha_public__isnull=False)\
-            .filter(pubdate__lt=g_article.pubdate)\
-            .order_by('-pubdate')[0]
-    except:
-        return None
+    return Article.objects\
+        .filter(sha_public__isnull=False)\
+        .filter(pubdate__lt=g_article.pubdate)\
+        .order_by('-pubdate')\
+        .first()
 
 
 def get_next_article(g_article):
-    try:
-        return Article.objects\
-            .filter(sha_public__isnull=False)\
-            .filter(pubdate__gt=g_article.pubdate)\
-            .order_by('pubdate')[0]
-    except:
-        return None
+    return Article.objects\
+        .filter(sha_public__isnull=False)\
+        .filter(pubdate__gt=g_article.pubdate)\
+        .order_by('pubdate')\
+        .first()
 
 STATUS_CHOICES = (
         ('PENDING', 'En attente d\'un validateur'),
