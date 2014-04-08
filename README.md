@@ -108,7 +108,7 @@ Cela va créer plusieurs entitées :
 Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant les commandes suivantes :
 
 ```console
-python manage.py test member forum tutorial mp
+python manage.py test zds.member.tests zds.forum.tests zds.tutorial.tests zds.mp.tests
 ```
 
 En savoir plus
