@@ -1,18 +1,19 @@
 # coding: utf-8
-import os
-import uuid
-import string
-
-from math import ceil
 
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import slugify
+from math import ceil
+import os
+import string
+import uuid
+
+from django.contrib.auth.models import Group, User
+from django.utils import timezone
 
 from zds.utils import get_current_user
 from zds.utils.models import Comment
+
 
 def image_path_forum(instance, filename):
     '''Return path to an image'''

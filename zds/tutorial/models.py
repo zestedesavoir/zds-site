@@ -1,19 +1,21 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.db import models
-from os import path
-import os
+from git.repo import Repo
 import json
 from math import ceil
+from os import path
+import os
+
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
-from zds.utils.models import Category, SubCategory, Licence, Comment
-from zds.utils.tutorials import *
+from zds.utils.models import SubCategory, Licence, Comment
+from zds.utils.tutorials import get_blob, export_tutorial
 
 
 TYPE_CHOICES = (

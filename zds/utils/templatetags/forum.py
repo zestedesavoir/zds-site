@@ -1,9 +1,6 @@
 # coding: utf-8
+
 from django import template
-from git import *
-
-from zds.forum.models import Category, Forum
-
 
 register = template.Library()
 
