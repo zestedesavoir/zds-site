@@ -105,10 +105,10 @@ Cela va créer plusieurs entitées :
 
 ### Conseil de developpement
 
-Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant les commandes suivantes :
+Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant la suite complète :
 
 ```console
-python manage.py test zds.member.tests zds.forum.tests zds.tutorial.tests zds.mp.tests
+python manage.py test
 ```
 
 En savoir plus
