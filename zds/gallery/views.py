@@ -1,21 +1,23 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 # The max size in bytes
 
 from datetime import datetime
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect, get_object_or_404
+
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
 from zds.gallery.models import UserGallery, Image, Gallery
+from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
+
 
 @can_read_now
 @login_required

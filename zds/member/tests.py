@@ -1,16 +1,16 @@
 # coding: utf-8
 
+from django.conf import settings
+from django.test import TestCase
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 
-from django.conf import settings
-from django.test import TestCase
+from zds.member.factories import UserFactory, StaffFactory, ProfileFactory
+from zds.member.models import Profile
 
-from zds.forum.factories import *
-from zds.member.factories import *
-
-from .models import Profile, TokenRegister, Ban
+from .models import TokenRegister, Ban
 
 
 class MemberTests(TestCase):

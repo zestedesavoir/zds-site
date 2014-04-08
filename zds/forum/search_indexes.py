@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from haystack import indexes
 
 from zds.forum.models import Topic, Post

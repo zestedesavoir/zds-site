@@ -1,12 +1,15 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from zds.member.factories import *
-from zds.mp.factories import *
-from zds.mp.models import *
 from django.core import mail
+from django.core.urlresolvers import reverse
+
+from zds import settings
+from zds.member.factories import UserFactory, StaffFactory
+from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.mp.models import PrivateTopic, PrivatePost
+
 
 class MPTests(TestCase):
     

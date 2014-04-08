@@ -1,12 +1,12 @@
 # coding: utf-8
+
 from django.db import models
-from django.core.urlresolvers import reverse
 import os
 import string
 import uuid
 
-from zds.utils import slugify
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 
 def image_path_category(instance, filename):

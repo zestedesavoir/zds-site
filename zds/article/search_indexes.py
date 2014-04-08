@@ -1,4 +1,7 @@
+# coding: utf-8
+
 from haystack import indexes
+
 from zds.article.models import Article
 
 

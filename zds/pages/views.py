@@ -1,17 +1,13 @@
 # coding: utf-8
 
-from collections import OrderedDict
 from django.core.urlresolvers import reverse
-import json
-from zds.utils import slugify
 
-from git import *
 from zds.article.models import get_last_articles
 from zds.forum.models import get_last_topics
 from zds.member.decorator import can_read_now
 from zds.tutorial.models import get_last_tutorials
 from zds.utils import render_template
-from zds.utils.tutorials import get_blob
+from zds.utils import slugify
 
 
 @can_read_now
