@@ -72,7 +72,7 @@ def details(request, user_name):
 
 @can_write_and_read_now
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def modify_profile(request, user_pk):
     '''Modifies sanction of a user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)
