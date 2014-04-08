@@ -1,22 +1,20 @@
 # coding: utf-8
+
 from datetime import datetime
 from django.conf import settings
-
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
 from hashlib import md5
-
-from zds.forum.models import Post, Topic
-from zds.utils.models import Alert
-from zds.tutorial.models import Tutorial
-from zds.article.models import Article
-
 import os
-import uuid
+
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
 import pygeoip
+from zds.article.models import Article
+from zds.forum.models import Post, Topic
+from zds.tutorial.models import Tutorial
+from zds.utils.models import Alert
 
 
 class Profile(models.Model):

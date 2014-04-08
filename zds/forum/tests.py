@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
-
 from django.conf import settings
 from django.test import TestCase
+
+from django.core.urlresolvers import reverse
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.member.factories import UserFactory, StaffFactory

@@ -1,13 +1,15 @@
 # coding: utf-8
 
 from collections import OrderedDict
-from django.template.loader import get_template
-import os
 from datetime import datetime
-
-from git import *
-from zds.utils import slugify
 from django.template import Context
+import os
+
+from django.template.loader import get_template
+from git import *
+
+from zds.utils import slugify
+
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):

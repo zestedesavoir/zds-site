@@ -2,10 +2,10 @@
 
 from django import template
 
-from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.article.models import never_read as never_read_article
-from zds.tutorial.models import never_read as never_read_tutorial
+from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic, never_privateread
+from zds.tutorial.models import never_read as never_read_tutorial
 
 
 register = template.Library()

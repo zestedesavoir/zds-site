@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User
 import factory
 
 from zds.mp.models import PrivateTopic, PrivatePost
+
 
 class PrivateTopicFactory(factory.DjangoModelFactory):
     FACTORY_FOR = PrivateTopic

@@ -6,9 +6,11 @@
 
 from datetime import *
 from django import template
+
 from pytz import timezone, UnknownTimeZoneError
 
 import zds.settings
+
 
 def humane_date(date, conf={}):
     """Transforms a date into a human-readable format.
@@ -233,7 +235,6 @@ if __name__ == '__main__':
     test(timezone('Europe/Paris'))
 else:
     # Registering 'humane_date' as a Django filter
-    from django import template
     register = template.Library()
     register.filter('humane_date', humane_date)
     register.tag('humane_date', do_humane_date)

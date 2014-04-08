@@ -1,13 +1,15 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.utils import timezone
 from math import ceil
 
+from django.contrib.auth.models import User
+from django.utils import timezone
+
 from zds.utils import get_current_user
+
 
 class PrivateTopic(models.Model):
     '''Topic private, containing private posts'''

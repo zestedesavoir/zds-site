@@ -2,13 +2,14 @@
 
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
-    Reset, HTML, Hidden
-    
+    HTML, Hidden
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
+
 class GalleryForm(forms.Form):
     title = forms.CharField(
         label = 'Titre',

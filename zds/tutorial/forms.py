@@ -1,18 +1,18 @@
 # coding: utf-8
 
+from django import forms
+from django.conf import settings
+
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div
 from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
-from crispy_forms.bootstrap import StrictButton
-
-from django import forms
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
-from zds.utils.models import Category, SubCategory, Licence
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
+from zds.utils.models import Category, SubCategory, Licence
 
 
 class FormWithTitle(forms.Form):
