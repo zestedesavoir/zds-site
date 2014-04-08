@@ -27,14 +27,14 @@ class MemberTests(TestCase):
         
         result = self.client.post(
                         reverse('zds.member.views.login_view'), 
-                        {'username': 'firm1', 'password': 'hostel', 'remember': 'remember'},
+                        {'username': user.username, 'password': 'hostel', 'remember': 'remember'},
                         follow=False)
         #bad password then no redirection
         self.assertEqual(result.status_code, 200)
         
         result = self.client.post(
                         reverse('zds.member.views.login_view'), 
-                        {'username': 'firm1','password': 'hostel77','remember': 'remember'},
+                        {'username': user.username, 'password': 'hostel77', 'remember': 'remember'},
                         follow=False)
         #good password then redirection
         self.assertEqual(result.status_code, 302)
