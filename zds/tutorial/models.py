@@ -230,25 +230,19 @@ class Tutorial(models.Model):
         '''
         Gets the last answer in the thread, if any
         '''
-        try:
-            last_note = Note.objects.all()\
+        return Note.objects.all()\
                 .filter(tutorial__pk=self.pk)\
-                .order_by('-pubdate')[0]
-        except:
-            last_note = None
-        
-        return last_note
+                .order_by('-pubdate')\
+                .first()
 
     def first_note(self):
         '''
         Return the first post of a topic, written by topic's author
         '''
-        try:
-            return Note.objects\
-                .filter(tutorial=self)\
-                .order_by('pubdate')[0]
-        except:
-            return None
+        return Note.objects\
+            .filter(tutorial=self)\
+            .order_by('pubdate')\
+            .first()
 
     def last_read_note(self):
         '''

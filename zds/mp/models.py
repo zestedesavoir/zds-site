@@ -49,7 +49,7 @@ class PrivateTopic(models.Model):
         last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
             .order_by('-pubdate')\
-            .all()[0]
+            .first()
 
         if last_post == self.first_post():
             return None
@@ -62,7 +62,8 @@ class PrivateTopic(models.Model):
         '''
         return PrivatePost.objects\
             .filter(privatetopic=self)\
-            .order_by('pubdate')[0]
+            .order_by('pubdate')\
+            .first()
 
     def last_read_post(self):
         '''
