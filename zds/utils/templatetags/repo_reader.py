@@ -1,10 +1,12 @@
 # coding: utf-8
+
+from difflib import HtmlDiff
 from django import template
+
 from git import *
 
-from zds.tutorial.models import Tutorial, Part, Chapter, Extract
 from zds.utils import slugify
-from difflib import HtmlDiff
+
 
 register = template.Library()
 

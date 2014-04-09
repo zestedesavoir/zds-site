@@ -1,18 +1,19 @@
 # coding: utf-8
-import os
-import uuid
-import string
-
-from math import ceil
 
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import Group, User
 from django.template.defaultfilters import slugify
+from math import ceil
+import os
+import string
+import uuid
+
+from django.contrib.auth.models import Group, User
+from django.utils import timezone
 
 from zds.utils import get_current_user
 from zds.utils.models import Comment
+
 
 def image_path_forum(instance, filename):
     '''Return path to an image'''
@@ -123,9 +124,9 @@ class Topic(models.Model):
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
-    is_solved = models.BooleanField('Est résolu')
-    is_locked = models.BooleanField('Est verrouillé')
-    is_sticky = models.BooleanField('Est en post-it')
+    is_solved = models.BooleanField('Est résolu', default = False)
+    is_locked = models.BooleanField('Est verrouillé', default = False)
+    is_sticky = models.BooleanField('Est en post-it', default = False)
 
     def __unicode__(self):
         '''
@@ -148,7 +149,8 @@ class Topic(models.Model):
         '''
         last_post = Post.objects.all()\
             .filter(topic__pk=self.pk)\
-            .order_by('-pubdate')[0]
+            .order_by('-pubdate')\
+            .first()
 
         if last_post == self.first_post():
             return None
@@ -161,7 +163,8 @@ class Topic(models.Model):
         '''
         return Post.objects\
             .filter(topic=self)\
-            .order_by('pubdate')[0]
+            .order_by('pubdate')\
+            .first()
 
     def last_read_post(self):
         '''

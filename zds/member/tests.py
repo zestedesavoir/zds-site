@@ -1,16 +1,16 @@
 # coding: utf-8
 
+from django.conf import settings
+from django.test import TestCase
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 
-from django.conf import settings
-from django.test import TestCase
+from zds.member.factories import UserFactory, StaffFactory, ProfileFactory
+from zds.member.models import Profile
 
-from zds.forum.factories import *
-from zds.member.factories import *
-
-from .models import Profile, TokenRegister, Ban
+from .models import TokenRegister, Ban
 
 
 class MemberTests(TestCase):
@@ -27,17 +27,16 @@ class MemberTests(TestCase):
         
         result = self.client.post(
                         reverse('zds.member.views.login_view'), 
-                        {'username': 'firm1', 'password': 'hostel', 'remember': 'remember'},
+                        {'username': user.username, 'password': 'hostel', 'remember': 'remember'},
                         follow=False)
         #bad password then no redirection
         self.assertEqual(result.status_code, 200)
         
         result = self.client.post(
                         reverse('zds.member.views.login_view'), 
-                        {'username': 'firm1','password': 'hostel77','remember': 'remember'},
+                        {'username': user.username, 'password': 'hostel77', 'remember': 'remember'},
                         follow=False)
         #good password then redirection
-        print(result)
         self.assertEqual(result.status_code, 302)
         
     

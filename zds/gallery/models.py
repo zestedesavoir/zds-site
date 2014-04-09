@@ -1,16 +1,18 @@
 # coding: utf-8
 
-from PIL import Image as PILImage
 from cStringIO import StringIO
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 import os
 import string
 import uuid
+
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
+from PIL import Image as PILImage
 
 
 IMAGE_THUMB_MAX_WIDTH = 128

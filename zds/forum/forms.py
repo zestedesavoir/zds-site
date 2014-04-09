@@ -1,15 +1,15 @@
 # coding: utf-8
 
 from django import forms
-from django.core.urlresolvers import reverse
 
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from crispy_forms_foundation.layout import ButtonHolder
-from crispy_forms.bootstrap import StrictButton
+from django.core.urlresolvers import reverse
 
-from zds.utils.forms import CommonLayoutEditor
 from zds.forum.models import Forum
+from zds.utils.forms import CommonLayoutEditor
 
 
 class TopicForm(forms.Form):

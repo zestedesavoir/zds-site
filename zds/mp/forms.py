@@ -1,11 +1,11 @@
 # coding: utf-8
 
 from django import forms
-from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutEditor
 

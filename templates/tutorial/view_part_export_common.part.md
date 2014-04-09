@@ -1,4 +1,4 @@
-{% load markup %}{% load emarkdown %}
+{% load emarkdown %}
 
 {% with tutorial=part.tutorial%}
 {% with chapters=part.chapters %}

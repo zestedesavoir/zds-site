@@ -1,20 +1,14 @@
 # coding: utf-8
-from PIL import Image as ImagePIL
+
+from collections import OrderedDict
 from datetime import datetime
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
+from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str, smart_unicode
 from django.views.decorators.http import require_POST
-from django.core.files import File
-from django.db.models import Q
-from collections import OrderedDict
 import glob
 import json
 from lxml import etree
@@ -28,7 +22,15 @@ import urllib
 from urlparse import urlparse
 import zipfile
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404, redirect
 from git import *
+
+from PIL import Image as ImagePIL
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
