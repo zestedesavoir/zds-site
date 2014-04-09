@@ -147,6 +147,21 @@ class Tutorial(models.Model):
         data = self.load_json_for_public()
         return os.path.join(settings.REPO_PATH_PROD, str(self.pk)+'_'+ slugify(data['title']))
     
+    def load_dic(self, mandata):
+        mandata['get_absolute_url_online'] = self.get_absolute_url_online()
+        mandata['get_absolute_url'] = self.get_absolute_url()
+        mandata['get_introduction_online'] = self.get_introduction_online()
+        mandata['get_conclusion_online'] = self.get_conclusion_online()
+        
+        mandata['slug'] = slugify(mandata['title'])
+        mandata['pk'] = self.pk
+        mandata['on_line'] = self.on_line
+        mandata['authors'] = self.authors
+        mandata['subcategory'] = self.subcategory
+        mandata['image'] = self.image
+        mandata['pubdate'] = self.pubdate
+        
+        return mandata
     
     def load_json_for_public(self):
         repo = Repo(self.get_path())

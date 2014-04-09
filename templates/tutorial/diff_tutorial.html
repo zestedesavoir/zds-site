@@ -9,29 +9,8 @@
 
 {% block sidebar %}
 {% endblock %}
-{% block headline %}
-    <h1 class="illu">
-        {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt=""/>
-        {% endif %}
-        {{ tutorial.title }}
-    </h1>
-    <ul class="taglist">
-    {% for category in tutorial.subcategory.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-        {% for member in tutorial.authors.all %}
-            <li>
-                {% include "member/member_item_common.part.html" %}
-            </li>
-        {% endfor %}.
-        </ul>
-    </div>
+{% block head-title %}
+    {{ tutorial.title }}
 {% endblock %}
 
 {% block breadcrumb %}

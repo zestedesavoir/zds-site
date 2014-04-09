@@ -1,30 +1,32 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_read.html" %}
 {% load markup %}
 
 {% block title %}
     {{ part.title }} ({{ part.tutorial.title }})
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {{ part.title }}
-    </h1>
-    <ul class="taglist">
+{% block head-image %}
+    {% if part.tutorial.image %}
+        <img src="{{part.tutorial.image.thumb.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ part.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% for category in part.tutorial.subcategory.all %}
         <li><a href="#">{{ category.title }}</a></li>
     {% endfor %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-        {% for member in part.tutorial.authors.all %}
-            <li>
-                {% include "member/member_item_common.part.html" %}
-            </li>
-        {% endfor %}.
-        </ul>
-    </div>
+{% endblock %}
+
+{% block head-authors %}
+    {% for member in part.tutorial.authors.all %}
+        <li>
+            {% include "member/member_item_common.part.html" %}
+        </li>
+    {% endfor %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -33,26 +35,22 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="row">
-    <div class="large-12 columns">
+    <div class="large-12 columns read-content">
         {% include "tutorial/view_part_online_common.part.html" %}
     </div>
 </div>
-
 {% endblock %}
 
 {% block headline-actions %}
     {% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
-        <h3>Admin<span class="wide">istration</span></h3>
-        <ul>
-            <li><a href="{{ part.tutorial.get_absolute_url }}">Version offline</a></li>
-        </ul>
-    </div>
+    <h3>Administration</h3>
+    <ul>
+        <li><a href="{{ part.tutorial.get_absolute_url }}">Version offline</a></li>
+    </ul>
     {% endif %}
 	{% with tutorial=part.tutorial %}
-	{% with parts=part.tutorial.get_parts %}
+	{% with parts=part.tutorial.parts %}
     	{% include "tutorial/toc_common_online.html" %}
     {% endwith %}
     {% endwith %}

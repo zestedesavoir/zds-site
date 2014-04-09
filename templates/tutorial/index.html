@@ -10,8 +10,8 @@
     sur divers sujets axés autour de la programmation et de l'informatique." />
 {% endblock %}
 
-{% block headline %}
-    <h2 class="ico ico-tutorials">Liste des tutoriels</h2>
+{% block head-title %}
+    Liste des tutoriels
 {% endblock %}
 
 {% block breadcrumb %}
@@ -19,25 +19,31 @@
 {% endblock %}
 
 {% block content %}
-
+<div class="row">
+    <div class="large-12 columns">
     {% if tutorials %}
+    <div class="small-block-grid-1 large-block-grid-3">
     {% for tuto in tutorials %}
-        <article>
+        <li class="card">
             <a href="{{ tuto.get_absolute_url_online }}">
-                {% if tuto.image %}
-                <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar"/>
-                {% endif %}
                 <div class="tutorial-infos">
                     <h3>{{ tuto.title }}</h3>
                     <p class="article-metadata">
-                        crée {{tuto.pubdate|humane_date}}
+                        publié {{tuto.pubdate|humane_date}}
                     </p>
                 </div>
+                {% if tuto.image %}
+                <div class="large-12 columns crop">
+                    <img src="{{tuto.image.url }}" alt=""/>
+                </div>
+                {% endif %}
             </a>
-        </article>
+        </li>
     {% endfor %}
+    </div>
     {% else %}
     <p>Aucun tutoriel disponible.</p>
     {% endif %}
-
+    </div>
+</div>
 {% endblock %}
