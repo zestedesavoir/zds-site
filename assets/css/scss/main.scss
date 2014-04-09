@@ -56,7 +56,6 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 @import "all-supports";
 @import "form";
 @import "editor";
-@import "pygments";
 
 // Fluid layout
 @import "mobile";
@@ -65,11 +64,11 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 @import "wide";
 @import "extra-wide";
 
-// Dependencies
-@import "pygments";
-
 // Retina-like support
 @import "high-pixel-ratio";
+
+// Dependencies
+@import "pygments";
 
 // Disable a lot of styles for print
 @import "print";
