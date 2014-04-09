@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load humane_date %}
+{% load humanize %}
 {% load emarkdown %}
 
 {% block title %}
@@ -82,18 +82,18 @@
                               	<p>
                               		{% if result.object.pubdate %}
 		                              	{% if result.object.first_post %}
-		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|humane_date }}</a>
+		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
 		                              	{% elif result.object.get_introduction_online %}
-		                              		<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.pubdate|humane_date }}</a>
+		                              		<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.pubdate|naturaltime }}</a>
 		                              	{% else %}
-		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|humane_date }}</a>
+		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
 		                              	{% endif %}
 		                            {% elif result.object.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.tutorial.pubdate|humane_date }}</a>
+		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.tutorial.pubdate|naturaltime }}</a>
 		                            {% elif result.object.part.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.part.tutorial.pubdate|humane_date }}</a>
+		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.part.tutorial.pubdate|naturaltime }}</a>
 		                            {% elif result.object.chapter.part.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.chapter.part.tutorial.pubdate|humane_date }}</a>
+		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.chapter.part.tutorial.pubdate|naturaltime }}</a>
                               		{% endif %}
                                 </p>
                               </td>

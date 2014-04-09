@@ -1,5 +1,5 @@
 {% extends "tutorial/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 
 {% block title %}
     Liste des tutoriels
@@ -30,7 +30,7 @@
                 <div class="tutorial-infos">
                     <h3>{{ tuto.title }}</h3>
                     <p class="article-metadata">
-                        crée {{tuto.pubdate|humane_date}}
+                        crée {{tuto.pubdate|naturaltime}}
                     </p>
                 </div>
             </a>
