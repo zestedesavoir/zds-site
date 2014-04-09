@@ -21,27 +21,27 @@ class="active"
 {% endblock %}
 
 {% block sidebar %}
-<aside class="sidebar mobile-menu-bloc mobile-menu-hide"
-                       data-title="{% block sidebar_title %}Catégories de tutoriels{% endblock %}"
-                >
-        <h3>Catégories <span class="wide">de tutoriels</span></h3>
-
-        {% with categories='.'|top_categories_tuto %}
-        {% for category in categories %}
-            <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
-            <ul>
-                {% for catofsubcat in category.get_subcategories %}
-                    <li>
-                        <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                            {{ catofsubcat.subcategory }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-        {% endwith %}
-    
-</aside>
+    <h3>Catégories de tutoriels</h3>
+    {% with categories='.'|top_categories_tuto %}
+    <dl class="accordion" data-accordion>
+    {% for category in categories %}
+        <dd>
+            <a href="#cat{{ category.pk }}">{{ category.title }}</a>
+            <div id="cat{{ category.pk }}" class="content">
+                <ul>
+                    {% for catofsubcat in category.get_subcategories %}
+                        <li>
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                {{ catofsubcat.subcategory }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </dd>
+    {% endfor %}
+    </dl>
+    {% endwith %}
 {% endblock %}
 
 
@@ -49,58 +49,64 @@ class="active"
 {% block body_class %}home{% endblock %}
 
 {# Content #}
-{% block content_out %}
-    <section class="content-col">
-        <h2 class="ico ico-articles">Derniers Articles</h2>
-
+{% block content %}
+    <div class="large-6 columns">
+      
+        <h2 class="box article">Derniers Articles</h2>
         {% if last_articles %}
             {% for article in last_articles %}
-                <article>
-                    <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
-                    <p class="article-metadata">
-                        {{ article.pubdate|humane_date }} -
-                        <a href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }} réactions</a>
-                    </p>
+                <div class="row card">
+                    <div class="large-12 columns">
+                        <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
+                        <div class="large-10 columns">
+                        <i class="fi-clock size-21"></i>
+                        <small>
+                            {{ article.pubdate|humane_date }}
+                        </small>
+                        </div>
+                        <div class="large-2 columns">
+                        <a class="fi-comment size-21" href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }}</a>
+                        </div>
+                    </div>
+                    
                     {% if article.image %}
-                    <a href="{{ article.get_absolute_url_online }}" 
-                       tabindex="-1"
-                       style="background-image: url({{ article.image.url }})" 
-                       class="article-illu">
-                        <img src="{{ article.image.url }}" alt="">
-                    </a>
+                    <div class="large-12 columns crop">
+                        <a href="{{ article.get_absolute_url_online }}">
+                            <img src="{{ article.image.url }}" alt="" >
+                        </a>
+                    </div>
                     {% endif %}
-                    <p class="resume">
+                    
+                    <div class="large-12 columns">
+                        <p>
                         {{ article.description }}
-                    </p>
-                </article>
+                        </p>
+                    </div>
+                </div>
             {% endfor %}
         {% endif %}
-    </section>
+    </div>
 
-    <section class="content-col">
-        <h2 class="ico ico-tutorials">Dernier tutoriels</h2>
-
+    <div class="large-6 columns">
+        <h2 class="box tutoriel">Dernier tutoriels</h2>
         
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
-                <article>
-                    <a href="{{ tutorial.get_absolute_url_online }}">
-                        <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                        <div class="tutorial-infos">
-                            <h3>{{ tutorial.title }}</h3>
-                            
-                            <p class="article-metadata">
-                                {% if tutorial.subcategory %}
-                                    {% for category in tutorial.subcategory.all %}
-                                        {{ category.title }}                                    
-                                    {% endfor %}
-                                {% endif %}
-                            </p>
-                        </div>
-                    </a>
-                </article>
+                <div class="row card">
+                <img src="{{ tutorial.image.thumb.url }}" alt="">
+                <div class="large-12 columns">
+                    <h3><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h3>
+                    {% if tutorial.subcategory %}
+                        {% for category in tutorial.subcategory.all %}
+                            <span class="label secondary radius">
+                                {{ category.title }}                                    
+                            </span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                </div>
             {% endfor %}
         {% endif %}
         
-    </section>
+    </div>
 {% endblock %}

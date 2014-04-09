@@ -12,19 +12,8 @@
     communauté." />
 {% endblock %}
 
-{% block header %}
-    <h1>
-        <i class="icon-comments icon-large"></i>
-        Forums
-    </h1>
-    <p>
-        Les forums vous permettent de venir poser vos questions aux autres membres mais aussi de s'entrainer ou <strong>tout simplement de discuter</strong>.
-        Cela fonctionne également dans l'autre sens : vous pouvez ici aider les autres et proposer des exercices au reste de la communauté.
-    </p>
-{% endblock %}
-
 {% block headline %}
-   <h1>Liste des forums</h1>
+   <h2 class="box forum">Liste des forums</h2>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -42,13 +31,15 @@
 {% for category in categories %}
     <div class="row">
         <div class="large-12 columns">
-            <h2>
+            <h3 class="forum">
                 {{ category.title }}
-            </h2>
+            </h3>
+            
+        </div>
+        <div class="small-block-grid-1 large-block-grid-3">
+            {% include "forum/forums_common.part.html" %}
         </div>
     </div>
-    
-        {% include "forum/forums_common.part.html" %}
 {% endfor %}
 
 {% endblock %}

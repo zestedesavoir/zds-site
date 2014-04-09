@@ -1,49 +1,45 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_read.html" %}
 {% load markup %}
 
 {% block title %}
 {{ chapter.title }} ({{ chapter.part.tutorial.title }})
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt=""/>
-        {% endif %}
-        {{ chapter.title }}
-    </h1>
+{% block head-image %}
+    {% if chapter.image %}
+        <img src="{{chapter.image.thumb.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ chapter.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% if chapter.tutorial %}
-    	    <ul class="taglist">
-	    {% for category in chapter.tutorial.subcategory.all %}
-	        <li><a href="#">{{ category.title }}</a></li>
-	    {% endfor %}
-	    </ul>
-	    <div class="authors content-wrapper">
-	        <span class="authors-label">Auteurs : </span>
-	        <ul>
-	        {% for member in chapter.tutorial.authors.all %}
-	            <li>
-	                {% include "member/member_item_common.part.html" %}
-	            </li>
-	        {% endfor %}.
-	        </ul>
-	    </div>
+        {% for category in chapter.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
     {% else %}
-            <ul class="taglist">
-    	    {% for category in chapter.part.tutorial.subcategory.all %}
-	        <li><a href="#">{{ category.title }}</a></li>
-	    {% endfor %}
-	    </ul>
-	    <div class="authors content-wrapper">
-	        <span class="authors-label">Auteurs : </span>
-	        <ul>
-	        {% for member in chapter.part.tutorial.authors.all %}
-	            <li>
-	                {% include "member/member_item_common.part.html" %}
-	            </li>
-	        {% endfor %}.
-	        </ul>
-	    </div>
+        {% for category in chapter.part.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block head-authors %}
+    {% if chapter.tutorial %}
+        {% for member in chapter.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}
+    {% else %}
+        {% for member in chapter.part.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}
     {% endif %}
 {% endblock %}
 
@@ -55,31 +51,35 @@
 
 {% block content %}
 
-{% with tutorial=chapter.get_tutorial %}
-    {% with authors=tutorial.authors.all %}
-        {% include "tutorial/view_chapter_online_pager.html" %}
-        {% include "tutorial/view_chapter_online_common.part.html" %}
-        {% include "tutorial/view_chapter_online_pager.html" %}
-    {% endwith %}
-{% endwith %}
+<div class="row">
+    <div class="large-12 columns read-content">
+		{% with tutorial=chapter.get_tutorial %}
+		    {% with authors=tutorial.authors.all %}
+		        {% include "tutorial/view_chapter_online_pager.html" %}
+		        {% include "tutorial/view_chapter_online_common.part.html" %}
+		        {% include "tutorial/view_chapter_online_pager.html" %}
+		    {% endwith %}
+		{% endwith %}
 
-{% endblock %}
+		{% endblock %}
 
-{% block headline-actions %}
-	{% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
-        <h3>Admin<span class="wide">istration</span></h3>
-        <ul>
-            <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">Version offline</a></li>
-        </ul>
-    </div>
-    {% endif %}
+		{% block headline-actions %}
+			{% if perms.tutorial.change_tutorial%}
+		    <div>
+		        <h3>Administration</h3>
+		        <ul>
+		            <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">Version offline</a></li>
+		        </ul>
+		    </div>
+		    {% endif %}
 
-	{% with tutorial=chapter.part.tutorial %}
-	{% with parts=chapter.part.tutorial.get_parts %}
-	{% with chapter_current=chapter %}
-	    {% include "tutorial/toc_common_online.html" %}
-    {% endwith %}
-    {% endwith %}
-    {% endwith %}
+			{% with tutorial=chapter.part.tutorial %}
+			{% with parts=chapter.part.tutorial.get_parts %}
+			{% with chapter_current=chapter %}
+			    {% include "tutorial/toc_common_online.html" %}
+		    {% endwith %}
+		    {% endwith %}
+		    {% endwith %}
+	</div>
+</div>
 {% endblock %}

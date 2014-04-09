@@ -3,33 +3,27 @@
 {% load upfirstletter %}
 {% load forum %}
 
-<div class="row">
+
 {% for forum in category.get_forums %}
 {% if forum|readable:user %}
-<div class="content-wrapper">
-    <div class="forum-entry-title {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
-        <h3 class="subtitle"><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></h3>
+<li class="card-forum">
+    <div class="large-12 columns">
+    <div class="large-10 columns {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
+        <h4><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></h3>
         <p>
-            {{ forum.subtitle }}
+            {{ forum.subtitle|truncatechars:38 }}
         </p>
     </div>
-    <div class="forum-entry-count">
-        <span class="label">
+    <div class="large-2 columns">
+        <span class="fi-comments">
             <span title="Nombre de sujets dans le forum">
                 {{ forum.get_topic_count }}
             </span>
         </span>
-        <span class="label secondary">
-            <span title="Nombre de messages dans le forum">
-                {{ forum.get_post_count }}
-            </span>
-        </span>
     </div>
-    <div class="forum-entry-count">
-
     </div>
-    <div class="forum-entry-desc">
-        <p>
+    <div class="large-12 columns">
+        <small>
             {% with last_message=forum.get_last_message %}
                 {% if last_message %}
                     <a href="{{ last_message.get_absolute_url }}">
@@ -49,9 +43,8 @@
                     Aucun message
                 {% endif %}
             {% endwith %}
-        </p>
+        </small>
     </div>
-</div>
+</li>
 {% endif %}
 {% endfor %}
-</div>

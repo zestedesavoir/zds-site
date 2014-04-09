@@ -6,12 +6,12 @@
     Répondre à l'tutorial
 {% endblock %}
 
-{% block headline %}
-    <h2>Ajouter un commentaire au Tutoriel : {{tutorial.title}}</h2>
+{% block head-title %}
+    Ajouter un commentaire au Tutoriel : {{tutorial.title}}
 {% endblock %}
 
 {% block headline-sub %}
-    <h3 class="subtitle">{{ tutorial.description }}</h3>
+    {{ tutorial.description }}
 {% endblock %}
 
 {% block breadcrumb %}
