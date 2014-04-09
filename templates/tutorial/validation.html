@@ -1,5 +1,5 @@
 {% extends "tutorial/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 
 {% block title %}
     Liste des tutoriels soumis en validation
@@ -75,7 +75,7 @@
                         {% endfor %}
                     </td>
                     <td>
-                        <span>{{ validation.date_proposition|humane_date }}</span>
+                        <span>{{ validation.date_proposition|naturaltime }}</span>
                     </td>
                     <td>
                         {% if validation.validator %}
@@ -84,7 +84,7 @@
                     </td>
                     <td>
                         {% if validation.date_reserve %}
-                        <span>{{ validation.date_reserve|humane_date }}</span>
+                        <span>{{ validation.date_reserve|naturaltime }}</span>
                         {% endif %}
                     </td>
                     <td>

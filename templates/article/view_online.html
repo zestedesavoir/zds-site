@@ -1,6 +1,6 @@
 {% extends "article/base.html" %}
 {% load emarkdown %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -107,11 +107,11 @@
 
         <div class="message-metadata">
             <a href="{{ reaction.author.get_absolute_url }}" class="username">{{ reaction.author.username }}</a>
-            <a href="#p{{ reaction.pk }}" class="date">{{ reaction.pubdate|humane_date }}</a>
+            <a href="#p{{ reaction.pk }}" class="date">{{ reaction.pubdate|naturaltime }}</a>
             {% if not reaction.is_visible %}
                 <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
             {% elif not reaction.update = None %}
-                <i>(Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )</i>
+                <i>(Edité {{ reaction.update|naturaltime }} par {{ reaction.editor }} )</i>
             {% endif %}
         </div>
 
