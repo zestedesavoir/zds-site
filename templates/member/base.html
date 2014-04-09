@@ -4,6 +4,10 @@
     &#183; Membres
 {% endblock %}
 
+{% block headline %}
+	<h2 class="box member">{% block head-title %}{% endblock %}</h2>
+{% endblock %}
+
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.member.views.index" %}">Membres</a></li>
 {% endblock %}
@@ -12,11 +16,4 @@
 <aside class="sidebar mobile-menu-hide">
 	{% block headline-actions %}{% endblock %}
 </aside>
-{% endblock %}
-
-{% block content_out %}
-    <article>
-        <header>{% block headline %}{% endblock %}</header>
-        <section class="article-content content-wrapper">{% block content %}{% endblock %}</section>
-    </article>
 {% endblock %}

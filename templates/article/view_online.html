@@ -1,37 +1,37 @@
-{% extends "article/base.html" %}
+{% extends "article/base_read.html" %}
 {% load emarkdown %}
 {% load markup %}
 {% load humane_date %}
 {% load profile %}
 {% load crispy_forms_tags %}
+{% load staticfiles %}
 
 {% block title %}
     {{ article.title }}
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if article.image %}
-            <img src="{{article.image.thumb.url }}" alt=""/>
-        {% endif %}
-        {{ article.title }}
-    </h1>
-    <ul class="taglist">
+{% block head-image %}
+    {% if article.image %}
+        <img src="{{article.image.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ article.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% for category in tags.all %}
         <li><a href="#">{{ category.title }}</a></li>
     {% endfor %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs :  </span>
-        <ul>
-        {% for member in authors.all %}
-            <li>
-                {% include "member/member_item_common.part.html" %}
-            </li>
-        {% endfor %}.
-        </ul>
-    </div>
+{% endblock %}
+
+{% block head-authors %}
+    {% for member in authors.all %}
+        <li>
+            {% include "member/member_item_common.part.html" %}
+        </li>
+    {% endfor %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -45,9 +45,9 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
             <h3>Admin<span class="wide">istration</span></h3>
             <ul>
-                <li><a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">Version offline</a></li>
-                <li><button type="submit" name="invalid-article">Confirmer la dépublication</button></li>
+                <li><a href="{{ article.get_absolute_url }}" class=" arrow-right blue">Version offline</a></li>
                 <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
+                <li><button class="secondary tiny" type="submit" name="invalid-article">Confirmer la dépublication</button></li>
             </ul>
         </div>
 
@@ -72,67 +72,83 @@
 {% endif %}
 
 <div class="row">
-    <div class="large-12 columns">
+    <div class="large-12 columns read-content">
         {{ article.txt|safe }}
     </div>
 </div>
 
 {% include "article/view_pager.part.html" %}
 
-
-<h1>Réactions</h1>
+<h2 class="box forum">Réactions</h2>
     {% with topic=article %}
     {% include "forum/topic_pagination.part.html" with position="top" %}
     {% endwith %}
 {% for reaction in reactions %}
-<article class="forum-message">
-    <div class="user" id="p{{ reaction.id }}">
-        <a href="{{ reaction.author.get_absolute_url }}" class="avatar-link">
-            {% with profile=reaction.author|profile %}
-            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-            {% endwith %}
-        </a>
-    </div>
-    <div class="message">
-        {% if user.is_authenticated %}
-        <ul class="message-actions">
-            {% if reaction.author = user or perms.article.change_reaction %}
-            <li><a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="ico-after edit">Editer</a></li>
-            {% endif %}
-            <li><a href="#" class="ico-after alert">Signaler</a></li>
-            {% if not article.is_locked and not article.antispam %}
-            <li><a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="ico-after cite">Citer</a></li>
-            {% endif %}
-        </ul>
-        {% endif %}
-
-        <div class="message-metadata">
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns">
+            <div class="centered">
             <a href="{{ reaction.author.get_absolute_url }}" class="username">{{ reaction.author.username }}</a>
-            <a href="#p{{ reaction.pk }}" class="date">{{ reaction.pubdate|humane_date }}</a>
-            {% if not reaction.is_visible %}
-                <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
-            {% elif not reaction.update = None %}
-                <i>(Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )</i>
-            {% endif %}
-        </div>
-
-        <div class="message-content">
-            {{ reaction.text|emarkdown }}
-        </div>
-
-        <div class="message-bottom">
-            {% with profile=reaction.author|profile %}
-                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
-            {% endwith %}
-            {% if user.is_authenticated %}
-            <div class="message-karma">
-                <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}" class="upvote {% if reaction.like > reaction.dislike %}voted{% endif%} ico-after">+{{reaction.like}}</a>
-                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" class="downvote {% if reaction.like < reaction.dislike %}voted{% endif%} ico-after">-{{reaction.dislike}}</a>
             </div>
-            {% endif %}
+            <a href="{{ reaction.author.get_absolute_url }}" class="hide-for-small">
+                {% with profile=reaction.author|profile %}
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar-forum">
+                {% endwith %}
+            </a>
+        </div>
+        <div class="large-11 columns message-forum">
+            <div class="row">
+                <div class="large-12 columns">
+                    {% if user.is_authenticated %}
+                    <div class="right message-actions">
+                        {% if reaction.author = user or perms.article.change_reaction %}
+                        <a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
+                        {% endif %}
+                        <a href="#" class="tiny secondary actions">Signaler<span class="fi-alert"></span></a>
+                        {% if not topic.is_locked and not topic.antispam %}
+                        <a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="message-metadata left">
+                        <a href="#p{{ post.pk }}" class="date">{{ reaction.pubdate|humane_date }}</a>
+                        {% if not post.is_visible %}
+                            <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
+                        {% elif not post.update = None %}
+                            <i>(Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )</i>
+                        {% endif %}
+                    </div>
+                <div class="large-12 columns">
+                <div class="message-content">
+                    {{ reaction.text|emarkdown }}
+                </div>
+                </div>
+                <div class="large-12 columns">
+                    <div class="left">
+                        {% if user.is_authenticated %}
+                            {% with profile_user=user|profile %}
+                                {% if profile_user.show_sign %}
+                                    {% with profile=reaction.author|profile %}
+                                        <span class="signature">{{profile.sign|emarkdown_inline}}</span>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                    {% if user.is_authenticated %}
+                    <div class="message-karma right">
+                        <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if reaction.like > reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{reaction.like}}</a>
+                        <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if reaction.like < reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{reaction.dislike}}</a>
+                    </div>
+                    {% endif %}
+                    
+                </div>
+                </div>
+            </div>
         </div>
     </div>
-</article>
+</div>
 {% endfor %}
 
 {% with topic=article %}
@@ -142,8 +158,8 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
 <section>
-    <div class="user">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+    <div class="user hide-for-small">
+        <img src="{{profile.get_avatar_url}}" alt="">
     </div>
     {% crispy form %}
 </section>

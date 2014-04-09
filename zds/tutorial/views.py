@@ -568,14 +568,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
     #mandata = tutorial.load_json(online=True)
-    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
-    mandata['get_absolute_url'] = tutorial.get_absolute_url()
-    mandata['get_introduction_online'] = tutorial.get_introduction_online()
-    mandata['get_conclusion_online'] = tutorial.get_conclusion_online()
-    
-    mandata['slug'] = slugify(mandata['title'])
-    mandata['pk'] = tutorial.pk
-    mandata['on_line'] = tutorial.on_line
+    mandata = tutorial.load_dic(mandata)
 
     
     # If it's a small tutorial, fetch its chapter
@@ -947,12 +940,13 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     final_part = None
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
+    mandata = tutorial.load_dic(mandata)
     
     parts = mandata['parts']
     cpt_p=1
     for part in parts :
         if part_slug == slugify(part['title']):
-            part['tutorial'] = tutorial
+            part['tutorial'] = mandata
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
@@ -1235,10 +1229,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
 
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
-    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
-    mandata['get_absolute_url'] = tutorial.get_absolute_url()
-    mandata['slug'] = slugify(mandata['title'])
-    mandata['pk'] = tutorial.pk
+    mandata = tutorial.load_dic(mandata)
     parts = mandata['parts']
     cpt_p=1
     
@@ -1249,10 +1240,10 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         cpt_c=1
         part['slug'] = slugify(part['title'])
         part['get_absolute_url_online'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
-        part['tutorial'] = tutorial
+        part['tutorial'] = mandata
         for chapter in part['chapters'] :
             chapter['part'] = part
-            chapter['path'] = tutorial.get_path()
+            chapter['path'] = tutorial.get_prod_path()
             chapter['slug'] = slugify(chapter['title'])
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c

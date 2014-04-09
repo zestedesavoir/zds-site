@@ -2,10 +2,12 @@
 {% load humane_date %}
 
 {% block headline-actions-filter %}
-    <h3><span class="wide">Filtres</span></h3>
-    <li><a href="{% url "zds.member.views.articles" %}">All</a></li>
-    <li><a href="{% url "zds.member.views.articles" %}?type=public">Public</a></li>
-    <li><a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a><li>
+    <h3>Filtres</h3>
+    <ul>
+        <li><a href="{% url "zds.member.views.articles" %}">All</a></li>
+        <li><a href="{% url "zds.member.views.articles" %}?type=public">Public</a></li>
+        <li><a href="{% url "zds.member.views.articles" %}?type=draft">Draft</a></li>
+    </ul>
 {% endblock %}
 
 {% block content-filter %}
@@ -21,21 +23,23 @@
 <div class="row">
     <div class="large-12 columns">
         {% if articles %}
-            <div class="article-items">
+            <div class="small-block-grid-1 large-block-grid-3">
                 {% for article in articles %}
-                <article>
+                <li class="card">
                     <a href="{{ article.get_absolute_url }}">
-                        {% if article.image %}
-                        <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
-                        {% endif %}
-                        <div class="article-infos">
+                        <div class="large-12 columns">
                             <h3>{{ article.title }}</h3>
                             <p class="article-metadata">
                                 crée {{article.create_at|humane_date}}
                             </p>
                         </div>
+                        {% if article.image %}
+                        <div class="large-12 columns crop">
+                        <img src="{{article.image.url }}" alt=""/>
+                        </div>
+                        {% endif %}
                     </a>
-                </article>
+                </li>
                 {% endfor %}
             </div>
         {% else %}
