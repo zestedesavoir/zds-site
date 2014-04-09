@@ -1,13 +1,9 @@
 # coding: utf-8
 
-from captcha.fields import CaptchaField
-from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Div, Fieldset, Submit, Field, \
-    HTML
 from django import forms
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 
+from crispy_forms.helper import FormHelper
+from crispy_forms_foundation.layout import Layout, Div, HTML
 
 class NewsletterForm(forms.Form):
     def __init__(self, *args, **kwargs):

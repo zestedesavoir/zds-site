@@ -2,14 +2,15 @@
 
 from django import template
 from django.utils.safestring import mark_safe
-import markdown
 import time
 
-#Markdowns customs extensions :
+import markdown
+
 from markdown.extensions.zds import ZdsExtension
-from zds.utils.templatetags.smileysDef import *
+from zds.utils.templatetags.smileysDef import smileys
 
 
+#Markdowns customs extensions :
 def get_markdown_instance(Inline = False):
     zdsext = ZdsExtension({"inline" : Inline, "emoticons" : smileys})
     # Generate parser

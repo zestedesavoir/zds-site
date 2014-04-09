@@ -1,19 +1,19 @@
 # coding: utf-8
 
 from datetime import datetime
+from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import Http404, HttpResponse
+from django.views.decorators.http import require_POST
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-import json
-
-from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.transaction import commit_on_success
-from django.http import Http404, HttpResponse
-from django.views.decorators.http import require_POST
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, never_read, mark_read
@@ -157,7 +157,7 @@ def topic(request, topic_pk, topic_slug):
 
 @can_write_and_read_now
 @login_required
-@commit_on_success
+@transaction.atomic
 def new(request):
     '''
     Creates a new topic in a forum
@@ -296,7 +296,7 @@ def edit(request):
 
 @can_write_and_read_now
 @login_required
-@commit_on_success
+@transaction.atomic
 def answer(request):
     '''Adds an answer from a user to a topic'''
     try:
@@ -402,7 +402,7 @@ def answer(request):
 
 @can_write_and_read_now
 @login_required
-@commit_on_success
+@transaction.atomic
 def edit_post(request):
     '''
     Edit the given user's post

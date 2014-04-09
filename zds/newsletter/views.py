@@ -1,8 +1,11 @@
-from zds.utils import render_template, slugify
+# coding: utf-8
+
+from zds.member.views import get_client_ip
+from zds.utils import render_template
+
 from .forms import NewsletterForm
 from .models import Newsletter
-from django.http import Http404
-from zds.member.views import get_client_ip
+
 
 def add_newsletter(request):
     if request.method == 'POST':

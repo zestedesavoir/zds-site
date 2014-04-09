@@ -1,9 +1,10 @@
 # coding: utf-8
 
-from markdown.extensions import Extension
-from markdown.postprocessors import Postprocessor
 import random
 import re
+
+from markdown.extensions import Extension
+from markdown.postprocessors import Postprocessor
 
 
 HTMLELEMENTS = ['p', 'a', 'div', 'blockquote', 'hr']

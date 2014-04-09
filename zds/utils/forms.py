@@ -1,10 +1,8 @@
 # coding: utf-8
 
-from django import forms
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Field, Div
 from crispy_forms.bootstrap import StrictButton
+from crispy_forms.layout import Layout, ButtonHolder, Field, Div
+
 
 class CommonLayoutEditor(Layout):
     def __init__(self, *args, **kwargs):

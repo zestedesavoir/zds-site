@@ -1,15 +1,12 @@
 # coding: utf-8
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Fieldset, Submit, Field, \
-    HTML, ButtonHolder, Reset
-
 from django import forms
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
-from zds.member.models import Profile
 
 
 class LoginForm(forms.Form):

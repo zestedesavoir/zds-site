@@ -1,13 +1,15 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.utils import timezone
 from math import ceil
 
+from django.contrib.auth.models import User
+from django.utils import timezone
+
 from zds.utils import get_current_user
+
 
 class PrivateTopic(models.Model):
     '''Topic private, containing private posts'''
@@ -49,7 +51,7 @@ class PrivateTopic(models.Model):
         last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
             .order_by('-pubdate')\
-            .all()[0]
+            .first()
 
         if last_post == self.first_post():
             return None
@@ -62,7 +64,8 @@ class PrivateTopic(models.Model):
         '''
         return PrivatePost.objects\
             .filter(privatetopic=self)\
-            .order_by('pubdate')[0]
+            .order_by('pubdate')\
+            .first()
 
     def last_read_post(self):
         '''
