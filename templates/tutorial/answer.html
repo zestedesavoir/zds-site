@@ -1,9 +1,8 @@
 {% extends "tutorial/base.html" %}
 {% load profile %}
-{% load crispy_forms_tags %}
 
 {% block title %}
-    Répondre à l'tutorial
+    Commenter le tutorial
 {% endblock %}
 
 {% block headline %}
@@ -15,33 +14,34 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ tutorial.title }}</a></li>
-    <li class="current"><a href="#">Répondre au tutoriel</a></li>
+    {# TODO : Mettre le lien vers le tutoriel #}
+    <li><a href="#">{{ tutorial.title }}</a></li>
+    <li class="current">Commenter le tutoriel</li>
 {% endblock %}
 
 {% block content %}
 
-{% if newnote %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="alert-box alert">
-            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
-            pendant que vous rédigiez le votre.
+    {% if newnote %}
+        <div class="row">
+            <div class="large-12 columns">
+                <div class="alert-box alert">
+                    <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+                    pendant que vous rédigiez le votre.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="large-12 columns">
+            {% crispy form %}
         </div>
     </div>
-</div>
-{% endif %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
-{% if form.text.value %}
-    {% with text=form.text.value %}
-        {% include "forum/previsualization.part.html" %}
-    {% endwith %}
-{% endif %}
+    {% if form.text.value %}
+        {% with text=form.text.value %}
+            {% include "forum/previsualization.part.html" %}
+        {% endwith %}
+    {% endif %}
 
 {% endblock %}

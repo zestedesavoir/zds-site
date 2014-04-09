@@ -1,49 +1,57 @@
 {% load emarkdown %}
-{% load humane_date %}
-{% load profile %}
 {% load roman %}
 
-<div class="mobile-menu-bloc" data-title="Sommaire du tutoriel">
-        <h3>Sommaire</h3>
-        {% if tutorial.is_mini %}
-        {# Small tutorial #}
-            {% if chapter.extracts %}
-                {% for extract in chapter.extracts %}
-                    <h4 data-chap-num="{{ extract.position_in_chapter }}">
-                        <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
-                    </h4>
-                {% endfor %}
-            {% endif %}
-        {% else %}
-        {# Large tutorial #}
-            {% if parts %}
-                {% for part in parts %}
-                    <h4 data-chap-num="{{ part.position_in_tutorial|roman }}">
-                        <a class="mobile-menu-link" href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
-                            {{ part.title }}
-                        </a>
-                    </h4>
-                    {% with chapters=part.chapters %}
-                        <ul>
-                            {% for chapter in chapters %}
-                            <li class="{% if chapter_current.pk = chapter.pk %}current{% endif %}">
-                                <a data-ss-chap-num="{{ chapter.position_in_part }}" href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}">{{ chapter.title }}</a>
+<div class="mobile-menu-bloc {% if not tutorial.is_mini %}accordeon{% endif %}" data-title="Sommaire du tutoriel">
+    <h3>Sommaire</h3>
+
+    {% if tutorial.is_mini %}
+    {# Small tutorial #}
+        {% if chapter.extracts %}
+            {% for extract in chapter.extracts %}
+                <h4 data-num="{{ extract.position_in_chapter|roman }}">
+                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                        {{ extract.title }}
+                    </a>
+                </h4>
+            {% endfor %}
+        {% endif %}
+    {% else %}
+    {# Large tutorial #}
+        {% if parts %}
+            {% for part in parts %}
+                <h4 data-num="{{ part.position_in_tutorial|roman }}">
+                    <a class="mobile-menu-link" href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                        {{ part.title }}
+                    </a>
+                </h4>
+                
+                {% with chapters=part.chapters %}
+                    <ul>
+                        {% for chapter in chapters %}
+                            <li {% if chapter_current.pk = chapter.pk %}class="current"{% endif %}>
+                                <a data-num="{{ chapter.position_in_part }}"
+                                   href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}"
+                                   class="mobile-menu-link mobile-menu-sublink {% if chapter_current.pk = chapter.pk %}unread{% endif %}"
+                                >
+                                    {{ chapter.title }}
+                                </a>
+
                                 {% if chapter_current.pk = chapter.pk %}
-                                        <ul>
+                                    <ul class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
                                         {% for extract in chapter.extracts %}
                                         <li>
-                                            <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
+                                            <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                                                {{ extract.title }}
+                                            </a>
                                         </li>
                                         {% endfor %}
-                                        </ul>
+                                    </ul>
                                 {% endif %}
                             </li>
-                            {% endfor %}
-                        </ul>
-                    {% endwith %}
-                {% endfor %}
-            {% endif %}
-            <hr />
-
+                        {% endfor %}
+                    </ul>
+                {% endwith %}
+            {% endfor %}
         {% endif %}
+    {% endif %}
 </div>

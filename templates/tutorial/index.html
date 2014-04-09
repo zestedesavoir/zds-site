@@ -11,21 +11,21 @@
 {% endblock %}
 
 {% block headline %}
-    <h2 class="ico ico-tutorials">Liste des tutoriels</h2>
+    <h2>Liste des tutoriels</h2>
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current">Liste des tutoriels</a>
 {% endblock %}
 
 {% block content %}
 
     {% if tutorials %}
-    {% for tuto in tutorials %}
+        {% for tuto in tutorials %}
         <article>
             <a href="{{ tuto.get_absolute_url_online }}">
                 {% if tuto.image %}
-                <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar"/>
+                <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar">
                 {% endif %}
                 <div class="tutorial-infos">
                     <h3>{{ tuto.title }}</h3>
@@ -35,9 +35,11 @@
                 </div>
             </a>
         </article>
-    {% endfor %}
+        {% endfor %}
     {% else %}
-    <p>Aucun tutoriel disponible.</p>
+        <p>
+            Aucun tutoriel disponible.
+        </p>
     {% endif %}
 
 {% endblock %}

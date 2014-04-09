@@ -10,32 +10,35 @@
     sur divers sujets axés autour de la programmation et de l'informatique." />
 {% endblock %}
 
-{% block header %}
-    <h1>
-        <i class="fi-book icon-large"></i>
-        Tutoriels
-    </h1>
-    <p>
-        Les tutoriels vous permettent <strong>d'apprendre</strong> sur divers sujets axés autour de la programmation et de l'informatique.
-    </p>
-{% endblock %}
-
 {% block headline %}
     <h1>Liste des tutoriels soumis en validation</h1>
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current">Tutoriels en attente de validation</li>
 {% endblock %}
 
 {% block headline-actions %}
     <h3>Navigation</h3>
-    <ul>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}" class="button">Zone de validation</a></li>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="button">En cours de validation</a></li>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="button">En attente de validateur</a></li>
+    <ul class="sidebar-standalone">
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}">
+                Zone de validation
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
+                En cours de validation
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
+                En attente de validateur
+            </a>
+        </li>
     </ul>
 {% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
