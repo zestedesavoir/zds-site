@@ -28,4 +28,4 @@ django-discover-runner==0.4
 pygeoip==0.3.1
 pillow
 git+https://github.com/zeste-de-savoir/Python-ZMarkdown.git@2.4-zds.2.1
-git+https://github.com/firm1/GitPython.git@0.3.2-RC1.z1
+git+https://github.com/firm1/GitPython.git@0.3.2-RC1.z2
