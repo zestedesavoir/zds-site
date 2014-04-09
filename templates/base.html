@@ -14,7 +14,11 @@
 <head>
     <meta charset="utf-8">
 
-    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
+    <title>
+        {% block title %}Sans nom{% endblock %}
+        {% block title_base %}{% endblock %}
+        &bull; ZesteDeSavoir
+    </title>
 
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
@@ -75,9 +79,7 @@
                     <div class="mobile-menu-btn ico-after"></div>
 
 
-
                     {# Logo #}
-
                     <h1 class="header-logo">
                         <a href="{% url "zds.pages.views.home" %}" class="header-logo-link" data-title="Zeste de Savoir">
                             Zeste de Savoir
@@ -85,9 +87,7 @@
                     </h1>
 
 
-
                     {# Menu #}
-
                     <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
                         {% if user.is_authenticated %}
                         {% with profile=user|profile %}
@@ -162,10 +162,8 @@
                         </ul>
                     </nav>
 
-
     
                     {# Logbox #}
-
                     <div class="logbox header-right {% if not user.is_authenticated %}unlogged{% endif %}">
                         {% if user.is_authenticated %}
                         
@@ -244,7 +242,7 @@
                                     {% with topics=user|interventions_topics %}
                                     {% with unread_topics=topics.unread %}
                                     {% with read_topics=topics.read %}
-                                    <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                    <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
                                         {% if unread_topics|length > 0 %}
                                             <span class="notif-count">{{ unread_topics|length }}</span>
                                         {% endif %}
@@ -311,8 +309,9 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
+                                {% with posts=user|alerts_topic %}
                                     <div>
-                                        {% with posts=user|alerts_topic %}
+                                        {# TODO : Il manque un lien / page ici #}
                                         <a href="#" class="ico-link">
                                             <span class="notif-text ico ico-alerts">Alertes</span>
                                             {% if posts.count > 0 %}
@@ -337,12 +336,13 @@
                                                     </li>
                                                 {% endfor %}
                                             </ul>
+                                            {# TODO : Il manque un lien / page ici (idem qu'au dessus) #}
                                             <a href="#" class="dropdown-link-all">
                                                 Toutes les alertes
                                             </a>
                                         </div>
-                                        {% endwith %}
                                     </div>
+                                {% endwith %}
                                 {% else %}
                                     <a href="{% url "zds.member.views.actions" %}"
                                        id="open-my-account"
@@ -417,8 +417,6 @@
                     </div>
                 </div>
             </header>
-
-
 
         
             <div class="clearfix sub-header">
@@ -515,7 +513,7 @@
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
     
-    <!-- Analytics -->
+    {# Analytics #}
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -525,6 +523,5 @@
       ga('create', 'UA-27730868-1', 'zestedesavoir.com');
       ga('send', 'pageview');
     </script>
-    <!-- Analytics -->
 </body>
 </html>

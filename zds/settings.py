@@ -123,6 +123,7 @@ PIPELINE_JS = {
             'js/custom/accessibility-links.js',
             'js/custom/dropdown-menu.js',
             'js/custom/data-click.js',
+            'js/custom/accordeon.js',
         ),
         'output_filename': 'js/main.js'
     }

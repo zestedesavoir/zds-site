@@ -460,6 +460,7 @@
         display: block;
         float: left;
         height: 40px;
+        font-family: Arial, sans-serif;
         line-height: 40px;
         width: 12%;
         text-align: center;
@@ -516,12 +517,12 @@
             color: #424242;
         }
     }
-    h4[data-chap-num] {
+    h4[data-num] {
         position: relative;
         padding-left: calc(5% + 25px);
 
         &:before {
-            content: attr(data-chap-num);
+            content: attr(data-num);
             position: absolute;
             margin-left: -35px;
             text-align: right;
@@ -572,10 +573,12 @@
                 a {
                     position: relative;
                     color: #084561;
+                    @include transition;
 
                     &:hover,
                     &:focus {
                         color: #0079B2;
+                        background: #E3E5E5;
                         margin-left: -11px;
 
                         &:before {
@@ -596,11 +599,11 @@
                 text-overflow: ellipsis;
                 white-space: nowrap;
 
-                &[data-ss-chap-num] {
+                &[data-num] {
                     position: relative;
 
                     &:after {
-                        content: attr(data-ss-chap-num) ".";
+                        content: attr(data-num) ".";
                         position: absolute;
                         left: 0;
                         width: 18px;
@@ -684,7 +687,7 @@
             margin-top: 0 !important;
             padding-top: 5px;
             margin-bottom: 5px;
-            background-color: #d8dada;
+            background-color: #F4F6F6;
 
             ul {
                 margin-top: 5px;
@@ -693,8 +696,7 @@
                 margin-left: -25px;
                 width: calc(105% + 25px);
                 @include background(
-                    linear-gradient(top, rgba(0, 0, 0, .07), transparent 15px),
-                    linear-gradient(bottom, rgba(0, 0, 0, .07), transparent 15px)
+                    linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px)
                 );
 
                 a {

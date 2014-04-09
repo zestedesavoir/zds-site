@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 {% load emarkdown %}
 {% load humane_date %}
-{% load interventions %}
 {% load topbar %}
-
-{% block menu_home %}
-class="active"
-{% endblock %}
-
-{% load staticfiles %}
 
 {# Titles #}
 
@@ -21,26 +14,26 @@ class="active"
 {% endblock %}
 
 {% block sidebar %}
-<aside class="sidebar mobile-menu-bloc mobile-menu-hide"
-                       data-title="{% block sidebar_title %}Catégories de tutoriels{% endblock %}"
-                >
-        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+<aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+       data-title="Catégories de tutoriels"
+>
+    <h3>Catégories <span class="wide">de tutoriels</span></h3>
 
-        {% with categories='.'|top_categories_tuto %}
-        {% for category in categories %}
-            <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
-            <ul>
-                {% for catofsubcat in category.get_subcategories %}
-                    <li>
-                        <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                            {{ catofsubcat.subcategory }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-        {% endwith %}
-    
+    {% with categories='.'|top_categories_tuto %}
+    {% for category in categories %}
+        <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+        <ul>
+            {% for catofsubcat in category.get_subcategories %}
+                <li>
+                    <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                        {{ catofsubcat.subcategory }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    {% endwith %}
+
 </aside>
 {% endblock %}
 
