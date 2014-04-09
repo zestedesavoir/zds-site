@@ -3,7 +3,7 @@
 
 ZesteDeSavoir
 =============
-Site internet communautaire codé à l'aide du Framework Django 1.5.
+Site internet communautaire codé à l'aide du Framework Django 1.6.
 
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
 * Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
@@ -28,8 +28,6 @@ Comment démarrer une instance de ZdS ?
 - Python 2.7 (avec les fichiers de developpement, le paquet `python-dev` sous Ubuntu)
 - Pip
 - git
-
-**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
 
 ### Installation d'une version locale de ZDS
 
@@ -58,10 +56,6 @@ Comment démarrer une instance de ZdS ?
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - `easy_install lxml`
     - `pip install -r requirements.txt`
-    - `cd scripts`
-    - `./UseUpdatedWinGitPython.sh`
-    - `./UseUpdatedWinZMarkdown.sh`
-    - `cd ..`
     - `python manage.py syncdb`
     - `python manage.py migrate`
     - `python manage.py runserver`
@@ -70,10 +64,10 @@ Comment démarrer une instance de ZdS ?
 ####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
+**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
+
 ```console
 pip install --user -r requirements.txt
-cd scripts && sudo ./UseUpdatedGitPython.sh && cd ..
-cd scripts && sudo ./UseUpdatedPythonMarkdownVersion.sh && cd ..
 /usr/bin/env python2 manage.py syncdb
 /usr/bin/env python2 manage.py migrate
 /usr/bin/env python2 manage.py runserver
