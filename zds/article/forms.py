@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
+from django import forms
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
-from django import forms
+from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutEditor
 from zds.utils.models import SubCategory

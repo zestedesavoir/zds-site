@@ -2,8 +2,9 @@
 
 from django.conf.urls import patterns, url
 
-import views
 import feeds
+import views
+
 
 urlpatterns = patterns('',
 

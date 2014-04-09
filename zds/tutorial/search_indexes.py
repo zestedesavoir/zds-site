@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from django.db.models import Q
+
 from haystack import indexes
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract
-from django.db.models import Q
 
 
 class TutorialIndex(indexes.SearchIndex, indexes.Indexable):

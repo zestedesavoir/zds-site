@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User
 import factory
 
 from zds.forum.models import Category, Forum, Topic, Post

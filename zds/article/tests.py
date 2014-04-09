@@ -1,8 +1,5 @@
-'''
-Created on 30 mars 2014
+# coding: utf-8
 
-@author: spacefox
-'''
 from django.core.urlresolvers import reverse
 
 from django.test import TestCase

@@ -1,24 +1,24 @@
 # coding: utf-8
 
-import os
-import uuid
-import string
-from math import ceil
-from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import User
+from cStringIO import StringIO
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import models
+import json
+from math import ceil
+import os
+import string
+import uuid
 
-from zds.utils.models import SubCategory, Comment
-from zds.utils.articles import *
-from zds.utils import get_current_user
-
-from zds.utils import slugify
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 from PIL import Image
-from cStringIO import StringIO
-from django.core.files.uploadedfile import SimpleUploadedFile
-import json
+from zds.utils import get_current_user
+from zds.utils import slugify
+from zds.utils.articles import export_article
+from zds.utils.models import SubCategory, Comment
+
 
 IMAGE_MAX_WIDTH = 480
 IMAGE_MAX_HEIGHT = 100 
@@ -53,7 +53,7 @@ class Article(models.Model):
     image = models.ImageField(upload_to=image_path, blank=True, null=True)
     thumbnail = models.ImageField(upload_to=image_path, blank=True, null=True)
 
-    is_visible = models.BooleanField('Visible en rédaction')
+    is_visible = models.BooleanField('Visible en rédaction', default = False)
     
     sha_public = models.CharField('Sha1 de la version publique',
                                   blank=True, null=True, max_length=80)
@@ -186,12 +186,10 @@ class Article(models.Model):
         '''
         Return the first post of a topic, written by topic's author
         '''
-        try:
-            return Reaction.objects\
-                .filter(article=self)\
-                .order_by('pubdate')[0]
-        except:
-            return None
+        return Reaction.objects\
+            .filter(article=self)\
+            .order_by('pubdate')\
+            .first()
 
     def last_read_reaction(self):
         '''
@@ -247,23 +245,19 @@ def get_last_articles():
 
 
 def get_prev_article(g_article):
-    try:
-        return Article.objects\
-            .filter(sha_public__isnull=False)\
-            .filter(pubdate__lt=g_article.pubdate)\
-            .order_by('-pubdate')[0]
-    except:
-        return None
+    return Article.objects\
+        .filter(sha_public__isnull=False)\
+        .filter(pubdate__lt=g_article.pubdate)\
+        .order_by('-pubdate')\
+        .first()
 
 
 def get_next_article(g_article):
-    try:
-        return Article.objects\
-            .filter(sha_public__isnull=False)\
-            .filter(pubdate__gt=g_article.pubdate)\
-            .order_by('pubdate')[0]
-    except:
-        return None
+    return Article.objects\
+        .filter(sha_public__isnull=False)\
+        .filter(pubdate__gt=g_article.pubdate)\
+        .order_by('pubdate')\
+        .first()
 
 STATUS_CHOICES = (
         ('PENDING', 'En attente d\'un validateur'),

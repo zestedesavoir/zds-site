@@ -2,18 +2,20 @@
 
 from datetime import datetime
 from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
+from django.http import Http404
+from django.template import Context
+from django.views.decorators.http import require_POST
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import get_template
-from django.core.mail import EmailMultiAlternatives
-from django.template import Context
-from django.db.models import Q
 
 from forms import PrivateTopicForm, PrivatePostForm
 from models import PrivateTopic, PrivatePost, \
@@ -21,7 +23,7 @@ from models import PrivateTopic, PrivatePost, \
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template, slugify
 from zds.utils.paginator import paginator_range
-from django.views.decorators.http import require_POST
+
 
 @can_read_now
 @login_required

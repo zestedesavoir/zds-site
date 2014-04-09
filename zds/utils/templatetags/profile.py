@@ -2,8 +2,9 @@
 
 from django import template
 
-from zds.member.models import Profile
 from django.contrib.auth.models import User
+
+from zds.member.models import Profile
 
 
 register = template.Library()
