@@ -1,11 +1,10 @@
 # coding: utf-8
 
-from django.http import Http404
-from django.contrib.auth.models import User
+from django.contrib.auth import logout
 from django.core.exceptions import PermissionDenied
 
 from zds.member.models import Profile
-from django.contrib.auth import logout
+
 
 def can_read_now(func):
     '''Decorator to check that the user can read now'''

@@ -1,19 +1,21 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.db import models
-from os import path
-import os
+from git.repo import Repo
 import json
 from math import ceil
+from os import path
+import os
+
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
-from zds.utils.models import Category, SubCategory, Licence, Comment
-from zds.utils.tutorials import *
+from zds.utils.models import SubCategory, Licence, Comment
+from zds.utils.tutorials import get_blob, export_tutorial
 
 
 TYPE_CHOICES = (
@@ -230,25 +232,19 @@ class Tutorial(models.Model):
         '''
         Gets the last answer in the thread, if any
         '''
-        try:
-            last_note = Note.objects.all()\
+        return Note.objects.all()\
                 .filter(tutorial__pk=self.pk)\
-                .order_by('-pubdate')[0]
-        except:
-            last_note = None
-        
-        return last_note
+                .order_by('-pubdate')\
+                .first()
 
     def first_note(self):
         '''
         Return the first post of a topic, written by topic's author
         '''
-        try:
-            return Note.objects\
-                .filter(tutorial=self)\
-                .order_by('pubdate')[0]
-        except:
-            return None
+        return Note.objects\
+            .filter(tutorial=self)\
+            .order_by('pubdate')\
+            .first()
 
     def last_read_note(self):
         '''

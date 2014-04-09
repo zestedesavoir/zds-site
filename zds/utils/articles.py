@@ -1,14 +1,12 @@
 # coding: utf-8
 
 from collections import OrderedDict
-import os
 
-from zds.utils import slugify
 from git import *
+
 
 # Export-to-dict functions
 def export_article(article):
-    from zds.article.models import Article
     '''
     Export an article to a dict
     '''

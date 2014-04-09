@@ -2,38 +2,36 @@
 
 from datetime import datetime
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.encoding import smart_str, smart_unicode
-from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.http import Http404, HttpResponse
+from django.utils.encoding import smart_str
+from django.views.decorators.http import require_POST
 import json
-from lxml import etree
 from operator import itemgetter, attrgetter
 import os
 import shutil
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404, redirect
 from git import *
-from zds.member.models import Profile
-from zds.member.views import get_client_ip
+
 from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
 from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from crispy_forms.layout import Field
-
 from .forms import ArticleForm, ReactionForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read, STATUS_CHOICES
+
 
 @can_read_now
 def index(request):

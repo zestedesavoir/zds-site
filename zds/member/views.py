@@ -1,26 +1,26 @@
 # coding: utf-8
+
 from datetime import datetime, timedelta
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User, SiteProfileNotAvailable
-from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.db import transaction
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import Context
 from django.template import RequestContext
 import os
 import uuid
 
-from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, SiteProfileNotAvailable
 from django.core.context_processors import csrf
-from django.db import transaction
+from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template.loader import get_template
 import pygal
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
@@ -72,7 +72,7 @@ def details(request, user_name):
 
 @can_write_and_read_now
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def modify_profile(request, user_pk):
     '''Modifies sanction of a user if there is a POST request'''
     profile = get_object_or_404(Profile, user__pk=user_pk)

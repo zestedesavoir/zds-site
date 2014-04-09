@@ -1,18 +1,18 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-
-from zds.member.factories import *
-from zds.settings import SITE_ROOT
-from zds.tutorial.factories import *
-from zds.utils.models import CommentLike, CommentDislike
-
+import os
 import shutil
-from .models import *
+
+from django.core.urlresolvers import reverse
+
+from zds.member.factories import UserFactory, StaffFactory
+from zds.settings import SITE_ROOT
+from zds.tutorial.factories import BigTutorialFactory, PartFactory,\
+    ChapterFactory, NoteFactory
+from zds.tutorial.models import Note, Tutorial
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))

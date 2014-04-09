@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 import os
+
 
 if __name__ == "__main__":
     smileys_baseURL = os.path.join("../../../assets", "smileys")

@@ -1,12 +1,15 @@
 # coding: utf-8
-from collections import OrderedDict
+
 from datetime import datetime
-from django.contrib.auth.models import User
-import factory
+from git.repo import Repo
 import json
 import os
 
-from zds.tutorial.models import *
+import factory
+
+from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
+    Validation
+from zds.utils.tutorials import export_tutorial
 
 
 class BigTutorialFactory(factory.DjangoModelFactory):
@@ -31,15 +34,15 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         repo = Repo.init(path, bare=False)
         repo = Repo(path)
         
-        file = open(os.path.join(path,'manifest.json'), "w")
-        file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
-        file.close()
-        file = open(os.path.join(path,tuto.introduction), "w")
-        file.write(u'Test')
-        file.close()
-        file = open(os.path.join(path,tuto.conclusion), "w")
-        file.write(u'Test')
-        file.close()
+        f = open(os.path.join(path,'manifest.json'), "w")
+        f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.close()
+        f = open(os.path.join(path,tuto.introduction), "w")
+        f.write(u'Test')
+        f.close()
+        f = open(os.path.join(path,tuto.conclusion), "w")
+        f.write(u'Test')
+        f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm=repo.index.commit("Init Tuto")
         
@@ -104,22 +107,22 @@ class PartFactory(factory.DjangoModelFactory):
         part.conclusion = os.path.join(part.slug,'conclusion.md')
         part.save()
         
-        file = open(os.path.join(tutorial.get_path(),part.introduction), "w")
-        file.write(u'Test')
-        file.close()
+        f = open(os.path.join(tutorial.get_path(),part.introduction), "w")
+        f.write(u'Test')
+        f.close()
         repo.index.add([part.introduction])
-        file = open(os.path.join(tutorial.get_path(),part.conclusion), "w")
-        file.write(u'Test')
-        file.close()
+        f = open(os.path.join(tutorial.get_path(),part.conclusion), "w")
+        f.write(u'Test')
+        f.close()
         repo.index.add([part.conclusion])
         
         if tutorial:
             tutorial.save()
             
             man = export_tutorial(tutorial)
-            file = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
-            file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
-            file.close()
+            f = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
+            f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+            f.close()
             
             repo.index.add(['manifest.json'])
         
@@ -154,27 +157,27 @@ class ChapterFactory(factory.DjangoModelFactory):
             repo = Repo(tutorial.get_path())
             
             man = export_tutorial(tutorial)
-            file = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
-            file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
-            file.close()
+            f = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
+            f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+            f.close()
                 
         elif part:
             chapter.introduction = os.path.join(part.slug, chapter.slug, 'introduction.md')
             chapter.conclusion = os.path.join(part.slug, chapter.slug, 'conclusion.md')
             chapter.save()
-            file = open(os.path.join(part.tutorial.get_path(),chapter.introduction), "w")
-            file.write(u'Test')
-            file.close()
-            file = open(os.path.join(part.tutorial.get_path(),chapter.conclusion), "w")
-            file.write(u'Test')
-            file.close()
+            f = open(os.path.join(part.tutorial.get_path(),chapter.introduction), "w")
+            f.write(u'Test')
+            f.close()
+            f = open(os.path.join(part.tutorial.get_path(),chapter.conclusion), "w")
+            f.write(u'Test')
+            f.close()
             part.tutorial.save()
             repo = Repo(part.tutorial.get_path())
             
             man = export_tutorial(part.tutorial)
-            file = open(os.path.join(part.tutorial.get_path(),'manifest.json'), "w")
-            file.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
-            file.close()
+            f = open(os.path.join(part.tutorial.get_path(),'manifest.json'), "w")
+            f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+            f.close()
             
             repo.index.add([chapter.introduction, chapter.conclusion])
         
@@ -227,3 +230,4 @@ class NoteFactory(factory.DjangoModelFactory):
 
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
+    
