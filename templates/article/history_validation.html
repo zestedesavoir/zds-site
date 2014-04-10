@@ -1,5 +1,5 @@
 {% extends "article/validation.html" %}
-{% load humane_date %}
+{% load humanize %}
 
 {% block title %}
 Historique de validation de l'article
@@ -53,7 +53,7 @@ Historique de validation de l'article
                         {% endfor %}
                     </td>
                     <td>
-                        <span>{{ validation.date_proposition|humane_date }}</span>
+                        <span>{{ validation.date_proposition|naturaltime }}</span>
                     </td>
                     <td>
                         {% if validation.validator %}
@@ -62,7 +62,7 @@ Historique de validation de l'article
                     </td>
                     <td>
                         {% if validation.date_reserve %}
-                        <span>{{ validation.date_reserve|humane_date }}</span>
+                        <span>{{ validation.date_reserve|naturaltime }}</span>
                         {% endif %}
                     </td>
                     <td>
