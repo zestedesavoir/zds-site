@@ -1724,7 +1724,7 @@ def upload_images(request, tutorial):
     mapping = OrderedDict()
     #download images 
     if 'images' in request.FILES :
-        zfile = zipfile.ZipFile(request.FILES['images'])
+        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
         for i in zfile.namelist():
             ph = os.path.join(settings.MEDIA_ROOT,"tutorial", str(tutorial.pk), i)
             ph_temp = os.path.join(tutorial.get_path(), i)
@@ -2258,35 +2258,36 @@ def get_url_images(md_text, pt):
     find images urls in markdown text and download this
     '''
     regex = ur"(!\[.*?\]\()(.+?)(\))"
-    imgs = re.findall(regex, md_text)
-    
-    for img in imgs:
-        #decompose images
-        parse_object = urlparse(img[1])
-        
-        #if link is http type
-        if parse_object.scheme in ('http', 'https'):
-            (filepath, filename) = os.path.split(parse_object.path)
-            # download image 
-            urlretrieve(img[1], os.path.join(pt, img[1]))
-            ext = filename.split('.')[-1]
-            # if image is gif, convert to png 
-            if ext == 'gif':
-                im = ImagePIL.open(os.path.join(pt, img[1]))
-                im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
-        else : # relative link
-            srcfile = settings.SITE_ROOT + img[1]
-            dstroot = pt + img[1]
-            dstdir =  os.path.dirname(dstroot)
-
-            if not os.path.exists(dstdir) : os.makedirs(dstdir)
-            shutil.copy(srcfile, dstroot)
+    #if text is empty don't download
+    if md_text!=None:
+        imgs = re.findall(regex, md_text)
+        for img in imgs:
+            #decompose images
+            parse_object = urlparse(img[1])
             
-            ext = dstroot.split('.')[-1]
-            # if image is gif, convert to png 
-            if ext == 'gif':
-                im = ImagePIL.open(dstroot)
-                im.save(os.path.join(dstroot.split('.')[0]+'.png'))
+            #if link is http type
+            if parse_object.scheme in ('http', 'https'):
+                (filepath, filename) = os.path.split(parse_object.path)
+                # download image 
+                urlretrieve(img[1], os.path.join(pt, img[1]))
+                ext = filename.split('.')[-1]
+                # if image is gif, convert to png 
+                if ext == 'gif':
+                    im = ImagePIL.open(os.path.join(pt, img[1]))
+                    im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+            else : # relative link
+                srcfile = settings.SITE_ROOT + img[1]
+                dstroot = pt + img[1]
+                dstdir =  os.path.dirname(dstroot)
+    
+                if not os.path.exists(dstdir) : os.makedirs(dstdir)
+                shutil.copy(srcfile, dstroot)
+                
+                ext = dstroot.split('.')[-1]
+                # if image is gif, convert to png 
+                if ext == 'gif':
+                    im = ImagePIL.open(dstroot)
+                    im.save(os.path.join(dstroot.split('.')[0]+'.png'))
         
 
 def sub_urlimg(g):
@@ -2346,16 +2347,19 @@ def MEP(tutorial, sha):
     #convert markdown file to html file
     for fichier in fichiers:
         md_file_contenu = get_blob(repo.commit(sha).tree, fichier)
+        
         #download images
         get_url_images(md_file_contenu, tutorial.get_prod_path())
         
         #convert to out format
         out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
-        out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
+        if md_file_contenu!=None:
+            out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
         out_file.close()
             
         html_file = open(os.path.join(tutorial.get_prod_path(), fichier+'.html'), "w")
-        html_file.write(emarkdown(md_file_contenu))
+        if md_file_contenu!=None:
+            html_file.write(emarkdown(md_file_contenu))
         html_file.close()          
             
     
@@ -2363,7 +2367,7 @@ def MEP(tutorial, sha):
     contenu = export_tutorial_to_md(tutorial).lstrip()
     
     out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
-    out_file.write(smart_str(contenu).replace('°', 'o').replace('−','-'))
+    out_file.write(smart_str(contenu))
     out_file.close()
     
     #load pandoc
