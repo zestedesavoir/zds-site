@@ -5,13 +5,8 @@
     Éditer la partie
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if part.image %}
-            <img src="{{part.image.thumb.url }}" alt=""/>
-        {% endif %}
+{% block head-title %}
         Editer la partie : {{ part.title }}
-    </h1>
 {% endblock %}
 
 {% block headline-sub %}

@@ -1,0 +1,11 @@
+{% extends "member/base.html" %}
+
+{% block headline %}
+    <h2 class="box head-content">
+        {% block head-image %}{% endblock %}
+        {% block head-title %}{% endblock %}
+    </h2>
+    <ul class="taglist">
+        {% block head-tag %}{% endblock %}
+    </ul>
+{% endblock %}

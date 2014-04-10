@@ -1,48 +1,45 @@
-{% extends "tutorial/base.html" %} 
+{% extends "tutorial/base_read.html" %} 
+{% load markup %}
 
 {% block title %}
 {{ chapter.title }} ({{ chapter.part.tutorial.title }})
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt=""/>
-        {% endif %}
-        {{ chapter.title }}
-    </h1>
+{% block head-image %}
+    {% if chapter.image %}
+        <img src="{{chapter.image.thumb.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ chapter.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% if chapter.tutorial %}
-            <ul class="taglist">
         {% for category in chapter.tutorial.subcategory.all %}
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
-        </ul>
-        <div class="authors content-wrapper">
-            <span class="authors-label">Auteurs : </span>
-            <ul>
-            {% for member in chapter.tutorial.authors.all %}
-                <li>
-                    {% include "member/member_item_common.part.html" %}
-                </li>
-            {% endfor %}.
-            </ul>
-        </div>
     {% else %}
-            <ul class="taglist">
-            {% for category in chapter.part.tutorial.subcategory.all %}
+        {% for category in chapter.part.tutorial.subcategory.all %}
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
-        </ul>
-        <div class="authors content-wrapper">
-            <span class="authors-label">Auteurs : </span>
-            <ul>
-            {% for member in chapter.part.tutorial.authors.all %}
-                <li>
-                    {% include "member/member_item_common.part.html" %}
-                </li>
-            {% endfor %}.
-            </ul>
-        </div>
+    {% endif %}
+{% endblock %}
+
+{% block head-authors %}
+    {% if chapter.tutorial %}
+        {% for member in chapter.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}
+    {% else %}
+        {% for member in chapter.part.tutorial.authors.all %}
+            <li>
+                {% include "member/member_item_common.part.html" %}
+            </li>
+        {% endfor %}
     {% endif %}
 {% endblock %}
 
@@ -107,12 +104,15 @@
 
 {% block content %}
 
-{% with tutorial=chapter.get_tutorial %}
-    {% with authors=tutorial.authors.all %}
-        {% include "tutorial/view_chapter_pager.html" %}
-        {% include "tutorial/view_chapter_common.part.html" %}
-        {% include "tutorial/view_chapter_pager.html" %}
-    {% endwith %}
-{% endwith %}
-
+<div class="row">
+    <div class="large-12 columns read-content">
+        {% with tutorial=chapter.get_tutorial %}
+            {% with authors=tutorial.authors.all %}
+                {% include "tutorial/view_chapter_pager.html" %}
+                {% include "tutorial/view_chapter_common.part.html" %}
+                {% include "tutorial/view_chapter_pager.html" %}
+            {% endwith %}
+        {% endwith %}
+    </div>
+</div>
 {% endblock %}
