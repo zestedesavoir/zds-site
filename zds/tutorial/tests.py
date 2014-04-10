@@ -279,8 +279,8 @@ class BigTutorialTests(TestCase):
         result = self.client.post(
                         reverse('zds.tutorial.views.import_tuto'), 
                         {
-                          'file': open(settings.SITE_ROOT + '/fixtures/tuto/temps-reel-avec-irrlicht/temps-reel-avec-irrlicht.tuto', 'r'),
-                          'images': open(settings.SITE_ROOT + '/fixtures/tuto/temps-reel-avec-irrlicht/images.zip', 'r')
+                          'file': open(os.path.join(settings.SITE_ROOT, 'fixtures','tuto','temps-reel-avec-irrlicht','temps-reel-avec-irrlicht.tuto'), 'r'),
+                          'images': open(os.path.join(settings.SITE_ROOT, 'fixtures','tuto','temps-reel-avec-irrlicht','images.zip'), 'r')
                         },
                         follow=False)
         self.assertEqual(result.status_code, 302)
