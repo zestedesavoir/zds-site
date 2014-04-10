@@ -12,8 +12,8 @@
     différents domaines de l'informatique." />
 {% endblock %}
 
-{% block headline %}
-    <h2 class="ico ico-articles">Liste des articles<h2>
+{% block head-title %}
+    Liste des articles
 {% endblock %}
 
 {% block breadcrumb %}
@@ -22,21 +22,14 @@
 
 {% block headline-actions %}
     {% if user.is_authenticated %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filter">
-            <ul>
-            {% block headline-actions-filter %}{% endblock %}
-            </ul>
-        </div>
+        {% block headline-actions-filter %}{% endblock %}
     {% endif %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Flux">
-        <h3>Flux</h3>
-        <ul>
-            <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
-            <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
-            <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
-        </ul>
-
-    </div>
+    <h3>Flux</h3>
+    <ul>
+        <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+        <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
+        <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
+    </ul>
 {% endblock %}
 
 {% block content %}
@@ -44,22 +37,24 @@
 <div class="row">
     <div class="large-12 columns">
         {% if articles %}
-            <div class="article-items">
-                {% for article in articles %}
-                <article>
-                    <a href="{{ article.get_absolute_url_online }}">
-                        {% if article.image %}
-                        <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
-                        {% endif %}
-                        <div class="article-infos">
-                            <h3>{{ article.title }}</h3>
-                            <p class="article-metadata">
-                                crée {{article.pubdate|humane_date}}
-                            </p>
-                        </div>
-                    </a>
-                </article>
-                {% endfor %}
+            <div class="small-block-grid-1 large-block-grid-3">
+            {% for article in articles %}
+            <li class="card">
+                <a href="{{ article.get_absolute_url_online }}">
+                    <div class="large-12 columns">
+                        <h3>{{ article.title }}</h3>
+                        <p class="article-metadata">
+                            publié {{article.pubdate|humane_date}}
+                        </p>
+                    </div>
+                    {% if article.image %}
+                    <div class="large-12 columns crop">
+                    <img src="{{article.image.url }}" alt="" class="article-img avatar"/>
+                    </div>
+                    {% endif %}
+                </a>
+            </li>
+            {% endfor %}
             </div>
         {% else %}
             <p>Aucun article disponible.</p>

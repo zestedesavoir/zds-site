@@ -33,7 +33,7 @@ class GalleryForm(forms.Form):
             Field('title'),
             Field('subtitle'),
             ButtonHolder(
-                Submit('submit', u'Créer'),
+                Submit('submit', u'Créer', css_class = 'button'),
             ),
         )
     
@@ -84,7 +84,7 @@ class UserGalleryForm(forms.Form):
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
             ButtonHolder(
-                Submit('submit', 'Ajouter'),
+                Submit('submit', 'Ajouter', css_class = 'button'),
             ),
         )
         
@@ -129,6 +129,6 @@ class ImageForm(forms.Form):
             Field('physical'),
             ButtonHolder(
                 Submit('submit', u'Ajouter'),
-                HTML('<a class="btn btn-submit" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                HTML('<a class="button secondary" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )

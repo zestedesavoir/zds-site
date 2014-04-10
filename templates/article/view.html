@@ -1,4 +1,4 @@
-{% extends "article/base.html" %}
+{% extends "article/base_read.html" %}
 {% load emarkdown %}
 {% load humane_date %}
 {% load profile %}
@@ -7,9 +7,28 @@
     {{ article.title }}
 {% endblock %}
 
-{% block headline %}
-    <a href="{{ article.get_absolute_url }}">{{ article.title }}</a><br />
-    <small>{{ article.description }}</small>
+{% block head-image %}
+    {% if article.image %}
+        <img src="{{article.image.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ article.title }}
+{% endblock %}
+
+{% block head-tag %}
+    {% for category in tags.all %}
+        <li><a href="#">{{ category.title }}</a></li>
+    {% endfor %}
+{% endblock %}
+
+{% block head-authors %}
+    {% for member in authors.all %}
+        <li>
+            {% include "member/member_item_common.part.html" %}
+        </li>
+    {% endfor %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -19,45 +38,22 @@
 {% block headline-actions %}
     {% if user.is_authenticated %}
     <form action="{% url "zds.article.views.modify" %}" method="post">
-        {% if tags %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tags">
-            <h3>Tags</h3>
-            <ul>
-            {% for category in tags.all %}
-                <li><a href="{% url "zds.article.views.index" %}?tag={{category.title}}">{{ category.title }}</a></li>
-            {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        {% if authors %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Contributeurs">
-            <h3>Contributeurs</h3>
-            <ul>
-            {% for author in authors.all %}
-                {% with profile=author|profile %}
-                <li><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></li>
-                {% endwith %}
-            {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
 
         {% if user in authors.all or perms.article.change_article %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Opérations">
-            <h3>Opérations</h3>
+            <h3>Actions</h3>
             <ul>
                 {% if article.sha_draft = version %}
                 <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
                 {% endif %}
                 {% if article.sha_validation = None %}
                 <li>
-                    <button type="submit" name="pending">Demander la validation</button>
+                    <button type="submit" class="secondary tiny" name="pending">Demander la validation</button>
                     <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
                 </li>
                 {% endif %}
                 {% if article.sha_public = None %}
-                <li><button type="submit" name="delete">Confirmer la suppression</button></li>
+                <li><button type="submit" class="secondary tiny" name="delete">Confirmer la suppression</button></li>
                 {% endif %}
                 <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
         </div>
@@ -69,11 +65,11 @@
             <ul>
                 {% if not article.sha_validation = None %}
                 <li>
-                    <button type="submit" name="valid-article">Confirmer la publication</button>
+                    <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
                     <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
                 </li>
                 <li>
-                    <button type="submit" name="reject-article">Confirmer le rejet</button>
+                    <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
                     <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
                 </li>
                 {% endif %}
@@ -104,7 +100,7 @@
 {% endif %}
 
 <div class="row">
-    <div class="large-12 columns">
+    <div class="large-12 columns read-content">
         <div class="large-1 columns hide-for-small">
             {% if article.thumbnail %}
             <img src="{{article.thumbnail.url }}"/>
