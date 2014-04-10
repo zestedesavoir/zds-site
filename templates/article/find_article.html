@@ -1,5 +1,5 @@
 {% extends "article/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -40,7 +40,7 @@
                     </div>
                 </td>
                 <td>
-                    {% with date=article.pubdate|humane_date %}
+                    {% with date=article.pubdate|naturaltime %}
                         {{ date }}
                     {% endwith %}
                 </td>

@@ -1,6 +1,6 @@
 {% extends "member/base.html" %}
 {% load emarkdown %}
-{% load humane_date %}
+{% load humanize %}
 {% load email_obfuscator %}
 
 {% block title %}
@@ -27,7 +27,7 @@
     </ul>
     
     <div class="authors content-wrapper">
-        Inscrit {{ usr.date_joined|humane_date }}, dernière connexion {{ usr.last_login|humane_date }}.
+        Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
     </div>
     {% if profile.show_email and user.is_authenticated %}
     <div class="authors content-wrapper">
@@ -217,7 +217,7 @@
             <div class="row">
                 {% for ban in bans %}
                 <hr />
-                <p><strong>{{ ban.type }}</strong> : par {{ban.moderator.username}} <i>{{ban.pubdate|humane_date}} </i></p>
+                <p><strong>{{ ban.type }}</strong> : par {{ban.moderator.username}} <i>{{ban.pubdate|naturaltime}} </i></p>
                 <p>{{ ban.text }}</p>
                 {% endfor %}
             </div>
