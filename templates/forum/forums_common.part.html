@@ -1,6 +1,5 @@
 {# Block displaying the list of forums belonging to a category #}
-{% load humane_date %}
-{% load upfirstletter %}
+{% load humanize %}
 {% load forum %}
 
 
@@ -34,9 +33,7 @@
                 {% with last_message=forum.get_last_message %}
                     {% if last_message %}
                         <a href="{{ last_message.get_absolute_url }}">
-                            {% with date=last_message.pubdate|humane_date %}
-                                {{ date|upfirstletter }}
-                            {% endwith %}
+                            {{ last_message.pubdate|naturaltime|capfirst }}
                         </a>
                         par
                         {% with member=last_message.author %}

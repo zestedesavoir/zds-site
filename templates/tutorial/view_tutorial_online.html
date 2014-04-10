@@ -1,6 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -139,11 +139,11 @@
 
         <div class="message-metadata">
             <a href="{{ note.author.get_absolute_url }}" class="username">{{ note.author.username }}</a>
-            <a href="#p{{ note.pk }}" class="date">{{ note.pubdate|humane_date }}</a>
+            <a href="#p{{ note.pk }}" class="date">{{ note.pubdate|naturaltime }}</a>
             {% if not note.is_visible %}
                 <i>Masqué par {{ note.editor }} : {{ note.text_hidden }}</i>
             {% elif not note.update = None %}
-                <i>(Edité {{ note.update|humane_date }} par {{ note.editor }} )</i>
+                <i>(Edité {{ note.update|naturaltime }} par {{ note.editor }} )</i>
             {% endif %}
         </div>
 

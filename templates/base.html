@@ -3,8 +3,8 @@
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
-{% load humane_date %}
 {% load captureas %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js enable-mobile-menu lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -191,7 +191,7 @@
                                                         <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                         {% endwith %}
                                                         <span class="username">{{ first_unread.author.username }}</span>
-                                                        <span class="date">{{ first_unread.pubdate|humane_date }}</span>
+                                                        <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
                                                     </a>
                                                 </li>
@@ -214,7 +214,7 @@
                                                         <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                         {% endwith %}
                                                         <span class="username">{{ last_read.author.username }}</span>
-                                                        <span class="date">{{ last_read.pubdate|humane_date }}</span>
+                                                        <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
                                                     </a>
                                                     {% endwith %}
@@ -260,7 +260,7 @@
                                                         {% with p=first_unread.author|profile %}
                                                         <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                         <span class="username">{{ first_unread.author.username }}</span>
-                                                        <span class="date">{{ first_unread.pubdate|humane_date }}</span>
+                                                        <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
                                                         {% endwith %}
                                                     </a>
@@ -283,7 +283,7 @@
                                                         {% with p=last_read.author|profile %}
                                                         <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                         <span class="username">{{ last_read.author.username }}</span>
-                                                        <span class="date">{{ last_read.pubdate|humane_date }}</span>
+                                                        <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
                                                         <span class="topic">{{ topic.title }}</span>
                                                         {% endwith %}
                                                     </a>

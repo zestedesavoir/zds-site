@@ -1,6 +1,5 @@
 {% extends "mp/base.html" %}
-{% load humane_date %}
-{% load upfirstletter %}
+{% load humanize %}
 
 {% block title %}
     Liste des MP
@@ -79,7 +78,7 @@
                     {% if answer %}
                     Dernière rép.
                     <a href="{{ answer.get_absolute_url }}">
-                        {% with date=answer.pubdate|humane_date %}
+                        {% with date=answer.pubdate|naturaltime %}
                         {{ date }}
                         {% endwith %}
                     </a>

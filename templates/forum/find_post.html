@@ -1,5 +1,5 @@
 {% extends "forum/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -45,7 +45,7 @@
                     </div>
                 </td>
                 <td>
-                    {% with date=post.pubdate|humane_date %}
+                    {% with date=post.pubdate|naturaltime %}
                         {{ date }}
                     {% endwith %}
                 </td>

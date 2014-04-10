@@ -1,5 +1,5 @@
-    {% extends "tutorial/index.html" %}
-{% load humane_date %}
+{% extends "tutorial/index.html" %}
+{% load humanize %}
 
 {% block headline-sub-actions %}
     <li><a href="{% url "zds.tutorial.views.import_tuto" %}">Importer</a></li>
@@ -36,7 +36,7 @@
                 <div class="tutorial-infos">
                     <h3>{{ tuto.title }}</h3>
                     <p class="article-metadata">
-                        crée {{tuto.create_at|humane_date}}
+                        crée {{tuto.create_at|naturaltime}}
                     </p>
                 </div>
             </a>
