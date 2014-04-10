@@ -5,12 +5,12 @@
     {{ forum.title }}
 {% endblock %}
 
-{% block headline %}
-    <h1>{{ forum.title }}</h1>
+{% block head-title %}
+    {{ forum.title }}
 {% endblock %}
 
 {% block headline-sub %}
-    {{ forum.subtitle }}
+    <p class="subtitle">{{ forum.subtitle }}</p>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -27,16 +27,24 @@
 <div class="row">
 {% if sticky_topics %}
     <div>
-        {% for topic in sticky_topics %}
-            {% include "forum/details_row.part.html" %}
-        {% endfor %}
+        <table>
+            <tbody>
+            {% for topic in sticky_topics %}
+                {% include "forum/details_row.part.html" %}
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endif %}
 
 <div>
-    {% for topic in topics %}
-        {% include "forum/details_row.part.html" %}
-    {% endfor %}
+    <table class="topics-entries">
+      <tbody>
+        {% for topic in topics %}
+            {% include "forum/details_row.part.html" %}
+        {% endfor %}
+      </tbody>
+    </table>
 </div>
 </div>
 {% include "forum/details_pagination.part.html" with position="bottom" %}

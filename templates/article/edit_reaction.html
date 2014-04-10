@@ -5,12 +5,12 @@
     Éditer un message
 {% endblock %}
 
-{% block headline %}
-    <h2>Editer le commentaire de l'article : {{article.title}}</h2>
+{% block head-title %}
+    Editer le commentaire de l'article : {{article.title}}
 {% endblock %}
 
 {% block headline-sub %}
-    <h3 class="subtitle">{{ article.description }}</h3>
+    {{ article.description }}
 {% endblock %}
 
 {% block breadcrumb %}

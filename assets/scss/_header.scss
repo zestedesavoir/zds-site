@@ -1,0 +1,12 @@
+$title-higher-color: #084561;   // color for h1
+$title-lower-color: #0079b2; // color for h2
+
+$title-reg-color: #ff8c00; // color for h2
+
+h1 { color: mix($title-lower-color, $title-higher-color, 0%)}
+h2 { color: mix($title-lower-color, $title-higher-color, 20%)}
+h3 { color: mix($title-reg-color, $title-reg-color, 40%)}
+h4 { color: mix($title-reg-color, $title-reg-color, 60%)}
+h5 { color: mix($title-reg-color, $title-reg-color, 80%)}
+h6 { color: mix($title-reg-color, $title-reg-color, 100%)}
+
