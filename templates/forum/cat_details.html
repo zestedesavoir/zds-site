@@ -4,8 +4,8 @@
     {{ category.title }}
 {% endblock %}
 
-{% block headline %}
-    <h1 class="box forum">{{ category.title }}</h1>
+{% block head-title %}
+    {{ category.title }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -14,6 +14,8 @@
 
 {% block content %}
     
-{% include "forum/forums_common.part.html" %}
+<div class="small-block-grid-1 large-block-grid-3">
+    {% include "forum/forums_common.part.html" %}
+</div>
 
 {% endblock %}

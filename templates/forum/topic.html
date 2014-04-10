@@ -82,7 +82,19 @@
                         {% if post.author = user or perms.forum.change_post %}
                         <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
-                        <a href="#" class="tiny secondary actions">Signaler<span class="fi-alert"></span></a>
+                        <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}">Signaler<span class="fi-alert"></span></a>
+                        <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                            <form id="formsign{{post.pk}}" method="POST" action="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}">
+                            <p>
+                                Pour quelle raison signalez vous ce message ?
+                            </p>
+                            <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
+                            <button type="submit" name="signal-post" class="button expand alert">
+                                Confirmer le signalement
+                            </button>
+                             {% csrf_token %}
+                            </form>
+                        </div>
                         {% if not topic.is_locked and not topic.antispam %}
                         <a href="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
                         {% endif %}
@@ -127,6 +139,15 @@
                 </div>
                 </div>
             </div>
+            {% for alert in post.alerts.all %}
+            <div class="row">
+                <div class="large-12 columns">
+                    <div class="alert-box alert">
+                        <a href="{% url "zds.member.views.details" alert.author.username %}">{{alert.author}}</a> - {{alert.pubdate|humane_date}} : {{alert.text}}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -12,15 +12,15 @@
     active
 {% endblock %}
 
-{% block content_out %}
-    <article>
-        <header>{% block headline %}{% endblock %}</header>
-        <section class="article-content content-wrapper">{% block content %}{% endblock %}</section>
-    </article>
+{% block headline %}
+<h2 class="box forum">{% block head-title %}{% endblock %}</h2>
 {% endblock %}
 
 {% block sidebar %}
-<aside class="sidebar mobile-menu-hide">
-	{% block headline-actions %}{% endblock %}
-</aside>
+	{% if user.is_authenticated %}
+    <h3>Actions</h3>
+    <ul>
+    	{% block headline-actions %}{% endblock %}
+    </ul>
+    {% endif %}
 {% endblock %}
