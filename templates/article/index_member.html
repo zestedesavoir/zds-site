@@ -1,5 +1,5 @@
 {% extends "article/index.html" %}
-{% load humane_date %}
+{% load humanize %}
 
 {% block headline-actions-filter %}
     <h3>Filtres</h3>
@@ -30,7 +30,7 @@
                         <div class="large-12 columns">
                             <h3>{{ article.title }}</h3>
                             <p class="article-metadata">
-                                crée {{article.create_at|humane_date}}
+                                crée {{article.create_at|naturaltime}}
                             </p>
                         </div>
                         {% if article.image %}
