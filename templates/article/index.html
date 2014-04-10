@@ -1,70 +1,105 @@
 {% extends "article/base.html" %}
 {% load humanize %}
+{% load captureas %}
+
+
 
 {% block title %}
     Liste des articles
 {% endblock %}
 
+
+
 {% block meta %}
     <meta name="description" content="Les articles sont rédigés par la
-    communauté ; ils permettent aussi bien de se tenir informé des dernières
+    communauté. Ils permettent aussi bien de se tenir informé des dernières
     innovations du moment que de découvrir de nouvelles notions liées aux
-    différents domaines de l'informatique." />
+    différents domaines de l'informatique.">
 {% endblock %}
+
+
 
 {% block headline %}
     <h2 class="ico ico-articles">Liste des articles<h2>
 {% endblock %}
 
+
+
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current">Liste des articles</li>
 {% endblock %}
 
-{% block headline-actions %}
-    {% if user.is_authenticated %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filter">
-            <ul>
-            {% block headline-actions-filter %}{% endblock %}
-            </ul>
-        </div>
-    {% endif %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Flux">
-        <h3>Flux</h3>
-        <ul>
-            <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
-            <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
-            <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
-        </ul>
 
+
+{% block sidebar_actions %}
+    {% if user.is_authenticated %}
+        {% captureas sidebarfilter %}{% spaceless %}
+            {% block sidebar_filter %}{% endblock %}
+        {% endspaceless %}{% endcaptureas %}
+
+        {% if sidebarfilter %}
+            <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
+                <h3>Filtres</h3>
+                <ul class="sidebar-standalone">
+                    {% block sidebar_filter %}{% endblock %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="mobile-menu-block mobile-all-links" data-title="Actions">
+        <h3>Actions</h3>
+        <ul class="sidebar-standalone">
+            <li>
+                <a href="{% url "zds.article.views.new" %}">
+                    Nouvel article
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+        <h3>Flux</h3>
+        <ul class="sidebar-standalone">
+            <li>
+                <a href="{% url "article-feed-rss" %}">
+                    Nouveaux articles (RSS)
+                </a>
+            </li>
+            <li>
+                <a href="{% url "article-feed-atom" %}">
+                    Nouveaux articles (ATOM)
+                </a>
+            </li>
+        </ul>
     </div>
 {% endblock %}
 
-{% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% if articles %}
-            <div class="article-items">
-                {% for article in articles %}
+
+{% block content %}
+    {% if articles %}
+        <div class="article-items">
+            {% for article in articles %}
                 <article>
                     <a href="{{ article.get_absolute_url_online }}">
                         {% if article.image %}
-                        <img src="{{article.image.thumb.url }}" alt="" class="article-img avatar"/>
+                            <img src="{{ article.image.thumb.url }}" alt="" class="article-img avatar">
                         {% endif %}
+
                         <div class="article-infos">
                             <h3>{{ article.title }}</h3>
                             <p class="article-metadata">
-                                crée {{article.pubdate|naturaltime}}
+                                Créé {{ article.pubdate|naturaltime }}
                             </p>
                         </div>
                     </a>
                 </article>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>Aucun article disponible.</p>
-        {% endif %}
-    </div>
-</div>
-
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            Aucun article disponible.
+        </p>
+    {% endif %}
 {% endblock %}

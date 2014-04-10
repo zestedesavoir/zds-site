@@ -3,54 +3,71 @@
 {% load profile %}
 {% load emarkdown %}
 
+
+
 {% block title %}
     Articles rédigés par {{ usr.username }}
 {% endblock %}
 
+
+
 {% block headline %}
-    Articles rédigés par "{{ usr.username }}""
+    Articles rédigés par {{ usr.username }}
 {% endblock %}
+
+
 
 {% block breadcrumb %}
     {% with profile=usr|profile %}
-        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+        <li>
+            <a href="{{ profile.get_absolute_url }}">
+                {{ usr.username }}
+            </a>
+        </li>
     {% endwith %}
-    <li ><a href="{% url "zds.article.views.find_article" usr.username %}">Articles rédigés</a></li>
-    <li class="current"><a href="#">Recherche</a></li>
+
+    <li>
+        <a href="{% url "zds.article.views.find_article" usr.username %}">
+            Articles rédigés
+        </a>
+    </li>
+    <li class="current">Recherche</li>
 {% endblock %}
 
-{% block content %}
-    <div class="row">
-        <table>
-          <thead>
-            <tr>
-              <th width="15%">Article</th>
-              <th width="10%">Quand</th>
-              <th width="30%">Extrait</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for article in articles %}
-            <tr>
-                <td>
-                    <div>
-                        <img src="{{ article.thumbnail.url }}" />
-                        <a href="{{ article.get_absolute_url }}">{{ article.title }} </a> 
-                        {% if article.description %} <p> {{ article.description }} </p> {% endif %}
-                    </div>
-                </td>
-                <td>
-                    {% with date=article.pubdate|naturaltime %}
-                        {{ date }}
-                    {% endwith %}
-                </td>
-                <td>
-                    {{ article.text|truncatechars:200|emarkdown }}
-                </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-    </div>
 
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th width="20%">Article</th>
+                <th width="10%">Quand</th>
+                <th width="70%">Extrait</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td>
+                        <img src="{{ article.thumbnail.url }}" alt="">
+
+                        <a href="{{ article.get_absolute_url }}">
+                            {{ article.title }}
+                        </a> 
+                        {% if article.description %}
+                            <p>
+                                {{ article.description }}
+                            </p>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ date=article.pubdate|naturaltime }}
+                    </td>
+                    <td>
+                        {{ article.text|truncatechars:200|emarkdown }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

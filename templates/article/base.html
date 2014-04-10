@@ -1,16 +1,24 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
     &#183; Articles
 {% endblock %}
+
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
 {% endblock %}
 
+
+
 {% block menu_article %}
     current
 {% endblock %}
+
+
 
 {% block content_out %}
     <article>
@@ -22,6 +30,8 @@
         </section>
     </article>
 {% endblock %}
+
+
 
 {% block sidebar %}
 	<aside class="sidebar mobile-menu-hide">
