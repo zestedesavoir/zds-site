@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load emarkdown %}
-{% load humane_date %}
+{% load humanize %}
 {% load interventions %}
 {% load topbar %}
 
@@ -58,7 +58,7 @@ class="active"
                 <article>
                     <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
                     <p class="article-metadata">
-                        {{ article.pubdate|humane_date }} -
+                        {{ article.pubdate|naturaltime }} -
                         <a href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }} réactions</a>
                     </p>
                     {% if article.image %}

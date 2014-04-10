@@ -1,5 +1,5 @@
 {% extends "article/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 
 {% block title %}
     Liste des articles
@@ -54,7 +54,7 @@
                         <div class="article-infos">
                             <h3>{{ article.title }}</h3>
                             <p class="article-metadata">
-                                crée {{article.pubdate|humane_date}}
+                                crée {{article.pubdate|naturaltime}}
                             </p>
                         </div>
                     </a>
