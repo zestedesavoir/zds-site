@@ -1,6 +1,7 @@
 {% load emarkdown %}
 {% load humane_date %}
 {% load profile %}
+{% load roman %}
 
 <h3>Sommaire</h3>
 {% if tutorial.is_mini %}
@@ -25,7 +26,7 @@
                 <ul>
                     {% for chapter in chapters %}
                     <li class="{% if chapter_current.pk = chapter.pk %}current{% endif %}">
-                        <a data-ss-chap-num="{{ chapter.position_in_part }}" href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.title|slugify chapter.title|slugify %}">{{ chapter.title }}</a>
+                        <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.title|slugify chapter.title|slugify %}">{{ chapter.position_in_part }} - {{ chapter.title }}</a>
                         {% if chapter_current.pk = chapter.pk %}
                                 <ul>
                                 {% for extract in chapter.extracts %}

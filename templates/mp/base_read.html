@@ -1,0 +1,13 @@
+{% extends "mp/base.html" %}
+
+{% block headline %}
+    <h2 class="box forum head-content">
+        {% block head-title %}{% endblock %}
+    </h2>
+    <div class="authors content-wrapper">
+        <span class="authors-label">Participants :  </span>
+        <ul>
+        {% block head-authors %}{% endblock %}
+        </ul>
+    </div>
+{% endblock %}
