@@ -138,8 +138,8 @@
                     </div>
                     {% if user.is_authenticated %}
                     <div class="message-karma right">
-                        <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if reaction.like > reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{reaction.like}}</a>
-                        <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if reaction.like < reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{reaction.dislike}}</a>
+                        <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}" class="label secondary {% if reaction.like > reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{reaction.like}}</a>
+                        <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" class="label secondary {% if reaction.like < reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{reaction.dislike}}</a>
                     </div>
                     {% endif %}
                     

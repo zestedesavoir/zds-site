@@ -102,7 +102,7 @@ STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 PIPELINE_JS = {
     'main-js': {
         'source_filenames': (
-
+            'js/app.js',
         ),
         'output_filename': 'js/main.js'
     }

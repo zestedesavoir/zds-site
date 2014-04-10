@@ -13,6 +13,10 @@
     current
 {% endblock %}
 
+{% block headline %}
+<h2 class="box forum">{% block head-title %}{% endblock %}</h2>
+{% endblock %}
+
 {% block sidebar %}
 	{% if user.is_authenticated %}
     <h3>Actions</h3>
