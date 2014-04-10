@@ -116,9 +116,16 @@ Side Bar
 	color: #424242;
 	margin: 0 0 0 -2.7%;
 }
+.side-nav h5 {
+	font-size: 1rem;
+}
+.side-nav h4 {
+	font-size: 1.1rem;
+	border-bottom: 1px solid #CCC;
+}
 .side-nav h3 {
 	height: 40px;
-	font-size: 1.3rem;
+	font-size: 1.2rem;
 	line-height: 40px;
 	line-height: 2.6rem;
 	color: #084561;
@@ -132,10 +139,35 @@ Side Bar
 	background-image: linear-gradient(right, rgba(0,0,0,0.05),transparent 15px);
 }
 
-.side-nav h3, .main .side-nav h4 {
-	font-weight: normal;
+.side-nav h3, 
+.side-nav h4 {
+	font-weight: 600;
 	margin: 0;
-	padding: 0 0 0 2.5%;
+	padding: 5px;
+}
+
+.side-nav ul li a{
+	display: block;
+	padding-left: 25px;
+	padding-right: 10px;
+	text-decoration: none;
+	color: #0079b2;
+	overflow: hidden;
+	height: 24px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.side-nav ul li a:hover,
+.side-nav ul li a:focus,
+.side-nav .current
+{
+	background: #fff;
+}
+
+.side-nav ul li button{
+	padding-left: 25px;
+	overflow: hidden;
 }
 
 /**
@@ -266,7 +298,23 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 
 .read-content
 {
-	background-color: #FFF 
+	background-color: #FFF ;
+	padding: 20px;
+}
+
+.read-content h2 a,
+.read-content h3 a,
+.read-content h4 a,
+{
+	color: #EE8709;
+	text-decoration: none;
+}
+
+.read-content h2 a:hover,
+.read-content h3 a:hover,
+.read-content h4 a:hover
+{
+	text-decoration: underline;
 }
 
 .crop {

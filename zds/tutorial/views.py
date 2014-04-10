@@ -1273,9 +1273,10 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         
     prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
     next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
-
+    
     return render_template('tutorial/view_chapter_online.html', {
         'chapter': final_chapter,
+        'parts': parts,
         'prev': prev_chapter,
         'next': next_chapter
     })

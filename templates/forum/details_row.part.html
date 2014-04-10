@@ -56,23 +56,3 @@
         </p>
     </td>
 </tr>
-
-<!--
-{% if topic.is_sticky %}
-    <i class="icon-bookmark" title="Ce sujet est épinglé"></i>
-{% endif %}
-{% if topic.is_locked %}
-    <i class="icon-lock" title="Ce sujet est verrouillé"></i>
-{% endif %}
-{% if topic.is_solved %}
-    <i class="icon-ok" title="Ce sujet est résolu"></i>
-{% endif %}
-
-{% if user.is_authenticated %}
-    {% with topic.last_read_post as last_read_post %}
-        {% ifnotequal last_read_post topic.get_last_answer %}
-            <i class="icon-eye-open"></i>
-        {% endifnotequal %}
-    {% endwith %}
-{% endif %}
--->

@@ -12,7 +12,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
     {% compressed_css "main-css" %}
-    {% compressed_js "main-js" %}
   </head>
   <body>   
 <!-- Header and Nav -->
@@ -32,7 +31,7 @@
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
-            <a href="{% url "zds.mp.views.index" %}">
+            <a href="#">
               {% if unread_topics|length > 0 %}
                   <span class="alert label">{{ unread_topics|length }}</span>
               {% endif %}
@@ -100,12 +99,16 @@
                   {% endfor %}
 
                   {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                      <li class="dropdown-empty-message">
+                      <li>
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
                           Aucun message
+                          </div></div>
+                        </a>
                       </li>
                   {% endif %}
                 <li class="divider"></li>
-                <li><a href="#"><div class="row"><div class="large-12 columns">Tous les messages</div></div></a></li>
+                <li><a href="{% url "zds.mp.views.index" %}"><div class="row"><div class="large-12 columns">Tous les messages</div></div></a></li>
             </ul>
             {% endwith %}
             {% endwith %}
@@ -115,7 +118,7 @@
             {% with topics=user|interventions_topics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
-            <a href="{% url "zds.mp.views.index" %}">
+            <a href="#">
               {% if unread_topics|length > 0 %}
                   <span class="alert label">{{ unread_topics|length }}</span>
               {% endif %}
@@ -183,23 +186,66 @@
                   {% endfor %}
 
                   {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                      <li class="dropdown-empty-message">
+                      <li>
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
                           Aucun message
+                          </div></div>
+                        </a>
                       </li>
                   {% endif %}
                 <li class="divider"></li>
-              <li><a href="#"><div class="row"><div class="large-5 columns centered">Toutes les notifications</div></div></a></li>
+              <li><a href="{% url "zds.forum.views.followed_topics" %}"><div class="row"><div class="large-5 columns centered">Toutes les notifications</div></div></a></li>
             </ul>
             {% endwith %}
             {% endwith %}
             {% endwith %}
           </li>
+          {% if perms.forum.change_post %}
           <li class="has-dropdown">
-            <a href="#"><img src="{% static "img/gear.png" %}" alt="Alertes" /></a>
+            {% with posts=user|alerts_topic %}
+            <a href="#">
+              {% if posts.count > 0 %}
+                  <span class="alert label">{{ posts.count }}</span>
+              {% endif %}
+              <img src="{% static "img/gear.png" %}" alt="Alertes" /></a>
             <ul class="dropdown">
-              <li><a href="#">Toutes les alertes</a></li>
+              <li><label>Alertes Modération</label></li>
+              <li class="divider"></li>
+                
+                  {% for post in posts %}
+                      <li><a href="{{ post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                  {{ post.author.username }}
+                              </div>
+                              <div class="right">
+                                  {{ post.pubdate|humane_date }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ post.topic.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                  {% if posts.count = 0 %}
+                      <li class="dropdown-empty-message">
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
+                          Aucune alerte
+                        </div></div>
+                        </a>
+                      </li>
+                  {% endif %}
+                <li class="divider"></li>
+              <li><a href="#"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
             </ul>
+            {% endwith %}
           </li>
+          {% endif %}
           <li class="has-dropdown">
             {% with profile=user|profile %}
             <a href="#"><img src="{{ profile.get_avatar_url }}" alt=""></a>
@@ -339,8 +385,10 @@
       </div>
     </div> 
   </footer>
-    <script src="js/vendor/jquery.js"></script>
-    <script src="js/foundation.min.js"></script>
+    <script type="text/javascript" src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/modernizr/modernizr.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/fastclick/lib/fastclick.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
     <script>
       $(document).foundation();
     </script>
