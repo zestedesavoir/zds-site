@@ -1,5 +1,5 @@
 {% extends "tutorial/base.html" %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -41,7 +41,7 @@
                 </td>
                 <td>
                     {% if tuto.pubdate %}
-                    {% with date=tuto.pubdate|humane_date %}
+                    {% with date=tuto.pubdate|naturaltime %}
                         {{ date }}
                     {% endwith %}
                     {% endif %}
