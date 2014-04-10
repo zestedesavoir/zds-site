@@ -1,8 +1,8 @@
 {% load profile %}
 
 {% with profile=member|profile %}
-<a href="{{ member.get_absolute_url }}">
-    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-    {{ member.username }}
-</a>
+    <a href="{{ member.get_absolute_url }}">
+        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+        {{ member.username }}
+    </a>
 {% endwith %}

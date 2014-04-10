@@ -72,7 +72,7 @@
         {% if topic.is_locked %}
             <li>
                 <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
-                   class="ico-after lock">
+                   class="ico-after lock blue">
                     Dévérouiller
                 </a>
             </li>
@@ -88,7 +88,7 @@
         {% if topic.is_sticky %}
             <li>
                 <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
-                   class="ico-after pin">
+                   class="ico-after pin blue">
                     Enlever du Post-It
                 </a>
             </li>

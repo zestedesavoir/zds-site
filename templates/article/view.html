@@ -2,118 +2,234 @@
 {% load emarkdown %}
 {% load humanize %}
 {% load profile %}
+{% load crispy_forms_tags %}
+
+
 
 {% block title %}
     {{ article.title }}
 {% endblock %}
 
-{% block headline %}
-    <a href="{{ article.get_absolute_url }}">{{ article.title }}</a><br />
-    <small>{{ article.description }}</small>
-{% endblock %}
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ article.title }}</a></li>
+    <li class="current">{{ article.title }}</li>
 {% endblock %}
 
-{% block headline-actions %}
-    {% if user.is_authenticated %}
-    <form action="{% url "zds.article.views.modify" %}" method="post">
-        {% if tags %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Tags">
-            <h3>Tags</h3>
-            <ul>
-            {% for category in tags.all %}
-                <li><a href="{% url "zds.article.views.index" %}?tag={{category.title}}">{{ category.title }}</a></li>
+
+
+{% block headline %}
+    <h1 class="illu">
+        {% if article.image %}
+            <img src="{{article.image.thumb.url }}" alt="">
+        {% endif %}
+        {{ article.title }}
+    </h1>
+    <ul class="taglist">
+        {% for tag in tags.all %}
+            {# TODO : Mettre les liens vers les tags #}
+            <li><a href="#">{{ tag.title }}</a></li>
+        {% endfor %}
+    </ul>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+            {% for member in authors.all %}
+                <li>
+                    {% include "member/member_item_common.part.html" %}
+                </li>
             {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+        </ul>
+    </div>
+{% endblock %}
 
-        {% if authors %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Contributeurs">
-            <h3>Contributeurs</h3>
-            <ul>
-            {% for author in authors.all %}
-                {% with profile=author|profile %}
-                <li><a href="{{ author.get_absolute_url }}">{{ author.username }}</a></li>
-                {% endwith %}
-            {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
 
-        {% if user in authors.all or perms.article.change_article %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Opérations">
-            <h3>Opérations</h3>
-            <ul>
-                {% if article.sha_draft = version %}
-                <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
-                {% endif %}
-                {% if article.sha_validation = None %}
-                <li>
-                    <button type="submit" name="pending">Demander la validation</button>
-                    <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
-                </li>
-                {% endif %}
-                {% if article.sha_public = None %}
-                <li><button type="submit" name="delete">Confirmer la suppression</button></li>
-                {% endif %}
-                <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
-        </div>
-        {% endif %}
 
-        {% if perms.article.change_article %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
-            <h3>Admin<span class="wide">istration</span></h3>
-            <ul>
-                {% if not article.sha_validation = None %}
-                <li>
-                    <button type="submit" name="valid-article">Confirmer la publication</button>
-                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                </li>
-                <li>
-                    <button type="submit" name="reject-article">Confirmer le rejet</button>
-                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                </li>
-                {% endif %}
-                <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
-            </ul>
-        </div>
-        {% endif %}
+{% block sidebar_actions %}
+    {% if perms.article.change_article %}
+        <form action="{% url "zds.article.views.modify" %}" method="post">
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
+                <h3>Admin<span class="wide">istration</span></h3>
+                <ul class="sidebar-standalone">
+                    <li>
+                        <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
+                            Version hors ligne
+                        </a>
+                    </li>
+                    <li>
+                        <button type="submit" name="invalid-article">
+                            Dépublier
+                        </button>
+                    </li>
+                    <li>
+                        <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                            Historique de validation
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-        <input type="hidden" name="article" value="{{ article.pk }}" />
-        <input type="hidden" name="version" value="{{ version }}" />
-        {% csrf_token %}
-    </form>
+            <input type="hidden" name="article" value="{{ article.pk }}">
+            <input type="hidden" name="version" value="{{ version }}">
+            {% csrf_token %}
+        </form>
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
-        <ul>
-            <li><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></li>
+        <ul class="sidebar-standalone">
+            <li>
+                <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}"
+                   class="ico-after download blue"
+                >
+                    Archive
+                </a>
+            </li>
         </ul>
     </div>
-    
 {% endblock %}
+
+
 
 {% block content %}
 
-{% if article.is_visible %}
+    {{ article.txt|safe }}
+
     {% include "article/view_pager.part.html" %}
-{% endif %}
 
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if article.thumbnail %}
-            <img src="{{article.thumbnail.url }}"/>
-            {% endif %}
-        </div>
-        <div>
-            {{ article.txt|emarkdown }}
-        </div>
-    </div>
-</div>
 
+
+    <h3 class="subtitle">Réactions</h3>
+
+    {% with topic=article %}
+        {% include "forum/topic_pagination.part.html" with position="top" %}
+    {% endwith %}
+
+    {% for reaction in reactions %}
+        <article class="forum-message">
+            <div class="user" id="p{{ reaction.id }}">
+                <a href="{{ reaction.author.get_absolute_url }}" class="avatar-link">
+                    {% with profile=reaction.author|profile %}
+                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                    {% endwith %}
+                </a>
+            </div>
+
+            <div class="message">
+                {% if user.is_authenticated and reaction.is_visible %}
+                    <ul class="message-actions">
+                        {% if perms.article.change_reaction %}
+                            <li>
+                                {# TODO : Lien pour masquer #}
+                                <a href="#" class="ico-after view">
+                                    Masquer
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if reaction.author = user or perms.article.change_reaction %}
+                            <li>
+                                <a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="ico-after edit">
+                                    Editer
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li>
+                            {# TODO : Lien de signalement #}
+                            <a href="#" class="ico-after alert">
+                                Signaler
+                            </a>
+                        </li>
+
+                        {% if not article.is_locked and not article.antispam %}
+                            <li>
+                                <a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="ico-after cite">
+                                    Citer
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+
+                <div class="message-metadata">
+                    <a href="{{ reaction.author.get_absolute_url }}" class="username">
+                        {{ reaction.author.username }}
+                    </a>
+                    <a href="#p{{ reaction.pk }}" class="date">
+                        {{ reaction.pubdate|naturaltime|capfirst }}
+                    </a>
+                </div>
+
+                <div class="message-content">
+                    {% if not reaction.is_visible %}
+                        <p class="message-hidden">
+                            Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}
+                        </p>
+                    {% elif not reaction.update = None %}
+                        <p class="message-edited">
+                            Edité {{ reaction.update|naturaltime }} par {{ reaction.editor }}
+                        </p>
+                    {% endif %}
+
+                    {% if reaction.is_visible %}
+                        {{ reaction.text|emarkdown }}
+                    {% endif %}
+                </div>
+
+                {% if reaction.is_visible %}
+                    <div class="message-bottom">
+                        {% if user.is_authenticated %}
+                            {% with profile_user=user|profile %}
+                                {% if profile_user.show_sign %}
+                                    {% with profile=reaction.author|profile %}
+                                        <p class="signature">
+                                            {{ profile.sign|emarkdown_inline }}
+                                        </p>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
+
+                            <div class="message-karma">
+                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}"
+                                   class="upvote {% if reaction.like > reaction.dislike %}voted{% endif%} ico-after"
+                                >
+                                    +{{ reaction.like }}
+                                </a>
+                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" 
+                                   class="downvote {% if reaction.like < reaction.dislike %}voted{% endif%} ico-after"
+                                >
+                                    -{{ reaction.dislike }}
+                                </a>
+                            </div>
+                        {% else %}
+                            {% with profile=reaction.author|profile %}
+                                <p class="signature">
+                                    {{ profile.sign|emarkdown_inline }}
+                                </p>
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </article>
+    {% endfor %}
+
+    {% with topic=article %}
+        {% include "forum/topic_pagination.part.html" with position="bottom" %}
+    {% endwith %}
+
+    {% if user.is_authenticated %}
+        {% with profile=user|profile%}
+            <section>
+                <div class="user">
+                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
+                </div>
+                
+                {% crispy form %}
+            </section>
+        {% endwith %}
+    {% endif %}
 {% endblock %}
+

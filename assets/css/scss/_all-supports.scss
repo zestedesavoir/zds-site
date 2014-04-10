@@ -554,41 +554,13 @@
                     display: block;
                 }
             }
-            /*
-            &:hover,
-            .action-hover + a:hover {
-                &:not(.action-hover):after,
-                .action-hover + a:after {
-                    display: none;
-                }
-                .action-hover {
-                    display: block;
-                }
-            }
-            */
 
-            li {
-                padding: 0;
-
-                a {
-                    position: relative;
-                    color: #084561;
-                    @include transition;
-
-                    &:hover,
-                    &:focus {
-                        color: #0079B2;
-                        background: #E3E5E5;
-                        margin-left: -11px;
-
-                        &:before {
-                            content: "> ";
-                        }
-                    }
-                }
+            button {
+                width: 100%;
             }
 
-            a {
+            a,
+            button {
                 display: block;
                 padding-left: 25px;
                 padding-right: 10px;
@@ -598,6 +570,9 @@
                 height: 24px;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                border: 0;
+                text-align: left;
+                background: rgba(0, 0, 0, 0);
 
                 &[data-num] {
                     position: relative;
@@ -666,6 +641,28 @@
 
                         &:after {
                             left: 5px;
+                        }
+                    }
+                }
+            }
+
+
+            li {
+                padding: 0;
+
+                a {
+                    position: relative;
+                    color: #084561;
+                    @include transition;
+
+                    &:hover,
+                    &:focus {
+                        color: #0079B2;
+                        background: #E3E5E5;
+                        margin-left: -11px;
+
+                        &:before {
+                            content: "> ";
                         }
                     }
                 }
@@ -1083,6 +1080,7 @@
         }
 
         figcaption {
+            display: block;
             padding-top: 10px;
         }
     }
@@ -1249,6 +1247,14 @@ $helpful-background: #e9f9dc;
 
             & > p:first-child {
                 margin-top: 7px;
+            }
+
+            .message-edited,
+            .message-hidden {
+                background: #DDD;
+                display: inline-block;
+                padding: 3px 10px;
+                margin-bottom: 0;
             }
 
             textarea {
@@ -1515,6 +1521,12 @@ form.forum-message {
             @include sprite-pos($sprite, 'star-blue');
         }
     }
+
+    /**
+     TODO
+        - history icon (+ blue)
+        - download icon (+ blue)
+    */
 }
 
 
