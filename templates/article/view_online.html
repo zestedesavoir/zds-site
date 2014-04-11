@@ -1,6 +1,6 @@
 {% extends "article/base_read.html" %}
 {% load emarkdown %}
-{% load humane_date %}
+{% load humanize %}
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
@@ -111,11 +111,11 @@
                     {% endif %}
 
                     <div class="message-metadata left">
-                        <a href="#p{{ post.pk }}" class="date">{{ reaction.pubdate|humane_date }}</a>
+                        <a href="#p{{ post.pk }}" class="date">{{ reaction.pubdate|naturaltime }}</a>
                         {% if not post.is_visible %}
                             <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
                         {% elif not post.update = None %}
-                            <i>(Edité {{ reaction.update|humane_date }} par {{ reaction.editor }} )</i>
+                            <i>(Edité {{ reaction.update|naturaltime }} par {{ reaction.editor }} )</i>
                         {% endif %}
                     </div>
                 <div class="large-12 columns">
