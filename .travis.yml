@@ -4,6 +4,7 @@ python:
 install:
   - "sudo apt-get update"
   - "sudo apt-get install texlive"
+  - "sudo apt-get install texlive-xetex"
   - "sudo apt-get install pandoc"
   - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"

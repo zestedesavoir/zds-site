@@ -100,29 +100,9 @@ STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
 # You will need yuglify to be installed
 PIPELINE_JS = {
-    'modernizr' : {
-        'source_filenames': (
-            'js/vendor/custom.modernizr.js',
-        ),
-        'output_filename': 'js/modernizr.js'
-    }, 
-    'css3-mediaqueries' : {
-        'source_filenames': (
-            'js/vendor/css3-mediaqueries.js',
-        ),
-        'output_filename': 'js/css3-mediaqueries.js'
-    },
     'main-js': {
         'source_filenames': (
-            'js/vendor/jquery.js',
-
-            'js/custom/ajax-csrf.js',
-            'js/custom/editor.js',
-
-            'js/custom/mobile-menu.js',
-            'js/custom/accessibility-links.js',
-            'js/custom/dropdown-menu.js',
-            'js/custom/data-click.js',
+            'js/app.js',
         ),
         'output_filename': 'js/main.js'
     }
@@ -131,7 +111,7 @@ PIPELINE_JS = {
 PIPELINE_CSS = {
     'main-css': {
         'source_filenames': (
-            'css/main.css',
+            'css/zds.css',
         ),
         'output_filename': 'css/design.css'
     }

@@ -1,21 +1,21 @@
 # coding: utf-8
 
 from django import forms
+from django.core.urlresolvers import reverse
 
-from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from crispy_forms_foundation.layout import ButtonHolder
-from django.core.urlresolvers import reverse
+from crispy_forms.bootstrap import StrictButton
 
-from zds.forum.models import Forum
 from zds.utils.forms import CommonLayoutEditor
+from zds.forum.models import Forum
 
 
 class TopicForm(forms.Form):
     title = forms.CharField(
-    	label = 'Titre',
-    	max_length = 80,
+        label = 'Titre',
+        max_length = 80,
         widget = forms.TextInput(
             attrs = {
                 'required': 'required',
@@ -24,14 +24,14 @@ class TopicForm(forms.Form):
     )
 
     subtitle = forms.CharField(
-    	label = 'Sous-titre',
-    	max_length=255, 
-    	required=False,
+        label = 'Sous-titre',
+        max_length=255, 
+        required=False,
     )
 
     text = forms.CharField(
-    	label = 'Texte',
-    	widget = forms.Textarea(
+        label = 'Texte',
+        widget = forms.Textarea(
             attrs = {
                 'placeholder': 'Votre message au format Markdown.',
                 'required':'required'

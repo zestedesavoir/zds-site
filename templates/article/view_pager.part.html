@@ -1,8 +1,8 @@
 <div class="row">
     <div class="large-6 columns">
         {% if prev %}
-            <a class="button secondary" href="{{ prev.get_absolute_url_online }}">
-                « {{ prev.title }}
+            <a class="button secondary " href="{{ prev.get_absolute_url_online }}">
+                <span class="fi-arrow-left"></span> {{ prev.title }}
             </a>
         {% endif %}
     </div>
@@ -10,7 +10,7 @@
         <div class="right">
             {% if next %}
                <a class="button secondary" href="{{ next.get_absolute_url_online }}">
-                   {{ next.title }} »
+                   {{ next.title }} <span class="fi-arrow-right">
                </a>
            {% endif %}
         </div>

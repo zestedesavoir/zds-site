@@ -1,36 +1,35 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_read.html" %}
 {% load emarkdown %}
 {% load humanize %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
 {% block title %}
-{{ tutorial.title }}
+    {{ tutorial.title }}
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt=""/>
-        {% endif %}
-        {{ tutorial.title }}
-    </h1>
-    <ul class="taglist">
+{% block head-image %}
+    {% if tutorial.image %}
+        <img src="{{tutorial.image.thumb.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ tutorial.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% for category in tutorial.subcategory.all %}
         <li><a href="#">{{ category.title }}</a></li>
     {% endfor %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-        {% for member in tutorial.authors.all %}
-            <li>
-                {% include "member/member_item_common.part.html" %}
-            </li>
-        {% endfor %}.
-        </ul>
-    </div>
+{% endblock %}
+
+{% block head-authors %}
+    {% for member in tutorial.authors.all %}
+        <li>
+            {% include "member/member_item_common.part.html" %}
+        </li>
+    {% endfor %}
 {% endblock %}
 
 {% block headline-sub %}
@@ -44,33 +43,21 @@
 {% block headline-actions %}
 
     {% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
-        <h3>Admin<span class="wide">istration</span></h3>
-        <ul>
-            <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version offline</a></li>
-            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
-        </ul>
-    </div>
+    <h3>Administration</h3>
+    <ul>
+        <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version offline</a></li>
+        <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+    </ul>
     {% endif %}
 
     {% include "tutorial/toc_common_online.html" %}
     
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-    	<h3><span class="wide">Télécharger</span></h3>
-        <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
-        	{% if perms.tutorial.change_tutorial %}
-        	<li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
-        	<li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
-        	{% endif %}
-            <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
-        </ul>
-    </div>
-    
 {% endblock %}
 
 {% block content %}
+
+<div class="read-content">
 
 {% if tutorial.get_introduction_online %}
     {{ tutorial.get_introduction_online|safe }}
@@ -110,8 +97,8 @@
 {% else %}
     <p>Aucune conclusion.</p>
 {% endif %}
- 
-<h1>Commentaires</h1>
+</div>
+<h2 class="box">Commentaires</h2>
     {% with topic=tutorial %}
     {% include "forum/topic_pagination.part.html" with position="top" %}
     {% endwith %}
@@ -173,7 +160,7 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
 <section>
-    <div class="user">
+    <div class="user hide-for-small">
         <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
     </div>
     {% crispy form %}
