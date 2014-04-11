@@ -1,9 +1,9 @@
 {% load staticfiles %}
 {% load compressed %}
+{% load humanize %}
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
-{% load humane_date %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -52,7 +52,7 @@
                                   {{ first_unread.author.username }}
                               </div>
                               <div class="right">
-                                  {{ first_unread.pubdate|humane_date }}
+                                  {{ first_unread.pubdate|naturaltime }}
                               </div>
                             </div>
                             <div class="large-12 columns">
@@ -85,7 +85,7 @@
                                     {{ last_read.author.username }}
                                 </div>
                                 <div class="right">
-                                    {{ last_read.pubdate|humane_date }}
+                                    {{ last_read.pubdate|naturaltime }}
                                 </div>
                               </div>
                               <div class="large-12 columns">
@@ -139,7 +139,7 @@
                                   {{ first_unread.author.username }}
                               </div>
                               <div class="right">
-                                  {{ first_unread.pubdate|humane_date }}
+                                  {{ first_unread.pubdate|naturaltime }}
                               </div>
                             </div>
                             <div class="large-12 columns">
@@ -172,7 +172,7 @@
                                     {{ last_read.author.username }}
                                 </div>
                                 <div class="right">
-                                    {{ last_read.pubdate|humane_date }}
+                                    {{ last_read.pubdate|naturaltime }}
                                 </div>
                               </div>
                               <div class="large-12 columns">
@@ -221,7 +221,7 @@
                                   {{ post.author.username }}
                               </div>
                               <div class="right">
-                                  {{ post.pubdate|humane_date }}
+                                  {{ post.pubdate|naturaltime }}
                               </div>
                             </div>
                             <div class="large-12 columns">

@@ -1,5 +1,5 @@
-{% load humane_date %}
 {% load upfirstletter %}
+{% load humanize %}
 
 <tr class="forum-entry
     {% if topic.is_locked %}
@@ -39,7 +39,7 @@
                 {% if answer %}
                     Dernière rép.
                     <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
-                        {% with date=answer.pubdate|humane_date %}
+                        {% with date=answer.pubdate|naturaltime %}
                             {{ date }}
                         {% endwith %}
                     </a>

@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load emarkdown %}
-{% load humane_date %}
 {% load interventions %}
 {% load topbar %}
+{% load humanize %}
 
 {% block menu_home %}
 class="active"
@@ -61,7 +61,7 @@ class="active"
                         <div class="large-10 columns">
                         <i class="fi-clock size-21"></i>
                         <small>
-                            {{ article.pubdate|humane_date }}
+                            {{ article.pubdate|naturaltime }}
                         </small>
                         </div>
                         <div class="large-2 columns">
