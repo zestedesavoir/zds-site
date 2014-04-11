@@ -1,5 +1,4 @@
 {% extends "tutorial/base.html" %}
-{% load humane_date %}
 
 {% block title %}
     Liste des tutoriels
@@ -29,7 +28,7 @@
                 <div class="tutorial-infos">
                     <h3>{{ tuto.title }}</h3>
                     <p class="article-metadata">
-                        publié {{tuto.pubdate|humane_date}}
+                        publié {{tuto.pubdate|naturaltime}}
                     </p>
                 </div>
                 {% if tuto.image %}
