@@ -346,7 +346,7 @@
                                     </div>
                                 {% endwith %}
                                 {% else %}
-                                    <a href="{% url "zds.member.views.actions" %}"
+                                    <a href="{% url "zds.member.views.settings_profile" %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -358,7 +358,7 @@
 
                             <div>
                                 {% with profile=user|profile %}
-                                <a href="{% url "zds.member.views.actions" %}" 
+                                <a href="{% url "zds.member.views.settings_profile" %}" 
                                    id="my-account"
                                    class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
                                    title="Mon compte" 

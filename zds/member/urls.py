@@ -12,7 +12,6 @@ urlpatterns = patterns('',
 
     url(r'^tutoriels$', views.tutorials),
     url(r'^articles$', views.articles),
-    url(r'^actions$', views.actions),
 
     url(r'^parametres/profil$', views.settings_profile),
     url(r'^parametres/compte$', views.settings_account),
