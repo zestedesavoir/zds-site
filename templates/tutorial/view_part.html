@@ -1,34 +1,33 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_read.html" %}
 {% load emarkdown %}
 
 {% block title %}
     {{ part.title }} ({{ part.tutorial.title }})
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {{ part.title }}
-    </h1>
-    <ul class="taglist">
+
+{% block head-image %}
+    {% if part.tutorial.image %}
+        <img src="{{part.tutorial.image.thumb.url }}" alt=""/>
+    {% endif %}
+{% endblock %}
+
+{% block head-title %}
+    {{ part.title }}
+{% endblock %}
+
+{% block head-tag %}
     {% for category in part.tutorial.subcategory.all %}
         <li><a href="#">{{ category.title }}</a></li>
     {% endfor %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-        {% for member in part.tutorial.authors.all %}
-            <li>
-                {% include "member/member_item_common.part.html" %}
-            </li>
-        {% endfor %}.
-        </ul>
-    </div>
 {% endblock %}
 
-{% block headline-sub %}
-    {{ part.tutorial.description }}
+{% block head-authors %}
+    {% for member in part.tutorial.authors.all %}
+        <li>
+            {% include "member/member_item_common.part.html" %}
+        </li>
+    {% endfor %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -42,25 +41,29 @@
 {% endblock %}
 
 {% block content %}
-    {% if part.intro %}
-        {{ part.intro|emarkdown }}
-    {% else %}
-        <p>Aucune introduction.</p>
-    {% endif %}
+    <div class="row">
+        <div class="large-12 columns read-content">
+            {% if part.intro %}
+                {{ part.intro|emarkdown }}
+            {% else %}
+                <p>Aucune introduction.</p>
+            {% endif %}
 
-	{% if part.chapters %}
-    <ul>
-    {% for chapter in part.chapters %}
-    	<li>
-            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
-        </li>
-    {% endfor %}
-	</ul>
-	{% endif %}
+        	{% if part.chapters %}
+            <ul>
+            {% for chapter in part.chapters %}
+            	<li>
+                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
+                </li>
+            {% endfor %}
+        	</ul>
+        	{% endif %}
 
-    {% if part.conclu %}
-        {{ part.conclu|emarkdown }}
-    {% else %}
-        <p>Aucune conclusion.</p>
-    {% endif %}
+            {% if part.conclu %}
+                {{ part.conclu|emarkdown }}
+            {% else %}
+                <p>Aucune conclusion.</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

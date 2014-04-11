@@ -570,14 +570,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
     #mandata = tutorial.load_json(online=True)
-    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
-    mandata['get_absolute_url'] = tutorial.get_absolute_url()
-    mandata['get_introduction_online'] = tutorial.get_introduction_online()
-    mandata['get_conclusion_online'] = tutorial.get_conclusion_online()
-    
-    mandata['slug'] = slugify(mandata['title'])
-    mandata['pk'] = tutorial.pk
-    mandata['on_line'] = tutorial.on_line
+    mandata = tutorial.load_dic(mandata)
 
     
     # If it's a small tutorial, fetch its chapter
@@ -949,12 +942,13 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
     final_part = None
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
+    mandata = tutorial.load_dic(mandata)
     
     parts = mandata['parts']
     cpt_p=1
     for part in parts :
         if part_slug == slugify(part['title']):
-            part['tutorial'] = tutorial
+            part['tutorial'] = mandata
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
@@ -1237,10 +1231,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
 
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
-    mandata['get_absolute_url_online'] = tutorial.get_absolute_url_online()
-    mandata['get_absolute_url'] = tutorial.get_absolute_url()
-    mandata['slug'] = slugify(mandata['title'])
-    mandata['pk'] = tutorial.pk
+    mandata = tutorial.load_dic(mandata)
     parts = mandata['parts']
     cpt_p=1
     
@@ -1251,10 +1242,10 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         cpt_c=1
         part['slug'] = slugify(part['title'])
         part['get_absolute_url_online'] = reverse('zds.tutorial.views.view_part_online', args=[tutorial.pk,tutorial.slug,part['slug']])
-        part['tutorial'] = tutorial
+        part['tutorial'] = mandata
         for chapter in part['chapters'] :
             chapter['part'] = part
-            chapter['path'] = tutorial.get_path()
+            chapter['path'] = tutorial.get_prod_path()
             chapter['slug'] = slugify(chapter['title'])
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
@@ -1284,9 +1275,10 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         
     prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
     next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
-
+    
     return render_template('tutorial/view_chapter_online.html', {
         'chapter': final_chapter,
+        'parts': parts,
         'prev': prev_chapter,
         'next': next_chapter
     })
@@ -1732,7 +1724,7 @@ def upload_images(request, tutorial):
     mapping = OrderedDict()
     #download images 
     if 'images' in request.FILES :
-        zfile = zipfile.ZipFile(request.FILES['images'])
+        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
         for i in zfile.namelist():
             ph = os.path.join(settings.MEDIA_ROOT,"tutorial", str(tutorial.pk), i)
             ph_temp = os.path.join(tutorial.get_path(), i)
@@ -2266,35 +2258,36 @@ def get_url_images(md_text, pt):
     find images urls in markdown text and download this
     '''
     regex = ur"(!\[.*?\]\()(.+?)(\))"
-    imgs = re.findall(regex, md_text)
-    
-    for img in imgs:
-        #decompose images
-        parse_object = urlparse(img[1])
-        
-        #if link is http type
-        if parse_object.scheme in ('http', 'https'):
-            (filepath, filename) = os.path.split(parse_object.path)
-            # download image 
-            urlretrieve(img[1], os.path.join(pt, img[1]))
-            ext = filename.split('.')[-1]
-            # if image is gif, convert to png 
-            if ext == 'gif':
-                im = ImagePIL.open(os.path.join(pt, img[1]))
-                im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
-        else : # relative link
-            srcfile = settings.SITE_ROOT + img[1]
-            dstroot = pt + img[1]
-            dstdir =  os.path.dirname(dstroot)
-
-            if not os.path.exists(dstdir) : os.makedirs(dstdir)
-            shutil.copy(srcfile, dstroot)
+    #if text is empty don't download
+    if md_text!=None:
+        imgs = re.findall(regex, md_text)
+        for img in imgs:
+            #decompose images
+            parse_object = urlparse(img[1])
             
-            ext = dstroot.split('.')[-1]
-            # if image is gif, convert to png 
-            if ext == 'gif':
-                im = ImagePIL.open(dstroot)
-                im.save(os.path.join(dstroot.split('.')[0]+'.png'))
+            #if link is http type
+            if parse_object.scheme in ('http', 'https'):
+                (filepath, filename) = os.path.split(parse_object.path)
+                # download image 
+                urlretrieve(img[1], os.path.join(pt, img[1]))
+                ext = filename.split('.')[-1]
+                # if image is gif, convert to png 
+                if ext == 'gif':
+                    im = ImagePIL.open(os.path.join(pt, img[1]))
+                    im.save(os.path.join(pt, filename.split('.')[0]+'.png'))
+            else : # relative link
+                srcfile = settings.SITE_ROOT + img[1]
+                dstroot = pt + img[1]
+                dstdir =  os.path.dirname(dstroot)
+    
+                if not os.path.exists(dstdir) : os.makedirs(dstdir)
+                shutil.copy(srcfile, dstroot)
+                
+                ext = dstroot.split('.')[-1]
+                # if image is gif, convert to png 
+                if ext == 'gif':
+                    im = ImagePIL.open(dstroot)
+                    im.save(os.path.join(dstroot.split('.')[0]+'.png'))
         
 
 def sub_urlimg(g):
@@ -2354,16 +2347,19 @@ def MEP(tutorial, sha):
     #convert markdown file to html file
     for fichier in fichiers:
         md_file_contenu = get_blob(repo.commit(sha).tree, fichier)
+        
         #download images
         get_url_images(md_file_contenu, tutorial.get_prod_path())
         
         #convert to out format
         out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
-        out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
+        if md_file_contenu!=None:
+            out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
         out_file.close()
             
         html_file = open(os.path.join(tutorial.get_prod_path(), fichier+'.html'), "w")
-        html_file.write(emarkdown(md_file_contenu))
+        if md_file_contenu!=None:
+            html_file.write(emarkdown(md_file_contenu))
         html_file.close()          
             
     
@@ -2371,7 +2367,7 @@ def MEP(tutorial, sha):
     contenu = export_tutorial_to_md(tutorial).lstrip()
     
     out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug+'.md'), "w")
-    out_file.write(smart_str(contenu).replace('°', 'o').replace('−','-'))
+    out_file.write(smart_str(contenu))
     out_file.close()
     
     #load pandoc

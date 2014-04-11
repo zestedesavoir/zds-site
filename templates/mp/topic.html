@@ -1,19 +1,20 @@
-{% extends "mp/base.html" %}
+{% extends "mp/base_read.html" %}
 {% load emarkdown %}
-{% load humanize %}
 {% load profile %}
+{% load staticfiles %}
 {% load crispy_forms_tags %}
+{% load humanize %}
 
 {% block title %}
     {{ topic.title }}
 {% endblock %}
 
-{% block headline %}
-    <h2>{{ topic.title }}</h2>
+{% block head-title %}
+    {{ topic.title }}
 {% endblock %}
 
 {% block headline-sub %}
-    <h3 class="subtitle">{{ topic.subtitle }}</h3>
+    {{ topic.subtitle }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -21,70 +22,82 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Actions<span class="wide"> sur ce MP</span></h3>
-        <ul>
-            {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
-            {% endif %}
-            {% if topic.author == user %}
-            <li><a href="#">Ajouter un membre</a></li>
-            {% endif %}
-        </ul>
-    </div>
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Participants">
-        <h3>Participants</h3>
-        <ul>
-            <li><a href="{{ topic.author.get_absolute_url }}">{{ topic.author.username }}</a></li>
-            {% for member in topic.participants.all %}
-            <li><a href="{{ member.get_absolute_url }}">{{ member.username }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% if user.is_authenticated %}
+    <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
+    {% endif %}
+    {% if topic.author == user %}
+    <li><a href="#">Ajouter un membre</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block head-authors %}
+    <li><a href="{{ topic.author.get_absolute_url }}">{{ topic.author.username }}</a></li>
+    {% for member in topic.participants.all %}
+    - <li><a href="{{ member.get_absolute_url }}">{{ member.username }}</a></li>
+    {% endfor %}
 {% endblock %}
 
 {% block content %}
 
 {% for post in posts %}
-<article class="forum-message {% if post.is_useful %} helpful {% endif %}">
-    <div class="user" id="p{{ post.id }}">
-        <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
-            {% with profile=post.author|profile %}
-            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-            {% endwith %}
-        </a>
-    </div>
-    <div class="message">
-        {% if user.is_authenticated %}
-        <ul class="message-actions">
-            {% if post.author = user or perms.forum.change_post %}
-            <li><a href="{% url "zds.mp.views.edit_post" %}?message={{ post.pk }}" class="ico-after edit">Editer</a></li>
-            {% endif %}
-            {% if not topic.is_locked and not topic.antispam %}
-            <li><a href="{% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="ico-after cite">Citer</a></li>
-            {% endif %}
-        </ul>
-        {% endif %}
-
-        <div class="message-metadata">
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns">
+            <div class="centered">
             <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-            <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-            {% if not post.update = None %}
-            <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
-            {% endif %}
+            </div>
+            <a href="{{ post.author.get_absolute_url }}" class="hide-for-small">
+                {% with profile=post.author|profile %}
+                <img src="{{ profile.get_avatar_url }}" alt="">
+                {% endwith %}
+            </a>
         </div>
+        <div class="large-11 columns message-forum">
+            <div class="row">
+                <div class="large-12 columns">
+                    {% if user.is_authenticated %}
+                    <div class="right message-actions">
+                        {% if post.author = user or perms.forum.change_post %}
+                        <a href="{% url "zds.mp.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
+                        {% endif %}
+                        <a href="#" class="tiny secondary actions">Signaler<span class="fi-alert"></span></a>
+                        {% if not topic.is_locked and not topic.antispam %}
+                        <a href="{% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
 
-        <div class="message-content">
-            {{ post.text|emarkdown }}
-        </div>
-
-        <div class="message-bottom">
-            {% with profile=post.author|profile %}
-            <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
-            {% endwith %}
+                    <div class="message-metadata left">
+                        <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
+                        {% if not post.is_visible %}
+                            <i>Masqué par {{ post.editor }} : {{ post.text_hidden }}</i>
+                        {% elif not post.update = None %}
+                            <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
+                        {% endif %}
+                    </div>
+                <div class="large-12 columns">
+                <div class="message-content">
+                    {{ post.text|emarkdown }}
+                </div>
+                </div>
+                <div class="large-12 columns">
+                    <div class="left">
+                        {% if user.is_authenticated %}
+                            {% with profile_user=user|profile %}
+                                {% if profile_user.show_sign %}
+                                    {% with profile=post.author|profile %}
+                                        <span class="signature">{{profile.sign|emarkdown_inline}}</span>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>                    
+                </div>
+                </div>
+            </div>
         </div>
     </div>
-</article>
+</div>
 {% endfor %}
 
 {% include "mp/topic_pagination.part.html" %}
@@ -92,8 +105,8 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
 <section>
-    <div class="user">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+    <div class="user hide-for-small">
+        <img src="{{profile.get_avatar_url}}" alt="">
     </div>
     {% crispy form %}
 </section>
@@ -101,4 +114,3 @@
 {% endif %}
 
 {% endblock %}
-

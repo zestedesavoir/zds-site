@@ -1,40 +1,28 @@
-{% extends "member/base.html" %}
+{% extends "member/base_read.html" %}
 {% load emarkdown %}
-{% load humanize %}
 {% load email_obfuscator %}
+{% load humanize %}
 
 {% block title %}
     {{ usr.username }}
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
-        {{ usr.username }}
-    </h1>
-    <ul class="taglist">
-        {% if perms.member.show_ip %}
+{% block head-image %}<img src="{{ profile.get_avatar_url }}" alt="Avatar"/>{% endblock %}
+{% block head-title %}{{ usr.username }}{% endblock %}
+{% block head-tag %}
+    {% if perms.member.show_ip %}
         <li>
             <a href="#">{{ profile.last_ip_address }}</a>
         </li>
         <li>
             <a href="#">{{ profile.get_city }}</a>
         </li>
-        {% endif %}
-        {% if profile.site %}
-            <li><a href="{{ profile.site }}">{{ profile.site }}</a></li>
-        {% endif %}
-    </ul>
-    
-    <div class="authors content-wrapper">
-        Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
-    </div>
-    {% if profile.show_email and user.is_authenticated %}
-    <div class="authors content-wrapper">
-            Adresse mail : {{ usr.email|obfuscate_mailto }}<br />
-    </div>
+    {% endif %}
+    {% if profile.site %}
+        <li><a href="{{ profile.site }}">{{ profile.site }}</a></li>
     {% endif %}
 {% endblock %}
+
 
 {% block breadcrumb %}
     <li class="current"><a href="#">{{ usr.username }}</a></li>
@@ -49,7 +37,7 @@
             {% endifequal %}
 
             {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="fi-mail button">Message privé</a></li>
+            <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
             {% endif %}
         </ul>
     </div>
@@ -63,8 +51,43 @@
 {% block content %}
 
 <div class="row">
-    <div class="large-6 columns">
-        <h2>Tutoriels</h2>
+    <div class="large-12 columns">
+        <p>
+            Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
+        </p>
+        {% if profile.show_email and user.is_authenticated %}
+        <p>
+                Adresse mail : {{ usr.email|obfuscate_mailto }}<br />
+        </p>
+        {% endif %}
+    </div>
+    <div class="large-4 columns">
+        <h2 class = "box article">Articles</h2>
+        <table>
+            <tbody>
+                <tr>
+                    <td>En cours de rédaction</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>En attente de validation</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>En ligne</td>
+                    <td></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ profile.get_tutos.count }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="large-4 columns">
+        <h2 class = "box tutoriel">Tutoriels</h2>
         <table>
             <tbody>
                 <tr>
@@ -92,8 +115,8 @@
             </tfoot>
         </table>
     </div>
-    <div class="large-6 columns">
-        <h2>Forums</h2>
+    <div class="large-4 columns">
+        <h2 class = "box">Forums</h2>
         <table>
             <tbody>
                 <tr>
@@ -111,7 +134,7 @@
 {% if perms.forum.change_topic %}
 <div class="row">
 <div class="large-12 columns">
-        <h2>Modération</h2>
+        <h2 class="box member">Modération</h2>
         <div class="large-6 columns">
             <h3>Statistiques</h3>
             <table>
@@ -133,10 +156,10 @@
             <h3>Sanctions</h3>
             <div class="row">
                 {% if profile.can_write_now %}
-                <a href="#" class="button secondary small" data-dropdown="ls-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="ls-drop-{{profile.pk}}">
                     Lecture seule
                 </a>
-                <div id="ls-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="ls-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
                     </p>
@@ -145,10 +168,10 @@
                         Confirmer la sanction
                     </button>
                 </div>
-                <a href="#" class="button secondary small" data-dropdown="ls-temp-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="ls-temp-drop-{{profile.pk}}">
                     LS Temporaire
                 </a>
-                <div id="ls-temp-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="ls-temp-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
                     </p>
@@ -159,10 +182,10 @@
                     </button>
                 </div>
                 {% else %}
-                <a href="#" class="button secondary small" data-dropdown="unls-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="unls-drop-{{profile.pk}}">
                     Oter la LS
                 </a>
-                <div id="unls-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="unls-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous lever la sanction de ce membre ?
                     </p>
@@ -174,10 +197,10 @@
                 {% endif %}
                 {% if profile.can_read_now %}
                 
-                <a href="#" class="button secondary small" data-dropdown="ban-temp-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="ban-temp-drop-{{profile.pk}}">
                     Ban Temporaire
                 </a>
-                <div id="ban-temp-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="ban-temp-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous bannir ce membre ?
                     </p>
@@ -187,10 +210,10 @@
                         Confirmer la sanction
                     </button>
                 </div>
-                <a href="#" class="button secondary small" data-dropdown="ban-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="ban-drop-{{profile.pk}}">
                     Ban Définitif
                 </a>
-                <div id="ban-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="ban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous bannir ce membre ?
                     </p>
@@ -200,10 +223,10 @@
                     </button>
                 </div>
                 {% else %}
-                <a href="#" class="button secondary small" data-dropdown="unban-drop-{{profile.pk}}">
+                <a href="#" class="button secondary tiny" data-dropdown="unban-drop-{{profile.pk}}">
                     Oter le ban
                 </a>
-                <div id="unban-drop-{{profile.pk}}" class="f-dropdown small content" data-dropdown-content>
+                <div id="unban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
                     <p>
                         Pour quelle raison souhaitez vous lever la sanction de ce membre ?
                     </p>
@@ -227,7 +250,7 @@
     </div>
     <div class="large-12 columns">
         <h3>Vue d'ensemble des posts sur le forum</h3>
-        <figure style='height:800px'>
+        <figure style='width:90%'>
           <embed type="image/svg+xml" src="/media/pygal/mod-{{profile.user.pk}}.svg" />
         </figure>
     </div>

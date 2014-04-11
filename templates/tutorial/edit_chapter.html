@@ -5,13 +5,8 @@
     Éditer le chapitre
 {% endblock %}
 
-{% block headline %}
-    <h1 class="illu">
-        {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt=""/>
-        {% endif %}
+{% block head-title %}
         Editer le chapitre : {{ part.title }}
-    </h1>
 {% endblock %}
 
 {% block headline-sub %}

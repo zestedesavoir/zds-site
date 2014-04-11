@@ -420,7 +420,7 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user and not request.user.has_perm('forum.change_post') :
+    if post.author != request.user and not request.user.has_perm('forum.change_post') and 'signal-post' not in request.POST:
         raise PermissionDenied
         
     if post.author != request.user and request.method == 'GET' and request.user.has_perm('forum.change_post'):
