@@ -20,7 +20,7 @@
         <ul>
         {% for member in part.tutorial.authors.all %}
             <li>
-                {% include "member/member_item_common.part.html" %}
+                {% include "misc/member_item.part.html" %}
             </li>
         {% endfor %}.
         </ul>
@@ -48,15 +48,15 @@
         <p>Aucune introduction.</p>
     {% endif %}
 
-	{% if part.chapters %}
+    {% if part.chapters %}
     <ul>
     {% for chapter in part.chapters %}
-    	<li>
+        <li>
             <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
         </li>
     {% endfor %}
-	</ul>
-	{% endif %}
+    </ul>
+    {% endif %}
 
     {% if part.conclu %}
         {{ part.conclu|emarkdown }}

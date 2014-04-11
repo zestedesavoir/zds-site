@@ -25,7 +25,7 @@
         <ul>
         {% for member in tutorial.authors.all %}
             <li>
-                {% include "member/member_item_common.part.html" %}
+                {% include "misc/member_item.part.html" %}
             </li>
         {% endfor %}.
         </ul>
@@ -90,10 +90,10 @@
     {% endif %}
     
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-    	<h3><span class="wide">Télécharger</span></h3>
+        <h3><span class="wide">Télécharger</span></h3>
         <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
-        	<li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
-        	<li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
+            <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
+            <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
             <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
             <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
         </ul>

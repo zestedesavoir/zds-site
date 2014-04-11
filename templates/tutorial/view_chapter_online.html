@@ -12,37 +12,37 @@
         {{ chapter.title }}
     </h1>
     {% if chapter.tutorial %}
-    	    <ul class="taglist">
-	    {% for category in chapter.tutorial.subcategory.all %}
-	        <li><a href="#">{{ category.title }}</a></li>
-	    {% endfor %}
-	    </ul>
-	    <div class="authors content-wrapper">
-	        <span class="authors-label">Auteurs : </span>
-	        <ul>
-	        {% for member in chapter.tutorial.authors.all %}
-	            <li>
-	                {% include "member/member_item_common.part.html" %}
-	            </li>
-	        {% endfor %}.
-	        </ul>
-	    </div>
+            <ul class="taglist">
+        {% for category in chapter.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
     {% else %}
             <ul class="taglist">
-    	    {% for category in chapter.part.tutorial.subcategory.all %}
-	        <li><a href="#">{{ category.title }}</a></li>
-	    {% endfor %}
-	    </ul>
-	    <div class="authors content-wrapper">
-	        <span class="authors-label">Auteurs : </span>
-	        <ul>
-	        {% for member in chapter.part.tutorial.authors.all %}
-	            <li>
-	                {% include "member/member_item_common.part.html" %}
-	            </li>
-	        {% endfor %}.
-	        </ul>
-	    </div>
+            {% for category in chapter.part.tutorial.subcategory.all %}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="authors content-wrapper">
+            <span class="authors-label">Auteurs : </span>
+            <ul>
+            {% for member in chapter.part.tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}.
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}
 
@@ -65,7 +65,7 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-	{% if perms.tutorial.change_tutorial%}
+    {% if perms.tutorial.change_tutorial%}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
@@ -74,10 +74,10 @@
     </div>
     {% endif %}
 
-	{% with tutorial=chapter.part.tutorial %}
-	{% with parts=chapter.part.tutorial.get_parts %}
-	{% with chapter_current=chapter %}
-	    {% include "tutorial/toc_common_online.html" %}
+    {% with tutorial=chapter.part.tutorial %}
+    {% with parts=chapter.part.tutorial.get_parts %}
+    {% with chapter_current=chapter %}
+        {% include "tutorial/toc_common_online.html" %}
     {% endwith %}
     {% endwith %}
     {% endwith %}

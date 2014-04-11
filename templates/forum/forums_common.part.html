@@ -37,7 +37,7 @@
                         </a>
                         par
                         {% with member=last_message.author %}
-                            {% include "member/member_item_common.part.html" %}
+                            {% include "misc/member_item.part.html" %}
                         {% endwith %}
                         dans
                         <a href="{{ last_message.topic.get_absolute_url }}">

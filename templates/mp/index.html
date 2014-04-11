@@ -56,10 +56,10 @@
                 <p>
                     Participants : 
                 {% with member=topic.author %}
-                    {% include "member/member_item_common.part.html" %}
+                    {% include "misc/member_item.part.html" %}
                 {% endwith %}
                 {% for member in topic.participants.all %}
-                    | {% include "member/member_item_common.part.html" %}
+                    | {% include "misc/member_item.part.html" %}
                 {% endfor %}
                 </p>
             </div>
@@ -71,7 +71,7 @@
             <div class="forum-entry-desc">
                 <p>
                     {% with member=topic.author %}
-                    Par {% include "member/member_item_common.part.html" %}
+                    Par {% include "misc/member_item.part.html" %}
                     {% endwith %}
                     <br />
                     {% with answer=topic.get_last_answer %}
@@ -84,7 +84,7 @@
                     </a>
                     par
                     {% with member=answer.author %}
-                    {% include "member/member_item_common.part.html" %}
+                    {% include "misc/member_item.part.html" %}
                     {% endwith %}
                     {% else %}
                     Aucune réponse

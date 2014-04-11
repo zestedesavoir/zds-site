@@ -3,9 +3,21 @@
 
 
 
+{% block title %}
+   Mon compte
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
     <li class="current">Mon Compte</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Mon compte
 {% endblock %}
 
 

@@ -113,7 +113,7 @@
         </div>
     {% endif %}
 
-    {% include "forum/topic_pagination.part.html" with position="top" %}
+    {% include "misc/pagination.part.html" with position="top" %}
     
     <div class="message-metadata">
         <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
@@ -227,7 +227,7 @@
         {% endfor %}
     </div>
 
-    {% include "forum/topic_pagination.part.html" with position="bottom" %}
+    {% include "misc/pagination.part.html" with position="bottom" %}
 
     {% if user.is_authenticated %}
         {% with profile=user|profile %}

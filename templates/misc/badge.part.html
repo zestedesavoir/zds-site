@@ -1,7 +1,7 @@
 {% if not profile.can_read_now() %}
-	<span class="badge banned">Banni</span>
+    <span class="badge banned">Banni</span>
 {% elseif not profile.can_write_now() %}
-	<span class="badge readonly">LS</span>
+    <span class="badge readonly">LS</span>
 {% elseif perms.forum.change_topic %}
-	<span class="badge staff">Staff</span>
+    <span class="badge staff">Staff</span>
 {% endif %}

@@ -10,13 +10,13 @@
 
 {% block sidebar %}
 <aside class="sidebar mobile-menu-hide">
-	<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-		<h3>Actions<span class="wide"> sur une galerie</span></h3>
-		<ul>
-			<li><a href="{% url "zds.gallery.views.gallery_list" %}">Liste des galeries</a></li>
-			<li><a href="{% url "zds.gallery.views.new_gallery" %}">Ajouter une galerie</a></li>
-			{% block sidebar_actions %}{% endblock %}
-		</ul>
-	</div>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3>Actions<span class="wide"> sur une galerie</span></h3>
+        <ul>
+            <li><a href="{% url "zds.gallery.views.gallery_list" %}">Liste des galeries</a></li>
+            <li><a href="{% url "zds.gallery.views.new_gallery" %}">Ajouter une galerie</a></li>
+            {% block sidebar_actions %}{% endblock %}
+        </ul>
+    </div>
 </aside>
 {% endblock %}

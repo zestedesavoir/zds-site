@@ -19,18 +19,18 @@
 
 {% block sidebar %}
 <aside class="sidebar mobile-menu-hide">
-	{% if user.is_authenticated %}
+    {% if user.is_authenticated %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
         <h3>Actions <span class="wide">sur ce sujet</span></h3>
         <ul class="sidebar-standalone">
-        	<div class="sidebar_actions">{% block sidebar_actions %}{% endblock %}</div>
+            <div class="sidebar_actions">{% block sidebar_actions %}{% endblock %}</div>
         </ul>
     </div>
 
     <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
         <h3>Sujets suivis</h3>
         <ul>
-    	{% with topics=user|interventions_topics %}
+        {% with topics=user|interventions_topics %}
             {% for topic in topics.unread %}
             <li>
                 <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 

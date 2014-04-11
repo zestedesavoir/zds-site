@@ -33,7 +33,7 @@ from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 def index(request):
     '''Displays the list of registered users'''
     members = User.objects.order_by('date_joined')
-    return render_template('member/list.html', {
+    return render_template('member/index.html', {
         'members': members
     })
 

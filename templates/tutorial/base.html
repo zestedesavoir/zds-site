@@ -34,19 +34,19 @@
         </ul>
     </div>
 
-	{% block sidebar_actions %}{% endblock %}
+    {% block sidebar_actions %}{% endblock %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-    	<h3>Télécharger</h3>
+        <h3>Télécharger</h3>
         <ul class="sidebar-standalone">
             {% if tutorial.on_line %}
-            	{% if perms.tutorial.change_tutorial %}
-            	   <li>
+                {% if perms.tutorial.change_tutorial %}
+                   <li>
                     <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
                         Markdown
                     </a>
                 </li>
-            	{% endif %}
+                {% endif %}
 
                 <li>
                     <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">

@@ -44,67 +44,67 @@
                             
                             <tr>
                               <td>
-                              	<span class="label">
-                              	{% if result.object.first_post %}
-                              		Sujet
-                              	{% elif result.object.get_introduction_online %}
-                              		Tutoriel
-                              	{% elif result.object.get_text_online %}
-                              		Extrait
-                              	{% else %}
-                              		Post
-                              	{% endif %}
-                              	</span>
+                                  <span class="label">
+                                  {% if result.object.first_post %}
+                                      Sujet
+                                  {% elif result.object.get_introduction_online %}
+                                      Tutoriel
+                                  {% elif result.object.get_text_online %}
+                                      Extrait
+                                  {% else %}
+                                      Post
+                                  {% endif %}
+                                  </span>
                               </td>
                               <td>
-                              	{% if result.object.first_post %}
-                              		<a href="{{ result.object.get_absolute_url }}">
-	                                    {{ result.object.title }}
-	                                </a>
-	                                <p>{{ result.object.subtitle }}</p>
-                              	{% elif result.object.get_introduction_online %}
-                              		<a href="{{ result.object.get_absolute_url_online }}">
-	                                    {{ result.object.title }}
-	                                </a>
-	                                <p>{{ result.object.description }}</p>
-	                            {% elif result.object.get_text_online %}
-	                            	<a href="{{ result.object.get_absolute_url_online }}">
-	                                    {{ result.object.title }}
-	                                </a>
-                              	{% else %}
-                              		<a href="{{ result.object.topic.get_absolute_url }}">
-	                                    {{ result.object.topic.title }}
-	                                </a>
-	                                <p>{{ result.object.topic.subtitle }}</p>
-                              	{% endif %}
+                                  {% if result.object.first_post %}
+                                      <a href="{{ result.object.get_absolute_url }}">
+                                        {{ result.object.title }}
+                                    </a>
+                                    <p>{{ result.object.subtitle }}</p>
+                                  {% elif result.object.get_introduction_online %}
+                                      <a href="{{ result.object.get_absolute_url_online }}">
+                                        {{ result.object.title }}
+                                    </a>
+                                    <p>{{ result.object.description }}</p>
+                                {% elif result.object.get_text_online %}
+                                    <a href="{{ result.object.get_absolute_url_online }}">
+                                        {{ result.object.title }}
+                                    </a>
+                                  {% else %}
+                                      <a href="{{ result.object.topic.get_absolute_url }}">
+                                        {{ result.object.topic.title }}
+                                    </a>
+                                    <p>{{ result.object.topic.subtitle }}</p>
+                                  {% endif %}
                               </td>
                               <td>
-                              	<p>
-                              		{% if result.object.pubdate %}
-		                              	{% if result.object.first_post %}
-		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
-		                              	{% elif result.object.get_introduction_online %}
-		                              		<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.pubdate|naturaltime }}</a>
-		                              	{% else %}
-		                              		<a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
-		                              	{% endif %}
-		                            {% elif result.object.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.tutorial.pubdate|naturaltime }}</a>
-		                            {% elif result.object.part.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.part.tutorial.pubdate|naturaltime }}</a>
-		                            {% elif result.object.chapter.part.tutorial.pubdate %}
-		                            	<a href="{{ result.object.get_absolute_url_online }}">{{ result.object.chapter.part.tutorial.pubdate|naturaltime }}</a>
-                              		{% endif %}
+                                  <p>
+                                      {% if result.object.pubdate %}
+                                          {% if result.object.first_post %}
+                                              <a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
+                                          {% elif result.object.get_introduction_online %}
+                                              <a href="{{ result.object.get_absolute_url_online }}">{{ result.object.pubdate|naturaltime }}</a>
+                                          {% else %}
+                                              <a href="{{ result.object.get_absolute_url }}">{{ result.object.pubdate|naturaltime }}</a>
+                                          {% endif %}
+                                    {% elif result.object.tutorial.pubdate %}
+                                        <a href="{{ result.object.get_absolute_url_online }}">{{ result.object.tutorial.pubdate|naturaltime }}</a>
+                                    {% elif result.object.part.tutorial.pubdate %}
+                                        <a href="{{ result.object.get_absolute_url_online }}">{{ result.object.part.tutorial.pubdate|naturaltime }}</a>
+                                    {% elif result.object.chapter.part.tutorial.pubdate %}
+                                        <a href="{{ result.object.get_absolute_url_online }}">{{ result.object.chapter.part.tutorial.pubdate|naturaltime }}</a>
+                                      {% endif %}
                                 </p>
                               </td>
                               <td>
-                              	<p>
+                                  <p>
                                   {% if result.object.first_post %}
                                       {{ result.object.first_post.text|truncatechars:200|emarkdown }}
                                   {% elif result.object.get_introduction_online %}
-                                  	  {{ result.object.get_introduction_online|truncatechars:200|safe }}
+                                        {{ result.object.get_introduction_online|truncatechars:200|safe }}
                                   {% elif result.object.get_text_online %}
-                                  	  {{ result.object.get_text_online|truncatechars:200|safe }}
+                                        {{ result.object.get_text_online|truncatechars:200|safe }}
                                   {% else %}
                                       {{ result.object.text|truncatechars:200|emarkdown }}
                                   {% endif %}

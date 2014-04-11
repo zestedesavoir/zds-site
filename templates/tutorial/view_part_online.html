@@ -19,7 +19,7 @@
         <ul>
         {% for member in part.tutorial.authors.all %}
             <li>
-                {% include "member/member_item_common.part.html" %}
+                {% include "misc/member_item.part.html" %}
             </li>
         {% endfor %}.
         </ul>
@@ -50,9 +50,9 @@
         </ul>
     </div>
     {% endif %}
-	{% with tutorial=part.tutorial %}
-	{% with parts=part.tutorial.get_parts %}
-    	{% include "tutorial/toc_common_online.html" %}
+    {% with tutorial=part.tutorial %}
+    {% with parts=part.tutorial.get_parts %}
+        {% include "tutorial/toc_common_online.html" %}
     {% endwith %}
     {% endwith %}
 {% endblock %}

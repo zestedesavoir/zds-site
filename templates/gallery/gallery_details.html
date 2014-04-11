@@ -30,7 +30,7 @@
             {% for u in gallery.get_users %}
                 {% with member=u.user %}
                 <li>
-                    {% include "member/member_item_common.part.html" %}
+                    {% include "misc/member_item.part.html" %}
                 </li>
                 <li>
                     ({{u.mode}})
