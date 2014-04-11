@@ -1,32 +1,23 @@
-{% extends "article/base.html" %}
+{% extends "article/validation.html" %}
 {% load humanize %}
 
 {% block title %}
-Liste des articles soumis en validation
+Historique de validation de l'article
 {% endblock %}
 
 {% block meta %}
     <meta name="description" content="" />
 {% endblock %}
 
-
 {% block headline %}
-<h1>Liste des Articles soumis en validation</h1>
+Historique de validation de l'article
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current"><a href="#">Historique</a></li>
 {% endblock %}
 
-{% block headline-actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Navigation</h3>
-        <ul>
-            <li><a href="{% url "zds.article.views.list_validation" %}">Zone de validation</a></li>
-            <li><a href="{% url "zds.article.views.list_validation" %}?type=reserved">En cours de validation</a></li>
-            <li><a href="{% url "zds.article.views.list_validation" %}?type=orphan">En attente de validateur</a></li>
-        </ul>
-    </div>
+{% block sidebar_actions %}
 {% endblock %}
 
 {% block content %}
@@ -53,9 +44,7 @@ Liste des articles soumis en validation
                     </td>
                     <td>
                         {% for subcategory in validation.article.subcategory.all %}
-                        <p>
-                            <a href="{% url "zds.article.views.list_validation" %}?subcategory={{subcategory.pk}}" class="secondary" >{{ subcategory.title }}</a>
-                        <p>
+                        <a href="{% url "zds.article.views.history_validation" article.pk %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a><br />
                         {% endfor %}
                     </td>
                     <td>

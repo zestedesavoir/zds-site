@@ -1,0 +1,28 @@
+{% extends "member/register/base.html" %}
+
+
+
+{% block title %}
+    Jeton expiré
+{% endblock %}
+
+
+
+{% block headline %}
+    Jeton expiré
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
+    <li class="current">Jeton expiré</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Désolé, votre de jeton de confirmation a expiré, vous devez vous <a href="{% url "zds.member.views.register_view" %}">réinscrire</a>.
+    </p>
+{% endblock %}

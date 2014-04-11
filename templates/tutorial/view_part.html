@@ -27,7 +27,7 @@
     </div>
 {% endblock %}
 
-{% block headline-sub %}
+{% block headline_sub %}
     {{ part.tutorial.description }}
 {% endblock %}
 
@@ -36,7 +36,7 @@
     <li class="current"><a href="#">{{ part.title }}</a></li>
 {% endblock %}
 
-{% block headline-sub-actions %}
+{% block headline_sub-actions %}
     <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
     <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
 {% endblock %}

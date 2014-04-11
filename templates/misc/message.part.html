@@ -1,0 +1,105 @@
+<article class="forum-message {% if message.is_useful %}helpful{% endif %}">
+    <div class="user" id="p{{ message.id }}">
+        <a href="{{ message.author.get_absolute_url }}" class="avatar-link">
+            {% with profile=message.author|profile %}
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+            {% endwith %}
+        </a>
+    </div>
+
+    <div class="message">
+        {% if user.is_authenticated and message.is_visible %}
+            <ul class="message-actions">
+                {% if perms.article.change_reaction %}
+                    <li>
+                        <a href="{{ hide_link }}" class="ico-after view">
+                            Masquer
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if message.author = user or perms.article.change_reaction %}
+                    <li>
+                        <a href="{{ edit_link }}" class="ico-after edit">
+                            Editer
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li>
+                    <a href="{{ alert_link }}" class="ico-after alert">
+                        Signaler
+                    </a>
+                </li>
+
+                {% if not article.is_locked and not article.antispam %}
+                    <li>
+                        <a href="{{ cite_link }}" class="ico-after cite">
+                            Citer
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+
+        <div class="message-metadata">
+            <a href="{{ message.author.get_absolute_url }}" class="username">
+                {{ message.author.username }}
+            </a>
+            <a href="#p{{ message.pk }}" class="date">
+                {{ message.pubdate|naturaltime|capfirst }}
+            </a>
+        </div>
+
+        <div class="message-content">
+            {% if not message.is_visible %}
+                <p class="message-hidden">
+                    Masqué par {{ message.editor }} : {{ message.text_hidden }}
+                </p>
+            {% elif not message.update = None %}
+                <p class="message-edited">
+                    Edité {{ message.update|naturaltime }} par {{ message.editor }}
+                </p>
+            {% endif %}
+
+            {% if message.is_visible %}
+                {{ message.text|emarkdown }}
+            {% endif %}
+        </div>
+
+        {% if message.is_visible %}
+            <div class="message-bottom">
+                {% if user.is_authenticated %}
+                    {% with profile_user=user|profile %}
+                        {% if profile_user.show_sign %}
+                            {% with profile=message.author|profile %}
+                                <p class="signature">
+                                    {{ profile.sign|emarkdown_inline }}
+                                </p>
+                            {% endwith %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="message-karma">
+                        <a href="{{ upvote_link }}"
+                           class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
+                        >
+                            +{{ message.like }}
+                        </a>
+                        <a href="{{ downvote_link }}" 
+                           class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
+                        >
+                            -{{ message.dislike }}
+                        </a>
+                    </div>
+                {% else %}
+                    {% with profile=message.author|profile %}
+                        <p class="signature">
+                            {{ profile.sign|emarkdown_inline }}
+                        </p>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</article>

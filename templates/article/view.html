@@ -1,6 +1,7 @@
 {% extends "article/base.html" %}
 {% load emarkdown %}
 {% load humanize %}
+{% load captureas %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -96,128 +97,46 @@
 
     {{ article.txt|safe }}
 
-    {% include "article/view_pager.part.html" %}
 
+    {% include "article/view_pager.part.html" %}
 
 
     <h3 class="subtitle">Réactions</h3>
 
-    {% with topic=article %}
-        {% include "forum/topic_pagination.part.html" with position="top" %}
+    {% with pages=article %}
+        {% include "misc/pagination.part.html" with position="top" %}
     {% endwith %}
 
-    {% for reaction in reactions %}
-        <article class="forum-message">
-            <div class="user" id="p{{ reaction.id }}">
-                <a href="{{ reaction.author.get_absolute_url }}" class="avatar-link">
-                    {% with profile=reaction.author|profile %}
-                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                    {% endwith %}
-                </a>
-            </div>
+    {% for message in reactions %}
+        {% captureas hide_link %}
+            {# TODO : Lien pour masquer #}
+        {% endcaptureas %}
 
-            <div class="message">
-                {% if user.is_authenticated and reaction.is_visible %}
-                    <ul class="message-actions">
-                        {% if perms.article.change_reaction %}
-                            <li>
-                                {# TODO : Lien pour masquer #}
-                                <a href="#" class="ico-after view">
-                                    Masquer
-                                </a>
-                            </li>
-                        {% endif %}
+        {% captureas edit_link %}
+            {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                        {% if reaction.author = user or perms.article.change_reaction %}
-                            <li>
-                                <a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="ico-after edit">
-                                    Editer
-                                </a>
-                            </li>
-                        {% endif %}
+        {% captureas alert_link %}
+            {# TODO : Lien de signalement #}
+        {% endcaptureas %}
 
-                        <li>
-                            {# TODO : Lien de signalement #}
-                            <a href="#" class="ico-after alert">
-                                Signaler
-                            </a>
-                        </li>
+        {% captureas cite_link %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
 
-                        {% if not article.is_locked and not article.antispam %}
-                            <li>
-                                <a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="ico-after cite">
-                                    Citer
-                                </a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                {% endif %}
+        {% captureas upvote_link %}
+            {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                <div class="message-metadata">
-                    <a href="{{ reaction.author.get_absolute_url }}" class="username">
-                        {{ reaction.author.username }}
-                    </a>
-                    <a href="#p{{ reaction.pk }}" class="date">
-                        {{ reaction.pubdate|naturaltime|capfirst }}
-                    </a>
-                </div>
+        {% captureas downvote_link %}
+            {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                <div class="message-content">
-                    {% if not reaction.is_visible %}
-                        <p class="message-hidden">
-                            Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}
-                        </p>
-                    {% elif not reaction.update = None %}
-                        <p class="message-edited">
-                            Edité {{ reaction.update|naturaltime }} par {{ reaction.editor }}
-                        </p>
-                    {% endif %}
-
-                    {% if reaction.is_visible %}
-                        {{ reaction.text|emarkdown }}
-                    {% endif %}
-                </div>
-
-                {% if reaction.is_visible %}
-                    <div class="message-bottom">
-                        {% if user.is_authenticated %}
-                            {% with profile_user=user|profile %}
-                                {% if profile_user.show_sign %}
-                                    {% with profile=reaction.author|profile %}
-                                        <p class="signature">
-                                            {{ profile.sign|emarkdown_inline }}
-                                        </p>
-                                    {% endwith %}
-                                {% endif %}
-                            {% endwith %}
-
-                            <div class="message-karma">
-                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}"
-                                   class="upvote {% if reaction.like > reaction.dislike %}voted{% endif%} ico-after"
-                                >
-                                    +{{ reaction.like }}
-                                </a>
-                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" 
-                                   class="downvote {% if reaction.like < reaction.dislike %}voted{% endif%} ico-after"
-                                >
-                                    -{{ reaction.dislike }}
-                                </a>
-                            </div>
-                        {% else %}
-                            {% with profile=reaction.author|profile %}
-                                <p class="signature">
-                                    {{ profile.sign|emarkdown_inline }}
-                                </p>
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </div>
-        </article>
+        {% include 'misc/message.part.html' %}
     {% endfor %}
 
-    {% with topic=article %}
-        {% include "forum/topic_pagination.part.html" with position="bottom" %}
+    {% with pages=article %}
+        {% include "misc/pagination.part.html" with position="bottom" %}
     {% endwith %}
 
     {% if user.is_authenticated %}
@@ -226,7 +145,7 @@
                 <div class="user">
                     <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
                 </div>
-                
+
                 {% crispy form %}
             </section>
         {% endwith %}

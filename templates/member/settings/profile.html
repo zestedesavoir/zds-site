@@ -1,0 +1,15 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
+    <li class="current">Mon Profil</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

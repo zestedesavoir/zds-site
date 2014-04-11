@@ -32,7 +32,7 @@
     </div>
 {% endblock %}
 
-{% block headline-sub %}
+{% block headline_sub %}
     {{ tutorial.description }}
 {% endblock %}
 
@@ -40,7 +40,7 @@
     <li class="current"><a href="#">{{ tutorial.title }}</a></li>
 {% endblock %}
 
-{% block headline-sub-actions %}
+{% block headline_sub-actions %}
     {% if tutorial.sha_draft = version %}
     <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
     {% endif %}
@@ -68,7 +68,7 @@
     {% endif %}
 {% endblock %}
 
-{% block headline-actions %}
+{% block sidebar_actions %}
     {% if perms.tutorial.change_tutorial%}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
         <h3>Admin<span class="wide">istration</span></h3>

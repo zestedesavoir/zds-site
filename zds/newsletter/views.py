@@ -28,7 +28,7 @@ def add_newsletter(request):
             return render_template('newsletter/failed.html')
     else:
         form = NewsletterForm()
-        return render_template('newsletter/new_newsletter.html', {
+        return render_template('newsletter/index.html', {
             'form': form
         })
 

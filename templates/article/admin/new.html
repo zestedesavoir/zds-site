@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-    Nouveau
+    Nouvel article
 {% endblock %}
 
 {% block headline %}
@@ -11,21 +11,13 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Nouvel article</a></li>
+    <li class="current">Nouvel article</li>
 {% endblock %}
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
-{% if form.text.value %}
-    {% with text=form.text.value %}
-        {% include "forum/previsualization.part.html" %}
-    {% endwith %}
-{% endif %}
-
+    {% crispy form %}
+            
+    {% if form.text.value %}
+        {% include "forum/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
 {% endblock %}

@@ -1,10 +1,10 @@
 <ul class="pagination pagination-{{ position }}">
     {% ifequal nb 1 %}
-    <li>
-        <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
-            «
-        </a>
-    </li>
+        <li>
+            <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
+                «
+            </a>
+        </li>
     {% endifequal %}
 
 
@@ -17,25 +17,17 @@
             </li>
         {% else %}
             <li>
+                {# TODO : Accès direct à une page donnée via JS #}
                 <a>…</a>
-                <!--
-                <ul>
-                    <li>
-                        <form method="get">
-                            <input type="text" placeholder="Page" name="page" class="small" />
-                        </form>
-                    </li>
-                </ul>
-                -->
             </li>
         {% endif %}
     {% endfor %}
     
     {% ifequal nb pages|last %}
-    <li>
-        <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
-            »
-        </a>
-    </li>
+        <li>
+            <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
+                »
+            </a>
+        </li>
     {% endifequal %}
 </ul>

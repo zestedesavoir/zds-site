@@ -31,17 +31,18 @@
             Articles rédigés
         </a>
     </li>
-    <li class="current">Recherche</li>
+    <li class="current">Liste des articles rédigés par {{ usr.username }}</li>
 {% endblock %}
 
 
 
 {% block content %}
+    {# TODO : Faire le design de ce genre de page #}
     <table>
         <thead>
             <tr>
                 <th width="20%">Article</th>
-                <th width="10%">Quand</th>
+                <th width="10%">Date</th>
                 <th width="70%">Extrait</th>
             </tr>
         </thead>
@@ -61,7 +62,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ date=article.pubdate|naturaltime }}
+                        {{ date=article.pubdate|naturaltime|capfirst }}
                     </td>
                     <td>
                         {{ article.text|truncatechars:200|emarkdown }}

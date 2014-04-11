@@ -33,7 +33,7 @@ from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 def index(request):
     '''Displays the list of registered users'''
     members = User.objects.order_by('date_joined')
-    return render_template('member/index.html', {
+    return render_template('member/list.html', {
         'members': members
     })
 
@@ -101,11 +101,11 @@ def modify_profile(request, user_pk):
             ban.text = request.POST['ban-text']
             profile.can_read=False
         if 'un-ls' in request.POST:
-            ban.type='Authorisation d\'écrire'
+            ban.type='Autorisation d\'écrire'
             ban.text = request.POST['unls-text']
             profile.can_write=True
         if 'un-ban' in request.POST:
-            ban.type='Authorisation de se connecter'
+            ban.type='Autorisation de se connecter'
             ban.text = request.POST['unban-text']
             profile.can_read=True
             
@@ -134,7 +134,7 @@ def tutorials(request):
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template('tutorial/index_member.html', {
+    return render_template('tutorial/admin/index.html', {
         'tutorials': user_tutorials,
         'type': type,
     })
@@ -159,25 +159,10 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render_template('article/index_member.html', {
+    return render_template('article/admin/index.html', {
         'articles': user_articles,
         'type': type,
     })
-
-
-@can_read_now
-@login_required
-def actions(request):
-    '''
-    Show avaible actions for current user, like a customized homepage.
-    This may be very temporary.
-    '''
-
-    # TODO: Seriously improve this page, and see if cannot be merged in
-    #       zds.pages.views.home since it will be more coherent to give an
-    #       enhanced homepage for registered users
-
-    return render_template('member/actions.html')
 
 # settings for public profile
 
@@ -215,7 +200,7 @@ def settings_profile(request):
                 request, 'Le profil a correctement été mis à jour.')
             return redirect(reverse('zds.member.views.settings_profile'))
         else:
-            return render_to_response('member/settings_profile.html', c, RequestContext(request))
+            return render_to_response('member/settings/profile.html', c, RequestContext(request))
     else:
         form = ProfileForm(initial={
             'biography': profile.biography,
@@ -228,7 +213,7 @@ def settings_profile(request):
         c = {
             'form': form
         }
-        return render_to_response('member/settings_profile.html', c, RequestContext(request))
+        return render_to_response('member/settings/profile.html', c, RequestContext(request))
 
 @can_write_and_read_now
 @login_required
@@ -250,13 +235,13 @@ def settings_account(request):
                 messages.error(request, 'Une erreur est survenue.')
                 return redirect(reverse('zds.member.views.settings_account'))
         else:
-            return render_to_response('member/settings_account.html', c, RequestContext(request))
+            return render_to_response('member/settings/account.html', c, RequestContext(request))
     else:
         form = ChangePasswordForm(request.user)
         c = {
             'form': form,
         }
-        return render_to_response('member/settings_account.html', c, RequestContext(request))
+        return render_to_response('member/settings/account.html', c, RequestContext(request))
 
 @can_write_and_read_now
 @login_required
@@ -291,13 +276,13 @@ def settings_user(request):
             return redirect(profile.get_absolute_url())
         
         else:
-            return render_to_response('member/settings_user.html', c, RequestContext(request))
+            return render_to_response('member/settings/user.html', c, RequestContext(request))
     else:
         form = ChangeUserForm()
         c = {
             'form': form,
         }
-        return render_to_response('member/settings_user.html', c, RequestContext(request))
+        return render_to_response('member/settings/user.html', c, RequestContext(request))
 
 @can_read_now
 def login_view(request):
@@ -390,13 +375,13 @@ def register_view(request):
             #send email
             subject = "ZDS - Confirmation d'inscription"
             from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
-            message_html = get_template('email/confirm_register.html').render(
+            message_html = get_template('email/register/confirm.html').render(
                             Context({
                                 'username': user.username,
                                 'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
-            message_txt = get_template('email/confirm_register.txt').render(
+            message_txt = get_template('email/register/confirm.txt').render(
                             Context({
                                 'username': user.username,
                                 'url': settings.SITE_URL+token.get_absolute_url(),
@@ -407,13 +392,13 @@ def register_view(request):
             msg.attach_alternative(message_html, "text/html")
             msg.send()
             
-            return render_template('member/register_success.html', {
+            return render_template('member/register/success.html', {
                 'user': user
             })
 
 
     form = RegisterForm()
-    return render_template('member/register.html', {
+    return render_template('member/register/index.html', {
         'form': form
     })
 
@@ -437,13 +422,13 @@ def forgot_password(request):
             #send email
             subject = "ZDS - Mot de passe oublié"
             from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
-            message_html = get_template('email/confirm_forgot_password.html').render(
+            message_html = get_template('email/forgot_password/confirm.html').render(
                             Context({
                                 'username': usr.username,
                                 'url': settings.SITE_URL+token.get_absolute_url(),
                             })
                         )
-            message_txt = get_template('email/confirm_forgot_password.txt').render(
+            message_txt = get_template('email/forgot_password/confirm.txt').render(
                             Context({
                                 'username': usr.username,
                                 'url': settings.SITE_URL+token.get_absolute_url(),
@@ -453,12 +438,12 @@ def forgot_password(request):
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
-            return render_template('member/forgot_password_success.html')
+            return render_template('member/forgot_password/success.html')
         else:
-            return render_template('member/forgot_password.html', {'form': form})
+            return render_template('member/forgot_password/index.html', {'form': form})
 
     form = ForgotPasswordForm()
-    return render_template('member/forgot_password.html', {
+    return render_template('member/forgot_password/index.html', {
         'form': form
     })
 
@@ -480,18 +465,18 @@ def new_password(request):
 
             # User can't confirm his request if it is too late.
             if datetime.now() > token.date_end:
-                return render_template('member/new_password_failed.html')
+                return render_template('member/new_password/failed.html')
 
             token.user.set_password(password)
             token.user.save()
             token.delete()
 
-            return render_template('member/new_password_success.html')
+            return render_template('member/new_password/success.html')
         else:
-            return render_template('member/new_password.html', {'form': form})
+            return render_template('member/new_password/index.html', {'form': form})
 
     form = NewPasswordForm()
-    return render_template('member/new_password.html', {
+    return render_template('member/new_password/index.html', {
         'form': form
     })
 
@@ -506,7 +491,7 @@ def active_account(request):
     usr = token.user
     # User can't confirm his request if it is too late.
     if datetime.now() > token.date_end:
-        return render_template('member/token_account_failed.html')    
+        return render_template('member/register/token_failed.html')    
     
     usr.is_active = True
     usr.save()
@@ -514,7 +499,7 @@ def active_account(request):
     token.delete()
     
     
-    return render_template('member/token_account_success.html', {'user':usr})
+    return render_template('member/register/token_success.html', {'user':usr})
     
 def get_client_ip(request):
     '''Retrieve the real IP address of the client'''

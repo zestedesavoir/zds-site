@@ -46,7 +46,7 @@
 {% endblock %}
 
 
-{% block headline-sub-actions %}
+{% block headline_sub-actions %}
     {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}
         <li>
             <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}">

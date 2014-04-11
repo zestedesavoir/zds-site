@@ -102,7 +102,7 @@ def view(request, article_pk, article_slug):
 
     validation = Validation.objects.filter(article__pk = article.pk, version = sha)
     
-    return render_template('article/view.html', {
+    return render_template('article/admin/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -180,7 +180,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
     
-    return render_template('article/view_online.html', {
+    return render_template('article/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -253,7 +253,7 @@ def new(request):
     else:
         form = ArticleForm()
 
-    return render_template('article/new.html', {
+    return render_template('article/admin/new.html', {
         'form': form
     })
 
@@ -309,7 +309,7 @@ def edit(request):
             'subcategory': article.subcategory.all(),
         })
 
-    return render_template('article/edit.html', {
+    return render_template('article/admin/edit.html', {
         'article': article, 'form': form
     })
 
@@ -323,7 +323,7 @@ def find_article(request, name):
                     .all()
     # Paginator
     
-    return render_template('article/find_article.html', {
+    return render_template('article/find.html', {
         'articles': articles, 'usr':u,
     })
 
@@ -535,7 +535,7 @@ def list_validation(request):
                             .order_by("date_proposition") \
                             .all()
     
-    return render_template('article/validation.html', {
+    return render_template('article/validation/index.html', {
         'validations': validations,
     })
 
@@ -563,7 +563,7 @@ def history_validation(request, article_pk):
                             .order_by("date_proposition") \
                             .all()
 
-    return render_template('article/history_validation.html', {
+    return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
     })
@@ -613,7 +613,7 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
     
-    return render_template('article/history.html', {
+    return render_template('article/admin/history.html', {
         'article': article, 'logs':logs
     })
 
@@ -673,7 +673,7 @@ def answer(request):
             form = ReactionForm(article, request.user, initial = {
                 'text': data['text']
             })
-            return render_template('article/answer.html', {
+            return render_template('article/reactions/answer.html', {
                 'article': article, 
                 'last_reaction_pk': last_reaction_pk, 
                 'newreaction': newreaction,
@@ -721,7 +721,7 @@ def answer(request):
         form = ReactionForm(article, request.user, initial = {
             'text': text
         })
-        return render_template('article/answer.html', {
+        return render_template('article/reactions/answer.html', {
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
@@ -789,7 +789,7 @@ def edit_reaction(request):
                 'text': request.POST['text']
             })
             form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
-            return render_template('article/edit_reaction.html', {
+            return render_template('article/reaction/edit.html', {
                 'reaction': reaction, 
                 'article': g_article, 
                 'form': form
@@ -812,7 +812,7 @@ def edit_reaction(request):
             'text': reaction.text
         })
         form.helper.form_action = reverse('zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
-        return render_template('article/edit_reaction.html', {
+        return render_template('article/reaction/edit.html', {
             'reaction': reaction, 
             'article': g_article, 
             'form': form

@@ -1,0 +1,14 @@
+<article>
+    <a href="{{ link }}">
+        {% if article.image %}
+            <img src="{{ article.image.thumb.url }}" alt="" class="article-img avatar">
+        {% endif %}
+
+        <div class="article-infos">
+            <h3>{{ article.title }}</h3>
+            <p class="article-metadata">
+                Créé {{ article.pubdate|naturaltime }}
+            </p>
+        </div>
+    </a>
+</article>

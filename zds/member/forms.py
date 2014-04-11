@@ -72,7 +72,7 @@ class RegisterForm(forms.Form):
     )
 
     password_confirm = forms.CharField(
-        label = 'Confirmation', 
+        label = 'Confirmation du mot de passe', 
         max_length = 76,
         required = True,
         widget = forms.PasswordInput
