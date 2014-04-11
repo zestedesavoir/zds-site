@@ -160,6 +160,7 @@ class ChapterFactory(factory.DjangoModelFactory):
             f = open(os.path.join(tutorial.get_path(),'manifest.json'), "w")
             f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
             f.close()
+            repo.index.add(['manifest.json'])
                 
         elif part:
             chapter.introduction = os.path.join(part.slug, chapter.slug, 'introduction.md')
@@ -180,17 +181,19 @@ class ChapterFactory(factory.DjangoModelFactory):
             f.close()
             
             repo.index.add([chapter.introduction, chapter.conclusion])
+            repo.index.add(['manifest.json'])
         
         cm=repo.index.commit("Init Chapter")
         
         if tutorial:
             tutorial.sha_draft=cm.hexsha
             tutorial.save()
+            chapter.tutorial=tutorial
         elif part:
             part.tutorial.sha_draft=cm.hexsha
             part.tutorial.save()
-        
-            
+            part.save()
+            chapter.part=part
         
         return chapter
     
