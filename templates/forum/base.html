@@ -13,39 +13,36 @@
     current
 {% endblock %}
 
-{% block sidebar %}
-<aside class="sidebar mobile-menu-hide">
-	{% if user.is_authenticated %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
-        <h3>Actions <span class="wide">sur ce sujet</span></h3>
-        <ul class="sidebar-standalone">
-        	<div class="headline-actions">{% block headline-actions %}{% endblock %}</div>
-        </ul>
-    </div>
+{% block headline %}
+<h2 class="box forum">{% block head-title %}{% endblock %}</h2>
+{% endblock %}
 
-    <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
-        <h3>Sujets suivis</h3>
-        <ul>
-        	{% with topics=user|interventions_topics %}
-            {% with unread_topics=topics.unread %}
-            {% for topic in unread_topics %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-                <a href="{{topic.get_absolute_url}}" class="unread {% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
-            </li>
-            {% endfor %}
-            {% endwith %}
-            {% with read_topics=topics.read %}
-            {% for topic in read_topics %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-                <a href="{{topic.get_absolute_url}}" class="{% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
-            </li>
-            {% endfor %}
-            {% endwith %}
-            {% endwith %}
-        </ul>
-    </div>
+{% block sidebar %}
+	{% if user.is_authenticated %}
+    <h3>Actions</h3>
+    <ul>
+    	{% block headline-actions %}{% endblock %}
+    </ul>
+    <h3>Sujets suivis</h3>
+    <ul>
+    	{% with topics=user|interventions_topics %}
+        {% with unread_topics=topics.unread %}
+        {% for topic in unread_topics %}
+        <li>
+            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
+            <a href="{{topic.get_absolute_url}}" class="unread {% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+        </li>
+        {% endfor %}
+        {% endwith %}
+        {% with read_topics=topics.read %}
+        {% for topic in read_topics %}
+        <li>
+            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
+            <a href="{{topic.get_absolute_url}}" class="{% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+        </li>
+        {% endfor %}
+        {% endwith %}
+        {% endwith %}
+    </ul>
     {% endif %}
-</aside>
 {% endblock %}

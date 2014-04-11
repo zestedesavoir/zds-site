@@ -1,6 +1,7 @@
+{% load upfirstletter %}
 {% load humanize %}
 
-<div class="forum-entry
+<tr class="forum-entry
     {% if topic.is_locked %}
         forum-entry-locked
     {% else %}
@@ -8,7 +9,7 @@
         forum-entry-solved
         {% endif %}
     {% endif %}">
-    <div class="forum-entry-title
+    <td class="forum-entry-title
     {% if user.is_authenticated %}
         {% if topic.never_read %}
             unread
@@ -22,26 +23,27 @@
                 {{ topic.subtitle }}
             </p>
         {% endif %}
-    </div>
-    <div class="forum-entry-count">
+        </br>
+        {% with member=topic.author %}
+            Par {% include "member/member_item_common.part.html" %}
+        {% endwith %}
+    </td>
+    <td class="forum-entry-count hide-for-small" >
         <span class="label">
             {{ topic.get_post_count|add:"-1" }}
         </span>
-    </div>
-    <div class="forum-entry-desc">
+    </td>
+    <td class="forum-entry-desc">
         <p>
-            {% with member=topic.author %}
-                Par {% include "member/member_item_common.part.html" %}
-            {% endwith %}
-            <br />
             {% with answer=topic.get_last_answer %}
                 {% if answer %}
                     Dernière rép.
-                    <a href="{{ answer.get_absolute_url }}">
+                    <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
                         {% with date=answer.pubdate|naturaltime %}
                             {{ date }}
                         {% endwith %}
                     </a>
+                    </br>
                     par
                     {% with member=answer.author %}
                         {% include "member/member_item_common.part.html" %}
@@ -52,25 +54,5 @@
             {% endwith %}
 
         </p>
-    </div>
-</div>
-
-<!--
-{% if topic.is_sticky %}
-    <i class="icon-bookmark" title="Ce sujet est épinglé"></i>
-{% endif %}
-{% if topic.is_locked %}
-    <i class="icon-lock" title="Ce sujet est verrouillé"></i>
-{% endif %}
-{% if topic.is_solved %}
-    <i class="icon-ok" title="Ce sujet est résolu"></i>
-{% endif %}
-
-{% if user.is_authenticated %}
-    {% with topic.last_read_post as last_read_post %}
-        {% ifnotequal last_read_post topic.get_last_answer %}
-            <i class="icon-eye-open"></i>
-        {% endifnotequal %}
-    {% endwith %}
-{% endif %}
--->
+    </td>
+</tr>

@@ -10,8 +10,8 @@ class CommonLayoutEditor(Layout):
             Div(
                 Field('text', css_class = 'md-editor'),
                 ButtonHolder(
-                    StrictButton('Envoyer', type = 'submit', css_class = 'btn-submit', name = 'answer'),
-                    StrictButton(u'Aperçu', type = 'submit', css_class = 'btn-submit', name = 'preview'),
+                    StrictButton('Envoyer', type = 'submit', css_class = 'submit tiny', name = 'answer'),
+                    StrictButton(u'Aperçu', type = 'submit', css_class = 'submit tiny', name = 'preview'),
                 ),
             ),
         )

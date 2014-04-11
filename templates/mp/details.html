@@ -5,7 +5,7 @@
     {{ forum.title }}
 {% endblock %}
 
-{% block headline %}
+{% block head-title %}
     {{ forum.title }}
 {% endblock %}
 
@@ -28,20 +28,14 @@
 {% endblock %}
 
 {% block content %}
-
-
-{% if sticky_topics %}
-    <div class="forum-entries forum-entries-sticky">
-        {% for topic in sticky_topics %}
-            {% include "forum/details_row.part.html" %}
-        {% endfor %}
-    </div>
-{% endif %}
-
-<div class="forum-entries">
+<div>
+    <table class="topics-entries">
+      <tbody>
     {% for topic in topics %}
         {% include "forum/details_row.part.html" %}
     {% endfor %}
+      </tbody>
+    </table>
 </div>
 
 {% include "forum/details_pagination.part.html" %}

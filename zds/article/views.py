@@ -96,6 +96,7 @@ def view(request, article_pk, article_slug):
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
+    article_version['image'] = article.image
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
@@ -128,6 +129,7 @@ def view_online(request, article_pk, article_slug):
     txt.close()
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
+    article_version['image'] = article.image
     article_version['is_locked'] = article.is_locked
     article_version['get_absolute_url'] = article.get_absolute_url()
 

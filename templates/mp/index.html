@@ -9,14 +9,7 @@
     <meta name="description" content="Votre boîte à MP" />
 {% endblock %}
 
-{% block header %}
-    <h1>
-        <i class="fi-mail size18"></i>
-        Messages Privés
-    </h1>
-{% endblock %}
-
-{% block headline %}
+{% block head-title %}
    Liste des MPs
 {% endblock %}
 
@@ -25,77 +18,78 @@
 {% endblock %}
 
 {% block headline-actions %}
-
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Actions</h3>
-        <ul>
-            {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
-            {% endif %}
-        </ul>
-    </div>
+    <h3>Actions</h3>
+    <ul>
+        {% if user.is_authenticated %}
+        <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
+        {% endif %}
+    </ul>
     <form action="" method="POST" >
         <button type="submit" name="delete" class="button secondary">Supprimer</button>
     </form>
 {% endblock %}
 
 {% block content %}
-    <div class="forum-entries">
+<div>
+    <table class="topics-entries">
+      <tbody>
         {% for topic in privatetopics %}
-        <div class="forum-entry">
-            <div class="forum-entry-title
+        <tr>
+            <td class="
             {% if user.is_authenticated %}
                 {% if topic.never_read %}
                     unread
                 {% endif %}
             {% endif %}">
-                <input name="items" type="checkbox" value="{{ topic.pk }}" />
                 <a href="{{ topic.get_absolute_url }}">
                     {{ topic.title }}
                 </a>
-                <p>
-                    Participants : 
+                {% if topic.subtitle %}
+                    <p>
+                        {{ topic.subtitle }}
+                    </p>
+                {% endif %}
+                </br>
+                Participants : 
                 {% with member=topic.author %}
                     {% include "member/member_item_common.part.html" %}
                 {% endwith %}
                 {% for member in topic.participants.all %}
                     | {% include "member/member_item_common.part.html" %}
                 {% endfor %}
-                </p>
-            </div>
-            <div class="forum-entry-count">
+            </td>
+            <td class="forum-entry-count hide-for-small" >
                 <span class="label">
                     {{ topic.get_post_count|add:"-1" }}
                 </span>
-            </div>
-            <div class="forum-entry-desc">
+            </td>
+            <td class="forum-entry-desc">
                 <p>
-                    {% with member=topic.author %}
-                    Par {% include "member/member_item_common.part.html" %}
-                    {% endwith %}
-                    <br />
                     {% with answer=topic.get_last_answer %}
-                    {% if answer %}
-                    Dernière rép.
-                    <a href="{{ answer.get_absolute_url }}">
-                        {% with date=answer.pubdate|naturaltime %}
-                        {{ date }}
-                        {% endwith %}
-                    </a>
-                    par
-                    {% with member=answer.author %}
-                    {% include "member/member_item_common.part.html" %}
+                        {% if answer %}
+                            Dernière rép.
+                            <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
+                                {% with date=answer.pubdate|naturaltime %}
+                                    {{ date }}
+                                {% endwith %}
+                            </a>
+                            </br>
+                            par
+                            {% with member=answer.author %}
+                                {% include "member/member_item_common.part.html" %}
+                            {% endwith %}
+                        {% else %}
+                            Aucune réponse
+                        {% endif %}
                     {% endwith %}
-                    {% else %}
-                    Aucune réponse
-                    {% endif %}
-                    {% endwith %}
+
                 </p>
-            </div>
-            
-        </div>
+            </td>
+        </tr>
         {% endfor %}
-    </div>
+      </tbody>
+    </table>
+</div>
 {% include "mp/details_pagination.part.html" %}
 
 {% endblock %}
