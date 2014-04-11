@@ -170,6 +170,7 @@ class Tutorial(models.Model):
         mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
         data = json.loads(mantuto)
         
+        
         return data
         
     def load_json(self, path=None, online = False):
