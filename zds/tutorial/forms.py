@@ -333,9 +333,7 @@ class AskValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
-            ButtonHolder(
-                StrictButton('Demander la validation', type = 'submit', css_class = 'btn-submit'),
-            ),
+            StrictButton('Demander la validation', type = 'submit', css_class = 'button secondary'),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'),
         )
@@ -360,9 +358,7 @@ class ValidForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
-            ButtonHolder(
-                StrictButton('Publier', type = 'submit', css_class = 'btn-submit'),
-            ),
+            StrictButton('Publier', type = 'submit', css_class = 'button secondary'),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'),
         )
