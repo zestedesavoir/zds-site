@@ -32,16 +32,16 @@ class BigTutorialTests(TestCase):
         self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
         self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3)
         
-        self.chapter1_1 = ChapterFactory(part=self.part1, position_in_part=1)
-        self.chapter1_2 = ChapterFactory(part=self.part1, position_in_part=2)
-        self.chapter1_3 = ChapterFactory(part=self.part1, position_in_part=3)
+        self.chapter1_1 = ChapterFactory(part=self.part1, position_in_part=1, position_in_tutorial=1)
+        self.chapter1_2 = ChapterFactory(part=self.part1, position_in_part=2, position_in_tutorial=2)
+        self.chapter1_3 = ChapterFactory(part=self.part1, position_in_part=3, position_in_tutorial=3)
         
-        self.chapter2_1 = ChapterFactory(part=self.part2, position_in_part=1)
-        self.chapter2_2 = ChapterFactory(part=self.part2, position_in_part=2)
+        self.chapter2_1 = ChapterFactory(part=self.part2, position_in_part=1, position_in_tutorial=4)
+        self.chapter2_2 = ChapterFactory(part=self.part2, position_in_part=2, position_in_tutorial=5)
         
         self.user = UserFactory()
         self.staff = StaffFactory()
-        
+                
         login_check = self.client.login(username=self.staff.username, password='hostel77')
         self.assertEqual(login_check, True)
         
@@ -55,7 +55,7 @@ class BigTutorialTests(TestCase):
                         },
                         follow=False)
         self.assertEqual(pub.status_code, 302)
-        
+
         #publish tutorial
         pub = self.client.post(
                         reverse('zds.tutorial.views.valid_tutorial'), 
@@ -286,6 +286,39 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
         
         self.assertEqual(Tutorial.objects.all().count(), 2)
+    
+    def test_url_for_guest(self):
+        '''
+        Test simple get request by guest
+        '''
+        
+        #logout before
+        self.client.logout()
+               
+        #guest can read public tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial_online', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part_online', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter_online', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        #guest can't read offline tutorials
+        
+        
+    
         
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH): shutil.rmtree(settings.REPO_PATH)

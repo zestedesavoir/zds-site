@@ -369,7 +369,6 @@ def ask_validation(request):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
-
     # We create and save validation object of the tutorial.
     validation = Validation()
     validation.tutorial = tutorial
@@ -381,6 +380,7 @@ def ask_validation(request):
     
     validation.tutorial.sha_validation = request.POST['version']
     validation.tutorial.save()
+    
 
     return redirect(tutorial.get_absolute_url())
 
@@ -1228,7 +1228,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
     tutorial = chapter_bd.get_tutorial()
     if not tutorial.on_line :
         raise Http404
-
+    
     #find the good manifest file
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
@@ -1275,6 +1275,8 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
         
     prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
     next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
+    
+    
     
     return render_template('tutorial/view_chapter_online.html', {
         'chapter': final_chapter,
