@@ -62,3 +62,17 @@ def roadmap(request):
     Display roadmap of the website
     '''
     return render_template('pages/roadmap.html')
+
+@can_read_now
+def association(request):
+    '''
+    Display association's presentation
+    '''
+    return render_template('pages/association.html')
+
+@can_read_now
+def contact(request):
+    '''
+    Display contact page
+    '''
+    return render_template('pages/contact.html')
