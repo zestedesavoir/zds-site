@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import factory
-
 from zds.forum.models import Category, Forum, Topic, Post
 
 
@@ -9,12 +8,14 @@ class CategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Category
     
     title = factory.Sequence(lambda n: 'Ma catégorie No{0}'.format(n))
+    slug = factory.Sequence(lambda n: 'category{0}'.format(n))
     
 class ForumFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Forum
     
     title = factory.Sequence(lambda n: 'Mon Forum No{0}'.format(n))
     subtitle = factory.Sequence(lambda n: 'Sous Titre du Forum No{0}'.format(n))
+    slug = factory.Sequence(lambda n: 'forum{0}'.format(n))
 
 class TopicFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Topic
