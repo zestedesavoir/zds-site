@@ -30,6 +30,22 @@ class ForumMemberTests(TestCase):
         log = self.client.login(username=self.user.username, password='hostel77')
         self.assertEqual(log, True)
         
+    def test_display(self):
+        '''
+        Test forum display (full: root, category, forum)
+        Topic display test is in creation topic test
+        '''
+        # Forum root
+        response = self.client.get(reverse('zds.forum.views.index'))
+        self.assertContains(response, 'Liste des forums')
+        # Category
+        response = self.client.get(reverse('zds.forum.views.cat_details', args=[self.category1.slug]))
+        self.assertContains(response, self.category1.title)
+        # Forum
+        response = self.client.get(reverse('zds.forum.views.details', args=[self.category1.slug, self.forum11.slug]))
+        self.assertContains(response, self.category1.title)
+        self.assertContains(response, self.forum11.title)       
+    
     
     def test_create_topic(self):
         '''
@@ -67,6 +83,13 @@ class ForumMemberTests(TestCase):
         
         #check last message
         self.assertEqual(topic.last_message, post)
+        
+        # Check view
+        response = self.client.get(topic.get_absolute_url())
+        self.assertContains(response, self.category1.title)
+        self.assertContains(response, self.forum11.title)
+        self.assertContains(response, topic.title)
+        self.assertContains(response, topic.subtitle)   
     
     def test_answer(self):
         '''

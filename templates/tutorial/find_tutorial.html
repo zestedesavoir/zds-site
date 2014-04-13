@@ -41,9 +41,7 @@
                 </td>
                 <td>
                     {% if tuto.pubdate %}
-                    {% with date=tuto.pubdate|naturaltime %}
-                        {{ date }}
-                    {% endwith %}
+                        {{ tuto.pubdate|naturaltime }}
                     {% endif %}
                 </td>
                 <td>
