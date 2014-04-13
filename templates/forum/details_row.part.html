@@ -38,9 +38,7 @@
                 {% if answer %}
                     Dernière rép.
                     <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
-                        {% with date=answer.pubdate|naturaltime %}
-                            {{ date }}
-                        {% endwith %}
+                    	{{ answer.pubdate|naturaltime }}
                     </a>
                     </br>
                     par

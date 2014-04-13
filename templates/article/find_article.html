@@ -40,9 +40,7 @@
                     </div>
                 </td>
                 <td>
-                    {% with date=article.pubdate|naturaltime %}
-                        {{ date }}
-                    {% endwith %}
+                    {{ article.pubdate|naturaltime }}
                 </td>
                 <td>
                     {{ article.text|truncatechars:200|emarkdown }}
