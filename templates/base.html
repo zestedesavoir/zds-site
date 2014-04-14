@@ -393,5 +393,19 @@
     <script>
       $(document).foundation();
     </script>
+
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                processEscapes: true,
+            },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            messageStyle: "none",
+        });
+    </script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
   </body>
 </html>
