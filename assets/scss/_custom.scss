@@ -429,3 +429,28 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 .selectmultiple {
 	min-height: 120px;
 }
+
+figure {
+    text-align: center;
+}
+
+figure figurecaption {
+    display: block;
+}
+
+blockquote ~ figurecaption, blockquote {
+    text-align: left;
+}
+
+img ~ figurecaption {
+    margin-top: 15px;
+    font-style: italic;
+}
+
+blockquote ~ figurecaption p:before {
+    content: "- ";
+}
+
+blockquote ~ figurecaption {
+    font-style: italic;
+}
