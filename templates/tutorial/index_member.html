@@ -16,14 +16,6 @@
     </div>
 {% endblock %}
 
-{% block content-filter %}
-    {% if type = 'public' and tuto.on_line %}
-        <a href="{{ tuto.get_absolute_url_online }}">{{ tuto.title }}</a>
-    {% else %}
-        <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
-    {% endif %}
-{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
@@ -40,7 +32,7 @@
                 </div>
                 {% if tuto.image %}
                 <div class="large-12 columns crop">
-                    <img src="{{tuto.image.url }}" alt=""/>
+                    <img src="{{tuto.image.thumb.url }}" alt=""/>
                 </div>
                 {% endif %}
             </a>
