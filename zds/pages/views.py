@@ -50,13 +50,6 @@ def about(request):
     return render_template('pages/about.html')
 
 @can_read_now
-def roadmap(request):
-    '''
-    Display roadmap of the website
-    '''
-    return render_template('pages/roadmap.html')
-
-@can_read_now
 def association(request):
     '''
     Display association's presentation
