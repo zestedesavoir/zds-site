@@ -107,9 +107,7 @@ def view(request, article_pk, article_slug):
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
-        'version': sha,
-        'prev': get_prev_article(article),
-        'next': get_next_article(article), 
+        'version': sha, 
         'validation': validation
     })
 
