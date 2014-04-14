@@ -43,13 +43,6 @@ def index(request):
     return render_template('pages/index.html')
 
 @can_read_now
-def help_markdown(request):
-    '''
-    Display a page with a markdown helper
-    '''
-    return render_template('pages/help_markdown.html')
-
-@can_read_now
 def about(request):
     '''
     Display many informations about the website
