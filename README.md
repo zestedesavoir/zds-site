@@ -62,16 +62,70 @@ Comment démarrer une instance de ZdS ?
 - Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
 
 ####Sur Linux
-Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
-**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
+
+# Installation de virtualenv
+
+virtualenv est un outil python qui permet, comme son nom le laisse deviner, de créer un environnement virtuel "propre" et dépourvu de toute installation de bibliothèques python. C'est idéal si vous ne voulez pas porter des modifications des bibliothèques python au niveau de votre système d'exploitation complet.
+
+Sous linux, nous procéderons ainsi. Commencez par vous connecter sous root puis lancez la commande suivante :
 
 ```console
-pip install --user -r requirements.txt
-/usr/bin/env python2 manage.py syncdb
-/usr/bin/env python2 manage.py migrate
-/usr/bin/env python2 manage.py runserver
+pip install virtualenv
 ```
+
+Cela installera virtualenv, tout simplement. Par la suite, nous créerons l'environnement virtuel "ZDS" et nous lui attribuerons les droits de l'utilisateur normal (puisque l'environnement sera créé avec root)
+
+```console
+virtualenv ZDS
+chown user:user ZDS/ -Rf
+```
+
+Déconnectez-vous de root, dirigez-vous dans le dossier de l'environnement virtuel et récupérez le dépôt ZesteDeSavoir (attention, ceci peut prendre du temps)
+
+```console
+cd ZDS
+git clone https://github.com/Taluu/ZesteDeSavoir.git
+```
+
+Une fois cela fait, placez-vous dans ZesteDeSavoir et passez sur la branche dev.
+
+```console
+cd ZesteDeSavoir
+git checkout dev
+```
+
+Reconnectez-vous en root et rajouter dans $PATH le chemin des binaires de l'environnement virtuel
+
+```console
+PATH=/path/to/ZDS/bin/:$PATH
+```
+
+Faîtes l'installation comme une installation normale, toujours sous root :
+
+```console
+pip install -r requirements.txt
+```
+
+Toutes les dépendances ont été installées pour lancer ZesteDeSavoir.
+
+Déconnectez-vous de root, remettez à jour la variable d'environnement PATH et faîtes les dernières commandes nécessaires avant de démarrer le serveur...
+
+```console
+PATH=/path/to/ZDS/bin/:$PATH
+python manage.py syncdb
+python manage.py migrate
+python manage.py loaddata fixtures/*
+python manage.py loaddata fixtures/users.yaml
+python manage.py loaddata fixtures/forums.yaml
+python manage.py loaddata fixtures/topics.yaml
+python manage.py loaddata fixtures/mps.yaml
+python manage.py loaddata fixtures/categories.yaml
+```
+
+Tout devrait fonctionner à présent ! :-)
+
+N'oubliez pas de maintenir la variable d'environnement en conséquence à chaque fois que vous travaillez sur ZesteDeSavoir !
 
 
 ### Données de test
