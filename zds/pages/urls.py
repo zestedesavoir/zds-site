@@ -7,7 +7,6 @@ import views
 
 urlpatterns = patterns('',
 
-    url(r'^markdown$', views.help_markdown),
     url(r'^apropos$', views.about),
     url(r'^roadmap$', views.roadmap),
     url(r'^association', views.association),
