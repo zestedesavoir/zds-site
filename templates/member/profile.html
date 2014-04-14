@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block head-image %}<img src="{{ profile.get_avatar_url }}" alt="Avatar"/>{% endblock %}
-{% block head-title %}{{ usr.username }}{% endblock %}
+{% block head-title %}{% endblock %}
 {% block head-tag %}
     {% if perms.member.show_ip %}
         <li>
@@ -28,6 +28,79 @@
     <li class="current"><a href="#">{{ usr.username }}</a></li>
 {% endblock %}
 
+{% block content %}
+    <div class="large-6 columns">      
+        <h2 class="box member">{{ usr.username }}</h2>
+        <div class="row">
+            <div class="large-2 columns">
+                <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
+            </div>
+            <div class="large-10 columns">
+                <p>
+                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
+                </p>
+                {% if perms.member.show_ip %}
+                    <p>
+                        Dernière IP : {{ profile.last_ip_address }}
+                    </p>
+                    <p>
+                        Ville : {{ profile.get_city }}
+                    </p>
+                {% endif %}
+                {% if profile.show_email and user.is_authenticated %}
+                <p>
+                    <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <h2 class="box tutoriel">Dernier tutoriels</h2>
+        {% if tutorials %}
+            {% for tutorial in tutorials %}
+            <div class="row">
+            <div class="large-2 columns">
+                <img src="{{ tutorial.image.thumb.url }}" alt="">
+            </div>
+            <div class="large-10 columns">
+                <h4><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h4>
+                <h5>{{ tutorial.description }}</h5>
+            </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="large-6 columns">
+        <h2 class="box article">Dernier articles</h2>
+        {% if articles %}
+            {% for article in articles %}
+            <div class="row">
+            <div class="large-12 columns">
+                <h4><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h4>
+                <h5>{{ article.description }}</h5>
+            </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+    <div class="large-6 columns">
+        <h2 class="box forum">Dernier sujets crées</h2>
+        {% if topics %}
+            {% for topic in topics %}
+            <div class="row">
+            <div class="large-12 columns">
+                <h4><a href="{{ topic.get_absolute_url_online }}">{{ topic.title }}</a></h4>
+                <h5>{{ topic.subtitle }}</h5>
+            </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
+
 {% block headline-actions %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
         <h3>Actions</h3>
@@ -41,221 +114,10 @@
             {% endif %}
         </ul>
     </div>
-
-    
-        
-    
     
 {% endblock %}
 
-{% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
-        <p>
-            Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
-        </p>
-        {% if profile.show_email and user.is_authenticated %}
-        <p>
-                Adresse mail : {{ usr.email|obfuscate_mailto }}<br />
-        </p>
-        {% endif %}
-    </div>
-    <div class="large-4 columns">
-        <h2 class = "box article">Articles</h2>
-        <table>
-            <tbody>
-                <tr>
-                    <td>En cours de rédaction</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>En attente de validation</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>En ligne</td>
-                    <td></td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Total</td>
-                    <td>{{ profile.get_tutos.count }}</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    <div class="large-4 columns">
-        <h2 class = "box tutoriel">Tutoriels</h2>
-        <table>
-            <tbody>
-                <tr>
-                    <td>En cours de rédaction</td>
-                    <td>{{ profile.get_draft_tutos.count }}</td>
-                </tr>
-                <tr>
-                    <td>En attente de validation</td>
-                    <td>{{ profile.get_validate_tutos.count }}</td>
-                </tr>
-                <tr>
-                    <td>En version beta</td>
-                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">{{ profile.get_beta_tutos.count }}</a></td>
-                </tr>
-                <tr>
-                    <td>En ligne</td>
-                    <td><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{{ profile.get_public_tutos.count }}</a></td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Total</td>
-                    <td>{{ profile.get_tutos.count }}</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    <div class="large-4 columns">
-        <h2 class = "box">Forums</h2>
-        <table>
-            <tbody>
-                <tr>
-                    <td>Sujets créés</td>
-                    <td><a href="{% url "zds.forum.views.find_topic" usr.pk %}">{{ profile.get_topic_count }}</a></td>
-                </tr>
-                <tr>
-                    <td>Messages postés</td>
-                    <td><a href="{% url "zds.forum.views.find_post" usr.pk %}">{{ profile.get_post_count }}</a></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-{% if perms.forum.change_topic %}
-<div class="row">
-<div class="large-12 columns">
-        <h2 class="box member">Modération</h2>
-        <div class="large-6 columns">
-            <h3>Statistiques</h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>Nombres de messages modérés</td>
-                        <td>{{ profile.get_invisible_posts_count }}</td>
-                    </tr>
-                    <tr>
-                        <td>Nombres d'alertes déclarées</td>
-                        <td>{{ profile.get_alerts_posts_count }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="POST"
-        class="topic-actions" id="edit_form">
-        <div class="large-6 columns">
-            <h3>Sanctions</h3>
-            <div class="row">
-                {% if profile.can_write_now %}
-                <a href="#" class="button secondary tiny" data-dropdown="ls-drop-{{profile.pk}}">
-                    Lecture seule
-                </a>
-                <div id="ls-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
-                    </p>
-                    <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc." />
-                    <button type="submit" name="ls" class="button expand alert">
-                        Confirmer la sanction
-                    </button>
-                </div>
-                <a href="#" class="button secondary tiny" data-dropdown="ls-temp-drop-{{profile.pk}}">
-                    LS Temporaire
-                </a>
-                <div id="ls-temp-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
-                    </p>
-                    <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc." />
-                    <input type="text" name="ls-jrs" class="expand" placeholder="Nombre de jours de la sanction" />
-                    <button type="submit" name="ls-temp" class="button expand alert">
-                        Confirmer la sanction
-                    </button>
-                </div>
-                {% else %}
-                <a href="#" class="button secondary tiny" data-dropdown="unls-drop-{{profile.pk}}">
-                    Oter la LS
-                </a>
-                <div id="unls-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous lever la sanction de ce membre ?
-                    </p>
-                    <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?" />
-                    <button type="submit" name="un-ls" class="button expand alert">
-                        Confirmer la libération
-                    </button>
-                </div>
-                {% endif %}
-                {% if profile.can_read_now %}
-                
-                <a href="#" class="button secondary tiny" data-dropdown="ban-temp-drop-{{profile.pk}}">
-                    Ban Temporaire
-                </a>
-                <div id="ban-temp-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous bannir ce membre ?
-                    </p>
-                    <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc." />
-                    <input type="text" name="ban-jrs" class="expand" placeholder="Nombre de jours de la sanction" />
-                    <button type="submit" name="ban-temp" class="button expand alert">
-                        Confirmer la sanction
-                    </button>
-                </div>
-                <a href="#" class="button secondary tiny" data-dropdown="ban-drop-{{profile.pk}}">
-                    Ban Définitif
-                </a>
-                <div id="ban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous bannir ce membre ?
-                    </p>
-                    <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc." />
-                    <button type="submit" name="ban" class="button expand alert">
-                        Confirmer la sanction
-                    </button>
-                </div>
-                {% else %}
-                <a href="#" class="button secondary tiny" data-dropdown="unban-drop-{{profile.pk}}">
-                    Oter le ban
-                </a>
-                <div id="unban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Pour quelle raison souhaitez vous lever la sanction de ce membre ?
-                    </p>
-                    <input type="text" name="unban-text" class="expand" placeholder="Bonne action ?" />
-                    <button type="submit" name="un-ban" class="button expand alert">
-                        Confirmer la libération
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-            <div class="row">
-                {% for ban in bans %}
-                <hr />
-                <p><strong>{{ ban.type }}</strong> : par {{ban.moderator.username}} <i>{{ban.pubdate|naturaltime}} </i></p>
-                <p>{{ ban.text }}</p>
-                {% endfor %}
-            </div>
-        </div>
-        {% csrf_token %}
-        </form>
-    </div>
-    <div class="large-12 columns">
-        <h3>Vue d'ensemble des posts sur le forum</h3>
-        <figure style='width:90%'>
-          <embed type="image/svg+xml" src="/media/pygal/mod-{{profile.user.pk}}.svg" />
-        </figure>
-    </div>
-</div>
-{% endif %}
+{% block contentant %}
 {# Biography #}
 
 {% if profile.biography %}

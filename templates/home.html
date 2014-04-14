@@ -93,8 +93,10 @@ class="active"
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">
-                <img src="{{ tutorial.image.thumb.url }}" alt="">
-                <div class="large-12 columns">
+                <div class="large-1 columns">
+                    <img src="{{ tutorial.image.thumb.url }}" alt="">
+                </div>
+                <div class="large-11 columns">
                     <h3><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h3>
                     {% if tutorial.subcategory %}
                         {% for category in tutorial.subcategory.all %}
