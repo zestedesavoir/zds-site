@@ -45,7 +45,7 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
             ButtonHolder(
-                Submit('submit', 'Se connecter'),
+                Submit('submit', 'Se connecter', css_class = 'button'),
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
                 HTML('{% csrf_token %}'),
             ),
@@ -90,8 +90,8 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit('submit', 'Valider mon inscription'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                Submit('submit', 'Valider mon inscription', css_class = 'button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             )
         )
 
