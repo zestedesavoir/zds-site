@@ -54,7 +54,7 @@ def index(request):
     # The tag indicate what the category tutorial the user would 
     # like to display. We can display all subcategories for tutorials.
     try:
-        tag = get_object_or_404(SubCategory, pk = request.GET['tag'])
+        tag = get_object_or_404(SubCategory, slug = request.GET['tag'])
     except (KeyError, Http404):
         tag = None
         

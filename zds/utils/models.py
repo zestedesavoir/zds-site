@@ -42,7 +42,15 @@ class Category(models.Model):
     def __unicode__(self):
         '''Textual Category Form'''
         return self.title
-
+    
+    def get_tutos(self):
+        from zds.tutorial.models import Tutorial
+        scat = CategorySubCategory.objects.filter(category__pk=self.pk, is_main=True)
+        msct = []
+        for sc in scat:
+            msct.append(sc.subcategory)
+        return  Tutorial.objects.filter(subcategory__in = msct).all()
+    
     def get_all_subcategories(self):
         '''Get all subcategories of a category (not main include)'''
         return CategorySubCategory.objects \
@@ -79,12 +87,12 @@ class SubCategory(models.Model):
     
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')
-        url = url+'?tag={}'.format(self.pk)
+        url = url+'?tag={}'.format(self.slug)
         return url
     
     def get_absolute_url_article(self):
         url = reverse('zds.article.views.index')
-        url = url+'?tag={}'.format(self.pk)
+        url = url+'?tag={}'.format(self.slug)
         return url
 
 class CategorySubCategory(models.Model):
