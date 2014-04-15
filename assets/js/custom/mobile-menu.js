@@ -173,12 +173,8 @@ $(window).trigger('resize');
 
 
 function appendToSidebar($elem, force){
-    console.log($elem);
-
     if($elem.hasClass('mobile-menu-imported'))
         return;
-
-    console.log("ok");
 
     if(force){
         $elem.addClass('mobile-menu-imported');

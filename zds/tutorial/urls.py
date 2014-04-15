@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     url(r'^editer/extrait$', views.edit_extract),
 
 # Adding
-    url(r'^nouveau$', views.add_tutorial),
+    url(r'^nouveau/tutoriel$', views.add_tutorial),
     url(r'^nouveau/partie$', views.add_part),
     url(r'^nouveau/chapitre$', views.add_chapter),
     url(r'^nouveau/extrait$', views.add_extract),

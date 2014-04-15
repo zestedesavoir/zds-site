@@ -1,33 +1,35 @@
-<ul class="pagination pagination-{{ position }}">
-    {% ifequal nb 1 %}
-        <li>
-            <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
-                «
-            </a>
-        </li>
-    {% endifequal %}
-
-
-    {% for page in pages %}
-        {% if page %}
+{% if pages|length > 1 %}
+    <ul class="pagination pagination-{{ position }}">
+        {% ifnotequal nb 1 %}
             <li>
-                <a {% ifnotequal page nb %}href="{{ topic.get_absolute_url }}?page={{ page }}"{% else %}class="current"{% endifnotequal %}>
-                    {{ page }}
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
+                    «
                 </a>
             </li>
-        {% else %}
+        {% endifnotequal %}
+
+
+        {% for page in pages %}
+            {% if page %}
+                <li>
+                    <a {% ifnotequal page nb %}href="{{ topic.get_absolute_url }}?page={{ page }}"{% else %}class="current"{% endifnotequal %}>
+                        {{ page }}
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    {# TODO : Accès direct à une page donnée via JS #}
+                    <a>…</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if pages|last > 0 and pages|last == nb %}
             <li>
-                {# TODO : Accès direct à une page donnée via JS #}
-                <a>…</a>
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
+                    »
+                </a>
             </li>
         {% endif %}
-    {% endfor %}
-    
-    {% ifequal nb pages|last %}
-        <li>
-            <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
-                »
-            </a>
-        </li>
-    {% endifequal %}
-</ul>
+    </ul>
+{% endif %}

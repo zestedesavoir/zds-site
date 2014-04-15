@@ -1,3 +1,7 @@
+{% load profile %}
+{% load humanize %}
+{% load emarkdown %}
+
 <article class="forum-message {% if message.is_useful %}helpful{% endif %}">
     <div class="user" id="p{{ message.id }}">
         <a href="{{ message.author.get_absolute_url }}" class="avatar-link">

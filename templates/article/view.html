@@ -35,7 +35,7 @@
     </ul>
     
     <div class="authors content-wrapper">
-        <span class="authors-label">Auteurs : </span>
+        <span class="authors-label">Contributeurs : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
@@ -77,6 +77,8 @@
             <input type="hidden" name="version" value="{{ version }}">
             {% csrf_token %}
         </form>
+
+        {# TODO : Rajouter un else if, les contributeurs doivent avoir accès à la version hors ligne facilement. #}
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
@@ -100,14 +102,12 @@
     {{ article.txt|safe }}
 
 
-    {% include "article/view_pager.part.html" %}
+    {% include "article/includes/view_pager.part.html" %}
 
 
     <h3 class="subtitle">Réactions</h3>
 
-    {% with pages=article %}
-        {% include "misc/pagination.part.html" with position="top" %}
-    {% endwith %}
+    {% include "misc/pagination.part.html" with position="top" pages=reactions %}
 
     {% for message in reactions %}
         {% captureas hide_link %}
@@ -137,12 +137,10 @@
         {% include 'misc/message.part.html' %}
     {% endfor %}
 
-    {% with pages=article %}
-        {% include "misc/pagination.part.html" with position="bottom" %}
-    {% endwith %}
+    {% include "misc/pagination.part.html" with position="bottom" pages=reactions %}
 
     {% if user.is_authenticated %}
-        {% with profile=user|profile%}
+        {% with profile=user|profile %}
             <section>
                 <div class="user">
                     <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">

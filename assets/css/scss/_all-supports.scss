@@ -65,6 +65,7 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
+    // TODO : Améliorer l'image du logo (prendre la version vecto et faire une image à fond transparent)
     background: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
     @include transition-property("opacity !important");
@@ -567,7 +568,10 @@
                 text-decoration: none;
                 color: #0079b2;
                 overflow: hidden;
-                height: 24px;
+                height: 30px;
+                line-height: 30px;
+                font-size: 14px;
+                font-size: 1.4rem;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 border: 0;

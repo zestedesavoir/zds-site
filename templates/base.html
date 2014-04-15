@@ -83,6 +83,7 @@
 
                     {# Logo #}
                     <h1 class="header-logo">
+                        {# TODO : Changer le data-title en fonction de la section #}
                         <a href="{% url "zds.pages.views.home" %}" class="header-logo-link" data-title="Zeste de Savoir">
                             Zeste de Savoir
                         </a>
@@ -374,7 +375,7 @@
                                 </a>
                                 {% endwith %}
                                 <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
-                                    <span class="dropdown-title">Mon Compte</span>
+                                    <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                                     <ul class="dropdown-list">
                                         <li>
