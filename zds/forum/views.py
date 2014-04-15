@@ -447,13 +447,12 @@ def edit_post(request):
                 post.text_hidden=''
                     
         if 'signal-post' in request.POST:
-            if post.author != request.user :
-                alert = Alert()
-                alert.author = request.user
-                alert.text=request.POST['signal-text']
-                alert.pubdate = datetime.now()
-                alert.save()
-                post.alerts.add(alert)
+            alert = Alert()
+            alert.author = request.user
+            alert.text=request.POST['signal-text']
+            alert.pubdate = datetime.now()
+            alert.save()
+            post.alerts.add(alert)
         
         # Using the preview button
         if 'preview' in request.POST:
