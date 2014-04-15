@@ -376,9 +376,11 @@
         </div>
         <div class="large-6 columns">
           <ul class="inline-list right">
-            <li><a href="#">Code Source</a></li>
-            <li><a href="#">Qui Sommes Nous</a></li>
-            <li><a href="#">Suivez Nous</a></li>
+            <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
+            <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+            <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+            <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
+            <li><a href="{% url "zds.pages.views.index" %}">Plus...</a></li>
           </ul>
         </div>
       </div>
