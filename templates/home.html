@@ -26,14 +26,20 @@ class="active"
     <dl class="accordion" data-accordion>
     {% for category in categories %}
         <dd>
-            <a href="#cat{{ category.pk }}">{{ category.title }}</a>
+            <a href="#cat{{ category.pk }}">{{ category.title }} 
+                <span class="label right">{{category.get_tutos.count}}</span>
+            </a>
+            
             <div id="cat{{ category.pk }}" class="content">
                 <ul>
                     {% for catofsubcat in category.get_subcategories %}
                         <li>
-                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}" class="left">
                                 {{ catofsubcat.subcategory }}
                             </a>
+                            <span class="label right">
+                                {{catofsubcat.subcategory.get_tutos.count}}
+                            </span>
                         </li>
                     {% endfor %}
                 </ul>
@@ -93,8 +99,10 @@ class="active"
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">
-                <img src="{{ tutorial.image.thumb.url }}" alt="">
-                <div class="large-12 columns">
+                <div class="large-2 columns">
+                    <img src="{{ tutorial.image.thumb.url }}" alt="">
+                </div>
+                <div class="large-10 columns">
                     <h3><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h3>
                     {% if tutorial.subcategory %}
                         {% for category in tutorial.subcategory.all %}

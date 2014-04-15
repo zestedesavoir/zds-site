@@ -22,6 +22,9 @@ import pygal
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template
+from zds.article.models import Article
+from zds.tutorial.models import Tutorial
+from zds.forum.models import Topic
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
@@ -65,9 +68,28 @@ def details(request, user_name):
     fchart = os.path.join(img_path, 'mod-{}.svg'.format(str(usr.pk)))
     
     dot_chart.render_to_file(fchart)
+    
+    my_articles = Article.objects\
+            .filter(sha_public__isnull = False)\
+            .order_by('-pubdate')\
+            .filter(authors__in = [usr])\
+            .all()
+            
+    my_tutorials = Tutorial.objects\
+            .filter(sha_public__isnull = False)\
+            .filter(authors__in = [usr])\
+            .order_by('-pubdate')\
+            .all()
+            
+    my_topics = Topic.objects\
+            .filter(author__pk = usr.pk)\
+            .order_by('-pubdate')\
+            .all()
 
     return render_template('member/profile.html', {
-        'usr': usr, 'profile': profile, 'bans': bans
+        'usr': usr, 'profile': profile, 'bans': bans,
+        'articles':my_articles, 'tutorials':my_tutorials,
+        'topics':my_topics
     })
 
 @can_write_and_read_now

@@ -10,14 +10,6 @@
     </ul>
 {% endblock %}
 
-{% block content-filter %}
-    {% if type = 'public' and article.on_line %}
-        <a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a>
-    {% else %}
-        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-    {% endif %}
-{% endblock %}
-
 {% block content %}
 
 <div class="row">

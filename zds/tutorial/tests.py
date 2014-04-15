@@ -26,7 +26,13 @@ class BigTutorialTests(TestCase):
         
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         
+        self.user_author = UserFactory()
+        self.user = UserFactory()
+        self.staff = StaffFactory()
+        
         self.bigtuto = BigTutorialFactory()
+        self.bigtuto.authors.add(self.user_author)
+        self.bigtuto.save()
         
         self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
         self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
@@ -316,8 +322,175 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
         
         #guest can't read offline tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=False)
+        self.assertEqual(result.status_code, 302)
         
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=False)
+        self.assertEqual(result.status_code, 302)
         
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=False)
+        self.assertEqual(result.status_code, 302)
+        
+    
+    def test_url_for_member(self):
+        '''
+        Test simple get request by simple member
+        '''
+        
+        #logout before
+        self.client.logout()
+        #login with simple member
+        self.assertEqual(self.client.login(username=self.user.username, password='hostel77'), True)
+        
+        #member who isn't author can read public tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial_online', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part_online', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter_online', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        #member who isn't author  can't read offline tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 403)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 403)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 403)
+        
+    def test_url_for_author(self):
+        '''
+        Test simple get request by author
+        '''
+        
+        #logout before
+        self.client.logout()
+        #login with simple member
+        self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
+        
+        #member who isn't author can read public tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial_online', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part_online', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter_online', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        #member who isn't author  can't read offline tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+    
+    def test_url_for_staff(self):
+        '''
+        Test simple get request by staff
+        '''
+        
+        #logout before
+        self.client.logout()
+        #login with simple member
+        self.assertEqual(self.client.login(username=self.staff.username, password='hostel77'), True)
+        
+        #member who isn't author can read public tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial_online', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part_online', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter_online', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        #member who isn't author  can't read offline tutorials
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_tutorial', args=[self.bigtuto.pk, self.bigtuto.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_part', args=[self.bigtuto.pk, self.bigtuto.slug, self.part2.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
+        
+        result = self.client.get(
+                        reverse('zds.tutorial.views.view_chapter', 
+                                args=[self.bigtuto.pk, 
+                                      self.bigtuto.slug, 
+                                      self.part2.slug, 
+                                      self.chapter2_1.slug]),
+                        follow=True)
+        self.assertEqual(result.status_code, 200)
     
         
     def tearDown(self):
