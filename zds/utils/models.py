@@ -49,7 +49,7 @@ class Category(models.Model):
         msct = []
         for sc in scat:
             msct.append(sc.subcategory)
-        return  Tutorial.objects.filter(subcategory__in = msct).all()
+        return  Tutorial.objects.filter(subcategory__in = msct).exclude(sha_public = None).exclude(sha_public = '').all()
     
     def get_all_subcategories(self):
         '''Get all subcategories of a category (not main include)'''
@@ -83,7 +83,7 @@ class SubCategory(models.Model):
 
     def get_tutos(self):
         from zds.tutorial.models import Tutorial
-        return Tutorial.objects.filter(subcategory__in = [self]).all()
+        return Tutorial.objects.filter(subcategory__in = [self]).exclude(sha_public = None).exclude(sha_public = '').all()
     
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')
