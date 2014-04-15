@@ -146,16 +146,23 @@ Side Bar
 	padding: 5px;
 }
 
-.side-nav ul li a{
-	display: block;
-	padding-left: 25px;
+.side-nav ul {
+	margin-top: 10px;
+}
+
+.side-nav ul li{
+	padding-left: 20px;
 	padding-right: 10px;
-	text-decoration: none;
-	color: #0079b2;
-	overflow: hidden;
 	height: 24px;
 	text-overflow: ellipsis;
+	overflow: hidden;
+	display: block;
 	white-space: nowrap;
+}
+
+.side-nav ul li a{
+	text-decoration: none;
+	color: #0079b2;
 }
 
 .side-nav ul li a:hover,
@@ -417,4 +424,33 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 
 .buttonHolder {
 	text-align: center;
+}
+
+.selectmultiple {
+	min-height: 120px;
+}
+
+figure {
+    text-align: center;
+}
+
+figure figurecaption {
+    display: block;
+}
+
+blockquote ~ figurecaption, blockquote {
+    text-align: left;
+}
+
+img ~ figurecaption {
+    margin-top: 15px;
+    font-style: italic;
+}
+
+blockquote ~ figurecaption p:before {
+    content: "- ";
+}
+
+blockquote ~ figurecaption {
+    font-style: italic;
 }

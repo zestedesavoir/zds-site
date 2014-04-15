@@ -21,12 +21,15 @@
 {% endblock %}
 
 {% block headline-actions %}
+    <h3>Actions sur les articles</h3>
+    <ul>
+        <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+    </ul>
     {% if user.is_authenticated %}
         {% block headline-actions-filter %}{% endblock %}
     {% endif %}
     <h3>Flux</h3>
     <ul>
-        <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
         <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
         <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
     </ul>

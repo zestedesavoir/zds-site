@@ -54,7 +54,7 @@ def index(request):
     # The tag indicate what the category tutorial the user would 
     # like to display. We can display all subcategories for tutorials.
     try:
-        tag = get_object_or_404(SubCategory, pk = request.GET['tag'])
+        tag = get_object_or_404(SubCategory, slug = request.GET['tag'])
     except (KeyError, Http404):
         tag = None
         
@@ -880,7 +880,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
     if (not request.user.has_perm('tutorial.change_tutorial'))\
        and (request.user not in tutorial.authors.all())\
        and not beta :
-        raise Http404
+        raise PermissionDenied
     
     final_part = None
     #find the good manifest file
@@ -1157,7 +1157,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
     if (not request.user.has_perm('tutorial.change_tutorial'))\
        and (request.user not in tutorial.authors.all())\
        and not beta :
-        raise Http404
+        raise PermissionDenied
 
     if not tutorial_slug == slugify(tutorial.title)\
         or not part_slug == slugify(chapter.part.title)\
