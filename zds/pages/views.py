@@ -43,13 +43,6 @@ def index(request):
     return render_template('pages/index.html')
 
 @can_read_now
-def help_markdown(request):
-    '''
-    Display a page with a markdown helper
-    '''
-    return render_template('pages/help_markdown.html')
-
-@can_read_now
 def about(request):
     '''
     Display many informations about the website
@@ -57,8 +50,22 @@ def about(request):
     return render_template('pages/about.html')
 
 @can_read_now
-def roadmap(request):
+def association(request):
     '''
-    Display roadmap of the website
+    Display association's presentation
     '''
-    return render_template('pages/roadmap.html')
+    return render_template('pages/association.html')
+
+@can_read_now
+def contact(request):
+    '''
+    Display contact page
+    '''
+    return render_template('pages/contact.html')
+
+@can_read_now
+def eula(request):
+    '''
+    End-User Licence Agreement
+    '''
+    return render_template('pages/eula.html')
