@@ -33,8 +33,8 @@ urlpatterns = patterns('',
         views.view_tutorial_online),
                        
 # Editing
-    url(r'^editer/tutoriel$', views.edit_tutorial),
-    url(r'^modifier/tutoriel$', views.modify_tutorial),
+    url(r'^editer$', views.edit_tutorial),
+    url(r'^modifier$', views.modify_tutorial),
     url(r'^modifier/partie$', views.modify_part),
     url(r'^editer/partie$', views.edit_part),
     url(r'^modifier/chapitre$', views.modify_chapter),
@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     url(r'^editer/extrait$', views.edit_extract),
 
 # Adding
-    url(r'^nouveau/tutoriel$', views.add_tutorial),
+    url(r'^nouveau$', views.add_tutorial),
     url(r'^nouveau/partie$', views.add_part),
     url(r'^nouveau/chapitre$', views.add_chapter),
     url(r'^nouveau/extrait$', views.add_extract),

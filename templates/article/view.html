@@ -20,12 +20,13 @@
 
 
 {% block headline %}
-    <h1 class="illu">
-        {% if article.image %}
-            <img src="{{article.image.thumb.url }}" alt="">
+    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
+        {% if article.thumbnail %}
+            <img src="{{article.thumbnail.url }}" alt="">
         {% endif %}
         {{ article.title }}
     </h1>
+
     <ul class="taglist">
         {% for tag in tags.all %}
             {# TODO : Mettre les liens vers les tags #}
@@ -50,8 +51,9 @@
 {% block sidebar_actions %}
     {% if perms.article.change_article %}
         <form action="{% url "zds.article.views.modify" %}" method="post">
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
-                <h3>Admin<span class="wide">istration</span></h3>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+                <h3>Validation</h3>
+                {# TODO : Mettre des icônes #}
                 <ul class="sidebar-standalone">
                     <li>
                         <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">

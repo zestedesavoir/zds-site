@@ -1,0 +1,19 @@
+{% extends "article/base.html" %}
+
+
+
+{% block title_base %}
+    &#183; Gestion des articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Gestion des articles</a></li>
+{% endblock %}
+
+
+
+{% block menu_article %}
+    current
+{% endblock %}

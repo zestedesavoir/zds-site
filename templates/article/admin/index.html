@@ -1,5 +1,23 @@
-{% extends "article/index.html" %}
+{% extends "article/admin/base.html" %}
 {% load humanize %}
+
+
+
+{% block title %}
+    Mes Articles
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li class="current">Mes Articles</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2 class="ico ico-articles">Mes Articles</h2>
+{% endblock %}
 
 
 
@@ -11,27 +29,11 @@
 
 
 
-{# FIXME : ce code ne sert a priori à rien #}
-{% comment %}
-{% block content_filter %}
-    <a href="
-        {% if type = 'public' and article.on_line %}
-            {{ article.get_absolute_url_online }}
-        {% else %}
-            {{ article.get_absolute_url }}
-        {% endif %}
-    ">
-        {{ article.title }}
-    </a>
-{% endblock %}
-{% endcomment %}
-
-
 {% block content %}
     {% if articles %}
         <div class="article-items">
             {% for article in articles %}
-                {% include "articles/includes/article_item.part.html" with link=article.get_absolute_url %}
+                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url %}
             {% endfor %}
         </div>
     {% else %}

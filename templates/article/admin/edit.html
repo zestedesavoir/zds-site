@@ -1,37 +1,42 @@
-{% extends "article/base.html" %}
+{% extends "article/admin/base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+
+
 
 {% block title %}
     Éditer
 {% endblock %}
 
-{% block headline %}
-    Éditer l'article
-{% endblock %}
+
 
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a></li>
-    <li class="current"><a href="#">Éditer</a></li>
+    <li class="current">Éditer</li>
 {% endblock %}
 
+
+
+{% block headline %}
+    <h2>Éditer l'article : {{ article.title }}</h2>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% include 'article/includes/sidebar_actions.part.html' %}
+{% endblock %}
+
+
+
 {% block content %}
-
-{% if article.is_visible %}
-    <div class="row">
-        <div class="large-12 columns">
-            <div class="alert-box warning">
-                <strong>Cet article est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
-                Vous pouvez modifier la forme de celui-ci, mais évitez d'en modifier le fond !
-            </div>
+    {# TODO : Improve this message #}
+    {% if article.is_visible %}
+        <div class="alert-box warning">
+            <strong>Cet article est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
+            Vous pouvez modifier la forme de celui-ci, mais évitez d'en modifier le fond !
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
+    {% crispy form %}
 {% endblock %}

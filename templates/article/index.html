@@ -1,6 +1,5 @@
 {% extends "article/base.html" %}
 {% load humanize %}
-{% load captureas %}
 
 
 
@@ -31,57 +30,11 @@
 
 
 
-{% block sidebar_actions %}
-    {% if user.is_authenticated %}
-        {% captureas sidebarfilter %}{% spaceless %}
-            {% block sidebar_filter %}{% endblock %}
-        {% endspaceless %}{% endcaptureas %}
-
-        {% if sidebarfilter %}
-            <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
-                <h3>Filtres</h3>
-                <ul class="sidebar-standalone">
-                    {% block sidebar_filter %}{% endblock %}
-                </ul>
-            </div>
-        {% endif %}
-    {% endif %}
-
-    <div class="mobile-menu-block mobile-all-links" data-title="Actions">
-        <h3>Actions</h3>
-        <ul class="sidebar-standalone">
-            <li>
-                <a href="{% url "zds.article.views.new" %}">
-                    Nouvel article
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
-        <h3>Flux</h3>
-        <ul class="sidebar-standalone">
-            <li>
-                <a href="{% url "article-feed-rss" %}">
-                    Nouveaux articles (RSS)
-                </a>
-            </li>
-            <li>
-                <a href="{% url "article-feed-atom" %}">
-                    Nouveaux articles (ATOM)
-                </a>
-            </li>
-        </ul>
-    </div>
-{% endblock %}
-
-
-
 {% block content %}
     {% if articles %}
         <div class="article-items">
             {% for article in articles %}
-                {% include "articles/includes/article_item.part.html" with link=article.get_absolute_url_online %}
+                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
             {% endfor %}
         </div>
     {% else %}

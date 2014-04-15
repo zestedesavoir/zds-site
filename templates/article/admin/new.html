@@ -1,18 +1,26 @@
-{% extends "article/base.html" %}
+{% extends "article/admin/base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+
+
 
 {% block title %}
     Nouvel article
 {% endblock %}
 
-{% block headline %}
-    Nouvel article
-{% endblock %}
+
 
 {% block breadcrumb %}
     <li class="current">Nouvel article</li>
 {% endblock %}
+
+
+
+{% block headline %}
+    <h2 class="ico ico-articles">Nouvel article</h2>
+{% endblock %}
+
+
 
 {% block content %}
     {% crispy form %}

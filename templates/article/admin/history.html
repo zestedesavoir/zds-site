@@ -1,91 +1,98 @@
-{% extends "article/base.html" %}
+{% extends "article/admin/base.html" %}
 {% load emarkdown %}
 {% load humanize %}
 {% load profile %}
 
+
+
 {% block title %}
-{{ article.title }}
+  {{ article.title }}
 {% endblock %}
 
-{% block headline %}
-    {{ article.title }}<br />
-    <small>{{ article.description }}</small>
-{% endblock %}
+
 
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
-    <li class="current"><a href="#">Historique</a></li>
+    <li class="current">Historique des modifications</li>
 {% endblock %}
+
+
 
 {% block sidebar_actions %}
+    {% include 'article/includes/sidebar_actions.part.html' %}
 {% endblock %}
 
-{% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns hide-for-small">
-            {% if article.image %}
-            <img src="{{article.image.thumb.url }}"/>
-            {% endif %}
-        </div>
-        <div class="large-11 columns">
-        <p>
-            Tutoriel
-            {% if not article.is_mini %}
-                étendu
-            {% endif %}
-            rédigé par
+
+{% block headline %}
+    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
+        {% if article.thumbnail %}
+            <img src="{{article.thumbnail.url }}" alt="">
+        {% endif %}
+        Historique de : {{ article.title }}
+    </h1>
+    
+    <div class="authors content-wrapper">
+        <span class="authors-label">Contributeurs : </span>
+        <ul>
             {% for member in article.authors.all %}
-                {% if forloop.counter > 1 %}
-                    {% if forloop.last %}
-                        et
-                    {% else %}
-                        ,
-                    {% endif %}
-                {% endif %}
-                {% include "misc/member_item.part.html" %}
-            {% endfor %}.
-        </p>
-    </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="large-12 columns">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th width="25%">Date</th>
-              <th>Version</th>
-              <th width="10%">Diff</th>
-              <th width="10%">Auteur</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for log in logs %}
-            <tr>
-              <td><p>{% if article.sha_public = log.newhexsha %} Publique {% elif article.sha_validation = log.newhexsha %} Validation {% elif article.sha_beta =  log.newhexsha %} Beta {% elif article.sha_draft =  log.newhexsha %} Draft {% endif%}</p></td>
-              <td><p>{{ log.time.0|humane_time }}</p></td>
-              <td><p><a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
-              <td><p><a href="#" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
-              <td>
-                {% with u=log.actor.name|user %}
-                  {% if u %}
-                    {% with profile=u|profile %}
-                    <p><a href="{{ profile.get_absolute_url }}">{{ u.username }}</a></p>
-                    {% endwith %}
-                  {% else %}
-                    <p>Inconnu</p>
-                  {% endif %}
-                {% endwith %}
-              </td>
-            </tr>
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
             {% endfor %}
-          </tbody>
-        </table>
+        </ul>
     </div>
-</div>
+{% endblock %}
 
+
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Visbilité</th>
+            <th width="25%">Date</th>
+            <th>Version</th>
+            <th width="10%">Diff</th>
+            <th width="10%">Auteur</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+            <tr>
+                <td>
+                    {% if article.sha_public = log.newhexsha %}
+                        Publique
+                    {% elif article.sha_validation = log.newhexsha %}
+                        Validation
+                    {% elif article.sha_beta =  log.newhexsha %}
+                        Beta
+                    {% elif article.sha_draft =  log.newhexsha %}
+                        Brouillon
+                    {% endif %}
+                </td>
+                <td>
+                    {{ log.time.0|naturaltime }}
+                </td>
+                <td>
+                    <a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}">
+                        {{ log.message }}
+                    </a>
+                </td>
+                <td>
+                    {{ log.newhexsha|truncatechars:8 }}
+                </td>
+                <td>
+                    {% with u=log.actor.name|user %}
+                        {% if u %}
+                            {% include "misc/member_item.part.html" with member=u %}
+                        {% else %}
+                            Inconnu
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
