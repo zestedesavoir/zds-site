@@ -24,19 +24,19 @@ def image_path(instance, filename):
     '''Return path to an image'''
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/normal', str(instance.gallery.pk), filename)
+    return os.path.join('galleries','normal', str(instance.gallery.pk), filename)
 
 def image_path_thumb(instance, filename):
     '''Return path to an image'''
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/thumb', str(instance.gallery.pk), filename)
+    return os.path.join('galleries','thumb', str(instance.gallery.pk), filename)
 
 def image_path_medium(instance, filename):
     '''Return path to an image'''
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/medium', str(instance.gallery.pk), filename)
+    return os.path.join('galleries','medium', str(instance.gallery.pk), filename)
 
 
 class UserGallery(models.Model):
@@ -82,8 +82,8 @@ class Image(models.Model):
     title = models.CharField('Titre', max_length=80, null=True, blank=True)
     slug = models.SlugField(max_length=80)
     physical = models.ImageField(upload_to=image_path)
-    thumb = models.ImageField(upload_to=image_path_thumb)
-    medium = models.ImageField(upload_to=image_path_medium)
+    thumb = models.ImageField(upload_to=image_path_thumb, null=True, blank=True)
+    medium = models.ImageField(upload_to=image_path_medium, null=True, blank=True)
     legend = models.CharField('Légende', max_length=80, null=True, blank=True)
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
     update = models.DateTimeField(
