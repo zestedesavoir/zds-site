@@ -3,3 +3,7 @@
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.pages.views.index" %}">Pages</a></li>
 {% endblock %}
+
+{% block headline %}
+    <h2 class="box">{% block head-title %}{% endblock %}</h2>
+{% endblock %}
