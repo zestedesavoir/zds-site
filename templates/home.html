@@ -27,7 +27,7 @@ class="active"
     {% for category in categories %}
         <dd>
             <a href="#cat{{ category.pk }}">{{ category.title }} 
-                <span class="label right">{{category.get_tutos.count}}</span>
+                <span class="label right secondary">{{category.get_tutos.count}}</span>
             </a>
             
             <div id="cat{{ category.pk }}" class="content">
