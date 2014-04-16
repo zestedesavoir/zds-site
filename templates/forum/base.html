@@ -15,7 +15,10 @@
 
 {% block headline %}
 <h2 class="box forum">{% block head-title %}{% endblock %}</h2>
+<p class="subtitle">{% block headline-sub %}{% endblock %}</p>
 {% endblock %}
+
+
 
 {% block sidebar %}
 	{% if user.is_authenticated %}
@@ -29,16 +32,20 @@
         {% with unread_topics=topics.unread %}
         {% for topic in unread_topics %}
         <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-            <a href="{{topic.get_absolute_url}}" class="unread {% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+            <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
+            {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
+            {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
+            <a href="{{topic.get_absolute_url}}">{{topic.title}}</a>
         </li>
         {% endfor %}
         {% endwith %}
         {% with read_topics=topics.read %}
         {% for topic in read_topics %}
         <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="ico-after cross red stop-follow action-hover" data-title="Ne plus suivre">Ne plus suivre</a>
-            <a href="{{topic.get_absolute_url}}" class="{% if topic.is_solved or topic.is_locked %}ico-after{% endif %} {% if topic.is_solved %}tick active{% endif %} {% if topic.is_locked %}lock{% endif %}" data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}" >{{topic.title}}</a>
+            <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
+            {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
+            {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
+            <a href="{{topic.get_absolute_url}}">{{topic.title}}</a>
         </li>
         {% endfor %}
         {% endwith %}

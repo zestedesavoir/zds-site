@@ -3,6 +3,7 @@
 {% block headline %}{% endblock %}
 
 {% block sidebar %}
+    <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="POST" id="edit_form">
     <h3>Activités</h3>
     <ul>
     <li>
@@ -63,6 +64,7 @@
 	<li>
     	<h4>Sanctions</h4>
         	{% if profile.can_write_now %}
+                
         		<li>
 					<a href="#" data-dropdown="ls-drop-{{profile.pk}}">Lecture seule</a>
             	</li>
@@ -151,8 +153,12 @@
                         Confirmer la libération
                     </button>
                 </div>
+                
             {% endif %}
+
     </li>
 	</ul>
 	{% endif %}
+    {% csrf_token %}
+    </form>
 {% endblock %}

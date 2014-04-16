@@ -4,6 +4,31 @@
  * MIT License
  */
 
+// $alert-color: #f04124;
+// $success-color: #43AC6A;
+// $warning-color: #f08a24;
+// $info-color: #a0d3e8;
+
+.success {
+  color :$success-color
+}
+
+.alert {
+  color : $alert-color
+}
+
+.warning {
+  color : $warning-color
+}
+
+.info {
+  color : $info-color
+}
+
+.grey {
+  color : #CCC
+}
+
 .size-12 { font-size: 12px; }
 
 .size-14 { font-size: 14px; }
