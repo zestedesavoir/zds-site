@@ -1726,22 +1726,27 @@ def upload_images(request, tutorial):
     mapping = OrderedDict()
     #download images 
     if 'images' in request.FILES :
-        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
+        zfile = zipfile.ZipFile(request.FILES['images'], 'r')
+        os.makedirs(os.path.abspath(os.path.join(tutorial.get_path(), 'images')))
         for i in zfile.namelist():
             ph = os.path.join(settings.MEDIA_ROOT,"tutorial", str(tutorial.pk), i)
-            ph_temp = os.path.join(tutorial.get_path(), i)
+            ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
             try:
                 data = zfile.read(i)
                 fp = open(ph_temp, "wb")
                 fp.write(data)
                 fp.close()
-                f = File(open(os.path.join(tutorial.get_path(), i),'r'))
+                
+                f = File(open(ph_temp,'rb'))
+                f.name = os.path.basename(i)
                 pic = Image()
                 pic.gallery = tutorial.gallery
-                pic.physical.save(ph, f, save = True)
-                
+                pic.title = os.path.basename(i)
+                pic.pubdate = datetime.now()
+                pic.physical = f
+                pic.save()
                 mapping[i]=pic.physical.url
-                
+                f.close()    
             except IOError: 
                 try: os.makedirs(ph_temp)
                 except: pass
@@ -1771,7 +1776,6 @@ def import_tuto(request):
                         
                     # add create date
                     tutorial.create_at = datetime.now()
-                    
                     
                     tree = etree.parse(request.FILES['file'])
                     racine_big = tree.xpath("/bigtuto")

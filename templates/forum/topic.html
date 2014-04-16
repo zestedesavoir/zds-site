@@ -101,7 +101,7 @@
                     {% endif %}
 
                     <div class="message-metadata left">
-                        <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
+                        <a id="p{{ post.pk }}" href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
                         {% if not post.is_visible %}
                             <i>Masqué par {{ post.editor }} : {{ post.text_hidden }}</i>
                         {% elif not post.update = None %}

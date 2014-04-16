@@ -235,7 +235,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024*1024
+IMAGE_MAX_SIZE = 1024*1024*2
 
 #git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
