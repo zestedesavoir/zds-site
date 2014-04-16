@@ -45,7 +45,7 @@
 
 {% block headline-sub-actions %}
     {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}
-        <li><a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}" class="button">Éditer le chapître</a></li>
+        <li><a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}" >Éditer le chapître</a></li>
         <li><a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}">Ajouter un extrait</a></li>
         <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST">
             {% if chapter.part %}
@@ -107,7 +107,6 @@
     <div class="large-12 columns read-content">
         {% with tutorial=chapter.get_tutorial %}
             {% with authors=tutorial.authors.all %}
-                {% include "tutorial/view_chapter_pager.html" %}
                 {% include "tutorial/view_chapter_common.part.html" %}
                 {% include "tutorial/view_chapter_pager.html" %}
             {% endwith %}
