@@ -64,14 +64,20 @@ class="active"
                 <div class="row card">
                     <div class="large-12 columns">
                         <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
-                        <div class="large-10 columns">
+                        <div class="large-8 columns">
                         <i class="fi-clock size-21"></i>
                         <small>
                             {{ article.pubdate|naturaltime }}
                         </small>
                         </div>
-                        <div class="large-2 columns">
-                        <a class="fi-comment size-21" href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }}</a>
+                        <div class="large-4 columns">
+                            {% if article.get_reaction_count = 0 %}
+                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small>aucune réaction</small></a>
+                            {% elif article.get_reaction_count = 1 %}
+                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small>{{ article.get_reaction_count }} réaction</small></a>
+                            {% else %}
+                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small>{{ article.get_reaction_count }} réactions</small></a>
+                            {% endif %}
                         </div>
                     </div>
                     
