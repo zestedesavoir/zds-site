@@ -1198,7 +1198,9 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                 ext['path'] = tutorial.get_path()
                 ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
                 cpt_e+=1
-            chapter_tab.append(chapter)    
+            chapter_tab.append(chapter)
+            #print(u'SLUG ============> {0} '.format(chapter_slug))
+            #print(u'TITLE ============> {0} '.format(chapter['title']))
             if chapter_slug == slugify(chapter['title']):
                 final_chapter = chapter
                 final_position = len(chapter_tab)-1
@@ -1207,6 +1209,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
         
     prev_chapter = chapter_tab[final_position-1] if final_position>0 else None
     next_chapter = chapter_tab[final_position+1] if final_position+1<len(chapter_tab) else None
+    
     
     return render_template('tutorial/view_chapter.html', {
         'chapter': final_chapter,

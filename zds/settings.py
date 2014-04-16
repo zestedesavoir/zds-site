@@ -127,6 +127,11 @@ TEMPLATE_LOADERS = (
     #     'django.template.loaders.eggs.Loader',
 )
 
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

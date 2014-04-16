@@ -92,7 +92,7 @@ def export_tutorial(tutorial):
 
 def get_blob(tree, chemin):
     for bl in tree.blobs:
-        if bl.path==chemin:
+        if os.path.abspath(bl.path)==os.path.abspath(chemin):            
             data = bl.data_stream.read()
             return data.decode('utf-8')
     if len(tree.trees) > 0:

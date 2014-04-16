@@ -53,7 +53,7 @@
             <ul>
             {% for chapter in part.chapters %}
             	<li>
-                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
+                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.title }}</a></h3>
                 </li>
             {% endfor %}
         	</ul>
