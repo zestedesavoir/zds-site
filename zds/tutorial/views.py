@@ -2268,14 +2268,18 @@ def get_url_images(md_text, pt):
     if md_text!=None:
         imgs = re.findall(regex, md_text)
         for img in imgs:
+            
             #decompose images
             parse_object = urlparse(img[1])
             
             #if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
+                print('------------> '+img[1])
+                print('------------> '+filename)
+                print('------------> '+filepath)
                 # download image 
-                urlretrieve(img[1], os.path.join(pt, img[1]))
+                urlretrieve(img[1], os.path.abspath(os.path.join(pt, 'images', filename)))
                 ext = filename.split('.')[-1]
                 # if image is gif, convert to png 
                 if ext == 'gif':
@@ -2308,7 +2312,10 @@ def sub_urlimg(g):
         else:
             url = url.split('.')[0][1:]+'.png'
     else :
-        url = url[1:]
+        if parse_object.scheme in ('http', 'https'):
+            url = os.path.join ("images", filename)
+        else:
+            url = url[1:]
 
     end = g.group('end')
     return start + url + end
