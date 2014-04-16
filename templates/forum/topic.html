@@ -126,13 +126,15 @@
                         {% endif %}
                     </div>
                     {% if user.is_authenticated %}
+                    {% if post.author != user %}
                     <div class="message-karma right">
-                        {% if topic.author == user and post.author != user %}
+                        {% if topic.author == user %}
                         <a href="/forums/message/utile?message={{ post.pk }}" class="tick ico-after">Cette réponse m'a aidé</a>
                         {% endif %}
                         <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary {% if post.like > post.dislike %}voted{% endif%} ico-after"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
                         <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary {% if post.like < post.dislike %}voted{% endif%} ico-after"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
                     </div>
+                    {% endif %}
                     {% endif %}
                     
                 </div>
