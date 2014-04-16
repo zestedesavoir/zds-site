@@ -64,7 +64,7 @@
 {% else %}
     <p>Aucune introduction.</p>
 {% endif %}
-{% if tutorial.is_mini %}
+{% if tutorial.type = "MINI" %}
 {# Small tutorial #}
 
     {% with authors=tutorial.authors.all %}
