@@ -89,8 +89,7 @@ class ForumMemberTests(TestCase):
         self.assertContains(response, self.category1.title)
         self.assertContains(response, self.forum11.title)
         self.assertContains(response, topic.title)
-        # TODO test disabled: subtitle is still not displayed in this page
-#         self.assertContains(response, topic.subtitle)   
+        self.assertContains(response, topic.subtitle)   
     
     def test_answer(self):
         '''

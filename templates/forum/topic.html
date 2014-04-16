@@ -9,11 +9,12 @@
     {{ topic.title }}
 {% endblock %}
 
-{% block headline %}
-    <h2 class="box forum">{{ topic.title }}</h2>
+{% block head-title %}
+    {{ topic.title }}
 {% endblock %}
+
 {% block headline-sub %}
-    <p class="subtitle">{{ topic.subtitle }}</p>
+    {{ topic.subtitle }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -26,28 +27,33 @@
     <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         {% if topic.is_solved %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" class="ico-after tick active">Non résolu</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Non résolu</a></li>
         {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" class="ico-after tick active">Marquer comme résolu</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Marquer comme résolu</a></li>
         {% endif %}
     {% endif %}
     {% if topic.is_followed %}
-        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1" class="ico-after view blue">Ne plus suivre ce sujet</a></li>
+        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark grey size-16"></span> Ne plus suivre ce sujet</a></li>
     {% else %}
-        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1" class="ico-after view blue">Suivre ce sujet</a></li>
+        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark size-16"></span> Suivre ce sujet</a></li>
     {% endif %}
     {% if perms.forum.change_topic %}
         {% if topic.is_locked %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" class="ico-after">Dévérouiller</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Dévérouiller</a></li>
         {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true" class="ico-after">Vérouiller le sujet</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span>Vérouiller le sujet</a></li>
         {% endif %}
         {% if topic.is_sticky %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false" class="ico-after">Enlever du Post-It</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"><span class="fi-price-tag size-16"></span> Enlever du Post-It</a></li>
         {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true" class="ico-after">Marquer en Post-It</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"><span class="fi-price-tag size-16"></span> Marquer en Post-It</a></li>
         {% endif %}
-        {% crispy form_move %}
+        <li>
+            <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
+        </li>
+        <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+            {% crispy form_move %}
+        </div>
     {% endif %}
 {% endblock %}
 
@@ -78,6 +84,46 @@
                 <div class="large-12 columns">
                     {% if user.is_authenticated %}
                     <div class="right message-actions">
+                        {% if post.is_visible %}
+                            {% if perms.forum.change_post %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="drophidden{{post.pk}}">Masquer<span class="fi-eye"></span></a>
+                            <div id="drophidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formhidden{{post.pk}}" method="POST" action="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}">
+                                <p>
+                                    Pour quelle raison souhaitez vous masquer ce message ?
+                                </p>
+                                <input type="text" name="text_hidden" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
+                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% elif post.author = user %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="drophidden{{post.pk}}">Masquer<span class="fi-eye"></span></a>
+                            <div id="drophidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formhidden{{post.pk}}" method="POST" action="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}">
+                                <p>
+                                    Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
+                                </p>
+                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            {% if perms.forum.change_post %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="showhidden{{post.pk}}">Afficher<span class="fi-eye"></span></a>
+                            <div id="showhidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formshowhidden{{post.pk}}" method="POST" action="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}">
+                                <p>
+                                    Ce message a été masqué par une personne du staff, êtes vous certains de vouloir le ré-afficher ?
+                                </p>
+                                <button type="submit" name="show-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+
                         {% if post.author = user or perms.forum.change_post %}
                         <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
@@ -109,11 +155,15 @@
                         {% endif %}
                     </div>
                 <div class="large-12 columns">
+
                 <div class="message-content">
+                    {% if post.is_visible %}
                     {{ post.text|emarkdown }}
+                    {% endif %}
                 </div>
                 </div>
                 <div class="large-12 columns">
+                    {% if post.is_visible %}
                     <div class="left">
                         {% if user.is_authenticated %}
                             {% with profile_user=user|profile %}
@@ -126,13 +176,33 @@
                         {% endif %}
                     </div>
                     {% if user.is_authenticated %}
-                    {% if post.author != user %}
                     <div class="message-karma right">
-                        {% if topic.author == user %}
-                        <a href="/forums/message/utile?message={{ post.pk }}" class="tick ico-after">Cette réponse m'a aidé</a>
+                        {% if topic.author == user and post.author != user %}
+                        <a href="/forums/message/utile?message={{ post.pk }}" class="tiny secondary actions">Cette réponse m'a aidé</a>
                         {% endif %}
-                        <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary {% if post.like > post.dislike %}voted{% endif%} ico-after"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
-                        <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary {% if post.like < post.dislike %}voted{% endif%} ico-after"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                        {% if post.author != user %}
+                            {% if post.like > post.dislike %}
+                                <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
+                            {% else %}
+                                <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
+                            {% endif%}
+                            {% if post.dislike > post.like %}
+                                <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                            {% else%}
+                                <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
+                            {% endif%}
+                        {% else %}
+                            {% if post.like > post.dislike %}
+                                <span href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</span>
+                            {% else %}
+                                <span href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</span>
+                            {% endif%}
+                            {% if post.dislike > post.like %}
+                                <span href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</span>
+                            {% else%}
+                                <span href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</span>
+                            {% endif%}
+                        {% endif %}
                     </div>
                     {% endif %}
                     {% endif %}
