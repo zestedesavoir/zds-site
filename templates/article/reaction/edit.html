@@ -1,0 +1,32 @@
+{% extends "article/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Éditer une réponse
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></li>
+    <li class="current">Éditer une réponse</a></li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2>{{article.title}}</h2>
+    <h3 class="subtitle">Editer une réponse</h3>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}

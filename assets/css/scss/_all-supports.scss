@@ -556,10 +556,6 @@
                 }
             }
 
-            button {
-                width: 100%;
-            }
-
             a,
             button {
                 display: block;
@@ -648,6 +644,11 @@
                         }
                     }
                 }
+            }
+
+            button {
+                width: 100%;
+                line-height: 28px;
             }
 
 

@@ -673,7 +673,7 @@ def answer(request):
             form = ReactionForm(article, request.user, initial = {
                 'text': data['text']
             })
-            return render_template('article/reactions/answer.html', {
+            return render_template('article/reaction/new.html', {
                 'article': article, 
                 'last_reaction_pk': last_reaction_pk, 
                 'newreaction': newreaction,
@@ -703,7 +703,7 @@ def answer(request):
             else:
                 raise Http404
 
-    # Actions from the editor render to answer.html.
+    # Actions from the editor render to new.html.
     else:
         text = ''
 
@@ -721,7 +721,7 @@ def answer(request):
         form = ReactionForm(article, request.user, initial = {
             'text': text
         })
-        return render_template('article/reactions/answer.html', {
+        return render_template('article/reaction/new.html', {
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
