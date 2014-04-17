@@ -29,12 +29,12 @@
     <ul>
         {% if tutorial.on_line %}
     	{% if perms.tutorial.change_tutorial %}
-    	<li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
+    	<li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}"><span class="fi-download grey size-16"></span> Markdown</a></li>
     	{% endif %}
-        <li><a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">HTML</a></li>
-        <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
-        <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
+        <li><a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}"><span class="fi-html5 grey size-16"></span> HTML</a></li>
+        <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}"><span class="fi-page-export-pdf grey size-16"></span> PDF</a></li>
+        <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}"><span class="fi-book grey size-16"></span> EPUB</a></li>
         {% endif %}
-        <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
+        <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}"><span class="fi-archive grey size-16"></span> Archive</a></li>
     </ul>
 {% endblock %}

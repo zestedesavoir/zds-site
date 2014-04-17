@@ -36,8 +36,8 @@
 {% endblock %}
 
 {% block headline-sub-actions %}
-    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
-    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
+    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}"><span class="fi-plus grey size-16"></span> Ajouter un chapitre</a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}"><span class="fi-pencil grey size-16"></span> Éditer la partie</a></li>
 {% endblock %}
 
 {% block content %}

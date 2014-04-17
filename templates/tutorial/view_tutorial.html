@@ -41,29 +41,32 @@
 
 {% block headline-sub-actions %}
     {% if tutorial.sha_draft = version %}
-    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}"><span class="fi-pencil grey size-16"></span> Éditer</a></li>
     {% endif %}
     <li>
         {% if not tutorial.is_mini %}
-        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
+        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}"><span class="fi-plus grey size-16"></span> Ajouter une partie</a>
         {% else %}
-        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}"><span class="fi-plus grey size-16"></span> Ajouter un extrait</a>
         {% endif %}
     </li>
     {% if not tutorial.in_beta %}
-    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}"><span class="fi-bitcoin grey size-16"></span> Activer la beta</a></li>
     {% else %}
-    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}"><span class="fi-bitcoin grey size-16"></span> Désactiver la beta</a></li>
     {% endif %}
-    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
+    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}"><span class="fi-mountains grey size-16"></span> Historique des versions</a>
     {% if not tutorial.on_line %}
     <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
     {% endif %}
 
     {% if not tutorial.in_validation %}
     <li>
-        {% crispy formAskValidation %}
+        <a href="#" class="tiny secondary actions" data-dropdown="askvalid"><span class="fi-check size-16"></span> Demande de validation</a>
     </li>
+    <div id="askvalid" class="f-dropdown small content" data-dropdown-content>
+        {% crispy formAskValidation %}
+    </div>
     {% endif %}
 {% endblock %}
 
@@ -72,9 +75,9 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
-            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}"><span class="fi-graph-trend grey size-16"></span> Historique validation</a></li>
             {% if tutorial.on_line %}
-            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}"><span class="fi-x-circle grey size-16"></span> Dépublier</a>
             {% endif %}
             {% if tutorial.in_validation %}
             <li>
@@ -115,11 +118,11 @@
             <hr />
             {% if parts %}
                 {% for part in parts %}
-                    <h2>
+                    <h3>
                         <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
                             Partie {{ part.position_in_tutorial }} : {{ part.title }}
                         </a>
-                    </h2>
+                    </h3>
                 {% endfor %}
             {% else %}
                 <p>

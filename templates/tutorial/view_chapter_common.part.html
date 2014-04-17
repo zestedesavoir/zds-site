@@ -93,13 +93,11 @@
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post">
                     <input type="hidden" name="extract" value="{{ extract.pk }}" />
                     <div class="button-group">
-                        <a href="{% url "zds.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="button">
-                            <i class="icon-pencil"></i>
-                            Éditer
+                        <a href="{% url "zds.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="button secondary tiny">
+                            <i class="fi-pencil"></i> Éditer
                         </a>
-                        <button type="submit" name="delete" class="button secondary">
-                            <i class="icon-remove"></i>
-                            Supprimer
+                        <button type="submit" name="delete" class="button secondary tiny">
+                            <i class="fi-x"></i> Supprimer
                         </button>
                     </div>
                     {% csrf_token %}
