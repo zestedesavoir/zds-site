@@ -1,7 +1,7 @@
 <div class="row">
     <div class="large-6 columns">
         {% if prev %}
-            <a class="button secondary" href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
+            <a class="secondary" href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
                 <i class="fi-arrow-left"></i> {{ prev.title }}
             </a>
         {% endif %}
@@ -9,7 +9,7 @@
     <div class="large-6 columns">
         <div class="right">
             {% if next %}
-                <a class="button secondary" href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
+                <a class="secondary" href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
                     {{ next.title }} <i class="fi-arrow-right"></i>
                 </a>
             {% endif %}

@@ -45,9 +45,9 @@
     {% if perms.tutorial.change_tutorial%}
     <h3>Administration</h3>
     <ul>
-        <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version offline</a></li>
-        <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-        <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+        <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" ><span class="fi-arrow-left size-16"></span> Version offline</a></li>
+        <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}"><span class="fi-mountains size-16"></span> Historique validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}"><span class="fi-x-circle size-16"></span> Dépublier</a>
     </ul>
     {% endif %}
 

@@ -35,7 +35,7 @@
               {% if unread_topics|length > 0 %}
                   <span class="alert label">{{ unread_topics|length }}</span>
               {% endif %}
-              <img src="{% static "img/messages.png" %}" alt="Messages" /></a>
+              <img src="{% static "img/messages.png" %}" alt="Messages" /> <span class="hide-for-large-up">Messages Privés</span></a>
             <ul class="dropdown">
                 <li><label>Messagerie</label></li>
                 <li class="divider"></li>
@@ -122,7 +122,7 @@
               {% if unread_topics|length > 0 %}
                   <span class="alert label">{{ unread_topics|length }}</span>
               {% endif %}
-              <img src="{% static "img/notifications.png" %}" alt="Notifications" /></a>
+              <img src="{% static "img/notifications.png" %}" alt="Notifications" /> <span class="hide-for-large-up">Notifications</span></a>
             <ul class="dropdown">
               <li><label>Notifications</label></li>
               <li class="divider"></li>
@@ -208,7 +208,7 @@
               {% if posts.count > 0 %}
                   <span class="alert label">{{ posts.count }}</span>
               {% endif %}
-              <img src="{% static "img/gear.png" %}" alt="Alertes" /></a>
+              <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
               <li><label>Alertes Modération</label></li>
               <li class="divider"></li>
@@ -359,7 +359,7 @@
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 pull-9 columns">
-      <ul class="side-nav">
+      <ul class="side-nav hide-for-small">
         {% block sidebar %}{% endblock %}
       </ul>        
     </div>

@@ -54,7 +54,6 @@
     <div class="large-12 columns read-content">
         {% with tutorial=chapter.get_tutorial %}
             {% with authors=tutorial.authors.all %}
-                {% include "tutorial/view_chapter_online_pager.html" %}
                 {% include "tutorial/view_chapter_online_common.part.html" %}
                 {% include "tutorial/view_chapter_online_pager.html" %}
             {% endwith %}
@@ -67,7 +66,7 @@
             {% if perms.tutorial.change_tutorial%}
             <h3>Administration</h3>
             <ul>
-                <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">Version offline</a></li>
+                <li><a href="{{ chapter.part.tutorial.get_absolute_url }}"><span class="fi-arrow-left size-16"></span> Version offline</a></li>
             </ul>
             {% endif %}
 
