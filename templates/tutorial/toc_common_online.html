@@ -4,13 +4,15 @@
 {% load roman %}
 
 <h3>Sommaire</h3>
-{% if tutorial.is_mini %}
+{% if tutorial.type = "MINI" %}
 {# Small tutorial #}
     {% if chapter.extracts %}
         {% for extract in chapter.extracts %}
-            <h4>
-                <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
-            </h4>
+            <li>
+                <h4>
+                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">{{ extract.title }}</a>
+                </h4>
+            </li>
         {% endfor %}
     {% endif %}
 {% else %}
@@ -18,7 +20,7 @@
     {% if parts %}
         {% for part in parts %}
             <h4>
-                <a class="mobile-menu-link" href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.title|slugify %}">
+                <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.title|slugify %}">
                     {{ part.title }}
                 </a>
             </h4>

@@ -1729,7 +1729,7 @@ def upload_images(request, tutorial):
     mapping = OrderedDict()
     #download images 
     if 'images' in request.FILES :
-        zfile = zipfile.ZipFile(request.FILES['images'], 'r')
+        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
         os.makedirs(os.path.abspath(os.path.join(tutorial.get_path(), 'images')))
         for i in zfile.namelist():
             ph = os.path.join(settings.MEDIA_ROOT,"tutorial", str(tutorial.pk), i)
