@@ -130,7 +130,7 @@ class Article(models.Model):
         
         return txt_contenu.decode('utf-8')
         
-    def save(self, force_update=False, force_insert=False, thumb_size=(IMAGE_MAX_HEIGHT,IMAGE_MAX_WIDTH)):
+    def save(self, force_update=False, force_insert=False, thumb_size=(IMAGE_MAX_HEIGHT,IMAGE_MAX_WIDTH), *args, **kwargs):
         
         self.slug = slugify(self.title)
         
@@ -219,7 +219,7 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.get_last_reaction():
+        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
