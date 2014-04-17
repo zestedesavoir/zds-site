@@ -14,7 +14,7 @@
     <div class="message">
         {% if user.is_authenticated and message.is_visible %}
             <ul class="message-actions">
-                {% if perms.article.change_reaction %}
+                {% if hide_link and perms.article.change_reaction %}
                     <li>
                         <a href="{{ hide_link }}" class="ico-after view">
                             Masquer
@@ -22,21 +22,25 @@
                     </li>
                 {% endif %}
 
-                {% if message.author = user or perms.article.change_reaction %}
+                {% if edit_link %}
+                    {% if message.author = user or perms.article.change_reaction %}
+                        <li>
+                            <a href="{{ edit_link }}" class="ico-after edit">
+                                Editer
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+
+                {% if alert_link %}
                     <li>
-                        <a href="{{ edit_link }}" class="ico-after edit">
-                            Editer
+                        <a href="{{ alert_link }}" class="ico-after alert">
+                            Signaler
                         </a>
                     </li>
                 {% endif %}
 
-                <li>
-                    <a href="{{ alert_link }}" class="ico-after alert">
-                        Signaler
-                    </a>
-                </li>
-
-                {% if not article.is_locked and not article.antispam %}
+                {% if cite_link and not article.is_locked and not article.antispam %}
                     <li>
                         <a href="{{ cite_link }}" class="ico-after cite">
                             Citer
@@ -84,18 +88,20 @@
                         {% endif %}
                     {% endwith %}
 
-                    <div class="message-karma">
-                        <a href="{{ upvote_link }}"
-                           class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
-                        >
-                            +{{ message.like }}
-                        </a>
-                        <a href="{{ downvote_link }}" 
-                           class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
-                        >
-                            -{{ message.dislike }}
-                        </a>
-                    </div>
+                    {% if upvote_link %}
+                        <div class="message-karma">
+                            <a href="{{ upvote_link }}"
+                               class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
+                            >
+                                +{{ message.like }}
+                            </a>
+                            <a href="{{ downvote_link }}" 
+                               class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
+                            >
+                                -{{ message.dislike }}
+                            </a>
+                        </div>
+                    {% endif %}
                 {% else %}
                     {% with profile=message.author|profile %}
                         <p class="signature">

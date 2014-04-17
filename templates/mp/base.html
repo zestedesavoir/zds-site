@@ -1,26 +1,19 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
-    &#183; Messages Privés
+    &#183; Messagerie Privée
 {% endblock %}
 
+
+
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.mp.views.index" %}">Messages Privés</a></li>
+    <li><a href="{% url "zds.mp.views.index" %}">Messagerie Privée</a></li>
 {% endblock %}
+
+
 
 {% block menu_mp %}
     active
-{% endblock %}
-
-{% block content_out %}
-    <article>
-        <header>{% block headline %}{% endblock %}</header>
-        <section class="article-content content-wrapper">{% block content %}{% endblock %}</section>
-    </article>
-{% endblock %}
-
-{% block sidebar %}
-<aside class="sidebar mobile-menu-hide">
-    {% block sidebar_actions %}{% endblock %}
-</aside>
 {% endblock %}

@@ -180,11 +180,11 @@
                                         {% if unread_topics|length > 0 %}
                                             <span class="notif-count">{{ unread_topics|length }}</span>
                                         {% endif %}
-                                        <span class="notif-text ico ico-messages">Messagerie</span>
+                                        <span class="notif-text ico ico-messages">Messagerie privée</span>
                                     </a>
 
                                     <div class="dropdown">
-                                        <span class="dropdown-title">Messagerie</span>
+                                        <span class="dropdown-title">Messagerie privée</span>
                                         <ul class="dropdown-list">
                                             {% for topic in unread_topics %}
                                                 {% with first_unread=topic.first_unread_post %}
@@ -424,7 +424,7 @@
         
             <div class="clearfix sub-header">
                 <div class="wrapper">
-                    <div class="ariane">
+                    <div class="breadcrumb">
                         <ul>
                             <li>
                                 <a href="{% url "zds.pages.views.home" %}">Accueil</a>
@@ -454,9 +454,9 @@
                         <section>
                             <h2>{% block headline %}{% endblock %}</h2>
 
-                            {% captureas headlinesub %}{% spaceless %}
+                            {% captureas headlinesub %}
                                 {% block headline_sub %}{% endblock %}
-                            {% endspaceless %}{% endcaptureas %}
+                            {% endcaptureas %}
 
                             {% if headlinesub %}
                                 <h3 class="subtitle">{{ headlinesub }}</h3>

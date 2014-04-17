@@ -1,101 +1,82 @@
 {% extends "mp/base.html" %}
 {% load humanize %}
 
+
+
 {% block title %}
-    Liste des MP
+    Liste des conversations
 {% endblock %}
 
-{% block meta %}
-    <meta name="description" content="Votre boîte à MP" />
-{% endblock %}
 
-{% block header %}
-    <h1>
-        <i class="fi-mail size18"></i>
-        Messages Privés
-    </h1>
-{% endblock %}
 
 {% block headline %}
-   Liste des MPs
+   Liste des conversations
 {% endblock %}
+
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="javascript:;">Index</a></li>
+    <li class="current">Liste des conversations</li>
 {% endblock %}
+
+
 
 {% block sidebar_actions %}
-
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <h3>Actions</h3>
-        <ul>
-            {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
-            {% endif %}
+        <ul class="sidebar-standalone">
+            <li><a href="{% url "zds.mp.views.new" %}">Nouvelle conversation</a></li>
         </ul>
     </div>
-    <form action="" method="POST" >
-        <button type="submit" name="delete" class="button secondary">Supprimer</button>
-    </form>
 {% endblock %}
+
+
 
 {% block content %}
     <div class="forum-entries">
         {% for topic in privatetopics %}
-        <div class="forum-entry">
-            <div class="forum-entry-title
-            {% if user.is_authenticated %}
-                {% if topic.never_read %}
-                    unread
-                {% endif %}
-            {% endif %}">
-                <input name="items" type="checkbox" value="{{ topic.pk }}" />
-                <a href="{{ topic.get_absolute_url }}">
-                    {{ topic.title }}
-                </a>
-                <p>
-                    Participants : 
-                {% with member=topic.author %}
-                    {% include "misc/member_item.part.html" %}
-                {% endwith %}
-                {% for member in topic.participants.all %}
-                    | {% include "misc/member_item.part.html" %}
-                {% endfor %}
-                </p>
-            </div>
-            <div class="forum-entry-count">
-                <span class="label">
-                    {{ topic.get_post_count|add:"-1" }}
-                </span>
-            </div>
-            <div class="forum-entry-desc">
-                <p>
-                    {% with member=topic.author %}
-                    Par {% include "misc/member_item.part.html" %}
-                    {% endwith %}
-                    <br />
-                    {% with answer=topic.get_last_answer %}
-                    {% if answer %}
-                    Dernière rép.
-                    <a href="{{ answer.get_absolute_url }}">
-                        {% with date=answer.pubdate|naturaltime %}
-                        {{ date }}
-                        {% endwith %}
+            <div class="forum-entry {% if topic.never_read %}unread{% endif %}">
+                <div class="forum-entry-title">
+                    <input name="items" type="checkbox" value="{{ topic.pk }}">
+                    <a href="{{ topic.get_absolute_url }}">
+                        {{ topic.title }}
                     </a>
-                    par
-                    {% with member=answer.author %}
-                    {% include "misc/member_item.part.html" %}
-                    {% endwith %}
-                    {% else %}
-                    Aucune réponse
-                    {% endif %}
-                    {% endwith %}
-                </p>
+                    <p>
+                        Participants : 
+                        {% include "misc/member_item.part.html" with member=topic.author %}
+
+                        {% for member in topic.participants.all %}
+                            {% include "misc/member_item.part.html" %}
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="forum-entry-count">
+                    <span class="label">
+                        {{ topic.get_post_count|add:"-1" }}
+                    </span>
+                </div>
+                <div class="forum-entry-desc">
+                    <p>
+                        Par {% include "misc/member_item.part.html" with member=topic.author %}
+                        <br />
+
+                        {% with answer=topic.get_last_answer %}
+                            {% if answer %}
+                                Dernière rép.
+                                <a href="{{ answer.get_absolute_url }}">
+                                    {{ answer.pubdate|naturaltime }}
+                                </a>
+                                par
+                                {% include "misc/member_item.part.html" with member=answer.author %}
+                            {% else %}
+                                Aucune réponse
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                </div>
             </div>
-            
-        </div>
         {% endfor %}
     </div>
-{% include "mp/details_pagination.part.html" %}
 
+    {% include "misc/pagination.part.html" with position='bottom' %}
 {% endblock %}

@@ -112,7 +112,7 @@
         }
     }
 
-    .ariane {
+    .breadcrumb {
         position: relative;
         display: block;
         float: left;
@@ -151,6 +151,7 @@
                     &:hover,
                     &:focus {
                         text-decoration: underline;
+                        outline: none;
                     }
                 }
 
