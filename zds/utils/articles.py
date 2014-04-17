@@ -4,6 +4,8 @@ from collections import OrderedDict
 
 from git import *
 
+import os
+
 
 # Export-to-dict functions
 def export_article(article):
