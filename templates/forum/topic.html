@@ -166,7 +166,7 @@
 
                 <div class="message-metadata">
                     <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-                    <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|humane_date }}</a>
+                    <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
                 </div>
 
                 <div class="message-content">
@@ -180,7 +180,7 @@
                     {% elif not post.update = None %}
                         <hr>
                         <p>
-                            <em>(Edité {{ post.update|humane_date }} par {{ post.editor }} )</em>
+                            <em>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</em>
                         </p>
                     {% endif %}
                 </div>

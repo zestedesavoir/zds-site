@@ -131,8 +131,5 @@ class MoveTopicForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('forum'),
-            ButtonHolder(
-                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
-            )
+            Field('forum')
         )

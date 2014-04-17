@@ -1,6 +1,7 @@
 {% extends "mp/base.html" %}
 {% load emarkdown %}
 {% load humanize %}
+{% load captureas %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -66,50 +67,6 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-{% comment %}
-    {% for post in posts %}
-        <article class="forum-message {% if post.is_useful %} helpful {% endif %}">
-            <div class="user" id="p{{ post.id }}">
-                <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
-                    {% with profile=post.author|profile %}
-                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                    {% endwith %}
-                </a>
-            </div>
-            <div class="message">
-                {% if user.is_authenticated %}
-                <ul class="message-actions">
-                    {% if post.author = user or perms.forum.change_post %}
-                    <li><a href="{% url "zds.mp.views.edit_post" %}?message={{ post.pk }}" class="ico-after edit">Editer</a></li>
-                    {% endif %}
-                    {% if not topic.is_locked and not topic.antispam %}
-                    <li><a href="{% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="ico-after cite">Citer</a></li>
-                    {% endif %}
-                </ul>
-                {% endif %}
-
-                <div class="message-metadata">
-                    <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-                    <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-                    {% if not post.update = None %}
-                    <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
-                    {% endif %}
-                </div>
-
-                <div class="message-content">
-                    {{ post.text|emarkdown }}
-                </div>
-
-                <div class="message-bottom">
-                    {% with profile=post.author|profile %}
-                    <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
-                    {% endwith %}
-                </div>
-            </div>
-        </article>
-    {% endfor %}
-{% endcomment %}
-
 
     {% for message in posts %}
         {% captureas edit_link %}
@@ -135,7 +92,7 @@
     {% with profile=user|profile %}
         <section>
             <div class="user">
-                <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
             </div>
 
             {% crispy form %}
