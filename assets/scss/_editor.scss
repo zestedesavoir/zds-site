@@ -1,4 +1,3 @@
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    Interface
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -7,7 +6,9 @@
     /*@include display(flex);*/
     margin: 0 0 0 10px;
     padding: 0;
-    list-style: none;
+    list-style-position: initial;
+    list-style-image: none;
+    list-style-type: none;
     border-bottom: none;
 
     a,
