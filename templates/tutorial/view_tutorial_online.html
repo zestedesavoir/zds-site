@@ -61,8 +61,6 @@
 
 {% if tutorial.get_introduction_online %}
     {{ tutorial.get_introduction_online|safe }}
-{% else %}
-    <p>Aucune introduction.</p>
 {% endif %}
 {% if tutorial.type = "MINI" %}
 {# Small tutorial #}
@@ -83,10 +81,6 @@
             </h2>
             {% include "tutorial/view_part_online_common.part.html" %}
         {% endfor %}
-    {% else %}
-        <p>
-            Il n'y a actuellement aucune partie dans ce tutoriel.
-        </p>
     {% endif %}
     <hr />
 
@@ -94,8 +88,6 @@
 
 {% if tutorial.get_conclusion_online %}
     {{ tutorial.get_conclusion_online|safe }}
-{% else %}
-    <p>Aucune conclusion.</p>
 {% endif %}
 </div>
 <h2 class="box">Commentaires</h2>
