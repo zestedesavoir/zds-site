@@ -46,7 +46,10 @@
             {% if part.intro %}
                 {{ part.intro|emarkdown }}
             {% else %}
-                <p>Aucune introduction.</p>
+                <div data-alert class="alert-box info radius">
+                  Aucune introduction.
+                  <a href="#" class="close">&times;</a>
+                </div>
             {% endif %}
 
         	{% if part.chapters %}
@@ -62,7 +65,10 @@
             {% if part.conclu %}
                 {{ part.conclu|emarkdown }}
             {% else %}
-                <p>Aucune conclusion.</p>
+                <div data-alert class="alert-box info radius">
+                  Aucune conclusion.
+                  <a href="#" class="close">&times;</a>
+                </div>
             {% endif %}
         </div>
     </div>
