@@ -102,7 +102,10 @@
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
         {% else %}
-            <p>Aucune introduction.</p>
+            <div data-alert class="alert-box info radius">
+              Aucune introduction.
+              <a href="#" class="close">&times;</a>
+            </div>
         {% endif %}
 
         {% if tutorial.is_mini %}
@@ -125,9 +128,10 @@
                     </h3>
                 {% endfor %}
             {% else %}
-                <p>
-                    Il n'y a actuellement aucune partie dans ce tutoriel.
-                </p>
+                <div data-alert class="alert-box info radius">
+                  Il n'y a actuellement aucune partie dans ce tutoriel.
+                  <a href="#" class="close">&times;</a>
+                </div>
             {% endif %}
             <hr />
 
@@ -136,7 +140,10 @@
         {% if tuto_version.conclusion %}
             {{ tuto_version.conclusion|emarkdown }}
         {% else %}
-            <p>Aucune conclusion.</p>
+            <div data-alert class="alert-box info radius">
+                  Aucune conclusion.
+                  <a href="#" class="close">&times;</a>
+                </div>
         {% endif %}
     {% endwith %}
 {% endblock %}
