@@ -190,7 +190,7 @@
         setup: function(textareaId) {
             var elemTexta = document.getElementById(textareaId);
             var elemTools = document.createElement("ul");
-            elemTools.className = "zform-toolbar";
+            elemTools.className = "zform-toolbar hide-for-small";
             
             elemTexta.parentNode.insertBefore(elemTools, elemTexta);
             
