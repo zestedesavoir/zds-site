@@ -89,13 +89,13 @@ class PostForm(forms.Form):
             CommonLayoutEditor(),
             Hidden('last_post', '{{ last_post_pk }}'),
         )
-
         if topic.antispam(user):
-            self.helper['text'].wrap(
-                Field, 
-                placeholder = u'Vous ne pouvez pas encore poster sur ce topic (protection antispam de 15 min).',
-                disabled = True
-            )
+            if 'text' not in self.initial: 
+                self.helper['text'].wrap(
+                    Field, 
+                    placeholder = u'Vous ne pouvez pas encore poster sur ce topic (protection antispam de 15 min).',
+                    disabled = True
+                )
         elif topic.is_locked:
             self.helper['text'].wrap(
                 Field, 
