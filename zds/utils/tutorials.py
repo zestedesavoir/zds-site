@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from datetime import datetime
 from django.template import Context
+from django.utils.encoding import *
 import os
 
 from django.template.loader import get_template
