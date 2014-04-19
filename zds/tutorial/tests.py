@@ -1,18 +1,16 @@
 # coding: utf-8
-
+from datetime import datetime
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-import os
-import shutil
-
-from django.core.urlresolvers import reverse
-
 from zds.member.factories import UserFactory, StaffFactory
 from zds.settings import SITE_ROOT
-from zds.tutorial.factories import BigTutorialFactory, PartFactory,\
+from zds.tutorial.factories import BigTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
 from zds.tutorial.models import Note, Tutorial
+import os
+import shutil
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
