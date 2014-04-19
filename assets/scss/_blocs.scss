@@ -57,9 +57,6 @@ div.error:before {
 	display: block;
 }
 
-
-
-
 div.question p{
 	border : 1px solid #DF73FF;
 	border-top: transparent;
@@ -78,6 +75,31 @@ div.question:before {
 	background-repeat: no-repeat;
 	display: block;
 }
+
+
+div.spoiler p{
+	border : 1px solid #000;
+	border-top: transparent;
+	background-color: #333;
+	padding : 1rem;
+	color : #FFF;
+	display: none;
+}
+
+div.spoiler:before {
+	cursor: pointer;
+	width: 100%;
+	height: 30px;
+	border : 1px solid #000;
+	content: "Cliquez dans cette zone pour lire le message";
+	font-size: 12px;
+	vertical-align: middle;
+	background-position: center center;
+	background-image: url('../img/view.png');
+	background-repeat: no-repeat;
+	display: block;
+}
+
 
 kbd
 {
