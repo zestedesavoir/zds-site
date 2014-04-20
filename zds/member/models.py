@@ -119,6 +119,10 @@ class Profile(models.Model):
     def get_public_articles(self):
         '''Get all public articles of the user'''
         return Article.objects.filter(authors__in=[self.user], sha_public__isnull=False).all()
+    
+    def get_validate_articles(self):
+        '''Articles in validation'''
+        return Article.objects.filter(authors__in=[self.user], sha_validation__isnull=False).all()
 
     def get_draft_articles(self):
         '''Get all draft articles of the user'''
