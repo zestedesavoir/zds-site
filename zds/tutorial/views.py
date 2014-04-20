@@ -152,6 +152,8 @@ def reservation(request, validation_pk):
         validation.status = 'PENDING'
         validation.save()
         
+        messages.info(request, u'Le tutoriel n\'est plus sous réserve.')
+        
         return redirect(reverse('zds.tutorial.views.list_validation'))
     
     else:
@@ -159,6 +161,8 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'PENDING_V'
         validation.save()
+        
+        messages.info(request, u'Le tutoriel a bien été réservé par {0}.'.format(request.user.username))
         return redirect(validation.tutorial.get_absolute_url())
 
 @can_read_now
@@ -264,6 +268,7 @@ def reject_tutorial(request):
     tutorial.sha_validation = None
     tutorial.pubdate = None
     tutorial.save()
+    messages.info(request, u'Le tutoriel a bien été refusé.')
     
     return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
 
@@ -296,6 +301,8 @@ def valid_tutorial(request):
     tutorial.pubdate = datetime.now()
     tutorial.save()
     
+    messages.success(request, u'Le tutoriel a bien été validé.')
+    
     return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
 
 @can_write_and_read_now
@@ -320,6 +327,8 @@ def invalid_tutorial(request, tutorial_pk):
     tutorial.pubdate = None
     tutorial.save()
     
+    messages.success(request, u'Le tutoriel a bien été dépublié.')
+    
     return redirect(tutorial.get_absolute_url() + '?version=' + validation.version)
 
 # User actions on tutorial.
@@ -336,6 +345,8 @@ def activ_beta(request, tutorial_pk, version):
     tutorial.sha_beta = version
     tutorial.save()
     
+    messages.success(request, u'La BETA sur ce tutoriel est bien activée.')
+    
     return redirect(tutorial.get_absolute_url_beta())
 
 @can_write_and_read_now
@@ -349,6 +360,8 @@ def desactiv_beta(request, tutorial_pk, version):
 
     tutorial.sha_beta = None
     tutorial.save()
+    
+    messages.info(request, u'La BETA sur ce tutoriel a été désactivée.')
     
     return redirect(tutorial.get_absolute_url_beta())
 
@@ -381,7 +394,8 @@ def ask_validation(request):
     validation.tutorial.sha_validation = request.POST['version']
     validation.tutorial.save()
     
-
+    messages.success(request, u'Votre demande de validation a été envoyée à l\'équipe.')
+    
     return redirect(tutorial.get_absolute_url())
 
 @can_write_and_read_now
@@ -403,7 +417,12 @@ def delete_tutorial(request, tutorial_pk):
                   old_slug_path=old_slug,
                   tuto = tutorial,
                   action = 'del')
+    
+    messages.success(request, u'Le tutoriel {0} a bien été supprimé.'.format(tutorial.title))
+    
     tutorial.delete()
+    
+    
     
     return redirect(reverse('zds.tutorial.views.index'))
 
@@ -430,7 +449,9 @@ def modify_tutorial(request):
 
             tutorial.authors.add(author)
             tutorial.save()
-
+            
+            messages.success(request, u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author_username))
+            
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
@@ -446,6 +467,8 @@ def modify_tutorial(request):
 
             tutorial.authors.remove(author)
             tutorial.save()
+            
+            messages.success(request, u'L\'auteur {0} a bien été retiré du tutoriel.'.format(author.username))
 
             return redirect(redirect_url)
 
@@ -1409,7 +1432,8 @@ def modify_chapter(request):
                 tut_c.save()
         
         maj_repo_chapter(request,
-                         new_slug_path=chapter.get_path(),
+                         chapter = chapter,
+                         old_slug_path=chapter.get_path(),
                          action = 'del')
         # Then delete the chapter
         chapter.delete()
@@ -2052,7 +2076,6 @@ def maj_repo_part(request, old_slug_path=None, new_slug_path=None, part=None, in
     if action == 'del' :
         shutil.rmtree(old_slug_path)
         msg='Suppresion de la partie '
-        index.remove([part.get_path(relative=True)])
         
     else:
         if action == 'maj' :
@@ -2103,15 +2126,14 @@ def maj_repo_chapter(request, old_slug_path=None, new_slug_path=None, chapter=No
     
     if action == 'del' :
         shutil.rmtree(old_slug_path)
-        msg='Suppresion du chapitre  '
-        index.remove([ph])
+        msg='Suppresion du chapitre'
     else:
         if action == 'maj' :
             os.rename(old_slug_path, new_slug_path)
-            msg='Modification du chapitre '
+            msg='Modification du chapitre'
         elif action == 'add' :
             if not os.path.exists(new_slug_path) : os.makedirs(new_slug_path, mode=0777)
-            msg='Creation du chapitre '
+            msg='Creation du chapitre'
 
         
         intro = open(os.path.join(new_slug_path, 'introduction.md'), "w")
@@ -2162,7 +2184,6 @@ def maj_repo_extract(request, old_slug_path=None, new_slug_path=None, extract=No
     index = repo.index
     
     if action == 'del' :
-         os.remove(old_slug_path)
          msg='Suppression de l\'exrait '
     else:        
         if action == 'maj' :
