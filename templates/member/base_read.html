@@ -9,16 +9,13 @@
     <li>
     	<h4>Articles</h4>
     	<li>
-    		En cours de rédaction<span class="label right secondary">2</span>
+    		En cours de rédaction<span class="label right secondary">{{ profile.get_draft_articles.count }}</span>
 		</li>
 		<li>
-    		En attente de validation<span class="label right secondary">2</span>
+    		En attente de validation<span class="label right secondary">{{ profile.get_validate_articles.count }}</span>
 		</li>
 		<li>
-    		En ligne<span class="label right secondary">2</span>
-		</li>
-		<li>
-    		Total<span class="label right">{{ profile.get_tutos.count }}</span>
+            <a class="left" href="{% url "zds.article.views.find_article" usr.pk %}">En ligne</a><span class="label right">{{ profile.get_public_articles.count }}</span>
 		</li>
 	</li>
 	<li>
@@ -30,22 +27,19 @@
     		En cours de validation<span class="label right secondary">{{ profile.get_validate_tutos.count }}</span>
 		</li>
 		<li>
-    		En version beta<span class="label right secondary"><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">{{ profile.get_beta_tutos.count }}</a></span>
+            <a class="left" href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">En version beta</a><span class="label right secondary">{{ profile.get_beta_tutos.count }}</span>
 		</li>
 		<li>
-    		En ligne<span class="label right secondary"><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{{ profile.get_public_tutos.count }}</a></span>
-		</li>
-		<li>
-    		Total<span class="label right">{{ profile.get_tutos.count }}</span>
+    		<a class="left" href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">En ligne</a><span class="label right">{{ profile.get_public_tutos.count }}</span>
 		</li>
     </li>
 	<li>
     	<h4>Forums</h4>
     	<li>
-    		Sujets créés<span class="label right secondary"><a href="{% url "zds.forum.views.find_topic" usr.pk %}">{{ profile.get_topic_count }}</a></span>
+            <a class="left" href="{% url "zds.forum.views.find_topic" usr.pk %}">Sujets créés</a><span class="label right secondary">{{ profile.get_topic_count }}</span>
 		</li>
 		<li>
-    		Messages postés<span class="label right secondary"><a href="{% url "zds.forum.views.find_post" usr.pk %}">{{ profile.get_post_count }}</a></span>
+            <a class="left" href="{% url "zds.forum.views.find_post" usr.pk %}">Messages postés</a><span class="label right secondary">{{ profile.get_post_count }}</span>
 		</li>
     </li>
 	</ul>
