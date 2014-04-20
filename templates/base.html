@@ -349,20 +349,32 @@
       </ul>
     </div>
   <!-- End Header and Nav -->
-  
+  {% if messages %}
+  <div class="large-12 columns">
+      {% for message in messages %}
+      <div data-alert class="alert-box {% if message.tags %}{{ message.tags }}{% endif %} radius">
+        {{ message }}
+        <a href="#" class="close">&times;</a>
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
   <div class="main-content">
     <div class="large-9 push-3 columns">
+      
       {% block headline %}{% endblock %}
       {% block content %}{% endblock %} 
     </div>
     
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
+    {% block sidebar-out %}
     <div class="large-3 pull-9 columns">
       <ul class="side-nav">
         {% block sidebar %}{% endblock %}
       </ul>        
     </div>
+    {% endblock %}
    </div>
   
   <!-- Footer -->

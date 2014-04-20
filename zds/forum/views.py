@@ -241,6 +241,8 @@ def move_topic(request):
     topic.forum = forum
     topic.save()
     
+    messages.success(request, u'Le sujet {0} a bien été déplacé dans {1}.'.format(topic.title, forum.title))
+    
     return redirect(topic.get_absolute_url())
     
 @can_write_and_read_now
@@ -276,8 +278,10 @@ def edit(request):
         # TODO: Do not redirect on AJAX requests
         if 'lock' in data:
             g_topic.is_locked = data['lock'] == 'true'
+            messages.success(request, u'Le sujet {0} est désormais vérouillé.'.format(g_topic.title))
         if 'sticky' in data:
             g_topic.is_sticky = data['sticky'] == 'true'
+            messages.success(request, u'Le sujet {0} est désormais épinglé.'.format(g_topic.title))
         if 'move' in data:
             try:
                 forum_pk = int(request.POST['move_target'])
@@ -424,8 +428,8 @@ def edit_post(request):
         raise PermissionDenied
         
     if post.author != request.user and request.method == 'GET' and request.user.has_perm('forum.change_post'):
-        messages.add_message(
-            request, messages.WARNING,
+        messages.warning(
+            request,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
             u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
             .format(post.author.username))
@@ -440,6 +444,7 @@ def edit_post(request):
                 if request.user.has_perm('forum.change_post'):
                     post.text_hidden=request.POST['text_hidden']
                 post.editor = request.user
+                messages.success(request, u'Le message est désormais masqué')
             
         if 'show-post' in request.POST:
             if request.user.has_perm('forum.change_post'):
@@ -453,6 +458,8 @@ def edit_post(request):
             alert.pubdate = datetime.now()
             alert.save()
             post.alerts.add(alert)
+            
+            messages.success(request, u'Une alerte a été envoyée à l\'équipe concernant ce message')
         
         # Using the preview button
         if 'preview' in request.POST:
@@ -686,27 +693,3 @@ def followed_topics(request):
         'pages': paginator_range(page, paginator.num_pages),
         'nb': page
     })
-
-# Deprecated URLs
-
-def deprecated_topic_redirect(request, topic_pk, topic_slug):
-    topic = get_object_or_404(Topic, pk=topic_pk)
-    return redirect(topic.get_absolute_url(), permanent=True)
-
-
-def deprecated_cat_details_redirect(request, cat_pk, cat_slug):
-    category = get_object_or_404(Category, pk=cat_pk)
-    return redirect(category.get_absolute_url(), permanent=True)
-
-
-def deprecated_details_redirect(request, cat_slug, forum_pk, forum_slug):
-    forum = get_object_or_404(Forum, pk=forum_pk)
-    return redirect(forum.get_absolute_url(), permanent=True)
-
-
-def deprecated_feed_messages_rss(request):
-    return redirect('/forums/flux/messages/rss/', permanent=True)
-
-
-def deprecated_feed_messages_atom(request):
-    return redirect('/forums/flux/messages/atom/', permanent=True)
