@@ -21,11 +21,11 @@
 {% block content %}
 
 <div class="row">
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <h2>Général</h2>
         {% crispy form %}
     </div>
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <h2>Auteurs</h2>
 
         <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
