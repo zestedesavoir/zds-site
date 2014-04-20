@@ -52,6 +52,8 @@
                     <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
                 </p>
                 {% endif %}
+                <h3>Signature</h3>
+                {{ profile.sign|emarkdown }}
             </div>
         </div>
     </div>
@@ -97,6 +99,13 @@
             </div>
             </div>
             {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="large-12 columns">
+        <h2 class="box forum">Biographie</h2>
+        {% if profile.biography %}
+            {{ profile.biography|emarkdown }}
         {% endif %}
     </div>
 {% endblock %}
