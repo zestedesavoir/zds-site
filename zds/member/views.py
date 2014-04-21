@@ -334,56 +334,64 @@ def login_view(request):
         next_page = request.GET['next']
     else:
         next_page = None
-
+    
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                request.session['get_token'] = generate_token()
-                if not 'remember' in request.POST:
-                    request.session.set_expiry(0)
-                
-                try:
-                    profile = get_object_or_404(Profile, user=request.user)
-                    profile.last_ip_address = get_client_ip(request)
-                    profile.save()
-                    # Annotation isn't possible for this method. So we check
-                    # if the user is ban when we retrieved him.
-                    if not profile.can_read_now():
-                        logout_view(request)
-                except :
-                    profile= None
-
-                # redirect the user if needed
-                try:
-                    return redirect(next_page)
-                except:
-                    return redirect(reverse('zds.pages.views.home'))
-            else:
-                error = 'Les identifiants fournis ne sont pas valides'
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            request.session['get_token'] = generate_token()
+            if not 'remember' in request.POST:
+                request.session.set_expiry(0)
+            
+            try:
+                profile = get_object_or_404(Profile, user=request.user)
+                profile.save()
+                # Annotation isn't possible for this method. So we check
+                # if the user is ban when we retrieved him.
+                if not profile.can_read_now():
+                    logout_view(request)
+            except :
+                profile= None
+            print("============> "+str(next_page))
+            # redirect the user if needed
+            try:
+                return redirect(next_page)
+            except:
+                return redirect(reverse('zds.pages.views.home'))
         else:
-            error = 'Veuillez spécifier votre identifiant et votre mot de passe'
+            error = 'Les identifiants fournis ne sont pas valides'
     else:
-
         form = LoginForm()
+        form.helper.form_action = reverse('zds.member.views.login_view')+"?next="+str(next_page)
+
     csrf_tk['error'] = error
     csrf_tk['form'] = form
     csrf_tk['next_page'] = next_page
     return render_template('member/login.html', {
         'form': form,
         'csrf_tk': csrf_tk,
+        'next_page': next_page,
     })
 
 @login_required
 def logout_view(request):
     '''Log out user'''
+    
+    if request.GET.has_key('next'):
+        next_page = request.GET['next']
+    else:
+        next_page = None
+
     logout(request)
     request.session.clear()
-    return redirect(reverse('zds.pages.views.home'))
+    
+    try:
+        return redirect(next_page)
+    except:
+        return redirect(reverse('zds.pages.views.home'))
 
 
 def register_view(request):
