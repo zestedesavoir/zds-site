@@ -32,7 +32,7 @@ class LoginForm(forms.Form):
         widget = forms.CheckboxSelectMultiple,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-alone'
@@ -43,12 +43,12 @@ class LoginForm(forms.Form):
             Field('username'),
             Field('password'),
             Field('remember'),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
+            HTML('{% csrf_token %}'),
             ButtonHolder(
-                Submit('submit', 'Se connecter', css_class = 'button'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
-                HTML('{% csrf_token %}'),
+                Submit('submit', 'Se connecter', css_class = 'button '),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
+            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
 class RegisterForm(forms.Form):

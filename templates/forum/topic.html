@@ -227,13 +227,23 @@
 
 {% if user.is_authenticated %}
 {% with profile=user|profile %}
-<section>
-    <div class="user hide-for-small">
+<div class="large-12 columns">
+    <div class="large-1 columns user hide-for-small">
         <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
     </div>
-    {% crispy form %}
-</section>
+    <div class="large-11 columns user hide-for-small">
+        {% crispy form %}
+    </div>
+</div>
 {% endwith %}
+{% else %}
+<div class="large-12 columns">
+    <div data-alert class="alert-box info radius">
+      Vous devrez vous connecter pour pouvoir poster votre message
+      <a href="#" class="close">&times;</a>
+    </div>
+    {% crispy form %}
+</div>
 {% endif %}
 
 {% endblock %}
