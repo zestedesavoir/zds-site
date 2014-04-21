@@ -280,14 +280,14 @@
                 {% endif %}
 
                 <li>
-                    <a href="{% url "zds.member.views.logout_view" %}">Déconnexion</a>
+                    <a href="{% url "zds.member.views.logout_view" %}?next={{request.build_absolute_uri}}">Déconnexion</a>
                 </li>
             </ul>
           </li>
         </ul>
         {% else %} {# Not logged #}
         <ul class="right">
-            <li><a href="{% url "zds.member.views.login_view" %}">Connexion</a></li>
+            <li><a href="{% url "zds.member.views.login_view" %}?next={{request.build_absolute_uri}}">Connexion</a></li>
             <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
         </ul>
         {% endif %}
