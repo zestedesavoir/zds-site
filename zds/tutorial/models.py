@@ -33,7 +33,7 @@ STATUS_CHOICES = (
 
 class Tutorial(models.Model):
 
-    '''A tutorial, large or small'''
+    """A tutorial, large or small."""
     class Meta:
         verbose_name = 'Tutoriel'
         verbose_name_plural = 'Tutoriels'
@@ -130,7 +130,7 @@ class Tutorial(models.Model):
             .order_by('position_in_tutorial')
 
     def get_chapter(self):
-        '''Gets the chapter associated with the tutorial if it's small'''
+        """Gets the chapter associated with the tutorial if it's small."""
         # We can use get since we know there'll only be one chapter
         return Chapter.objects.get(tutorial__pk=self.pk)
 
@@ -266,33 +266,25 @@ class Tutorial(models.Model):
         super(Tutorial, self).save(*args, **kwargs)
 
     def get_note_count(self):
-        '''
-        Return the number of notes in the tutorial
-        '''
+        """Return the number of notes in the tutorial."""
         return Note.objects.filter(tutorial__pk=self.pk).count()
 
     def get_last_note(self):
-        '''
-        Gets the last answer in the thread, if any
-        '''
+        """Gets the last answer in the thread, if any."""
         return Note.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
 
     def first_note(self):
-        '''
-        Return the first post of a topic, written by topic's author
-        '''
+        """Return the first post of a topic, written by topic's author."""
         return Note.objects\
             .filter(tutorial=self)\
             .order_by('pubdate')\
             .first()
 
     def last_read_note(self):
-        '''
-        Return the last post the user has read
-        '''
+        """Return the last post the user has read."""
         try:
             return TutorialRead.objects\
                 .select_related()\
@@ -302,13 +294,15 @@ class Tutorial(models.Model):
             return self.first_post()
 
     def antispam(self, user=None):
-        '''
-        Check if the user is allowed to post in an tutorial according to the
-        SPAM_LIMIT_SECONDS value. If user shouldn't be able to note, then
-        antispam is activated and this method returns True. Otherwise time
-        elapsed between user's last note and now is enough, and the method will
-        return False.
-        '''
+        """Check if the user is allowed to post in an tutorial according to the
+        SPAM_LIMIT_SECONDS value.
+
+        If user shouldn't be able to note, then antispam is activated
+        and this method returns True. Otherwise time elapsed between
+        user's last note and now is enough, and the method will return
+        False.
+
+        """
         if user is None:
             user = get_current_user()
 
@@ -336,9 +330,7 @@ def get_last_tutorials():
 
 class Note(Comment):
 
-    '''
-    A note tutorial written by an user.
-    '''
+    """A note tutorial written by an user."""
     class Meta:
         verbose_name = 'note sur un tutoriel'
         verbose_name_plural = 'notes sur un tutoriel'
@@ -346,7 +338,7 @@ class Note(Comment):
     tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel')
 
     def __unicode__(self):
-        '''Textual form of a post'''
+        """Textual form of a post."""
         return u'<Tutorial pour "{0}", #{1}>'.format(self.tutorial, self.pk)
 
     def get_absolute_url(self):
@@ -360,10 +352,12 @@ class Note(Comment):
 
 class TutorialRead(models.Model):
 
-    '''
-    Small model which keeps track of the user viewing tutorials. It remembers the
-    topic he looked and what was the last Note at this time.
-    '''
+    """Small model which keeps track of the user viewing tutorials.
+
+    It remembers the topic he looked and what was the last Note at this
+    time.
+
+    """
     class Meta:
         verbose_name = 'Tutoriel lu'
         verbose_name_plural = 'Tutoriels lus'
@@ -379,9 +373,8 @@ class TutorialRead(models.Model):
 
 
 def never_read(tutorial, user=None):
-    '''
-    Check if a topic has been read by an user since it last post was added.
-    '''
+    """Check if a topic has been read by an user since it last post was
+    added."""
     if user is None:
         user = get_current_user()
 
@@ -391,9 +384,7 @@ def never_read(tutorial, user=None):
 
 
 def mark_read(tutorial):
-    '''
-    Mark a tutorial as read for the user
-    '''
+    """Mark a tutorial as read for the user."""
     if tutorial.last_note is not None:
         TutorialRead.objects.filter(
             tutorial=tutorial,
@@ -407,7 +398,7 @@ def mark_read(tutorial):
 
 class Part(models.Model):
 
-    '''A part, containing chapters'''
+    """A part, containing chapters."""
     class Meta:
         verbose_name = 'Partie'
         verbose_name_plural = 'Parties'
@@ -518,7 +509,7 @@ class Part(models.Model):
 
 class Chapter(models.Model):
 
-    '''A chapter, containing text'''
+    """A chapter, containing text."""
     class Meta:
         verbose_name = 'Chapitre'
         verbose_name_plural = 'Chapitres'
@@ -608,11 +599,9 @@ class Chapter(models.Model):
         return self.tutorial
 
     def update_position_in_tutorial(self):
-        '''
-        Update the position_in_tutorial field, but don't save it ; you have
+        """Update the position_in_tutorial field, but don't save it ; you have
         to call save() method manually if you want to save the new computed
-        position
-        '''
+        position."""
         position = 1
         for part in self.part.tutorial.get_parts():
             if part.position_in_tutorial < self.part.position_in_tutorial:
@@ -740,7 +729,7 @@ class Chapter(models.Model):
 
 class Extract(models.Model):
 
-    '''A content extract from a chapter'''
+    """A content extract from a chapter."""
     class Meta:
         verbose_name = 'Extrait'
         verbose_name_plural = 'Extraits'
@@ -862,7 +851,7 @@ class Extract(models.Model):
 
 class Validation(models.Model):
 
-    '''Tutorial validation'''
+    """Tutorial validation."""
     class Meta:
         verbose_name = 'Validation'
         verbose_name_plural = 'Validations'

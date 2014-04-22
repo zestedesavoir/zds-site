@@ -6,5 +6,5 @@ import views
 
 
 urlpatterns = patterns('',
-    url(r'^$', views.add_newsletter),
-)
+                       url(r'^$', views.add_newsletter),
+                       )

@@ -7,7 +7,7 @@ from zds.member.models import Profile
 
 
 def can_read_now(func):
-    '''Decorator to check that the user can read now'''
+    """Decorator to check that the user can read now."""
     def _can_read_now(request, *args, **kwargs):
         try:
             profile = Profile.objects.get(user__pk=request.user.pk)
@@ -25,7 +25,7 @@ def can_read_now(func):
 
 
 def can_write_and_read_now(func):
-    '''Decorator to check that the user can read and write now'''
+    """Decorator to check that the user can read and write now."""
     def _can_write_and_read_now(request, *args, **kwargs):
         try:
             profile = Profile.objects.get(user__pk=request.user.pk)

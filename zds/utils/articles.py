@@ -9,9 +9,7 @@ import os
 
 # Export-to-dict functions
 def export_article(article):
-    '''
-    Export an article to a dict
-    '''
+    """Export an article to a dict."""
     dct = OrderedDict()
     dct['title'] = article.title
     dct['description'] = article.description

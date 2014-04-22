@@ -45,9 +45,7 @@ class MPTests(TestCase):
         staff1 = StaffFactory()
 
     def test_create_mp(self):
-        '''
-        To test all aspects of mp's creation by member
-        '''
+        """To test all aspects of mp's creation by member."""
         # Another User
         user2 = UserFactory()
         user3 = UserFactory()
@@ -129,9 +127,7 @@ class MPTests(TestCase):
         self.assertNotEqual(result.status_code, 200)
 
     def test_edit_mp_post(self):
-        '''
-        To test all aspects of the edition of simple mp post by member
-        '''
+        """To test all aspects of the edition of simple mp post by member."""
 
         ptopic1 = PrivateTopicFactory(author=self.user1)
         ppost1 = PrivatePostFactory(

@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponse
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 import json
-from operator import itemgetter, attrgetter
+from operator import attrgetter
 import os
 import shutil
 
@@ -30,7 +30,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import ArticleForm, ReactionForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
-    Reaction, never_read, mark_read, STATUS_CHOICES
+    Reaction, never_read, mark_read
 
 
 @can_read_now
@@ -653,7 +653,6 @@ def history(request, article_pk, article_slug):
         return redirect(article.get_absolute_url())
 
     repo = Repo(article.get_path())
-    tree = repo.heads.master.commit.tree
 
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
@@ -849,7 +848,7 @@ def edit_reaction(request):
                 'form': form
             })
 
-        if not 'delete-reaction' in request.POST and not 'signal-reaction' in request.POST and not 'show-reaction' in request.POST:
+        if 'delete-reaction' not in request.POST and 'signal-reaction' not in request.POST and 'show-reaction' not in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 reaction.text = request.POST['text']

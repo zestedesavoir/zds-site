@@ -28,9 +28,7 @@ from zds.utils.paginator import paginator_range
 @can_read_now
 @login_required
 def index(request):
-    '''
-    Display the all private topics
-    '''
+    """Display the all private topics."""
 
     # delete actions
     if request.method == 'POST':
@@ -72,9 +70,7 @@ def index(request):
 @can_read_now
 @login_required
 def topic(request, topic_pk, topic_slug):
-    '''
-    Display a thread and its posts using a pager
-    '''
+    """Display a thread and its posts using a pager."""
 
     # TODO: Clean that up
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
@@ -137,7 +133,7 @@ def topic(request, topic_pk, topic_slug):
 @can_write_and_read_now
 @login_required
 def new(request):
-    '''Creates a new private topic'''
+    """Creates a new private topic."""
 
     if request.method == 'POST':
         # If the client is using the "preview" button
@@ -245,9 +241,7 @@ def new(request):
 @login_required
 @require_POST
 def edit(request):
-    '''
-    Edit the given topic
-    '''
+    """Edit the given topic."""
     authenticated_user = request.user
 
     try:
@@ -276,9 +270,7 @@ def edit(request):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''
-    Adds an answer from an user to a topic
-    '''
+    """Adds an answer from an user to a topic."""
     try:
         topic_pk = request.GET['sujet']
     except KeyError:
@@ -404,9 +396,7 @@ def answer(request):
 @can_write_and_read_now
 @login_required
 def edit_post(request):
-    '''
-    Edit the given user's post
-    '''
+    """Edit the given user's post."""
     try:
         post_pk = request.GET['message']
     except KeyError:

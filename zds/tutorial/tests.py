@@ -93,9 +93,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(pub.status_code, 302)
 
     def test_add_note(self):
-        '''
-        To test add note for tutorial
-        '''
+        """To test add note for tutorial."""
         user1 = UserFactory()
         self.client.login(username=user1.username, password='hostel77')
 
@@ -152,9 +150,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_edit_note(self):
-        '''
-        To test all aspects of the edition of note
-        '''
+        """To test all aspects of the edition of note."""
         user1 = UserFactory()
         self.client.login(username=user1.username, password='hostel77')
 
@@ -207,9 +203,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note1.pk).editor, self.staff)
 
     def test_quote_note(self):
-        '''
-        check quote of note
-        '''
+        """check quote of note."""
         user1 = UserFactory()
         self.client.login(username=user1.username, password='hostel77')
 
@@ -243,9 +237,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
     def test_like_note(self):
-        '''
-        check like a note for tuto
-        '''
+        """check like a note for tuto."""
         user1 = UserFactory()
         self.client.login(username=user1.username, password='hostel77')
 
@@ -296,9 +288,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).like, 0)
 
     def test_dislike_note(self):
-        '''
-        check like a note for tuto
-        '''
+        """check like a note for tuto."""
         user1 = UserFactory()
         self.client.login(username=user1.username, password='hostel77')
 
@@ -349,9 +339,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        '''
-        Test import of big tuto
-        '''
+        """Test import of big tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
@@ -377,9 +365,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Tutorial.objects.all().count(), 2)
 
     def test_url_for_guest(self):
-        '''
-        Test simple get request by guest
-        '''
+        """Test simple get request by guest."""
 
         # logout before
         self.client.logout()
@@ -443,9 +429,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_url_for_member(self):
-        '''
-        Test simple get request by simple member
-        '''
+        """Test simple get request by simple member."""
 
         # logout before
         self.client.logout()
@@ -515,9 +499,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
     def test_url_for_author(self):
-        '''
-        Test simple get request by author
-        '''
+        """Test simple get request by author."""
 
         # logout before
         self.client.logout()
@@ -587,9 +569,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_url_for_staff(self):
-        '''
-        Test simple get request by staff
-        '''
+        """Test simple get request by staff."""
 
         # logout before
         self.client.logout()

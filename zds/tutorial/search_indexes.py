@@ -18,7 +18,7 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
         return Tutorial
 
     def index_queryset(self, using=None):
-        """Only tutorials online"""
+        """Only tutorials online."""
         return self.get_model().objects.filter(sha_public__isnull=False)
 
 
@@ -31,7 +31,7 @@ class PartIndex(indexes.SearchIndex, indexes.Indexable):
         return Part
 
     def index_queryset(self, using=None):
-        """Only parts online"""
+        """Only parts online."""
         return self.get_model().objects.filter(
             tutorial__sha_public__isnull=False)
 
@@ -46,7 +46,7 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
         return Chapter
 
     def index_queryset(self, using=None):
-        """Only chapters online"""
+        """Only chapters online."""
         return self.get_model().objects.filter(Q(tutorial__sha_public__isnull=False)
                                                | Q(part__tutorial__sha_public__isnull=False))
 
@@ -61,6 +61,6 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
         return Extract
 
     def index_queryset(self, using=None):
-        """Only extracts online"""
+        """Only extracts online."""
         return self.get_model().objects.filter(Q(chapter__tutorial__sha_public__isnull=False)
                                                | Q(chapter__part__tutorial__sha_public__isnull=False))
