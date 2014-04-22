@@ -4,5 +4,9 @@
     <a href="{{ member.get_absolute_url }}">
         <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
         {{ member.username }}
+
+        {% if info %}
+            <span class="info">({{ info }})</span>
+        {% endif %}
     </a>
 {% endwith %}

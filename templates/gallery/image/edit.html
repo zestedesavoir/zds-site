@@ -1,0 +1,39 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Éditer une image
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li class="current">Éditer une Image</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Éditer une image
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <li>
+        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}">
+            Ajouter une image
+        </a>
+    </li>
+{% endblock %}
+
+
+
+{% block content %}
+    <img src="{{ image.physical.url }}" alt="">
+
+    {% crispy form %}
+{% endblock %}

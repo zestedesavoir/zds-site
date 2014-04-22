@@ -1,0 +1,100 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+{% load profile %}
+{% load captureas %}
+
+
+
+{% block title %}
+    {{ gallery.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li class="current">{{ gallery.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ gallery.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ gallery.subtitle }}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="authors content-wrapper">
+        <span class="authors-label">Membres partageant cette galerie : </span>
+        <ul>
+            {% for u in gallery.get_users %}
+                {% captureas mode %}
+                    {% if u.mode == 'R' %}
+                        Lecture
+                    {% elif u.mode == 'W' %}
+                        Ecriture
+                    {% endif %}
+                {% endcaptureas %}
+                <li>
+                    {% include "misc/member_item.part.html" with member=u.user info=mode %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if gallery_mode.is_write %}
+        {% crispy form %}
+    {% endif %}
+
+
+    <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
+        <input type="hidden" name="gallery" value="{{ gallery.pk }}">
+
+        <table>
+            <thead>
+               <tr>
+                   <th style="width: 3%;"></th>
+                   <th style="width: 180px;">Image</th>
+                   <th style="width: 72%;">Titre</th>
+               </tr>
+            </thead>
+            <tbody>
+                {% for img in gallery.get_images %}
+                    <tr>
+                        <td>
+                            <input name="items" type="checkbox" value="{{ img.pk }}">
+                        </td>
+                        <td>
+                            <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">
+                                <img src="{{ img.physical.url }}"
+                                     data-caption="{{ img.title }}"
+                                     alt="{{ img.title }}">
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">
+                                {{ img.title }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button name="delete_multi">Supprimer</button>
+
+        {% csrf_token %}
+    </form>
+{% endblock %}

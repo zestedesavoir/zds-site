@@ -27,7 +27,7 @@ def gallery_list(request):
     '''
     galleries = UserGallery.objects.all().filter(user=request.user)
 
-    return render_template('gallery/gallery_list.html', {
+    return render_template('gallery/gallery/list.html', {
         'galleries': galleries
     })
 
@@ -46,7 +46,7 @@ def gallery_details(request, gal_pk, gal_slug):
     images = gal.get_images()
     form = UserGalleryForm()
 
-    return render_template('gallery/gallery_details.html', {
+    return render_template('gallery/gallery/details.html', {
         'gallery': gal,
         'gallery_mode': gal_mode,
         'images': images,
@@ -81,12 +81,12 @@ def new_gallery(request):
             return redirect(gal.get_absolute_url())
 
         else:
-            return render_template('gallery/new_gallery.html', {
+            return render_template('gallery/gallery/new.html', {
                 'form': form
             })
     else:
         form = GalleryForm()
-        return render_template('gallery/new_gallery.html', {
+        return render_template('gallery/gallery/new.html', {
             'form': form
         })
 
@@ -154,7 +154,7 @@ def modify_gallery(request):
             ug.mode = request.POST['mode']
             ug.save()
         else:
-            return render_template('gallery/gallery_details.html', {
+            return render_template('gallery/gallery/details.html', {
                     'gallery': gallery,
                     'gallery_mode': gal_mode,
                     'images': gallery.get_images(),
@@ -203,7 +203,7 @@ def edit_image(request, gal_pk, img_pk):
                 'physical': img.physical,
             })
     
-    return render_template('gallery/edit_image.html', {
+    return render_template('gallery/image/edit.html', {
         'form': form,
         'gallery': gal,
         'image': img
@@ -263,13 +263,13 @@ def new_image(request, gal_pk):
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
         else:
-            return render_template('gallery/new_image.html', {
+            return render_template('gallery/image/new.html', {
             'form': form,
             'gallery': gal
             })
     else:
         form = ImageForm()  # A empty, unbound form
-        return render_template('gallery/new_image.html', {
+        return render_template('gallery/image/new.html', {
             'form': form,
             'gallery': gal
         })
