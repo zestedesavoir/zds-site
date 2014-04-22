@@ -22,9 +22,7 @@ from zds.utils import render_template, slugify
 @can_read_now
 @login_required
 def gallery_list(request):
-    '''
-    Display the gallery list with all their images
-    '''
+    """Display the gallery list with all their images."""
     galleries = UserGallery.objects.all().filter(user=request.user)
 
     return render_template('gallery/gallery_list.html', {
@@ -35,9 +33,7 @@ def gallery_list(request):
 @can_read_now
 @login_required
 def gallery_details(request, gal_pk, gal_slug):
-    '''
-    Gallery details
-    '''
+    """Gallery details."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     try:
@@ -58,9 +54,7 @@ def gallery_details(request, gal_pk, gal_slug):
 @can_write_and_read_now
 @login_required
 def new_gallery(request):
-    '''
-    Creates a new gallery
-    '''
+    """Creates a new gallery."""
     if request.method == 'POST':
         form = GalleryForm(request.POST)
         if form.is_valid():
@@ -97,7 +91,7 @@ def new_gallery(request):
 @require_POST
 @login_required
 def modify_gallery(request):
-    '''Modify gallery instance'''
+    """Modify gallery instance."""
 
     # Global actions
 
@@ -183,9 +177,7 @@ def del_image(request, gal_pk):
 @can_write_and_read_now
 @login_required
 def edit_image(request, gal_pk, img_pk):
-    '''
-    Creates a new image
-    '''
+    """Creates a new image."""
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
 
@@ -252,7 +244,7 @@ def modify_image(request):
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
-    '''Creates a new image'''
+    """Creates a new image."""
     gal = get_object_or_404(Gallery, pk=gal_pk)
 
     if request.method == 'POST':

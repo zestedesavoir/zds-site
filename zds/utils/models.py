@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 
 
 def image_path_category(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('categorie/normal', str(instance.pk), filename)
@@ -36,7 +36,7 @@ class Alert(models.Model):
 
 class Category(models.Model):
 
-    '''Common category for several concepts of the application'''
+    """Common category for several concepts of the application."""
     class Meta:
         verbose_name = 'Categorie'
         verbose_name_plural = 'Categories'
@@ -47,7 +47,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=80)
 
     def __unicode__(self):
-        '''Textual Category Form'''
+        """Textual Category Form."""
         return self.title
 
     def get_tutos(self):
@@ -64,13 +64,13 @@ class Category(models.Model):
             sha_public='').all()
 
     def get_all_subcategories(self):
-        '''Get all subcategories of a category (not main include)'''
+        """Get all subcategories of a category (not main include)"""
         return CategorySubCategory.objects \
             .filter(category__in=[self]) \
             .all()
 
     def get_subcategories(self):
-        '''Get only main subcategories of a category'''
+        """Get only main subcategories of a category."""
         return CategorySubCategory.objects \
             .filter(category__in=[self]                    , is_main=True)\
             .all()
@@ -78,7 +78,7 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
 
-    '''Common subcategory for several concepts of the application'''
+    """Common subcategory for several concepts of the application."""
     class Meta:
         verbose_name = 'Sous-categorie'
         verbose_name_plural = 'Sous-categories'
@@ -94,7 +94,7 @@ class SubCategory(models.Model):
     slug = models.SlugField(max_length=80)
 
     def __unicode__(self):
-        '''Textual Category Form'''
+        """Textual Category Form."""
         return self.title
 
     def get_tutos(self):
@@ -117,7 +117,8 @@ class SubCategory(models.Model):
 
 class CategorySubCategory(models.Model):
 
-    '''ManyToMany between Category and SubCategory but save a boolean to know if category is his main category'''
+    """ManyToMany between Category and SubCategory but save a boolean to know
+    if category is his main category."""
     class Meta:
         verbose_name = 'Hierarchie catégorie'
         verbose_name_plural = 'Hierarchies catégories'
@@ -127,7 +128,7 @@ class CategorySubCategory(models.Model):
     is_main = models.BooleanField('Est la catégorie principale', default=True)
 
     def __unicode__(self):
-        '''Textual Link Form'''
+        """Textual Link Form."""
         if self.is_main:
             return u'[{0}][main]: {1}'.format(
                 self.category.title,
@@ -140,7 +141,7 @@ class CategorySubCategory(models.Model):
 
 class Licence(models.Model):
 
-    '''Publication licence'''
+    """Publication licence."""
     class Meta:
         verbose_name = 'Licence'
         verbose_name_plural = 'Licences'
@@ -150,17 +151,13 @@ class Licence(models.Model):
     description = models.TextField('Description')
 
     def __unicode__(self):
-        '''
-        Textual Licence Form
-        '''
+        """Textual Licence Form."""
         return self.title
 
 
 class Comment(models.Model):
 
-    '''
-    Comment in forum, articles, tutorial, chapter, etc.
-    '''
+    """Comment in forum, articles, tutorial, chapter, etc."""
     class Meta:
         verbose_name = 'Commentaire'
         verbose_name_plural = 'Commentaires'
@@ -196,19 +193,17 @@ class Comment(models.Model):
         blank=True)
 
     def get_like_count(self):
-        '''Gets number of like for the post'''
+        """Gets number of like for the post."""
         return CommentLike.objects.filter(comments__pk=self.pk).count()
 
     def get_dislike_count(self):
-        '''Gets number of dislike for the post'''
+        """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
 
 
 class CommentLike(models.Model):
 
-    '''
-    Set of like comments
-    '''
+    """Set of like comments."""
     class Meta:
         verbose_name = 'Ce message est utile'
         verbose_name_plural = 'Ces messages sont utiles'
@@ -219,9 +214,7 @@ class CommentLike(models.Model):
 
 class CommentDislike(models.Model):
 
-    '''
-    Set of dislike comments
-    '''
+    """Set of dislike comments."""
     class Meta:
         verbose_name = 'Ce message est inutile'
         verbose_name_plural = 'Ces messages sont inutiles'

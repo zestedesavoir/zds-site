@@ -50,7 +50,7 @@ from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
 
 @can_read_now
 def index(request):
-    '''Display all public tutorials of the website.'''
+    """Display all public tutorials of the website."""
     # The tag indicate what the category tutorial the user would
     # like to display. We can display all subcategories for tutorials.
     try:
@@ -82,7 +82,7 @@ def index(request):
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
 def list_validation(request):
-    '''Display tutorials list in validation'''
+    """Display tutorials list in validation."""
     # Retrieve type of the validation. Default value is all validations.
     try:
         type = request.GET['type']
@@ -146,7 +146,7 @@ def list_validation(request):
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
-    '''Display tutorials list in validation'''
+    """Display tutorials list in validation."""
 
     validation = get_object_or_404(Validation, pk=validation_pk)
 
@@ -200,7 +200,7 @@ def diff(request, tutorial_pk, tutorial_slug):
 @can_read_now
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
-    '''History of the tutorial'''
+    """History of the tutorial."""
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     if request.user not in tutorial.authors.all():
@@ -226,7 +226,7 @@ def history(request, tutorial_pk, tutorial_slug):
 @login_required
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 def history_validation(request, tutorial_pk):
-    '''History of the validation of a tutorial'''
+    """History of the validation of a tutorial."""
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     # Get subcategory to filter validations.
@@ -259,7 +259,7 @@ def history_validation(request, tutorial_pk):
 @require_POST
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 def reject_tutorial(request):
-    '''Staff reject tutorial of an author'''
+    """Staff reject tutorial of an author."""
     # Retrieve current tutorial;
     try:
         tutorial_pk = request.POST['tutorial']
@@ -292,7 +292,7 @@ def reject_tutorial(request):
 @require_POST
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 def valid_tutorial(request):
-    '''Staff valid tutorial of an author'''
+    """Staff valid tutorial of an author."""
     # Retrieve current tutorial;
     try:
         tutorial_pk = request.POST['tutorial']
@@ -328,7 +328,7 @@ def valid_tutorial(request):
 @login_required
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 def invalid_tutorial(request, tutorial_pk):
-    '''Staff invalid tutorial of an author'''
+    """Staff invalid tutorial of an author."""
     # Retrieve current tutorial
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -395,7 +395,7 @@ def desactiv_beta(request, tutorial_pk, version):
 @login_required
 @require_POST
 def ask_validation(request):
-    '''User ask validation for his tutorial'''
+    """User ask validation for his tutorial."""
     # Retrieve current tutorial;
     try:
         tutorial_pk = request.POST['tutorial']
@@ -430,7 +430,7 @@ def ask_validation(request):
 @can_write_and_read_now
 @login_required
 def delete_tutorial(request, tutorial_pk):
-    '''User would like delete his tutorial'''
+    """User would like delete his tutorial."""
     # Retrieve current tutorial
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -519,7 +519,7 @@ def modify_tutorial(request):
 @can_read_now
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
-    '''Show the given offline tutorial if exists'''
+    """Show the given offline tutorial if exists."""
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     # Only authors of the tutorial and staff can view tutorial in offline.
@@ -633,7 +633,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
 @can_read_now
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
-    '''Display a tutorial'''
+    """Display a tutorial."""
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     # If the tutorial isn't online, we raise 404 error.
@@ -815,7 +815,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 @can_write_and_read_now
 @login_required
 def add_tutorial(request):
-    ''''Adds a tutorial'''
+    """'Adds a tutorial."""
     if request.method == 'POST':
         form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
@@ -901,7 +901,7 @@ def add_tutorial(request):
 @can_write_and_read_now
 @login_required
 def edit_tutorial(request):
-    '''Edit a tutorial'''
+    """Edit a tutorial."""
     # Retrieve current tutorial;
     try:
         tutorial_pk = request.GET['tutoriel']
@@ -987,7 +987,7 @@ def edit_tutorial(request):
 @can_read_now
 @login_required
 def view_part(request, tutorial_pk, tutorial_slug, part_slug):
-    '''Display a part'''
+    """Display a part."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     try:
@@ -1060,7 +1060,7 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
 
 @can_read_now
 def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
-    '''Display a part'''
+    """Display a part."""
     part = get_object_or_404(Part,
                              slug=part_slug, tutorial__pk=tutorial_pk)
 
@@ -1150,7 +1150,7 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
 @can_write_and_read_now
 @login_required
 def add_part(request):
-    '''Add a new part'''
+    """Add a new part."""
     try:
         tutorial_pk = request.GET['tutoriel']
     except KeyError:
@@ -1202,7 +1202,7 @@ def add_part(request):
 @can_write_and_read_now
 @login_required
 def modify_part(request):
-    '''Modifiy the given part'''
+    """Modifiy the given part."""
     if not request.method == 'POST':
         raise Http404
 
@@ -1250,7 +1250,7 @@ def modify_part(request):
 @can_write_and_read_now
 @login_required
 def edit_part(request):
-    '''Edit the given part'''
+    """Edit the given part."""
     try:
         part_pk = int(request.GET['partie'])
     except KeyError:
@@ -1313,7 +1313,7 @@ def edit_part(request):
 @login_required
 def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                  chapter_slug):
-    '''View chapter'''
+    """View chapter."""
 
     chapter = get_object_or_404(Chapter,
                                 slug=chapter_slug,
@@ -1407,7 +1407,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
 @can_read_now
 def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                         chapter_slug):
-    '''View chapter'''
+    """View chapter."""
 
     chapter_bd = get_object_or_404(Chapter,
                                    slug=chapter_slug,
@@ -1500,7 +1500,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
 @can_write_and_read_now
 @login_required
 def add_chapter(request):
-    '''Add a new chapter to given part'''
+    """Add a new chapter to given part."""
     try:
         part_pk = request.GET['partie']
     except KeyError:
@@ -1606,7 +1606,7 @@ def add_chapter(request):
 @can_write_and_read_now
 @login_required
 def modify_chapter(request):
-    '''Modify the given chapter'''
+    """Modify the given chapter."""
     if not request.method == 'POST':
         raise Http404
     data = request.POST
@@ -1664,7 +1664,7 @@ def modify_chapter(request):
 @can_write_and_read_now
 @login_required
 def edit_chapter(request):
-    '''Edit the given chapter'''
+    """Edit the given chapter."""
 
     try:
         chapter_pk = int(request.GET['chapitre'])
@@ -1753,7 +1753,7 @@ def edit_chapter(request):
 @can_read_now
 @login_required
 def add_extract(request):
-    '''Add extract'''
+    """Add extract."""
     try:
         chapter_pk = int(request.GET['chapitre'])
     except KeyError:
@@ -1816,7 +1816,7 @@ def add_extract(request):
 @can_write_and_read_now
 @login_required
 def edit_extract(request):
-    '''Edit extract'''
+    """Edit extract."""
     try:
         extract_pk = request.GET['extrait']
     except KeyError:
@@ -2647,7 +2647,7 @@ def maj_repo_extract(
 
 @can_read_now
 def download(request):
-    '''Download a tutorial'''
+    """Download a tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
@@ -2672,7 +2672,7 @@ def download(request):
 @can_read_now
 @permission_required('tutorial.change_tutorial', raise_exception=True)
 def download_markdown(request):
-    '''Download a markdown tutorial'''
+    """Download a markdown tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
@@ -2692,7 +2692,7 @@ def download_markdown(request):
 
 @can_read_now
 def download_html(request):
-    '''Download a pdf tutorial'''
+    """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
@@ -2712,7 +2712,7 @@ def download_html(request):
 
 @can_read_now
 def download_pdf(request):
-    '''Download a pdf tutorial'''
+    """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
@@ -2732,7 +2732,7 @@ def download_pdf(request):
 
 @can_read_now
 def download_epub(request):
-    '''Download an epub tutorial'''
+    """Download an epub tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
 
@@ -2751,9 +2751,7 @@ def download_epub(request):
 
 
 def get_url_images(md_text, pt):
-    '''
-    find images urls in markdown text and download this
-    '''
+    """find images urls in markdown text and download this."""
     regex = ur"(!\[.*?\]\()(.+?)(\))"
     # if text is empty don't download
     if md_text is not None:
@@ -2938,7 +2936,7 @@ def UNMEP(tutorial):
 @can_write_and_read_now
 @login_required
 def answer(request):
-    '''Adds an answer from a user to an tutorial'''
+    """Adds an answer from a user to an tutorial."""
     try:
         tutorial_pk = request.GET['tutorial']
     except KeyError:
@@ -3038,9 +3036,7 @@ def answer(request):
 @can_write_and_read_now
 @login_required
 def edit_note(request):
-    '''
-    Edit the given user's note
-    '''
+    """Edit the given user's note."""
 
     try:
         note_pk = request.GET['message']
@@ -3130,7 +3126,7 @@ def edit_note(request):
 @can_write_and_read_now
 @login_required
 def like_note(request):
-    '''Like a note'''
+    """Like a note."""
 
     try:
         note_pk = request.GET['message']
@@ -3175,7 +3171,7 @@ def like_note(request):
 @can_write_and_read_now
 @login_required
 def dislike_note(request):
-    '''Dislike a note'''
+    """Dislike a note."""
 
     try:
         note_pk = request.GET['message']
