@@ -3,7 +3,6 @@
 from datetime import datetime
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
 from hashlib import md5
 import os
 
@@ -19,7 +18,7 @@ from zds.utils.models import Alert
 
 class Profile(models.Model):
 
-    '''Represents an user profile'''
+    """Represents an user profile."""
     class Meta:
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
@@ -69,15 +68,15 @@ class Profile(models.Model):
         blank=True)
 
     def __unicode__(self):
-        '''Textual forum of a profile'''
+        """Textual forum of a profile."""
         return self.user.username
 
     def get_absolute_url(self):
-        '''Absolute URL to the profile page'''
+        """Absolute URL to the profile page."""
         return '/membres/voir/{0}'.format(self.user.username)
 
     def get_city(self):
-        ''' return physical adress by geolocalisation '''
+        """return physical adress by geolocalisation."""
         gic = pygeoip.GeoIP(
             os.path.join(
                 settings.GEOIP_PATH,
@@ -88,7 +87,7 @@ class Profile(models.Model):
             str(geo['city']), str(geo['postal_code']), str(geo['country_name']))
 
     def get_avatar_url(self):
-        '''Avatar URL (using custom URL or Gravatar)'''
+        """Avatar URL (using custom URL or Gravatar)"""
         if self.avatar_url:
             return self.avatar_url
         else:
@@ -96,69 +95,69 @@ class Profile(models.Model):
                 md5(self.user.email).hexdigest())
 
     def get_post_count(self):
-        '''Number of messages posted'''
+        """Number of messages posted."""
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
-        '''Number of threads created'''
+        """Number of threads created."""
         return Topic.objects.filter(author=self.user).count()
 
     def get_tuto_count(self):
-        '''Number of tutos created'''
+        """Number of tutos created."""
         return Tutorial.objects.filter(authors__in=[self.user]).count()
 
     def get_tutos(self):
-        '''Get all tutorials of the user'''
+        """Get all tutorials of the user."""
         return Tutorial.objects.filter(authors__in=[self.user]).all()
 
     def get_draft_tutos(self):
-        '''Tutorial in draft'''
+        """Tutorial in draft."""
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_draft__isnull=False).all()
 
     def get_public_tutos(self):
-        '''Tutorial in public'''
+        """Tutorial in public."""
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_public__isnull=False).all()
 
     def get_validate_tutos(self):
-        '''Tutorial in validation'''
+        """Tutorial in validation."""
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_validation__isnull=False).all()
 
     def get_beta_tutos(self):
-        '''Tutorial in beta'''
+        """Tutorial in beta."""
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_beta__isnull=False).all()
 
     def get_articles(self):
-        '''Get all articles of the user'''
+        """Get all articles of the user."""
         return Article.objects.filter(authors__in=[self.user]).all()
 
     def get_public_articles(self):
-        '''Get all public articles of the user'''
+        """Get all public articles of the user."""
         return Article.objects.filter(
             authors__in=[
                 self.user],
             sha_public__isnull=False).all()
 
     def get_validate_articles(self):
-        '''Articles in validation'''
+        """Articles in validation."""
         return Article.objects.filter(
             authors__in=[
                 self.user],
             sha_validation__isnull=False).all()
 
     def get_draft_articles(self):
-        '''Get all draft articles of the user'''
+        """Get all draft articles of the user."""
         return Article.objects.filter(
             authors__in=[
                 self.user],
@@ -186,7 +185,7 @@ class Profile(models.Model):
             return self.can_write
 
     def get_followed_topics(self):
-        '''Followed topics'''
+        """Followed topics."""
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
 
@@ -202,7 +201,7 @@ class TokenForgotPassword(models.Model):
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
-        '''Absolute URL to the new password page'''
+        """Absolute URL to the new password page."""
         return reverse('zds.member.views.new_password') + \
             '?token={0}'.format(self.token)
 
@@ -218,12 +217,12 @@ class TokenRegister(models.Model):
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
-        '''Absolute URL to the active account page'''
+        """Absolute URL to the active account page."""
         return reverse('zds.member.views.active_account') + \
             '?token={0}'.format(self.token)
 
     def __unicode__(self):
-        '''Textual forum of a profile'''
+        """Textual forum of a profile."""
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
 

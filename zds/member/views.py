@@ -34,7 +34,7 @@ from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 
 @can_read_now
 def index(request):
-    '''Displays the list of registered users'''
+    """Displays the list of registered users."""
     members = User.objects.order_by('date_joined')
     return render_template('member/index.html', {
         'members': members
@@ -43,7 +43,7 @@ def index(request):
 
 @can_read_now
 def details(request, user_name):
-    '''Displays details about a profile'''
+    """Displays details about a profile."""
     usr = get_object_or_404(User, username=user_name)
 
     try:
@@ -105,7 +105,7 @@ def details(request, user_name):
 @login_required
 @transaction.atomic
 def modify_profile(request, user_pk):
-    '''Modifies sanction of a user if there is a POST request'''
+    """Modifies sanction of a user if there is a POST request."""
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if request.method == 'POST':
         ban = Ban()
@@ -151,7 +151,7 @@ def modify_profile(request, user_pk):
 @can_read_now
 @login_required
 def tutorials(request):
-    '''Returns all tutorials of the authenticated user'''
+    """Returns all tutorials of the authenticated user."""
     # The type indicate what the user would like to display.
     # We can display public, draft or all user's tutorials.
     try:
@@ -177,7 +177,7 @@ def tutorials(request):
 @can_read_now
 @login_required
 def articles(request):
-    '''Returns all articles of the authenticated user'''
+    """Returns all articles of the authenticated user."""
     # The type indicate what the user would like to display.
     # We can display public, draft or all user's articles.
     try:
@@ -203,10 +203,11 @@ def articles(request):
 @can_read_now
 @login_required
 def actions(request):
-    '''
-    Show avaible actions for current user, like a customized homepage.
+    """Show avaible actions for current user, like a customized homepage.
+
     This may be very temporary.
-    '''
+
+    """
 
     # TODO: Seriously improve this page, and see if cannot be merged in
     #       zds.pages.views.home since it will be more coherent to give an
@@ -220,7 +221,7 @@ def actions(request):
 @can_write_and_read_now
 @login_required
 def settings_profile(request):
-    '''User's settings about his personal information'''
+    """User's settings about his personal information."""
     # extra information about the current user
     profile = Profile.objects.get(user=request.user)
 
@@ -278,7 +279,7 @@ def settings_profile(request):
 @can_write_and_read_now
 @login_required
 def settings_account(request):
-    '''User's settings about his account'''
+    """User's settings about his account."""
     if request.method == 'POST':
         form = ChangePasswordForm(request.user, request.POST)
         c = {
@@ -313,7 +314,7 @@ def settings_account(request):
 @can_write_and_read_now
 @login_required
 def settings_user(request):
-    '''User's settings about his email'''
+    """User's settings about his email."""
     profile = get_object_or_404(Profile, user__pk=request.user.pk)
 
     if request.method == 'POST':
@@ -362,7 +363,7 @@ def settings_user(request):
 
 @can_read_now
 def login_view(request):
-    '''Log in user'''
+    """Log in user."""
     csrf_tk = {}
     csrf_tk.update(csrf(request))
 
@@ -418,7 +419,7 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
-    '''Log out user'''
+    """Log out user."""
 
     if 'next' in request.GET:
         next_page = request.GET['next']
@@ -435,7 +436,7 @@ def logout_view(request):
 
 
 def register_view(request):
-    '''Register a new user'''
+    """Register a new user."""
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -501,7 +502,7 @@ def register_view(request):
 
 @can_read_now
 def forgot_password(request):
-    '''If the user forgot his password, he can have a new one'''
+    """If the user forgot his password, he can have a new one."""
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
@@ -556,7 +557,7 @@ def forgot_password(request):
 
 @can_read_now
 def new_password(request):
-    '''Create a new password for a user'''
+    """Create a new password for a user."""
     try:
         token = request.GET['token']
     except KeyError:
@@ -589,7 +590,7 @@ def new_password(request):
 
 
 def active_account(request):
-    '''Active token for a user'''
+    """Active token for a user."""
     try:
         token = request.GET['token']
     except KeyError:
@@ -610,7 +611,7 @@ def active_account(request):
 
 
 def get_client_ip(request):
-    '''Retrieve the real IP address of the client'''
+    """Retrieve the real IP address of the client."""
     if 'HTTP_X_REAL_IP' in request.META:  # nginx
         return request.META.get('HTTP_X_REAL_IP')
     elif 'REMOTE_ADDR' in request.META:  # other

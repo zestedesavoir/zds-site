@@ -22,7 +22,7 @@ IMAGE_MEDIUM_MAX_HEIGHT = 300
 
 
 def image_path(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join(
@@ -31,7 +31,7 @@ def image_path(instance, filename):
 
 
 def image_path_thumb(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join(
@@ -40,7 +40,7 @@ def image_path_thumb(instance, filename):
 
 
 def image_path_medium(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join(
@@ -63,7 +63,7 @@ class UserGallery(models.Model):
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default='R')
 
     def __unicode__(self):
-        '''Textual form of an User Gallery'''
+        """Textual form of an User Gallery."""
         return u'Galerie "{0}" envoye par {1}'.format(self.gallery,
                                                       self.user)
 
@@ -107,7 +107,7 @@ class Image(models.Model):
         'Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        '''Textual form of an Image'''
+        """Textual form of an Image."""
         return self.slug
 
     def get_absolute_url(self):
@@ -169,9 +169,8 @@ class Image(models.Model):
 
 
 def has_changed(instance, field, manager='objects'):
-    """Returns true if a field has changed in a model
-    May be used in a model.save() method.
-    """
+    """Returns true if a field has changed in a model May be used in a
+    model.save() method."""
     if not instance.pk:
         return True
     manager = getattr(instance.__class__, manager)
@@ -183,9 +182,7 @@ def has_changed(instance, field, manager='objects'):
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """Deletes image from filesystem
-    when corresponding object is deleted.
-    """
+    """Deletes image from filesystem when corresponding object is deleted."""
     if instance.physical:
         if os.path.isfile(instance.physical.path):
             os.remove(instance.physical.path)
@@ -205,7 +202,7 @@ class Gallery(models.Model):
         'Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        '''Textual form of an Gallery'''
+        """Textual form of an Gallery."""
         return self.title
 
     def get_absolute_url(self):

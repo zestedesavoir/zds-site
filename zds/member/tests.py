@@ -19,9 +19,7 @@ class MemberTests(TestCase):
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
     def test_login(self):
-        '''
-        To test user login
-        '''
+        """To test user login."""
         user = UserFactory()
 
         result = self.client.post(
@@ -39,9 +37,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_register(self):
-        '''
-        To test user registration
-        '''
+        """To test user registration."""
 
         result = self.client.post(
             reverse('zds.member.views.register_view'),
@@ -70,9 +66,7 @@ class MemberTests(TestCase):
         self.assertEquals(User.objects.get(username='firm1').is_active, True)
 
     def test_sanctions(self):
-        '''
-        Test various sanctions
-        '''
+        """Test various sanctions."""
 
         staff = StaffFactory()
         login_check = self.client.login(

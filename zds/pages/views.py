@@ -12,9 +12,7 @@ from zds.utils import slugify
 
 @can_read_now
 def home(request):
-    '''
-    Display the home page with last topics added
-    '''
+    """Display the home page with last topics added."""
 
     tutos = []
     for tuto in get_last_tutorials():
@@ -48,25 +46,19 @@ def index(request):
 
 @can_read_now
 def about(request):
-    '''
-    Display many informations about the website
-    '''
+    """Display many informations about the website."""
     return render_template('pages/about.html')
 
 
 @can_read_now
 def association(request):
-    '''
-    Display association's presentation
-    '''
+    """Display association's presentation."""
     return render_template('pages/association.html')
 
 
 @can_read_now
 def contact(request):
-    '''
-    Display contact page
-    '''
+    """Display contact page."""
     return render_template('pages/contact.html')
 
 
