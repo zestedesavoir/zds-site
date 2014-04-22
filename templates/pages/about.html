@@ -1,71 +1,75 @@
 {% extends "pages/base.html" %}
 
+
+
 {% block title %}
     À propos
 {% endblock %}
 
+
+
 {% block headline %}
-    À propos
+    <h1>À propos</h1>
 {% endblock %}
+
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">À propos</a></li>
+    <li class="current">À propos</li>
 {% endblock %}
 
+
+
 {% block content %}
+    <h3>Crédits</h3>
+    <p>
+        Certaines icônes sont basées sur le pack d'icônes
+        <a href="http://glyphicons.com/">Glyphicons</a> mis à disposition
+        sous licence CC-BY.
+    </p>
+    <p>
+        <a href="http://microjoe.deviantart.com/art/Progdupeupl-s-logo-403348624">Le logo de Progdupeupl</a>
+        est de MicroJoe et est disponible sous licence CC-BY-NC-SA.
+    </p>
 
-<div class="row">
-    <div class="large-4 columns">
-        <h3>Crédits</h3>
-        <p>
-            Certaines icônes sont basées sur le pack d'icônes
-            <a href="http://glyphicons.com/">Glyphicons</a> mis à disposition
-            sous licence CC-BY.
-        </p>
-        <p>
-            <a href="http://microjoe.deviantart.com/art/Progdupeupl-s-logo-403348624">Le logo de Progdupeupl</a>
-            est de MicroJoe et est disponible sous licence CC-BY-NC-SA.
-        </p>
-    </div>
-    <div class="large-4 columns">
-        <h3>Système</h3>
-        <p>
-            Voici les différents logiciels actifs sur ce serveur pour faire
-            tourner Progdupeupl dans les meilleures conditions :
-        </p>
-        <p><strong>Site</strong></p>
-        <ul>
-            <li><a href="http://www.python.org/">CPython {{ python_version }}</a></li>
-            <li><a href="https://www.djangoproject.com/">Django {{ django_version }}</a></li>
-        </ul>
-        <p><strong>HTTP(S) + WSGI</strong></p>
-        <ul>
-            <li><a href="http://nginx.org/">NGinx</a></li>
-            <li><a href="http://gunicorn.org/">Gunicorn</a></li>
-        </ul>
-        <p><strong>Base de données</strong></p>
-        <ul>
-            <li><a href="http://www.postgresql.org/">PostgreSQL</a></li>
-        </ul>
-    </div>
-    <div class="large-4 columns">
-        <h3>Technologies</h3>
-        <p>
-            Voici la liste des différentes technologies utilisées par Progdupeupl
-            autres que les technologies serveur :
-        </p>
-        <p><strong>Feuilles de style</strong></p>
-        <ul>
-            <li><a href="http://compass-style.org/">Compass</a></li>
-            <li><a href="http://foundation.zurb.com/">Zurb Foundation</a></li>
-        </ul>
-        <p><strong>Javascript</strong></p>
-        <ul>
-            <li><a href="http://foundation.zurb.com/">Zurb Foundation</a></li>
-            <li><a href="http://modernizr.com/">Modernizr</a></li>
-            <li><a href="http://jquery.com/">jQuery 2.x</a></li>
-        </ul>
-    </div>
-</div>
 
+
+    <h3>Système</h3>
+    <p>
+        Voici les différents logiciels actifs sur ce serveur pour faire
+        tourner Progdupeupl dans les meilleures conditions :
+    </p>
+    <h4>Site</h4>
+    <ul>
+        <li><a href="http://www.python.org/">CPython {{ python_version }}</a></li>
+        <li><a href="https://www.djangoproject.com/">Django {{ django_version }}</a></li>
+    </ul>
+    <h4>HTTP(S) + WSGI</h4>
+    <ul>
+        <li><a href="http://nginx.org/">NGinx</a></li>
+        <li><a href="http://gunicorn.org/">Gunicorn</a></li>
+    </ul>
+    <h4>Base de données</h4>
+    <ul>
+        <li><a href="http://www.postgresql.org/">PostgreSQL</a></li>
+    </ul>
+
+
+
+    <h3>Technologies</h3>
+    <p>
+        Voici la liste des différentes technologies utilisées par Progdupeupl
+        autres que les technologies serveur :
+    </p>
+    <h4>Feuilles de style</h4>
+    <ul>
+        <li><a href="http://compass-style.org/">Compass</a></li>
+        <li><a href="http://foundation.zurb.com/">Zurb Foundation</a></li>
+    </ul>
+    <h4>Javascript</h4>
+    <ul>
+        <li><a href="http://foundation.zurb.com/">Zurb Foundation</a></li>
+        <li><a href="http://modernizr.com/">Modernizr</a></li>
+        <li><a href="http://jquery.com/">jQuery 2.x</a></li>
+    </ul>
 {% endblock %}
