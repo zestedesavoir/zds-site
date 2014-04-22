@@ -3,7 +3,7 @@ from zds.mp.models import PrivateTopic, PrivatePost
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
-def send_mp(author, users, title, subtitle, text, mail=True)
+def send_mp(author, users, title, subtitle, text, send_by_mail=True):
     """
     Send MP at members
     """
@@ -33,29 +33,30 @@ def send_mp(author, users, title, subtitle, text, mail=True)
 		n_topic.save()
 
 		# send email
-		subject = "ZDS - MP: " + n_topic.title
-		from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
-		for part in users:
-			message_html = get_template('email/mp.html').render(
-				Context({
-					'username': part.username,
-					'url': settings.SITE_URL + n_topic.get_absolute_url(),
-					'author': author.username
-				})
-			)
-			message_txt = get_template('email/mp.txt').render(
-				Context({
-					'username': part.username,
-					'url': settings.SITE_URL + n_topic.get_absolute_url(),
-					'author': author.username
-				})
-			)
-
-			msg = EmailMultiAlternatives(
-				subject, message_txt, from_email, [
-					part.email])
-			msg.attach_alternative(message_html, "text/html")
-			msg.send()
+		if send_by_mail:
+			subject = "ZDS - MP: " + n_topic.title
+			from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+			for part in users:
+				message_html = get_template('email/mp.html').render(
+					Context({
+						'username': part.username,
+						'url': settings.SITE_URL + n_topic.get_absolute_url(),
+						'author': author.username
+					})
+				)
+				message_txt = get_template('email/mp.txt').render(
+					Context({
+						'username': part.username,
+						'url': settings.SITE_URL + n_topic.get_absolute_url(),
+						'author': author.username
+					})
+				)
+	
+				msg = EmailMultiAlternatives(
+					subject, message_txt, from_email, [
+						part.email])
+				msg.attach_alternative(message_html, "text/html")
+				msg.send()
 		
 		return n_topic
 	except:
