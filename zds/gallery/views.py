@@ -31,6 +31,7 @@ def gallery_list(request):
         'galleries': galleries
     })
 
+
 @can_read_now
 @login_required
 def gallery_details(request, gal_pk, gal_slug):
@@ -52,6 +53,7 @@ def gallery_details(request, gal_pk, gal_slug):
         'images': images,
         'form': form
     })
+
 
 @can_write_and_read_now
 @login_required
@@ -90,6 +92,7 @@ def new_gallery(request):
             'form': form
         })
 
+
 @can_write_and_read_now
 @require_POST
 @login_required
@@ -102,8 +105,8 @@ def modify_gallery(request):
         l = request.POST.getlist('items')
 
         perms = UserGallery.objects\
-                .filter(gallery__pk__in=l, user=request.user, mode='W')\
-                .count()
+            .filter(gallery__pk__in=l, user=request.user, mode='W')\
+            .count()
 
         # Check that the user has the RW right on each gallery
         if perms < len(l):
@@ -126,28 +129,30 @@ def modify_gallery(request):
         except KeyError:
             raise Http404
 
-        gallery = get_object_or_404(Gallery, pk = gal_pk)
-        
+        gallery = get_object_or_404(Gallery, pk=gal_pk)
+
         # Disallow actions to read-only members
         try:
-            gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+            gal_mode = UserGallery.objects.get(
+                gallery=gallery,
+                user=request.user)
             if gal_mode.mode != 'W':
                 raise PermissionDenied
         except:
             raise PermissionDenied
-        
+
         form = UserGalleryForm(request.POST)
-        
+
         if form.is_valid():
-            user = get_object_or_404(User, username = request.POST['user'])
-    
+            user = get_object_or_404(User, username=request.POST['user'])
+
             # If a user is already in a user gallery, we don't add him.
-            galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
+            galleries = UserGallery.objects.filter(
+                gallery=gallery,
+                user=user).all()
             if galleries.count() > 0:
                 return redirect(gallery.get_absolute_url())
-    
-            
-            
+
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
@@ -155,13 +160,14 @@ def modify_gallery(request):
             ug.save()
         else:
             return render_template('gallery/gallery_details.html', {
-                    'gallery': gallery,
-                    'gallery_mode': gal_mode,
-                    'images': gallery.get_images(),
-                    'form': form
-                })
+                'gallery': gallery,
+                'gallery_mode': gal_mode,
+                'images': gallery.get_images(),
+                'form': form
+            })
 
     return redirect(gallery.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required
@@ -172,6 +178,7 @@ def del_image(request, gal_pk):
         Image.objects.filter(pk__in=liste).delete()
         return redirect(gal.get_absolute_url())
     return redirect(gal.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required
@@ -185,7 +192,7 @@ def edit_image(request, gal_pk, img_pk):
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid()\
-            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+                and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST['title']
             img.legend = request.POST['legend']
             img.physical = request.FILES['physical']
@@ -197,17 +204,18 @@ def edit_image(request, gal_pk, img_pk):
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
     else:
-        form = ImageForm(initial = {
-                'title': img.title,
-                'legend': img.legend,
-                'physical': img.physical,
-            })
-    
+        form = ImageForm(initial={
+            'title': img.title,
+            'legend': img.legend,
+            'physical': img.physical,
+        })
+
     return render_template('gallery/edit_image.html', {
         'form': form,
         'gallery': gal,
         'image': img
     })
+
 
 @can_write_and_read_now
 @login_required
@@ -240,6 +248,7 @@ def modify_image(request):
 
     return redirect(gal.get_absolute_url())
 
+
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
@@ -249,7 +258,7 @@ def new_image(request, gal_pk):
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() \
-            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+                and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img = Image()
             img.physical = request.FILES['physical']
             img.gallery = gal
@@ -264,8 +273,8 @@ def new_image(request, gal_pk):
             return redirect(gal.get_absolute_url())
         else:
             return render_template('gallery/new_image.html', {
-            'form': form,
-            'gallery': gal
+                'form': form,
+                'gallery': gal
             })
     else:
         form = ImageForm()  # A empty, unbound form

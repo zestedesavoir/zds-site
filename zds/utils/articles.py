@@ -20,15 +20,16 @@ def export_article(article):
 
     return dct
 
+
 def get_blob(tree, chemin):
     for bl in tree.blobs:
-        if os.path.abspath(bl.path)==os.path.abspath(chemin):
+        if os.path.abspath(bl.path) == os.path.abspath(chemin):
             data = bl.data_stream.read()
             return data.decode('utf-8')
     if len(tree.trees) > 0:
         for tr in tree.trees:
             result = get_blob(tr, chemin)
-            if result != None:
+            if result is not None:
                 return result
         return None
     else:

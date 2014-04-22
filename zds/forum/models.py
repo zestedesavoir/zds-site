@@ -16,13 +16,15 @@ from zds.utils.models import Comment
 
 
 def image_path_forum(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('forum/normal', str(instance.pk), filename)
 
+
 class Category(models.Model):
-    '''A category, containing forums'''
+
+    """A category, containing forums."""
     class Meta:
         verbose_name = 'Catégorie'
         verbose_name_plural = 'Catégories'
@@ -32,7 +34,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=80)
 
     def __unicode__(self):
-        '''Textual form of a category'''
+        """Textual form of a category."""
         return self.title
 
     def get_absolute_url(self):
@@ -45,25 +47,30 @@ class Category(models.Model):
 
 
 class Forum(models.Model):
-    '''A forum, containing topics'''
+
+    """A forum, containing topics."""
     class Meta:
         verbose_name = 'Forum'
         verbose_name_plural = 'Forums'
 
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
-    
-    group = models.ManyToManyField(Group, verbose_name='Groupe autorisés (Aucun = public)', null=True, blank=True)
+
+    group = models.ManyToManyField(
+        Group,
+        verbose_name='Groupe autorisés (Aucun = public)',
+        null=True,
+        blank=True)
     image = models.ImageField(upload_to=image_path_forum)
-    
+
     category = models.ForeignKey(Category, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
                                                null=True, blank=True)
 
     slug = models.SlugField(max_length=80)
-    
+
     def __unicode__(self):
-        '''Textual form of a forum'''
+        """Textual form of a forum."""
         return self.title
 
     def get_absolute_url(self):
@@ -73,42 +80,47 @@ class Forum(models.Model):
         )
 
     def get_topic_count(self):
-        '''Gets the number of threads in the forum'''
+        """Gets the number of threads in the forum."""
         return Topic.objects.all().filter(forum__pk=self.pk).count()
 
     def get_post_count(self):
-        '''Gets the number of posts for a forum'''
+        """Gets the number of posts for a forum."""
         return Post.objects.filter(topic__forum=self).count()
 
     def get_last_message(self):
-        '''Gets the last message on the forum, if there are any'''
+        """Gets the last message on the forum, if there are any."""
         try:
-            return Post.objects.all().filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
+            return Post.objects.all().filter(
+                topic__forum__pk=self.pk).order_by('-pubdate')[0]
         except IndexError:
             return None
 
     def can_read(self, user):
-        '''Checks if the forum can be read by the user'''
+        """Checks if the forum can be read by the user."""
         # TODO These prints is used to debug this method. Remove them later.
-        
+
         if self.group.count() == 0:
             return True
         else:
             if user.is_authenticated():
                 groups = Group.objects.filter(user=user).all()
-                return Forum.objects.filter(group__in=groups, pk = self.pk).count()>0
+                return Forum.objects.filter(
+                    group__in=groups,
+                    pk=self.pk).count() > 0
             else:
                 return False
-        
+
     def is_read(self):
-        '''Checks if there are topics never read in the forum'''
+        """Checks if there are topics never read in the forum."""
         for current_topic in Topic.objects.filter(forum=self).all():
             if never_read(current_topic):
                 return False
         return True
 
+
 class Topic(models.Model):
-    '''A thread, containing posts'''
+
+    """A thread, containing posts."""
     class Meta:
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
@@ -118,35 +130,29 @@ class Topic(models.Model):
 
     forum = models.ForeignKey(Forum, verbose_name='Forum')
     author = models.ForeignKey(User, verbose_name='Auteur',
-                                     related_name='topics')
+                               related_name='topics')
     last_message = models.ForeignKey('Post', null=True,
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
-    is_solved = models.BooleanField('Est résolu', default = False)
-    is_locked = models.BooleanField('Est verrouillé', default = False)
-    is_sticky = models.BooleanField('Est en post-it', default = False)
+    is_solved = models.BooleanField('Est résolu', default=False)
+    is_locked = models.BooleanField('Est verrouillé', default=False)
+    is_sticky = models.BooleanField('Est en post-it', default=False)
 
     def __unicode__(self):
-        '''
-        Textual form of a thread
-        '''
+        """Textual form of a thread."""
         return self.title
 
     def get_absolute_url(self):
         return '/forums/sujet/{0}/{1}'.format(self.pk, slugify(self.title))
 
     def get_post_count(self):
-        '''
-        Return the number of posts in the topic
-        '''
+        """Return the number of posts in the topic."""
         return Post.objects.filter(topic__pk=self.pk).count()
 
     def get_last_answer(self):
-        '''
-        Gets the last answer in the thread, if any
-        '''
+        """Gets the last answer in the thread, if any."""
         last_post = Post.objects.all()\
             .filter(topic__pk=self.pk)\
             .order_by('-pubdate')\
@@ -158,18 +164,14 @@ class Topic(models.Model):
             return last_post
 
     def first_post(self):
-        '''
-        Return the first post of a topic, written by topic's author
-        '''
+        """Return the first post of a topic, written by topic's author."""
         return Post.objects\
             .filter(topic=self)\
             .order_by('pubdate')\
             .first()
 
     def last_read_post(self):
-        '''
-        Return the last post the user has read
-        '''
+        """Return the last post the user has read."""
         try:
             return TopicRead.objects\
                 .select_related()\
@@ -177,30 +179,31 @@ class Topic(models.Model):
                 .latest('post__pubdate').post
         except:
             return self.first_post()
-    
+
     def first_unread_post(self):
-        '''
-        Return the first post the user has unread
-        '''
+        """Return the first post the user has unread."""
         try:
             last_post = TopicRead.objects\
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-            
+
             last_post_position = last_post.position
-            next_post_position = last_post_position+1
-            next_post = Post.objects.get(topic__pk = self.pk, position = next_post_position)
-            
+            next_post_position = last_post_position + 1
+            next_post = Post.objects.get(
+                topic__pk=self.pk,
+                position=next_post_position)
+
             return next_post
         except:
             return self.last_read_post(self)
 
     def is_followed(self, user=None):
-        '''
-        Check if the topic is currently followed by the user. This method uses
-        the TopicFollowed objects.
-        '''
+        """Check if the topic is currently followed by the user.
+
+        This method uses the TopicFollowed objects.
+
+        """
         if user is None:
             user = get_current_user()
 
@@ -211,13 +214,15 @@ class Topic(models.Model):
         return True
 
     def antispam(self, user=None):
-        '''
-        Check if the user is allowed to post in a topic according to the
-        SPAM_LIMIT_SECONDS value. If user shouldn't be able to post, then
-        antispam is activated and this method returns True. Otherwise time
-        elapsed between user's last post and now is enough, and the method will
-        return False.
-        '''
+        """Check if the user is allowed to post in a topic according to the
+        SPAM_LIMIT_SECONDS value.
+
+        If user shouldn't be able to post, then antispam is activated
+        and this method returns True. Otherwise time elapsed between
+        user's last post and now is enough, and the method will return
+        False.
+
+        """
         if user is None:
             user = get_current_user()
 
@@ -239,29 +244,34 @@ class Topic(models.Model):
 
 
 class Post(Comment):
-    '''
-    A forum post written by an user.
-    '''
-    
+
+    """A forum post written by an user."""
+
     topic = models.ForeignKey(Topic, verbose_name='Sujet')
 
     is_useful = models.BooleanField('Est utile', default=False)
-    
+
     def __unicode__(self):
-        '''Textual form of a post'''
+        """Textual form of a post."""
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
         page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
 
-        return '{0}?page={1}#p{2}'.format(self.topic.get_absolute_url(), page, self.pk)
+        return '{0}?page={1}#p{2}'.format(
+            self.topic.get_absolute_url(),
+            page,
+            self.pk)
 
 
 class TopicRead(models.Model):
-    '''
-    Small model which keeps track of the user viewing topics. It remembers the
-    topic he looked and what was the last Post at this time.
-    '''
+
+    """Small model which keeps track of the user viewing topics.
+
+    It remembers the topic he looked and what was the last Post at this
+    time.
+
+    """
     class Meta:
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
@@ -277,11 +287,13 @@ class TopicRead(models.Model):
 
 
 class TopicFollowed(models.Model):
-    '''
-    Small model which keeps track of the topics followed by an user. If an
-    instance of this model is stored with an user and topic instance, that
-    means that this user is following this topic.
-    '''
+
+    """Small model which keeps track of the topics followed by an user.
+
+    If an instance of this model is stored with an user and topic
+    instance, that means that this user is following this topic.
+
+    """
     class Meta:
         verbose_name = 'Sujet suivi'
         verbose_name_plural = 'Sujets suivis'
@@ -295,9 +307,8 @@ class TopicFollowed(models.Model):
 
 
 def never_read(topic, user=None):
-    '''
-    Check if a topic has been read by an user since it last post was added.
-    '''
+    """Check if a topic has been read by an user since it last post was
+    added."""
     if user is None:
         user = get_current_user()
 
@@ -307,9 +318,7 @@ def never_read(topic, user=None):
 
 
 def mark_read(topic):
-    '''
-    Mark a topic as read for the user
-    '''
+    """Mark a topic as read for the user."""
     TopicRead.objects.filter(topic=topic, user=get_current_user()).delete()
     t = TopicRead(
         post=topic.last_message, topic=topic, user=get_current_user())
@@ -317,9 +326,7 @@ def mark_read(topic):
 
 
 def follow(topic):
-    '''
-    Toggle following of a topic for an user
-    '''
+    """Toggle following of a topic for an user."""
     ret = None
     try:
         existing = TopicFollowed.objects.get(
@@ -344,17 +351,15 @@ def follow(topic):
 
 
 def get_last_topics(user):
-    '''
-    Returns the 5 very last topics
-    '''
+    """Returns the 5 very last topics."""
     topics = Topic.objects.all().order_by('-last_message__pubdate')
-    
+
     tops = []
-    cpt=1
+    cpt = 1
     for topic in topics:
         if topic.forum.can_read(user):
             tops.append(topic)
-            cpt+=1
+            cpt += 1
         if cpt > 5:
             break
     return tops

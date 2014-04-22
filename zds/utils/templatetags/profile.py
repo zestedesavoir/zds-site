@@ -18,6 +18,7 @@ def profile(user):
         profile = None
     return profile
 
+
 @register.filter('user')
 def user(pk):
     try:
@@ -26,9 +27,10 @@ def user(pk):
         user = None
     return user
 
+
 @register.filter('mode')
 def mode(mode):
-    if mode=='W':
+    if mode == 'W':
         return 'pencil'
     else:
         return 'eye'

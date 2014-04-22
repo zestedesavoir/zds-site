@@ -11,21 +11,21 @@ from django.core.urlresolvers import reverse
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label = 'Identifiant',
-        max_length = 30,
-        required = True,
+        label='Identifiant',
+        max_length=30,
+        required=True,
     )
 
     password = forms.CharField(
-        label = 'Mot magique',
-        max_length = 76, 
-        required = True,
-        widget = forms.PasswordInput,
+        label='Mot magique',
+        max_length=76,
+        required=True,
+        widget=forms.PasswordInput,
     )
 
     remember = forms.MultipleChoiceField(
-        label = '',
-        choices = (
+        label='',
+        choices=(
             ('remember', "Connexion automatique"),
         ),
         initial = 'remember',
@@ -45,37 +45,41 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                Submit('submit', 'Se connecter', css_class = 'button '),
+                Submit(
+                    'submit',
+                    'Se connecter',
+                    css_class='button '),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
+
 class RegisterForm(forms.Form):
     email = forms.EmailField(
-        label = 'Adresse e-mail',
-        max_length = 100,
-        required = True,
+        label='Adresse e-mail',
+        max_length=100,
+        required=True,
     )
 
     username = forms.CharField(
-        label = 'Nom d\'utilisateur', 
-        max_length = 30,
-        required = True,
+        label='Nom d\'utilisateur',
+        max_length=30,
+        required=True,
     )
 
     password = forms.CharField(
-        label = 'Mot de passe', 
-        max_length = 76,
-        required = True,
-        widget = forms.PasswordInput
+        label='Mot de passe',
+        max_length=76,
+        required=True,
+        widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
-        label = 'Confirmation', 
-        max_length = 76,
-        required = True,
-        widget = forms.PasswordInput
+        label='Confirmation',
+        max_length=76,
+        required=True,
+        widget=forms.PasswordInput
     )
 
     def __init__(self, *args, **kwargs):
@@ -90,10 +94,12 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit('submit', 'Valider mon inscription', css_class = 'button'),
+                Submit(
+                    'submit',
+                    'Valider mon inscription',
+                    css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
-            )
-        )
+            ))
 
     def clean(self):
         cleaned_data = super(RegisterForm, self).clean()
@@ -118,63 +124,63 @@ class RegisterForm(forms.Form):
         if User.objects.filter(username=username).count() > 0:
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
-            
+
         # Check that the email is unique
         email = cleaned_data.get('email')
         if User.objects.filter(email=email).count() > 0:
             msg = u'Votre email est déjà utilisée'
             self._errors['email'] = self.error_class([msg])
-            
+
         return cleaned_data
 
 
 # update extra information about user
 class ProfileForm(forms.Form):
     biography = forms.CharField(
-        label = 'Biographie',
-        required = False,
-        widget = forms.Textarea(
-            attrs = {
+        label='Biographie',
+        required=False,
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre biographie au format Markdown.'
             }
         )
     )
 
     site = forms.CharField(
-        label = 'Site internet',
-        required = False,
-        max_length = 128,
-        widget = forms.TextInput(
-            attrs = {
+        label='Site internet',
+        required=False,
+        max_length=128,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Lien vers votre site internet personnel (ne pas oublier le http:// ou https:// devant).'
             }
         )
     )
-    
+
     avatar_url = forms.CharField(
-        label = 'Avatar',
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='Avatar',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
             }
         )
     )
 
     sign = forms.CharField(
-        label = 'Signature',
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='Signature',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Elle apparaitra dans les messages de forums. '
             }
         )
     )
 
     options = forms.MultipleChoiceField(
-        label = '',
-        required = False,
-        choices = (
+        label='',
+        required=False,
+        choices=(
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
         ),
@@ -190,10 +196,10 @@ class ProfileForm(forms.Form):
         # to get initial value form checkbox show email
         initial = kwargs.get('initial', {})
         self.fields['options'].initial = ''
-        
+
         if 'show_email' in initial and initial['show_email']:
             self.fields['options'].initial += 'show_email'
-        
+
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
 
@@ -209,31 +215,33 @@ class ProfileForm(forms.Form):
             )
         )
 
-#to update email/username
+# to update email/username
+
+
 class ChangeUserForm(forms.Form):
-    
+
     username_new = forms.CharField(
-        label = 'Nouveau pseudo',
-        max_length = 30,
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='Nouveau pseudo',
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
         )
     )
-    
+
     email_new = forms.EmailField(
-        label = 'Nouvel e-mail',
-        max_length = 100,
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='Nouvel e-mail',
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
         )
     )
-    
+
     def __init__(self, *args, **kwargs):
         super(ChangeUserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -248,32 +256,35 @@ class ChangeUserForm(forms.Form):
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             ),
         )
-    
+
     def clean(self):
         cleaned_data = super(ChangeUserForm, self).clean()
 
         # Check that the password and it's confirmation match
         username_new = cleaned_data.get('username_new')
         email_new = cleaned_data.get('email_new')
-        
-        if username_new!=None:
-            if username_new.strip()!='':
-                if User.objects.filter(username=username_new).count()>=1:
-                    self._errors['username_new'] = self.error_class([u'Ce nom d\'utilisateur est déjà utilisé'])
-        
-        if email_new!=None:
-            if email_new.strip()!='':
-                if User.objects.filter(email=email_new).count()>=1:
-                    self._errors['email_new'] = self.error_class([u'Votre email est déjà utilisée'])
-            
+
+        if username_new is not None:
+            if username_new.strip() != '':
+                if User.objects.filter(username=username_new).count() >= 1:
+                    self._errors['username_new'] = self.error_class(
+                        [u'Ce nom d\'utilisateur est déjà utilisé'])
+
+        if email_new is not None:
+            if email_new.strip() != '':
+                if User.objects.filter(email=email_new).count() >= 1:
+                    self._errors['email_new'] = self.error_class(
+                        [u'Votre email est déjà utilisée'])
+
         return cleaned_data
-        
+
 # to update a password
+
 
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
-        label='Nouveau mot de passe', 
-        max_length=76, 
+        label='Nouveau mot de passe',
+        max_length=76,
         widget=forms.PasswordInput
     )
 
@@ -321,7 +332,8 @@ class ChangePasswordForm(forms.Form):
             )
             # Check if the user exist with old informations.
             if not user_exist and password_old != "":
-                self._errors['password_old'] = self.error_class([u'Mot de passe incorrect.'])
+                self._errors['password_old'] = self.error_class(
+                    [u'Mot de passe incorrect.'])
                 if 'password_old' in cleaned_data:
                     del cleaned_data['password_old']
 
@@ -341,11 +353,12 @@ class ChangePasswordForm(forms.Form):
 
 # Reset the password
 
+
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
-        label = 'Nom d\'utilisateur', 
-        max_length = 30, 
-        required = True
+        label='Nom d\'utilisateur',
+        max_length=30,
+        required=True
     )
 
     def __init__(self, *args, **kwargs):
@@ -361,27 +374,29 @@ class ForgotPasswordForm(forms.Form):
                 HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
             )
         )
-    
+
     def clean(self):
         cleaned_data = super(ForgotPasswordForm, self).clean()
 
         # Check that the password and it's confirmation match
         username = cleaned_data.get('username')
-        
-        if User.objects.filter(username=username).count()==0:
-            self._errors['username'] = self.error_class([u'Ce nom d\'utilisateur n\'existe pas'])
-            
+
+        if User.objects.filter(username=username).count() == 0:
+            self._errors['username'] = self.error_class(
+                [u'Ce nom d\'utilisateur n\'existe pas'])
+
         return cleaned_data
+
 
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
-        label='Mot de passe', 
-        max_length=76, 
+        label='Mot de passe',
+        max_length=76,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
-        label='Confirmation', 
-        max_length=76, 
+        label='Confirmation',
+        max_length=76,
         widget=forms.PasswordInput
     )
 

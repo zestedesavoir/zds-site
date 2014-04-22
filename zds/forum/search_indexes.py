@@ -15,6 +15,7 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Topic
 
+
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     txt = indexes.CharField(model_attr='text')
