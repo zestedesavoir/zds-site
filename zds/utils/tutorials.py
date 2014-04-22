@@ -72,10 +72,10 @@ def export_tutorial(tutorial):
         dct['licence'] = tutorial.licence.code
     dct['introduction'] = tutorial.introduction
     dct['conclusion'] = tutorial.conclusion
-       
+
     if tutorial.is_mini():
         # We export the chapter without its empty title if mini tutorial
-        try :
+        try:
             chapter = Chapter.objects.get(tutorial__pk=tutorial.pk)
             dct['chapter'] = export_chapter(chapter, export_all=False)
         except Chapter.DoesNotExist:
@@ -90,27 +90,33 @@ def export_tutorial(tutorial):
 
     return dct
 
+
 def get_blob(tree, chemin):
     for bl in tree.blobs:
-        if os.path.abspath(bl.path)==os.path.abspath(chemin):            
+        if os.path.abspath(bl.path) == os.path.abspath(chemin):
             data = bl.data_stream.read()
             return data.decode('utf-8')
     if len(tree.trees) > 0:
         for tr in tree.trees:
             result = get_blob(tr, chemin)
-            if result != None:
+            if result is not None:
                 return result
         return None
     else:
         return None
+
 
 def export_tutorial_to_md(tutorial):
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
     tuto = OrderedDict()
-    
-    i = open(os.path.join(tutorial.get_prod_path(), tutorial.introduction), "r")
+
+    i = open(
+        os.path.join(
+            tutorial.get_prod_path(),
+            tutorial.introduction),
+        "r")
     i_contenu = i.read()
     i.close()
     tuto['intro'] = i_contenu
@@ -119,89 +125,121 @@ def export_tutorial_to_md(tutorial):
     c_contenu = c.read()
     c.close()
     tuto['conclu'] = c_contenu
-    
+
     tuto['image'] = tutorial.image
     tuto['title'] = tutorial.title
     tuto['is_mini'] = tutorial.is_mini()
     tuto['authors'] = tutorial.authors
     tuto['subcategory'] = tutorial.subcategory
     tuto['pubdate'] = datetime.now()
-    
+
     tuto['pk'] = tutorial.pk
     tuto['slug'] = tutorial.slug
-     
-    #find the good manifest file
+
+    # find the good manifest file
     mandata = tutorial.load_json(online=True)
-    
+
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_prod_path()
             chapter['type'] = 'MINI'
-            intro = open(os.path.join(tutorial.get_prod_path(), mandata['introduction']), "r")
+            intro = open(
+                os.path.join(
+                    tutorial.get_prod_path(),
+                    mandata['introduction']),
+                "r")
             chapter['intro'] = intro.read()
             intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(), mandata['conclusion']), "r")
+            conclu = open(
+                os.path.join(
+                    tutorial.get_prod_path(),
+                    mandata['conclusion']),
+                "r")
             chapter['conclu'] = conclu.read()
             conclu.close()
-            cpt=1
-            for ext in chapter['extracts'] :
+            cpt = 1
+            for ext in chapter['extracts']:
                 ext['position_in_chapter'] = cpt
                 ext['path'] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext['text']), "r")
+                text = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        ext['text']),
+                    "r")
                 ext['txt'] = text.read()
                 text.close()
-                cpt+=1
+                cpt += 1
         else:
             chapter = None
     else:
         parts = mandata['parts']
-        cpt_p=1
-        for part in parts :
+        cpt_p = 1
+        for part in parts:
             part['tutorial'] = tutorial
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            intro = open(os.path.join(tutorial.get_prod_path(), part['introduction']), "r")
+            intro = open(
+                os.path.join(
+                    tutorial.get_prod_path(),
+                    part['introduction']),
+                "r")
             part['intro'] = intro.read()
             intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(), part['conclusion']), "r")
+            conclu = open(
+                os.path.join(
+                    tutorial.get_prod_path(),
+                    part['conclusion']),
+                "r")
             part['conclu'] = conclu.read()
             conclu.close()
 
-            cpt_c=1
-            for chapter in part['chapters'] :
+            cpt_c = 1
+            for chapter in part['chapters']:
                 chapter['part'] = part
                 chapter['path'] = tutorial.get_path()
                 chapter['slug'] = slugify(chapter['title'])
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(os.path.join(tutorial.get_prod_path(), chapter['introduction']), "r")
+                intro = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        chapter['introduction']),
+                    "r")
                 chapter['intro'] = intro.read()
                 intro.close()
-                conclu = open(os.path.join(tutorial.get_prod_path(), chapter['conclusion']), "r")
+                conclu = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        chapter['conclusion']),
+                    "r")
                 chapter['conclu'] = conclu.read()
-                cpt_e=1
-                for ext in chapter['extracts'] :
+                cpt_e = 1
+                for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    text = open(os.path.join(tutorial.get_prod_path(), ext['text']), "r")
+                    text = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            ext['text']),
+                        "r")
                     ext['txt'] = text.read()
                     text.close()
-                    cpt_e+=1
-                cpt_c+=1
-                
-            cpt_p+=1
-    
+                    cpt_e += 1
+                cpt_c += 1
+
+            cpt_p += 1
+
     contenu_html = get_template('tutorial/export.md').render(
-                            Context({
-                                'chapter': chapter,
-                                'parts': parts,
-                                'tutorial': tuto,
-                            })
-                        )
-    
+        Context({
+            'chapter': chapter,
+            'parts': parts,
+            'tutorial': tuto,
+        })
+    )
+
     return contenu_html

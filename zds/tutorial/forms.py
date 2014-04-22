@@ -19,77 +19,79 @@ class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
         max_length=80,
-        widget = forms.TextInput(
-            attrs = {
+        widget=forms.TextInput(
+            attrs={
                 'required': 'required',
             }
         )
     )
-    
+
     def clean(self):
         cleaned_data = super(FormWithTitle, self).clean()
 
         title = cleaned_data.get('title')
-        
+
         if title is not None and title.strip() == '':
-            self._errors['title'] = self.error_class([u'Le champ Titre ne peut être vide'])
+            self._errors['title'] = self.error_class(
+                [u'Le champ Titre ne peut être vide'])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
-        
+
         return cleaned_data
+
 
 class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
-        label = 'Description',
-        max_length = 200,
-        required = False,
+        label='Description',
+        max_length=200,
+        required=False,
     )
-    
+
     image = forms.ImageField(
-        label = 'Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
-        required = False
+        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        required=False
     )
 
     introduction = forms.CharField(
-        label = 'Introduction',
+        label='Introduction',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
     )
 
     conclusion = forms.CharField(
-        label = 'Conclusion',
+        label='Conclusion',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
     )
-    
+
     type = forms.ChoiceField(
         choices=TYPE_CHOICES
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label = "Sous-catégories de votre tuto",
-        queryset = SubCategory.objects.all(),
-        required = True,
-        widget = forms.SelectMultiple(
-            attrs = {
+        label="Sous-catégories de votre tuto",
+        queryset=SubCategory.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(
+            attrs={
                 'required': 'required',
             }
         )
     )
-    
+
     licence = forms.ModelChoiceField(
-        label = "Licence de votre publication",
-        queryset = Licence.objects.all(),
-        required = False,
+        label="Licence de votre publication",
+        queryset=Licence.objects.all(),
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -103,32 +105,33 @@ class TutorialForm(FormWithTitle):
             Field('description'),
             Field('type'),
             Field('image'),
-            Field('introduction', css_class = 'md-editor'),
-            Field('conclusion', css_class = 'md-editor'),
+            Field('introduction', css_class='md-editor'),
+            Field('conclusion', css_class='md-editor'),
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
-                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+                StrictButton('Valider', type='submit', css_class='btn-submit'),
             ),
         )
+
 
 class PartForm(FormWithTitle):
 
     introduction = forms.CharField(
-        label = 'Introduction',
+        label='Introduction',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
     )
 
     conclusion = forms.CharField(
-        label = 'Conclusion',
+        label='Conclusion',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
@@ -145,14 +148,15 @@ class PartForm(FormWithTitle):
             Field('introduction'),
             Field('conclusion'),
             ButtonHolder(
-                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
+                StrictButton('Valider', type='submit', css_class='btn-submit'),
             )
         )
 
+
 class ChapterForm(FormWithTitle):
-   
+
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. '+str(settings.IMAGE_MAX_SIZE/1024)+' Ko)', 
+        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
         required=False
     )
 
@@ -162,10 +166,10 @@ class ChapterForm(FormWithTitle):
     )
 
     conclusion = forms.CharField(
-        label = 'Conclusion',
+        label='Conclusion',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
@@ -183,11 +187,16 @@ class ChapterForm(FormWithTitle):
             Field('introduction'),
             Field('conclusion'),
             ButtonHolder(
-                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
-                StrictButton('Ajouter et continuer', type = 'submit_continue', css_class = 'btn-submit'),
-            )
-        )
-    
+                StrictButton(
+                    'Valider',
+                    type='submit',
+                    css_class='btn-submit'),
+                StrictButton(
+                    'Ajouter et continuer',
+                    type='submit_continue',
+                    css_class='btn-submit'),
+            ))
+
 
 class EmbdedChapterForm(forms.Form):
     introduction = forms.CharField(
@@ -196,7 +205,7 @@ class EmbdedChapterForm(forms.Form):
     )
 
     image = forms.ImageField(
-        label='Selectionnez une image', 
+        label='Selectionnez une image',
         required=False)
 
     conclusion = forms.CharField(
@@ -226,10 +235,10 @@ class EmbdedChapterForm(forms.Form):
 class ExtractForm(FormWithTitle):
 
     text = forms.CharField(
-        label = 'Texte',
+        label='Texte',
         required=False,
-        widget = forms.Textarea(
-            attrs = {
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.'
             }
         )
@@ -245,10 +254,16 @@ class ExtractForm(FormWithTitle):
             Field('title'),
             Field('text'),
             ButtonHolder(
-                StrictButton('Valider', type = 'submit', css_class = 'btn-submit'),
-                StrictButton(u'Aperçu', type = 'submit', css_class = 'btn-submit', name = 'preview'),
-            )
-        )
+                StrictButton(
+                    'Valider',
+                    type='submit',
+                    css_class='btn-submit'),
+                StrictButton(
+                    u'Aperçu',
+                    type='submit',
+                    css_class='btn-submit',
+                    name='preview'),
+            ))
 
 
 class ImportForm(forms.Form):
@@ -276,13 +291,14 @@ class ImportForm(forms.Form):
 
 # Notes
 
+
 class NoteForm(forms.Form):
     text = forms.CharField(
-        label = '',
-        widget = forms.Textarea(
-            attrs = {
+        label='',
+        widget=forms.Textarea(
+            attrs={
                 'placeholder': 'Votre message au format Markdown.',
-                'required':'required'
+                'required': 'required'
             }
         )
     )
@@ -290,7 +306,8 @@ class NoteForm(forms.Form):
     def __init__(self, tutorial, user, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.answer') + '?tutorial=' + str(tutorial.pk)
+        self.helper.form_action = reverse(
+            'zds.tutorial.views.answer') + '?tutorial=' + str(tutorial.pk)
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -300,26 +317,26 @@ class NoteForm(forms.Form):
 
         if tutorial.antispam(user):
             self.helper['text'].wrap(
-                Field, 
-                placeholder = u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
-                disabled = True
-            )
+                Field,
+                placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
+                disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(
-                Field, 
-                placeholder = u'Ce tutoriel est verrouillé.',
-                disabled = True
+                Field,
+                placeholder=u'Ce tutoriel est verrouillé.',
+                disabled=True
             )
 
 # Validations.
 
+
 class AskValidationForm(forms.Form):
 
     text = forms.CharField(
-        label = '',
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Commentaire pour votre demande.'
             }
         )
@@ -332,19 +349,19 @@ class AskValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
-            StrictButton('Demander la validation', type = 'submit', css_class = 'button secondary'),
-            Hidden('tutorial', '{{ tutorial.pk }}'),
-            Hidden('version', '{{ version }}'),
-        )
+            CommonLayoutModalText(), StrictButton(
+                'Demander la validation', type='submit', css_class='button secondary'), Hidden(
+                'tutorial', '{{ tutorial.pk }}'), Hidden(
+                'version', '{{ version }}'), )
+
 
 class ValidForm(forms.Form):
 
     text = forms.CharField(
-        label = '',
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Commentaire de publication.'
             }
         )
@@ -357,19 +374,19 @@ class ValidForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
-            StrictButton('Publier', type = 'submit', css_class = 'button secondary'),
-            Hidden('tutorial', '{{ tutorial.pk }}'),
-            Hidden('version', '{{ version }}'),
-        )
+            CommonLayoutModalText(), StrictButton(
+                'Publier', type='submit', css_class='button secondary'), Hidden(
+                'tutorial', '{{ tutorial.pk }}'), Hidden(
+                'version', '{{ version }}'), )
+
 
 class RejectForm(forms.Form):
 
     text = forms.CharField(
-        label = '',
-        required = False,
-        widget = forms.TextInput(
-            attrs = {
+        label='',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Commentaire de rejet.'
             }
         )
@@ -384,7 +401,7 @@ class RejectForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             ButtonHolder(
-                StrictButton('Rejeter', type = 'submit', css_class = 'btn-submit'),
+                StrictButton('Rejeter', type='submit', css_class='btn-submit'),
             ),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'),

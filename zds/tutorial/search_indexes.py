@@ -16,10 +16,11 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Tutorial
-    
+
     def index_queryset(self, using=None):
         """Only tutorials online"""
         return self.get_model().objects.filter(sha_public__isnull=False)
+
 
 class PartIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -28,10 +29,12 @@ class PartIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Part
-    
+
     def index_queryset(self, using=None):
         """Only parts online"""
-        return self.get_model().objects.filter(tutorial__sha_public__isnull=False)
+        return self.get_model().objects.filter(
+            tutorial__sha_public__isnull=False)
+
 
 class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -41,10 +44,12 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Chapter
-    
+
     def index_queryset(self, using=None):
         """Only chapters online"""
-        return self.get_model().objects.filter(Q(tutorial__sha_public__isnull=False)|Q(part__tutorial__sha_public__isnull=False))
+        return self.get_model().objects.filter(Q(tutorial__sha_public__isnull=False)
+                                               | Q(part__tutorial__sha_public__isnull=False))
+
 
 class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -54,7 +59,8 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Extract
-    
+
     def index_queryset(self, using=None):
         """Only extracts online"""
-        return self.get_model().objects.filter(Q(chapter__tutorial__sha_public__isnull=False)|Q(chapter__part__tutorial__sha_public__isnull=False))
+        return self.get_model().objects.filter(Q(chapter__tutorial__sha_public__isnull=False)
+                                               | Q(chapter__part__tutorial__sha_public__isnull=False))
