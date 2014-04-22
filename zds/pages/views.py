@@ -15,32 +15,36 @@ def home(request):
     '''
     Display the home page with last topics added
     '''
-    
+
     tutos = []
     for tuto in get_last_tutorials():
         data = tuto.load_json_for_public()
-        data['pk']=tuto.pk
-        data['image']=tuto.image
-        data['gallery']=tuto.gallery
-        data['pubdate']=tuto.pubdate
-        data['update']=tuto.update
-        data['subcategory']=tuto.subcategory
-        data['get_absolute_url_online']=reverse('zds.tutorial.views.view_tutorial_online', 
-                                                   args=[tuto.pk, 
-                                                         slugify(data['title'])])
-        
-        
+        data['pk'] = tuto.pk
+        data['image'] = tuto.image
+        data['gallery'] = tuto.gallery
+        data['pubdate'] = tuto.pubdate
+        data['update'] = tuto.update
+        data['subcategory'] = tuto.subcategory
+        data['get_absolute_url_online'] = reverse(
+            'zds.tutorial.views.view_tutorial_online',
+            args=[
+                tuto.pk,
+                slugify(
+                    data['title'])])
+
         tutos.append(data)
-    
+
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
         'last_articles': get_last_articles(),
     })
 
+
 @can_read_now
 def index(request):
     return render_template('pages/index.html')
+
 
 @can_read_now
 def about(request):
@@ -49,6 +53,7 @@ def about(request):
     '''
     return render_template('pages/about.html')
 
+
 @can_read_now
 def association(request):
     '''
@@ -56,12 +61,14 @@ def association(request):
     '''
     return render_template('pages/association.html')
 
+
 @can_read_now
 def contact(request):
     '''
     Display contact page
     '''
     return render_template('pages/contact.html')
+
 
 @can_read_now
 def eula(request):

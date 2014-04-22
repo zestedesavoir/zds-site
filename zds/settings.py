@@ -13,8 +13,7 @@ else:
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-#INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
-
+# INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 
 ADMINS = (
@@ -241,9 +240,9 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024*1024*2
+IMAGE_MAX_SIZE = 1024 * 1024 * 2
 
-#git directory
+# git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')

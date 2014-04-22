@@ -12,42 +12,44 @@ from zds.utils.articles import export_article
 
 class ArticleFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Article
-    
+
     title = factory.Sequence(lambda n: 'Mon Article No{0}'.format(n))
-    description = factory.Sequence(lambda n: 'Description de l\'article No{0}'.format(n))
+    description = factory.Sequence(
+        lambda n: 'Description de l\'article No{0}'.format(n))
     text = 'text.md'
     create_at = datetime.now()
-    
+
     @classmethod
     def _prepare(cls, create, **kwargs):
         article = super(ArticleFactory, cls)._prepare(create, **kwargs)
-        
+
         path = article.get_path()
         if not os.path.isdir(path):
-            os.makedirs(path, mode=0777)
-        
+            os.makedirs(path, mode=0o777)
+
         man = export_article(article)
         repo = Repo.init(path, bare=False)
         repo = Repo(path)
-        
-        f = open(os.path.join(path,'manifest.json'), "w")
+
+        f = open(os.path.join(path, 'manifest.json'), "w")
         f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
-        f = open(os.path.join(path,article.text), "w")
+        f = open(os.path.join(path, article.text), "w")
         f.write(u'Test')
         f.close()
         repo.index.add(['manifest.json', article.text])
-        cm=repo.index.commit("Init Article")
-        
-        article.sha_draft=cm.hexsha
+        cm = repo.index.commit("Init Article")
+
+        article.sha_draft = cm.hexsha
         return article
+
 
 class ReactionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Reaction
-    
+
     ip_address = '192.168.3.1'
     text = u'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
-    
+
     @classmethod
     def _prepare(cls, create, **kwargs):
         reaction = super(ReactionFactory, cls)._prepare(create, **kwargs)
@@ -57,6 +59,6 @@ class ReactionFactory(factory.DjangoModelFactory):
             article.save()
         return reaction
 
+
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
-    

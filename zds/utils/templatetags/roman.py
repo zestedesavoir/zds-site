@@ -6,10 +6,11 @@ from django import template
 register = template.Library()
 
 
-CONVERT_VALUES =    ((1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'), 
-            (90, 'XC'), (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), 
-            (4, 'IV'), (1, 'I'))
- 
+CONVERT_VALUES = ((1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'),
+                  (90, 'XC'), (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'),
+                  (4, 'IV'), (1, 'I'))
+
+
 @register.filter('roman')
 def roman(input_text):
     user_value = int(input_text)

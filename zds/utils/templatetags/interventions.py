@@ -24,10 +24,12 @@ def interventions_topics(user):
         else:
             topics_read.append(topicfollowed.topic)
 
-    read_topics_count = 5 - (len(topics_unread) if len(topics_unread) < 5 else 5)
+    read_topics_count = 5 - \
+        (len(topics_unread) if len(topics_unread) < 5 else 5)
     return {'unread': topics_unread,
             'read': topics_read[:read_topics_count]}
-    
+
+
 @register.filter('interventions_privatetopics')
 def interventions_privatetopics(user):
     topicsfollowed = PrivateTopic.objects.filter(author=user)\
@@ -42,51 +44,55 @@ def interventions_privatetopics(user):
             privatetopics_unread.append(topicfollowed)
         else:
             privatetopics_read.append(topicfollowed)
-            
+
     for topicpart in topicspart:
         if never_privateread(topicpart):
             privatetopics_unread.append(topicpart)
         else:
             privatetopics_read.append(topicpart)
 
-    privateread_topics_count = 5 - (len(privatetopics_unread) if len(privatetopics_unread) < 5 else 5)
+    privateread_topics_count = 5 - \
+        (len(privatetopics_unread) if len(privatetopics_unread) < 5 else 5)
     return {'unread': privatetopics_unread,
             'read': privatetopics_read[:privateread_topics_count]}
 
+
 @register.simple_tag(name='reads_topic')
 def reads_topic(topic, user):
-    if user.is_authenticated() :
-        if never_read_topic (topic, user) :
+    if user.is_authenticated():
+        if never_read_topic(topic, user):
             return ''
-        else :
+        else:
             return 'secondary'
-    else :
-        return '';
+    else:
+        return ''
+
 
 @register.simple_tag(name='reads_article')
 def reads_article(article, user):
-    if user.is_authenticated() :
-        if never_read_article (article, user) :
+    if user.is_authenticated():
+        if never_read_article(article, user):
             return ''
-        else :
+        else:
             return 'secondary'
-    else :
-        return '';
+    else:
+        return ''
+
 
 @register.simple_tag(name='reads_tutorial')
 def reads_tutorial(tutorial, user):
-    if user.is_authenticated() :
-        if never_read_tutorial (tutorial, user) :
+    if user.is_authenticated():
+        if never_read_tutorial(tutorial, user):
             return ''
-        else :
+        else:
             return 'secondary'
-    else :
-        return '';
-    
+    else:
+        return ''
+
+
 @register.filter(name='alerts_topic')
 def alerts_topic(user):
-    if user.is_authenticated() :
+    if user.is_authenticated():
         return Post.objects.filter(alerts__isnull=False)
-    else :
-        return '';
-    
+    else:
+        return ''
