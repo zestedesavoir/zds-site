@@ -106,7 +106,10 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=True, status='PENDING', tutorial__subcategory__in=[subcategory]) \
+                .filter(
+                        validator__isnull=True, 
+                        status='PENDING', 
+                        tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
 
@@ -119,7 +122,9 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=False, status='PENDING_V', tutorial__subcategory__in=[subcategory]) \
+                .filter(validator__isnull=False, 
+                        status='PENDING_V', 
+                        tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
 
@@ -244,7 +249,8 @@ def history_validation(request, tutorial_pk):
             .all()
     else:
         validations = Validation.objects \
-            .filter(tutorial__pk=tutorial_pk, tutorial__subcategory__in=[subcategory]) \
+            .filter(tutorial__pk=tutorial_pk, 
+                    tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition") \
             .all()
 
@@ -485,7 +491,8 @@ def modify_tutorial(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author_username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction '+ \
+                'du tutoriel.'.format(author_username))
 
             return redirect(redirect_url)
 
@@ -942,7 +949,8 @@ def edit_tutorial(request):
                 tutorial.image = img
 
             new_slug = os.path.join(
-                settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(data['title']))
+                settings.REPO_PATH, 
+                str(tutorial.pk) + '_' + slugify(data['title']))
 
             tutorial.save()
 
@@ -1172,7 +1180,8 @@ def add_part(request):
             part.position_in_tutorial = tutorial.get_parts().count() + 1
 
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), slugify(data['title']))
+                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                                    slugify(data['title']))
             part.introduction = os.path.join(
                 slugify(
                     data['title']),
@@ -1270,7 +1279,8 @@ def edit_part(request):
             # Update title and his slug.
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), slugify(data['title']))
+                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                                    slugify(data['title']))
             old_slug = part.get_path()
 
             # Update path for introduction and conclusion.
@@ -1544,7 +1554,8 @@ def add_chapter(request):
                     chapter_path = os.path.join(
                         os.path.join(
                             settings.REPO_PATH, str(
-                                chapter.tutorial.pk) + '_' + chapter.tutorial.slug), chapter.slug)
+                                chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
+                                                chapter.slug)
                     chapter.introduction = os.path.join(
                         chapter.slug,
                         'introduction.md')
@@ -1691,8 +1702,9 @@ def edit_chapter(request):
             data = form.data
             if chapter.part:
                 if chapter.tutorial:
-                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                        chapter.tutorial.pk) + '_' + chapter.tutorial.slug), slugify(data['title']))
+                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, 
+                                                         str(chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
+                                            slugify(data['title']))
                 else:
                     new_slug = os.path.join(
                         os.path.join(
@@ -1765,7 +1777,7 @@ def add_extract(request):
     # If part doesn't exist, we check if the user is in authors of the
     # tutorial of the chapter.
     if (part and not request.user in chapter.part.tutorial.authors.all())\
-            or (not part and not request.user in chapter.tutorial.authors.all()):
+            or (not part and request.user not in chapter.tutorial.authors.all()):
         # If the user isn't an author or a staff, we raise an exception.
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
@@ -1828,7 +1840,7 @@ def edit_extract(request):
     # If part doesn't exist, we check if the user is in authors of the
     # tutorial of the chapter.
     if (part and not request.user in extract.chapter.part.tutorial.authors.all())\
-            or (not part and not request.user in extract.chapter.tutorial.authors.all()):
+            or (not part and request.user not in extract.chapter.tutorial.authors.all()):
         # If the user isn't an author or a staff, we raise an exception.
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
@@ -1987,14 +1999,16 @@ def find_tuto(request, pk_user):
 
     u = get_object_or_404(User, pk=pk_user)
     if type == 'beta':
-        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_beta__isnull=False)\
+        tutos = Tutorial.objects.all()\
+            .filter(authors__in=[u], sha_beta__isnull=False)\
             .order_by('-pubdate')
 
         return render_template('tutorial/find_betatutorial.html', {
             'tutos': tutos, 'usr': u,
         })
     else:
-        tutos = Tutorial.objects.all().filter(authors__in=[u], sha_public__isnull=False)\
+        tutos = Tutorial.objects.all()\
+            .filter(authors__in=[u], sha_public__isnull=False)\
             .order_by('-pubdate')
 
         return render_template('tutorial/find_tutorial.html', {
@@ -2013,9 +2027,6 @@ def upload_images(request, tutorial):
                     tutorial.get_path(),
                     'images')))
         for i in zfile.namelist():
-            ph = os.path.join(
-                settings.MEDIA_ROOT, "tutorial", str(
-                    tutorial.pk), i)
             ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
             try:
                 data = zfile.read(i)
@@ -2366,29 +2377,6 @@ def import_tuto(request):
         'form': form
     })
 
-# Handling deprecated links
-
-
-def deprecated_view_tutorial_redirect(request, tutorial_pk, tutorial_slug):
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    return redirect(tutorial.get_absolute_url(), permanent=True)
-
-
-def deprecated_view_part_redirect(request, tutorial_pk, tutorial_slug,
-                                  part_pos, part_slug):
-    part = Part.objects.get(
-        position_in_tutorial=part_pos, tutorial__pk=tutorial_pk)
-    return redirect(part.get_absolute_url(), permanent=True)
-
-
-def deprecated_view_chapter_redirect(
-    request, tutorial_pk, tutorial_slug, part_pos, part_slug,
-        chapter_pos, chapter_slug):
-    chapter = Chapter.objects.get(position_in_part=chapter_pos,
-                                  part__position_in_tutorial=part_pos,
-                                  part__tutorial__pk=tutorial_pk)
-    return redirect(chapter.get_absolute_url(), permanent=True)
-
 
 # Handling repo
 
@@ -2594,10 +2582,6 @@ def maj_repo_extract(
             os.path.join(
                 settings.REPO_PATH, str(
                     extract.chapter.part.tutorial.pk) + '_' + extract.chapter.part.tutorial.slug))
-        ph = os.path.join(
-            extract.chapter.part.slug,
-            slugify(
-                extract.chapter.title))
 
     index = repo.index
 
