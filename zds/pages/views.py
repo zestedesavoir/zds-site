@@ -8,6 +8,7 @@ from zds.member.decorator import can_read_now
 from zds.tutorial.models import get_last_tutorials
 from zds.utils import render_template
 from zds.utils import slugify
+from django.contrib.auth.models import Group, User
 
 
 @can_read_now
@@ -59,7 +60,12 @@ def association(request):
 @can_read_now
 def contact(request):
     """Display contact page."""
-    return render_template('pages/contact.html')
+    staffs = User.objects.filter(groups__in=Group.objects.filter(name__contains='staff')).all()
+    devs = User.objects.filter(groups__in=Group.objects.filter(name__contains='dev')).all()
+    return render_template('pages/contact.html', {
+        'staffs': staffs,
+        'devs': devs
+    })
 
 
 @can_read_now
