@@ -21,6 +21,7 @@ from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike
+from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -221,6 +222,27 @@ def new(request):
         'form': form,
     })
 
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    # only staff can move topic
+    if not request.user.has_perm('forum.change_post'):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
+    post = Post.objects.get(alerts__in=[alert])
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    send_mp(bot, [alert.author], "Résolution d'alerte", "", request.POST['text'], False)
+    alert.delete()
+
+    messages.success(
+        request,
+        u'L\'alerte a bien été résolue')
+
+    return redirect(post.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -445,7 +467,6 @@ def edit_post(request):
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
             u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
             .format(post.author.username))
-        post.alerts.all().delete()
 
     if request.method == 'POST':
 
