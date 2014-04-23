@@ -15,7 +15,18 @@
   </head>
   <body>   
 <!-- Header and Nav -->
-    <nav class="top-bar" data-topbar data-options="is_hover: false">
+    <nav class="top-bar" data-topbar data-options="is_hover: 
+    {% if user.is_authenticated %}
+      {% with profil=user|profile%}
+        {% if profil.hover_or_click %}
+          true
+        {% else %}
+          false
+        {% endif %}
+      {% endwith %}
+    {% else %}
+      false
+    {% endif %}">
       <ul class="title-area">
         <li class="logo">
           <a href="/"><img src='{% static "img/logo.png" %}' alt="ZesteDeSavoir" /></a>
