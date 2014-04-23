@@ -265,6 +265,7 @@ def settings_profile(request):
             'avatar_url': profile.avatar_url,
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
+            'hover_or_click': profile.hover_or_click,
             'sign': profile.sign}
         )
         c = {

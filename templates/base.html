@@ -15,7 +15,18 @@
   </head>
   <body>   
 <!-- Header and Nav -->
-    <nav class="top-bar" data-topbar data-options="is_hover: false">
+    <nav class="top-bar" data-topbar data-options="is_hover: 
+    {% if user.is_authenticated %}
+      {% with profil=user|profile%}
+        {% if profil.hover_or_click %}
+          true
+        {% else %}
+          false
+        {% endif %}
+      {% endwith %}
+    {% else %}
+      false
+    {% endif %}">
       <ul class="title-area">
         <li class="logo">
           <a href="/"><img src='{% static "img/logo.png" %}' alt="ZesteDeSavoir" /></a>
@@ -206,7 +217,7 @@
             {% with posts=user|alerts_topic %}
             <a href="#">
               {% if posts.count > 0 %}
-                  <span class="alert label">{{ posts.count }}</span>
+                  <span class="alert label">{{ user|alerts_count }}</span>
               {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
@@ -214,14 +225,15 @@
               <li class="divider"></li>
                 
                   {% for post in posts %}
+                  {% for alert in post.alerts.all %}
                       <li><a href="{{ post.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
-                                  {{ post.author.username }}
+                                {{ alert.author }}
                               </div>
                               <div class="right">
-                                  {{ post.pubdate|naturaltime }}
+                                  {{ alert.pubdate|naturaltime }}
                               </div>
                             </div>
                             <div class="large-12 columns">
@@ -230,6 +242,7 @@
                           </div>
                           </a>
                       </li>
+                  {% endfor %}
                   {% endfor %}
                   {% if posts.count = 0 %}
                       <li class="dropdown-empty-message">
