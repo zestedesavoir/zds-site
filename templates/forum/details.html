@@ -18,16 +18,12 @@
     <li class="current"><a href="javascript:;">{{ forum.title }}</a></li>
 {% endblock %}
 
-{% block headline-actions %}
-    <li><a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
-{% endblock %}
-
 {% block content %}
 
 <div class="row">
 {% if sticky_topics %}
     <div>
-        <table>
+        <table class="topics-entries">
             <tbody>
             {% for topic in sticky_topics %}
                 {% include "forum/details_row.part.html" %}
@@ -36,7 +32,7 @@
         </table>
     </div>
 {% endif %}
-
+<hr />
 <div>
     <table class="topics-entries">
       <tbody>

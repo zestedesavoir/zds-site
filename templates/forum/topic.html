@@ -24,7 +24,6 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         {% if topic.is_solved %}
             <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Non résolu</a></li>

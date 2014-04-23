@@ -307,7 +307,13 @@
         <!-- Left Nav Section -->
         <ul class="left">
           <li class="has-dropdown">
-            <a href="#" class="topmenu">Tutoriels</a>
+            <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
+            {% url "zds.tutorial.views.index" %}
+            {% else %}
+            #
+            {% endif %}{% endwith %}{% else %}
+            #
+            {% endif %}" class="topmenu">Tutoriels</a>
             <ul class="dropdown">
                 {% with categories='.'|top_categories_tuto %}
                     {% for category in categories %}
@@ -332,7 +338,13 @@
             <a href="{% url "zds.article.views.index" %}" class="topmenu">Articles</a>
           </li>
           <li class="has-dropdown">
-            <a href="#" class="topmenu">Forums</a>
+            <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
+            {% url "zds.forum.views.index" %}
+            {% else %}
+            #
+            {% endif %}{% endwith %}{% else %}
+            #
+            {% endif %}" class="topmenu">Forums</a>
             <ul class="dropdown">
                 {% with categories='.'|top_categories %}
                     {% for category in categories %}

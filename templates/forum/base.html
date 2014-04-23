@@ -21,11 +21,13 @@
 
 
 {% block sidebar %}
-	{% if user.is_authenticated %}
+	
     <h3>Actions</h3>
     <ul>
+        <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
     	{% block headline-actions %}{% endblock %}
     </ul>
+    {% if user.is_authenticated %}
     <h3>Sujets suivis</h3>
     <ul>
     	{% with topics=user|interventions_topics %}
@@ -52,4 +54,6 @@
         {% endwith %}
     </ul>
     {% endif %}
+    <h3>Flux</h3>
+    {% include "forum/feeds.part.html" %}
 {% endblock %}
