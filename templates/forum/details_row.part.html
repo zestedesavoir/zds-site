@@ -1,6 +1,7 @@
 {% load humanize %}
 
 
+
 <div class="forum-entry
     {% if topic.is_locked %}
         forum-entry-locked
@@ -9,9 +10,9 @@
     {% endif %}">
 
     <div class="forum-entry-title
-    {% if user.is_authenticated and topic.never_read %}
-        unread
-    {% endif %}">
+        {% if user.is_authenticated and topic.never_read %}
+            unread
+        {% endif %}">
 
         <a href="{{ topic.get_absolute_url }}">
             {{ topic.title }}
@@ -28,31 +29,24 @@
         </span>
     </div>
     <div class="forum-entry-desc">
-        <p>
-            {% with member=topic.author %}
-                Par {% include "misc/member_item.part.html" %}
-            {% endwith %}
-            <br />
-            {% with answer=topic.get_last_answer %}
-                {% if answer %}
-                    Dernière rép.
-                    <a href="{{ answer.get_absolute_url }}">
-                        {% with date=answer.pubdate|naturaltime %}
-                            {{ date }}
-                        {% endwith %}
-                    </a>
-                    par
-                    {% with member=answer.author %}
-                        {% include "misc/member_item.part.html" %}
-                    {% endwith %}
-                {% else %}
-                    Aucune réponse
-                {% endif %}
-            {% endwith %}
-
-        </p>
+        Par {% include "misc/member_item.part.html" with member=topic.author %}
+        <br />
+        {% with answer=topic.get_last_answer %}
+            {% if answer %}
+                Dernière rép.
+                <a href="{{ answer.get_absolute_url }}">
+                    {{ answer.pubdate|naturaltime }}
+                </a>
+                par
+                {% include "misc/member_item.part.html" with member=answer.author %}
+            {% else %}
+                Aucune réponse
+            {% endif %}
+        {% endwith %}
     </div>
 </div>
+
+
 
 <!--
 {% if topic.is_sticky %}

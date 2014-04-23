@@ -51,12 +51,8 @@
         {% endif %}
 
         <div class="message-metadata">
-            <a href="{{ message.author.get_absolute_url }}" class="username">
-                {{ message.author.username }}
-            </a>
-            <a href="#p{{ message.pk }}" class="date">
-                {{ message.pubdate|naturaltime|capfirst }}
-            </a>
+            <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
+            <a href="#p{{ message.pk }}" class="date">{{ message.pubdate|naturaltime|capfirst }}</a>
         </div>
 
         <div class="message-content">

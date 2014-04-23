@@ -58,6 +58,7 @@
                 <div class="forum-entry-desc">
                     <p>
                         Par {% include "misc/member_item.part.html" with member=topic.author %}
+                        
                         <br />
 
                         {% with answer=topic.get_last_answer %}

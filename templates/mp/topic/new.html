@@ -1,0 +1,31 @@
+{% extends "mp/base.html" %}
+{% load emarkdown %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Nouvelle conversation privée
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li class="current">Nouvelle conversation privée</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Nouvelle conversation privée
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}

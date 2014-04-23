@@ -51,19 +51,22 @@
             {% endif %}
         </ul>
     </div>
+{% endblock %}
 
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Participants">
-        <h3>Participants</h3>
+
+
+{% block content %}
+
+    <div class="authors">
+        <span class="authors-label">Participants : </span>
         <ul>
-            <li><a href="{{ topic.author.get_absolute_url }}">{{ topic.author.username }}</a></li>
             {% for member in topic.participants.all %}
-            <li><a href="{{ member.get_absolute_url }}">{{ member.username }}</a></li>
+                <li>
+                    {% include 'misc/member_item.part.html' %}
+                </li>
             {% endfor %}
         </ul>
     </div>
-{% endblock %}
-
-{% block content %}
 
     {% include "misc/pagination.part.html" with position="top" %}
 
