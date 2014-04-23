@@ -18,15 +18,19 @@
 {% endblock %}
 
 {% block headline-actions %}
-    <h3>Actions</h3>
-    <ul>
-        {% if user.is_authenticated %}
-        <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
-        {% endif %}
-    </ul>
-    <form action="" method="POST" >
-        <button type="submit" name="delete" class="button secondary">Supprimer</button>
-    </form>
+    <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
+    <li>
+        <a href="#" data-dropdown="deletemp" ><span class="fi-x"></span> Supprimer les MP</a>
+        <div id="deletemp" class="f-dropdown" data-dropdown-content>
+            <form action="" method="POST" >
+            <p>
+                Attention, vous vous appretez à supprimer les MPs qui ont été sélectionnés.
+            </p>
+            <button type="submit" name="delete" class="button expand alert tiny">Confirmer</button>
+             {% csrf_token %}
+            </form>
+        </div>
+    </li>
 {% endblock %}
 
 {% block content %}
@@ -34,56 +38,7 @@
     <table class="topics-entries">
       <tbody>
         {% for topic in privatetopics %}
-        <tr>
-            <td class="
-            {% if user.is_authenticated %}
-                {% if topic.never_read %}
-                    unread
-                {% endif %}
-            {% endif %}">
-                <a href="{{ topic.get_absolute_url }}">
-                    {{ topic.title }}
-                </a>
-                {% if topic.subtitle %}
-                    <p>
-                        {{ topic.subtitle }}
-                    </p>
-                {% endif %}
-                </br>
-                Participants : 
-                {% with member=topic.author %}
-                    {% include "member/member_item_common.part.html" %}
-                {% endwith %}
-                {% for member in topic.participants.all %}
-                    | {% include "member/member_item_common.part.html" %}
-                {% endfor %}
-            </td>
-            <td class="forum-entry-count hide-for-small" >
-                <span class="label">
-                    {{ topic.get_post_count|add:"-1" }}
-                </span>
-            </td>
-            <td class="forum-entry-desc">
-                <p>
-                    {% with answer=topic.get_last_answer %}
-                        {% if answer %}
-                            Dernière rép.
-                            <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
-                                {{ answer.pubdate|naturaltime }}
-                            </a>
-                            </br>
-                            par
-                            {% with member=answer.author %}
-                                {% include "member/member_item_common.part.html" %}
-                            {% endwith %}
-                        {% else %}
-                            Aucune réponse
-                        {% endif %}
-                    {% endwith %}
-
-                </p>
-            </td>
-        </tr>
+            {% include "forum/details_row.part.html" %}
         {% endfor %}
       </tbody>
     </table>

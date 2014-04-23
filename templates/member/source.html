@@ -1,11 +1,7 @@
-{% extends "base.html" %}
+{% extends "source.html" %}
 
 {% block title_base %}
     &#183; Membres
-{% endblock %}
-
-{% block headline %}
-	<h2 class="box member">{% block head-title %}{% endblock %}</h2>
 {% endblock %}
 
 {% block breadcrumb_base %}
@@ -14,4 +10,13 @@
 
 {% block sidebar %}
 	{% block headline-actions %}{% endblock %}
+{% endblock %}
+
+{% block content-out %}
+	<div class="row">
+	<div class="large-12 columns">
+	    <h2 class="box member">{% block head-title %}{% endblock %}</h2>
+	    {% block content %}{% endblock %}
+	</div>
+	</div>
 {% endblock %}
