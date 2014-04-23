@@ -4,6 +4,7 @@ from django import forms
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder
+from crispy_forms.bootstrap import StrictButton
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -48,7 +49,7 @@ class LoginForm(forms.Form):
                 Submit(
                     'submit',
                     'Se connecter',
-                    css_class='button '),
+                    css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
@@ -183,6 +184,7 @@ class ProfileForm(forms.Form):
         choices=(
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
+            ('hover_or_click', "Navigation au survol"),
         ),
         widget = forms.CheckboxSelectMultiple,
     )
@@ -203,6 +205,9 @@ class ProfileForm(forms.Form):
         if 'show_sign' in initial and initial['show_sign']:
             self.fields['options'].initial += 'show_sign'
 
+        if 'hover_or_click' in initial and initial['hover_or_click']:
+            self.fields['options'].initial += 'hover_or_click'
+
         self.helper.layout = Layout(
             Field('biography'),
             Field('site'),
@@ -210,8 +215,8 @@ class ProfileForm(forms.Form):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                Submit('submit', 'Editer mon profil'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Editer mon profil', type='submit', css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             )
         )
 

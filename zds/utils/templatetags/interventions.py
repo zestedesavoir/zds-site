@@ -5,6 +5,7 @@ from django import template
 from zds.article.models import never_read as never_read_article
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic, never_privateread
+from zds.utils.models import Alert
 from zds.tutorial.models import never_read as never_read_tutorial
 
 
@@ -93,6 +94,13 @@ def reads_tutorial(tutorial, user):
 @register.filter(name='alerts_topic')
 def alerts_topic(user):
     if user.is_authenticated():
-        return Post.objects.filter(alerts__isnull=False)
+        return Post.objects.filter(alerts__isnull=False).distinct()
+    else:
+        return ''
+
+@register.filter(name='alerts_count')
+def alerts_count(user):
+    if user.is_authenticated():
+        return Alert.objects.all().count()
     else:
         return ''

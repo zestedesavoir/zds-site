@@ -53,7 +53,7 @@ class Profile(models.Model):
                                     default=True)
 
     hover_or_click = models.BooleanField('Survol ou click ?',
-                                         default=True)
+                                         default=False)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField(
