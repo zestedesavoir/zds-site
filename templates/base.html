@@ -217,7 +217,7 @@
             {% with posts=user|alerts_topic %}
             <a href="#">
               {% if posts.count > 0 %}
-                  <span class="alert label">{{ posts.count }}</span>
+                  <span class="alert label">{{ user|alerts_count }}</span>
               {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
@@ -225,14 +225,15 @@
               <li class="divider"></li>
                 
                   {% for post in posts %}
+                  {% for alert in post.alerts.all %}
                       <li><a href="{{ post.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
-                                  {{ post.author.username }}
+                                {{ alert.author }}
                               </div>
                               <div class="right">
-                                  {{ post.pubdate|naturaltime }}
+                                  {{ alert.pubdate|naturaltime }}
                               </div>
                             </div>
                             <div class="large-12 columns">
@@ -241,6 +242,7 @@
                           </div>
                           </a>
                       </li>
+                  {% endfor %}
                   {% endfor %}
                   {% if posts.count = 0 %}
                       <li class="dropdown-empty-message">
