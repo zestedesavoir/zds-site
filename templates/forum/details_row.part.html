@@ -1,28 +1,30 @@
 {% load humanize %}
 
-<tr class="forum-entry
+<tr class="
     {% if topic.is_locked %}
         forum-entry-locked
     {% else %}
         {% if topic.is_solved %}
         forum-entry-solved
         {% endif %}
-    {% endif %}">
-    <td class="forum-entry-title
+    {% endif %}
     {% if user.is_authenticated %}
         {% if topic.never_read %}
             unread
+        {% else %}
+            read
         {% endif %}
     {% endif %}">
+    <td>
         <a href="{{ topic.get_absolute_url }}">
             {{ topic.title }}
-        </a>
+        </a><br />
         {% if topic.subtitle %}
-            <p>
+            <small>
                 {{ topic.subtitle }}
-            </p>
+            </small>
         {% endif %}
-        </br>
+        <br />
         {% with member=topic.author %}
             Par {% include "member/member_item_common.part.html" %}
         {% endwith %}
@@ -32,16 +34,12 @@
             {{ topic.get_post_count|add:"-1" }}
         </span>
     </td>
-    <td class="forum-entry-desc">
+    <td width="290px">
         <p>
             {% with answer=topic.get_last_answer %}
                 {% if answer %}
-                    Dernière rép.
-                    <a href="{{ answer.get_absolute_url }}" class="hide-for-small">
-                    	{{ answer.pubdate|naturaltime }}
-                    </a>
-                    </br>
-                    par
+                    <span>Dernière rép. <span><a href="{{ answer.get_absolute_url }}" class="hide-for-small">{{ answer.pubdate|naturaltime }}</a> 
+                        <br />par
                     {% with member=answer.author %}
                         {% include "member/member_item_common.part.html" %}
                     {% endwith %}

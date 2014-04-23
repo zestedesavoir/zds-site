@@ -45,6 +45,11 @@
 .top-bar-section .dropdown .avatar {
 	max-height: 30px;
 }
+
+.top-bar-section .dropdown li:not(.has-form) a:not(.button) {
+	line-height: 40px;
+}
+
 /*
 Logo
 */
@@ -353,6 +358,19 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 
 .topics-entries {
 	width: 100%;
+	border : 0px;
+	border-collapse:collapse;
+}
+.topics-entries tr td{
+	border-bottom: 1px solid #ff8c00;
+}
+
+.topics-entries .read{
+	background-color: #f4f6f6;
+}
+
+.topics-entries .unread{
+	background-color: #FFF;
 }
 
 .message-forum {
