@@ -2,27 +2,27 @@
 
 from datetime import datetime
 from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
-from django.http import Http404
-from django.template import Context
-from django.views.decorators.http import require_POST
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
+from django.template import Context
 from django.template.loader import get_template
+from django.views.decorators.http import require_POST
+from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.utils import render_template, slugify
+from zds.utils.mps import send_mp
+from zds.utils.paginator import paginator_range
 
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
-from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.utils import render_template, slugify
-from zds.utils.paginator import paginator_range
 
 
 @can_read_now
@@ -163,56 +163,9 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            # Creating the thread
-            n_topic = PrivateTopic()
-            n_topic.title = data['title']
-            n_topic.subtitle = data['subtitle']
-            n_topic.pubdate = datetime.now()
-            n_topic.author = request.user
-            n_topic.save()
-
-            # Add all participants on the MP.
-            for part in ctrl:
-                n_topic.participants.add(part)
-
-            # Adding the first message
-            post = PrivatePost()
-            post.privatetopic = n_topic
-            post.author = request.user
-            post.text = data['text']
-            post.pubdate = datetime.now()
-            post.position_in_topic = 1
-            post.save()
-
-            n_topic.last_message = post
-            n_topic.save()
-
-            # send email
-            subject = "ZDS - MP: " + n_topic.title
-            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
-            for part in ctrl:
-                message_html = get_template('email/mp.html').render(
-                    Context({
-                        'username': part.username,
-                        'url': settings.SITE_URL + n_topic.get_absolute_url(),
-                        'author': request.user.username
-                    })
-                )
-                message_txt = get_template('email/mp.txt').render(
-                    Context({
-                        'username': part.username,
-                        'url': settings.SITE_URL + n_topic.get_absolute_url(),
-                        'author': request.user.username
-                    })
-                )
-
-                msg = EmailMultiAlternatives(
-                    subject, message_txt, from_email, [
-                        part.email])
-                msg.attach_alternative(message_html, "text/html")
-                msg.send()
-
-            return redirect(n_topic.get_absolute_url())
+            p_topic = send_mp(request.user, ctrl, data['title'], data['subtitle'], data['text'])
+            
+            return redirect(p_topic.get_absolute_url())
 
         else:
             return render_template('mp/new.html', {
@@ -417,16 +370,7 @@ def edit_post(request):
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
     if post.author != request.user:
-        if request.method == 'GET' and request.user.has_perm('mp.change_post'):
-            messages.add_message(
-                request, messages.WARNING,
-                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
-                .format(post.author.username))
-        # The user isn't the author and staff, he didn't have permission for
-        # this.
-        else:
-            raise PermissionDenied
+        raise PermissionDenied
 
     if request.method == 'POST':
         if not 'text' in request.POST:
