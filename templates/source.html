@@ -1,0 +1,427 @@
+{% load staticfiles %}
+{% load compressed %}
+{% load humanize %}
+{% load profile %}
+{% load interventions %}
+{% load topbar %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
+    {% compressed_css "main-css" %}
+  </head>
+  <body>   
+<!-- Header and Nav -->
+    <nav class="top-bar" data-topbar data-options="is_hover: 
+    {% if user.is_authenticated %}
+      {% with profil=user|profile%}
+        {% if profil.hover_or_click %}
+          true
+        {% else %}
+          false
+        {% endif %}
+      {% endwith %}
+    {% else %}
+      false
+    {% endif %}">
+      <ul class="title-area">
+        <li class="logo">
+          <a href="/"><img src='{% static "img/logo.png" %}' alt="ZesteDeSavoir" /></a>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"></a></li>
+      </ul>
+
+      <section class="top-bar-section">
+        <!-- Right Nav Section -->
+        {% if user.is_authenticated %}
+        <ul class="right">
+          <li class="has-dropdown">
+            {% with topics=user|interventions_privatetopics %}
+            {% with unread_topics=topics.unread %}
+            {% with read_topics=topics.read %}
+            <a href="#">
+              {% if unread_topics|length > 0 %}
+                  <span class="alert label">{{ unread_topics|length }}</span>
+              {% endif %}
+              <img src="{% static "img/messages.png" %}" alt="Messages" /> <span class="hide-for-large-up">Messages Privés</span></a>
+            <ul class="dropdown">
+                <li><label>Messagerie</label></li>
+                <li class="divider"></li>
+                
+                  {% for topic in unread_topics %}
+                      {% with first_unread=topic.first_unread_post %}
+                      <li><a href="{{ topic.last_read_post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                  {% with p=first_unread.author|profile %}
+                                  <img src="{{ p.get_avatar_url }}" alt="" class="avatar" />
+                                  {% endwith %}
+                                  {{ first_unread.author.username }}
+                              </div>
+                              <div class="right">
+                                  {{ first_unread.pubdate|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ topic.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                      {% endwith %}
+                  {% endfor %}
+
+                  {% for topic in read_topics %}
+                      {% with last_read=topic.last_read_post %}
+                      <li>
+                          {% with last_answer=topic.get_last_answer %}
+                          
+                          <a href="
+                              {% if last_answer %}
+                                  {{ last_answer.get_absolute_url }}
+                              {% else %}
+                                  {{ topic.first_post.get_absolute_url }}
+                              {% endif %}"
+                          >
+                            <div class="row">
+                              <div class="large-12 columns">
+                                <div class="left">
+                                    {% with p=last_read.author|profile %}
+                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
+                                    {% endwith %}
+                                    {{ last_read.author.username }}
+                                </div>
+                                <div class="right">
+                                    {{ last_read.pubdate|naturaltime }}
+                                </div>
+                              </div>
+                              <div class="large-12 columns">
+                                  {{ topic.title }}
+                              </div>
+                            </div>                             
+                          </a>
+                          {% endwith %}
+                      </li>
+                      {% endwith %}
+                  {% endfor %}
+
+                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                      <li>
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
+                          Aucun message
+                          </div></div>
+                        </a>
+                      </li>
+                  {% endif %}
+                <li class="divider"></li>
+                <li><a href="{% url "zds.mp.views.index" %}"><div class="row"><div class="large-12 columns">Tous les messages</div></div></a></li>
+            </ul>
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+          </li>
+          <li class="has-dropdown">
+            {% with topics=user|interventions_topics %}
+            {% with unread_topics=topics.unread %}
+            {% with read_topics=topics.read %}
+            <a href="#">
+              {% if unread_topics|length > 0 %}
+                  <span class="alert label">{{ unread_topics|length }}</span>
+              {% endif %}
+              <img src="{% static "img/notifications.png" %}" alt="Notifications" /> <span class="hide-for-large-up">Notifications</span></a>
+            <ul class="dropdown">
+              <li><label>Notifications</label></li>
+              <li class="divider"></li>
+                
+                  {% for topic in unread_topics %}
+                      {% with first_unread=topic.first_unread_post %}
+                      <li><a href="{{ topic.last_read_post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                  {% with p=first_unread.author|profile %}
+                                  <img src="{{ p.get_avatar_url }}" alt="" class="avatar" />
+                                  {% endwith %}
+                                  {{ first_unread.author.username }}
+                              </div>
+                              <div class="right">
+                                  {{ first_unread.pubdate|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ topic.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                      {% endwith %}
+                  {% endfor %}
+
+                  {% for topic in read_topics %}
+                      {% with last_read=topic.last_read_post %}
+                      <li>
+                          {% with last_answer=topic.get_last_answer %}
+                          
+                          <a href="
+                              {% if last_answer %}
+                                  {{ last_answer.get_absolute_url }}
+                              {% else %}
+                                  {{ topic.first_post.get_absolute_url }}
+                              {% endif %}"
+                          >
+                            <div class="row">
+                              <div class="large-12 columns">
+                                <div class="left">
+                                    {% with p=last_read.author|profile %}
+                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
+                                    {% endwith %}
+                                    {{ last_read.author.username }}
+                                </div>
+                                <div class="right">
+                                    {{ last_read.pubdate|naturaltime }}
+                                </div>
+                              </div>
+                              <div class="large-12 columns">
+                                  {{ topic.title }}
+                              </div>
+                            </div>                             
+                          </a>
+                          {% endwith %}
+                      </li>
+                      {% endwith %}
+                  {% endfor %}
+
+                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                      <li>
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
+                          Aucun message
+                          </div></div>
+                        </a>
+                      </li>
+                  {% endif %}
+                <li class="divider"></li>
+              <li><a href="{% url "zds.forum.views.followed_topics" %}"><div class="row"><div class="large-5 columns centered">Toutes les notifications</div></div></a></li>
+            </ul>
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+          </li>
+          {% if perms.forum.change_post %}
+          <li class="has-dropdown">
+            {% with posts=user|alerts_topic %}
+            <a href="#">
+              {% if posts.count > 0 %}
+                  <span class="alert label">{{ user|alerts_count }}</span>
+              {% endif %}
+              <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
+            <ul class="dropdown">
+              <li><label>Alertes Modération</label></li>
+              <li class="divider"></li>
+                
+                  {% for post in posts %}
+                  {% for alert in post.alerts.all %}
+                      <li><a href="{{ post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                {{ alert.author }}
+                              </div>
+                              <div class="right">
+                                  {{ alert.pubdate|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ post.topic.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                  {% endfor %}
+                  {% if posts.count = 0 %}
+                      <li class="dropdown-empty-message">
+                        <a href="#">
+                        <div class="row"><div class="large-5 columns centered">
+                          Aucune alerte
+                        </div></div>
+                        </a>
+                      </li>
+                  {% endif %}
+                <li class="divider"></li>
+              <li><a href="#"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
+            </ul>
+            {% endwith %}
+          </li>
+          {% endif %}
+          <li class="has-dropdown">
+            {% with profile=user|profile %}
+            <a href="#"><img src="{{ profile.get_avatar_url }}" alt=""></a>
+            {% endwith %}
+            <ul class="dropdown">
+                <li>
+                    <a href="{% url "zds.member.views.details" user.username %}">Mon Profil</a>
+                </li>
+                <li>
+                    <a href="{% url "zds.member.views.tutorials" %}">Mes Tutoriels</a>
+                </li>
+                <li>
+                    <a href="{% url "zds.member.views.articles" %}">Mes Articles</a>
+                </li>
+                <li>
+                    <a href="{% url "zds.gallery.views.gallery_list" %}">Galeries d'images</a>
+                </li>
+                <li>
+                    <a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a>
+                </li>
+
+                {% if perms.tutorial.change_tutorial %}
+                <li>
+                    <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
+                </li>
+                {% endif %}
+
+                {% if perms.article.change_article %}
+                <li>
+                    <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
+                </li>
+                {% endif %}
+
+                <li>
+                    <a href="{% url "zds.member.views.logout_view" %}?next={{request.build_absolute_uri}}">Déconnexion</a>
+                </li>
+            </ul>
+          </li>
+        </ul>
+        {% else %} {# Not logged #}
+        <ul class="right">
+            <li><a href="{% url "zds.member.views.login_view" %}?next={{request.build_absolute_uri}}">Connexion</a></li>
+            <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
+        </ul>
+        {% endif %}
+        <!-- Left Nav Section -->
+        <ul class="left">
+          <li class="has-dropdown">
+            <a href="#" class="topmenu">Tutoriels</a>
+            <ul class="dropdown">
+                {% with categories='.'|top_categories_tuto %}
+                    {% for category in categories %}
+                        <li class="has-dropdown">
+                            <a href="#">{{ category.title }}</a>
+                            <ul class="dropdown">
+                                {% for catofsubcat in category.get_subcategories %}
+                                    <li>
+                                        <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                            {{ catofsubcat.subcategory }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                {% endwith %}
+                <li><a href="{% url "zds.tutorial.views.index" %}">Tous les tutoriels</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="{% url "zds.article.views.index" %}" class="topmenu">Articles</a>
+          </li>
+          <li class="has-dropdown">
+            <a href="#" class="topmenu">Forums</a>
+            <ul class="dropdown">
+                {% with categories='.'|top_categories %}
+                    {% for category in categories %}
+                        <li class="has-dropdown">
+                            <a href="#">{{ category.title }}</a>
+                            <ul class="dropdown">
+                                {% for forum in category.get_forums %}
+                                    <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                {% endwith %}
+                <li><a href="{% url "zds.forum.views.index" %}">Tous les Forums</a></li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+    </nav>
+    <div class="ariane">
+      <ul class="hide-for-small">
+          <li>
+              <a href="{% url "zds.pages.views.home" %}">Accueil</a>
+          </li>
+          {% block breadcrumb_base %}{% endblock %}
+          {% block breadcrumb %}{% endblock %}
+      </ul>
+    </div>
+  <!-- End Header and Nav -->
+  {% if messages %}
+  <div class="large-12 columns">
+      {% for message in messages %}
+      <div data-alert class="alert-box {% if message.tags %}{{ message.tags }}{% endif %} radius">
+        {{ message }}
+        <a href="#" class="close">&times;</a>
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+  <div class="main-content">
+    {% block content-out %}{% endblock %}
+   </div>
+  
+  <!-- Footer -->
+  
+  <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-6 columns">
+          <p>© ZesteDeSavoir 2014</p>
+        </div>
+        <div class="large-6 columns">
+          <ul class="inline-list right">
+            <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
+            <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+            <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+            <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div> 
+  </footer>
+    <script type="text/javascript" src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/modernizr/modernizr.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/fastclick/lib/fastclick.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/editor.js" %}"></script>
+    <script>
+      $(document).foundation();
+    </script>
+
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                processEscapes: true,
+            },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            messageStyle: "none",
+        });
+    </script>
+    <script>
+    $(".spoiler").on("click", function(){
+        $(".spoiler").children('p').slideToggle("slow");
+    });
+    </script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>
