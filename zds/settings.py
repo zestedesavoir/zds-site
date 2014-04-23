@@ -256,6 +256,8 @@ SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
 FOLLOWED_TOPICS_PER_PAGE = 21
 
+BOT_ACCOUNT = 'admin'
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',

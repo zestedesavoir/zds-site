@@ -50,4 +50,7 @@ urlpatterns = patterns('',
 
                        # Followed topics
                        url(r'^notifications$', views.followed_topics),
+
+                       # Moderation
+                       url(r'^resolution_alerte$', views.solve_alert),
                        )
