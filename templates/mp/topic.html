@@ -24,26 +24,35 @@
 {% block headline-actions %}
     <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
     {% if topic.author == user %}
-    <li><a href="#"><span class="fi-torso"></span> Ajouter un participant</a></li>
+    <li>
+        <a href="#" data-dropdown="add-part" ><span class="fi-torso"></span> Ajouter un participant</a>
+        <div id="add-part" class="f-dropdown small content" data-dropdown-content>
+            <form action="{% url "zds.mp.views.add_participant" %}" method="POST" >
+            <p>
+                Vous allez rajouter un nouveau membre dans la conversation privé.
+            </p>
+            <input type="hidden" name="topic_pk" value="{{topic.pk}}"/> 
+            <input type="text" class="input" name="user_pk" placeholder="pseudo du membre"/> 
+            <button type="submit" name="leave" class="button expand success tiny">Confirmer</button>
+             {% csrf_token %}
+            </form>
+        </div>
+    </li>
     {% endif %}
     <li>
         <a href="#" data-dropdown="leavemp" ><span class="fi-x"></span> Quitter le MP</a>
-        <div id="leavemp" class="f-dropdown" data-dropdown-content>
-            <div class="row">
-                <div class="large-12 columns">
-                    <form action="{% url "zds.mp.views.leave" %}" method="POST" >
-                    <p>
-                        Attention, vous vous appretez à sortir définitivement de cette conversation.
-                    </p>
-                    <p>
-                        Vous ne pourrez plus lire les messages qui y seront échangés.
-                    </p>
-                    <input type="hidden" name="topic_pk" value="{{topic.pk}}"/> 
-                    <button type="submit" name="leave" class="button expand alert tiny">Confirmer</button>
-                     {% csrf_token %}
-                    </form>
-                </div>
-            </div>
+        <div id="leavemp" class="f-dropdown small content" data-dropdown-content>
+            <form action="{% url "zds.mp.views.leave" %}" method="POST" >
+            <p>
+                Attention, vous vous appretez à sortir définitivement de cette conversation.
+            </p>
+            <p>
+                Vous ne pourrez plus lire les messages qui y seront échangés.
+            </p>
+            <input type="hidden" name="topic_pk" value="{{topic.pk}}"/> 
+            <button type="submit" name="leave" class="button expand alert tiny">Confirmer</button>
+             {% csrf_token %}
+            </form>
         </div>
     </li>
 {% endblock %}
@@ -78,7 +87,6 @@
                         {% if post.author = user or perms.forum.change_post %}
                         <a href="{% url "zds.mp.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
-                        <a href="#" class="tiny secondary actions">Signaler<span class="fi-alert"></span></a>
                         {% if not topic.is_locked and not topic.antispam %}
                         <a href="{% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
                         {% endif %}

@@ -11,6 +11,7 @@ urlpatterns = patterns('',
                        url(r'^nouveau$', views.new),
                        url(r'^editer$', views.edit),
                        url(r'^quitter$', views.leave),
+                       url(r'^ajouter$', views.add_participant),
                        url(r'^(?P<topic_pk>\d+)/(?P<topic_slug>.+)$',
                            views.topic),
 

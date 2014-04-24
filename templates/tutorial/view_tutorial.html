@@ -57,7 +57,12 @@
     {% endif %}
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}"><span class="fi-mountains grey size-16"></span> Historique des versions</a>
     {% if not tutorial.on_line %}
-    <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
+    <li>
+        <a href="#" data-dropdown="delete-tuto" >Supprimer ce tutoriel</a>
+        <div id="delete-tuto" class="f-dropdown small content" data-dropdown-content>
+            <p>Attention, vous vous appretez à supprimer définitivement ce tutoriel, ainsi que son historique. L'opération est irréversible </p>
+            <a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" class="button tiny alert" >Confirmer</a>
+        </div>
     {% endif %}
 
     {% if not tutorial.in_validation %}
@@ -72,8 +77,8 @@
 
 {% block headline-actions %}
     {% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
-        <h3>Admin<span class="wide">istration</span></h3>
+    <div>
+        <h3>Administration</h3>
         <ul>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}"><span class="fi-graph-trend grey size-16"></span> Historique validation</a></li>
             {% if tutorial.on_line %}
@@ -81,10 +86,16 @@
             {% endif %}
             {% if tutorial.in_validation %}
             <li>
-                {% crispy formValid %}
+                <a href="#" data-dropdown="public-tuto" ><span class="fi-page-export"></span> Publier ce tutoriel</a>
+                <div id="public-tuto" class="f-dropdown small content" data-dropdown-content>
+                    {% crispy formValid %}
+                </div>
             </li>
             <li>
-                {% crispy formReject %}
+                <a href="#" data-dropdown="reject-tuto" ><span class="fi-page-delete"></span> Rejeter ce tutoriel</a>
+                <div id="reject-tuto" class="f-dropdown small content" data-dropdown-content>
+                    {% crispy formReject %}
+                </div>
             </li>
             {% endif %}
         </ul>
