@@ -3,7 +3,7 @@
 from django import template
 
 from zds.article.models import never_read as never_read_article
-from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
+from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, Topic
 from zds.mp.models import PrivateTopic, never_privateread
 from zds.utils.models import Alert
 from zds.tutorial.models import never_read as never_read_tutorial
@@ -11,6 +11,20 @@ from zds.tutorial.models import never_read as never_read_tutorial
 
 register = template.Library()
 
+
+@register.filter('is_read')
+def is_read(topic_f):
+    tp = Topic.objects.get(pk=topic_f.topic.pk)
+    if never_read_topic(tp):
+        return False
+    else:
+        return True
+    
+@register.filter('followed_topics')
+def followed_topics(user):
+    topicsfollowed = TopicFollowed.objects.filter(user=user)\
+        .order_by('-topic__last_message__pubdate')[:10]
+    return topicsfollowed
 
 @register.filter('interventions_topics')
 def interventions_topics(user):
