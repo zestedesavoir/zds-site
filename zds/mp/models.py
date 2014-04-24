@@ -104,31 +104,10 @@ class PrivateTopic(models.Model):
         except PrivatePost.DoesNotExist:
             return self.last_read_post(self)
 
-    def antispam(self, user=None):
-        """Check if the user is allowed to post in a topic according to the
-        SPAM_LIMIT_SECONDS value.
-
-        If user shouldn't be able to post, then antispam is activated
-        and this method returns True. Otherwise time elapsed between
-        user's last post and now is enough, and the method will return
-        False.
-
+    def alone(self):
+        """Check if there just one participant in the conversation
         """
-        if user is None:
-            user = get_current_user()
-
-        last_user_privateposts = PrivatePost.objects\
-            .filter(privatetopic=self)\
-            .filter(author=user.pk)\
-            .order_by('-pubdate')
-
-        if last_user_privateposts and last_user_privateposts[0] == self.get_last_answer():
-            last_user_privatepost = last_user_privateposts[0]
-            t = timezone.now() - last_user_privatepost.pubdate
-            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
-                return True
-
-        return False
+        return self.participants.count()==0
 
     def never_read(self):
         return never_privateread(self)

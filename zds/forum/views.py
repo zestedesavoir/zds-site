@@ -236,7 +236,7 @@ def solve_alert(request):
     post = Post.objects.get(alerts__in=[alert])
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL+post.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], "Résolution d'alerte", "", msg, False)
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(post.topic.title), "", msg, False)
     alert.delete()
 
     messages.success(
