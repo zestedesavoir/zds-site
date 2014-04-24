@@ -75,7 +75,7 @@
             </div>
             <a href="{{ post.author.get_absolute_url }}" class="hide-for-small">
                 {% with profile=post.author|profile %}
-                <img src="{{ profile.get_avatar_url }}" alt="">
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar-forum">
                 {% endwith %}
             </a>
         </div>
@@ -130,12 +130,14 @@
 
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
-<section>
-    <div class="user hide-for-small">
-        <img src="{{profile.get_avatar_url}}" alt="">
+<div class="large-12 columns">
+    <div class="large-1 columns user hide-for-small">
+        <img src="{{profile.get_avatar_url}}" alt="" class="avatar-forum avatar-link">
     </div>
-    {% crispy form %}
-</section>
+    <div class="large-11 columns user hide-for-small">
+        {% crispy form %}
+    </div>
+</div>
 {% endwith %}
 {% endif %}
 

@@ -6,7 +6,6 @@
 
 .top-bar-section .right .dropdown li:not(.has-form) a:not(.button), .top-bar-section .right .dropdown li:not(.has-form) label {
 	line-height: 24px;
-	width: 300px;
 }
 
 .top-bar-section .dropdown {
@@ -350,6 +349,10 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	background: #FFF;
 }
 
+.card a{
+	color: #333;
+}
+
 .card-forum {
 	border-left: 2px solid #ff8c00;
 	margin-bottom: 5px;
@@ -426,7 +429,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 }
 
 .avatar-forum {
-	border-radius: 50%;
+	border-radius: 15%;
 }
 
 .upvote {
