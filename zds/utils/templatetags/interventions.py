@@ -13,9 +13,8 @@ register = template.Library()
 
 
 @register.filter('is_read')
-def is_read(topic_f):
-    tp = Topic.objects.get(pk=topic_f.topic.pk)
-    if never_read_topic(tp):
+def is_read(topic):
+    if never_read_topic(topic):
         return False
     else:
         return True
@@ -24,7 +23,10 @@ def is_read(topic_f):
 def followed_topics(user):
     topicsfollowed = TopicFollowed.objects.filter(user=user)\
         .order_by('-topic__last_message__pubdate')[:10]
-    return topicsfollowed
+    topics = []
+    for tf in topicsfollowed:
+        topics.append(tf.topic)
+    return topics
 
 @register.filter('interventions_topics')
 def interventions_topics(user):

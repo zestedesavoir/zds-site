@@ -435,5 +435,29 @@ def leave(request):
         else : 
             ptopic.participants.remove(request.user)
             ptopic.save()
+        
+        messages.success(
+                request, 'Vous avez quitté la conversation avec succès.')
     
     return redirect(reverse('zds.mp.views.index'))
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def add_participant(request):
+    ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+    try :
+        part = User.objects.get(username=request.POST['user_pk'])
+        ptopic.participants.add(part)
+        ptopic.save()
+
+        messages.success(
+                request, 'Le membre a bien été ajouté à la conversation')
+    except:
+        messages.warning(
+                request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+
+    return redirect(reverse('zds.mp.views.topic', args=[
+                ptopic.pk,
+                slugify(ptopic.title)]))

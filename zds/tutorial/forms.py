@@ -350,7 +350,7 @@ class AskValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(), StrictButton(
-                'Demander la validation', type='submit', css_class='button secondary'), Hidden(
+                'Demander la validation', type='submit', css_class='button tiny'), Hidden(
                 'tutorial', '{{ tutorial.pk }}'), Hidden(
                 'version', '{{ version }}'), )
 
@@ -375,7 +375,7 @@ class ValidForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(), StrictButton(
-                'Publier', type='submit', css_class='button secondary'), Hidden(
+                'Publier', type='submit', css_class='button success tiny'), Hidden(
                 'tutorial', '{{ tutorial.pk }}'), Hidden(
                 'version', '{{ version }}'), )
 
@@ -401,7 +401,7 @@ class RejectForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             ButtonHolder(
-                StrictButton('Rejeter', type='submit', css_class='btn-submit'),
+                StrictButton('Rejeter', type='submit', css_class='button alert tiny'),
             ),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'),
