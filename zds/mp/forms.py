@@ -110,10 +110,10 @@ class PrivatePostForm(forms.Form):
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 
-        if topic.antispam(user):
+        if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur ce MP (protection antispam de 15 min).',
+                placeholder=u'Vous êtes seul dans cette conversation, vous ne pouvez plus y écrire.',
                 disabled=True)
 
     def clean(self):
