@@ -74,41 +74,6 @@
                       </li>
                       {% endwith %}
                   {% endfor %}
-
-                  {% for topic in read_topics %}
-                      {% with last_read=topic.last_read_post %}
-                      <li>
-                          {% with last_answer=topic.get_last_answer %}
-                          
-                          <a href="
-                              {% if last_answer %}
-                                  {{ last_answer.get_absolute_url }}
-                              {% else %}
-                                  {{ topic.first_post.get_absolute_url }}
-                              {% endif %}"
-                          >
-                            <div class="row">
-                              <div class="large-12 columns">
-                                <div class="left">
-                                    {% with p=last_read.author|profile %}
-                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
-                                    {% endwith %}
-                                    {{ last_read.author.username }}
-                                </div>
-                                <div class="right">
-                                    {{ last_read.pubdate|naturaltime }}
-                                </div>
-                              </div>
-                              <div class="large-12 columns">
-                                  {{ topic.title }}
-                              </div>
-                            </div>                             
-                          </a>
-                          {% endwith %}
-                      </li>
-                      {% endwith %}
-                  {% endfor %}
-
                   {% if read_topics|length = 0 and unread_topics|length = 0 %}
                       <li>
                         <a href="#">
@@ -161,41 +126,6 @@
                       </li>
                       {% endwith %}
                   {% endfor %}
-
-                  {% for topic in read_topics %}
-                      {% with last_read=topic.last_read_post %}
-                      <li>
-                          {% with last_answer=topic.get_last_answer %}
-                          
-                          <a href="
-                              {% if last_answer %}
-                                  {{ last_answer.get_absolute_url }}
-                              {% else %}
-                                  {{ topic.first_post.get_absolute_url }}
-                              {% endif %}"
-                          >
-                            <div class="row">
-                              <div class="large-12 columns">
-                                <div class="left">
-                                    {% with p=last_read.author|profile %}
-                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar" />
-                                    {% endwith %}
-                                    {{ last_read.author.username }}
-                                </div>
-                                <div class="right">
-                                    {{ last_read.pubdate|naturaltime }}
-                                </div>
-                              </div>
-                              <div class="large-12 columns">
-                                  {{ topic.title }}
-                              </div>
-                            </div>                             
-                          </a>
-                          {% endwith %}
-                      </li>
-                      {% endwith %}
-                  {% endfor %}
-
                   {% if read_topics|length = 0 and unread_topics|length = 0 %}
                       <li>
                         <a href="#">

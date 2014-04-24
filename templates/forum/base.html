@@ -30,27 +30,17 @@
     {% if user.is_authenticated %}
     <h3>Sujets suivis</h3>
     <ul>
-    	{% with topics=user|interventions_topics %}
-        {% with unread_topics=topics.unread %}
-        {% for topic in unread_topics %}
+    	{% with topics_f=user|followed_topics %}
+        {% for topic_f in topics_f %}
+        {% with state=topic_f|is_read %}
         <li>
             <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
             {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
             {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
-            <a href="{{topic.get_absolute_url}}">{{topic.title}}</a>
+            <a href="{{topic.get_absolute_url}}" class="{% if state = True %}topic_read{% else %}topic_unread{% endif %}">{{topic_f.topic.title}}</a>
         </li>
-        {% endfor %}
         {% endwith %}
-        {% with read_topics=topics.read %}
-        {% for topic in read_topics %}
-        <li>
-            <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
-            {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
-            {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
-            <a href="{{topic.get_absolute_url}}">{{topic.title}}</a>
-        </li>
         {% endfor %}
-        {% endwith %}
         {% endwith %}
     </ul>
     {% endif %}
