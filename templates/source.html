@@ -44,7 +44,7 @@
             {% with read_topics=topics.read %}
             <a href="#">
               {% if unread_topics|length > 0 %}
-                  <span class="alert label">{{ unread_topics|length }}</span>
+                  <span class="alert label round">{{ unread_topics|length }}</span>
               {% endif %}
               <img src="{% static "img/messages.png" %}" alt="Messages" /> <span class="hide-for-large-up">Messages Privés</span></a>
             <ul class="dropdown">
@@ -96,7 +96,7 @@
             {% with read_topics=topics.read %}
             <a href="#">
               {% if unread_topics|length > 0 %}
-                  <span class="alert label">{{ unread_topics|length }}</span>
+                  <span class="alert label round">{{ unread_topics|length }}</span>
               {% endif %}
               <img src="{% static "img/notifications.png" %}" alt="Notifications" /> <span class="hide-for-large-up">Notifications</span></a>
             <ul class="dropdown">
@@ -147,7 +147,7 @@
             {% with posts=user|alerts_topic %}
             <a href="#">
               {% if posts.count > 0 %}
-                  <span class="alert label">{{ user|alerts_count }}</span>
+                  <span class="alert label round">{{ user|alerts_count }}</span>
               {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
