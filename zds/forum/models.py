@@ -31,7 +31,7 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', null=True, blank=True)
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual form of a category."""
@@ -67,7 +67,7 @@ class Forum(models.Model):
     position_in_category = models.IntegerField('Position dans la catégorie',
                                                null=True, blank=True)
 
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual form of a forum."""
