@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
@@ -416,3 +417,47 @@ def edit_post(request):
             'text': post.text,
             'form': form,
         })
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def leave(request):
+    if 'leave' in request.POST:
+        ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+        if ptopic.participants.count() == 0:
+            ptopic.delete()
+        elif request.user.pk == ptopic.author.pk:
+            move = ptopic.participants.first()
+            ptopic.author = move
+            ptopic.participants.remove(move)
+            ptopic.save()
+        else : 
+            ptopic.participants.remove(request.user)
+            ptopic.save()
+        
+        messages.success(
+                request, 'Vous avez quitté la conversation avec succès.')
+    
+    return redirect(reverse('zds.mp.views.index'))
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def add_participant(request):
+    ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+    try :
+        part = User.objects.get(username=request.POST['user_pk'])
+        ptopic.participants.add(part)
+        ptopic.save()
+
+        messages.success(
+                request, 'Le membre a bien été ajouté à la conversation')
+    except:
+        messages.warning(
+                request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+
+    return redirect(reverse('zds.mp.views.topic', args=[
+                ptopic.pk,
+                slugify(ptopic.title)]))

@@ -212,22 +212,19 @@
             {% for alert in post.alerts.all %}
             <div class="row">
                 <div class="large-12 columns alert-box alert">
-                    <div class="large-2 columns">
+                    <div class="left">
                         <a href="#" class="tiny secondary actions" data-dropdown="solvealert{{alert.pk}}">Résoudre</a>
-                        <div id="solvealert{{alert.pk}}" class="f-dropdown small content" data-dropdown-content>
+                        <div id="solvealert{{alert.pk}}" class="f-dropdown content"data-dropdown-content>
                             <form id="formsolvealert{{alert.pk}}" method="POST" action="{% url "zds.forum.views.solve_alert" %}">
                             <input type="hidden" name="alert_pk" value="{{alert.pk}}" />
-                            <textarea name="text" placeholder="Message à envoyer au membre ayant signalé l'alerte">
-                            </textarea>
+                            <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
                             <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>
                              {% csrf_token %}
                             </form>
                         </div>
                     </div>
-                    <div class="large-10 columns">
-                        <div>
-                            <a href="{% url "zds.member.views.details" alert.author.username %}">{{alert.author}}</a> - {{alert.pubdate|naturaltime}} : {{alert.text}}
-                        </div>
+                    <div class="right">
+                        <a href="{% url "zds.member.views.details" alert.author.username %}">{{alert.author}}</a> - {{alert.pubdate|naturaltime}} : {{alert.text}}
                     </div>
                 </div>
             </div>
