@@ -5,7 +5,7 @@ from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
 
-def send_mp(author, users, title, subtitle, text, send_by_mail=True):
+def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True):
     """
     Send MP at members
     """
@@ -59,5 +59,10 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True):
                     part.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
-    
+    if leave:
+        move = n_topic.participants.first()
+        n_topic.author = move
+        n_topic.participants.remove(move)
+        n_topic.save()
+
     return n_topic
