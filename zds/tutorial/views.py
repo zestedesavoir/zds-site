@@ -1392,8 +1392,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
                 ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
                 cpt_e += 1
             chapter_tab.append(chapter)
-            #print(u'SLUG ============> {0} '.format(chapter_slug))
-            #print(u'TITLE ============> {0} '.format(chapter['title']))
+
             if chapter_slug == slugify(chapter['title']):
                 final_chapter = chapter
                 final_position = len(chapter_tab) - 1
@@ -2748,9 +2747,7 @@ def get_url_images(md_text, pt):
             # if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
-                print('------------> ' + img[1])
-                print('------------> ' + filename)
-                print('------------> ' + filepath)
+
                 # download image
                 urlretrieve(
                     img[1],
@@ -2890,15 +2887,18 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".html")
     os.system(
-        "pandoc --latex-engine=xelatex -s -S --toc " +
+        'pandoc --latex-engine=xelatex -s -S --toc ' +
+        '-N --template=../../assets/tex/template.tex ' +
+        '-V documentclass="book" -V lang="francais" ' +
+        '-V mainfont="Tahoma" -V fontsize="12pt" ' +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
-        ".md -o " +
+        '.md -o ' +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
-        ".pdf")
+        '.pdf')
     os.system(
         "pandoc -s -S --toc " +
         os.path.join(
