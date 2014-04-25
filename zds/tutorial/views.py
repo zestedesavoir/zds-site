@@ -2890,7 +2890,7 @@ def MEP(tutorial, sha):
         'pandoc --latex-engine=xelatex -s -S --toc ' +
         '-N --template=../../assets/tex/template.tex ' +
         '-V documentclass="book" -V lang="francais" ' +
-        '-V mainfont="Tahoma" -V fontsize="12pt" ' +
+        '-V mainfont="Verdana" -V fontsize="12pt" ' +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
