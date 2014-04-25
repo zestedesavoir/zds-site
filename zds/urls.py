@@ -84,7 +84,7 @@ urlpatterns = patterns('',
 
                        url(r'^captcha/', include('captcha.urls')),
 
-                       url(r'^$', pages.views.home),
+                       url(r'^$', 'zds.pages.views.home'),
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
