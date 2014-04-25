@@ -8,17 +8,17 @@ from . import views
 urlpatterns = patterns('',
 
                        # Viewing a thread
-                       url(r'^nouveau$', views.new),
-                       url(r'^editer$', views.edit),
-                       url(r'^quitter$', views.leave),
-                       url(r'^ajouter$', views.add_participant),
+                       url(r'^nouveau$', 'zds.mp.views.new'),
+                       url(r'^editer$', 'zds.mp.views.edit'),
+                       url(r'^quitter$', 'zds.mp.views.leave'),
+                       url(r'^ajouter$', 'zds.mp.views.add_participant'),
                        url(r'^(?P<topic_pk>\d+)/(?P<topic_slug>.+)$',
-                           views.topic),
+                           'zds.mp.views.topic'),
 
                        # Message-related
-                       url(r'^message/editer$', views.edit_post),
-                       url(r'^message/nouveau$', views.answer),
+                       url(r'^message/editer$', 'zds.mp.views.edit_post'),
+                       url(r'^message/nouveau$', 'zds.mp.views.answer'),
 
                        # Home
-                       url(r'^$', views.index),
+                       url(r'^$', 'zds.mp.views.index'),
                        )
