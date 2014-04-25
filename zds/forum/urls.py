@@ -36,7 +36,7 @@ urlpatterns = patterns('',
                        url(r'^message/utile$', 'zds.forum.views.useful_post'),
                        url(r'^message/like$', 'zds.forum.views.like_post'),
                        url(r'^message/dislike$', 'zds.forum.views.dislike_post'),
-                       url(r'^messages/(?P<user_pk>.+)$', 'zds.forum.views.find_post),
+                       url(r'^messages/(?P<user_pk>.+)$', 'zds.forum.views.find_post'),
 
                        # Forum details
                        url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$',
