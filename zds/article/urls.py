@@ -15,27 +15,27 @@ urlpatterns = patterns('',
     # TODO: Handle redirect
 
     url(r'^voir/(?P<article_pk>\d+)/(?P<article_slug>.+)$',
-        views.deprecated_view_redirect),
-    url(r'^off/(?P<article_pk>\d+)/(?P<article_slug>.+)$', views.view),
-    url(r'^(?P<article_pk>\d+)/(?P<article_slug>.+)$', views.view_online),
-    url(r'^nouveau$', views.new),
-    url(r'^editer$', views.edit),
-    url(r'^modifier$', views.modify),
-    url(r'^recherche/(?P<name>.+)$', views.find_article),
+        'zds.views.deprecated_view_redirect'),
+    url(r'^off/(?P<article_pk>\d+)/(?P<article_slug>.+)$', 'zds.views.view'),
+    url(r'^(?P<article_pk>\d+)/(?P<article_slug>.+)$', 'zds.views.view_online'),
+    url(r'^nouveau$', 'zds.views.new'),
+    url(r'^editer$', 'zds.views.edit'),
+    url(r'^modifier$', 'zds.views.modify'),
+    url(r'^recherche/(?P<name>.+)$', 'zds.views.find_article'),
 
 
-    url(r'^$', views.index),
-    url(r'^telecharger/$', views.download),
-    url(r'^historique/(?P<article_pk>\d+)/(?P<article_slug>.+)/$', views.history),
+    url(r'^$', 'zds.views.index'),
+    url(r'^telecharger/$', 'zds.views.download'),
+    url(r'^historique/(?P<article_pk>\d+)/(?P<article_slug>.+)/$', 'zds.views.history'),
     
     #Validation
-    url(r'^validation/$', views.list_validation),
-    url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation),
-    url(r'^validation/historique/(?P<article_pk>\d+)/$', views.history_validation),
+    url(r'^validation/$', 'zds.views.list_validation'),
+    url(r'^validation/reserver/(?P<validation_pk>\d+)/$', 'zds.views.reservation'),
+    url(r'^validation/historique/(?P<article_pk>\d+)/$', 'zds.views.history_validation'),
     
     #Reactions
-    url(r'^message/editer$', views.edit_reaction),
-    url(r'^message/nouveau$', views.answer),
-    url(r'^message/like$', views.like_reaction),
-    url(r'^message/dislike$', views.dislike_reaction),
+    url(r'^message/editer$', 'zds.views.edit_reaction'),
+    url(r'^message/nouveau$', 'zds.views.answer'),
+    url(r'^message/like$', 'zds.views.like_reaction'),
+    url(r'^message/dislike$', 'zds.views.dislike_reaction'),
 )
