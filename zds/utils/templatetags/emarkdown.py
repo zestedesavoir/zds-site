@@ -3,6 +3,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 import time
+import re
 
 import markdown
 
@@ -55,3 +56,16 @@ def emarkdown_inline(text):
     return mark_safe(
         get_markdown_instance(
             Inline=True).convert(text).encode('utf-8').strip())
+
+def sub_hd(g):
+    lvl = g.group('level')+'#'
+    hd = g.group('header')
+    
+    return lvl+hd+lvl
+
+@register.filter('decale_header')    
+def decale_header(text):
+    return re.sub(
+        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
+        sub_hd,
+        text)
