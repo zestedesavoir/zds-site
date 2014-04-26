@@ -1,7 +1,7 @@
 {% load emarkdown %}{% load humanize %}{% load profile %}
-% {{ tutorial.title }}
+% {{ tutorial.title|upper }}
 % {% for member in tutorial.authors.all %}{{ member.username|title }}, {% endfor %}
-% {{ tutorial.pubdate|date:"d F, Y" }}
+% {{ tutorial.pubdate|date:"d F Y" }}
 
 {% if tutorial.intro %}
 #Introduction
