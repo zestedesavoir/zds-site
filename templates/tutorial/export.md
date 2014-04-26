@@ -13,7 +13,7 @@
 {% for extract in chapter.extracts %}
 #{{ extract.title }}
 {% if extract.txt %}
-{{ extract.txt|safe }}
+{{ extract.txt|safe|decale_header }}
 {% endif %}
 {% endfor %}
 {% else %}
