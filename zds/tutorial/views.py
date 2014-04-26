@@ -2852,11 +2852,14 @@ def MEP(tutorial, sha):
             out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
         out_file.close()
 
-        html_file = open(
-            os.path.join(
+        target = os.path.join(
                 tutorial.get_prod_path(),
                 fichier +
-                '.html'),
+                '.html')
+        if not os.path.exists(os.path.dirname(target)):
+            os.makedirs(os.path.dirname(target))
+        html_file = open(
+            target,
             "w")
         if md_file_contenu is not None:
             html_file.write(emarkdown(md_file_contenu))
@@ -2889,7 +2892,7 @@ def MEP(tutorial, sha):
     os.system(
         'pandoc --latex-engine=xelatex -s -S --toc ' +
         '-N --template=../../assets/tex/template.tex ' +
-        '-V documentclass="book" -V lang="francais" ' +
+        '-V documentclass="scrbook" -V lang="francais" ' +
         '-V mainfont="Verdana" -V fontsize="12pt" -V geometry:margin=1in ' +
         os.path.join(
             tutorial.get_prod_path(),

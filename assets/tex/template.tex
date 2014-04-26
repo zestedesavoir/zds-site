@@ -1,6 +1,9 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
 \usepackage{lmodern}
+\usepackage{wallpaper}
 \usepackage{amssymb,amsmath}
+\usepackage{xcolor}
+\definecolor{ocre}{RGB}{243,102,25}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
 % use upquote if available, for straight quotes in verbatim environments
@@ -96,8 +99,8 @@ $endif$
             pdfauthor={$author-meta$},
             pdftitle={$title-meta$},
             colorlinks=true,
-            citecolor=$if(citecolor)$$citecolor$$else$blue$endif$,
-            urlcolor=$if(urlcolor)$$urlcolor$$else$blue$endif$,
+            citecolor=$if(citecolor)$$citecolor$$else$ocre$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$ocre$endif$,
             linkcolor=$if(linkcolor)$$linkcolor$$else$magenta$endif$,
             pdfborder={0 0 0}}
 \urlstyle{same}  % don't use monospace font for urls
@@ -129,15 +132,17 @@ $if(lang)$
 \fi
 $endif$
 
+\usepackage{titlesec} % Allows customization of titles
+\usepackage{graphicx} % Required for including pictures
 \begin{titlepage}
 $if(title)$
-\title{$title$}
+\title{\color{white}{$title$}}
 $endif$
 $if(subtitle)$
-\subtitle{$subtitle$}
+\subtitle{\color{ocre}{$subtitle$}}
 $endif$
-\author{$for(author)$$author$$sep$ \and $endfor$}
-\date{$date$}
+\author{\color{ocre}{$for(author)$$author$$sep$ \and $endfor$}}
+\date{\color{white}{$date$}}
 $for(header-includes)$
 $header-includes$
 $endfor$
@@ -145,7 +150,9 @@ $endfor$
 
 \begin{document}
 $if(title)$
+\ULCornerWallPaper{1}{../../assets/tex/coverpage.pdf}
 \maketitle
+\ClearWallPaper
 $endif$
 $if(abstract)$
 \begin{abstract}
@@ -159,8 +166,8 @@ $include-before$
 $endfor$
 $if(toc)$
 {
-\hypersetup{linkcolor=black}
-\setcounter{tocdepth}{3}
+\hypersetup{linkcolor=ocre}
+\setcounter{tocdepth}{$toc-depth$}
 \tableofcontents
 }
 $endif$
