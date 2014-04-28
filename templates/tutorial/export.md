@@ -1,5 +1,5 @@
 {% load emarkdown %}{% load humanize %}{% load profile %}
-% {{ tutorial.title|upper }}
+% {{ tutorial.title|safe|upper }}
 % {% for member in tutorial.authors.all %}{{ member.username|title }}, {% endfor %}
 % {{ tutorial.pubdate|date:"d F Y" }}
 
@@ -13,7 +13,7 @@
 {% for extract in chapter.extracts %}
 #{{ extract.title }}
 {% if extract.txt %}
-{{ extract.txt|safe|decale_header }}
+{{ extract.txt|safe|decale_header_1 }}
 {% endif %}
 {% endfor %}
 {% else %}
@@ -21,7 +21,7 @@
 
 {% if parts %}
 {% for part in parts %}
-#Partie {{ part.position_in_tutorial }} : {{ part.title }}
+# {{ part.title }}
 
 {% include "tutorial/view_part_export_common.part.md" %}
 {% endfor %}
