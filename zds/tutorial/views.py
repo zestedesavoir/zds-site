@@ -748,12 +748,19 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    text = open(
-                        os.path.join(
-                            tutorial.get_prod_path(),
-                            ext['text'] +
-                            '.html'),
-                        "r")
+                    try :
+                        text = open(os.path.join(
+                                tutorial.get_prod_path(),
+                                ext['text'] +
+                                '.html'),
+                            "r")
+                    except IOError:
+                        text = open(
+                            u"\\\\?\{0}".format(os.path.join(
+                                tutorial.get_prod_path(),
+                                ext['text'] +
+                                '.html')),
+                            "r")
                     ext['txt'] = text.read()
                     text.close()
                     cpt_e += 1
@@ -2852,15 +2859,16 @@ def MEP(tutorial, sha):
             out_file.write(markdown_to_out(md_file_contenu.encode('utf-8')))
         out_file.close()
 
-        target = os.path.join(
-                tutorial.get_prod_path(),
-                fichier +
-                '.html')
-        if not os.path.exists(os.path.dirname(target)):
-            os.makedirs(os.path.dirname(target))
-        html_file = open(
-            target,
-            "w")
+        target = os.path.join(tutorial.get_prod_path(), fichier + '.html')
+        os.chdir(os.path.dirname(target))
+        
+        try :
+            html_file = open(target,"w")
+        except IOError: #handle limit of 255 on windows
+            target =u"\\\\?\{0}".format(target)
+            html_file = open(target,"w")
+            
+
         if md_file_contenu is not None:
             html_file.write(emarkdown(md_file_contenu))
         html_file.close()

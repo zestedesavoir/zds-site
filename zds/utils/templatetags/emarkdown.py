@@ -57,15 +57,42 @@ def emarkdown_inline(text):
         get_markdown_instance(
             Inline=True).convert(text).encode('utf-8').strip())
 
-def sub_hd(g):
-    lvl = g.group('level')+'#'
+def sub_hd1(g):
+    lvl = g.group('level')
     hd = g.group('header')
+    next = "#"+lvl+hd
     
-    return lvl+hd+lvl
+    return next
 
-@register.filter('decale_header')    
-def decale_header(text):
+def sub_hd2(g):
+    lvl = g.group('level')
+    hd = g.group('header')
+    next = "#"+lvl+hd
+    
+    return next
+
+def sub_hd3(g):
+    lvl = g.group('level')
+    hd = g.group('header')
+    next = "###"+lvl+hd
+    
+    return next
+
+@register.filter('decale_header_1')
+def decale_header_1(text):
     return re.sub(
         r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd,
-        text)
+        sub_hd1,
+        text.encode("utf-8"))
+@register.filter('decale_header_2')
+def decale_header_2(text):
+    return re.sub(
+        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
+        sub_hd2,
+        text.encode("utf-8"))
+@register.filter('decale_header_3')
+def decale_header_3(text):
+    return re.sub(
+        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
+        sub_hd3,
+        text.encode("utf-8"))
