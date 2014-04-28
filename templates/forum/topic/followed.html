@@ -1,22 +1,29 @@
 {% extends "forum/base.html" %}
 
+
+
 {% block title %}
   Notifications du Forum
 {% endblock %}
 
-{% block headline %}
-  <h1>Notifications du Forum</h1>
-{% endblock %}
+
 
 {% block breadcrumb %}
-  <li class="current"><a href="#">Notifications du Forum</a></li>
+  <li>Notifications du Forum</li>
 {% endblock %}
+
+
+
+{% block headline %}
+  Notifications du Forum
+{% endblock %}
+
+
 
 {% block content %}
     {% for topic in followed_topics %}
-        {% include "forum/details_row.part.html" %}
+        {% include "forum/includes/topic_row.part.html" %}
     {% endfor %}
     
     {% include "misc/pagination.part.html" with position="bottom" %}
-
 {% endblock %}

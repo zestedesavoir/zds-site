@@ -2,19 +2,23 @@
 {% load humanize %}
 
 
+
 {% block title %}
     {{ forum.title }}
 {% endblock %}
 
 
+
 {% block headline %}
-    <h1>{{ forum.title }}</h1>
+    {{ forum.title }}
 {% endblock %}
+
 
 
 {% block headline_sub %}
     {{ forum.subtitle }}
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -23,23 +27,25 @@
 {% endblock %}
 
 
+
 {% block sidebar_actions %}
     <li><a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
 {% endblock %}
+
 
 
 {% block content %}
     {% if sticky_topics %}
         <div class="forum-entries forum-entries-sticky">
             {% for topic in sticky_topics %}
-                {% include "forum/details_row.part.html" %}
+                {% include "forum/includes/topic_row.part.html" %}
             {% endfor %}
         </div>
     {% endif %}
 
     <div class="forum-entries">
         {% for topic in topics %}
-            {% include "forum/details_row.part.html" %}
+            {% include "forum/includes/topic_row.part.html" %}
         {% endfor %}
     </div>
 

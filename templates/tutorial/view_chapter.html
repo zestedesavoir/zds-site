@@ -9,7 +9,7 @@
 {% block breadcrumb %}
     <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ chapter.part.tutorial.title }}</a></li>
     <li><a href="{{ chapter.part.get_absolute_url }}?version={{version}}">{{ chapter.part.title }}</a></li>
-    <li class="current">{{ chapter.title }}</li>
+    <li>{{ chapter.title }}</li>
 {% endblock %}
 
 {% block headline %}

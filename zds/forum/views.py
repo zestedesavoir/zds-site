@@ -70,7 +70,7 @@ def details(request, cat_slug, forum_slug):
         shown_topics = paginator.page(paginator.num_pages)
         page=paginator.num_pages
 
-    return render_template('forum/details.html', {
+    return render_template('forum/category/forum.html', {
         'forum': forum, 'sticky_topics': sticky_topics, 'topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
@@ -83,7 +83,7 @@ def cat_details(request, cat_slug):
     category = get_object_or_404(Category, slug=cat_slug)
     forums = Forum.objects.filter(category__pk=category.pk).all()
 
-    return render_template('forum/cat_details.html', {
+    return render_template('forum/category/index.html', {
         'category': category, 'forums': forums
     })
 
@@ -144,7 +144,7 @@ def topic(request, topic_pk, topic_slug):
     
     form_move = MoveTopicForm(topic=topic)
 
-    return render_template('forum/topic.html', {
+    return render_template('forum/topic/index.html', {
         'topic': topic, 
         'posts': res, 
         'categories': categories,
@@ -178,7 +178,7 @@ def new(request):
                 'subtitle': request.POST['subtitle'],
                 'text': request.POST['text']
             })
-            return render_template('forum/new.html', {
+            return render_template('forum/topic/new.html', {
                 'forum': forum,
                 'form': form,
                 'text': request.POST['text'],
@@ -218,7 +218,7 @@ def new(request):
     else:
         form = TopicForm()
         
-    return render_template('forum/new.html', {
+    return render_template('forum/topic/new.html', {
         'forum': forum,
         'form': form,
     })
@@ -328,7 +328,7 @@ def answer(request):
                 'text': data['text']
             })
             form.helper.form_action = reverse('zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
-            return render_template('forum/answer.html', {
+            return render_template('forum/post/new.html', {
                 'text': data['text'], 
                 'topic': g_topic, 
                 'last_post_pk': last_post_pk, 
@@ -361,7 +361,7 @@ def answer(request):
 
                 return redirect(post.get_absolute_url())
             else:
-                return render_template('forum/answer.html', {
+                return render_template('forum/post/new.html', {
                     'text': data['text'], 
                     'topic': g_topic, 
                     'last_post_pk': last_post_pk, 
@@ -393,7 +393,7 @@ def answer(request):
         posts = Post.objects\
                 .filter(topic = g_topic)\
                 .order_by('-pubdate')[:3]
-        return render_template('forum/answer.html', {
+        return render_template('forum/post/new.html', {
             'topic': g_topic, 
             'posts': posts,
             'last_post_pk': last_post_pk,
@@ -461,7 +461,7 @@ def edit_post(request):
                 'text': request.POST['text']
             })
             form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
-            return render_template('forum/edit_post.html', {
+            return render_template('forum/post/edit.html', {
                 'post': post, 
                 'topic': post.topic, 
                 'text': request.POST['text'],
@@ -499,7 +499,7 @@ def edit_post(request):
             })
         
         form.helper.form_action = reverse('zds.forum.views.edit_post') + '?message=' + str(post_pk)
-        return render_template('forum/edit_post.html', {
+        return render_template('forum/post/edit.html', {
             'post': post, 
             'topic': post.topic, 
             'text': post.text,
@@ -630,7 +630,7 @@ def find_topic(request, user_pk):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
     
-    return render_template('forum/find_topic.html', {
+    return render_template('forum/find/topic.html', {
         'topics': shown_topics, 'usr':u,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
@@ -658,7 +658,7 @@ def find_post(request, user_pk):
         shown_posts = paginator.page(paginator.num_pages)
         page = paginator.num_pages
     
-    return render_template('forum/find_post.html', {
+    return render_template('forum/find/post.html', {
         'posts': shown_posts, 'usr':u,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
@@ -682,7 +682,7 @@ def followed_topics(request):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template('forum/followed_topics.html', {
+    return render_template('forum/topic/followed.html', {
         'followed_topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages),
         'nb': page

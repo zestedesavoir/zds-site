@@ -36,55 +36,32 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
                 <ul>
-                    {% with topics=user|interventions_topics %}
-                        {% for topic in topics.unread %}
-                            <li>
-                                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
-                                   class="ico-after cross red stop-follow action-hover" 
-                                   data-title="Ne plus suivre">
-                                    Ne plus suivre
-                                </a>
-                                <a href="{{topic.get_absolute_url}}"
-                                   class="unread
-                                    {% if topic.is_solved or topic.is_locked %}
-                                        ico-after
+                    {% with followed_topics=user|followed_topics %}
+                        {% for topic in followed_topics %}
+                            {% with state=topic|is_read %}
+                                <li>
+                                    <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
+                                       class="ico-after cross red stop-follow action-hover" 
+                                       data-title="Ne plus suivre">
+                                        Ne plus suivre
+                                    </a>
+                                    <a href="{{ topic.get_absolute_url }}"
+                                       class="{% if state != True %}unread{% endif %}
+                                        {% if topic.is_solved or topic.is_locked %}
+                                            ico-after
 
-                                        {% if topic.is_solved %}
-                                            tick active
-                                        {% endif %}
-                                        {% if topic.is_locked %}
-                                            lock
-                                        {% endif %}
-                                    {% endif %}"
-                                   data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
-                                    {{topic.title}}
-                                </a>
-                            </li>
-                        {% endfor %}
-
-                        {% for topic in topics.read %}
-                            <li>
-                                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
-                                   class="ico-after cross red stop-follow action-hover" 
-                                   data-title="Ne plus suivre">
-                                    Ne plus suivre
-                                </a>
-                                <a href="{{topic.get_absolute_url}}"
-                                   class="
-                                    {% if topic.is_solved or topic.is_locked %}
-                                        ico-after
-
-                                        {% if topic.is_solved %}
-                                            tick active
-                                        {% endif %}
-                                        {% if topic.is_locked %}
-                                            lock
-                                        {% endif %}
-                                    {% endif %}"
-                                   data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
-                                    {{topic.title}}
-                                </a>
-                            </li>
+                                            {% if topic.is_solved %}
+                                                tick active
+                                            {% endif %}
+                                            {% if topic.is_locked %}
+                                                lock
+                                            {% endif %}
+                                        {% endif %}"
+                                       data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
+                                        {{ topic.title }}
+                                    </a>
+                                </li>
+                            {% endwith %}
                         {% endfor %}
                     {% endwith %}
                 </ul>

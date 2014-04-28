@@ -27,7 +27,7 @@
 
 
 {% block headline %}
-   <h1>Liste des forums</h1>
+   Liste des forums
 {% endblock %}
 
 
@@ -38,7 +38,7 @@
 
 {% block sidebar_actions %}
     <div class="button-group">
-        {% include "forum/feeds.part.html" %}
+        {% include "forum/includes/feeds.part.html" %}
     </div>
 {% endblock %}
 
@@ -50,7 +50,7 @@
             {{ category.title }}
         </h3>
 
-        {% include "forum/forums_common.part.html" %}
+        {% include "forum/includes/forums.part.html" %}
     {% endfor %}
 
 {% endblock %}
