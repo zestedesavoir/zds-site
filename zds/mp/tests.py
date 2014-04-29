@@ -9,12 +9,14 @@ from zds import settings
 from zds.member.factories import UserFactory, StaffFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
+from zds.utils import slugify
 
 
 class MPTests(TestCase):
 
     def setUp(self):
         self.user1 = UserFactory()
+        self.staff = StaffFactory()
         log = self.client.login(
             username=self.user1.username,
             password='hostel77')
@@ -40,9 +42,29 @@ class MPTests(TestCase):
         self.assertContains(result, user2.username)
 
     def test_view_mp(self):
-        user2 = UserFactory()
-        user3 = UserFactory()
-        staff1 = StaffFactory()
+        """check mp is readable"""
+        ptopic1 = PrivateTopicFactory(author=self.user1)
+        ppost1 = PrivatePostFactory(
+            privatetopic=ptopic1,
+            author=self.user1,
+            position_in_topic=1)
+        ppost2 = PrivatePostFactory(
+            privatetopic=ptopic1,
+            author=self.staff,
+            position_in_topic=2)
+        ppost3 = PrivatePostFactory(
+            privatetopic=ptopic1,
+            author=self.user1,
+            position_in_topic=3)
+
+        result = self.client.get(
+            reverse(
+                'zds.mp.views.topic',
+                args=[
+                    ptopic1.pk,
+                    slugify(ptopic1.title)]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
 
     def test_create_mp(self):
         """To test all aspects of mp's creation by member."""
