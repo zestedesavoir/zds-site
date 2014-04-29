@@ -2819,7 +2819,10 @@ def MEP(tutorial, sha):
     tutorial_version = json.loads(manifest)
 
     if os.path.isdir(tutorial.get_prod_path()):
-        shutil.rmtree(tutorial.get_prod_path())
+        try:
+            shutil.rmtree(tutorial.get_prod_path())
+        except:
+            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
 
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
 
@@ -2897,19 +2900,19 @@ def MEP(tutorial, sha):
             tutorial.get_prod_path(),
             tutorial.slug) +
         ".html")
-    os.system(
-        'pandoc --latex-engine=xelatex -s -S --toc ' +
-        '-N --template=../../assets/tex/template.tex ' +
-        '-V documentclass="scrbook" -V lang="francais" ' +
-        '-V mainfont="Verdana" -V fontsize="12pt" -V geometry:margin=1in ' +
+    cde = 'pandoc --latex-engine=xelatex -s -S --toc ' + \
+        '-N --template=../../assets/tex/template.tex ' + \
+        '-V documentclass="scrbook" -V lang="francais" ' + \
+        '-V mainfont="Verdana" -V fontsize="12pt" -V geometry:margin=1in ' + \
         os.path.join(
             tutorial.get_prod_path(),
-            tutorial.slug) +
-        '.md -o ' +
+            tutorial.slug) + \
+        '.md -o ' + \
         os.path.join(
             tutorial.get_prod_path(),
-            tutorial.slug) +
-        '.pdf')
+            tutorial.slug) + \
+        '.pdf'
+    os.system(cde)    
     os.system(
         "pandoc -s -S --toc " +
         os.path.join(
@@ -2925,7 +2928,10 @@ def MEP(tutorial, sha):
 
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
-        shutil.rmtree(tutorial.get_prod_path())
+        try :
+            shutil.rmtree(tutorial.get_prod_path())
+        except:
+            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
 
 
 @can_write_and_read_now
