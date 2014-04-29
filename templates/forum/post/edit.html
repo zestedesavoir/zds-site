@@ -23,14 +23,10 @@
 
 {% block content %}
     {% with profile=user|profile%}
-    <section>
         {% crispy form %}
-    </section>
     {% endwith %}
 
     {% if form.text.value %}
-        {% with text=form.text.value %}
-            {% include "misc/previsualization.part.html" %}
-        {% endwith %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
     {% endif %}
 {% endblock %}

@@ -1,46 +1,64 @@
 {% if newpost %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="alert-box alert">
-            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
-            pendant que vous rédigiez le votre.
-        </div>
+    <div class="alert-box alert">
+        <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+        pendant que vous rédigiez le votre.
     </div>
-</div>
 {% endif %}
+
+
 
 <section>
     <form action="#previsualisation" method="POST" class="forum-message" id="submit_form">
-    <div class="user">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-    </div>
-    <div class="message">
-        <div class="message-content">
-            <textarea name="text" id="text" class="md-editor" cols="30" rows="10" {% if topic.is_locked or topic.antispam %}disabled{% endif %} placeholder="Votre message au format Markdown.">{% if topic.is_locked %}Ce sujet est verrouillé.{% elif topic.antispam  %}Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).{% else %}{{ text }}{%endif%}</textarea>
+        <div class="user">
+            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
         </div>
-
-        <div class="message-bottom">
-            <div class="message-submit">
-                <button type="submit"
-                        name="preview"
-                        class="btn"
-                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}>
-                    Aperçu
-                </button>
-
-                <button type="submit"
+        <div class="message">
+            <div class="message-content">
+                {% spaceless %}
+                    <textarea
+                        name="text"
+                        id="text"
+                        class="md-editor"
+                        cols="30"
+                        rows="10"
                         {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                        name="answer"
-                        class="btn btn-submit">
-                    Envoyer
-                </button>
+                        placeholder="Votre message au format Markdown"
+                    >
+                        {% if topic.is_locked %}
+                            Ce sujet est verrouillé.
+                        {% elif topic.antispam  %}
+                            Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                        {% else %}
+                            {{ text }}
+                        {%endif%}
+                    </textarea>
+                {% endspaceless %}
             </div>
-        </div>
 
-        <input type="hidden" name="last_note"     value="{{ last_note_pk }}" />
-        <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}" />
-        <input type="hidden" name="last_post"     value="{{ last_post_pk }}" />
-        {% csrf_token %}
-    </div>
+            <div class="message-bottom">
+                <div class="message-submit">
+                    <button
+                        type="submit"
+                        name="preview"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                    >
+                        Aperçu
+                    </button>
+
+                    <button
+                        type="submit"
+                        name="answer"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                    >
+                        Envoyer
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" name="last_note" value="{{ last_note_pk }}">
+            <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
+            <input type="hidden" name="last_post" value="{{ last_post_pk }}">
+            {% csrf_token %}
+        </div>
     </form>
 </section>
