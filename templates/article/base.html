@@ -30,8 +30,8 @@
         {% if sidebarfilter %}
             <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
                 <h3>Filtres</h3>
-                <ul class="sidebar-standalone">
-                    {{ sidebarfilter }}
+                <ul>
+                    {{ sidebarfilter|safe }}
                 </ul>
             </div>
         {% endif %}
@@ -39,7 +39,7 @@
 
     <div class="mobile-menu-block mobile-all-links" data-title="Actions">
         <h3>Actions</h3>
-        <ul class="sidebar-standalone">
+        <ul>
             <li>
                 <a href="{% url "zds.article.views.new" %}">
                     Nouvel article
@@ -50,7 +50,7 @@
 
     <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
         <h3>Flux</h3>
-        <ul class="sidebar-standalone">
+        <ul>
             <li>
                 <a href="{% url "article-feed-rss" %}">
                     Nouveaux articles (RSS)

@@ -4,14 +4,17 @@
 {% load emarkdown %}
 
 
+
 {% block title %}
     Sujets crées par {{ usr.username }}
 {% endblock %}
 
 
+
 {% block headline %}
     Sujets crées par "{{ usr.username }}""
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -23,8 +26,9 @@
 {% endblock %}
 
 
+
 {% block content %}
-    {% include "forum/details_pagination.part.html" with position="top" %}
+    {% include "misc/pagination.part.html" with position="top" %}
 
     <table>
         <thead>
@@ -56,5 +60,5 @@
         </tbody>
     </table>
 
-    {% include "forum/details_pagination.part.html" with position="bottom" %}
+    {% include "misc/pagination.part.html" with position="bottom" %}
 {% endblock %}

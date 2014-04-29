@@ -78,15 +78,28 @@
                     {% with profile_user=user|profile %}
                         {% if profile_user.show_sign %}
                             {% with profile=message.author|profile %}
-                                <p class="signature">
-                                    {{ profile.sign|emarkdown_inline }}
-                                </p>
+                                {% if profile.sign %}
+                                    <p class="signature">
+                                        {{ profile.sign|emarkdown_inline }}
+                                    </p>
+                                {% endif %}
                             {% endwith %}
                         {% endif %}
                     {% endwith %}
 
+                    {% if helpful_link %}
+                        {# TODO : Mettre le réel état #}
+                        {% if topic.author == user and post.author != user %}
+                            <a href="{{ helpful_link }}" class="tick ico-after active">
+                                Cette réponse m'a aidé
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+
                     {% if upvote_link %}
                         <div class="message-karma">
+                            {# TODO : Mettre le réel pouce voté #}
                             <a href="{{ upvote_link }}"
                                class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
                             >
@@ -101,9 +114,24 @@
                     {% endif %}
                 {% else %}
                     {% with profile=message.author|profile %}
-                        <p class="signature">
-                            {{ profile.sign|emarkdown_inline }}
-                        </p>
+                        {% if profile.sign %}
+                            <p class="signature">
+                                {{ profile.sign|emarkdown_inline }}
+                            </p>
+                        {% endif %}
+
+                        <div class="message-karma">
+                            <span
+                               class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
+                            >
+                                +{{ message.like }}
+                            </span>
+                            <span 
+                               class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
+                            >
+                                -{{ message.dislike }}
+                            </span>
+                        </div>
                     {% endwith %}
                 {% endif %}
             </div>

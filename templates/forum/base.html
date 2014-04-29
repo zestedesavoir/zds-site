@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load interventions %}
+{% load captureas %}
 
 
 
@@ -24,21 +25,25 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         {% if user.is_authenticated %}
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
-                <h3>Actions</h3>
-                <ul class="sidebar-standalone">
-                    <div class="sidebar_actions">
-                        {% block sidebar_actions %}{% endblock %}
-                    </div>
-                </ul>
-            </div>
+            {% captureas sidebaractions %}
+                {% block sidebar_actions %}{% endblock %}
+            {% endcaptureas %}
+
+            {% if sidebaractions %}
+                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions sur ce sujet">
+                    <h3>Actions</h3>
+                    <ul>
+                        {{ sidebaractions|safe }}
+                    </ul>
+                </div>
+            {% endif %}
 
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
                 <ul>
-                    {% with followed_topics=user|followed_topics %}
-                        {% for topic in followed_topics %}
-                            {% with state=topic|is_read %}
+                    {% with topics=user|followed_topics %}
+                        {% for topic in topics %}
+                            {% with topic=topic.topic state=topic|is_read %}
                                 <li>
                                     <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
                                        class="ico-after cross red stop-follow action-hover" 
@@ -52,18 +57,31 @@
 
                                             {% if topic.is_solved %}
                                                 tick active
-                                            {% endif %}
-                                            {% if topic.is_locked %}
+                                            {% elif topic.is_locked %}
                                                 lock
                                             {% endif %}
                                         {% endif %}"
-                                       data-prefix="{% if topic.is_solved %}Résolu{% endif %} {% if topic.is_locked %}Fermé{% endif %}">
+                                       data-prefix="{% if topic.is_solved %}Résolu{% elif topic.is_locked %}Fermé{% endif %}">
                                         {{ topic.title }}
                                     </a>
                                 </li>
                             {% endwith %}
                         {% endfor %}
+
+                        {% if topics|length <= 0 %}
+                            <li class="inactive"><span>Aucun sujet suivi</span></li>
+                        {% endif %}
                     {% endwith %}
+                </ul>
+            </div>
+
+            <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+                <h3>Flux</h3>
+                <ul>
+                    <li><a href="{% url "post-feed-rss" %}">Nouveaux messages (RSS)</a></li>
+                    <li><a href="{% url "post-feed-atom" %}">Nouveaux messages (ATOM)</a></li>
+                    <li><a href="{% url "topic-feed-rss" %}">Nouveaux sujets (RSS)</a></li>
+                    <li><a href="{% url "topic-feed-atom" %}">Nouveaux sujets (ATOM)</a></li>
                 </ul>
             </div>
         {% endif %}

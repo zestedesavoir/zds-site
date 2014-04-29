@@ -2,7 +2,7 @@
     {% if user in authors.all or perms.article.change_article %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
             <h3>Gestion</h3>
-            <ul class="sidebar-standalone">
+            <ul>
                 <li>
                     <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">
                         Éditer
@@ -39,7 +39,7 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>Validation</h3>
             {# TODO : Mettre des icônes #}
-            <ul class="sidebar-standalone">
+            <ul>
                 {% if not article.sha_validation = None %}
                     <li>
                         <button type="submit" name="valid-article">Publier</button>
@@ -67,7 +67,7 @@
 
 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
     <h3>Télécharger</h3>
-    <ul class="sidebar-standalone">
+    <ul>
         <li>
             <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">
                 Archive

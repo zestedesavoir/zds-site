@@ -1,14 +1,17 @@
 {% extends "forum/base.html" %}
 
 
+
 {% block title %}
     {{ category.title }}
 {% endblock %}
 
 
+
 {% block headline %}
-    <h1>{{ category.title }}</h1>
+    {{ category.title }}
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -16,8 +19,7 @@
 {% endblock %}
 
 
-{% block content %}
-    
-    {% include "forum/includes/forums.part.html" %}
 
+{% block content %}
+    {% include "forum/includes/forums.part.html" %}
 {% endblock %}

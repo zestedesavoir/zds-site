@@ -531,22 +531,22 @@
         }
     }
 
+    h3 + ul {
+        margin: 15px 0 7px;
+    }
+
     ul {
         margin: 0;
         padding: 0;
         list-style: none;
         width: 100%;
 
-        &.sidebar-standalone {
-            margin: 15px 0 7px;
-        }
-
         li {
             position: relative;
             padding: 0 0 0 2.5%;
             @include single-transition(background);
 
-            &:hover,
+            &:not(.inactive):hover,
             a:focus {
                 background: #d3d5d5;
                 outline: none;
@@ -557,7 +557,8 @@
             }
 
             a,
-            button {
+            button,
+            &.inactive span {
                 display: block;
                 padding-left: 25px;
                 padding-right: 10px;
@@ -644,6 +645,11 @@
                         }
                     }
                 }
+            }
+
+            &.inactive span {
+                color: #555;
+                font-style: italic;
             }
 
             button {
@@ -749,9 +755,10 @@
         font-size: 1.5rem;
         color: #777;
         margin-top: -15px;
-        margin-bottom: 30px;
+        margin-bottom: 15px;
         padding: 10px 2%;
         background: #EEE;
+        font-weight: normal;
     }
 }
 .main.home .content-container {
@@ -1138,18 +1145,13 @@ $helpful-background: #e9f9dc;
             z-index: 0;
             position: absolute;
             top: 0;
+            border: 1px solid #DDD;
 
             &[href]:hover,
             &[href]:focus {
-                height: 58px;
-                width: 58px;
-                border: 1px solid #DDD;
+                border-color: #FFF;
                 overflow: hidden;
-                @include box-shadow(rgba(0, 0, 0, .5) 0 2px 7px);
-
-                .avatar {
-                    margin: -1px 0 0 -1px;
-                }
+                @include box-shadow(rgba(0, 0, 0, .3) 0 1px 7px);
             }
         }
         .badge {
@@ -1366,7 +1368,6 @@ $helpful-background: #e9f9dc;
             button {
                 display: block;
                 float: left;
-                cursor: pointer;
                 background-color: #edefef;
                 border-bottom: 3px solid #edefef;
                 text-decoration: none;
@@ -1410,6 +1411,8 @@ $helpful-background: #e9f9dc;
             }
             a,
             button {
+                cursor: pointer;
+
                 &:hover,
                 &:focus {
                     border-bottom-color: #999;

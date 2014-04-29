@@ -459,7 +459,7 @@
                             {% endcaptureas %}
 
                             {% if headlinesub %}
-                                <h3 class="subtitle">{{ headlinesub }}</h3>
+                                <h3 class="subtitle">{{ headlinesub|safe }}</h3>
                             {% endif %}
 
                             {% if messages %}

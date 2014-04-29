@@ -1,8 +1,10 @@
 {% extends "forum/base.html" %}
 {% load emarkdown %}
 {% load humanize %}
+{% load captureas %}
 {% load profile %}
 {% load crispy_forms_tags %}
+
 
 
 {% block title %}
@@ -10,9 +12,11 @@
 {% endblock %}
 
 
+
 {% block headline %}
     {{ topic.title }}
 {% endblock %}
+
 
 
 {% block headline_sub %}
@@ -20,11 +24,13 @@
 {% endblock %}
 
 
+
 {% block breadcrumb %}
     <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
     <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
     <li>{{ topic.title }}</li>
 {% endblock %}
+
 
 
 {% block sidebar_actions %}
@@ -35,38 +41,28 @@
     </li>
 
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
-        {% if topic.is_solved %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
-                   class="ico-after tick active">
-                    Non résolu
-                </a>
-            </li>
-        {% else %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
-                   class="ico-after tick active">
+        <li>
+            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
+               class="ico-after tick {% if topic.is_solved %}blue{% else %}active{% endif %}">
+                {% if topic.is_solved %}
+                    Marquer comme non résolu
+                {% else %}
                     Marquer comme résolu
-                </a>
-            </li>
-        {% endif %}
+                {% endif %}
+            </a>
+        </li>
     {% endif %}
 
-    {% if topic.is_followed %}
-        <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
-               class="ico-after view blue">
+    <li>
+        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
+           class="ico-after view {% if topic.is_followed %}grey{% else %}blue{% endif %}">
+            {% if topic.is_followed %}
                 Ne plus suivre ce sujet
-            </a>
-        </li>
-    {% else %}
-        <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
-               class="ico-after view blue">
+            {% else %}
                 Suivre ce sujet
-            </a>
-        </li>
-    {% endif %}
+            {% endif %}
+        </a>
+    </li>
 
     {% if perms.forum.change_topic %}
         {% if topic.is_locked %}
@@ -100,12 +96,19 @@
                 </a>
             </li>
         {% endif %}
+
         {% crispy form_move %}
     {% endif %}
 {% endblock %}
 
 
+
 {% block content %}
+    <ul class="taglist">
+        <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
+        <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+    </ul>
+
     {% if topic.is_solved %}
         <div class="alert-box success">
             <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
@@ -114,130 +117,53 @@
     {% endif %}
 
     {% include "misc/pagination.part.html" with position="top" %}
-    
-    <div class="message-metadata">
-        <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-        <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-        {% if not post.is_visible %}
-            <i>Masqué par {{ post.editor }} : {{ post.text_hidden }}</i>
-        {% elif not post.update = None %}
-            <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
-        {% endif %}
-    </div>
 
     <div class="content-wrapper">
-        {% for post in posts %}
-        <article class="forum-message {% if post.is_useful %}helpful{% endif %}">
-            <div class="user" id="p{{ post.id }}">
-                <a href="{{ post.author.get_absolute_url }}" class="avatar-link">
-                    {% with profile=post.author|profile %}
-                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                    {% endwith %}
-                </a>
-            </div>
+        {% for message in posts %}
+            {% captureas hide_link %}
+                {# TODO : Lien pour masquer #}
+            {% endcaptureas %}
 
-            <div class="message">
-                {% if user.is_authenticated %}
-                <ul class="message-actions">
-                    {% if post.author = user or perms.forum.change_post %}
-                    <li>
-                        <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}"
-                           class="ico-after edit">
-                            Editer
-                        </a>
-                    </li>
-                    {% endif %}
+            {% captureas edit_link %}
+                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
 
-                    <li>
-                        <a href="#" class="ico-after alert">
-                            Signaler
-                        </a>
-                    </li>
-                    {% if not topic.is_locked and not topic.antispam %}
-                    <li>
-                        <a href="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}"
-                           class="ico-after cite">
-                            Citer
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-                {% endif %}
+            {% captureas alert_link %}
+                {# TODO : Lien de signalement #}
+            {% endcaptureas %}
 
-                <div class="message-metadata">
-                    <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
-                    <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-                </div>
+            {% captureas cite_link %}
+                {% url "zds.forum.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+            {% endcaptureas %}
 
-                <div class="message-content">
-                    {{ post.text|emarkdown }}
+            {% captureas helpful_link %}
+                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
 
-                    {% if not post.is_visible %}
-                        <hr>
-                        <p>
-                            <em>Masqué par {{ post.editor }} : {{ post.text_hidden }}</em>
-                        </p>
-                    {% elif not post.update = None %}
-                        <hr>
-                        <p>
-                            <em>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</em>
-                        </p>
-                    {% endif %}
-                </div>
+            {% captureas upvote_link %}
+                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
 
-                <div class="message-bottom">
+            {% captureas downvote_link %}
+                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
 
-                    {% if user.is_authenticated %}
-                        {% with profile_user=user|profile %}
-                            {% if profile_user.show_sign %}
-                                {% with profile=post.author|profile %}
-                                    <p class="signature">
-                                        {{profile.sign|emarkdown_inline}}
-                                    </p>
-                                {% endwith %}
-                            {% endif %}
-                        {% endwith %}
-
-                        <div class="message-karma">
-                            {% if topic.author == user and post.author != user %}
-                                <a href="/forums/message/utile?message={{ post.pk }}" class="ico-after tick">
-                                    Cette réponse m'a aidé
-                                </a>
-                            {% endif %}
-
-                            <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}"
-                               class="ico-after upvote {% if post.like > post.dislike %}voted{% endif%}">
-                                +{{post.like}}
-                            </a>
-                            <a href="{% url "zds.forum.views.dislike_post" %}?message={{ post.pk }}"
-                               class="ico-after downvote {% if post.like < post.dislike %}voted{% endif%}">
-                                -{{post.dislike}}
-                            </a>
-                        </div>
-                    {% else %}
-                        {% with profile=post.author|profile %}
-                            <p class="signature">
-                                {{ profile.sign|emarkdown_inline }}
-                            </p>
-                        {% endwith %}
-                    {% endif %}
-                </div>
-            </div>
-        </article>
+            {% include 'misc/message.part.html' %}
         {% endfor %}
     </div>
 
     {% include "misc/pagination.part.html" with position="bottom" %}
 
+    {# TODO : Factoriser ça #}
     {% if user.is_authenticated %}
         {% with profile=user|profile %}
-        <section>
-            <div class="user">
-                <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-            </div>
+            <section>
+                <div class="user">
+                    <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+                </div>
 
-            {% crispy form %}
-        </section>
+                {% crispy form %}
+            </section>
         {% endwith %}
     {% endif %}
 {% endblock %}

@@ -54,7 +54,7 @@
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
                 <h3>Validation</h3>
                 {# TODO : Mettre des icônes #}
-                <ul class="sidebar-standalone">
+                <ul>
                     <li>
                         <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
                             Version hors ligne
@@ -83,7 +83,7 @@
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
-        <ul class="sidebar-standalone">
+        <ul>
             <li>
                 <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}"
                    class="ico-after download blue"
@@ -139,6 +139,7 @@
 
     {% include "misc/pagination.part.html" with position="bottom" pages=reactions %}
 
+    {# TODO : Factoriser ça #}
     {% if user.is_authenticated %}
         {% with profile=user|profile %}
             <section>

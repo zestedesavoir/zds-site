@@ -28,7 +28,7 @@
 <aside class="sidebar sommaire mobile-menu-hide">
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <h3>Actions <span class="wide">sur les tutoriels</span></h3>
-        <ul class="sidebar-standalone">
+        <ul>
             <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Nouveau tutoriel</a></li>
             {% block headline_sub-actions %}{% endblock %}
         </ul>
@@ -38,7 +38,7 @@
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
-        <ul class="sidebar-standalone">
+        <ul>
             {% if tutorial.on_line %}
                 {% if perms.tutorial.change_tutorial %}
                    <li>
