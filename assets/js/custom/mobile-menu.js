@@ -83,7 +83,7 @@ $(window).on('resize', function(){
              */
             appendToSidebar($('#search'), true);
             appendToSidebar($('.logbox .my-account'), true);
-            appendToSidebar($('.header-menu'), true);
+            appendToSidebar($('.header-menu'));
 
             $('.page-container .mobile-menu-bloc .mobile-menu-bloc').each(function(){
                 appendToSidebar($(this));
