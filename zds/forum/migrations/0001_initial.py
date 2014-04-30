@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=80)),
             ('position', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=80)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=80)),
         ))
         db.send_create_signal(u'forum', ['Category'])
 
@@ -25,7 +25,7 @@ class Migration(SchemaMigration):
             ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
             ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['forum.Category'])),
             ('position_in_category', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=80)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=80)),
         ))
         db.send_create_signal(u'forum', ['Forum'])
 
@@ -41,8 +41,8 @@ class Migration(SchemaMigration):
         # Adding model 'Topic'
         db.create_table(u'forum_topic', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=80)),
-            ('subtitle', self.gf('django.db.models.fields.CharField')(max_length=200)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=60)),
+            ('subtitle', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('forum', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['forum.Forum'])),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(related_name='topics', to=orm['auth.User'])),
             ('last_message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='last_message', null=True, to=orm['forum.Post'])),
@@ -55,31 +55,11 @@ class Migration(SchemaMigration):
 
         # Adding model 'Post'
         db.create_table(u'forum_post', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            (u'comment_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['utils.Comment'], unique=True, primary_key=True)),
             ('topic', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['forum.Topic'])),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(related_name='posts', to=orm['auth.User'])),
-            ('ip_address', self.gf('django.db.models.fields.CharField')(max_length=15)),
-            ('text', self.gf('django.db.models.fields.TextField')()),
-            ('text_html', self.gf('django.db.models.fields.TextField')()),
-            ('like', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('dislike', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('pubdate', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('update', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('position_in_topic', self.gf('django.db.models.fields.IntegerField')()),
             ('is_useful', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('is_visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('text_hidden', self.gf('django.db.models.fields.CharField')(default='', max_length=80)),
         ))
         db.send_create_signal(u'forum', ['Post'])
-
-        # Adding M2M table for field alerts on 'Post'
-        m2m_table_name = db.shorten_name(u'forum_post_alerts')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('post', models.ForeignKey(orm[u'forum.post'], null=False)),
-            ('alert', models.ForeignKey(orm[u'utils.alert'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['post_id', 'alert_id'])
 
         # Adding model 'TopicRead'
         db.create_table(u'forum_topicread', (
@@ -98,22 +78,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'forum', ['TopicFollowed'])
 
-        # Adding model 'PostLike'
-        db.create_table(u'forum_postlike', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('posts', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['forum.Post'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='post_liked', to=orm['auth.User'])),
-        ))
-        db.send_create_signal(u'forum', ['PostLike'])
-
-        # Adding model 'PostDislike'
-        db.create_table(u'forum_postdislike', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('posts', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['forum.Post'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='post_disliked', to=orm['auth.User'])),
-        ))
-        db.send_create_signal(u'forum', ['PostDislike'])
-
 
     def backwards(self, orm):
         # Deleting model 'Category'
@@ -131,20 +95,11 @@ class Migration(SchemaMigration):
         # Deleting model 'Post'
         db.delete_table(u'forum_post')
 
-        # Removing M2M table for field alerts on 'Post'
-        db.delete_table(db.shorten_name(u'forum_post_alerts'))
-
         # Deleting model 'TopicRead'
         db.delete_table(u'forum_topicread')
 
         # Deleting model 'TopicFollowed'
         db.delete_table(u'forum_topicfollowed')
-
-        # Deleting model 'PostLike'
-        db.delete_table(u'forum_postlike')
-
-        # Deleting model 'PostDislike'
-        db.delete_table(u'forum_postdislike')
 
 
     models = {
@@ -166,7 +121,7 @@ class Migration(SchemaMigration):
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -174,7 +129,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
@@ -188,7 +143,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Category'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'position': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '80'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
         },
         u'forum.forum': {
@@ -198,39 +153,15 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'position_in_category': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '80'}),
             'subtitle': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
         },
         u'forum.post': {
-            'Meta': {'object_name': 'Post'},
-            'alerts': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['utils.Alert']", 'null': 'True', 'blank': 'True'}),
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'posts'", 'to': u"orm['auth.User']"}),
-            'dislike': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'ip_address': ('django.db.models.fields.CharField', [], {'max_length': '15'}),
+            'Meta': {'object_name': 'Post', '_ormbases': [u'utils.Comment']},
+            u'comment_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['utils.Comment']", 'unique': 'True', 'primary_key': 'True'}),
             'is_useful': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_visible': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'like': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'position_in_topic': ('django.db.models.fields.IntegerField', [], {}),
-            'pubdate': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'text': ('django.db.models.fields.TextField', [], {}),
-            'text_hidden': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '80'}),
-            'text_html': ('django.db.models.fields.TextField', [], {}),
-            'topic': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['forum.Topic']"}),
-            'update': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
-        },
-        u'forum.postdislike': {
-            'Meta': {'object_name': 'PostDislike'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'posts': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['forum.Post']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'post_disliked'", 'to': u"orm['auth.User']"})
-        },
-        u'forum.postlike': {
-            'Meta': {'object_name': 'PostLike'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'posts': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['forum.Post']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'post_liked'", 'to': u"orm['auth.User']"})
+            'topic': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['forum.Topic']"})
         },
         u'forum.topic': {
             'Meta': {'object_name': 'Topic'},
@@ -242,8 +173,8 @@ class Migration(SchemaMigration):
             'is_sticky': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_message': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'last_message'", 'null': 'True', 'to': u"orm['forum.Post']"}),
             'pubdate': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'subtitle': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
+            'subtitle': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '60'})
         },
         u'forum.topicfollowed': {
             'Meta': {'object_name': 'TopicFollowed'},
@@ -264,6 +195,23 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'pubdate': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {})
+        },
+        u'utils.comment': {
+            'Meta': {'object_name': 'Comment'},
+            'alerts': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['utils.Alert']", 'null': 'True', 'blank': 'True'}),
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'comments'", 'to': u"orm['auth.User']"}),
+            'dislike': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'editor': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'comments-editor'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'ip_address': ('django.db.models.fields.CharField', [], {'max_length': '15'}),
+            'is_visible': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'like': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'position': ('django.db.models.fields.IntegerField', [], {}),
+            'pubdate': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'text': ('django.db.models.fields.TextField', [], {}),
+            'text_hidden': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '80'}),
+            'text_html': ('django.db.models.fields.TextField', [], {}),
+            'update': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         }
     }
 
