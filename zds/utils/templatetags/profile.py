@@ -34,3 +34,15 @@ def mode(mode):
         return 'pencil'
     else:
         return 'eye'
+
+@register.filter('state')
+def state(user):
+    try:
+        profile = Profile.objects.get(user=user)
+        if not profile.can_write_now() : state = 'BAN'
+        elif not profile.can_read_now() : state = 'LS'
+        elif user.has_perm('forum.change_post') : state = 'STAFF'
+        else : state = None
+    except Profile.DoesNotExist:
+        state = None
+    return state
