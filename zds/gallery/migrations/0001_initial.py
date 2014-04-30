@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -24,8 +24,8 @@ class Migration(SchemaMigration):
             ('title', self.gf('django.db.models.fields.CharField')(max_length=80, null=True, blank=True)),
             ('slug', self.gf('django.db.models.fields.SlugField')(max_length=80)),
             ('physical', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
-            ('thumb', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
-            ('medium', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
+            ('thumb', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
+            ('medium', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
             ('legend', self.gf('django.db.models.fields.CharField')(max_length=80, null=True, blank=True)),
             ('pubdate', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('update', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
@@ -74,7 +74,7 @@ class Migration(SchemaMigration):
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -82,7 +82,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
@@ -106,11 +106,11 @@ class Migration(SchemaMigration):
             'gallery': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gallery.Gallery']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'legend': ('django.db.models.fields.CharField', [], {'max_length': '80', 'null': 'True', 'blank': 'True'}),
-            'medium': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'medium': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'physical': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'pubdate': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
-            'thumb': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'thumb': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'update': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         },
