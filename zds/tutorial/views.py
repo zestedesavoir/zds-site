@@ -46,7 +46,7 @@ from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
     ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
-
+import subprocess
 
 @can_read_now
 def index(request):
@@ -306,7 +306,9 @@ def valid_tutorial(request):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    MEP(tutorial, tutorial.sha_validation)
+    (output, err) = MEP(tutorial, tutorial.sha_validation)
+    messages.info(request, output)
+    messages.error(request, err)
     validation = Validation.objects\
         .filter(tutorial__pk=tutorial_pk, version=tutorial.sha_validation)\
         .latest('date_proposition')
@@ -2813,6 +2815,7 @@ def markdown_to_out(md_text):
 
 
 def MEP(tutorial, sha):
+    (output, err) = (None, None)
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
@@ -2897,19 +2900,24 @@ def MEP(tutorial, sha):
             tutorial.get_prod_path(),
             tutorial.slug) +
         ".html")
-    os.system(
-        'pandoc --latex-engine=xelatex -s -S --toc ' +
-        '-N --template=../../assets/tex/template.tex ' +
-        '-V documentclass="scrbook" -V lang="francais" ' +
-        '-V mainfont="Verdana" -V fontsize="12pt" -V geometry:margin=1in ' +
-        os.path.join(
-            tutorial.get_prod_path(),
-            tutorial.slug) +
-        '.md -o ' +
-        os.path.join(
-            tutorial.get_prod_path(),
-            tutorial.slug) +
-        '.pdf')
+    
+    rs = subprocess.Popen(['pandoc',
+          '--latex-engine=xelatex',
+          '--template=../../assets/tex/template.tex',
+          '-s',
+          '-S',
+          '-N',
+          '--toc',
+          '--variable','documentclass=scrbook',
+          '--variable','lang=francais',
+          '--variable','mainfont=Verdana',
+          '--variable','fontsize=12pt',
+          '--variable','geometry:margin=1in',
+          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md',
+          '-o',
+          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'],
+               stdout=subprocess.PIPE)
+    output, err = rs.communicate()
     os.system(
         "pandoc -s -S --toc " +
         os.path.join(
@@ -2921,11 +2929,15 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".epub")
     os.chdir(settings.SITE_ROOT)
-
+    
+    return (output, err)
 
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
-        shutil.rmtree(tutorial.get_prod_path())
+        try:
+            shutil.rmtree(tutorial.get_prod_path())
+        except:
+            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
 
 
 @can_write_and_read_now
