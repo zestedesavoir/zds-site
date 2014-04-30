@@ -24,36 +24,41 @@
 {% endblock %}
 
 {% block headline-actions %}
-    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
-        {% if topic.is_solved %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Non résolu</a></li>
-        {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Marquer comme résolu</a></li>
+    <h3>Actions</h3>
+    <ul>
+        <li><a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">Nouveau Sujet</a></li>
+
+        {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+            {% if topic.is_solved %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Non résolu</a></li>
+            {% else %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1">Marquer comme résolu</a></li>
+            {% endif %}
         {% endif %}
-    {% endif %}
-    {% if topic.is_followed %}
-        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark grey size-16"></span> Ne plus suivre ce sujet</a></li>
-    {% else %}
-        <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark size-16"></span> Suivre ce sujet</a></li>
-    {% endif %}
-    {% if perms.forum.change_topic %}
-        {% if topic.is_locked %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Dévérouiller</a></li>
+        {% if topic.is_followed %}
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark grey size-16"></span> Ne plus suivre ce sujet</a></li>
         {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span>Vérouiller le sujet</a></li>
+            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"><span class="fi-bookmark size-16"></span> Suivre ce sujet</a></li>
         {% endif %}
-        {% if topic.is_sticky %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"><span class="fi-price-tag size-16"></span> Enlever du Post-It</a></li>
-        {% else %}
-            <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"><span class="fi-price-tag size-16"></span> Marquer en Post-It</a></li>
+        {% if perms.forum.change_topic %}
+            {% if topic.is_locked %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Dévérouiller</a></li>
+            {% else %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span>Vérouiller le sujet</a></li>
+            {% endif %}
+            {% if topic.is_sticky %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"><span class="fi-price-tag size-16"></span> Enlever du Post-It</a></li>
+            {% else %}
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"><span class="fi-price-tag size-16"></span> Marquer en Post-It</a></li>
+            {% endif %}
+            <li>
+                <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
+            </li>
+            <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                {% crispy form_move %}
+            </div>
         {% endif %}
-        <li>
-            <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
-        </li>
-        <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
-            {% crispy form_move %}
-        </div>
-    {% endif %}
+    </ul>
 {% endblock %}
 
 {% block content %}
