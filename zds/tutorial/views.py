@@ -2822,7 +2822,10 @@ def MEP(tutorial, sha):
     tutorial_version = json.loads(manifest)
 
     if os.path.isdir(tutorial.get_prod_path()):
-        shutil.rmtree(tutorial.get_prod_path())
+        try:
+            shutil.rmtree(tutorial.get_prod_path())
+        except:
+            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
 
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
 
@@ -2918,6 +2921,7 @@ def MEP(tutorial, sha):
           os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'],
                stdout=subprocess.PIPE)
     output, err = rs.communicate()
+    
     os.system(
         "pandoc -s -S --toc " +
         os.path.join(

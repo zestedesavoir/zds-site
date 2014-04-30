@@ -101,7 +101,7 @@ def topic(request, topic_pk, topic_slug):
         if never_read(topic):
             mark_read(topic)
 
-    # Retrieves all posts of the topoc and use paginator with them.
+    # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
                 .filter(topic__pk=topic.pk)\
                 .order_by('position')\

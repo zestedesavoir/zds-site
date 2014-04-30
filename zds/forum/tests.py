@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 
 from django.core.urlresolvers import reverse
+from zds.utils import slugify
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.member.factories import UserFactory, StaffFactory
@@ -506,6 +507,24 @@ class ForumMemberTests(TestCase):
             follow=False)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Topic.objects.all().count(), init_topic_count)
+    
+    def test_url_topic(self):
+        """Test simple get request to the topic"""
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position=1)
+        post2 = PostFactory(topic=topic1, author=user1, position=2)
+        post3 = PostFactory(topic=topic1, author=self.user, position=3)
+
+        #simple member can read public topic
+        result = self.client.get(
+            reverse(
+                'zds.forum.views.topic',
+                args=[
+                    topic1.pk,
+                    slugify(topic1.title)]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
 
 
 class ForumGuestTests(TestCase):
@@ -756,3 +775,21 @@ class ForumGuestTests(TestCase):
             Topic.objects.get(
                 pk=topic1.pk).forum,
             self.forum12)
+    
+    def test_url_topic(self):
+        """Test simple get request to the topic"""
+        user1 = UserFactory()
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post1 = PostFactory(topic=topic1, author=self.user, position=1)
+        post2 = PostFactory(topic=topic1, author=user1, position=2)
+        post3 = PostFactory(topic=topic1, author=self.user, position=3)
+
+        #guest can read public topic
+        result = self.client.get(
+            reverse(
+                'zds.forum.views.topic',
+                args=[
+                    topic1.pk,
+                    slugify(topic1.title)]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
