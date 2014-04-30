@@ -75,13 +75,24 @@
     <div class="large-12 columns">
         <div class="large-1 columns">
             <div class="centered">
-            <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
+            <div class="username"><a href="{{ post.author.get_absolute_url }}">{{ post.author.username }}</a></div>
             </div>
             <a href="{{ post.author.get_absolute_url }}" class="hide-for-small">
                 {% with profile=post.author|profile %}
                 <img src="{{ profile.get_avatar_url }}" alt="" class="avatar-forum">
                 {% endwith %}
             </a>
+            {% with status=post.author|state %}
+                {% if status == 'BAN'%}
+                    <div class="alert-box tiny alert username">{{status}}</div>
+                {% endif %}
+                {% if status == 'LS'%}
+                    <div class="alert-box tiny warning username">{{status}}</div>
+                {% endif %}
+                {% if status == 'STAFF' %}
+                    <div class="alert-box tiny success username">{{status}}</div>
+                {% endif %}
+            {% endwith %}
         </div>
         <div class="large-11 columns message-forum">
             <div class="row">
