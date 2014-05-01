@@ -38,6 +38,7 @@ class ForumMemberTests(TestCase):
             category=self.category2,
             position_in_category=2)
         self.user = UserFactory()
+        self.user2 = UserFactory()
         log = self.client.login(
             username=self.user.username,
             password='hostel77')
@@ -465,8 +466,9 @@ class ForumMemberTests(TestCase):
 
     def test_answer_empty(self):
         """Test behaviour on empty answer."""
-        topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        post1 = PostFactory(topic=topic1, author=self.user, position=1)
+        # Topic and 1st post by another user, to avoid antispam limitation
+        topic1 = TopicFactory(forum=self.forum11, author=self.user2)
+        post1 = PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
