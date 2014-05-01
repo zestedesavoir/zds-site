@@ -164,7 +164,13 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, ctrl, data['title'], data['subtitle'], data['text'])
+            p_topic = send_mp(request.user, 
+                              ctrl, 
+                              data['title'], 
+                              data['subtitle'], 
+                              data['text'],
+                              True,
+                              False)
             
             return redirect(p_topic.get_absolute_url())
 
