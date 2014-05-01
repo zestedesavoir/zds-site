@@ -13,12 +13,13 @@ from django.core.urlresolvers import reverse
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 from zds.utils.models import Category, SubCategory, Licence
+from zds.tutorial.models import Tutorial
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = Tutorial._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -44,7 +45,7 @@ class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
         label='Description',
-        max_length=200,
+        max_length = Tutorial._meta.get_field('description').max_length,
         required=False,
     )
 
