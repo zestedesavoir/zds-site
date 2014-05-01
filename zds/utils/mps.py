@@ -58,7 +58,10 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True)
                 subject, message_txt, from_email, [
                     part.email])
             msg.attach_alternative(message_html, "text/html")
-            msg.send()
+            try :
+                msg.send()
+            except:
+                msg = None
     if leave:
         move = n_topic.participants.first()
         n_topic.author = move
