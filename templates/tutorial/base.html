@@ -1,16 +1,30 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
     &#183; Tutoriels
 {% endblock %}
+
+
+
+{% block mobile_title %}
+    Tutoriels
+{% endblock %}
+
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
 {% endblock %}
 
+
+
 {% block menu_tutorial %}
     current
 {% endblock %}
+
+
 
 {% block content_out %}
     <article>
@@ -24,53 +38,54 @@
 {% endblock %}
 
 
+
 {% block sidebar %}
-<aside class="sidebar sommaire mobile-menu-hide">
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Actions <span class="wide">sur les tutoriels</span></h3>
-        <ul>
-            <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Nouveau tutoriel</a></li>
-            {% block headline_sub-actions %}{% endblock %}
-        </ul>
-    </div>
+    <aside class="sidebar sommaire mobile-menu-hide">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Nouveau tutoriel</a></li>
+                {% block headline_sub_actions %}{% endblock %}
+            </ul>
+        </div>
 
-    {% block sidebar_actions %}{% endblock %}
+        {% block sidebar_actions %}{% endblock %}
 
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3>Télécharger</h3>
-        <ul>
-            {% if tutorial.on_line %}
-                {% if perms.tutorial.change_tutorial %}
-                   <li>
-                    <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
-                        Markdown
-                    </a>
-                </li>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+            <h3>Télécharger</h3>
+            <ul>
+                {% if tutorial.on_line %}
+                    {% if perms.tutorial.change_tutorial %}
+                       <li>
+                        <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
+                            Markdown
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li>
+                        <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">
+                            HTML
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">
+                            PDF
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">
+                            EPUB
+                        </a>
+                    </li>
                 {% endif %}
 
                 <li>
-                    <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">
-                        HTML
+                    <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">
+                        Archive
                     </a>
                 </li>
-                <li>
-                    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">
-                        PDF
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">
-                        EPUB
-                    </a>
-                </li>
-            {% endif %}
-
-            <li>
-                <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">
-                    Archive
-                </a>
-            </li>
-        </ul>
-    </div>
-</aside>
+            </ul>
+        </div>
+    </aside>
 {% endblock %}

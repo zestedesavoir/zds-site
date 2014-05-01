@@ -80,11 +80,19 @@
                 <div class="wrapper">
                     <div class="mobile-menu-btn ico-after"></div>
 
+                    {% captureas mobiletitle %}
+                        {% block mobile_title %}
+                            Zeste de Savoir
+                        {% endblock %}
+                    {% endcaptureas %}
 
                     {# Logo #}
                     <h1 class="header-logo">
                         {# TODO : Changer le data-title en fonction de la section #}
-                        <a href="{% url "zds.pages.views.home" %}" class="header-logo-link" data-title="Zeste de Savoir">
+                        <a href="{% url "zds.pages.views.home" %}"
+                           class="header-logo-link"
+                           data-title="{{ mobiletitle }}"
+                        >
                             Zeste de Savoir
                         </a>
                     </h1>

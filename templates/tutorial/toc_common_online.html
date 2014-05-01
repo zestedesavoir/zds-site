@@ -3,11 +3,13 @@
 {% load profile %}
 {% load roman %}
 
+
+
 <div class="mobile-menu-bloc {% if not tutorial.is_mini %}accordeon{% endif %}" data-title="Sommaire du tutoriel">
     <h3>Sommaire</h3>
 
     {% if tutorial.is_mini %}
-    {# Small tutorial #}
+        {# Small tutorial #}
         {% if chapter.extracts %}
             {% for extract in chapter.extracts %}
                 <h4 data-num="{{ extract.position_in_chapter|roman }}">
@@ -18,7 +20,7 @@
             {% endfor %}
         {% endif %}
     {% else %}
-    {# Large tutorial #}
+        {# Large tutorial #}
         {% if parts %}
             {% for part in parts %}
                 <h4 data-num="{{ part.position_in_tutorial|roman }}">
