@@ -239,10 +239,6 @@ def answer(request):
     # Retrieve current topic.
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    # Check that the user isn't spamming
-    if g_topic.antispam(request.user):
-        raise PermissionDenied
-
     # Retrieve 3 last posts of the currenta topic.
     posts = PrivatePost.objects\
         .filter(privatetopic=g_topic)\
