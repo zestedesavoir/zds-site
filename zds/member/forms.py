@@ -176,6 +176,7 @@ class ProfileForm(forms.Form):
     sign = forms.CharField(
         label='Signature',
         required=False,
+        max_length = Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Elle apparaitra dans les messages de forums. '
