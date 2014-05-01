@@ -17,6 +17,12 @@
     {% endif %}">
     <td>
         <a href="{{ topic.get_absolute_url }}">
+            {% if topic.is_locked %}
+                [Fermé] 
+            {% endif %}
+            {% if topic.is_solved %}
+                [Résolu] 
+            {% endif %}
             {{ topic.title }}
         </a><br />
         {% if topic.subtitle %}
