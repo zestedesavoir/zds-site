@@ -8,13 +8,13 @@ from crispy_forms.layout import Layout, Field, Hidden
 from crispy_forms.bootstrap import StrictButton
 
 from zds.utils.forms import CommonLayoutEditor
-from zds.forum.models import Forum
+from zds.forum.models import Forum, Topic
 
 
 class TopicForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = Topic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -24,7 +24,7 @@ class TopicForm(forms.Form):
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length=255,
+        max_length = Topic._meta.get_field('subtitle').max_length,
         required=False,
     )
 
