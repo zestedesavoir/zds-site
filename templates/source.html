@@ -223,7 +223,10 @@
                 {% endif %}
 
                 <li>
-                    <a href="{% url "zds.member.views.logout_view" %}?next={{request.build_absolute_uri}}">Déconnexion</a>
+                	<form method="post" action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}">
+                		<button type="submit">Déconnexion</button>
+                		{% csrf_token %}
+                	</form>
                 </li>
             </ul>
           </li>
