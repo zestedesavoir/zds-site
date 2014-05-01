@@ -125,8 +125,8 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=60)
-    subtitle = models.CharField('Sous-titre', max_length=100)
+    title = models.CharField('Titre', max_length=80)
+    subtitle = models.CharField('Sous-titre', max_length=200)
 
     forum = models.ForeignKey(Forum, verbose_name='Forum')
     author = models.ForeignKey(User, verbose_name='Auteur',
