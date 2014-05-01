@@ -47,7 +47,7 @@
                         Ville : {{ profile.get_city }}
                     </p>
                 {% endif %}
-                {% if profile.show_email and user.is_authenticated %}
+                {% if profile.show_email and perms.member.show_ip %}
                 <p>
                     <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
                 </p>
