@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from django import forms
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
+from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from zds.mp.models import PrivateTopic
 from zds.utils.forms import CommonLayoutEditor
 
 
@@ -20,7 +20,7 @@ class PrivateTopicForm(forms.Form):
 
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = PrivateTopic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required'
@@ -30,7 +30,7 @@ class PrivateTopicForm(forms.Form):
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length=255,
+        max_length = PrivateTopic._meta.get_field('subtitle').max_length,
         required=False
     )
 
