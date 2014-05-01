@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from django import forms
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
+from django import forms
 from django.core.urlresolvers import reverse
 
+from zds.article.models import Article
 from zds.utils.forms import CommonLayoutEditor
 from zds.utils.models import SubCategory
 
@@ -13,7 +13,7 @@ from zds.utils.models import SubCategory
 class ArticleForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = Article._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -22,7 +22,7 @@ class ArticleForm(forms.Form):
     )
 
     description = forms.CharField(
-        max_length=200,
+        max_length = Article._meta.get_field('description').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
