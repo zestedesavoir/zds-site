@@ -2903,24 +2903,23 @@ def MEP(tutorial, sha):
             tutorial.get_prod_path(),
             tutorial.slug) +
         ".html")
-    
-    rs = subprocess.Popen(['pandoc',
-          '--latex-engine=xelatex',
-          '--template=../../assets/tex/template.tex',
-          '-s',
-          '-S',
-          '-N',
-          '--toc',
-          '--variable','documentclass=scrbook',
-          '--variable','lang=francais',
-          '--variable','mainfont=Verdana',
-          '--variable','fontsize=12pt',
-          '--variable','geometry:margin=1in',
-          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md',
-          '-o',
-          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'],
-               stdout=subprocess.PIPE)
-    output, err = rs.communicate()
+    os.system(
+        'pandoc ' +
+        '--latex-engine=xelatex ' +
+        '--template=../../assets/tex/template.tex ' +
+        '-s ' +
+        '-S ' +
+        '-N ' +
+        '--toc ' +
+        '-V documentclass=scrbook ' +
+        '-V lang=francais ' +
+        '-V mainfont=Verdana ' +
+        '-V fontsize=12pt ' +
+        '-V geometry:margin=1in ' +
+        os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md ' +
+        '-o ' +
+        os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'
+        )
     
     os.system(
         "pandoc -s -S --toc " +
