@@ -43,7 +43,7 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise Http403
+        raise PermissionDenied
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
@@ -92,7 +92,7 @@ def topic(request, topic_pk, topic_slug):
     topic = get_object_or_404(Topic, pk=topic_pk)
     
     if not topic.forum.can_read(request.user):
-        raise Http403
+        raise PermissionDenied
 
     # Check link
     if not topic_slug == slugify(topic.title):
@@ -172,7 +172,7 @@ def new(request):
     forum = get_object_or_404(Forum, pk=forum_pk)
     
     if not forum.can_read(request.user):
-        raise Http403
+        raise PermissionDenied
     
     if request.method == 'POST':
 
@@ -298,7 +298,7 @@ def edit(request):
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     
     if not g_topic.forum.can_read(request.user):
-        raise Http403
+        raise PermissionDenied
 
     if 'follow' in data:
         resp['follow'] = follow(g_topic)
