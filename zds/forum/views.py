@@ -170,7 +170,10 @@ def new(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=forum_pk)
-
+    
+    if not forum.can_read(request.user):
+        raise Http403
+    
     if request.method == 'POST':
 
         # If the client is using the "preview" button
@@ -293,6 +296,9 @@ def edit(request):
     resp = {}
 
     g_topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not g_topic.forum.can_read(request.user):
+        raise Http403
 
     if 'follow' in data:
         resp['follow'] = follow(g_topic)
