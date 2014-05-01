@@ -43,7 +43,7 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise Http404
+        raise Http403
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
@@ -88,8 +88,11 @@ def cat_details(request, cat_slug):
 @can_read_now
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
-    # TODO: Clean that up
+    
     topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not topic.forum.can_read(request.user):
+        raise Http403
 
     # Check link
     if not topic_slug == slugify(topic.title):
