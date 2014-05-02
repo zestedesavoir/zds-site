@@ -150,13 +150,17 @@ class Topic(models.Model):
     def get_post_count(self):
         """Return the number of posts in the topic."""
         return Post.objects.filter(topic__pk=self.pk).count()
+    
+    def get_last_post(self):
+        """Gets the last post in the thread."""
+        return Post.objects.all()\
+            .filter(topic__pk=self.pk)\
+            .order_by('pubdate')\
+            .last()
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
-        last_post = Post.objects.all()\
-            .filter(topic__pk=self.pk)\
-            .order_by('-pubdate')\
-            .first()
+        last_post = self.get_last_post()
 
         if last_post == self.first_post():
             return None
@@ -226,13 +230,13 @@ class Topic(models.Model):
         if user is None:
             user = get_current_user()
 
-        last_user_posts = Post.objects\
+        last_user_post = Post.objects\
             .filter(topic=self)\
             .filter(author=user.pk)\
-            .order_by('-pubdate')
+            .order_by('pubdate')\
+            .last()
 
-        if last_user_posts and last_user_posts[0] == self.get_last_answer():
-            last_user_post = last_user_posts[0]
+        if last_user_post and last_user_post == self.get_last_post():
             t = timezone.now() - last_user_post.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
