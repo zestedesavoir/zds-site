@@ -385,20 +385,30 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	width: 100%;
 	border : 0px;
 	border-collapse:collapse;
+
 }
 .topics-entries tr td{
 	border-bottom: 1px solid #ff8c00;
 }
 
-.topic_unread {
-	font-weight: 700;
+.topic_unread a{
+	font-weight: bold;
 }
+
 .topics-entries .read{
-	background-color: #f4f6f6;
+	background-color: #EEE;
 }
 
 .topics-entries .unread{
 	background-color: #FFF;
+}
+
+.forum-entry-solved:before {
+	content:url("../img/thumb-up-voted.png");
+}
+
+.forum-entry-locked:before {
+	content:url("../img/lock.png");
 }
 
 .message-forum {

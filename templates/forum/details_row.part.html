@@ -1,13 +1,6 @@
 {% load humanize %}
 
 <tr class="
-    {% if topic.is_locked %}
-        forum-entry-locked
-    {% else %}
-        {% if topic.is_solved %}
-        forum-entry-solved
-        {% endif %}
-    {% endif %}
     {% if user.is_authenticated %}
         {% if topic.never_read %}
             unread
@@ -15,14 +8,12 @@
             read
         {% endif %}
     {% endif %}">
-    <td>
+    <td> 
+        <span class="{% if topic.is_locked %}forum-entry-locked{% endif %}">
+        </span>
+        <span class="{% if topic.is_solved %}forum-entry-solved{% endif %}">
+        </span>
         <a href="{{ topic.get_absolute_url }}">
-            {% if topic.is_locked %}
-                [Fermé] 
-            {% endif %}
-            {% if topic.is_solved %}
-                [Résolu] 
-            {% endif %}
             {{ topic.title }}
         </a><br />
         {% if topic.subtitle %}
