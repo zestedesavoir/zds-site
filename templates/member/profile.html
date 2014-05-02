@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load email_obfuscator %}
 {% load humanize %}
+{% load profile %}
 
 {% block title %}
     {{ usr.username }}
@@ -33,7 +34,20 @@
         <h2 class="box member">{{ usr.username }}</h2>
         <div class="row">
             <div class="large-2 columns">
-                <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
+                <div>
+                    <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
+                </div>
+                {% with status=usr|state %}
+                    {% if status == 'BAN'%}
+                        <div class="alert-box tiny alert username">{{status}}</div>
+                    {% endif %}
+                    {% if status == 'LS'%}
+                        <div class="alert-box tiny warning username">{{status}}</div>
+                    {% endif %}
+                    {% if status == 'STAFF' %}
+                        <div class="alert-box tiny success username">{{status}}</div>
+                    {% endif %}
+                {% endwith %}
             </div>
             <div class="large-10 columns">
                 <p>

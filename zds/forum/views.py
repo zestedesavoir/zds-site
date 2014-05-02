@@ -235,7 +235,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(alerts__in=[alert])
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL+post.get_absolute_url(), request.user.username, request.POST['text'])
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL + post.get_absolute_url(), request.user.username, request.POST['text'])
     send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(post.topic.title), "", msg, False)
     alert.delete()
 
@@ -352,7 +352,7 @@ def answer(request):
         raise PermissionDenied
 
     last_post_pk = g_topic.last_message.pk
-    
+
     # Retrieve 10 last posts of the currenta topic.
     posts = Post.objects\
         .filter(topic=g_topic)\
@@ -436,7 +436,7 @@ def answer(request):
         form.helper.form_action = reverse(
             'zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
 
-        
+
         return render_template('forum/answer.html', {
             'topic': g_topic,
             'posts': posts,

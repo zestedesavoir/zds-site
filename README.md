@@ -105,6 +105,12 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 python manage.py test
 ```
 
+Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
+
+```console
+/usr/bin/env python2 manage.py schemamigration app_name --auto
+```
+
 En savoir plus
 --------------
 - [Comment déployer ZDS sur un serveur de production ?](https://github.com/Taluu/ZesteDeSavoir/blob/dev/doc/deploy.md)
