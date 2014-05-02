@@ -77,32 +77,18 @@ class PrivateTopic(models.Model):
     def first_unread_post(self):
         """Return the first post the user has unread."""
         try:
-            # Retrieve all posts of the MP
-            post = PrivateTopicRead.objects\
+            last_post = PrivateTopicRead.objects\
                 .select_related()\
-                .filter(privatetopic=self, user=get_current_user())
-
-            # There isn't answer on the MP, last private post position is this
-            # first post.
-            if len(post) == 0:
-                last_private_post = self.first_post()
-                last_private_post_position = last_private_post.position_in_topic
-
-            # There are anwsers on the MP, we retrieve last private post read send
-            # and we take the next post of this last private post.
-            else:
-                last_private_post = post.latest(
-                    'privatepost__pubdate').privatepost
-                last_private_post_position = last_private_post.position_in_topic + \
-                    1
-
-            # Retrieve the first unread post.
-            next_private_post = PrivatePost.objects.get(
+                .filter(privatetopic=self, user=get_current_user())\
+                .latest('post__pubdate').privatepost
+            
+            next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                position_in_topic=last_private_post_position)
-            return next_private_post
-        except PrivatePost.DoesNotExist:
-            return self.last_read_post(self)
+                pubdate__gt=last_post__pubdate).first()
+
+            return next_post
+        except:
+            return self.first_post()
 
     def alone(self):
         """Check if there just one participant in the conversation
