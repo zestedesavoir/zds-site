@@ -84,7 +84,7 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         return u'{0} ({1}) : {2}'.format(
-            str(geo['city']), str(geo['postal_code']), str(geo['country_name']))
+            geo['city'], geo['postal_code'], geo['country_name'])
 
     def get_avatar_url(self):
         """Avatar URL (using custom URL or Gravatar)"""
