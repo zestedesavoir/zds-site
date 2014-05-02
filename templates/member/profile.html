@@ -61,11 +61,15 @@
                         Ville : {{ profile.get_city }}
                     </p>
                 {% endif %}
+                <p>
+                    <a class="tiny button secondary" href="{% url "zds.mp.views.new" %}?username={{usr.username}}">Envoyer un MP</a>
+                </p>
                 {% if profile.show_email and user.is_authenticated %}
                 <p>
                     <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
                 </p>
                 {% endif %}
+
                 <h3>Signature</h3>
                 {{ profile.sign|emarkdown }}
             </div>
