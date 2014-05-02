@@ -191,16 +191,14 @@ class Topic(models.Model):
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-
-            last_post_position = last_post.position
-            next_post_position = last_post_position + 1
-            next_post = Post.objects.get(
+            
+            next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                position=next_post_position)
+                pubdate__gt=last_post__pubdate).first()
 
             return next_post
         except:
-            return self.last_read_post(self)
+            return self.first_post()
 
     def is_followed(self, user=None):
         """Check if the topic is currently followed by the user.
