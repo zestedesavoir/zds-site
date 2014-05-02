@@ -43,7 +43,7 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise PermissionDenied
+        raise Http404
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
@@ -88,11 +88,8 @@ def cat_details(request, cat_slug):
 @can_read_now
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
-    
+    # TODO: Clean that up
     topic = get_object_or_404(Topic, pk=topic_pk)
-    
-    if not topic.forum.can_read(request.user):
-        raise PermissionDenied
 
     # Check link
     if not topic_slug == slugify(topic.title):
@@ -170,10 +167,7 @@ def new(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=forum_pk)
-    
-    if not forum.can_read(request.user):
-        raise PermissionDenied
-    
+
     if request.method == 'POST':
 
         # If the client is using the "preview" button
@@ -241,7 +235,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(alerts__in=[alert])
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL+post.get_absolute_url(), request.user.username, request.POST['text'])
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL + post.get_absolute_url(), request.user.username, request.POST['text'])
     send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(post.topic.title), "", msg, False)
     alert.delete()
 
@@ -296,9 +290,6 @@ def edit(request):
     resp = {}
 
     g_topic = get_object_or_404(Topic, pk=topic_pk)
-    
-    if not g_topic.forum.can_read(request.user):
-        raise PermissionDenied
 
     if 'follow' in data:
         resp['follow'] = follow(g_topic)
@@ -362,6 +353,11 @@ def answer(request):
 
     last_post_pk = g_topic.last_message.pk
 
+    # Retrieve 10 last posts of the currenta topic.
+    posts = Post.objects\
+        .filter(topic=g_topic)\
+        .order_by('-pubdate')[:10]
+
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
@@ -377,6 +373,7 @@ def answer(request):
             return render_template('forum/answer.html', {
                 'text': data['text'],
                 'topic': g_topic,
+                'posts': posts,
                 'last_post_pk': last_post_pk,
                 'newpost': newpost,
                 'form': form
@@ -410,6 +407,7 @@ def answer(request):
                 return render_template('forum/answer.html', {
                     'text': data['text'],
                     'topic': g_topic,
+                    'posts': posts,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
                     'form': form
@@ -438,10 +436,7 @@ def answer(request):
         form.helper.form_action = reverse(
             'zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
 
-        # Retrieve 3 last posts of the currenta topic.
-        posts = Post.objects\
-            .filter(topic=g_topic)\
-            .order_by('-pubdate')[:3]
+
         return render_template('forum/answer.html', {
             'topic': g_topic,
             'posts': posts,

@@ -40,5 +40,9 @@
         {% include "forum/previsualization.part.html" %}
     {% endwith %}
 {% endif %}
+<hr />
+{% for post in posts %}
+    {% include "forum/post.part.html" %}
+{% endfor %}
 
 {% endblock %}
