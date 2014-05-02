@@ -331,15 +331,15 @@ def edit(request):
 @can_read_now
 def find_article(request, name):
     """Find an article from his author."""
-    user = get_object_or_404(User, username=name)
+    user = get_object_or_404(User, pk=name)
     articles = Article.objects\
-        .filter(author=user)\
+        .filter(authors__in=[user])\
         .order_by('-pubdate')\
         .all()
     # Paginator
 
     return render_template('article/find_article.html', {
-        'articles': articles, 'usr': u,
+        'articles': articles, 'usr': user,
     })
 
 
