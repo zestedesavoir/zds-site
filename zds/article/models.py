@@ -186,7 +186,7 @@ class Article(models.Model):
         try:
             last_reaction = Reaction.objects.all()\
                 .filter(article__pk=self.pk)\
-                .order_by('-pubdate').last()
+                .order_by('pubdate').last()
         except:
             last_reaction = None
 
