@@ -762,6 +762,8 @@ def answer(request):
         if 'cite' in request.GET:
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
+            if not reaction_cite.is_visible:
+                raise PermissionDenied
 
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'

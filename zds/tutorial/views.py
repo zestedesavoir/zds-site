@@ -3022,6 +3022,8 @@ def answer(request):
         if 'cite' in request.GET:
             note_cite_pk = request.GET['cite']
             note_cite = Note.objects.get(pk=note_cite_pk)
+            if not note_cite.is_visible:
+                raise PermissionDenied
 
             for line in note_cite.text.splitlines():
                 text = text + '> ' + line + '\n'

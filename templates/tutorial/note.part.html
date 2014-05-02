@@ -40,7 +40,7 @@
                                     Pour quelle raison souhaitez vous masquer ce message ?
                                 </p>
                                 <input type="text" name="text_hidden" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
-                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                <button type="submit" name="delete-note" class="button expand alert tiny">Confirmer</button>
                                  {% csrf_token %}
                                 </form>
                             </div>
@@ -51,7 +51,7 @@
                                 <p>
                                     Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
                                 </p>
-                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                <button type="submit" name="delete-note" class="button expand alert tiny">Confirmer</button>
                                  {% csrf_token %}
                                 </form>
                             </div>
@@ -64,13 +64,13 @@
                                 <p>
                                     Ce message a été masqué par une personne du staff, êtes vous certains de vouloir le ré-afficher ?
                                 </p>
-                                <button type="submit" name="show-post" class="button expand alert tiny">Confirmer</button>
+                                <button type="submit" name="show-note" class="button expand alert tiny">Confirmer</button>
                                  {% csrf_token %}
                                 </form>
                             </div>
                             {% endif %}
                         {% endif %}
-
+                        {% if post.is_visible %}
                         {% if post.author = user or perms.tutorial.change_note %}
                         <a href="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
@@ -81,14 +81,15 @@
                                 Pour quelle raison signalez vous ce message ?
                             </p>
                             <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
-                            <button type="submit" name="signal-post" class="button expand alert">
+                            <button type="submit" name="signal-note" class="button expand alert">
                                 Confirmer le signalement
                             </button>
                              {% csrf_token %}
                             </form>
                         </div>
-                        {% if not topic.is_locked and not topic.antispam %}
-                        <a href="{% url "zds.tutorial.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
+                        {% endif %}
+                        {% if not topic.is_locked and not topic.antispam and post.is_visible %}
+                        <a href="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
                         {% endif %}
                     </div>
                     {% endif %}
