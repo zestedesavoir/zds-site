@@ -34,15 +34,14 @@
             <tr>
                 <td>
                     <div>
-                        <a href="{{ article.get_absolute_url }}">{{ article.title }} </a> 
-                        {% if article.description %} <p> {{ article.description }} </p> {% endif %}
+                        <a href="{{ article.get_absolute_url }}">{{ article.title }} </a>
                     </div>
                 </td>
                 <td>
                     {{ article.pubdate|naturaltime }}
                 </td>
                 <td>
-                    {{ article.text|truncatechars:200|emarkdown }}
+                    {% if article.description %} <p> {{ article.description }} </p> {% endif %}
                 </td>
             </tr>
             {% endfor %}
