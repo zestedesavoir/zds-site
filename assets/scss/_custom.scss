@@ -391,7 +391,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	border-bottom: 1px solid #ff8c00;
 }
 
-.topic_unread a{
+.unread a{
 	font-weight: bold;
 }
 
@@ -408,7 +408,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 }
 
 .forum-entry-locked:before {
-	content:url("../img/lock.png");
+	content:url("../img/lock-blue.png");
 }
 
 .message-forum {
@@ -445,7 +445,16 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	text-decoration: none;
 	margin-right: 5px;
 }
-
+.useful {
+	background-color: #e9f9dc;
+}
+.signature {
+	text-overflow: ellipsis;
+	width: 85%;
+	white-space: nowrap;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+}
 .message-forum .message-metadata a,.message-forum .message-metadata i, .message-forum .signature p{
 	color: #999;
 	text-decoration: none;
