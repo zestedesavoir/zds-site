@@ -173,7 +173,7 @@
 
                 <div class="message-content">
                     {% if post.is_visible %}
-                    {{ post.text|emarkdown }}
+                    {{ post.text_html|safe }}
                     {% endif %}
                 </div>
                 </div>
