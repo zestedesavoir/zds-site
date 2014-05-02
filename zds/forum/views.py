@@ -352,6 +352,11 @@ def answer(request):
         raise PermissionDenied
 
     last_post_pk = g_topic.last_message.pk
+    
+    # Retrieve 10 last posts of the currenta topic.
+    posts = Post.objects\
+        .filter(topic=g_topic)\
+        .order_by('-pubdate')[:10]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -368,6 +373,7 @@ def answer(request):
             return render_template('forum/answer.html', {
                 'text': data['text'],
                 'topic': g_topic,
+                'posts': posts,
                 'last_post_pk': last_post_pk,
                 'newpost': newpost,
                 'form': form
@@ -401,6 +407,7 @@ def answer(request):
                 return render_template('forum/answer.html', {
                     'text': data['text'],
                     'topic': g_topic,
+                    'posts': posts,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
                     'form': form
@@ -429,10 +436,7 @@ def answer(request):
         form.helper.form_action = reverse(
             'zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
 
-        # Retrieve 3 last posts of the currenta topic.
-        posts = Post.objects\
-            .filter(topic=g_topic)\
-            .order_by('-pubdate')[:3]
+        
         return render_template('forum/answer.html', {
             'topic': g_topic,
             'posts': posts,
