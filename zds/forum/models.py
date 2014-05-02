@@ -194,7 +194,7 @@ class Topic(models.Model):
             
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                pubdate__gt=last_post__pubdate).first()
+                pubdate__gt=last_post.pubdate).first()
 
             return next_post
         except:
