@@ -125,8 +125,8 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=60)
-    subtitle = models.CharField('Sous-titre', max_length=100)
+    title = models.CharField('Titre', max_length=80)
+    subtitle = models.CharField('Sous-titre', max_length=200)
 
     forum = models.ForeignKey(Forum, verbose_name='Forum')
     author = models.ForeignKey(User, verbose_name='Auteur',
@@ -150,13 +150,17 @@ class Topic(models.Model):
     def get_post_count(self):
         """Return the number of posts in the topic."""
         return Post.objects.filter(topic__pk=self.pk).count()
+    
+    def get_last_post(self):
+        """Gets the last post in the thread."""
+        return Post.objects.all()\
+            .filter(topic__pk=self.pk)\
+            .order_by('pubdate')\
+            .last()
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
-        last_post = Post.objects.all()\
-            .filter(topic__pk=self.pk)\
-            .order_by('-pubdate')\
-            .first()
+        last_post = self.get_last_post()
 
         if last_post == self.first_post():
             return None
@@ -187,16 +191,14 @@ class Topic(models.Model):
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-
-            last_post_position = last_post.position
-            next_post_position = last_post_position + 1
-            next_post = Post.objects.get(
+            
+            next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                position=next_post_position)
+                pubdate__gt=last_post__pubdate).first()
 
             return next_post
         except:
-            return self.last_read_post(self)
+            return self.first_post()
 
     def is_followed(self, user=None):
         """Check if the topic is currently followed by the user.
@@ -226,13 +228,13 @@ class Topic(models.Model):
         if user is None:
             user = get_current_user()
 
-        last_user_posts = Post.objects\
+        last_user_post = Post.objects\
             .filter(topic=self)\
             .filter(author=user.pk)\
-            .order_by('-pubdate')
+            .order_by('pubdate')\
+            .last()
 
-        if last_user_posts and last_user_posts[0] == self.get_last_answer():
-            last_user_post = last_user_posts[0]
+        if last_user_post and last_user_post == self.get_last_post():
             t = timezone.now() - last_user_post.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True

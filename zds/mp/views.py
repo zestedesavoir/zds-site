@@ -164,7 +164,13 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, ctrl, data['title'], data['subtitle'], data['text'])
+            p_topic = send_mp(request.user, 
+                              ctrl, 
+                              data['title'], 
+                              data['subtitle'], 
+                              data['text'],
+                              True,
+                              False)
             
             return redirect(p_topic.get_absolute_url())
 
@@ -232,10 +238,6 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
-
-    # Check that the user isn't spamming
-    if g_topic.antispam(request.user):
-        raise PermissionDenied
 
     # Retrieve 3 last posts of the currenta topic.
     posts = PrivatePost.objects\

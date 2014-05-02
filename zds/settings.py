@@ -97,6 +97,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
+FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
     'main-js': {

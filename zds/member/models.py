@@ -37,7 +37,7 @@ class Profile(models.Model):
 
     site = models.CharField('Site internet', max_length=128, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
-                                     default=True)
+                                     default=False)
 
     avatar_url = models.CharField(
         'URL de l\'avatar', max_length=128, null=True, blank=True
@@ -47,7 +47,7 @@ class Profile(models.Model):
 
     karma = models.IntegerField('Karma', default=0)
 
-    sign = models.TextField('Signature', blank=True)
+    sign = models.CharField('Signature', max_length=250, blank=True)
 
     show_sign = models.BooleanField('Voir les signatures',
                                     default=True)

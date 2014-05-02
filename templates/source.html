@@ -5,12 +5,13 @@
 {% load interventions %}
 {% load topbar %}
 
-<!doctype html>
+<!DOCTYPE html>
 <html class="no-js" lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Sans nom{% endblock %}{% block title_base %}{% endblock %} &#183; ZesteDeSavoir</title>
+    <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
     <link href="{% static "css/zds.css" %}" rel="stylesheet" type="text/css" />
   </head>
   <body>   
@@ -223,7 +224,10 @@
                 {% endif %}
 
                 <li>
-                    <a href="{% url "zds.member.views.logout_view" %}?next={{request.build_absolute_uri}}">Déconnexion</a>
+                	<form method="post" action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}">
+                		<button type="submit">Déconnexion</button>
+                		{% csrf_token %}
+                	</form>
                 </li>
             </ul>
           </li>
@@ -344,7 +348,7 @@
     <script type="text/javascript" src="{% static "bower_components/modernizr/modernizr.js" %}"></script>
     <script type="text/javascript" src="{% static "bower_components/fastclick/lib/fastclick.js" %}"></script>
     <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/newsletter.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/newsletter.js" %}"></script>
     <script type="text/javascript" src="{% static "js/editor.js" %}"></script>
     <script>
       $(document).foundation();
