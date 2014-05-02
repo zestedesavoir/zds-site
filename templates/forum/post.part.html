@@ -26,11 +26,14 @@
                 {% endif %}
             {% endwith %}
         </div>
-        <div class="large-11 columns message-forum">
+        <div class="large-11 columns message-forum {% if post.is_useful %}useful{% endif %}">
             <div class="row">
                 <div class="large-12 columns">
                     {% if user.is_authenticated %}
                     <div class="right message-actions">
+                        {% if topic.author == user and post.author != user %}
+                            <a href="/forums/message/utile?message={{ post.pk }}" class="tiny secondary actions">Cette réponse m'a aidé</a>
+                        {% endif %}
                         {% if post.is_visible %}
                             {% if perms.forum.change_post %}
                             <a href="#" class="tiny secondary actions" data-dropdown="drophidden{{post.pk}}">Masquer<span class="fi-eye"></span></a>
@@ -112,22 +115,19 @@
                 </div>
                 <div class="large-12 columns">
                     {% if post.is_visible %}
-                    <div class="left">
+                    <div class="left large-9 columns signature">
                         {% if user.is_authenticated %}
                             {% with profile_user=user|profile %}
                                 {% if profile_user.show_sign %}
                                     {% with profile=post.author|profile %}
-                                        <span class="signature">{{profile.sign|emarkdown_inline}}</span>
+                                        {{profile.sign|emarkdown_inline}}
                                     {% endwith %}
                                 {% endif %}
                             {% endwith %}
                         {% endif %}
                     </div>
                     {% if user.is_authenticated %}
-                    <div class="message-karma right">
-                        {% if topic.author == user and post.author != user %}
-                        <a href="/forums/message/utile?message={{ post.pk }}" class="tiny secondary actions">Cette réponse m'a aidé</a>
-                        {% endif %}
+                    <div class="right message-karma">
                         {% if post.author != user %}
                             {% if post.like > post.dislike %}
                                 <a href="{% url "zds.forum.views.like_post" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
