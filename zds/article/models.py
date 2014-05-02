@@ -186,14 +186,11 @@ class Article(models.Model):
         try:
             last_reaction = Reaction.objects.all()\
                 .filter(article__pk=self.pk)\
-                .order_by('-pubdate')[0]
+                .order_by('-pubdate').last()
         except:
             last_reaction = None
 
-        if last_reaction == self.first_reaction():
-            return None
-        else:
-            return last_reaction
+        return last_reaction
 
     def first_reaction(self):
         """Return the first post of a topic, written by topic's author."""

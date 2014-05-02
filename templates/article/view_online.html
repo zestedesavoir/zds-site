@@ -78,7 +78,7 @@
 
 {% include "article/view_pager.part.html" %}
 
-<h2 class="box forum">Réactions</h2>
+<h2 id="reactions" class="box forum">Réactions</h2>
     {% with topic=article %}
     {% include "forum/topic_pagination.part.html" with position="top" %}
     {% endwith %}
@@ -91,13 +91,24 @@
 {% endwith %}
 
 {% if user.is_authenticated %}
-{% with profile=user|profile%}
-<section>
-    <div class="user hide-for-small">
-        <img src="{{profile.get_avatar_url}}" alt="">
+{% with profile=user|profile %}
+<div class="large-12 columns">
+    <div class="large-1 columns user">
+        <img src="{{profile.get_avatar_url}}" alt="" class="avatar-forum avatar-link">
+    </div>
+    <div class="large-11 columns user">
+        {% crispy form %}
+    </div>
+</div>
+{% endwith %}
+{% else %}
+<div class="large-12 columns">
+    <div data-alert class="alert-box info radius">
+      Vous devrez vous connecter pour pouvoir poster votre message
+      <a href="#" class="close">&times;</a>
     </div>
     {% crispy form %}
-</section>
-{% endwith %}
+</div>
 {% endif %}
+
 {% endblock %}
