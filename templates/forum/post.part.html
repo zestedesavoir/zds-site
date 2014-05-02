@@ -70,7 +70,7 @@
                             </div>
                             {% endif %}
                         {% endif %}
-
+                        {% if post.is_visible %}
                         {% if post.author = user or perms.forum.change_post %}
                         <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
@@ -87,7 +87,8 @@
                              {% csrf_token %}
                             </form>
                         </div>
-                        {% if not topic.is_locked and not topic.antispam %}
+                        {% endif %}
+                        {% if not topic.is_locked and not topic.antispam and post.is_visible %}
                         <a href="{% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
                         {% endif %}
                     </div>
