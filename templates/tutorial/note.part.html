@@ -1,0 +1,179 @@
+{% load profile %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load emarkdown %}
+{% load staticfiles %}
+<div class="row">
+    <div class="large-12 columns">
+        <div class="large-1 columns">
+            <div class="centered">
+            <div class="username"><a href="{{ post.author.get_absolute_url }}">{{ post.author.username }}</a></div>
+            </div>
+            <a href="{{ post.author.get_absolute_url }}" class="hide-for-small">
+                {% with profile=post.author|profile %}
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar-forum">
+                {% endwith %}
+            </a>
+            {% with status=post.author|state %}
+                {% if status == 'BAN'%}
+                    <div class="alert-box tiny alert username">{{status}}</div>
+                {% endif %}
+                {% if status == 'LS'%}
+                    <div class="alert-box tiny warning username">{{status}}</div>
+                {% endif %}
+                {% if status == 'STAFF' %}
+                    <div class="alert-box tiny success username">{{status}}</div>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="large-11 columns message-forum">
+            <div class="row">
+                <div class="large-12 columns">
+                    {% if user.is_authenticated %}
+                    <div class="right message-actions">
+                        {% if post.is_visible %}
+                            {% if perms.tutorial.change_note %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="drophidden{{post.pk}}">Masquer<span class="fi-eye"></span></a>
+                            <div id="drophidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formhidden{{post.pk}}" method="POST" action="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}">
+                                <p>
+                                    Pour quelle raison souhaitez vous masquer ce message ?
+                                </p>
+                                <input type="text" name="text_hidden" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
+                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% elif post.author = user %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="drophidden{{post.pk}}">Masquer<span class="fi-eye"></span></a>
+                            <div id="drophidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formhidden{{post.pk}}" method="POST" action="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}">
+                                <p>
+                                    Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
+                                </p>
+                                <button type="submit" name="delete-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            {% if perms.tutorial.change_note %}
+                            <a href="#" class="tiny secondary actions" data-dropdown="showhidden{{post.pk}}">Afficher<span class="fi-eye"></span></a>
+                            <div id="showhidden{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                                <form id="formshowhidden{{post.pk}}" method="POST" action="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}">
+                                <p>
+                                    Ce message a été masqué par une personne du staff, êtes vous certains de vouloir le ré-afficher ?
+                                </p>
+                                <button type="submit" name="show-post" class="button expand alert tiny">Confirmer</button>
+                                 {% csrf_token %}
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if post.author = user or perms.tutorial.change_note %}
+                        <a href="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
+                        {% endif %}
+                        <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}">Signaler<span class="fi-alert"></span></a>
+                        <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+                            <form id="formsign{{post.pk}}" method="POST" action="{% url "zds.tutorial.views.edit_note" %}?message={{ post.pk }}">
+                            <p>
+                                Pour quelle raison signalez vous ce message ?
+                            </p>
+                            <input type="text" name="signal-text" class="expand" placeholder="Flood, Troll, Hors sujet, ..." />
+                            <button type="submit" name="signal-post" class="button expand alert">
+                                Confirmer le signalement
+                            </button>
+                             {% csrf_token %}
+                            </form>
+                        </div>
+                        {% if not topic.is_locked and not topic.antispam %}
+                        <a href="{% url "zds.tutorial.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="message-metadata left">
+                        <a id="p{{ post.pk }}" href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
+                        {% if not post.is_visible %}
+                            <i>Masqué par {{ post.editor }} : {{ post.text_hidden }}</i>
+                        {% elif not post.update = None %}
+                            <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
+                        {% endif %}
+                    </div>
+                <div class="large-12 columns">
+
+                <div class="message-content">
+                    {% if post.is_visible %}
+                    {{ post.text|emarkdown }}
+                    {% endif %}
+                </div>
+                </div>
+                <div class="large-12 columns">
+                    {% if post.is_visible %}
+                    <div class="left">
+                        {% if user.is_authenticated %}
+                            {% with profile_user=user|profile %}
+                                {% if profile_user.show_sign %}
+                                    {% with profile=post.author|profile %}
+                                        <span class="signature">{{profile.sign|emarkdown_inline}}</span>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                    {% if user.is_authenticated %}
+                    <div class="message-karma right">
+                        {% if post.author != user %}
+                            {% if post.like > post.dislike %}
+                                <a href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
+                            {% else %}
+                                <a href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
+                            {% endif%}
+                            {% if post.dislike > post.like %}
+                                <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                            {% else%}
+                                <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
+                            {% endif%}
+                        {% else %}
+                            {% if post.like > post.dislike %}
+                                <span href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</span>
+                            {% else %}
+                                <span href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</span>
+                            {% endif%}
+                            {% if post.dislike > post.like %}
+                                <span href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</span>
+                            {% else%}
+                                <span href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</span>
+                            {% endif%}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    
+                </div>
+                </div>
+            </div>
+            {% for alert in post.alerts.all %}
+            <div class="row">
+                <div class="large-12 columns alert-box alert">
+                    <div class="left">
+                        <a href="#" class="tiny secondary actions" data-dropdown="solvealert{{alert.pk}}">Résoudre</a>
+                        <div id="solvealert{{alert.pk}}" class="f-dropdown content"data-dropdown-content>
+                            <form id="formsolvealert{{alert.pk}}" method="POST" action="{% url "zds.forum.views.solve_alert" %}">
+                            <input type="hidden" name="alert_pk" value="{{alert.pk}}" />
+                            <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
+                            <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>
+                             {% csrf_token %}
+                            </form>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <a href="{% url "zds.member.views.details" alert.author.username %}">{{alert.author}}</a> - {{alert.pubdate|naturaltime}} : {{alert.text}}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

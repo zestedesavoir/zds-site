@@ -83,7 +83,7 @@
     {% include "forum/topic_pagination.part.html" with position="top" %}
     {% endwith %}
 {% for post in reactions %}
-    {% include "forum/post.part.html" %}
+    {% include "article/reaction.part.html" %}
 {% endfor %}
 
 {% with topic=article %}
