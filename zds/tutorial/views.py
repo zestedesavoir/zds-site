@@ -2756,6 +2756,8 @@ def get_url_images(md_text, pt):
             # if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
+                if not os.path.isdir(os.path.join(pt,'images')):
+                    os.makedirs(os.path.join(pt,'images'))
 
                 # download image
                 urlretrieve(
