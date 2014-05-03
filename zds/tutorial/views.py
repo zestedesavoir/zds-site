@@ -2894,7 +2894,7 @@ def MEP(tutorial, sha):
     # load pandoc
     os.chdir(tutorial.get_prod_path())
     os.system(
-        "pandoc --latex-engine=xelatex -s -S --toc " +
+        settings.PANDOC_LOC+"pandoc --latex-engine=xelatex -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2904,7 +2904,7 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".html")
     os.system(
-        'pandoc ' +
+        settings.PANDOC_LOC+'pandoc ' +
         '--latex-engine=xelatex ' +
         '--template=../../assets/tex/template.tex ' +
         '-s ' +
@@ -2922,7 +2922,7 @@ def MEP(tutorial, sha):
         )
     
     os.system(
-        "pandoc -s -S --toc " +
+        settings.PANDOC_LOC+"pandoc -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
