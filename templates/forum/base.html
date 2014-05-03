@@ -13,6 +13,11 @@
     current
 {% endblock %}
 
+{% block search %}
+<input type="hidden" name="models" value="forum.post" />
+<input type="hidden" name="models" value="forum.topic" />
+{% endblock %}
+
 {% block headline %}
 <h2 class="box forum">{% block head-title %}{% endblock %}</h2>
 <p class="subtitle">{% block headline-sub %}{% endblock %}</p>

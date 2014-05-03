@@ -301,14 +301,25 @@
       </section>
     </nav>
     <div class="ariane">
-      <ul class="hide-for-small">
+      <ul class="hide-for-small left">
           <li>
               <a href="{% url "zds.pages.views.home" %}">Accueil</a>
           </li>
           {% block breadcrumb_base %}{% endblock %}
           {% block breadcrumb %}{% endblock %}
       </ul>
+      <ul class="search right" id="search">
+        <div class="row">
+        <form action="/rechercher/">
+            <input type="text" name="q" placeholder="Rechercher">
+            {% block search %}
+            {% endblock %}
+        </form>
+        </div>
+      </ul>
     </div>
+    
+
   <!-- End Header and Nav -->
   {% if messages %}
   <div class="large-12 columns">
