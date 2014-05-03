@@ -490,10 +490,12 @@ def register_view(request):
                 subject, message_txt, from_email, [
                     user.email])
             msg.attach_alternative(message_html, "text/html")
-            msg.send()
+            try:
+                msg.send()
+            except:
+                msg = None
 
             return render_template('member/register_success.html', {
-                'user': user
             })
 
     form = RegisterForm()
