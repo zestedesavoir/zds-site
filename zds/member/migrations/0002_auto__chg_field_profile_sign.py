@@ -75,7 +75,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'karma': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'last_ip_address': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'show_email': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'show_email': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'show_sign': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'sign': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
             'site': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
