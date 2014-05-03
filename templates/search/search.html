@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'source.html' %}
 {% load humanize %}
 {% load emarkdown %}
 
@@ -6,18 +6,16 @@
     Recherche
 {% endblock %}
 
-{% block headline %}
-    Recherche
-{% endblock %}
-
 {% block breadcrumb %}
-    <li class="current"><a href="javascript:;">Recherche</a></li>
+    <li class="current">Recherche</li>
 {% endblock %}
 
-{% block content %}
+{% block content-out %}
     <div class="row">
+      <div class="large-12 columns">
+        <h2 class="box">Recherche</h2>
         <form method="get" action=".">
-            <table>
+            <table width="100%">
                 {{ form.as_table }}
                 <tr>
                     <td>&nbsp;</td>
@@ -129,4 +127,5 @@
             {% endif %}
         </form>
     </div>
+  </div>
 {% endblock %}
