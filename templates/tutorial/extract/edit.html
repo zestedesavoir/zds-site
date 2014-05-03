@@ -1,13 +1,13 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
     Éditer l'extrait
 {% endblock %}
 
-{% block headline %}
-    Éditer l'extrait
-{% endblock %}
+
 
 {% block breadcrumb %}
     {% if extract.chapter.tutorial %}
@@ -17,21 +17,21 @@
         <li><a href="{{ extract.chapter.part.get_absolute_url }}">{{ extract.chapter.part.title }}</a></li>
         <li><a href="{{ extract.chapter.get_absolute_url }}">{{ extract.chapter.title }}</a></li>
     {% endif %}
-    <li><a href="#">Éditer l'extrait</a></li>
+    <li>Éditer l'extrait</li>
 {% endblock %}
 
+
+
+{% block headline %}
+    Éditer l'extrait
+{% endblock %}
+
+
+
 {% block content %}
+    {% crispy form %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
-{% if form.text.value %}
-    {% with text=form.text.value %}
-        {% include "misc/previsualization.part.html" %}
-    {% endwith %}
-{% endif %}
-
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
 {% endblock %}

@@ -43,11 +43,11 @@
                                 {% if chapter_current.pk = chapter.pk %}
                                     <ul class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
                                         {% for extract in chapter.extracts %}
-                                        <li>
-                                            <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                                                {{ extract.title }}
-                                            </a>
-                                        </li>
+                                            <li>
+                                                <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                                                    {{ extract.title }}
+                                                </a>
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 {% endif %}

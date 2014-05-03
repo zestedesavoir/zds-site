@@ -1,20 +1,28 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
     Importer un tutoriel .tuto
 {% endblock %}
 
-{% block headline %}
-    Importer un tutoriel .tuto
-{% endblock %}
+
 
 {% block breadcrumb %}
-    <li><a href="#">Nouveau tutoriel</a></li>
+    <li>Importer un tutoriel</li>
 {% endblock %}
 
+
+
+{% block headline %}
+    <h1>
+    	Importer un tutoriel .tuto
+    </h1>
+{% endblock %}
+
+
+
 {% block content %}
-
-{% crispy form %}
-
+	{% crispy form %}
 {% endblock %}

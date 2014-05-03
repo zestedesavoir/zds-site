@@ -1,47 +1,45 @@
 {% extends "tutorial/base.html" %}
 {% load profile %}
 
+
+
 {% block title %}
     Commenter le tutorial
 {% endblock %}
 
-{% block headline %}
-    <h2>Ajouter un commentaire au Tutoriel : {{tutorial.title}}</h2>
+
+
+{% block breadcrumb %}
+    {# TODO : Mettre le lien vers le tutoriel #}
+    <li><a href="#href-to-do">{{ tutorial.title }}</a></li>
+    <li>Commenter le tutoriel</li>
 {% endblock %}
+
+
+
+{% block headline %}
+    <h2>Ajouter un commentaire au tutoriel : {{tutorial.title}}</h2>
+{% endblock %}
+
+
 
 {% block headline_sub %}
     <h3 class="subtitle">{{ tutorial.description }}</h3>
 {% endblock %}
 
-{% block breadcrumb %}
-    {# TODO : Mettre le lien vers le tutoriel #}
-    <li><a href="#">{{ tutorial.title }}</a></li>
-    <li>Commenter le tutoriel</li>
-{% endblock %}
+
 
 {% block content %}
-
     {% if newnote %}
-        <div class="row">
-            <div class="large-12 columns">
-                <div class="alert-box alert">
-                    <strong>Au moins un nouveau message a été posté</strong> dans la discussion
-                    pendant que vous rédigiez le votre.
-                </div>
-            </div>
+        <div class="alert-box alert">
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+            pendant que vous rédigiez le votre.
         </div>
     {% endif %}
 
-    <div class="row">
-        <div class="large-12 columns">
-            {% crispy form %}
-        </div>
-    </div>
+    {% crispy form %}
 
     {% if form.text.value %}
-        {% with text=form.text.value %}
-            {% include "misc/previsualization.part.html" %}
-        {% endwith %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
     {% endif %}
-
 {% endblock %}

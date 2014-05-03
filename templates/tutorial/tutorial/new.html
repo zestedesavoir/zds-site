@@ -1,26 +1,28 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
     Nouveau tutoriel
 {% endblock %}
 
+
+
+{% block breadcrumb %}
+    <li>Nouveau tutoriel</li>
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 class="illu">
+    <h1>
         Nouveau Tutoriel
     </h1>
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="#">Nouveau tutoriel</a></li>
-{% endblock %}
+
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
+    {% crispy form %}
 {% endblock %}

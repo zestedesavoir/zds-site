@@ -3,21 +3,33 @@
 {% load repo_reader %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
-{{ tutorial.title }}
+    {{ tutorial.title }}
 {% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ tutorial.title }}</li>
+{% endblock %}
+
+
 
 {% block headline %}
     <h1 class="illu">
         {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+            <img src="{{tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
+
     <ul class="taglist">
-    {% for category in tutorial.subcategory.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
+        {% for category in tutorial.subcategory.all %}
+            {# TODO : ajouter les liens des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
     </ul>
     
     <div class="authors content-wrapper">
@@ -27,70 +39,79 @@
             <li>
                 {% include "misc/member_item.part.html" %}
             </li>
-        {% endfor %}.
+        {% endfor %}
         </ul>
     </div>
 {% endblock %}
+
+
 
 {% block headline_sub %}
     {{ tutorial.description }}
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="#">{{ tutorial.title }}</a></li>
-{% endblock %}
 
-{% block headline_sub-actions %}
+
+{% block sidebar_actions %}
     {% if tutorial.sha_draft = version %}
-    <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
+        <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
     {% endif %}
+
     <li>
         {% if not tutorial.is_mini %}
-        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
+            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
         {% else %}
-        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
+            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
         {% endif %}
     </li>
+
     {% if not tutorial.in_beta %}
-    <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
     {% else %}
-    <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
     {% endif %}
+
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
+
     {% if not tutorial.on_line %}
-    <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
+        <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
     {% endif %}
 
     {% if not tutorial.in_validation %}
-    <li>
-        {% crispy formAskValidation %}
-    </li>
+        <li>
+            {# FIXME : WTF ce nom de variable en camelCase ? #}
+            {% crispy formAskValidation %}
+        </li>
     {% endif %}
 {% endblock %}
 
-{% block sidebar_actions %}
+
+
+{% block sidebar_blocs %}
     {% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
-        <h3>Admin<span class="wide">istration</span></h3>
-        <ul>
-            <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-            {% if tutorial.on_line %}
-            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
-            {% endif %}
-            {% if tutorial.in_validation %}
-            <li>
-                {% crispy formValid %}
-            </li>
-            <li>
-                {% crispy formReject %}
-            </li>
-            {% endif %}
-        </ul>
-    </div>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+                
+                {% if tutorial.on_line %}
+                    <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+                {% endif %}
+
+                {% if tutorial.in_validation %}
+                    <li>
+                        {% crispy formValid %}
+                    </li>
+                    <li>
+                        {% crispy formReject %}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     {% endif %}
     
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3><span class="wide">Télécharger</span></h3>
+        <h3>Télécharger</h3>
         <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
             <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
             <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
@@ -100,12 +121,15 @@
     </div>
 {% endblock %}
 
+
+
 {% block content %}
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div>
             Attention, cette version du tutoriel est en BETA
         </div>
     {% endif %}
+
     {% with tuto_version=tutorial|repo_tuto:version %}
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
@@ -114,14 +138,11 @@
         {% endif %}
 
         {% if tutorial.is_mini %}
-        {# Small tutorial #}
+            {# Small tutorial #}
 
-            {% with authors=tutorial.authors.all %}
-                {% include "tutorial/view_chapter_common.part.html" %}
-            {% endwith %}
-
+            {% include "tutorial/chapter.part.html" with authors=tutorial.authors.all %}
         {% else %}
-        {# Large tutorial #}
+            {# Large tutorial #}
 
             <hr />
             {% if parts %}

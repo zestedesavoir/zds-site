@@ -1,45 +1,59 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
 
+
+
 {% block title %}
     {{ part.title }} ({{ part.tutorial.title }})
 {% endblock %}
 
+
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url }}?version={{version}}">{{ part.tutorial.title }}</a></li>
+    <li>{{ part.title }}</li>
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 class="illu">
+    <h1>
         {{ part.title }}
     </h1>
+
     <ul class="taglist">
-    {% for category in part.tutorial.subcategory.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
+        {% for category in part.tutorial.subcategory.all %}
+            {# TODO : mettre les liens des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
     </ul>
     
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
-        {% for member in part.tutorial.authors.all %}
-            <li>
-                {% include "misc/member_item.part.html" %}
-            </li>
-        {% endfor %}.
+            {% for member in part.tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}
+
+
 
 {% block headline_sub %}
     {{ part.tutorial.description }}
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url }}?version={{version}}">{{ part.tutorial.title }}</a></li>
-    <li><a href="#">{{ part.title }}</a></li>
-{% endblock %}
+
 
 {% block headline_sub-actions %}
     <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
     <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
 {% endblock %}
+
+
 
 {% block content %}
     {% if part.intro %}
@@ -49,13 +63,13 @@
     {% endif %}
 
     {% if part.chapters %}
-    <ul>
-    {% for chapter in part.chapters %}
-        <li>
-            <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
-        </li>
-    {% endfor %}
-    </ul>
+        <ul>
+            {% for chapter in part.chapters %}
+                <li>
+                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
+                </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     {% if part.conclu %}

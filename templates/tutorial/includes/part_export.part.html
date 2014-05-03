@@ -1,0 +1,45 @@
+{% load emarkdown %}
+
+
+
+{% with tutorial=part.tutorial%}
+    {% with authors=tutorial.authors.all %}
+        {% with chapters=part.chapters %}            
+            {% if part.intro %}
+                {{ part.intro|safe }}
+            {% else %}
+                <p>Pas d'introduction.</p>
+            {% endif %}
+
+            <p>
+                {% if chapters.count = 0 %}
+                    Il n'y a aucun chapitre dans cette partie.
+                {% endif %}
+            </p>
+
+            <ul>
+                {% for chapter in chapters %}
+                    <li>
+                        <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}"><h2>Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</h2></a>
+                        <ul>
+                            {% for extract in chapter.extracts %}
+                            <li>
+                                <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                                    <h3>{{ extract.title }}</h3>
+                                </a>
+                                {{ extract.txt|safe }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% if part.conclu %}
+                {{ part.conclu|safe }}
+            {% else %}
+                <p>Pas de conclusion.</p>
+            {% endif %}
+        {% endwith %}
+    {% endwith %}
+{% endwith %}

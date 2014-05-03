@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_content_page.html" %}
 
 
 
@@ -26,31 +26,19 @@
 
 
 
-{% block content_out %}
-    <article>
-        <header>
-            {% block headline %}{% endblock %}
-        </header>
-        <section class="article-content content-wrapper">
-            {% block content %}{% endblock %}
-        </section>
-    </article>
-{% endblock %}
-
-
-
 {% block sidebar %}
     <aside class="sidebar sommaire mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
             <h3>Actions</h3>
             <ul>
                 <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Nouveau tutoriel</a></li>
-                {% block headline_sub_actions %}{% endblock %}
+                {% block sidebar_actions %}{% endblock %}
             </ul>
         </div>
 
-        {% block sidebar_actions %}{% endblock %}
+        {% block sidebar_blocs %}{% endblock %}
 
+        {# Ce bloc n'a rien à faire là #}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
             <h3>Télécharger</h3>
             <ul>

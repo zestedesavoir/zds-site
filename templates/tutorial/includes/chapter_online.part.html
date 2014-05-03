@@ -1,6 +1,7 @@
 {% load emarkdown %}
 
 
+
 {% with extracts=chapter.extracts %}
     {% if chapter.type == 'BIG' %}
         {% if chapter.intro %}
@@ -24,5 +25,4 @@
             {{ chapter.get_conclusion_online|safe }}
         {% endif %}
     {% endif %}
-
 {% endwith %}

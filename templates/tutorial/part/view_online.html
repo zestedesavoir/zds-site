@@ -1,58 +1,64 @@
 {% extends "tutorial/base.html" %}
 
+
+
 {% block title %}
     {{ part.title }} ({{ part.tutorial.title }})
 {% endblock %}
 
+
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
+    <li>{{ part.title }}</li>
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 class="illu">
+    <h1>
         {{ part.title }}
     </h1>
     <ul class="taglist">
-    {% for category in part.tutorial.subcategory.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
+        {% for category in part.tutorial.subcategory.all %}
+            {# TODO : mettre le lien des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
     </ul>
     
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
-        {% for member in part.tutorial.authors.all %}
-            <li>
-                {% include "misc/member_item.part.html" %}
-            </li>
-        {% endfor %}.
+            {% for member in part.tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
-    <li><a href="#">{{ part.title }}</a></li>
-{% endblock %}
+
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 columns">
-        {% include "tutorial/view_part_online_common.part.html" %}
-    </div>
-</div>
-
+    {% include "tutorial/includes/part_online.part.html" %}
 {% endblock %}
+
+
 
 {% block sidebar_actions %}
     {% if perms.tutorial.change_tutorial%}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
-        <h3>Admin<span class="wide">istration</span></h3>
-        <ul>
-            <li><a href="{{ part.tutorial.get_absolute_url }}">Version offline</a></li>
-        </ul>
-    </div>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li><a href="{{ part.tutorial.get_absolute_url }}">Version offline</a></li>
+            </ul>
+        </div>
     {% endif %}
+
     {% with tutorial=part.tutorial %}
-    {% with parts=part.tutorial.get_parts %}
-        {% include "tutorial/toc_common_online.html" %}
-    {% endwith %}
+        {% with parts=part.tutorial.get_parts %}
+            {% include "tutorial/includes/summary.html" %}
+        {% endwith %}
     {% endwith %}
 {% endblock %}

@@ -4,45 +4,56 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
-{{ tutorial.title }}
+    {{ tutorial.title }}
 {% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ tutorial.title }}</li>
+{% endblock %}
+
+
 
 {% block headline %}
     <h1 class="illu">
         {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt=""/>
+            <img src="{{tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
+
     <ul class="taglist">
-    {% for category in tutorial.subcategory.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
+        {% for category in tutorial.subcategory.all %}
+            {# TODO : ajouter les liens des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
     </ul>
     
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
-        {% for member in tutorial.authors.all %}
-            <li>
-                {% include "misc/member_item.part.html" %}
-            </li>
-        {% endfor %}.
+            {% for member in tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}
+
+
 
 {% block headline_sub %}
     {{ tutorial.description }}
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="#">{{ tutorial.title }}</a></li>
-{% endblock %}
 
-{% block sidebar_actions %}
 
+{% block sidebar_blocs %}
     {% if perms.tutorial.change_tutorial%}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
         <h3>Admin<span class="wide">istration</span></h3>
@@ -57,127 +68,127 @@
     {% include "tutorial/toc_common_online.html" %}
     
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3><span class="wide">Télécharger</span></h3>
+        <h3>Télécharger</h3>
         <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
             {% if perms.tutorial.change_tutorial %}
-            <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
+                <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
+                <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
             {% endif %}
+            
             <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
             <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
         </ul>
     </div>
-    
 {% endblock %}
 
+
+
 {% block content %}
-
-{% if tutorial.get_introduction_online %}
-    {{ tutorial.get_introduction_online|safe }}
-{% else %}
-    <p>Aucune introduction.</p>
-{% endif %}
-{% if tutorial.is_mini %}
-{# Small tutorial #}
-
-    {% with authors=tutorial.authors.all %}
-        {% include "tutorial/view_chapter_online_common.part.html" %}
-    {% endwith %}
-{% else %}
-{# Large tutorial #}
-
-    <hr />
-    {% if parts %}
-        {% for part in parts %}
-            <h2>
-                <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
-                    Partie {{ part.position_in_tutorial }} : {{ part.title }}
-                </a>
-            </h2>
-            {% include "tutorial/view_part_online_common.part.html" %}
-        {% endfor %}
+    {% if tutorial.get_introduction_online %}
+        {{ tutorial.get_introduction_online|safe }}
     {% else %}
-        <p>
-            Il n'y a actuellement aucune partie dans ce tutoriel.
-        </p>
+        <p>Aucune introduction.</p>
     {% endif %}
-    <hr />
 
-{% endif %}
+    {% if tutorial.is_mini %}
+        {# Small tutorial #}
+        {% include "tutorial/chapter_online.part.html" with authors=tutorial.authors.all %}
+    {% else %}
+        {# Large tutorial #}
 
-{% if tutorial.get_conclusion_online %}
-    {{ tutorial.get_conclusion_online|safe }}
-{% else %}
-    <p>Aucune conclusion.</p>
-{% endif %}
- 
-<h1>Commentaires</h1>
-    {% with topic=tutorial %}
-    {% include "misc/pagination.part.html" with position="top" %}
-    {% endwith %}
-{% for note in notes %}
-<article class="forum-message">
-    <div class="user" id="p{{ note.id }}">
-        <a href="{{ note.author.get_absolute_url }}" class="avatar-link">
-            {% with profile=note.author|profile %}
-            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-            {% endwith %}
-        </a>
-    </div>
-    <div class="message">
-        {% if user.is_authenticated %}
-        <ul class="message-actions">
-            {% if note.author = user or perms.tutorial.change_note %}
-            <li><a href="{% url "zds.tutorial.views.edit_note" %}?message={{ note.pk }}" class="ico-after edit">Editer</a></li>
-            {% endif %}
-            <li><a href="#" class="ico-after alert">Signaler</a></li>
-            {% if not tutorial.is_locked and not tutorial.antispam %}
-            <li><a href="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ note.pk }}" class="ico-after cite">Citer</a></li>
-            {% endif %}
-        </ul>
+        <hr />
+        {% if parts %}
+            {% for part in parts %}
+                <h2>
+                    <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                        Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                    </a>
+                </h2>
+                {% include "tutorial/view_part_online_common.part.html" %}
+            {% endfor %}
+        {% else %}
+            <p>
+                Il n'y a actuellement aucune partie dans ce tutoriel.
+            </p>
         {% endif %}
+        <hr />
 
-        <div class="message-metadata">
-            <a href="{{ note.author.get_absolute_url }}" class="username">{{ note.author.username }}</a>
-            <a href="#p{{ note.pk }}" class="date">{{ note.pubdate|naturaltime }}</a>
-            {% if not note.is_visible %}
-                <i>Masqué par {{ note.editor }} : {{ note.text_hidden }}</i>
-            {% elif not note.update = None %}
-                <i>(Edité {{ note.update|naturaltime }} par {{ note.editor }} )</i>
-            {% endif %}
-        </div>
+    {% endif %}
 
-        <div class="message-content">
-            {{ note.text|emarkdown }}
-        </div>
+    {% if tutorial.get_conclusion_online %}
+        {{ tutorial.get_conclusion_online|safe }}
+    {% else %}
+        <p>Aucune conclusion.</p>
+    {% endif %}
 
-        <div class="message-bottom">
-            {% with profile=note.author|profile %}
-                <p class="signature"> {{profile.sign|emarkdown_inline}} </p>
-            {% endwith %}
-            {% if user.is_authenticated %}
-            <div class="message-karma">
-                <a href="{% url "zds.tutorial.views.like_note" %}?message={{ note.pk }}" class="upvote {% if note.like > note.dislike %}voted{% endif%} ico-after">+{{note.like}}</a>
-                <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ note.pk }}" class="downvote {% if note.like < note.dislike %}voted{% endif%} ico-after">-{{note.dislike}}</a>
+     
+    <h1>Commentaires</h1>
+    {% include "misc/pagination.part.html" with position="top" topic=tutorial %}
+
+    {% for note in notes %}
+        <article class="forum-message">
+            <div class="user" id="p{{ note.id }}">
+                <a href="{{ note.author.get_absolute_url }}" class="avatar-link">
+                    {% with profile=note.author|profile %}
+                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                    {% endwith %}
+                </a>
             </div>
-            {% endif %}
-        </div>
-    </div>
-</article>
-{% endfor %}
+            <div class="message">
+                {% if user.is_authenticated %}
+                <ul class="message-actions">
+                    {% if note.author = user or perms.tutorial.change_note %}
+                        <li><a href="{% url "zds.tutorial.views.edit_note" %}?message={{ note.pk }}" class="ico-after edit">Editer</a></li>
+                    {% endif %}
 
-{% with topic=tutorial %}
-{% include "misc/pagination.part.html" with position="bottom" %}
-{% endwith %}
+                    {# FIXME : il manque un lien ici #}
+                    <li><a href="#" class="ico-after alert">Signaler</a></li>
 
-{% if user.is_authenticated %}
-{% with profile=user|profile%}
-<section>
-    <div class="user">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-    </div>
-    {% crispy form %}
-</section>
-{% endwith %}
-{% endif %}
+                    {% if not tutorial.is_locked and not tutorial.antispam %}
+                        <li><a href="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ note.pk }}" class="ico-after cite">Citer</a></li>
+                    {% endif %}
+                </ul>
+                {% endif %}
+
+                <div class="message-metadata">
+                    <a href="{{ note.author.get_absolute_url }}" class="username">{{ note.author.username }}</a>
+                    <a href="#p{{ note.pk }}" class="date">{{ note.pubdate|naturaltime }}</a>
+                    {% if not note.is_visible %}
+                        <i>Masqué par {{ note.editor }} : {{ note.text_hidden }}</i>
+                    {% elif not note.update = None %}
+                        <i>(Edité {{ note.update|naturaltime }} par {{ note.editor }} )</i>
+                    {% endif %}
+                </div>
+
+                <div class="message-content">
+                    {{ note.text|emarkdown }}
+                </div>
+
+                <div class="message-bottom">
+                    {% with profile=note.author|profile %}
+                        <p class="signature"> {{ profile.sign|emarkdown_inline }} </p>
+                    {% endwith %}
+                    {% if user.is_authenticated %}
+                        <div class="message-karma">
+                            <a href="{% url "zds.tutorial.views.like_note" %}?message={{ note.pk }}" class="upvote {% if note.like > note.dislike %}voted{% endif %} ico-after">+{{ note.like }}</a>
+                            <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ note.pk }}" class="downvote {% if note.like < note.dislike %}voted{% endif %} ico-after">-{{ note.dislike }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+    {% endfor %}
+
+    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial %}
+
+    {% if user.is_authenticated %}
+        {% with profile=user|profile%}
+            <section>
+                <div class="user">
+                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
+                </div>
+                {% crispy form %}
+            </section>
+        {% endwith %}
+    {% endif %}
 {% endblock %}

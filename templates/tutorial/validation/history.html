@@ -1,29 +1,28 @@
 {% extends "tutorial/validation.html" %}
 {% load humanize %}
 
+
+
 {% block title %}
-Historique de validation du tutoriel
+    Historique de validation du tutoriel
 {% endblock %}
 
-{% block meta %}
-    <meta name="description" content="" />
-{% endblock %}
+
 
 {% block headline %}
-Historique de validation du tutoriel
+    <h1>Historique de validation du tutoriel</h1>
 {% endblock %}
+
+
 
 {% block breadcrumb %}
-    <li><a href="#">Historique</a></li>
+    <li>Historique</li>
 {% endblock %}
 
-{% block sidebar_actions %}
-{% endblock %}
+
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        {% if validations %}
+    {% if validations %}
         <table>
             <thead>
                 <tr>
@@ -38,53 +37,49 @@ Historique de validation du tutoriel
             </thead>
             <tbody>
                 {% for validation in validations %}
-                <tr>
-                    <td>
-                        <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
-                    </td>
-                    <td>
-                        {% for subcategory in validation.tutorial.subcategory.all %}
-                        <p>
-                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
-                        </p>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for author in validation.tutorial.authors.all %}
-                        <a href="{% url "zds.member.views.details" user.username %}">{{ author.username }}</a>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <span>{{ validation.date_proposition|naturaltime }}</span>
-                    </td>
-                    <td>
-                        {% if validation.validator %}
-                        <a href="{% url "zds.member.views.details" validation.validator.username %}">{{ validation.validator.username }}</a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if validation.date_reserve %}
-                        <span>{{ validation.date_reserve|naturaltime }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if validation.is_pending %}
-                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réservé</a>
-                        {% elif validation.is_pending_valid %}
-                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
-                        {% elif validation.is_accept %}
-                        <span>Accepté</span>
-                        {% elif validation.is_reject %}
-                        <span>Rejeté</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
+                        </td>
+                        <td>
+                            {% for subcategory in validation.tutorial.subcategory.all %}
+                                <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for author in validation.tutorial.authors.all %}
+                                <a href="{% url "zds.member.views.details" user.username %}">{{ author.username }}</a>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <span>{{ validation.date_proposition|naturaltime }}</span>
+                        </td>
+                        <td>
+                            {% if validation.validator %}
+                                <a href="{% url "zds.member.views.details" validation.validator.username %}">{{ validation.validator.username }}</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if validation.date_reserve %}
+                                <span>{{ validation.date_reserve|naturaltime }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if validation.is_pending %}
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réservé</a>
+                            {% elif validation.is_pending_valid %}
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
+                            {% elif validation.is_accept %}
+                                <span>Accepté</span>
+                            {% elif validation.is_reject %}
+                                <span>Rejeté</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% else %}
+    {% else %}
         <p>Aucun tutoriel soumis en validation.</p>
-        {% endif %}
-    </div>
-</div>
+    {% endif %}
 {% endblock %}

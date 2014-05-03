@@ -1,34 +1,37 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
-    Éditer un message
+    Éditer un commentaire
 {% endblock %}
 
-{% block headline %}
-    <h2>Editer le commentaire du Tutoriel : {{tutorial.title}}</h2>
+
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
+    <li>Éditer un commentaire</li>
 {% endblock %}
+
+
+
+{% block headline %}
+    <h2>Editer le commentaire du tutoriel : {{ tutorial.title }}</h2>
+{% endblock %}
+
+
 
 {% block headline_sub %}
     <h3 class="subtitle">{{ tutorial.description }}</h3>
 {% endblock %}
 
-{% block breadcrumb %}
-    <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
-    <li><a href="javascript:;">Éditer un message</a></li>
-{% endblock %}
+
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
+    {% crispy form %}
 
-{% if form.text.value %}
-    {% with text=form.text.value %}
-        {% include "misc/previsualization.part.html" %}
-    {% endwith %}
-{% endif %}
-
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
 {% endblock %}

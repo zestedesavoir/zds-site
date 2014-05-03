@@ -23,7 +23,7 @@
 {% for part in parts %}
 #Partie {{ part.position_in_tutorial }} : {{ part.title }}
 
-{% include "tutorial/view_part_export_common.part.md" %}
+{% include "tutorial/includes/view_part_export_common.part.md" %}
 {% endfor %}
 {% endif %}
 
