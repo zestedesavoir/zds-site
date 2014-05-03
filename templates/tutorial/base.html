@@ -16,6 +16,12 @@
     <h2 class="box tutoriel">{% block head-title %}{% endblock %}</h2>
 {% endblock %}
 
+{% block search %}
+<input type="hidden" name="models" value="tutorial.tutorial" />
+<input type="hidden" name="models" value="tutorial.part" />
+<input type="hidden" name="models" value="tutorial.extract" />
+<input type="hidden" name="models" value="tutorial.chapter" />
+{% endblock %}
 
 {% block sidebar %}
     <h3>Actions sur les tutoriels</h3>

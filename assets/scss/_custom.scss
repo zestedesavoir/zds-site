@@ -81,13 +81,73 @@ Logo
 /*
 Fil d'ariance
 */
+/*
+.breadcrumb {
+        position: relative;
+        display: block;
+        float: left;
+        width: calc(100% - 230px);
+        height: 30px;
+
+        &:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 100%;
+            background-image :linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75));
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            li {
+                position: relative;
+                display: inline-block;
+                padding-right: 30px;
+                line-height: 30px;
+
+                a {
+                    text-decoration: none;
+                    color: #084561;
+
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                        outline: none;
+                    }
+                }
+
+                &:not(:last-child):after {
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    right: 7px;
+                    content: " ";
+                    height: 30px;
+                    width: 15px;
+                    background-image: url('../img/ariane.png');
+                    background-repeat: no-repeat;
+                    opacity : 0.2;
+                }
+            }
+        }
+    }
+*/
 .ariane {
 	border-top: 3px solid #ff8c00;
 	margin-bottom: 20px;
 	position: relative;
 	display: block;
 	float: left;
-	width: 100%;
+	width: calc(100%);
 	height: 33px;
 	background : #e7ebec;
 	-webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.25);
@@ -129,6 +189,40 @@ Fil d'ariance
 	background-repeat: no-repeat;
 	opacity: 0.2;
 }
+
+.search {
+        &:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            left: -20px;
+            height: 30px;
+            width: 20px;
+            background : linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0));
+        }
+        form {
+            input {
+                padding: 8px 10px;
+                height: 30px;
+                width: 150px;
+            }
+            button {
+                height: 30px;
+                line-height: 30px;
+                width: 30px;
+                position: absolute;
+
+                &:after {
+                    top: 7px;
+                }
+            }
+        }
+        .search-more {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
 
 /*
 Side Bar
@@ -446,7 +540,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	margin-right: 5px;
 }
 .useful {
-	background-color: #e9f9dc;
+		background-color: #e9f9dc;
 }
 .signature {
 	text-overflow: ellipsis;
