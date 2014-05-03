@@ -11,7 +11,7 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description')
-    category = indexes.CharField(model_attr='category')
+    category = indexes.CharField(model_attr='subcategory')
     sha_public = indexes.CharField(model_attr='sha_public')
 
     def get_model(self):
