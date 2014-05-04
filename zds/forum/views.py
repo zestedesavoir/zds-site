@@ -49,10 +49,22 @@ def details(request, cat_slug, forum_slug):
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')\
         .all()
-    topics = Topic.objects\
-        .filter(forum__pk=forum.pk, is_sticky=False)\
-        .order_by('-last_message__pubdate')\
-        .all()
+    if 'filter' in request.GET:
+        if request.GET['filter'] == 'solve':
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
+                .order_by('-last_message__pubdate')\
+                .all()
+        else :
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=False)\
+                .order_by('-last_message__pubdate')\
+                .all()
+    else:
+        topics = Topic.objects\
+            .filter(forum__pk=forum.pk, is_sticky=False)\
+            .order_by('-last_message__pubdate')\
+            .all()
 
     # Paginator
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
