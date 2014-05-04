@@ -500,7 +500,10 @@ def register_view(request):
 
             return render_template('member/register_success.html', {
             })
-
+        else:
+            return render_template('member/register.html', {
+                'form': form
+            })
     form = RegisterForm()
     return render_template('member/register.html', {
         'form': form
