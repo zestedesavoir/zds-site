@@ -21,6 +21,7 @@ class MemberTests(TestCase):
     def test_login(self):
         """To test user login."""
         user = UserFactory()
+        profile = ProfileFactory(user=user)
 
         result = self.client.post(
             reverse('zds.member.views.login_view'),

@@ -47,6 +47,9 @@
                     {% if status == 'STAFF' %}
                         <div class="alert-box tiny success username">{{status}}</div>
                     {% endif %}
+                    {% if status == 'DOWN' %}
+                        <div class="alert-box tiny secondary username">{{status}}</div>
+                    {% endif %}
                 {% endwith %}
             </div>
             <div class="large-10 columns">
@@ -61,9 +64,14 @@
                         Ville : {{ profile.get_city }}
                     </p>
                 {% endif %}
-                <p>
-                    <a class="tiny button secondary" href="{% url "zds.mp.views.new" %}?username={{usr.username}}">Envoyer un MP</a>
-                </p>
+                {% with status=usr|state %}
+                    {% if status != 'DOWN' and status != 'BAN' %}
+                    <p>
+                        <a class="tiny button secondary" href="{% url "zds.mp.views.new" %}?username={{usr.username}}">Envoyer un MP</a>
+                    </p>
+                    {% endif %}
+                {% endwith %}
+
                 {% if profile.show_email and user.is_authenticated %}
                 <p>
                     <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>

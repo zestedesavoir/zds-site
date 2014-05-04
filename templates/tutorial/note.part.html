@@ -24,6 +24,9 @@
                 {% if status == 'STAFF' %}
                     <div class="alert-box tiny success username">{{status}}</div>
                 {% endif %}
+                {% if status == 'DOWN' %}
+                    <div class="alert-box tiny secondary username">{{status}}</div>
+                {% endif %}
             {% endwith %}
         </div>
         <div class="large-11 columns message-forum">
