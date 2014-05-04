@@ -173,16 +173,23 @@ class Profile(models.Model):
         return Alert.objects.filter(author=self.user).count()
 
     def can_read_now(self):
-        if self.end_ban_read:
-            return self.can_read or (self.end_ban_read < datetime.now())
-        else:
-            return self.can_read
+        if self.user.is_authenticated:
+            if self.user.is_active:
+                if self.end_ban_read:
+                    return self.can_read or (self.end_ban_read < datetime.now())
+                else:
+                    return self.can_read
+            else:
+                return False
 
     def can_write_now(self):
-        if self.end_ban_write:
-            return self.can_write or (self.end_ban_write < datetime.now())
+        if self.user.is_active:
+            if self.end_ban_write:
+                return self.can_write or (self.end_ban_write < datetime.now())
+            else:
+                return self.can_write
         else:
-            return self.can_write
+            return False
 
     def get_followed_topics(self):
         """Followed topics."""
