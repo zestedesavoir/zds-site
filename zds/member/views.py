@@ -391,31 +391,25 @@ def login_view(request):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            login(request, user)
-            request.session['get_token'] = generate_token()
-            if not 'remember' in request.POST:
-                request.session.set_expiry(0)
-
-            try:
-                profile = get_object_or_404(Profile, user=request.user)
-                profile.save()
-                # Annotation isn't possible for this method. So we check
-                # if the user is ban when we retrieved him.
-                if not profile.can_read_now():
-                    logout_view(request)
-            except:
-                profile = None
-            # redirect the user if needed
-            try:
-                return redirect(next_page)
-            except:
-                return redirect(reverse('zds.pages.views.home'))
+            profile = get_object_or_404(Profile, user=user)
+            if profile.can_read_now():
+                login(request, user)
+                request.session['get_token'] = generate_token()
+                if not 'remember' in request.POST:
+                    request.session.set_expiry(0)
+                # redirect the user if needed
+                try:
+                    return redirect(next_page)
+                except:
+                    return redirect(reverse('zds.pages.views.home'))
+            else:
+                messages.error(request, 'Vous n\'êtes pas autorisé à vous connecter sur le site')
         else:
-            error = 'Les identifiants fournis ne sont pas valides'
-    else:
-        form = LoginForm()
-        form.helper.form_action = reverse(
-            'zds.member.views.login_view') + "?next=" + str(next_page)
+            messages.error(request, 'Les identifiants fournis ne sont pas valides')
+    
+    form = LoginForm()
+    form.helper.form_action = reverse(
+        'zds.member.views.login_view') + "?next=" + str(next_page)
 
     csrf_tk['error'] = error
     csrf_tk['form'] = form
