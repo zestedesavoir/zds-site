@@ -472,7 +472,7 @@ def edit_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
     
-    if not post.forum.can_read(request.user):
+    if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
     g_topic = None
@@ -584,7 +584,7 @@ def useful_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
     
-    if not post.forum.can_read(request.user):
+    if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
     # Making sure the user is allowed to do that
@@ -611,7 +611,7 @@ def like_post(request):
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
     
-    if not post.forum.can_read(request.user):
+    if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
     if post.author.pk != request.user.pk:
@@ -658,7 +658,7 @@ def dislike_post(request):
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
 
-    if not post.forum.can_read(request.user):
+    if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
     if post.author.pk != request.user.pk:
