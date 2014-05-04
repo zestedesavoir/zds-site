@@ -43,7 +43,7 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise Http404
+        raise PermissionDenied
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
@@ -90,6 +90,9 @@ def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
     # TODO: Clean that up
     topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Check link
     if not topic_slug == slugify(topic.title):
@@ -167,6 +170,9 @@ def new(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=forum_pk)
+    
+    if not forum.can_read(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
 
@@ -259,6 +265,10 @@ def move_topic(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=request.POST['forum'])
+    
+    if not forum.can_read(request.user):
+        raise PermissionDenied
+    
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
@@ -342,6 +352,9 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not g_topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Making sure posting is allowed
     if g_topic.is_locked:
@@ -458,6 +471,9 @@ def edit_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
+    
+    if not post.forum.can_read(request.user):
+        raise PermissionDenied
 
     g_topic = None
     if post.position <= 1:
@@ -567,6 +583,9 @@ def useful_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
+    
+    if not post.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
@@ -591,6 +610,9 @@ def like_post(request):
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
+    
+    if not post.forum.can_read(request.user):
+        raise PermissionDenied
 
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
@@ -635,6 +657,9 @@ def dislike_post(request):
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
+
+    if not post.forum.can_read(request.user):
+        raise PermissionDenied
 
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
