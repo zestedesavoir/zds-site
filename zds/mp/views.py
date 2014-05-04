@@ -451,11 +451,14 @@ def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
     try :
         part = User.objects.get(username=request.POST['user_pk'])
-        ptopic.participants.add(part)
-        ptopic.save()
-
-        messages.success(
-                request, 'Le membre a bien été ajouté à la conversation')
+        if part.pk == ptopic.author.pk or part in ptopic.participants.all():
+            messages.warning(
+                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+        else:
+            ptopic.participants.add(part)
+            ptopic.save()
+    
+            messages.success(request, 'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
                 request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
