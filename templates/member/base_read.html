@@ -27,7 +27,7 @@
     		En cours de validation<span class="label right secondary">{{ profile.get_validate_tutos.count }}</span>
 		</li>
 		<li>
-            <a class="left" href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">En version beta</a><span class="label right secondary">{{ profile.get_beta_tutos.count }}</span>
+            <a class="left" href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">En version beta</a><span class="label right secondary">{{ profile.get_beta_tutos.count }}</span>
 		</li>
 		<li>
     		<a class="left" href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">En ligne</a><span class="label right">{{ profile.get_public_tutos.count }}</span>
