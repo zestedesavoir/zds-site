@@ -131,7 +131,7 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -197,7 +197,7 @@ def new(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 def edit(request):
@@ -227,7 +227,7 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -349,7 +349,7 @@ def answer(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def edit_post(request):
     """Edit the given user's post."""
@@ -420,7 +420,7 @@ def edit_post(request):
             'form': form,
         })
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
@@ -443,7 +443,7 @@ def leave(request):
     
     return redirect(reverse('zds.mp.views.index'))
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
