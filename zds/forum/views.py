@@ -349,7 +349,10 @@ def edit(request):
     if request.is_ajax():
         return HttpResponse(json.dumps(resp))
     else:
-        return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
+        if not g_topic.forum.can_read(request.user):
+            return redirect(reverse('zds.forum.views.index'))
+        else:
+            return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
 @can_write_and_read_now

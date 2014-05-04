@@ -25,7 +25,7 @@
     </ul>
     <h3>Filtres</h3>
     <ul>
-        <li><a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve">Tous les sujets</a></li>
+        <li><a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}">Tous les sujets</a></li>
         <li><a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve">Sujets résolus</a></li>
         <li><a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=unsolve">Sujets non résolus</a></li>
     </ul>    
