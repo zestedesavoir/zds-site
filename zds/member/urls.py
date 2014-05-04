@@ -24,4 +24,5 @@ urlpatterns = patterns('',
                        url(r'^reinitialisation$', 'zds.member.views.forgot_password'),
                        url(r'^new_password$', 'zds.member.views.new_password'),
                        url(r'^activation$', 'zds.member.views.active_account'),
+                       url(r'^envoi_jeton$', 'zds.member.views.generate_token_account'),
                        )
