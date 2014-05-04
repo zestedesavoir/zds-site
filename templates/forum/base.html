@@ -34,12 +34,12 @@
     <ul>
     	{% with topics=user|followed_topics %}
         {% for topic in topics %}
-        <li>
+        <li class="{% if topic|is_read %}topic_read{% else %}unread{% endif %}">
             <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
             {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
             {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
             {% with first_unread=topic.first_unread_post %} 
-            <a href="{% if first_unread %}{{ first_unread.get_absolute_url }}{% else %}{{ topic.last_read_post.get_absolute_url }}{% endif %}" class="{% if topic|is_read %}topic_read{% else %}topic_unread{% endif %}">{{ topic.title }}</a>
+            <a href="{% if first_unread %}{{ first_unread.get_absolute_url }}{% else %}{{ topic.last_read_post.get_absolute_url }}{% endif %}" >{{ topic.title }}</a>
             {% endwith %}
         </li>
         {% endfor %}
