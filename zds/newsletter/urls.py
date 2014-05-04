@@ -6,5 +6,5 @@ import views
 
 
 urlpatterns = patterns('',
-    url(r'^$', views.add_newsletter),
-)
+                       url(r'^$', 'zds.newsletter.views.add_newsletter'),
+                       )

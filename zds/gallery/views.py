@@ -22,21 +22,18 @@ from zds.utils import render_template, slugify
 @can_read_now
 @login_required
 def gallery_list(request):
-    '''
-    Display the gallery list with all their images
-    '''
+    """Display the gallery list with all their images."""
     galleries = UserGallery.objects.all().filter(user=request.user)
 
     return render_template('gallery/gallery/list.html', {
         'galleries': galleries
     })
 
+
 @can_read_now
 @login_required
 def gallery_details(request, gal_pk, gal_slug):
-    '''
-    Gallery details
-    '''
+    """Gallery details."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     try:
@@ -53,12 +50,11 @@ def gallery_details(request, gal_pk, gal_slug):
         'form': form
     })
 
+
 @can_write_and_read_now
 @login_required
 def new_gallery(request):
-    '''
-    Creates a new gallery
-    '''
+    """Creates a new gallery."""
     if request.method == 'POST':
         form = GalleryForm(request.POST)
         if form.is_valid():
@@ -90,11 +86,12 @@ def new_gallery(request):
             'form': form
         })
 
+
 @can_write_and_read_now
 @require_POST
 @login_required
 def modify_gallery(request):
-    '''Modify gallery instance'''
+    """Modify gallery instance."""
 
     # Global actions
 
@@ -102,8 +99,8 @@ def modify_gallery(request):
         l = request.POST.getlist('items')
 
         perms = UserGallery.objects\
-                .filter(gallery__pk__in=l, user=request.user, mode='W')\
-                .count()
+            .filter(gallery__pk__in=l, user=request.user, mode='W')\
+            .count()
 
         # Check that the user has the RW right on each gallery
         if perms < len(l):
@@ -126,28 +123,30 @@ def modify_gallery(request):
         except KeyError:
             raise Http404
 
-        gallery = get_object_or_404(Gallery, pk = gal_pk)
-        
+        gallery = get_object_or_404(Gallery, pk=gal_pk)
+
         # Disallow actions to read-only members
         try:
-            gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+            gal_mode = UserGallery.objects.get(
+                gallery=gallery,
+                user=request.user)
             if gal_mode.mode != 'W':
                 raise PermissionDenied
         except:
             raise PermissionDenied
-        
+
         form = UserGalleryForm(request.POST)
-        
+
         if form.is_valid():
-            user = get_object_or_404(User, username = request.POST['user'])
-    
+            user = get_object_or_404(User, username=request.POST['user'])
+
             # If a user is already in a user gallery, we don't add him.
-            galleries = UserGallery.objects.filter(gallery = gallery, user = user).all()
+            galleries = UserGallery.objects.filter(
+                gallery=gallery,
+                user=user).all()
             if galleries.count() > 0:
                 return redirect(gallery.get_absolute_url())
-    
-            
-            
+
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
@@ -155,13 +154,14 @@ def modify_gallery(request):
             ug.save()
         else:
             return render_template('gallery/gallery/details.html', {
-                    'gallery': gallery,
-                    'gallery_mode': gal_mode,
-                    'images': gallery.get_images(),
-                    'form': form
-                })
+                'gallery': gallery,
+                'gallery_mode': gal_mode,
+                'images': gallery.get_images(),
+                'form': form
+            })
 
     return redirect(gallery.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required
@@ -173,19 +173,18 @@ def del_image(request, gal_pk):
         return redirect(gal.get_absolute_url())
     return redirect(gal.get_absolute_url())
 
+
 @can_write_and_read_now
 @login_required
 def edit_image(request, gal_pk, img_pk):
-    '''
-    Creates a new image
-    '''
+    """Creates a new image."""
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
 
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid()\
-            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+                and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST['title']
             img.legend = request.POST['legend']
             img.physical = request.FILES['physical']
@@ -197,17 +196,18 @@ def edit_image(request, gal_pk, img_pk):
             # Redirect to the document list after POST
             return redirect(gal.get_absolute_url())
     else:
-        form = ImageForm(initial = {
-                'title': img.title,
-                'legend': img.legend,
-                'physical': img.physical,
-            })
-    
+        form = ImageForm(initial={
+            'title': img.title,
+            'legend': img.legend,
+            'physical': img.physical,
+        })
+
     return render_template('gallery/image/edit.html', {
         'form': form,
         'gallery': gal,
         'image': img
     })
+
 
 @can_write_and_read_now
 @login_required
@@ -240,16 +240,17 @@ def modify_image(request):
 
     return redirect(gal.get_absolute_url())
 
+
 @can_write_and_read_now
 @login_required
 def new_image(request, gal_pk):
-    '''Creates a new image'''
+    """Creates a new image."""
     gal = get_object_or_404(Gallery, pk=gal_pk)
 
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() \
-            and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
+                and request.FILES['physical'].size < settings.IMAGE_MAX_SIZE:
             img = Image()
             img.physical = request.FILES['physical']
             img.gallery = gal
@@ -264,8 +265,8 @@ def new_image(request, gal_pk):
             return redirect(gal.get_absolute_url())
         else:
             return render_template('gallery/image/new.html', {
-            'form': form,
-            'gallery': gal
+                'form': form,
+                'gallery': gal
             })
     else:
         form = ImageForm()  # A empty, unbound form

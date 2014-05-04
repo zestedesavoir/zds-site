@@ -4,12 +4,12 @@ from collections import OrderedDict
 
 from git import *
 
+import os
+
 
 # Export-to-dict functions
 def export_article(article):
-    '''
-    Export an article to a dict
-    '''
+    """Export an article to a dict."""
     dct = OrderedDict()
     dct['title'] = article.title
     dct['description'] = article.description
@@ -18,15 +18,16 @@ def export_article(article):
 
     return dct
 
+
 def get_blob(tree, chemin):
     for bl in tree.blobs:
-        if bl.path==chemin:
+        if os.path.abspath(bl.path) == os.path.abspath(chemin):
             data = bl.data_stream.read()
             return data.decode('utf-8')
     if len(tree.trees) > 0:
         for tr in tree.trees:
             result = get_blob(tr, chemin)
-            if result != None:
+            if result is not None:
                 return result
         return None
     else:

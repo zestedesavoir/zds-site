@@ -13,8 +13,7 @@ else:
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-#INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
-
+# INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 
 ADMINS = (
@@ -98,6 +97,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
+FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
     'modernizr' : {
@@ -116,7 +116,6 @@ PIPELINE_JS = {
         'source_filenames': (
             'js/vendor/jquery.js',
 
-            'js/custom/ajax-csrf.js',
             'js/custom/editor.js',
 
             'js/custom/mobile-menu.js',
@@ -146,6 +145,11 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
     #     'django.template.loaders.eggs.Loader',
+)
+
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -178,6 +182,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
+    'django.core.context_processors.request',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages'
 )
@@ -199,15 +204,17 @@ INSTALLED_APPS = (
     'pipeline',
     'haystack',
 
-    'zds.member',
-    'zds.article',
-    'zds.forum',
+    # Apps DB tables are created in THIS order by default
+    # --> Order is CRITICAL to properly handle foreign keys
     'zds.utils',
     'zds.pages',
     'zds.gallery',
     'zds.mp',
-    'zds.tutorial',
     'zds.newsletter',
+    'zds.article',
+    'zds.forum',
+    'zds.tutorial',
+    'zds.member',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -255,9 +262,9 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024*1024
+IMAGE_MAX_SIZE = 1024 * 1024 * 2
 
-#git directory
+# git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
@@ -270,6 +277,10 @@ TOPICS_PER_PAGE = 21
 SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
 FOLLOWED_TOPICS_PER_PAGE = 21
+
+BOT_ACCOUNT = 'admin'
+
+PANDOC_LOC = ''
 
 HAYSTACK_CONNECTIONS = {
     'default': {

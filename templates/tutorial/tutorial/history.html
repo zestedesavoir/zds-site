@@ -11,16 +11,16 @@
 
 
 
-{% block headline %}
-    {{ tutorial.title }}<br />
-    <small>{{ tutorial.description }}</small>
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li>Historique</li>
 {% endblock %}
 
 
 
-{% block breadcrumb %}
-    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
-    <li>Historique</li>
+{% block headline %}
+    <h1>{{ tutorial.title }}</h1>
+    <h3 class="subtitle">{{ tutorial.description }}</h3>
 {% endblock %}
 
 

@@ -8,57 +8,69 @@ from zds.member.decorator import can_read_now
 from zds.tutorial.models import get_last_tutorials
 from zds.utils import render_template
 from zds.utils import slugify
+from django.contrib.auth.models import Group, User
 
 
 @can_read_now
 def home(request):
-    '''
-    Display the home page with last topics added
-    '''
-    
+    """Display the home page with last topics added."""
+
     tutos = []
     for tuto in get_last_tutorials():
         data = tuto.load_json_for_public()
-        data['pk']=tuto.pk
-        data['image']=tuto.image
-        data['gallery']=tuto.gallery
-        data['pubdate']=tuto.pubdate
-        data['update']=tuto.update
-        data['subcategory']=tuto.subcategory
-        data['get_absolute_url_online']=reverse('zds.tutorial.views.view_tutorial_online', 
-                                                   args=[tuto.pk, 
-                                                         slugify(data['title'])])
-        
-        
+        data['pk'] = tuto.pk
+        data['image'] = tuto.image
+        data['gallery'] = tuto.gallery
+        data['pubdate'] = tuto.pubdate
+        data['update'] = tuto.update
+        data['subcategory'] = tuto.subcategory
+        data['get_absolute_url_online'] = reverse(
+            'zds.tutorial.views.view_tutorial_online',
+            args=[
+                tuto.pk,
+                slugify(
+                    data['title'])])
+
         tutos.append(data)
-    
+
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
         'last_articles': get_last_articles(),
     })
 
+
 @can_read_now
 def index(request):
     return render_template('pages/index.html')
 
-@can_read_now
-def help_markdown(request):
-    '''
-    Display a page with a markdown helper
-    '''
-    return render_template('pages/help_markdown.html')
 
 @can_read_now
 def about(request):
-    '''
-    Display many informations about the website
-    '''
+    """Display many informations about the website."""
     return render_template('pages/about.html')
 
+
 @can_read_now
-def roadmap(request):
+def association(request):
+    """Display association's presentation."""
+    return render_template('pages/association.html')
+
+
+@can_read_now
+def contact(request):
+    """Display contact page."""
+    staffs = User.objects.filter(groups__in=Group.objects.filter(name__contains='staff')).all()
+    devs = User.objects.filter(groups__in=Group.objects.filter(name__contains='dev')).all()
+    return render_template('pages/contact.html', {
+        'staffs': staffs,
+        'devs': devs
+    })
+
+
+@can_read_now
+def eula(request):
     '''
-    Display roadmap of the website
+    End-User Licence Agreement
     '''
-    return render_template('pages/roadmap.html')
+    return render_template('pages/eula.html')

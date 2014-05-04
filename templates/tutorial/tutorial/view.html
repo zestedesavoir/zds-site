@@ -35,11 +35,11 @@
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
-        {% for member in tutorial.authors.all %}
-            <li>
-                {% include "misc/member_item.part.html" %}
-            </li>
-        {% endfor %}
+            {% for member in tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" %}
+                </li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}

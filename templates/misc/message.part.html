@@ -2,49 +2,110 @@
 {% load humanize %}
 {% load emarkdown %}
 
+
+
 <article class="forum-message {% if message.is_useful %}helpful{% endif %}">
-    <div class="user" id="p{{ message.id }}">
+    <div class="user">
         <a href="{{ message.author.get_absolute_url }}" class="avatar-link">
             {% with profile=message.author|profile %}
                 <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
             {% endwith %}
         </a>
+        {% with status=message.author|state %}
+            {% if status == 'BAN'%}
+                <span class="badge banned">{{ status }}</span>
+            {% elif status == 'LS'%}
+                <span class="badge banned">{{ status }}</span>
+            {% elif status == 'STAFF' %}
+                <span class="badge staff">{{ status }}</span>
+            {% endif %}
+        {% endwith %}
+
+        {# TODO : ajouter les metadatas #}
+        <div class="user-metadata">
+            <a href="#" class="user-karma negative">-X</a>
+            <a href="#">IPs</a>
+        </div>
     </div>
 
     <div class="message">
         {% if user.is_authenticated and message.is_visible %}
             <ul class="message-actions">
-                {% if hide_link and perms.article.change_reaction %}
-                    <li>
-                        <a href="{{ hide_link }}" class="ico-after view">
-                            Masquer
-                        </a>
-                    </li>
-                {% endif %}
+                {% if message.is_visible %}
+                    {% if edit_link %}
+                        {% if message.author = user or perms_change %}
+                            <li>
+                                <a href="#hide-message-{{ message.id }}" class="ico-after view">
+                                    Masquer
+                                </a>
+                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}">
+                                    {% csrf_token %}
+                                    {% if perms_change %}
+                                        <p>
+                                            Pour quelle raison souhaitez vous masquer ce message ?
+                                        </p>
+                                        <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
+                                    {% else %}
+                                        <p>
+                                            Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
+                                        </p>
+                                    {% endif %}
 
-                {% if edit_link %}
-                    {% if message.author = user or perms.article.change_reaction %}
+                                    <button type="submit" name="delete_message">
+                                        Confirmer
+                                    </button>
+                                </form>
+                            </li>
+                        {% endif %}
+
+                        {% if message.author = user or perms_change %}
+                            <li>
+                                <a href="{{ edit_link }}" class="ico-after edit">
+                                    Editer
+                                </a>
+                            </li>
+                        {% endif %}
+
                         <li>
-                            <a href="{{ edit_link }}" class="ico-after edit">
-                                Editer
+                            <a href="#signal-message-{{ message.id }}" class="ico-after alert">
+                                Signaler
+                            </a>
+                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}">
+                                {% csrf_token %}
+                                <p>
+                                    Pour quelle raison signalez-vous ce message ?
+                                </p>
+                                <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ...">
+
+                                <button type="submit" name="signal_message">
+                                    Confirmer
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
+
+                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                        <li>
+                            <a href="{{ cite_link }}" class="ico-after cite">
+                                Citer
                             </a>
                         </li>
                     {% endif %}
-                {% endif %}
-
-                {% if alert_link %}
+                {% elif perms_change %}
                     <li>
-                        <a href="{{ alert_link }}" class="ico-after alert">
-                            Signaler
+                        <a href="#show-message-{{ message.id }}" class="ico-after view">
+                            Afficher
                         </a>
-                    </li>
-                {% endif %}
+                        <form action="{{ hide_link }}" method="post" id="show-message-{{ message.id }}">
+                            {% csrf_token %}
+                            <p>
+                                Ce message a été masqué, êtes vous certains de vouloir le ré-afficher ?
+                            </p>
 
-                {% if cite_link and not article.is_locked and not article.antispam %}
-                    <li>
-                        <a href="{{ cite_link }}" class="ico-after cite">
-                            Citer
-                        </a>
+                            <button type="submit" name="show_message">
+                                Confirmer
+                            </button>
+                        </form>
                     </li>
                 {% endif %}
             </ul>
@@ -52,7 +113,7 @@
 
         <div class="message-metadata">
             <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
-            <a href="#p{{ message.pk }}" class="date">{{ message.pubdate|naturaltime|capfirst }}</a>
+            <a href="#m{{ message.pk }}" id="m{{ message.id }}" class="date">{{ message.pubdate|naturaltime|capfirst }}</a>
         </div>
 
         <div class="message-content">
@@ -67,12 +128,12 @@
                 </p>
             {% endif %}
 
-            {% if not message.is_visible or message.is_visible != false %}
+            {% if not message.is_visible %}
                 {{ message.text|emarkdown }}
             {% endif %}
         </div>
 
-        {% if not message.is_visible or message.is_visible != false %}
+        {% if not message.is_visible %}
             <div class="message-bottom">
                 {% if user.is_authenticated %}
                     {% with profile_user=user|profile %}
@@ -89,7 +150,7 @@
 
                     {% if helpful_link %}
                         {# TODO : Mettre le réel état #}
-                        {% if topic.author == user and post.author != user %}
+                        {% if topic.author == user and message.author != user %}
                             <a href="{{ helpful_link }}" class="tick ico-after active">
                                 Cette réponse m'a aidé
                             </a>

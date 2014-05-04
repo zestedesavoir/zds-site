@@ -126,57 +126,23 @@
     {% include "misc/pagination.part.html" with position="top" topic=tutorial %}
 
     {% for note in notes %}
-        <article class="forum-message">
-            <div class="user" id="p{{ note.id }}">
-                <a href="{{ note.author.get_absolute_url }}" class="avatar-link">
-                    {% with profile=note.author|profile %}
-                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                    {% endwith %}
-                </a>
-            </div>
-            <div class="message">
-                {% if user.is_authenticated %}
-                <ul class="message-actions">
-                    {% if note.author = user or perms.tutorial.change_note %}
-                        <li><a href="{% url "zds.tutorial.views.edit_note" %}?message={{ note.pk }}" class="ico-after edit">Editer</a></li>
-                    {% endif %}
+        {% captureas edit_link %}
+            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                    {# FIXME : il manque un lien ici #}
-                    <li><a href="#" class="ico-after alert">Signaler</a></li>
+        {% captureas cite_link %}
+            {% url "zds.forum.views.answer" %}?tutorial={{ article.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
 
-                    {% if not tutorial.is_locked and not tutorial.antispam %}
-                        <li><a href="{% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ note.pk }}" class="ico-after cite">Citer</a></li>
-                    {% endif %}
-                </ul>
-                {% endif %}
+        {% captureas upvote_link %}
+            {% url "zds.tutorial.views.like_note" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                <div class="message-metadata">
-                    <a href="{{ note.author.get_absolute_url }}" class="username">{{ note.author.username }}</a>
-                    <a href="#p{{ note.pk }}" class="date">{{ note.pubdate|naturaltime }}</a>
-                    {% if not note.is_visible %}
-                        <i>Masqué par {{ note.editor }} : {{ note.text_hidden }}</i>
-                    {% elif not note.update = None %}
-                        <i>(Edité {{ note.update|naturaltime }} par {{ note.editor }} )</i>
-                    {% endif %}
-                </div>
+        {% captureas downvote_link %}
+            {% url "zds.tutorial.views.dislike_note" %}?message={{ message.pk }}
+        {% endcaptureas %}
 
-                <div class="message-content">
-                    {{ note.text|emarkdown }}
-                </div>
-
-                <div class="message-bottom">
-                    {% with profile=note.author|profile %}
-                        <p class="signature"> {{ profile.sign|emarkdown_inline }} </p>
-                    {% endwith %}
-                    {% if user.is_authenticated %}
-                        <div class="message-karma">
-                            <a href="{% url "zds.tutorial.views.like_note" %}?message={{ note.pk }}" class="upvote {% if note.like > note.dislike %}voted{% endif %} ico-after">+{{ note.like }}</a>
-                            <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ note.pk }}" class="downvote {% if note.like < note.dislike %}voted{% endif %} ico-after">-{{ note.dislike }}</a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </article>
+        {% include 'misc/message.part.html' with perms_change=perms.tutorial.change_note topic=tutorial %}
     {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" topic=tutorial %}

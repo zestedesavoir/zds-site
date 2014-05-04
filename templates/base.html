@@ -101,9 +101,9 @@
                     {# Menu #}
                     <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
                         {% if user.is_authenticated %}
-                        {% with profile=user|profile %}
-                            data-is-hover="{{ profile.hover_or_click}}"
-                        {% endwith %}
+                            {% with profile=user|profile %}
+                                data-is-hover="{{ profile.hover_or_click }}"
+                            {% endwith %}
                         {% endif %}
                     >
                         <ul class="header-menu-list">
@@ -118,22 +118,22 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='.'|top_categories_tuto %}
-                                        {% for category in categories %}
-                                            <li>
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {{ category.title }}
-                                                    </li>
-                                                    {% for catofsubcat in category.get_subcategories %}
-                                                        <li>
-                                                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                                                {{ catofsubcat.subcategory }}
-                                                            </a>
+                                            {% for category in categories %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {{ category.title }}
                                                         </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </li>
-                                        {% endfor %}
+                                                        {% for catofsubcat in category.get_subcategories %}
+                                                            <li>
+                                                                <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                                                    {{ catofsubcat.subcategory }}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </li>
+                                            {% endfor %}
                                         {% endwith %}
                                     </ul>
                                 </div>
@@ -154,18 +154,18 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='.'|top_categories %}
-                                        {% for category in categories %}
-                                            <li>
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {{ category.title }}
-                                                    </li>
-                                                    {% for forum in category.get_forums %}
-                                                        <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </li>
-                                        {% endfor %}
+                                            {% for category in categories %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {{ category.title }}
+                                                        </li>
+                                                        {% for forum in category.get_forums %}
+                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </li>
+                                            {% endfor %}
                                         {% endwith %}
                                     </ul>
                                 </div>
@@ -184,65 +184,65 @@
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
                                     {% with read_topics=topics.read %}
-                                    <a href="{% url "zds.mp.views.index" %}" class="ico-link">
-                                        {% if unread_topics|length > 0 %}
-                                            <span class="notif-count">{{ unread_topics|length }}</span>
-                                        {% endif %}
-                                        <span class="notif-text ico ico-messages">Messagerie privée</span>
-                                    </a>
-
-                                    <div class="dropdown">
-                                        <span class="dropdown-title">Messagerie privée</span>
-                                        <ul class="dropdown-list">
-                                            {% for topic in unread_topics %}
-                                                {% with first_unread=topic.first_unread_post %}
-                                                <li>
-                                                    <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                        {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
-                                                        {% endwith %}
-                                                        <span class="username">{{ first_unread.author.username }}</span>
-                                                        <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
-                                                        <span class="topic">{{ topic.title }}</span>
-                                                    </a>
-                                                </li>
-                                                {% endwith %}
-                                            {% endfor %}
-
-                                            {% for topic in read_topics %}
-                                                {% with last_read=topic.last_read_post %}
-                                                <li>
-                                                    {% with last_answer=topic.get_last_answer %}
-                                                    <a href="
-                                                        {% if last_answer %}
-                                                            {{ last_answer.get_absolute_url }}
-                                                        {% else %}
-                                                            {{ topic.first_post.get_absolute_url }}
-                                                        {% endif %}"
-                                                       class="read"
-                                                    >
-                                                        {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
-                                                        {% endwith %}
-                                                        <span class="username">{{ last_read.author.username }}</span>
-                                                        <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
-                                                        <span class="topic">{{ topic.title }}</span>
-                                                    </a>
-                                                    {% endwith %}
-                                                </li>
-                                                {% endwith %}
-                                            {% endfor %}
-
-                                            {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                                                <li class="dropdown-empty-message">
-                                                    Aucun message
-                                                </li>
+                                        <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                            {% if unread_topics|length > 0 %}
+                                                <span class="notif-count">{{ unread_topics|length }}</span>
                                             {% endif %}
-                                        </ul>
-                                        <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
-                                            Tous les messages
+                                            <span class="notif-text ico ico-messages">Messagerie privée</span>
                                         </a>
-                                    </div>
+
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">Messagerie privée</span>
+                                            <ul class="dropdown-list">
+                                                {% for topic in unread_topics %}
+                                                    {% with first_unread=topic.first_unread_post %}
+                                                    <li>
+                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                            {% with p=first_unread.author|profile %}
+                                                            <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ first_unread.author.username }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% for topic in read_topics %}
+                                                    {% with last_read=topic.last_read_post %}
+                                                    <li>
+                                                        {% with last_answer=topic.get_last_answer %}
+                                                        <a href="
+                                                            {% if last_answer %}
+                                                                {{ last_answer.get_absolute_url }}
+                                                            {% else %}
+                                                                {{ topic.first_post.get_absolute_url }}
+                                                            {% endif %}"
+                                                           class="read"
+                                                        >
+                                                            {% with p=last_read.author|profile %}
+                                                            <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ last_read.author.username }}</span>
+                                                            <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                        </a>
+                                                        {% endwith %}
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                    <li class="dropdown-empty-message">
+                                                        Aucun message
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
+                                                Tous les messages
+                                            </a>
+                                        </div>
                                     {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
@@ -253,66 +253,66 @@
                                     {% with topics=user|interventions_topics %}
                                     {% with unread_topics=topics.unread %}
                                     {% with read_topics=topics.read %}
-                                    <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
-                                        {% if unread_topics|length > 0 %}
-                                            <span class="notif-count">{{ unread_topics|length }}</span>
-                                        {% endif %}
-                                        <span class="notif-text ico ico-notifs">Notifications</span>
-                                    </a>
-
-                                    <div class="dropdown">
-                                        <span class="dropdown-title">Notifications</span>
-
-                                        <ul class="dropdown-list">
-                                            {% for topic in unread_topics %}
-                                                {% with first_unread=topic.first_unread_post %}
-                                                <li>
-                                                    <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                        {% with p=first_unread.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
-                                                        <span class="username">{{ first_unread.author.username }}</span>
-                                                        <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
-                                                        <span class="topic">{{ topic.title }}</span>
-                                                        {% endwith %}
-                                                    </a>
-                                                </li>
-                                                {% endwith %}
-                                            {% endfor %}
-
-                                            {% for topic in read_topics %}
-                                                {% with last_read=topic.last_read_post %}
-                                                <li>
-                                                    {% with last_answer=topic.get_last_answer %}
-                                                    <a href="
-                                                        {% if last_answer %}
-                                                            {{ last_answer.get_absolute_url }}
-                                                        {% else %}
-                                                            {{ topic.first_post.get_absolute_url }}
-                                                        {% endif %}"
-                                                       class="read"
-                                                    >
-                                                        {% with p=last_read.author|profile %}
-                                                        <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
-                                                        <span class="username">{{ last_read.author.username }}</span>
-                                                        <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
-                                                        <span class="topic">{{ topic.title }}</span>
-                                                        {% endwith %}
-                                                    </a>
-                                                    {% endwith %}
-                                                </li>
-                                                {% endwith %}
-                                            {% endfor %}
-
-                                            {% if read_topics|length = 0 and unread_topics|length = 0 %}
-                                                <li class="dropdown-empty-message">
-                                                    Aucun sujet suivi
-                                                </li>
+                                        <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
+                                            {% if unread_topics|length > 0 %}
+                                                <span class="notif-count">{{ unread_topics|length }}</span>
                                             {% endif %}
-                                        </ul>
-                                        <a href="{% url "zds.forum.views.followed_topics" %}" class="dropdown-link-all">
-                                            Toutes les notifications
+                                            <span class="notif-text ico ico-notifs">Notifications</span>
                                         </a>
-                                    </div>
+
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">Notifications</span>
+
+                                            <ul class="dropdown-list">
+                                                {% for topic in unread_topics %}
+                                                    {% with first_unread=topic.first_unread_post %}
+                                                    <li>
+                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                            {% with p=first_unread.author|profile %}
+                                                            <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                            <span class="username">{{ first_unread.author.username }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                            {% endwith %}
+                                                        </a>
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% for topic in read_topics %}
+                                                    {% with last_read=topic.last_read_post %}
+                                                    <li>
+                                                        {% with last_answer=topic.get_last_answer %}
+                                                        <a href="
+                                                            {% if last_answer %}
+                                                                {{ last_answer.get_absolute_url }}
+                                                            {% else %}
+                                                                {{ topic.first_post.get_absolute_url }}
+                                                            {% endif %}"
+                                                           class="read"
+                                                        >
+                                                            {% with p=last_read.author|profile %}
+                                                            <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                            <span class="username">{{ last_read.author.username }}</span>
+                                                            <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                            {% endwith %}
+                                                        </a>
+                                                        {% endwith %}
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                    <li class="dropdown-empty-message">
+                                                        Aucun sujet suivi
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "zds.forum.views.followed_topics" %}" class="dropdown-link-all">
+                                                Toutes les notifications
+                                            </a>
+                                        </div>
                                     {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
@@ -320,40 +320,40 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
-                                {% with posts=user|alerts_topic %}
-                                    <div>
-                                        {# TODO : Il manque un lien / page ici #}
-                                        <a href="#" class="ico-link">
-                                            <span class="notif-text ico ico-alerts">Alertes</span>
-                                            {% if posts.count > 0 %}
-                                                <span class="notif-count">{{ posts.count }}</span>
-                                            {% endif %}
-                                        </a>
-
-                                        <div class="dropdown">
-                                            <span class="dropdown-title">Alertes Modération</span>
-                                            <ul class="dropdown-list">
-                                                {% for post in posts %}
-                                                    <li>
-                                                        <a href="{{ post.get_absolute_url }}">
-                                                            <span class="username">{{ post.topic.title }}</span>
-                                                            <span class="date">FORUM</span>
-                                                            <span class="topic">MOTIF DE L'ALERTE</span>
-                                                        </a>
-                                                    </li>
-                                                {% empty %}
-                                                    <li class="dropdown-empty-message">
-                                                        Aucune alerte
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                            {# TODO : Il manque un lien / page ici (idem qu'au dessus) #}
-                                            <a href="#" class="dropdown-link-all">
-                                                Toutes les alertes
+                                    {% with posts=user|alerts_topic %}
+                                        <div>
+                                            {# TODO : Il manque un lien / page ici #}
+                                            <a href="#" class="ico-link">
+                                                <span class="notif-text ico ico-alerts">Alertes</span>
+                                                {% if posts.count > 0 %}
+                                                    <span class="notif-count">{{ posts.count }}</span>
+                                                {% endif %}
                                             </a>
+
+                                            <div class="dropdown">
+                                                <span class="dropdown-title">Alertes Modération</span>
+                                                <ul class="dropdown-list">
+                                                    {% for post in posts %}
+                                                        <li>
+                                                            <a href="{{ post.get_absolute_url }}">
+                                                                <span class="username">{{ post.topic.title }}</span>
+                                                                <span class="date">FORUM</span>
+                                                                <span class="topic">MOTIF DE L'ALERTE</span>
+                                                            </a>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="dropdown-empty-message">
+                                                            Aucune alerte
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                                {# TODO : Il manque un lien / page ici (idem qu'au dessus) #}
+                                                <a href="#" class="dropdown-link-all">
+                                                    Toutes les alertes
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                {% endwith %}
+                                    {% endwith %}
                                 {% else %}
                                     <a href="{% url "zds.member.views.settings_profile" %}"
                                        id="open-my-account"
@@ -367,33 +367,34 @@
 
                             <div>
                                 {% with profile=user|profile %}
-                                <a href="{% url "zds.member.views.settings_profile" %}" 
-                                   id="my-account"
-                                   class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
-                                   title="Mon compte" 
-                                   data-title="Mon compte"
+                                    <a href="{% url "zds.member.views.settings_profile" %}" 
+                                       id="my-account"
+                                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
+                                       title="Mon compte" 
+                                       data-title="Mon compte"
 
-                                   {% if not perms.forum.change_post %}
-                                       tabindex="-1"
-                                       data-active="open-my-account"
-                                   {% endif %}
-                                >
-                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                                    <span class="username label">{{ user.username }}</span>
-                                </a>
+                                       {% if not perms.forum.change_post %}
+                                           tabindex="-1"
+                                           data-active="open-my-account"
+                                       {% endif %}
+                                    >
+                                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                        <span class="username label">{{ user.username }}</span>
+                                    </a>
                                 {% endwith %}
+
                                 <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
                                     <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                                     <ul class="dropdown-list">
                                         <li>
-                                            <a href="{% url "zds.member.views.details" user.username %}">Mon Profil</a>
+                                            <a href="{% url "zds.member.views.details" user.username %}">Mon profil</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.tutorials" %}">Mes Tutoriels</a>
+                                            <a href="{% url "zds.member.views.tutorials" %}">Mes tutoriels</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.articles" %}">Mes Articles</a>
+                                            <a href="{% url "zds.member.views.articles" %}">Mes articles</a>
                                         </li>
                                         <li>
                                             <a href="{% url "zds.gallery.views.gallery_list" %}">Galeries d'images</a>
@@ -403,19 +404,25 @@
                                         </li>
 
                                         {% if perms.tutorial.change_tutorial %}
-                                        <li>
-                                            <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
-                                        </li>
+                                            <li>
+                                                <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
+                                            </li>
                                         {% endif %}
 
                                         {% if perms.article.change_article %}
-                                        <li>
-                                            <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
-                                        </li>
+                                            <li>
+                                                <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
+                                            </li>
                                         {% endif %}
 
                                         <li>
-                                            <a href="{% url "zds.member.views.logout_view" %}">Déconnexion</a>
+                                            <form 
+                                                method="post"
+                                                action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit">Déconnexion</button>
+                                            </form>
                                         </li>
                                     </ul>
                                 </div>
@@ -458,6 +465,15 @@
             <div class="main wrapper clearfix">
                 
                 <main class="content-container" role="main" id="content">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert-box {{ message.tags }}">
+                                <span>{{ message }}</span>
+                                <a href="#" class="close">&times;</a>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
                     {% block content_out %}
                         <section>
                             <h2>{% block headline %}{% endblock %}</h2>
@@ -468,15 +484,6 @@
 
                             {% if headlinesub %}
                                 <h3 class="subtitle">{{ headlinesub|safe }}</h3>
-                            {% endif %}
-
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert-box {{ message.tags }}">
-                                        <span>{{ message }}</span>
-                                        <a href="#" class="close">&times;</a>
-                                    </div>
-                                {% endfor %}
                             {% endif %}
 
                             {% block content %}{% endblock %}
@@ -501,12 +508,6 @@
 
     {# Javascript stuff start #}
     {% compressed_js "main-js" %}
-
-    {# for addtionnal javascript in some pages #}
-    {% block extrajs %}{% endblock %}
-
-    {# FIXME : choisir entre ce block ou celui du dessus #}
-    {% block additionnal-js %}{% endblock %}
 
 
 

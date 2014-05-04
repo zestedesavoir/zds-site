@@ -20,26 +20,36 @@ IMAGE_THUMB_MAX_HEIGHT = 128
 IMAGE_MEDIUM_MAX_WIDTH = 400
 IMAGE_MEDIUM_MAX_HEIGHT = 300
 
+
 def image_path(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/normal', str(instance.gallery.pk), filename)
+    return os.path.join(
+        'galleries', 'normal', str(
+            instance.gallery.pk), filename)
+
 
 def image_path_thumb(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/thumb', str(instance.gallery.pk), filename)
+    return os.path.join(
+        'galleries', 'thumb', str(
+            instance.gallery.pk), filename)
+
 
 def image_path_medium(instance, filename):
-    '''Return path to an image'''
+    """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries/medium', str(instance.gallery.pk), filename)
+    return os.path.join(
+        'galleries', 'medium', str(
+            instance.gallery.pk), filename)
 
 
 class UserGallery(models.Model):
+
     class Meta:
         verbose_name = "Galeries de l'utilisateur"
         verbose_name_plural = "Galeries de l'utilisateur"
@@ -53,7 +63,7 @@ class UserGallery(models.Model):
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default='R')
 
     def __unicode__(self):
-        '''Textual form of an User Gallery'''
+        """Textual form of an User Gallery."""
         return u'Galerie "{0}" envoye par {1}'.format(self.gallery,
                                                       self.user)
 
@@ -74,6 +84,7 @@ class UserGallery(models.Model):
 
 
 class Image(models.Model):
+
     class Meta:
         verbose_name = "Image"
         verbose_name_plural = "Images"
@@ -82,15 +93,21 @@ class Image(models.Model):
     title = models.CharField('Titre', max_length=80, null=True, blank=True)
     slug = models.SlugField(max_length=80)
     physical = models.ImageField(upload_to=image_path)
-    thumb = models.ImageField(upload_to=image_path_thumb)
-    medium = models.ImageField(upload_to=image_path_medium)
+    thumb = models.ImageField(
+        upload_to=image_path_thumb,
+        null=True,
+        blank=True)
+    medium = models.ImageField(
+        upload_to=image_path_medium,
+        null=True,
+        blank=True)
     legend = models.CharField('Légende', max_length=80, null=True, blank=True)
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
     update = models.DateTimeField(
         'Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        '''Textual form of an Image'''
+        """Textual form of an Image."""
         return self.slug
 
     def get_absolute_url(self):
@@ -98,55 +115,62 @@ class Image(models.Model):
 
     def get_extension(self):
         return os.path.splitext(self.nom_physique)[1]
-    
-    def save(self, force_update=False, force_insert=False, thumb_size=(IMAGE_THUMB_MAX_WIDTH, IMAGE_THUMB_MAX_HEIGHT), medium_size=(IMAGE_MEDIUM_MAX_WIDTH, IMAGE_MEDIUM_MAX_HEIGHT)):
-        if has_changed(self, 'physical') and self.physical :
+
+    def save(
+        self,
+        force_update=False,
+        force_insert=False,
+        thumb_size=(
+            IMAGE_THUMB_MAX_WIDTH,
+            IMAGE_THUMB_MAX_HEIGHT),
+        medium_size=(
+            IMAGE_MEDIUM_MAX_WIDTH,
+            IMAGE_MEDIUM_MAX_HEIGHT)):
+        if has_changed(self, 'physical') and self.physical:
             # TODO : delete old image
-            
+
             image = PILImage.open(self.physical)
-            
+
             if image.mode not in ('L', 'RGB'):
                 image = image.convert('RGB')
-            
-            #Medium
+
+            # Medium
             image.thumbnail(medium_size, PILImage.ANTIALIAS)
-            
+
             # save the thumbnail to memory
             temp_handle = StringIO()
             image.save(temp_handle, 'png')
-            temp_handle.seek(0) # rewind the file
-            
+            temp_handle.seek(0)  # rewind the file
+
             # save to the thumbnail field
             suf = SimpleUploadedFile(os.path.split(self.physical.name)[-1],
                                      temp_handle.read(),
                                      content_type='image/png')
-            self.medium.save(suf.name+'.png', suf, save=False)
-            
-            #Thumbnail
+            self.medium.save(suf.name + '.png', suf, save=False)
+
+            # Thumbnail
             image.thumbnail(thumb_size, PILImage.ANTIALIAS)
-            
+
             # save the thumbnail to memory
             temp_handle = StringIO()
             image.save(temp_handle, 'png')
-            temp_handle.seek(0) # rewind the file
-            
+            temp_handle.seek(0)  # rewind the file
+
             # save to the thumbnail field
             suf = SimpleUploadedFile(os.path.split(self.physical.name)[-1],
                                      temp_handle.read(),
                                      content_type='image/png')
-            self.thumb.save(suf.name+'.png', suf, save=False)
-        
-            
+            self.thumb.save(suf.name + '.png', suf, save=False)
+
             # save the image object
             super(Image, self).save(force_update, force_insert)
-        else :
+        else:
             super(Image, self).save()
 
 
 def has_changed(instance, field, manager='objects'):
-    """Returns true if a field has changed in a model
-    May be used in a model.save() method.
-    """
+    """Returns true if a field has changed in a model May be used in a
+    model.save() method."""
     if not instance.pk:
         return True
     manager = getattr(instance.__class__, manager)
@@ -158,9 +182,7 @@ def has_changed(instance, field, manager='objects'):
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """Deletes image from filesystem
-    when corresponding object is deleted.
-    """
+    """Deletes image from filesystem when corresponding object is deleted."""
     if instance.physical:
         if os.path.isfile(instance.physical.path):
             os.remove(instance.physical.path)
@@ -180,7 +202,7 @@ class Gallery(models.Model):
         'Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        '''Textual form of an Gallery'''
+        """Textual form of an Gallery."""
         return self.title
 
     def get_absolute_url(self):

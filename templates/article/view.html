@@ -98,11 +98,10 @@
 
 
 {% block content %}
-
     {{ article.txt|safe }}
 
 
-    {% include "article/includes/view_pager.part.html" %}
+    {% include "article/includes/pager.part.html" %}
 
 
     <h3 class="subtitle">Réactions</h3>
@@ -110,16 +109,8 @@
     {% include "misc/pagination.part.html" with position="top" pages=reactions %}
 
     {% for message in reactions %}
-        {% captureas hide_link %}
-            {# TODO : Lien pour masquer #}
-        {% endcaptureas %}
-
         {% captureas edit_link %}
             {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas alert_link %}
-            {# TODO : Lien de signalement #}
         {% endcaptureas %}
 
         {% captureas cite_link %}
@@ -134,7 +125,7 @@
             {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% include 'misc/message.part.html' %}
+        {% include 'misc/message.part.html' with perms_change=perms.article.change_reaction topic=article %}
     {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" pages=reactions %}
@@ -152,4 +143,3 @@
         {% endwith %}
     {% endif %}
 {% endblock %}
-

@@ -13,6 +13,12 @@
 
 
 
+{% block breadcrumb %}
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+
+
 {% block headline %}
     {{ topic.title }}
 {% endblock %}
@@ -21,12 +27,6 @@
 
 {% block headline_sub %}
     {{ topic.subtitle }}
-{% endblock %}
-
-
-
-{% block breadcrumb %}
-    <li>{{ topic.title }}</li>
 {% endblock %}
 
 
@@ -42,13 +42,33 @@
             </li>
 
             {% if topic.author == user %}
-                {# TODO : implémenter / mettre le bon lien #}
                 <li>
-                    <a href="#">
-                        Ajouter un membre
-                    </a>
+                    <a href="#add-participant">Ajouter un membre</a>
+                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant">
+                        <p>
+                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                        </p>
+                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
+
+                        {% csrf_token %}
+                        <button type="submit">Ajouter</button>
+                    </form>
                 </li>
             {% endif %}
+
+            <li>
+                <a href="#leave-conversation">Quitter la conversation</a>
+                <form action="{% url "zds.mp.views.leave" %}" mathod="post" id="leave-conversation">
+                    <p>
+                        Attention, vous vous appretez à quitter définitivement de cette conversation.
+                    </p>
+                    <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+
+                    {% csrf_token %}
+                    <button type="submit">Confirmer</button>
+                </form>
+            </li>
         </ul>
     </div>
 {% endblock %}
@@ -56,10 +76,12 @@
 
 
 {% block content %}
-
     <div class="authors">
         <span class="authors-label">Participants : </span>
         <ul>
+            <li>
+                {% include 'misc/member_item.part.html' with member=topic.author %}
+            </li>
             {% for member in topic.participants.all %}
                 <li>
                     {% include 'misc/member_item.part.html' %}
@@ -74,10 +96,6 @@
     {% for message in posts %}
         {% captureas edit_link %}
             {% url "zds.mp.views.edit_post" %}?message={{ post.pk }}
-        {% endcaptureas %}
-
-        {% captureas alert_link %}
-            {# TODO : Lien de signalement #}
         {% endcaptureas %}
 
         {% captureas cite_link %}

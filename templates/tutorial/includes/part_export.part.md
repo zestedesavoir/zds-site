@@ -4,10 +4,10 @@
 {% with chapters=part.chapters %}
 {% if part.intro %}{{ part.intro|safe }}{% endif %}
 {% for chapter in chapters %}
-##Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}
+## {{ chapter.title }}
 {% for extract in chapter.extracts %}
 ###{{ extract.title }}
-{{ extract.txt|safe }}
+{{ extract.txt|safe|decale_header_3 }}
 {% endfor %}
 {% endfor %}
 {% if part.conclu %}{{ part.conclu|safe }}{% endif %}

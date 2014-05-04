@@ -1,25 +1,28 @@
 # coding: utf-8
 
-from django import forms
 from django.conf import settings
 
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
     HTML, Hidden
+from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+
+from zds.gallery.models import Gallery, Image
 
 
 class GalleryForm(forms.Form):
     title = forms.CharField(
-        label = 'Titre',
-        max_length = 80
+        label='Titre',
+        max_length = Gallery._meta.get_field('title').max_length,
     )
 
     subtitle = forms.CharField(
-        label = 'Sous-titre',
-        max_length = 200,
-        required = False
+        label='Sous-titre',
+        max_length = Gallery._meta.get_field('subtitle').max_length,
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -33,37 +36,39 @@ class GalleryForm(forms.Form):
             Field('title'),
             Field('subtitle'),
             ButtonHolder(
-                Submit('submit', u'Créer'),
+                StrictButton(u'Créer', type='submit'),
             ),
         )
-    
+
     def clean(self):
         cleaned_data = super(GalleryForm, self).clean()
 
         title = cleaned_data.get('title')
-        
+
         if title.strip() == '':
-            self._errors['title'] = self.error_class([u'Le champ titre ne peut être vide'])
+            self._errors['title'] = self.error_class(
+                [u'Le champ titre ne peut être vide'])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
-        
+
         return cleaned_data
+
 
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
-        label = 'Membre',
-        max_length = 80,
-        required = True,
-        widget = forms.TextInput(
-            attrs = {
+        label='Membre',
+        max_length = User._meta.get_field('username').max_length,
+        required=True,
+        widget=forms.TextInput(
+            attrs={
                 'placeholder': 'Nom de l\'utilisateur'
             }
         )
     )
 
     mode = forms.ChoiceField(
-        label = '',
-        choices = (
+        label='',
+        choices=(
             ('R', "En mode lecture"),
             ('W', "En mode écriture"),
         ),
@@ -84,37 +89,39 @@ class UserGalleryForm(forms.Form):
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
             ButtonHolder(
-                Submit('submit', 'Ajouter'),
+                StrictButton('Ajouter', type='submit'),
             ),
         )
-        
+
     def clean(self):
         cleaned_data = super(UserGalleryForm, self).clean()
 
         user = cleaned_data.get('user')
-        
+
         if User.objects.filter(username=user).count() == 0:
-            self._errors['user'] = self.error_class([u'Ce nom d\'utilisateur n\'existe pas'])
-        
+            self._errors['user'] = self.error_class(
+                [u'Ce nom d\'utilisateur n\'existe pas'])
+
         return cleaned_data
+
 
 class ImageForm(forms.Form):
     title = forms.CharField(
-        label = 'Titre',
-        max_length = 80,
-        required = True,
+        label='Titre',
+        max_length = Image._meta.get_field('title').max_length,
+        required=True,
     )
 
     legend = forms.CharField(
-        label = u'Légende', 
-        max_length = 150,
-        required = False,
+        label=u'Légende',
+        max_length = Image._meta.get_field('legend').max_length,
+        required=False,
     )
 
     physical = forms.ImageField(
-        label = u'Sélectionnez votre image',
-        required = True,
-        help_text = 'Taille maximum : ' + str(settings.IMAGE_MAX_SIZE) + ' megabytes'
+        label=u'Sélectionnez votre image',
+        required=True,
+        help_text='Taille maximum : ' + str(settings.IMAGE_MAX_SIZE) + ' megabytes'
     )
 
     def __init__(self, *args, **kwargs):
@@ -128,7 +135,7 @@ class ImageForm(forms.Form):
             Field('legend'),
             Field('physical'),
             ButtonHolder(
-                Submit('submit', u'Ajouter'),
-                HTML('<a class="btn btn-submit" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                StrictButton('Ajouter', type='submit'),
+                HTML('<a class="btn btn-cancel" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )

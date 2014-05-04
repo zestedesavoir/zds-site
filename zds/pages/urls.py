@@ -2,15 +2,15 @@
 
 from django.conf.urls import patterns, url
 
-import views
+from . import views
 
 
 urlpatterns = patterns('',
 
-    # Markdown helper
-    url(r'^markdown$', views.help_markdown),
-    url(r'^apropos$', views.about),
-    url(r'^roadmap$', views.roadmap),
+                       url(r'^apropos$', 'zds.pages.views.about'),
+                       url(r'^association', 'zds.pages.views.association'),
+                       url(r'^contact', 'zds.pages.views.contact'),
+                       url(r'^cgu', 'zds.pages.views.eula'),
 
-    url(r'^$', views.index),
-)
+                       url(r'^$', 'zds.pages.views.index'),
+                       )

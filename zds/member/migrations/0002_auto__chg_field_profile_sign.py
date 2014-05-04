@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -9,13 +9,13 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
 
-        # Changing field 'Profile.last_ip_address'
-        db.alter_column(u'member_profile', 'last_ip_address', self.gf('django.db.models.fields.CharField')(max_length=15, null=True))
+        # Changing field 'Profile.sign'
+        db.alter_column(u'member_profile', 'sign', self.gf('django.db.models.fields.CharField')(max_length=250))
 
     def backwards(self, orm):
 
-        # Changing field 'Profile.last_ip_address'
-        db.alter_column(u'member_profile', 'last_ip_address', self.gf('django.db.models.fields.CharField')(default='', max_length=15))
+        # Changing field 'Profile.sign'
+        db.alter_column(u'member_profile', 'sign', self.gf('django.db.models.fields.TextField')())
 
     models = {
         u'auth.group': {
@@ -36,7 +36,7 @@ class Migration(SchemaMigration):
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -44,7 +44,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
@@ -60,7 +60,7 @@ class Migration(SchemaMigration):
             'moderator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'bans'", 'to': u"orm['auth.User']"}),
             'pubdate': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '15'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '80'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
         },
         u'member.profile': {
@@ -71,15 +71,29 @@ class Migration(SchemaMigration):
             'can_write': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'end_ban_read': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'end_ban_write': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'hover_or_click': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'hover_or_click': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'karma': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'last_ip_address': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
             'show_email': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'show_sign': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'sign': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'sign': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
             'site': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+        },
+        u'member.tokenforgotpassword': {
+            'Meta': {'object_name': 'TokenForgotPassword'},
+            'date_end': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'token': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+        },
+        u'member.tokenregister': {
+            'Meta': {'object_name': 'TokenRegister'},
+            'date_end': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'token': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
         }
     }
 
