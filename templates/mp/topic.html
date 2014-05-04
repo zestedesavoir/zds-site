@@ -95,7 +95,7 @@
 
                     <div class="message-metadata left">
                         <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-                        if not post.update = None %}
+                        {% if not post.update = None %}
                             <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
                         {% endif %}
                     </div>
