@@ -180,7 +180,6 @@ def reservation(request, validation_pk):
 
 @can_read_now
 @login_required
-@permission_required('tutorial.change_tutorial', raise_exception=True)
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -188,6 +187,10 @@ def diff(request, tutorial_pk, tutorial_slug):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied
 
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
