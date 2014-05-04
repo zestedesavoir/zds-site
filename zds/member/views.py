@@ -610,7 +610,7 @@ def active_account(request):
     usr = token.user
     # User can't confirm his request if it is too late.
     if datetime.now() > token.date_end:
-        return render_template('member/token_account_failed.html')
+        return render_template('member/token_account_failed.html', {'token': token})
 
     usr.is_active = True
     usr.save()
@@ -619,6 +619,51 @@ def active_account(request):
 
     return render_template('member/token_account_success.html', {'user': usr})
 
+def generate_token_account(request):
+    """
+    Generate token for account
+    """
+    try:
+        token = request.GET['token']
+    except KeyError:
+        return redirect(reverse('zds.pages.views.home'))
+    
+    token = get_object_or_404(TokenRegister, token=token)
+    # push date
+    date_end = datetime.now() + timedelta(days=0,
+                                          hours=1,
+                                          minutes=0,
+                                          seconds=0)
+    token.date_end = date_end
+    token.save()
+    
+    # send email
+    subject = "ZDS - Confirmation d'inscription"
+    from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+    message_html = get_template('email/confirm_register.html').render(
+        Context({
+            'username': token.user.username,
+            'url': settings.SITE_URL + token.get_absolute_url(),
+        })
+    )
+    message_txt = get_template('email/confirm_register.txt').render(
+        Context({
+            'username': token.user.username,
+            'url': settings.SITE_URL + token.get_absolute_url(),
+        })
+    )
+
+    msg = EmailMultiAlternatives(
+        subject, message_txt, from_email, [
+            token.user.email])
+    msg.attach_alternative(message_html, "text/html")
+    try:
+        msg.send()
+    except:
+        msg = None
+
+    return render_template('member/register_success.html', {
+    })
 
 def get_client_ip(request):
     """Retrieve the real IP address of the client."""
