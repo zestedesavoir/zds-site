@@ -2,51 +2,54 @@
 
 from collections import OrderedDict
 from datetime import datetime
-from django.conf import settings
-from django.core.files import File
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.utils.encoding import smart_str, smart_unicode
-from django.views.decorators.http import require_POST
+from operator import itemgetter, attrgetter
+from urllib import urlretrieve
+from urlparse import urlparse
 import glob
 import json
-from lxml import etree
-from operator import itemgetter, attrgetter
 import os
 import os.path
 import re
 import shutil
-from urllib import urlretrieve
+import subprocess
 import urllib
-from urlparse import urlparse
 import zipfile
 
+from PIL import Image as ImagePIL
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
 from git import *
+from lxml import etree
 
-from PIL import Image as ImagePIL
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
-from zds.utils.models import Category, Licence, CommentLike, CommentDislike,\
+from zds.utils.mps import send_mp
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
-from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
-import subprocess
+
 
 @can_read_now
 def index(request):
@@ -3049,6 +3052,27 @@ def answer(request):
             'form': form
         })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    # only staff can move topic
+    if not request.user.has_perm('tutorial.change_note'):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
+    note = Note.objects.get(alerts__in=[alert])
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, post.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.article.title), "", msg, False)
+    alert.delete()
+
+    messages.success(
+        request,
+        u'L\'alerte a bien été résolue')
+
+    return redirect(note.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
