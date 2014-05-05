@@ -1,0 +1,56 @@
+{% load humanize %}
+
+<tr class="
+    {% if user.is_authenticated %}
+        {% if topic.never_read %}
+            unread
+        {% else %}
+            read
+        {% endif %}
+    {% endif %}">
+    <td> 
+        <span class="{% if topic.is_locked %}forum-entry-locked{% endif %}">
+        </span>
+        <span class="{% if topic.is_solved %}forum-entry-solved{% endif %}">
+        </span>
+        <a href="{{ topic.get_absolute_url }}">
+            {{ topic.title }}
+        </a><br />
+        {% if topic.subtitle %}
+            <small>
+                {{ topic.subtitle }}
+            </small>
+        {% endif %}
+        <br />
+        Participants :
+        {% with member=topic.author %}
+             {% include "member/member_item_common.part.html" %}
+        {% endwith %}
+        {% for part in topic.participants.all %}
+            {% with member=topic.author %}
+                 | {% include "member/member_item_common.part.html" %}
+            {% endwith %}
+        {% endfor %}
+    </td>
+    <td class="forum-entry-count hide-for-small" >
+        <span class="label">
+            {{ topic.get_post_count|add:"-1" }}
+        </span>
+    </td>
+    <td width="290px">
+        <p>
+            {% with answer=topic.get_last_answer %}
+                {% if answer %}
+                    <span>Dernière rép. <span><a href="{{ answer.get_absolute_url }}" class="hide-for-small">{{ answer.pubdate|naturaltime }}</a> 
+                        <br />par
+                    {% with member=answer.author %}
+                        {% include "member/member_item_common.part.html" %}
+                    {% endwith %}
+                {% else %}
+                    Aucune réponse
+                {% endif %}
+            {% endwith %}
+
+        </p>
+    </td>
+</tr>
