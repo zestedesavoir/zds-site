@@ -489,6 +489,14 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	font-weight: bold;
 }
 
+.before {
+	background-color: #EEE
+}
+
+.before:after {
+	border-right-color: #EEE;
+}
+
 .topics-entries .read{
 	background-color: #EEE;
 }
@@ -548,8 +556,13 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	margin-right: 5px;
 }
 .useful {
-		background-color: #e9f9dc;
+	background-color: #e9f9dc;
 }
+
+.useful:after {
+	border-right-color: #e9f9dc;
+}
+
 .signature {
 	text-overflow: ellipsis;
 	width: 85%;
