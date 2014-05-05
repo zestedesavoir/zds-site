@@ -7,7 +7,7 @@
 {% if forum|readable:user %}
 <li class="card-forum">
     <div class="large-12 columns">
-    <div class="large-10 columns {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
+    <div class="large-10 columns">
         <h4><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></h3>
         <p>
             {{ forum.subtitle|truncatechars:38 }}
