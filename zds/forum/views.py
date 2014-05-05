@@ -716,9 +716,16 @@ def find_topic(request, user_pk):
         .filter(author=u)\
         .order_by('-pubdate')\
         .all()
+    
+    tops = []
+    for top in topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
 
     # Paginator
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -745,9 +752,15 @@ def find_post(request, user_pk):
                 .filter(author=u)\
                 .order_by('-pubdate')\
                 .all()
-
+    pts = []
+    for post in posts :
+        if not post.topic.forum.can_read(request.user):
+            continue
+        else:
+            pts.append(post)
+            
     # Paginator
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(pts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
