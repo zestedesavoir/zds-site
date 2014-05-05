@@ -158,6 +158,7 @@
                 </div>
                 </div>
             </div>
+            {% if perms.article.change_reaction %}
             {% for alert in post.alerts.all %}
             <div class="row">
                 <div class="large-12 columns alert-box alert">
@@ -178,6 +179,7 @@
                 </div>
             </div>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
 </div>
