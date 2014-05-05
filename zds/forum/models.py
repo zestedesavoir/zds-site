@@ -10,6 +10,7 @@ import uuid
 
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from zds.utils import get_current_user
 from zds.utils.models import Comment
@@ -145,7 +146,10 @@ class Topic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/sujet/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse(
+                'zds.forum.views.topic',
+                args=[self.pk, slugify(self.title)]
+                )
 
     def get_post_count(self):
         """Return the number of posts in the topic."""
