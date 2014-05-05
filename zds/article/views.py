@@ -793,16 +793,15 @@ def edit_reaction(request):
         reaction_pk = request.GET['message']
     except KeyError:
         raise Http404
-
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
 
     g_article = None
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
-
+    
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
-    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction'):
+    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') and 'signal-reaction' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_reaction'):
