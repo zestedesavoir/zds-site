@@ -37,10 +37,12 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
+from zds.mp.models import PrivateTopic
 from zds.utils import render_template, slugify
-from zds.utils.mps import send_mp
+from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
+from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
@@ -3064,8 +3066,8 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     note = Note.objects.get(alerts__in=[alert])
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, post.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.article.title), "", msg, False)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, note.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.tutorial.title), "", msg, False)
     alert.delete()
 
     messages.success(
