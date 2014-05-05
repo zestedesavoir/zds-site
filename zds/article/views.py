@@ -1,29 +1,31 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.utils.encoding import smart_str
-from django.views.decorators.http import require_POST
-import json
 from operator import attrgetter
+import json
 import os
 import shutil
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import smart_str
+from django.views.decorators.http import require_POST
 from git import *
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.articles import *
+from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -783,6 +785,27 @@ def answer(request):
             'form': form
         })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    # only staff can move topic
+    if not request.user.has_perm('article.change_reaction'):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
+    reaction = Reaction.objects.get(alerts__in=[alert])
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans l'article [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, reaction.author.username, reaction.article.title, settings.SITE_URL + reaction.get_absolute_url(), request.user.username, request.POST['text'])
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
+    alert.delete()
+
+    messages.success(
+        request,
+        u'L\'alerte a bien été résolue')
+
+    return redirect(reaction.get_absolute_url())
 
 @can_write_and_read_now
 @login_required

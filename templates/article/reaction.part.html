@@ -165,7 +165,7 @@
                     <div class="left">
                         <a href="#" class="tiny secondary actions" data-dropdown="solvealert{{alert.pk}}">Résoudre</a>
                         <div id="solvealert{{alert.pk}}" class="f-dropdown content"data-dropdown-content>
-                            <form id="formsolvealert{{alert.pk}}" method="POST" action="{% url "zds.forum.views.solve_alert" %}">
+                            <form id="formsolvealert{{alert.pk}}" method="POST" action="{% url "zds.article.views.solve_alert" %}">
                             <input type="hidden" name="alert_pk" value="{{alert.pk}}" />
                             <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
                             <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>
