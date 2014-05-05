@@ -86,4 +86,7 @@ urlpatterns = patterns('',
                        url(r'^message/nouveau$', 'zds.tutorial.views.answer'),
                        url(r'^message/like$', 'zds.tutorial.views.like_note'),
                        url(r'^message/dislike$', 'zds.tutorial.views.dislike_note'),
+                       
+                       # Moderation
+                       url(r'^resolution_alerte$', 'zds.tutorial.views.solve_alert'),
                        )
