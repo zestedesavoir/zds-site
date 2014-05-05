@@ -407,18 +407,21 @@ def login_view(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             profile = get_object_or_404(Profile, user=user)
-            if profile.can_read_now():
-                login(request, user)
-                request.session['get_token'] = generate_token()
-                if not 'remember' in request.POST:
-                    request.session.set_expiry(0)
-                # redirect the user if needed
-                try:
-                    return redirect(next_page)
-                except:
-                    return redirect(reverse('zds.pages.views.home'))
+            if user.is_active :
+                if profile.can_read_now():
+                    login(request, user)
+                    request.session['get_token'] = generate_token()
+                    if not 'remember' in request.POST:
+                        request.session.set_expiry(0)
+                    # redirect the user if needed
+                    try:
+                        return redirect(next_page)
+                    except:
+                        return redirect(reverse('zds.pages.views.home'))
+                else:
+                    messages.error(request, 'Vous n\'êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur')
             else:
-                messages.error(request, 'Vous n\'êtes pas autorisé à vous connecter sur le site')
+                messages.error(request, 'Vous n\'avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site. Regardez dans vos mails : '+str(user.email))
         else:
             messages.error(request, 'Les identifiants fournis ne sont pas valides')
     
