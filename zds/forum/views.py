@@ -537,9 +537,17 @@ def edit_post(request):
 
         # Using the preview button
         if 'preview' in request.POST:
-            form = PostForm(post.topic, request.user, initial={
-                'text': request.POST['text']
-            })
+            if g_topic:
+                form = TopicForm(initial={
+                    'title': request.POST['title'],
+                    'subtitle': request.POST['subtitle'],
+                    'text': request.POST['text']
+                })
+            else:
+                form = PostForm(post.topic, request.user, initial={
+                    'text': request.POST['text']
+                })
+            
             form.helper.form_action = reverse(
                 'zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
