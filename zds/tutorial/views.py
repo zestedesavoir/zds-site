@@ -3068,7 +3068,7 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note
     # must to be the user logged.
-    if note.author != request.user and not request.user.has_perm('tutorial.change_note'):
+    if note.author != request.user and not request.user.has_perm('tutorial.change_note')and 'signal-note' not in request.POST:
         raise PermissionDenied
 
     if note.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
