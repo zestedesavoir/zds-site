@@ -29,7 +29,7 @@
                 {% endif %}
             {% endwith %}
         </div>
-        <div class="large-11 columns message-forum {% if post.is_useful %}useful{% endif %}">
+        <div class="large-11 columns message-forum {% if forloop.first and nb > 1 %}before{% endif %} {% if post.is_useful %}useful{% endif %}">
             <div class="row">
                 <div class="large-12 columns">
                     {% if user.is_authenticated %}
