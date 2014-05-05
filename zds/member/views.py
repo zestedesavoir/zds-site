@@ -18,6 +18,7 @@ from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from zds.utils.mps import send_mp
 
 import pygal
 from zds.article.models import Article
@@ -121,38 +122,52 @@ def modify_profile(request, user_pk):
         ban.moderator = request.user
         ban.user = profile.user
         ban.pubdate = datetime.now()
-
+        
+        
         if 'ls' in request.POST:
             profile.can_write = False
-            ban.type = 'Lecture Seule'
+            ban.type = u'Lecture Seule'
             ban.text = request.POST['ls-text']
+            detail = u"vous ne pouvez plus poster dans les forums, ni dans les commentaires d'articles et de tutoriels."
         if 'ls-temp' in request.POST:
-            ban.type = 'Lecture Seule Temporaire'
+            ban.type = u'Lecture Seule Temporaire'
             ban.text = request.POST['ls-temp-text']
             profile.can_write = False
             profile.end_ban_write = datetime.now(
             ) + timedelta(days=int(request.POST['ls-jrs']), hours=0, minutes=0, seconds=0)
+            detail = u"vous ne pouvez plus poster dans les forums, ni dans les commentaires d'articles et de tutoriels pendant "+request.POST['ls-jrs']+" jours."
         if 'ban-temp' in request.POST:
-            ban.type = 'Ban Temporaire'
+            ban.type = u'Ban Temporaire'
             ban.text = request.POST['ban-temp-text']
             profile.can_read = False
             profile.end_ban_read = datetime.now(
             ) + timedelta(days=int(request.POST['ban-jrs']), hours=0, minutes=0, seconds=0)
+            detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir pendant "+request.POST['ban-jrs']+" jours."
         if 'ban' in request.POST:
-            ban.type = 'Ban définitif'
+            ban.type = u'Ban définitif'
             ban.text = request.POST['ban-text']
             profile.can_read = False
+            detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir."
         if 'un-ls' in request.POST:
-            ban.type = 'Authorisation d\'écrire'
+            ban.type = u'Authorisation d\'écrire'
             ban.text = request.POST['unls-text']
             profile.can_write = True
+            detail = u"vous pouvez désormais poster sur les forums, dans les commentaires d'articles et tutoriels."
         if 'un-ban' in request.POST:
-            ban.type = 'Authorisation de se connecter'
+            ban.type = u'Authorisation de se connecter'
             ban.text = request.POST['unban-text']
             profile.can_read = True
-
+            detail = u"vous pouvez désormais vous connecter sur le site."
+        
         profile.save()
         ban.save()
+        
+        #send register message
+        msg = u"Bonjour **{0}**,\n\nTu as été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, ban.type, detail, ban.text)
+        
+        
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(bot, [ban.user], ban.type, "Sanction", msg, True, direct = True)
 
     return redirect(profile.get_absolute_url())
 
@@ -615,9 +630,14 @@ def active_account(request):
     usr.is_active = True
     usr.save()
 
-    token.delete()
 
-    return render_template('member/token_account_success.html', {'user': usr})
+    #send register message
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    msg = u"Bonjour **{0}**,\n\nTon compte a été activé, et tu es donc officiellement membre de la communauté de ZesteDeSavoir.\n\nZesteDeSavoir est une communauté dont le but est de diffuser des connaissances au plus grand nombre.\n\nSur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans plusieurs domaines et plus particulièrement autour de l'informatique et des sciences. Tu y retrouveras aussi des [articles]({2}) traitant de sujets d'actualités ou non, qui, tout comme les tutoriels, sont écrits par des [membres]({3}) de la communauté. Pendant tes lectures et ton apprentissage, si jamais tu as des questions à poser, tu retrouveras sur les [forums]({4}) des personnes prêtes à te filer un coup de main et ainsi t'éviter de passer plusieurs heures sur un problème.\n\nL'ensemble du contenu disponible sur le site est et sera toujours gratuit, car la communauté de ZesteDeSavoir est attachée aux valeurs du libre partage et désire apporter le savoir à tout le monde quelques soit ses moyens.\n\nEn espérant que tu t'y plaira ici, je te laisse maintenant faire le tour".format(usr.username,reverse('zds.tutorial.views.index'),reverse('zds.article.views.index'),reverse('zds.member.views.index'),reverse('zds.forum.views.index'))
+    send_mp(bot, [usr], u"Bienvenue sur ZesteDeSavoir", u"Le manuel du nouveau membre", msg, True, True, False)
+    return render_template('member/token_account_success.html', {'usr': usr})
+
+    token.delete()
 
 def generate_token_account(request):
     """
