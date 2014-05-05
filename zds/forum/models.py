@@ -148,7 +148,7 @@ class Topic(models.Model):
     def get_absolute_url(self):
         return reverse(
                 'zds.forum.views.topic',
-                args=[self.pk, slugify(self.title)
+                args=[self.pk, slugify(self.title)]
                 )
 
     def get_post_count(self):
