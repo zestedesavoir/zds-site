@@ -17,6 +17,8 @@ class MemberTests(TestCase):
 
     def setUp(self):
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = UserFactory()
+        settings.BOT_ACCOUNT = self.mas.username
 
     def test_login(self):
         """To test user login."""
@@ -62,7 +64,9 @@ class MemberTests(TestCase):
         result = self.client.get(
             settings.SITE_URL + token.get_absolute_url(),
             follow=False)
+        
         self.assertEqual(result.status_code, 200)
+        self.assertEquals(len(mail.outbox), 2)
 
         self.assertEquals(User.objects.get(username='firm1').is_active, True)
 
@@ -91,6 +95,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
         self.assertEqual(ban.type, 'Lecture Seule')
         self.assertEqual(ban.text, 'Texte de test pour LS')
+        self.assertEquals(len(mail.outbox), 1)
 
         # Test: Un-LS
         result = self.client.post(
@@ -107,6 +112,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Authorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
+        self.assertEquals(len(mail.outbox), 2)
 
         # Test: LS temp
         user_ls_temp = ProfileFactory()
@@ -125,6 +131,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Lecture Seule Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour LS TEMP')
+        self.assertEquals(len(mail.outbox), 3)
 
         # Test: BAN
         user_ban = ProfileFactory()
@@ -142,6 +149,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
+        self.assertEquals(len(mail.outbox), 4)
 
         # Test: un-BAN
         result = self.client.post(
@@ -158,6 +166,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Authorisation de se connecter')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
+        self.assertEquals(len(mail.outbox), 5)
 
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
@@ -175,3 +184,4 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, 'Ban Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
+        self.assertEquals(len(mail.outbox), 6)
