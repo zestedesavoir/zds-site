@@ -455,10 +455,10 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}\nSource:[{1}{2}]({3})'.format(
+            text = u'{0}\nSource:[{1}]({2}{3})'.format(
                 text,
-                settings.SITE_URL,
                 post_cite.author.username,
+                settings.SITE_URL,
                 post_cite.get_absolute_url())
 
         form = PostForm(g_topic, request.user, initial={
