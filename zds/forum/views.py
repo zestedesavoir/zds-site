@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed, TopicRead
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
@@ -25,7 +25,12 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+from django.views.decorators.cache import cache_page
 
+
+@cache_page(60 * 2)
 @can_read_now
 def index(request):
     """Display the category list with all their forums."""
@@ -86,6 +91,7 @@ def details(request, cat_slug, forum_slug):
     })
 
 
+@cache_page(60 * 2)
 @can_read_now
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
@@ -115,6 +121,9 @@ def topic(request, topic_pk, topic_slug):
     if request.user.is_authenticated():
         if never_read(topic):
             mark_read(topic)
+        elif TopicFollowed.objects.filter(topic=topic, user=request.user).count()>0 :
+            if TopicRead.objects.filter(topic=topic, user=request.user).last().post.pk != topic.last_message.pk:
+                cache.delete(make_template_fragment_key('notification', str(request.user.pk)))
 
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
@@ -158,7 +167,7 @@ def topic(request, topic_pk, topic_slug):
         'zds.forum.views.answer') + '?sujet=' + str(topic.pk)
 
     form_move = MoveTopicForm(topic=topic)
-
+    
     return render_template('forum/topic.html', {
         'topic': topic,
         'posts': res,
@@ -805,7 +814,9 @@ def followed_topics(request):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-
+    
+    cache.delete(make_template_fragment_key('notification', str(request.user.pk)))
+    
     return render_template('forum/followed_topics.html', {
         'followed_topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages),

@@ -3,6 +3,7 @@
 {% load interventions %}
 {% load topbar %}
 {% load humanize %}
+{% load cache %}
 
 {% block menu_home %}
 class="active"
@@ -22,6 +23,7 @@ class="active"
 
 {% block sidebar %}
     <h3>Catégories de tutoriels</h3>
+    {% cache 600 top %}
     {% with categories='.'|top_categories_tuto %}
     <dl class="accordion" data-accordion>
     {% for category in categories %}
@@ -48,6 +50,7 @@ class="active"
     {% endfor %}
     </dl>
     {% endwith %}
+    {% endcache %}
 {% endblock %}
 
 
@@ -101,7 +104,7 @@ class="active"
 
     <div class="large-6 columns">
         <h2 class="box tutoriel">Dernier tutoriels</h2>
-        
+        {% cache 600 top %}
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">
@@ -121,6 +124,6 @@ class="active"
                 </div>
             {% endfor %}
         {% endif %}
-        
+        {% endcache %}
     </div>
 {% endblock %}

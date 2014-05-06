@@ -4,6 +4,7 @@
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
+{% load cache %}
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -40,6 +41,7 @@
         {% if user.is_authenticated %}
         <ul class="right">
           <li class="has-dropdown">
+          {% cache 90 message user.pk %}
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -90,8 +92,10 @@
             {% endwith %}
             {% endwith %}
             {% endwith %}
+          {% endcache %}
           </li>
           <li class="has-dropdown">
+          {% cache 60 notification user.pk %}
             {% with topics=user|interventions_topics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -142,7 +146,9 @@
             {% endwith %}
             {% endwith %}
             {% endwith %}
+          {% endcache %}
           </li>
+          {% cache 120 moderation user.pk %}
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
             {% with posts=user|alerts_topic %}
@@ -190,6 +196,7 @@
             {% endwith %}
           </li>
           {% endif %}
+          {% endcache %}
           <li class="has-dropdown">
             {% with profile=user|profile %}
             <a href="#"><img src="{{ profile.get_avatar_url }}" alt=""></a>
@@ -239,6 +246,7 @@
         </ul>
         {% endif %}
         <!-- Left Nav Section -->
+        {% cache 600 top %}
         <ul class="left">
           <li class="has-dropdown">
             <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
@@ -298,6 +306,7 @@
             </ul>
           </li>
         </ul>
+        {% endcache %}
       </section>
     </nav>
     <div class="ariane">
@@ -357,7 +366,6 @@
   </footer>
     <script type="text/javascript" src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
     <script type="text/javascript" src="{% static "bower_components/modernizr/modernizr.js" %}"></script>
-    <script type="text/javascript" src="{% static "bower_components/fastclick/lib/fastclick.js" %}"></script>
     <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
     <script type="text/javascript" src="{% static "js/newsletter.js" %}"></script>
     <script type="text/javascript" src="{% static "js/editor.js" %}"></script>
