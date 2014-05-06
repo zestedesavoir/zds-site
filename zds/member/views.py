@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import os
 import uuid
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -19,6 +20,7 @@ from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from zds.utils.mps import send_mp
+from zds.utils.paginator import paginator_range
 
 import pygal
 from zds.article.models import Article
@@ -36,9 +38,27 @@ from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 @can_read_now
 def index(request):
     """Displays the list of registered users."""
-    members = User.objects.order_by('date_joined')
+
+    members = User.objects.order_by('-date_joined')
+
+    # Paginator
+    paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
+    page = request.GET.get('page')
+
+    try:
+        shown_members = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_members = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_members = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+
     return render_template('member/index.html', {
-        'members': members
+        'members': shown_members, 'count': members.count(),
+        'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
 
 
