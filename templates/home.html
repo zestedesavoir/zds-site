@@ -23,7 +23,7 @@ class="active"
 
 {% block sidebar %}
     <h3>Catégories de tutoriels</h3>
-    {% cache 600 top %}
+    {% cache 600 top_cat %}
     {% with categories='.'|top_categories_tuto %}
     <dl class="accordion" data-accordion>
     {% for category in categories %}
@@ -104,7 +104,7 @@ class="active"
 
     <div class="large-6 columns">
         <h2 class="box tutoriel">Dernier tutoriels</h2>
-        {% cache 600 top %}
+        {% cache 600 top_tutos %}
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">

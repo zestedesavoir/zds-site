@@ -246,7 +246,7 @@
         </ul>
         {% endif %}
         <!-- Left Nav Section -->
-        {% cache 600 top %}
+        {% cache 600 topbar %}
         <ul class="left">
           <li class="has-dropdown">
             <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
