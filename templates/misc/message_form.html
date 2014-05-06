@@ -1,0 +1,57 @@
+{% load crispy_forms_tags %}
+
+
+
+<section class="content-wrapper forum-message">
+	<form action="{{ form_action }}" method="post">
+		{% include "misc/message_user.html" with member=user %}
+
+
+		<div class="message">
+	        <div class="message-content">
+	            {% spaceless %}
+	                <textarea
+	                    name="text"
+	                    id="text"
+	                    class="md-editor"
+	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+	                    placeholder="Votre message au format Markdown"
+	                >
+	                    {% if topic.is_locked %}
+	                        Ce sujet est verrouillé.
+	                    {% elif topic.antispam  %}
+	                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+	                    {% else %}
+	                        {{ text }}
+	                    {% endif %}
+	                </textarea>
+	            {% endspaceless %}
+	        </div>
+
+	        <div class="message-bottom">
+	            <div class="message-submit">
+	                <button
+	                    type="submit"
+	                    name="preview"
+	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+	                >
+	                    Aperçu
+	                </button>
+
+	                <button
+	                    type="submit"
+	                    name="answer"
+	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+	                >
+	                    Envoyer
+	                </button>
+	            </div>
+	        </div>
+
+	        <input type="hidden" name="last_note" value="{{ last_note_pk }}">
+	        <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
+	        <input type="hidden" name="last_post" value="{{ last_post_pk }}">
+	        {% csrf_token %}
+	    </div>
+	</form>
+</section>

@@ -106,7 +106,9 @@
 
     <h3 class="subtitle">Réactions</h3>
 
+
     {% include "misc/pagination.part.html" with position="top" pages=reactions %}
+
 
     {% for message in reactions %}
         {% captureas edit_link %}
@@ -128,18 +130,14 @@
         {% include 'misc/message.part.html' with perms_change=perms.article.change_reaction topic=article %}
     {% endfor %}
 
+
     {% include "misc/pagination.part.html" with position="bottom" pages=reactions %}
 
-    {# TODO : Factoriser ça #}
-    {% if user.is_authenticated %}
-        {% with profile=user|profile %}
-            <section>
-                <div class="user">
-                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
-                </div>
 
-                {% crispy form %}
-            </section>
-        {% endwith %}
-    {% endif %}
+    
+    {% captureas form_action %}
+        {% url 'zds.article.views.answer' %}?article={{ article.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
 {% endblock %}

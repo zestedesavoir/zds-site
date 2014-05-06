@@ -2,7 +2,6 @@
 {% load emarkdown %}
 {% load humanize %}
 {% load captureas %}
-{% load profile %}
 {% load crispy_forms_tags %}
 
 
@@ -76,7 +75,7 @@
 
 
 {% block content %}
-    <div class="authors">
+    <div class="authors content-wrapper">
         <span class="authors-label">Participants : </span>
         <ul>
             <li>
@@ -92,31 +91,24 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
+    
+    <div class="content-wrapper">
+        {% for message in posts %}
+            {% captureas edit_link %}
+                {% url "zds.mp.views.edit_post" %}?message={{ post.pk }}
+            {% endcaptureas %}
 
-    {% for message in posts %}
-        {% captureas edit_link %}
-            {% url "zds.mp.views.edit_post" %}?message={{ post.pk }}
-        {% endcaptureas %}
+            {% captureas cite_link %}
+                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}
+            {% endcaptureas %}
 
-        {% captureas cite_link %}
-            {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}
-        {% endcaptureas %}
-
-        {% include 'misc/message.part.html' %}
-    {% endfor %}
+            {% include 'misc/message.part.html' %}
+        {% endfor %}
+    </div>
 
 
     {% include "misc/pagination.part.html" with position="bottom" %}
 
 
-
-    {% with profile=user|profile %}
-        <section>
-            <div class="user">
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
-            </div>
-
-            {% crispy form %}
-        </section>
-    {% endwith %}
+    {% include "misc/message_form.html" %}
 {% endblock %}

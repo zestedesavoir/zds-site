@@ -5,28 +5,8 @@
 
 
 <article class="forum-message {% if message.is_useful %}helpful{% endif %}">
-    <div class="user">
-        <a href="{{ message.author.get_absolute_url }}" class="avatar-link">
-            {% with profile=message.author|profile %}
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-            {% endwith %}
-        </a>
-        {% with status=message.author|state %}
-            {% if status == 'BAN'%}
-                <span class="badge banned">{{ status }}</span>
-            {% elif status == 'LS'%}
-                <span class="badge banned">{{ status }}</span>
-            {% elif status == 'STAFF' %}
-                <span class="badge staff">{{ status }}</span>
-            {% endif %}
-        {% endwith %}
+    {% include "misc/message_user.html" with member=message.author %}
 
-        {# TODO : ajouter les metadatas #}
-        <div class="user-metadata">
-            <a href="#" class="user-karma negative">-X</a>
-            <a href="#">IPs</a>
-        </div>
-    </div>
 
     <div class="message">
         {% if user.is_authenticated and message.is_visible %}

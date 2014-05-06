@@ -128,7 +128,7 @@
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.forum.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas helpful_link %}
@@ -151,14 +151,6 @@
 
     {# TODO : Factoriser ça #}
     {% if user.is_authenticated %}
-        {% with profile=user|profile %}
-            <section>
-                <div class="user">
-                    <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
-                </div>
-
-                {% crispy form %}
-            </section>
-        {% endwith %}
+        {% include "misc/message_form.html" with member=user %}
     {% endif %}
 {% endblock %}

@@ -40,7 +40,8 @@
     background: #084561;
     border-bottom: 3px solid #ff8c00;
 
-    a {
+    a,
+    button {
         text-decoration: none;
         color: #FFF;
         @include transition-property(background);
@@ -293,7 +294,6 @@
         }
 
         &,
-        ul,
         .dropdown-list {
             margin: 0;
             padding: 0;
@@ -359,8 +359,11 @@
                     padding: 32px 7px 0;
                 }
 
-                &:nth-child(2n+1){
-                    background-color: #084561;
+                &:nth-child(2n+1) {
+                    &,
+                    form button {
+                        background-color: #084561;
+                    }
                 }
             }
         }
@@ -377,8 +380,25 @@
         }
     }
 
-    .dropdown.my-account-dropdown a {
-        padding-left: 10px;
+    .dropdown.my-account-dropdown {
+        a,
+        button {
+            padding-left: 10px;
+        }
+
+        button {
+            width: 100%;
+            height: 30px;
+            line-height: 28px;
+            background: transparent;
+            text-align: left;
+            border: 0;
+
+            &:hover,
+            &:focus {
+                background: #396A81;
+            }
+        }
     }
 
 
@@ -888,6 +908,7 @@
     color: #9c9c9c;
     padding-bottom: 10px;
     border-bottom: 1px solid #e0e4e5;
+    margin-bottom: 20px !important;
 
     .authors-label {
         display: inline-block;
@@ -1140,8 +1161,8 @@ $helpful-background: #e9f9dc;
     .user {
         .avatar-link {
             display: block;
-            height: 60px;
-            width: 60px;
+            height: 58px;
+            width: 58px;
             z-index: 0;
             position: absolute;
             top: 0;
@@ -1152,6 +1173,11 @@ $helpful-background: #e9f9dc;
                 border-color: #FFF;
                 overflow: hidden;
                 @include box-shadow(rgba(0, 0, 0, .3) 0 1px 7px);
+            }
+
+            img {
+                height: 58px;
+                width: 58px;
             }
         }
         .badge {

@@ -3,14 +3,17 @@
 {% load crispy_forms_tags %}
 
 
+
 {% block title %}
     Éditer un message
 {% endblock %}
 
 
+
 {% block headline %}
     <h2 class="box forum">Éditer un message : {{ post.topic.title }}</h2>
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -21,12 +24,7 @@
 {% endblock %}
 
 
-{% block content %}
-    {% with profile=user|profile%}
-        {% crispy form %}
-    {% endwith %}
 
-    {% if form.text.value %}
-        {% include "misc/previsualization.part.html" with text=form.text.value %}
-    {% endif %}
+{% block content %}
+    {% include "misc/message_form.html" with member=user %}
 {% endblock %}

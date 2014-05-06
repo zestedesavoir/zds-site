@@ -46,6 +46,11 @@
         color: #555;
         height: 30px;
         line-height: 30px;
+
+        .asteriskField {
+            color: #C0392B;
+            margin-left: 4px;
+        }
     }
     .form-error {
         display: block;

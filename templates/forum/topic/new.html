@@ -3,14 +3,17 @@
 {% load crispy_forms_tags %}
 
 
+
 {% block title %}
     Nouveau sujet
 {% endblock %}
 
 
+
 {% block headline %}
     Nouveau sujet
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -20,12 +23,11 @@
 {% endblock %}
 
 
+
 {% block content %}
     {% crispy form %}
 
     {% if text %}
-        <h5>Prévisualisation de votre message</h5>
-
-        {{ text|emarkdown }}
+        {% include "misc/previsualization.part.html" %}
     {% endif %}
 {% endblock %}

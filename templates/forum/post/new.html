@@ -3,14 +3,17 @@
 {% load crispy_forms_tags %}
 
 
+
 {% block title %}
     Répondre au sujet
 {% endblock %}
 
 
+
 {% block headline %}
     Répondre au sujet {{ topic.title }}
 {% endblock %}
+
 
 
 {% block breadcrumb %}
@@ -21,9 +24,10 @@
 {% endblock %}
 
 
+
 {% block content %}
     {% if newpost %}
-    {# TODO: clean ce code : utiliser les alertes de Django #}
+        {# TODO: clean ce code : utiliser les alertes de Django #}
         <div class="alert-box alert">
             <strong>Au moins un nouveau message a été posté</strong> dans la discussion
             pendant que vous rédigiez le votre.

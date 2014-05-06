@@ -1,0 +1,70 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Style only for mobiles and tablets
+   ========================================================================== */
+
+
+
+@media only screen and (max-width: 760px) {
+    html.dropdown-active {
+        overflow: hidden;
+
+        .page-container {
+            width: 100%;
+        }
+
+        .main-container {
+            display: none;
+        }
+    }
+
+    .header-menu-dropdown {
+        display: none !important;
+    }
+
+    .dropdown {
+        width: 100%;
+        top: 180px;
+        bottom: 0;
+        border-bottom: none;
+
+        .dropdown-list {
+            overflow: auto;
+            position: absolute;
+            top: 36px;
+            bottom: 50px;
+        }
+        .dropdown-link-all {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 50px;
+            line-height: 50px;
+        }
+    }
+
+    form.forum-message .message {
+        padding-top: 0 !important;
+    }
+    .message-buttons,
+    .message-actions {
+        display: none !important;
+    }
+    .message-submit {
+        display: block !important;
+        width: calc(100% - 16px);
+        margin: 0 8px !important;
+
+        button {
+            float: left;
+            display: block;
+            width: 49.5%;
+
+            &[type=submit] {
+                float: right;
+            }
+        }
+    }
+}
