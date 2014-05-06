@@ -14,19 +14,19 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="javascript:;">Index</a></li>
+    <li class="current">Index</li>
 {% endblock %}
 
 {% block headline-actions %}
     <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
     <li>
         <a href="#" data-dropdown="deletemp" ><span class="fi-x"></span> Supprimer les MP</a>
-        <div id="deletemp" class="f-dropdown" data-dropdown-content>
+        <div id="deletemp" class="f-dropdown small content" data-dropdown-content>
             <form action="" method="POST" >
             <p>
                 Attention, vous vous appretez à supprimer les MPs qui ont été sélectionnés.
             </p>
-            <button type="submit" name="delete" class="button expand alert tiny">Confirmer</button>
+            <button type="submit tiny" name="delete" class="button expand alert tiny">Confirmer</button>
              {% csrf_token %}
             </form>
         </div>
