@@ -104,12 +104,18 @@
 
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
-<section>
-    <div class="user hide-for-small">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar avatar-link">
+<div class="large-12 columns">
+    {% crispy form %}
+</div>
+{% endwith %}
+{% else %}
+<div class="large-12 columns">
+    <div data-alert class="alert-box info radius">
+      Vous devrez vous connecter pour pouvoir poster votre message
+      <a href="#" class="close">&times;</a>
     </div>
     {% crispy form %}
-</section>
-{% endwith %}
+</div>
 {% endif %}
+
 {% endblock %}
