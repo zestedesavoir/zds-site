@@ -78,12 +78,7 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile %}
 <div class="large-12 columns">
-    <div class="large-1 columns user">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar-forum avatar-link">
-    </div>
-    <div class="large-11 columns user">
-        {% crispy form %}
-    </div>
+    {% crispy form %}
 </div>
 {% endwith %}
 {% else %}

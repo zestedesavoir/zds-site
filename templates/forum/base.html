@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load interventions %}
+{% load cache %}
 
 {% block title_base %}
     &#183; Forums
@@ -31,6 +32,7 @@
     
     {% if user.is_authenticated %}
     <h3>Sujets suivis</h3>
+    {% cache 60 notification user.pk %}
     <ul>
     	{% with topics=user|followed_topics %}
         {% for topic in topics %}
@@ -45,6 +47,7 @@
         {% endfor %}
         {% endwith %}
     </ul>
+    {% endcache %}
     {% endif %}
     <h3>Flux</h3>
     {% include "forum/feeds.part.html" %}
