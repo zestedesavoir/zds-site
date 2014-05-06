@@ -52,7 +52,11 @@ from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+from django.views.decorators.cache import cache_page
 
+@cache_page(60 * 10)
 @can_read_now
 def index(request):
     """Display all public tutorials of the website."""
@@ -333,7 +337,8 @@ def valid_tutorial(request):
     tutorial.save()
 
     messages.success(request, u'Le tutoriel a bien été validé.')
-
+    
+    cache.delete(make_template_fragment_key('top'))
     return redirect(
         tutorial.get_absolute_url() +
         '?version=' +
@@ -713,22 +718,6 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['introduction'] +
-                    '.html'),
-                "r")
-            part['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['conclusion'] +
-                    '.html'),
-                "r")
-            part['conclu'] = conclu.read()
-            conclu.close()
 
             cpt_c = 1
             for chapter in part['chapters']:
@@ -738,41 +727,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['introduction'] +
-                        '.html'),
-                    "r")
-                chapter['intro'] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['conclusion'] +
-                        '.html'),
-                    "r")
-                chapter['conclu'] = conclu.read()
+
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    try :
-                        text = open(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html'),
-                            "r")
-                    except IOError:
-                        text = open(
-                            u"\\\\?\{0}".format(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html')),
-                            "r")
-                    ext['txt'] = text.read()
-                    text.close()
                     cpt_e += 1
                 cpt_c += 1
 
@@ -1393,21 +1353,22 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            chapter['intro'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['introduction'])
-            chapter['conclu'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['conclusion'])
             chapter['get_absolute_url'] = part[
-                'get_absolute_url'] + '{0}/'.format(chapter['slug'])
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
-                cpt_e += 1
+                    'get_absolute_url'] + '{0}/'.format(chapter['slug'])
+            if chapter_slug == slugify(chapter['title']):
+                chapter['intro'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['introduction'])
+                chapter['conclu'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['conclusion'])
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                    cpt_e += 1
             chapter_tab.append(chapter)
 
             if chapter_slug == slugify(chapter['title']):
@@ -1470,38 +1431,44 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['introduction'] +
-                    '.html'),
-                "r")
-            chapter['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['conclusion'] +
-                    '.html'),
-                "r")
-            chapter['conclu'] = conclu.read()
             chapter['get_absolute_url_online'] = part[
                 'get_absolute_url_online'] + '{0}/'.format(chapter['slug'])
-            conclu.close()
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                text = open(
+            if chapter_slug == slugify(chapter['title']):
+                intro = open(
                     os.path.join(
                         tutorial.get_prod_path(),
-                        ext['text'] +
+                        chapter['introduction'] +
                         '.html'),
                     "r")
-                ext['txt'] = text.read()
-                text.close()
-                cpt_e += 1
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        chapter['conclusion'] +
+                        '.html'),
+                    "r")
+                chapter['conclu'] = conclu.read()
+                conclu.close()
+                
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            ext['text'] +
+                            '.html'),
+                        "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e += 1
+            else:
+                intro =None
+                conclu =None
+
             chapter_tab.append(chapter)
             if chapter_slug == slugify(chapter['title']):
                 final_chapter = chapter
