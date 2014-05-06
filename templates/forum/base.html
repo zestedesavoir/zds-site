@@ -32,7 +32,7 @@
     
     {% if user.is_authenticated %}
     <h3>Sujets suivis</h3>
-    {% cache 60 notification user.pk %}
+    {% cache 60 notifs user.pk %}
     <ul>
     	{% with topics=user|followed_topics %}
         {% for topic in topics %}
