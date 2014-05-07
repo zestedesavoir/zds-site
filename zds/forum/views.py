@@ -121,10 +121,8 @@ def topic(request, topic_pk, topic_slug):
     if request.user.is_authenticated():
         if never_read(topic):
             mark_read(topic)
-        elif TopicFollowed.objects.filter(topic=topic, user=request.user).count()>0 :
-            if TopicRead.objects.filter(topic=topic, user=request.user).last().post.pk != topic.last_message.pk:
-                cache.delete(make_template_fragment_key('notification', str(request.user.pk)))
-                cache.delete(make_template_fragment_key('follows', str(request.user.pk)))
+            cache.delete(make_template_fragment_key('notification', [request.user.username]))
+            cache.delete(make_template_fragment_key('follows', [request.user.username]))
 
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
@@ -816,8 +814,9 @@ def followed_topics(request):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
     
-    cache.delete(make_template_fragment_key('notification', str(request.user.pk)))
-    cache.delete(make_template_fragment_key('follows', str(request.user.pk)))
+    print('------------------> MORT DU CACHE')
+    cache.delete(make_template_fragment_key('notification', [request.user.username]))
+    cache.delete(make_template_fragment_key('follows', [request.user.username]))
     
     return render_template('forum/followed_topics.html', {
         'followed_topics': shown_topics,
