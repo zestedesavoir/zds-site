@@ -27,5 +27,6 @@ factory-boy==2.2.1
 django-discover-runner==0.4
 pygeoip==0.3.1
 pillow
+python-memcached
 git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4-zds.2.8
 git+https://github.com/zestedesavoir/GitPython.git@0.3.2-RC1.z2

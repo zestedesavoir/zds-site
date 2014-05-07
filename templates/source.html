@@ -41,7 +41,7 @@
         {% if user.is_authenticated %}
         <ul class="right">
           <li class="has-dropdown">
-          {% cache 90 message user.pk %}
+          {% cache 90 message user.username %}
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -95,7 +95,7 @@
           {% endcache %}
           </li>
           <li class="has-dropdown">
-          {% cache 60 notification user.pk %}
+          {% cache 30 notification user.username %}
             {% with topics=user|interventions_topics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -148,7 +148,7 @@
             {% endwith %}
           {% endcache %}
           </li>
-          {% cache 120 moderation user.pk %}
+          {% cache 120 moderation user.username %}
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
             {% with posts=user|alerts_topic %}
@@ -246,7 +246,7 @@
         </ul>
         {% endif %}
         <!-- Left Nav Section -->
-        {% cache 600 topbar %}
+        {% cache 600 topbar user.username %}
         <ul class="left">
           <li class="has-dropdown">
             <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
