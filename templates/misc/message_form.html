@@ -4,7 +4,7 @@
 
 <section class="content-wrapper forum-message">
 	<form action="{{ form_action }}" method="post">
-		{% include "misc/message_user.html" with member=user %}
+		{% include "misc/message_user.html" with member=user hide_metadata=True %}
 
 
 		<div class="message">

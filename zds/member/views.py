@@ -255,7 +255,7 @@ def settings_profile(request):
             return redirect(reverse('zds.member.views.settings_profile'))
         else:
             return render_to_response(
-                'member/settings_profile.html',
+                'member/settings/profile.html',
                 c,
                 RequestContext(request))
     else:
@@ -272,7 +272,7 @@ def settings_profile(request):
             'form': form
         }
         return render_to_response(
-            'member/settings_profile.html',
+            'member/settings/profile.html',
             c,
             RequestContext(request))
 
@@ -298,7 +298,7 @@ def settings_account(request):
                 return redirect(reverse('zds.member.views.settings_account'))
         else:
             return render_to_response(
-                'member/settings_account.html',
+                'member/settings/account.html',
                 c,
                 RequestContext(request))
     else:
@@ -307,7 +307,7 @@ def settings_account(request):
             'form': form,
         }
         return render_to_response(
-            'member/settings_account.html',
+            'member/settings/account.html',
             c,
             RequestContext(request))
 
@@ -348,7 +348,7 @@ def settings_user(request):
 
         else:
             return render_to_response(
-                'member/settings_user.html',
+                'member/settings/user.html',
                 c,
                 RequestContext(request))
     else:
@@ -357,7 +357,7 @@ def settings_user(request):
             'form': form,
         }
         return render_to_response(
-            'member/settings_user.html',
+            'member/settings/user.html',
             c,
             RequestContext(request))
 

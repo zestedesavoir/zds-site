@@ -1298,6 +1298,7 @@ $helpful-background: #e9f9dc;
             textarea {
                 margin: 10px 0 10px -1px;
                 background-color: transparent;
+                min-height: 150px;
             }
         }
 
@@ -1464,6 +1465,19 @@ $helpful-background: #e9f9dc;
 form.forum-message {
     margin-top: 50px;
 }
+
+
+
+
+
+/* ==============
+    ALL: Modals
+   ============== */
+.modal {
+    display: none;
+}
+
+
 
 
 /* ==============

@@ -79,11 +79,11 @@
         <span class="authors-label">Participants : </span>
         <ul>
             <li>
-                {% include 'misc/member_item.part.html' with member=topic.author %}
+                {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
             </li>
             {% for member in topic.participants.all %}
                 <li>
-                    {% include 'misc/member_item.part.html' %}
+                    {% include 'misc/member_item.part.html' with avatar=True %}
                 </li>
             {% endfor %}
         </ul>

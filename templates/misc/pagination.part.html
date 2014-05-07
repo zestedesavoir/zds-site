@@ -1,9 +1,9 @@
 {% if pages|length > 1 %}
-    <ul class="pagination pagination-{{ position }}">
+    <ul class="pagination pagination-{{ position }}" data-test="{{ nb }}">
         {% ifnotequal nb 1 %}
             <li>
                 <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
-                    «
+                    Précédente
                 </a>
             </li>
         {% endifnotequal %}
@@ -24,10 +24,10 @@
             {% endif %}
         {% endfor %}
         
-        {% if pages|last > 0 and pages|last == nb %}
+        {% if pages|last > 0 and pages|last != nb %}
             <li>
                 <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
-                    »
+                    Suivante
                 </a>
             </li>
         {% endif %}

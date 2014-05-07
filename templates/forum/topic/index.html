@@ -68,6 +68,9 @@
     </li>
 
     {% if perms.forum.change_topic %}
+        </ul>
+        <h4>Modération</h4>
+        <ul>
         {% if topic.is_locked %}
             <li>
                 <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
@@ -100,7 +103,12 @@
             </li>
         {% endif %}
 
-        {% crispy form_move %}
+        <li>
+            <a href="#move-topic" class="ico-after arrow-right blue open-modal">Déplacer le sujet</a>
+            <div class="modal">
+                {% crispy form_move %}
+            </div>
+        </li>
     {% endif %}
 {% endblock %}
 

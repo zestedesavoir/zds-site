@@ -8,7 +8,7 @@
     {% for forum in category.get_forums %}
         {% if forum|readable:user %}
             <div class="forum-entry-title {% if user.is_authenticated and not forum.is_read %}unread{% endif %}">
-                <h3 class="subtitle">
+                <h3>
                     <a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a>
                 </h3>
                 <p>

@@ -39,7 +39,7 @@
         <ul>
             {% for member in authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
@@ -107,7 +107,7 @@
     <h3 class="subtitle">Réactions</h3>
 
 
-    {% include "misc/pagination.part.html" with position="top" pages=reactions %}
+    {% include "misc/pagination.part.html" with position="top" topic=article %}
 
 
     {% for message in reactions %}
@@ -131,7 +131,7 @@
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" pages=reactions %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=article %}
 
 
     

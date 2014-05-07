@@ -18,9 +18,11 @@
         {% endwith %}
 
         {# TODO : ajouter les metadatas #}
-        <div class="user-metadata">
-            <a href="#" class="user-karma negative">-X</a>
-            <a href="#">IPs</a>
-        </div>
+        {% if not hide_metadata %}
+            <div class="user-metadata">
+                <a href="#" class="user-karma negative">-X</a>
+                <a href="#">IPs</a>
+            </div>
+        {% endif %}
     {% endwith %}
 </div>

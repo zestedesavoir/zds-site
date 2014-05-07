@@ -15,10 +15,10 @@
                     {% if edit_link %}
                         {% if message.author = user or perms_change %}
                             <li>
-                                <a href="#hide-message-{{ message.id }}" class="ico-after view">
+                                <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
                                     Masquer
                                 </a>
-                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}">
+                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal">
                                     {% csrf_token %}
                                     {% if perms_change %}
                                         <p>
@@ -47,10 +47,10 @@
                         {% endif %}
 
                         <li>
-                            <a href="#signal-message-{{ message.id }}" class="ico-after alert">
+                            <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                 Signaler
                             </a>
-                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}">
+                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}" class="modal">
                                 {% csrf_token %}
                                 <p>
                                     Pour quelle raison signalez-vous ce message ?
@@ -73,10 +73,10 @@
                     {% endif %}
                 {% elif perms_change %}
                     <li>
-                        <a href="#show-message-{{ message.id }}" class="ico-after view">
+                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
                             Afficher
                         </a>
-                        <form action="{{ hide_link }}" method="post" id="show-message-{{ message.id }}">
+                        <form action="{{ hide_link }}" method="post" id="show-message-{{ message.id }}" class="modal">
                             {% csrf_token %}
                             <p>
                                 Ce message a été masqué, êtes vous certains de vouloir le ré-afficher ?
@@ -97,7 +97,7 @@
         </div>
 
         <div class="message-content">
-            {% if message.is_visible and message.is_visible == false %}
+            {% if not message.is_visible %}
                 <p class="message-hidden">
                     {{ message.is_visible }}
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
@@ -108,12 +108,12 @@
                 </p>
             {% endif %}
 
-            {% if not message.is_visible %}
+            {% if message.is_visible %}
                 {{ message.text|emarkdown }}
             {% endif %}
         </div>
 
-        {% if not message.is_visible %}
+        {% if message.is_visible %}
             <div class="message-bottom">
                 {% if user.is_authenticated %}
                     {% with profile_user=user|profile %}

@@ -35,6 +35,8 @@
 
 
 {% block content %}
+    {% include "misc/pagination.part.html" with position="top" %}
+
     {% if sticky_topics %}
         <div class="forum-entries forum-entries-sticky">
             {% for topic in sticky_topics %}
