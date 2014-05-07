@@ -1,15 +1,16 @@
-{% extends "member/base.html" %}
+{% extends "member/source.html" %}
+{% load profile %}
 
 {% block title %}
     Membres
 {% endblock %}
 
-{% block headline %}
-    <h2 class="box member">Membres</h2>
+{% block head-title %}
+    Membres
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li class="current">Index</li>
 {% endblock %}
 
 {% block content %}
@@ -17,19 +18,34 @@
 <div class="row">
     <div class="large-12 columns">
         <p>
-            Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ members.count }} membres).
+            Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ count }} membres).
         </p>
     </div>
 </div>
 
 <div class="row">
     <div class="large-12 columns">
-        <p>
-            {% for member in members %}
-                {% include "member/member_item_common.part.html" %}
-            {% endfor %}
-        </p>
+        <div class="small-block-grid-5 large-block-grid-9">
+        {% for member in members %}
+            <li>
+                <a href="{{ member.get_absolute_url }}">
+                <div class="row">
+                    {% with profile=member|profile %}
+                    <div class="large-12 columns">
+                        <img src="{{ profile.get_avatar_url }}" alt="Avatar" />
+                    </div>
+                    <div class="large-12 columns username">
+                        <span>{{ member.username }}</span>
+                    </div>
+                    {% endwith %}
+                </div>
+                </a>
+            </li>
+        {% endfor %}
+        </div>
     </div>
 </div>
+
+{% include "mp/details_pagination.part.html" %}
 
 {% endblock %}
