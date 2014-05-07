@@ -25,12 +25,7 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
-from django.views.decorators.cache import cache_page
 
-
-@cache_page(60 * 2)
 @can_read_now
 def index(request):
     """Display the category list with all their forums."""
@@ -91,7 +86,6 @@ def details(request, cat_slug, forum_slug):
     })
 
 
-@cache_page(60 * 2)
 @can_read_now
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
@@ -121,8 +115,6 @@ def topic(request, topic_pk, topic_slug):
     if request.user.is_authenticated():
         if never_read(topic):
             mark_read(topic)
-            cache.delete(make_template_fragment_key('notification', [request.user.username]))
-            cache.delete(make_template_fragment_key('follows', [request.user.username]))
 
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
@@ -813,11 +805,7 @@ def followed_topics(request):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    
-    print('------------------> MORT DU CACHE')
-    cache.delete(make_template_fragment_key('notification', [request.user.username]))
-    cache.delete(make_template_fragment_key('follows', [request.user.username]))
-    
+
     return render_template('forum/followed_topics.html', {
         'followed_topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages),
