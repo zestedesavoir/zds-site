@@ -16,7 +16,8 @@ from django.shortcuts import redirect, get_object_or_404
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.utils import render_template, slugify
+from zds.utils import render_template
+from zds.utils import slugify
 
 
 @can_read_now

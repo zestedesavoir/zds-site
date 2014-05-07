@@ -33,9 +33,9 @@
     </td>
     <td width="290px">
         <p>
-            {% with answer=topic.get_last_answer %}
+            {% with answer=topic.get_last_answer last=topic.last_read_post %}
                 {% if answer %}
-                    <span>Dernière rép. <span><a href="{{ answer.get_absolute_url }}" class="hide-for-small">{{ answer.pubdate|naturaltime }}</a> 
+                    <span class="hide-for-small">Dernière rép. <span><a href="{{ last.get_absolute_url }}">{{ answer.pubdate|naturaltime }}</a>
                         <br />par
                     {% with member=answer.author %}
                         {% include "member/member_item_common.part.html" %}
@@ -44,7 +44,6 @@
                     Aucune réponse
                 {% endif %}
             {% endwith %}
-
         </p>
     </td>
 </tr>

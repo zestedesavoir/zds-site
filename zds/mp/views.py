@@ -24,8 +24,6 @@ from zds.utils.paginator import paginator_range
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 
 
 @can_read_now
@@ -63,9 +61,8 @@ def index(request):
     except EmptyPage:
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    
-    cache.delete(make_template_fragment_key('message', str(request.user.pk)))
-    
+
+
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
@@ -90,8 +87,6 @@ def topic(request, topic_pk, topic_slug):
     if request.user.is_authenticated():
         if never_privateread(g_topic):
             mark_read(g_topic)
-        elif PrivateTopicRead.objects.filter(privatetopic=g_topic, user=request.user).last().privatepost.pk != g_topic.last_message.pk:
-                cache.delete(make_template_fragment_key('notification', str(request.user.pk)))
 
     posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
         .order_by('position_in_topic')\

@@ -23,7 +23,8 @@ from git import *
 
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
-from zds.utils import render_template, slugify
+from zds.utils import render_template
+from zds.utils import slugify
 from zds.utils.articles import *
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
