@@ -169,12 +169,12 @@ def modify_profile(request, user_pk):
             profile.can_read = False
             detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir."
         if 'un-ls' in request.POST:
-            ban.type = u'Authorisation d\'écrire'
+            ban.type = u'Autorisation d\'écrire'
             ban.text = request.POST['unls-text']
             profile.can_write = True
             detail = u"vous pouvez désormais poster sur les forums, dans les commentaires d'articles et tutoriels."
         if 'un-ban' in request.POST:
-            ban.type = u'Authorisation de se connecter'
+            ban.type = u'Autorisation de se connecter'
             ban.text = request.POST['unban-text']
             profile.can_read = True
             detail = u"vous pouvez désormais vous connecter sur le site."
@@ -183,7 +183,10 @@ def modify_profile(request, user_pk):
         ban.save()
         
         #send register message
-        msg = u"Bonjour **{0}**,\n\nTu as été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, ban.type, detail, ban.text)
+        if 'un-ls' in request.POST or 'un-ban' in request.POST:
+            msg = u"Bonjour **{0}**,\n\n**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.\n\nCe qui signifie que {2}\n\nLe motif de votre sanction est : \n\n`{3}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, detail, ban.text)
+        else:
+            msg = u"Bonjour **{0}**,\n\nVous avez été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, ban.type, detail, ban.text)
         
         
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
