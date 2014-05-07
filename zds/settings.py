@@ -283,12 +283,6 @@ MESSAGE_TAGS = {
     message_constants.ERROR: 'alert',
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-    }
-}
-
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *

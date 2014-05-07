@@ -4,7 +4,6 @@
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
-{% load cache %}
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -41,7 +40,6 @@
         {% if user.is_authenticated %}
         <ul class="right">
           <li class="has-dropdown">
-          {% cache 90 message user.username %}
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -92,10 +90,8 @@
             {% endwith %}
             {% endwith %}
             {% endwith %}
-          {% endcache %}
           </li>
           <li class="has-dropdown">
-          {% cache 30 notification user.username %}
             {% with topics=user|interventions_topics %}
             {% with unread_topics=topics.unread %}
             {% with read_topics=topics.read %}
@@ -146,9 +142,7 @@
             {% endwith %}
             {% endwith %}
             {% endwith %}
-          {% endcache %}
           </li>
-          {% cache 120 moderation user.username %}
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
             {% with posts=user|alerts_topic %}
@@ -196,7 +190,6 @@
             {% endwith %}
           </li>
           {% endif %}
-          {% endcache %}
           <li class="has-dropdown">
             {% with profile=user|profile %}
             <a href="#"><img src="{{ profile.get_avatar_url }}" alt=""></a>
@@ -246,7 +239,6 @@
         </ul>
         {% endif %}
         <!-- Left Nav Section -->
-        {% cache 600 topbar user.username %}
         <ul class="left">
           <li class="has-dropdown">
             <a href="{% if user.is_authenticated %}{% with profil=user|profile%}{% if profil.hover_or_click %}
@@ -306,7 +298,6 @@
             </ul>
           </li>
         </ul>
-        {% endcache %}
       </section>
     </nav>
     <div class="ariane">
