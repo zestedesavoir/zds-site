@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import slugify
+from zds.utils import slugify
 from math import ceil
 
 from django.contrib.auth.models import User

@@ -252,6 +252,7 @@ REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
+MEMBERS_PER_PAGE = 36
 
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
@@ -282,11 +283,6 @@ MESSAGE_TAGS = {
     message_constants.ERROR: 'alert',
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-    }
-}
 
 MAX_POST_LENGTH = 1000000
 

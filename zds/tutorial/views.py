@@ -38,7 +38,8 @@ from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.mp.models import PrivateTopic
-from zds.utils import render_template, slugify
+from zds.utils import render_template
+from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
@@ -52,11 +53,7 @@ from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
-from django.views.decorators.cache import cache_page
 
-@cache_page(60 * 10)
 @can_read_now
 def index(request):
     """Display all public tutorials of the website."""
@@ -337,8 +334,7 @@ def valid_tutorial(request):
     tutorial.save()
 
     messages.success(request, u'Le tutoriel a bien été validé.')
-    
-    cache.delete(make_template_fragment_key('top'))
+
     return redirect(
         tutorial.get_absolute_url() +
         '?version=' +
