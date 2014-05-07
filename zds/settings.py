@@ -288,6 +288,8 @@ CACHES = {
     }
 }
 
+MAX_POST_LENGTH = 1000000
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
