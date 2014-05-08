@@ -1,14 +1,17 @@
 # coding: utf-8
 
+import os.path
+import random
+
+from django.contrib.auth.models import Group, User
 from django.core.urlresolvers import reverse
 
 from zds.article.models import get_last_articles
 from zds.forum.models import get_last_topics
 from zds.member.decorator import can_read_now
+from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template
-from zds.utils import slugify
-from django.contrib.auth.models import Group, User
+from zds.utils import render_template, slugify
 
 
 @can_read_now
@@ -32,11 +35,18 @@ def home(request):
                     data['title'])])
 
         tutos.append(data)
+        
+    try:
+        with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
+            quote = random.choice(fh.readlines())
+    except:
+        quote = u'Zeste de Savoir, la connaissance sans les pépins'
 
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
         'last_articles': get_last_articles(),
+        'quote': quote,
     })
 
 
