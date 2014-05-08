@@ -227,7 +227,7 @@
                 {% endif %}
 
                 <li>
-                	<form method="post" action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}">
+                	<form method="post" action="{% url "zds.member.views.logout_view" %}">
                 		<button type="submit">Déconnexion</button>
                 		{% csrf_token %}
                 	</form>
