@@ -71,6 +71,11 @@
                     </p>
                     {% endif %}
                 {% endwith %}
+                {% if profile.site %}
+                <p>
+                    <a class="fi-web" href="{{ profile.site }}">{{ profile.site }}</a>
+                </p>
+                {% endif %}
 
                 {% if profile.show_email and user.is_authenticated %}
                 <p>
