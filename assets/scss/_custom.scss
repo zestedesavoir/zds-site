@@ -174,7 +174,7 @@ Fil d'ariance
 .ariane ul li a {
 	text-decoration: none;
 	color: #084561;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 
 .ariane ul li:not(:last-child):after {
@@ -505,6 +505,10 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	content:url("../img/lock-blue.png");
 }
 
+#id_text {
+	font-family: "Ubuntu Mono"
+}
+
 .message-forum {
 	border: 1px solid #DDD;
 	background: #FFF;
@@ -539,13 +543,13 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 }
 
 .message-forum .message-content p{
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 .message-forum .message-actions a {
 	color: #999;
-	font-size: 0.9rem;
 	text-decoration: none;
 	margin-right: 5px;
+	font-size: 0.8rem;
 }
 .useful {
 	background-color: #e9f9dc;
@@ -574,7 +578,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 .message-forum .message-metadata a,.message-forum .message-metadata i, .message-forum .signature p{
 	color: #999;
 	text-decoration: none;
-	font-size: 0.9rem;
+	font-size: 0.7rem;
 }
 
 .message-forum .message-metadata {
@@ -582,7 +586,7 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 }
 
 .username {
-	font-size: 0.8rem;
+	font-size: 0.7rem;
 	padding: 5px;
 	text-align: center;
 }
