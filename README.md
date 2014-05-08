@@ -61,6 +61,37 @@ Comment démarrer une instance de ZdS ?
     - `python manage.py runserver`
 - Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
 
+####Sur OS X
+Avant de vous lancez dans l'installation de l'environnement de zds, il faut quelques pré-requis :
+* Installer [XCode](https://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12) pour pouvoir exécuter des commandes (g)cc.
+* Installer [MacPorts](http://www.macports.org/) pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
+
+Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds :
+```
+# Installation de virtualenv.
+pip install virtualenv
+pip install virtualenvwrapper
+mkdir ~/.virtualenvs
+export WORKON_HOME=$HOME/.virtualenvs # A rajouter dans ~/.bash_profile
+source /usr/local/bin/virtualenvwrapper.sh # A rajouter dans ~/.bash_profile
+
+# Création de votre environnement.
+mkvirtualenv zdsenv
+
+# Récupération de la librairie lxml pour python 2.7 via MacPorts.
+sudo port install py27-lxml
+
+# Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml.
+export CFLAGS=-Qunused-arguments
+export CPPFLAGS=-Qunused-arguments
+
+# Installation de toutes les dépendances.
+pip install -r requirements.txt
+```
+
+Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
+Pour sortir de votre environnement : `deactive`
+
 ####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
