@@ -466,19 +466,9 @@ def login_view(request):
 @require_POST
 def logout_view(request):
     """Log out user."""
-
-    if 'next' in request.GET:
-        next_page = request.GET['next']
-    else:
-        next_page = None
-
     logout(request)
     request.session.clear()
-
-    try:
-        return redirect(next_page)
-    except:
-        return redirect(reverse('zds.pages.views.home'))
+    return redirect(reverse('zds.pages.views.home'))
 
 
 def register_view(request):
