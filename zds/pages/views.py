@@ -40,7 +40,7 @@ def home(request):
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
     except:
-        quote = u'Zeste de Savoir, la connaissance sans les pépins'
+        quote = u'Zeste de Savoir, la connaissance pour tous et sans pépins !'
 
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
