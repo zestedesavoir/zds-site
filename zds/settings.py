@@ -199,7 +199,6 @@ INSTALLED_APPS = (
 
     'south',
     'crispy_forms',
-    'crispy_forms_foundation',
     'email_obfuscator',
     'pipeline',
     'haystack',
