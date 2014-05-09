@@ -5,8 +5,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div
-from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
+from crispy_forms.layout import Div, Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 

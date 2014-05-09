@@ -3,7 +3,7 @@
 from django import forms
 
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Div, HTML
+from crispy_forms.layout import Layout, Div, HTML
 
 
 class NewsletterForm(forms.Form):
