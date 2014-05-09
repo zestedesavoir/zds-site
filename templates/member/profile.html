@@ -64,13 +64,6 @@
                         Ville : {{ profile.get_city }}
                     </p>
                 {% endif %}
-                {% with status=usr|state %}
-                    {% if status != 'DOWN' and status != 'BAN' %}
-                    <p>
-                        <a class="tiny button secondary" href="{% url "zds.mp.views.new" %}?username={{usr.username}}">Envoyer un MP</a>
-                    </p>
-                    {% endif %}
-                {% endwith %}
                 {% if profile.site %}
                 <p>
                     <a class="fi-web" href="{{ profile.site }}">{{ profile.site }}</a>
@@ -148,9 +141,15 @@
             {% ifequal profile.user user %}
             <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
             {% endifequal %}
-
+            {% if perms.member.change_profile %}
+                <li><a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}">Modifier le profil</a></li>
+            {% endif %}
             {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
+                {% with status=profile.user|state %}
+                    {% if status != 'DOWN' and status != 'BAN' %}
+                    <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
+                    {% endif %}
+                {% endwith %}
             {% endif %}
         </ul>
     </div>

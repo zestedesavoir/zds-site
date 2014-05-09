@@ -138,9 +138,7 @@ class RegisterForm(forms.Form):
 
         return cleaned_data
 
-
-# update extra information about user
-class ProfileForm(forms.Form):
+class MiniProfileForm(forms.Form):
     biography = forms.CharField(
         label='Biographie',
         required=False,
@@ -184,6 +182,25 @@ class ProfileForm(forms.Form):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super(MiniProfileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('biography'),
+            Field('site'),
+            Field('avatar_url'),
+            Field('sign'),
+            ButtonHolder(
+                StrictButton('Editer le profil', type='submit', css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
+            )
+        )
+
+# update extra information about user
+class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
         required=False,

@@ -36,6 +36,8 @@
                     <div class="right message-actions">
                         {% if topic.author == user and post.author != user %}
                             <a href="/forums/message/utile?message={{ post.pk }}" class="tiny secondary actions">Cette réponse m'a aidé</a>
+                        {% elif perms.forum.change_post %}
+                            <a href="/forums/message/utile?message={{ post.pk }}" class="tiny secondary actions">Cette réponse a aidé le PO</a>
                         {% endif %}
                         {% if post.is_visible %}
                             {% if perms.forum.change_post %}

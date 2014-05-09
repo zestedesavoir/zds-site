@@ -30,7 +30,7 @@ from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
-from .forms import LoginForm, ProfileForm, RegisterForm, ChangePasswordForm, \
+from .forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, \
     ChangeUserForm, ForgotPasswordForm, NewPasswordForm
 from .models import Profile, TokenForgotPassword, Ban, TokenRegister
 
@@ -264,6 +264,57 @@ def actions(request):
 
 # settings for public profile
 
+@can_write_and_read_now
+@login_required
+def settings_mini_profile(request, user_name):
+    """Minimal settings of users for staff"""
+    # extra information about the current user
+    profile = Profile.objects.get(user__username=user_name)
+
+    if request.method == 'POST':
+        form = MiniProfileForm(request.POST)
+        c = {
+            'form': form,
+            'profile': profile,
+        }
+        if form.is_valid():
+            profile.biography = form.data['biography']
+            profile.site = form.data['site']
+            profile.avatar_url = form.data['avatar_url']
+            profile.sign = form.data['sign']
+
+            # Save the profile
+            # and redirect the user to the configuration space
+            # with message indicate the state of the operation
+            try:
+                profile.save()
+            except:
+                messages.error(request, 'Une erreur est survenue.')
+                return redirect(reverse('zds.member.views.settings_mini_profile'))
+
+            messages.success(
+                request, 'Le profil a correctement été mis à jour.')
+            return redirect(reverse('zds.member.views.details', args=[profile.user.username]))
+        else:
+            return render_to_response(
+                'member/settings_mini_profile.html',
+                c,
+                RequestContext(request))
+    else:
+        form = MiniProfileForm(initial={
+            'biography': profile.biography,
+            'site': profile.site,
+            'avatar_url': profile.avatar_url,
+            'sign': profile.sign}
+        )
+        c = {
+            'form': form,
+            'profile': profile,
+        }
+        return render_to_response(
+            'member/settings_mini_profile.html',
+            c,
+            RequestContext(request))
 
 @can_write_and_read_now
 @login_required
