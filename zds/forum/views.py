@@ -180,7 +180,6 @@ def new(request):
         forum_pk = request.GET['forum']
     except KeyError:
         raise Http404
-
     forum = get_object_or_404(Forum, pk=forum_pk)
     
     if not forum.can_read(request.user):
@@ -608,12 +607,14 @@ def useful_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
     
+    # check that author can access the forum
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
-        raise Http404
+        if not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
 
     post.is_useful = not post.is_useful
 
