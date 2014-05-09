@@ -72,8 +72,8 @@ Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton d
 pip install virtualenv
 pip install virtualenvwrapper
 mkdir ~/.virtualenvs
-export WORKON_HOME=$HOME/.virtualenvs # A rajouter dans ~/.bash_profile
-source /usr/local/bin/virtualenvwrapper.sh # A rajouter dans ~/.bash_profile
+echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
 
 # Création de votre environnement.
 mkvirtualenv zdsenv
