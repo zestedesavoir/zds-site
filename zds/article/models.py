@@ -41,7 +41,7 @@ class Article(models.Model):
     description = models.CharField('Description', max_length=200)
     slug = models.SlugField(max_length=80)
 
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', related_name='articles')
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField(

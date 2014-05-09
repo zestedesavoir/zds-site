@@ -82,6 +82,7 @@ urlpatterns = patterns('',
                        url(r'^galerie/', include('zds.gallery.urls')),
                        url(r'^teasing/', include('zds.newsletter.urls')),
                        url(r'^rechercher/', include('haystack.urls')),
+                       url(r'^api/', include('zds.api.urls')),
 
                        url(r'^captcha/', include('captcha.urls')),
 
