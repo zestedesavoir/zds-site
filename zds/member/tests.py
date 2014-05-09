@@ -110,7 +110,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Authorisation d\'écrire')
+        self.assertEqual(ban.type, u'Autorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
@@ -164,7 +164,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Authorisation de se connecter')
+        self.assertEqual(ban.type, 'Autorisation de se connecter')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
