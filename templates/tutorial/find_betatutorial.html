@@ -39,7 +39,7 @@
                     </div>
                 </td>
                 <td>
-                    {{ tuto.get_introduction|truncatechars:200|emarkdown }}
+                    {{ tuto.get_introduction|truncatechars:200|emarkdown|striptags }}
                 </td>
             </tr>
             {% endfor %}

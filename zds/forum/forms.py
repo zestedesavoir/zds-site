@@ -68,7 +68,7 @@ class TopicForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
                 
-        if len(text) > settings.MAX_POST_LENGTH:
+        if text is not None and len(text) > settings.MAX_POST_LENGTH:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
                   u'caractères').format(settings.MAX_POST_LENGTH)])
