@@ -509,8 +509,7 @@ def modify_tutorial(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction '+ \
-                'du tutoriel.'.format(author_username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author.username))
 
             return redirect(redirect_url)
 
