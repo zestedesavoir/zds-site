@@ -421,7 +421,7 @@ class ForumMemberTests(TestCase):
             '?message={0}'.format(
                 post1.pk),
             follow=False)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 403)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
@@ -438,9 +438,24 @@ class ForumMemberTests(TestCase):
                 post5.pk),
             follow=False)
 
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 403)
 
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        
+        # useful if you are staff
+        staff = StaffFactory()
+        self.assertEqual(self.client.login(
+                    username=self.user.username,
+                    password='hostel77'), 
+                         True)
+        result = self.client.get(
+            reverse('zds.forum.views.useful_post') +
+            '?message={0}'.format(
+                post4.pk),
+            follow=False)
+        self.assertNotEqual(result.status_code, 403)
+        self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
 
     def test_move_topic(self):
