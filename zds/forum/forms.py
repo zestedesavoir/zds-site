@@ -1,11 +1,12 @@
 # coding: utf-8
 
+from django import forms
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
-from django import forms
-from django.core.urlresolvers import reverse
-
 from zds.forum.models import Forum, Topic
 from zds.utils.forms import CommonLayoutEditor
 
@@ -40,7 +41,7 @@ class TopicForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(TopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -66,6 +67,11 @@ class TopicForm(forms.Form):
                 [u'Le champ text ne peut être vide'])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
+                
+        if text is not None and len(text) > settings.MAX_POST_LENGTH:
+            self._errors['text'] = self.error_class(
+                [(u'Ce message est trop long, il ne doit pas dépasser {0} '
+                  u'caractères').format(settings.MAX_POST_LENGTH)])
 
         return cleaned_data
 
@@ -113,6 +119,11 @@ class PostForm(forms.Form):
                 [u'Le champ text ne peut être vide'])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
+                
+        if len(text) > settings.MAX_POST_LENGTH:
+            self._errors['text'] = self.error_class(
+                [(u'Ce message est trop long, il ne doit pas dépasser {0} '
+                  u'caractères').format(settings.MAX_POST_LENGTH)])
 
         return cleaned_data
 
@@ -130,10 +141,10 @@ class MoveTopicForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse(
             'zds.forum.views.move_topic') + '?sujet=' + str(topic.pk)
-        self.helper.form_class = 'content-wrapper'
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('forum'),
-            StrictButton('Valider', type='submit'),
+            StrictButton('Valider', type='submit', css_class='button tiny'),
         )

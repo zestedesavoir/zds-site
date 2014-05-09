@@ -2,51 +2,57 @@
 
 from collections import OrderedDict
 from datetime import datetime
-from django.conf import settings
-from django.core.files import File
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.utils.encoding import smart_str, smart_unicode
-from django.views.decorators.http import require_POST
+from operator import itemgetter, attrgetter
+from urllib import urlretrieve
+from urlparse import urlparse
 import glob
 import json
-from lxml import etree
-from operator import itemgetter, attrgetter
 import os
 import os.path
 import re
 import shutil
-from urllib import urlretrieve
+import subprocess
 import urllib
-from urlparse import urlparse
 import zipfile
 
+from PIL import Image as ImagePIL
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import smart_str, smart_unicode
+from django.views.decorators.http import require_POST
 from git import *
+from lxml import etree
 
-from PIL import Image as ImagePIL
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.utils import render_template, slugify
-from zds.utils.models import Category, Licence, CommentLike, CommentDislike,\
+from zds.mp.models import PrivateTopic
+from zds.utils import render_template
+from zds.utils import slugify
+from zds.utils.models import Alert
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
+from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
-from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
-import subprocess
+
 
 @can_read_now
 def index(request):
@@ -180,7 +186,6 @@ def reservation(request, validation_pk):
 
 @can_read_now
 @login_required
-@permission_required('tutorial.change_tutorial', raise_exception=True)
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -188,6 +193,10 @@ def diff(request, tutorial_pk, tutorial_slug):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied
 
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
@@ -491,10 +500,16 @@ def modify_tutorial(request):
             tutorial.authors.add(author)
             tutorial.save()
 
+            #share gallery
+            ug = UserGallery()
+            ug.user = author
+            ug.gallery = tutorial.gallery
+            ug.mode = 'W'
+            ug.save()
+
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction '+ \
-                'du tutoriel.'.format(author_username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author.username))
 
             return redirect(redirect_url)
 
@@ -705,22 +720,6 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['introduction'] +
-                    '.html'),
-                "r")
-            part['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['conclusion'] +
-                    '.html'),
-                "r")
-            part['conclu'] = conclu.read()
-            conclu.close()
 
             cpt_c = 1
             for chapter in part['chapters']:
@@ -730,41 +729,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['introduction'] +
-                        '.html'),
-                    "r")
-                chapter['intro'] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['conclusion'] +
-                        '.html'),
-                    "r")
-                chapter['conclu'] = conclu.read()
+
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    try :
-                        text = open(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html'),
-                            "r")
-                    except IOError:
-                        text = open(
-                            u"\\\\?\{0}".format(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html')),
-                            "r")
-                    ext['txt'] = text.read()
-                    text.close()
                     cpt_e += 1
                 cpt_c += 1
 
@@ -1385,21 +1355,22 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            chapter['intro'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['introduction'])
-            chapter['conclu'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['conclusion'])
             chapter['get_absolute_url'] = part[
-                'get_absolute_url'] + '{0}/'.format(chapter['slug'])
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
-                cpt_e += 1
+                    'get_absolute_url'] + '{0}/'.format(chapter['slug'])
+            if chapter_slug == slugify(chapter['title']):
+                chapter['intro'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['introduction'])
+                chapter['conclu'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['conclusion'])
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                    cpt_e += 1
             chapter_tab.append(chapter)
 
             if chapter_slug == slugify(chapter['title']):
@@ -1462,38 +1433,44 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['introduction'] +
-                    '.html'),
-                "r")
-            chapter['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['conclusion'] +
-                    '.html'),
-                "r")
-            chapter['conclu'] = conclu.read()
             chapter['get_absolute_url_online'] = part[
                 'get_absolute_url_online'] + '{0}/'.format(chapter['slug'])
-            conclu.close()
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                text = open(
+            if chapter_slug == slugify(chapter['title']):
+                intro = open(
                     os.path.join(
                         tutorial.get_prod_path(),
-                        ext['text'] +
+                        chapter['introduction'] +
                         '.html'),
                     "r")
-                ext['txt'] = text.read()
-                text.close()
-                cpt_e += 1
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        chapter['conclusion'] +
+                        '.html'),
+                    "r")
+                chapter['conclu'] = conclu.read()
+                conclu.close()
+                
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            ext['text'] +
+                            '.html'),
+                        "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e += 1
+            else:
+                intro =None
+                conclu =None
+
             chapter_tab.append(chapter)
             if chapter_slug == slugify(chapter['title']):
                 final_chapter = chapter
@@ -1507,7 +1484,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
     next_chapter = chapter_tab[
         final_position + 1] if final_position + 1 < len(chapter_tab) else None
 
-    return render_template('tutorial/chapter_online/view.html', {
+    return render_template('tutorial/chapter/view_online.html', {
         'chapter': final_chapter,
         'parts': parts,
         'prev': prev_chapter,
@@ -3046,6 +3023,27 @@ def answer(request):
             'form': form
         })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    # only staff can move topic
+    if not request.user.has_perm('tutorial.change_note'):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
+    note = Note.objects.get(alerts__in=[alert])
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, note.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.tutorial.title), "", msg, False)
+    alert.delete()
+
+    messages.success(
+        request,
+        u'L\'alerte a bien été résolue')
+
+    return redirect(note.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -3065,7 +3063,7 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note
     # must to be the user logged.
-    if note.author != request.user and not request.user.has_perm('tutorial.change_note'):
+    if note.author != request.user and not request.user.has_perm('tutorial.change_note')and 'signal-note' not in request.POST:
         raise PermissionDenied
 
     if note.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
@@ -3078,7 +3076,7 @@ def edit_note(request):
 
     if request.method == 'POST':
 
-        if 'delete_message' in request.POST:
+        if 'delete-note' in request.POST:
             if note.author == request.user or request.user.has_perm('tutorial.change_note'):
                 note.alerts.all().delete()
                 note.is_visible = False
@@ -3086,16 +3084,16 @@ def edit_note(request):
                     note.text_hidden = request.POST['text_hidden']
                 note.editor = request.user
 
-        if 'show_message' in request.POST:
+        if 'show-note' in request.POST:
             if request.user.has_perm('tutorial.change_note'):
                 note.is_visible = True
                 note.text_hidden = ''
 
-        if 'signal_message' in request.POST:
+        if 'signal-note' in request.POST:
             if note.author != request.user:
                 alert = Alert()
                 alert.author = request.user
-                alert.text = request.POST['signal_text']
+                alert.text = request.POST['signal-text']
                 alert.pubdate = datetime.now()
                 alert.save()
                 note.alerts.add(alert)
@@ -3112,7 +3110,7 @@ def edit_note(request):
                 'form': form
             })
 
-        if not 'delete_message' in request.POST and not 'signal_message' in request.POST and not 'show_message' in request.POST:
+        if not 'delete-note' in request.POST and not 'signal-note' in request.POST and not 'show-note' in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 note.text = request.POST['text']

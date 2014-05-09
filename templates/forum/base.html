@@ -56,7 +56,12 @@
                                        data-title="Ne plus suivre">
                                         Ne plus suivre
                                     </a>
-                                    <a href="{{ topic.get_absolute_url }}"
+                                    <a href="
+                                        {% if first_unread %}
+                                            {{ first_unread.get_absolute_url }}
+                                        {% else %}
+                                            {{ topic.last_read_post.get_absolute_url }}
+                                        {% endif %}"
                                        class="{% if state != True %}unread{% endif %}
                                         {% if topic.is_solved or topic.is_locked %}
                                             ico-after

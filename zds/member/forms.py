@@ -50,8 +50,11 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                StrictButton('Connexion', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                Submit(
+                    'submit',
+                    'Se connecter',
+                    css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
@@ -78,7 +81,7 @@ class RegisterForm(forms.Form):
     )
 
     password_confirm = forms.CharField(
-        label='Confirmation',
+        label='Confirmation du mot de passe',
         max_length = MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
@@ -96,8 +99,11 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                StrictButton('Valider mon inscription', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                Submit(
+                    'submit',
+                    'Valider mon inscription',
+                    css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             ))
 
     def clean(self):
@@ -132,9 +138,7 @@ class RegisterForm(forms.Form):
 
         return cleaned_data
 
-
-# update extra information about user
-class ProfileForm(forms.Form):
+class MiniProfileForm(forms.Form):
     biography = forms.CharField(
         label='Biographie',
         required=False,
@@ -162,7 +166,7 @@ class ProfileForm(forms.Form):
         max_length = Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers un avatar externe. Laissez vide pour utiliser Gravatar.'
+                'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
             }
         )
     )
@@ -173,11 +177,30 @@ class ProfileForm(forms.Form):
         max_length = Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Votre signature apparaitra en dessous de vos messages.'
+                'placeholder': 'Elle apparaitra dans les messages de forums. '
             }
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super(MiniProfileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('biography'),
+            Field('site'),
+            Field('avatar_url'),
+            Field('sign'),
+            ButtonHolder(
+                StrictButton('Editer le profil', type='submit', css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
+            )
+        )
+
+# update extra information about user
+class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
         required=False,
@@ -192,6 +215,7 @@ class ProfileForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
 
         # to get initial value form checkbox show email
@@ -214,8 +238,8 @@ class ProfileForm(forms.Form):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton('Editer mon profil', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton('Editer mon profil', type='submit', css_class='button'),
+                HTML('<a class="button secondary" href="/">Annuler</a>'),
             )
         )
 
@@ -256,7 +280,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
+                Submit('submit', 'Changer'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
@@ -317,7 +341,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
+                Submit('submit', 'Changer'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
@@ -374,7 +398,7 @@ class ForgotPasswordForm(forms.Form):
         self.helper.layout = Layout(
             Field('username'),
             ButtonHolder(
-                StrictButton('Envoyer', type='submit'),
+                Submit('submit', 'Envoyer'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
@@ -414,7 +438,7 @@ class NewPasswordForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton('Envoyer', type='submit'),
+                Submit('submit', 'Envoyer'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )

@@ -199,7 +199,7 @@ INSTALLED_APPS = (
 
     'south',
     'crispy_forms',
-    'captcha',
+    'crispy_forms_foundation',
     'email_obfuscator',
     'pipeline',
     'haystack',
@@ -272,6 +272,7 @@ REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
+MEMBERS_PER_PAGE = 36
 
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
@@ -292,6 +293,18 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'alert',
+}
+
+
+MAX_POST_LENGTH = 1000000
 
 # Load the production settings, overwrite the existing ones if needed
 try:

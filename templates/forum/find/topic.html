@@ -51,7 +51,7 @@
                     {{ topic.pubdate|naturaltime }}
                 </td>
                 <td>
-                    {{ topic.first_post.text|truncatechars:200|emarkdown }}
+                    {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
                 </td>
             </tr>
             {% endfor %}

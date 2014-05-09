@@ -8,6 +8,7 @@ from django.test.utils import override_settings
 
 from zds.article.models import Article, Validation
 from zds.member.factories import UserFactory
+from django.core import mail
 
 import os
 import shutil
@@ -16,6 +17,8 @@ from zds.member.factories import UserFactory, StaffFactory
 from zds.settings import SITE_ROOT
 from zds.article.factories import ArticleFactory, ReactionFactory
 from zds.article.models import Reaction, Article
+from zds.utils.models import Alert
+from zds.mp.models import PrivateTopic
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -28,6 +31,8 @@ class ArticleTests(TestCase):
     def setUp(self):
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = UserFactory()
+        settings.BOT_ACCOUNT = self.mas.username
 
         self.user_author = UserFactory()
         self.user = UserFactory()
@@ -72,6 +77,45 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
+    def test_alert(self):
+        user1 = UserFactory()
+        reaction = ReactionFactory(article=self.article, author = user1, position=1)
+        login_check = self.client.login(
+            username=self.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        #signal reaction
+        result = self.client.post(
+            reverse('zds.article.views.edit_reaction') +
+            '?message={0}'.format(
+                reaction.pk),
+            {
+                'signal-text': 'Troll',
+                'signal-reaction': 'Confirmer',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 1)
+        
+        # connect with staff
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        #solve alert
+        result = self.client.post(
+            reverse('zds.article.views.solve_alert'),
+            {
+                'alert_pk': Alert.objects.first().pk,
+                'text': 'Ok',
+                'delete-post': 'Resoudre',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 0)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user).count(), 1)
+        self.assertEquals(len(mail.outbox), 0)
+        
     def test_add_reaction(self):
         """To test add reaction for article."""
         user1 = UserFactory()

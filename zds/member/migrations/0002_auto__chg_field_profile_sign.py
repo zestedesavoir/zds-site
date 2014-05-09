@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Profile.sign'
-        db.alter_column(u'member_profile', 'sign', self.gf('django.db.models.fields.CharField')(max_length=250))
+        db.alter_column(u'member_profile', 'sign', self.gf('django.db.models.fields.TextField')(max_length=250))
 
     def backwards(self, orm):
 
@@ -75,9 +75,9 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'karma': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'last_ip_address': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'show_email': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'show_email': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'show_sign': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'sign': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
+            'sign': ('django.db.models.fields.TextField', [], {'max_length': '250', 'blank': 'True'}),
             'site': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
         },

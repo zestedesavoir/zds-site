@@ -62,6 +62,7 @@ def index(request):
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
+
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
@@ -131,7 +132,7 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -188,6 +189,7 @@ def new(request):
                 dest = None
         else:
             dest = None
+
         form = PrivateTopicForm(initial={
             'participants': dest
         })
@@ -196,7 +198,7 @@ def new(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 def edit(request):
@@ -226,7 +228,7 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -291,14 +293,14 @@ def answer(request):
                         privatepost__position_in_topic=pos,
                         user=part).count()
                     if last_read > 0:
-                        message_html = get_template('email/mp/new.html').render(
+                        message_html = get_template('email/mp.html').render(
                             Context({
                                 'username': part.username,
                                 'url': settings.SITE_URL + g_topic.get_absolute_url(),
                                 'author': request.user.username
                             })
                         )
-                        message_txt = get_template('email/mp/new.txt').render(
+                        message_txt = get_template('email/mp.txt').render(
                             Context({
                                 'username': part.username,
                                 'url': settings.SITE_URL + g_topic.get_absolute_url(),
@@ -348,7 +350,7 @@ def answer(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def edit_post(request):
     """Edit the given user's post."""
@@ -419,7 +421,7 @@ def edit_post(request):
             'form': form,
         })
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
@@ -442,7 +444,7 @@ def leave(request):
     
     return redirect(reverse('zds.mp.views.index'))
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
@@ -450,11 +452,14 @@ def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
     try :
         part = User.objects.get(username=request.POST['user_pk'])
-        ptopic.participants.add(part)
-        ptopic.save()
-
-        messages.success(
-                request, 'Le membre a bien été ajouté à la conversation')
+        if part.pk == ptopic.author.pk or part in ptopic.participants.all():
+            messages.warning(
+                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+        else:
+            ptopic.participants.add(part)
+            ptopic.save()
+    
+            messages.success(request, 'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
                 request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')

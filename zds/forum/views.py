@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed, TopicRead
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
@@ -43,16 +43,28 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise Http404
+        raise PermissionDenied
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')\
         .all()
-    topics = Topic.objects\
-        .filter(forum__pk=forum.pk, is_sticky=False)\
-        .order_by('-last_message__pubdate')\
-        .all()
+    if 'filter' in request.GET:
+        if request.GET['filter'] == 'solve':
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
+                .order_by('-last_message__pubdate')\
+                .all()
+        else :
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=False)\
+                .order_by('-last_message__pubdate')\
+                .all()
+    else:
+        topics = Topic.objects\
+            .filter(forum__pk=forum.pk, is_sticky=False)\
+            .order_by('-last_message__pubdate')\
+            .all()
 
     # Paginator
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
@@ -90,6 +102,9 @@ def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
     # TODO: Clean that up
     topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Check link
     if not topic_slug == slugify(topic.title):
@@ -143,7 +158,7 @@ def topic(request, topic_pk, topic_slug):
         'zds.forum.views.answer') + '?sujet=' + str(topic.pk)
 
     form_move = MoveTopicForm(topic=topic)
-
+    
     return render_template('forum/topic/index.html', {
         'topic': topic,
         'posts': res,
@@ -165,8 +180,10 @@ def new(request):
         forum_pk = request.GET['forum']
     except KeyError:
         raise Http404
-
     forum = get_object_or_404(Forum, pk=forum_pk)
+    
+    if not forum.can_read(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
 
@@ -259,6 +276,10 @@ def move_topic(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=request.POST['forum'])
+    
+    if not forum.can_read(request.user):
+        raise PermissionDenied
+    
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
@@ -327,7 +348,10 @@ def edit(request):
     if request.is_ajax():
         return HttpResponse(json.dumps(resp))
     else:
-        return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
+        if not g_topic.forum.can_read(request.user):
+            return redirect(reverse('zds.forum.views.index'))
+        else:
+            return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
 @can_write_and_read_now
@@ -342,6 +366,9 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
+    
+    if not g_topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Making sure posting is allowed
     if g_topic.is_locked:
@@ -427,9 +454,10 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}\nSource:[{1}]({2})'.format(
+            text = u'{0}\nSource:[{1}]({2}{3})'.format(
                 text,
                 post_cite.author.username,
+                settings.SITE_URL,
                 post_cite.get_absolute_url())
 
         form = PostForm(g_topic, request.user, initial={
@@ -458,6 +486,9 @@ def edit_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
+    
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     g_topic = None
     if post.position <= 1:
@@ -465,7 +496,7 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user and not request.user.has_perm('forum.change_post') and 'signal_message' not in request.POST:
+    if post.author != request.user and not request.user.has_perm('forum.change_post') and 'signal-post' not in request.POST:
         raise PermissionDenied
 
     if post.author != request.user and request.method == 'GET' and request.user.has_perm('forum.change_post'):
@@ -477,7 +508,7 @@ def edit_post(request):
 
     if request.method == 'POST':
 
-        if 'delete_message' in request.POST:
+        if 'delete-post' in request.POST:
             if post.author == request.user or request.user.has_perm('forum.change_post'):
                 post.alerts.all().delete()
                 post.is_visible = False
@@ -486,15 +517,15 @@ def edit_post(request):
                 post.editor = request.user
                 messages.success(request, u'Le message est désormais masqué')
 
-        if 'show_message' in request.POST:
+        if 'show-post' in request.POST:
             if request.user.has_perm('forum.change_post'):
                 post.is_visible = True
                 post.text_hidden = ''
 
-        if 'signal_message' in request.POST:
+        if 'signal-post' in request.POST:
             alert = Alert()
             alert.author = request.user
-            alert.text = request.POST['signal_text']
+            alert.text = request.POST['signal-text']
             alert.pubdate = datetime.now()
             alert.save()
             post.alerts.add(alert)
@@ -505,9 +536,17 @@ def edit_post(request):
 
         # Using the preview button
         if 'preview' in request.POST:
-            form = PostForm(post.topic, request.user, initial={
-                'text': request.POST['text']
-            })
+            if g_topic:
+                form = TopicForm(initial={
+                    'title': request.POST['title'],
+                    'subtitle': request.POST['subtitle'],
+                    'text': request.POST['text']
+                })
+            else:
+                form = PostForm(post.topic, request.user, initial={
+                    'text': request.POST['text']
+                })
+            
             form.helper.form_action = reverse(
                 'zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/post/edit.html', {
@@ -517,7 +556,7 @@ def edit_post(request):
                 'form': form,
             })
 
-        if not 'delete_message' in request.POST and not 'signal_message' in request.POST and not 'show_message' in request.POST:
+        if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 post.text = request.POST['text']
@@ -567,10 +606,15 @@ def useful_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
+    
+    # check that author can access the forum
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
-        raise Http404
+        if not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
 
     post.is_useful = not post.is_useful
 
@@ -591,6 +635,9 @@ def like_post(request):
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
+    
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
@@ -636,6 +683,9 @@ def dislike_post(request):
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
 
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
+
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
         if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count() == 0:
@@ -675,9 +725,16 @@ def find_topic(request, user_pk):
         .filter(author=u)\
         .order_by('-pubdate')\
         .all()
+    
+    tops = []
+    for top in topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
 
     # Paginator
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -704,9 +761,15 @@ def find_post(request, user_pk):
                 .filter(author=u)\
                 .order_by('-pubdate')\
                 .all()
-
+    pts = []
+    for post in posts :
+        if not post.topic.forum.can_read(request.user):
+            continue
+        else:
+            pts.append(post)
+            
     # Paginator
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(pts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -744,7 +807,7 @@ def followed_topics(request):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template('forum/topic/followed.html', {
+    return render_template('forum/topics/followed.html', {
         'followed_topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages),
         'nb': page

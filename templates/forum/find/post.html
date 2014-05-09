@@ -52,7 +52,7 @@
                     {{ post.pubdate|naturaltime }}
                 </td>
                 <td>
-                    {{ post.text|truncatechars:200|emarkdown }}
+                    {{ post.text|truncatechars:200|emarkdown|striptags }}
                 </td>
             </tr>
             {% endfor %}
