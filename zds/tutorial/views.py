@@ -3053,7 +3053,7 @@ def solve_alert(request):
         raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
-    note = Note.objects.get(alerts__in=[alert])
+    note = Note.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, note.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
     send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.tutorial.title), "", msg, False)
@@ -3110,13 +3110,14 @@ def edit_note(request):
                 note.text_hidden = ''
 
         if 'signal-note' in request.POST:
-            if note.author != request.user:
-                alert = Alert()
-                alert.author = request.user
-                alert.text = request.POST['signal-text']
-                alert.pubdate = datetime.now()
-                alert.save()
-                note.alerts.add(alert)
+            alert = Alert()
+            alert.author = request.user
+            alert.comment = note
+            alert.scope = Alert.TUTORIAL
+            alert.text = request.POST['signal-text']
+            alert.pubdate = datetime.now()
+            alert.save()
+            
         # Using the preview button
         if 'preview' in request.POST:
             form = NoteForm(g_tutorial, request.user, initial={
