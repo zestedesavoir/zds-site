@@ -159,7 +159,7 @@
               <li class="divider"></li>
                 
                   {% for alert in alerts %}
-                      <li><a href="{{ post.get_absolute_url }}">
+                      <li><a href="{{ alert.get_comment_subclass.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">

@@ -1,12 +1,14 @@
 # coding: utf-8
 
-from django.db import models
 import os
 import string
 import uuid
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
+
+from model_utils.managers import InheritanceManager
 
 
 def image_path_category(instance, filename):
@@ -144,6 +146,8 @@ class Comment(models.Model):
         verbose_name = 'Commentaire'
         verbose_name_plural = 'Commentaires'
 
+    objects = InheritanceManager()
+
     author = models.ForeignKey(User, verbose_name='Auteur',
                                related_name='comments')
     editor = models.ForeignKey(User, verbose_name='Editeur',
@@ -175,9 +179,6 @@ class Comment(models.Model):
     def get_dislike_count(self):
         """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
-    
-    def get_absolute_url(self):
-        raise NotImplementedError("Please Implement this method")
 
 
 class Alert(models.Model):
@@ -204,9 +205,19 @@ class Alert(models.Model):
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de publication')
 
+    def get_comment_subclass(self):
+        """
+        Used to retrieve comment URLs (simple call to get_absolute_url doesn't
+        work: objects are retrived as Comment and not subclasses)
+        As real Comment implementation (subclasses) can't be hard-coded due to
+        unresolvable import loops, use InheritanceManager from
+        django-model-utils.
+        """
+        return Comment.objects.get_subclass(id=self.comment.id)
+
     def __unicode__(self):
         return u'{0}'.format(self.text)
-
+    
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
