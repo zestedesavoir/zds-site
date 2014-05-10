@@ -175,6 +175,9 @@ class Comment(models.Model):
     def get_dislike_count(self):
         """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
+    
+    def get_absolute_url(self):
+        raise NotImplementedError("Please Implement this method")
 
 
 class Alert(models.Model):
