@@ -4,6 +4,11 @@
 	line-height: 55px;
 }
 
+.top-bar-section .right .has-dropdown a:after{
+	display: none;
+
+}
+
 .top-bar-section .right .dropdown li:not(.has-form) a:not(.button), .top-bar-section .right .dropdown li:not(.has-form) label {
 	line-height: 24px;
 }
@@ -144,6 +149,7 @@ Fil d'ariance
 .ariane {
 	border-top: 3px solid #ff8c00;
 	margin-bottom: 20px;
+	padding-left: 30px;
 	position: relative;
 	display: block;
 	float: left;
@@ -232,9 +238,10 @@ Side Bar
 	border-bottom: none;
 
 	padding: 0 0 10px;
+	border-top: 1px solid #FFF;
 	border-bottom: 1px solid #FFF;
 	color: #424242;
-	margin: 0 0 0 -2.7%;
+	margin-left: -$column-gutter;
 }
 .side-nav h5 {
 	font-size: 1rem;
@@ -246,8 +253,7 @@ Side Bar
 .side-nav h3 {
 	height: 40px;
 	font-size: 1.2rem;
-	line-height: 40px;
-	line-height: 2.6rem;
+	line-height: 2.5rem;
 	color: #084561;
 	background-color: #d3d5d5;
 	margin-top: 30px;
@@ -259,11 +265,13 @@ Side Bar
 	background-image: linear-gradient(right, rgba(0,0,0,0.05),transparent 15px);
 }
 
-.side-nav h3, 
-.side-nav h4 {
+.side-nav h3 {
 	font-weight: 600;
 	margin: 0;
-	padding: 5px;
+	padding-left: 45px;
+} 
+.side-nav h4 {
+	padding-left: 5px;
 }
 
 .side-nav ul {
@@ -300,6 +308,17 @@ Side Bar
 /**
 Box
 */
+
+.box + .subtitle {
+	font-size: 1rem;
+	color: #777;
+	margin-left: -$column-gutter;
+	margin-top: -15px;
+	margin-bottom: 15px;
+	padding: 10px 2%;
+	background: #EEE;
+	font-weight: normal;
+}
 
 h1.box, h2.box, h3.box, h4.box, h5.box {
 	line-height: 40px;
@@ -505,6 +524,10 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	content:url("../img/lock-blue.png");
 }
 
+.forum-entry-sticky:before {
+	content:url("../img/pin-blue.png");
+}
+
 #id_text {
 	font-family: "Ubuntu Mono"
 }
@@ -528,6 +551,20 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	border: 15px solid transparent;
 	border-left: 0;
 	border-right-color: #FFF;
+}
+
+
+.avatar-forum:after{
+	content: " ";
+	right: 0px;
+	display: block;
+	position: absolute;
+	top: 17px;
+	height: 0;
+	width: 0;
+	border: 15px solid transparent;
+	border-left: 0;
+	border-right-color: #CCC;
 }
 
 .message-forum .message-content {
@@ -629,7 +666,7 @@ figure figurecaption {
     display: block;
 }
 
-blockquote ~ figurecaption, blockquote {
+figure > table, blockquote ~ figurecaption, blockquote {
     text-align: left;
 }
 

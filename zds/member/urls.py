@@ -9,6 +9,8 @@ urlpatterns = patterns('',
                        url(r'^$', 'zds.member.views.index'),
                        url(r'^voir/(?P<user_name>.+)$', 'zds.member.views.details'),
                        url(r'^profil/modifier/(?P<user_pk>\d+)', 'zds.member.views.modify_profile'),
+                       url(r'^profil/lier$', 'zds.member.views.add_oldtuto'),
+                       url(r'^profil/delier$', 'zds.member.views.remove_oldtuto'),
 
                        url(r'^tutoriels$', 'zds.member.views.tutorials'),
                        url(r'^articles$', 'zds.member.views.articles'),

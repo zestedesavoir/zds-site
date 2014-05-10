@@ -41,7 +41,7 @@
 // We use these to control various global styles
 $body-bg: #f4f6f6;
 // $body-font-color: #222;
-$body-font-family: "Lucida Grande", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+$body-font-family: "Segoe UI", "Roboto", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
 
@@ -56,7 +56,7 @@ $body-font-family: "Lucida Grande", "Helvetica Neue", "Helvetica", Helvetica, Ar
 // We use these as default colors throughout
 $primary-color: #084561;
 $secondary-color: #e7ebec;
-// $alert-color: #f04124;
+$alert-color: scale-color(#f04124, $lightness: 25%);
 // $success-color: #43AC6A;
 // $warning-color: #f08a24;
 // $info-color: #a0d3e8;
@@ -70,7 +70,7 @@ $secondary-color: #e7ebec;
 // $shiny-edge-color: rgba(#fff, .5);
 // $shiny-edge-active-color: rgba(#000, .2);
 
-// $column-gutter: rem-calc(30);
+$column-gutter: rem-calc(30);
 
 // Media Query Ranges
 $small-range: (0em, 64em);
@@ -118,7 +118,7 @@ $medium-range: (64em, 64em);
 // $include-html-type-classes: $include-html-classes;
 
 // We use these to control header font styles
-$header-font-family: "Proxima", "Lucida Grande";
+$header-font-family: "Segoe UI", "Roboto", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
 // $header-font-weight: normal;
 // $header-font-style: normal;
 // $header-font-color: #222;
@@ -143,7 +143,7 @@ $h4-font-size: rem-calc(21);
 // $subheader-bottom-margin: .5rem;
 
 // A general <small> styling
-$small-font-size: 70%;
+$small-font-size: 80%;
 // $small-font-color: scale-color($header-font-color, $lightness: 35%);
 
 // We use these to style paragraphs
@@ -221,16 +221,16 @@ $paragraph-font-size: 0.9rem;
 
 // $include-html-accordion-classes: $include-html-classes;
 
-// $accordion-navigation-padding: rem-calc(16);
-// $accordion-navigation-bg-color: #efefef  ;
+$accordion-navigation-padding: rem-calc(10 15 10 45);
+$accordion-navigation-bg-color: rgba(255, 255, 255, 0.0);
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
 // $accordion-navigation-active-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -3%);
 // $accordion-navigation-font-color: #222;
 // $accordion-navigation-font-size: rem-calc(16);
 // $accordion-navigation-font-family: $body-font-family;
 
-// $accordion-content-padding: $column-gutter/2;
-// $accordion-content-active-bg-color: #fff;
+$accordion-content-padding: rem-calc(5 5 5 20);
+$accordion-content-active-bg-color: #e0e4e5;
 
 // Alert Boxes
 
