@@ -23,6 +23,10 @@
 
 
 {% block content %}
+    {% captureas form_action %}
+        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
     {% include "misc/message_form.html" with member=user %}
 
     {% if form.text.value %}

@@ -111,6 +111,10 @@
 
 
     {% for message in reactions %}
+        {% captureas form_action %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}
+        {% endcaptureas %}
+
         {% captureas edit_link %}
             {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
         {% endcaptureas %}

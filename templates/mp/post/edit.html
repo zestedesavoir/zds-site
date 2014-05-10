@@ -17,13 +17,27 @@
 
 
 {% block headline %}
-    Éditer un message : {{topic.title}}
+    Éditer un message : {{ topic.title }}
 {% endblock %}
 
 
 
 {% block headline_sub %}
     {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% captureas form_action %}
+        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" text=form.text.value %}
+    {% endif %}
 {% endblock %}
 
 
@@ -36,8 +50,19 @@
                 <li><a href="{% url "zds.mp.views.new" %}">Nouvelle conversation</a></li>
             {% endif %}
             {% if topic.author == user %}
-                {# TODO : Ajouter le lien/page qui va bien ici #}
-                <li><a href="#">Ajouter un membre</a></li>
+                <li>
+                    <a href="#add-participant" class="open-modal">Ajouter un membre</a>
+                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal">
+                        <p>
+                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                        </p>
+                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
+
+                        {% csrf_token %}
+                        <button type="submit">Ajouter</button>
+                    </form>
+                </li>
             {% endif %}
         </ul>
     </div>
@@ -58,14 +83,4 @@
             {% endfor %}
         </ul>
     </div>
-{% endblock %}
-
-
-
-{% block content %}
-    {% crispy form %}
-
-    {% if form.text.value %}
-        {% include "misc/previsualization.part.html" text=form.text.value %}
-    {% endif %}
 {% endblock %}

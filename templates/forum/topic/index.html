@@ -13,6 +13,14 @@
 
 
 
+{% block breadcrumb %}
+    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
+    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+
+
 {% block headline %}
     {{ topic.title }}
 {% endblock %}
@@ -25,10 +33,57 @@
 
 
 
-{% block breadcrumb %}
-    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li>{{ topic.title }}</li>
+{% block content %}
+    <ul class="taglist">
+        <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
+        <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+    </ul>
+
+    {% if topic.is_solved %}
+        <div class="alert-box success">
+            <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
+            solution satisfaisant son problème.
+        </div>
+    {% endif %}
+
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    <div class="content-wrapper">
+        {% for message in posts %}
+            {% captureas edit_link %}
+                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas cite_link %}
+                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas helpful_link %}
+                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas upvote_link %}
+                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas downvote_link %}
+                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% include 'misc/message.part.html' with perms_change=perms.forum.change_topic %}
+        {% endfor %}
+    </div>
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+
+
+    {% if user.is_authenticated %}
+        {% captureas form_action %}
+            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
+        {% endcaptureas %}
+        
+        {% include "misc/message_form.html" with member=user %}
+    {% endif %}
 {% endblock %}
 
 
@@ -109,56 +164,5 @@
                 {% crispy form_move %}
             </div>
         </li>
-    {% endif %}
-{% endblock %}
-
-
-
-{% block content %}
-    <ul class="taglist">
-        <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-        <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    </ul>
-
-    {% if topic.is_solved %}
-        <div class="alert-box success">
-            <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
-            solution satisfaisant son problème.
-        </div>
-    {% endif %}
-
-    {% include "misc/pagination.part.html" with position="top" %}
-
-    <div class="content-wrapper">
-        {% for message in posts %}
-            {% captureas edit_link %}
-                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas cite_link %}
-                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas helpful_link %}
-                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas upvote_link %}
-                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas downvote_link %}
-                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% include 'misc/message.part.html' with perms_change=perms.forum.change_topic %}
-        {% endfor %}
-    </div>
-
-    {% include "misc/pagination.part.html" with position="bottom" %}
-
-    {# TODO : Factoriser ça #}
-    {% if user.is_authenticated %}
-        {% include "misc/message_form.html" with member=user %}
     {% endif %}
 {% endblock %}

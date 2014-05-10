@@ -11,9 +11,9 @@
     <div class="message">
         {% if user.is_authenticated and message.is_visible %}
             <ul class="message-actions">
-                {% if message.is_visible %}
+                {% if message.is_visible != False %}
                     {% if edit_link %}
-                        {% if message.author = user or perms_change %}
+                        {% if message.author = user or perms_change and can_hide != False %}
                             <li>
                                 <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
                                     Masquer
@@ -97,9 +97,8 @@
         </div>
 
         <div class="message-content">
-            {% if not message.is_visible %}
+            {% if not message.is_visible != False %}
                 <p class="message-hidden">
-                    {{ message.is_visible }}
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>
             {% elif not message.update = None %}
@@ -108,12 +107,12 @@
                 </p>
             {% endif %}
 
-            {% if message.is_visible %}
+            {% if message.is_visible != False %}
                 {{ message.text|emarkdown }}
             {% endif %}
         </div>
 
-        {% if message.is_visible %}
+        {% if message.is_visible != False %}
             <div class="message-bottom">
                 {% if user.is_authenticated %}
                     {% with profile_user=user|profile %}

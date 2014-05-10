@@ -47,7 +47,7 @@
     {# Modernizr #}
     {% compressed_js "modernizr" %}
 
-    {# CSS3 Mediaqueries for IE <= 8 #}
+    {# CSS3 Mediaqueries for IE8- #}
     <!--[if lte IE 8]>
     {% compressed_js "css3-mediaqueries" %}
     <![endif]-->
@@ -88,7 +88,6 @@
 
                     {# Logo #}
                     <h1 class="header-logo">
-                        {# TODO : Changer le data-title en fonction de la section #}
                         <a href="{% url "zds.pages.views.home" %}"
                            class="header-logo-link"
                            data-title="{{ mobiletitle }}"
@@ -199,7 +198,7 @@
                                                     <li>
                                                         <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                             {% with p=first_unread.author|profile %}
-                                                            <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
