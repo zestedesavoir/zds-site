@@ -97,7 +97,7 @@ class TutorialForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -140,7 +140,7 @@ class PartForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(PartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -178,7 +178,7 @@ class ChapterForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(ChapterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -214,7 +214,7 @@ class EmbdedChapterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -246,7 +246,7 @@ class ExtractForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -278,7 +278,7 @@ class ImportForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

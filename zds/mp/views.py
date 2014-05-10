@@ -293,14 +293,14 @@ def answer(request):
                         privatepost__position_in_topic=pos,
                         user=part).count()
                     if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
+                        message_html = get_template('email/mp/new.html').render(
                             Context({
                                 'username': part.username,
                                 'url': settings.SITE_URL + g_topic.get_absolute_url(),
                                 'author': request.user.username
                             })
                         )
-                        message_txt = get_template('email/mp.txt').render(
+                        message_txt = get_template('email/mp/new.txt').render(
                             Context({
                                 'username': part.username,
                                 'url': settings.SITE_URL + g_topic.get_absolute_url(),

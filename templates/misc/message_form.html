@@ -9,23 +9,21 @@
 
 		<div class="message">
 	        <div class="message-content">
-	            {% spaceless %}
-	                <textarea
-	                    name="text"
-	                    id="text"
-	                    class="md-editor"
-	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-	                    placeholder="Votre message au format Markdown"
-	                >
-	                    {% if topic.is_locked %}
-	                        Ce sujet est verrouillé.
-	                    {% elif topic.antispam  %}
-	                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
-	                    {% else %}
-	                        {{ text }}
-	                    {% endif %}
-	                </textarea>
-	            {% endspaceless %}
+                <textarea
+                    name="text"
+                    id="text"
+                    class="md-editor"
+                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                    placeholder="Votre message au format Markdown"
+                >{% spaceless %}
+                    {% if topic.is_locked %}
+                        Ce sujet est verrouillé.
+                    {% elif topic.antispam  %}
+                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                    {% else %}
+                        {{ text }}
+                    {% endif %}
+                {% endspaceless %}</textarea>
 	        </div>
 
 	        <div class="message-bottom">

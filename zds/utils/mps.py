@@ -66,14 +66,14 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
             subject = "ZDS - MP: " + n_topic.title
             from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
             for part in users:
-                message_html = get_template('email/mp/index.html').render(
+                message_html = get_template('email/mp/new.html').render(
                     Context({
                         'username': part.username,
                         'url': settings.SITE_URL + n_topic.get_absolute_url(),
                         'author': author.username
                     })
                 )
-                message_txt = get_template('email/mp/index.txt').render(
+                message_txt = get_template('email/mp/new.txt').render(
                     Context({
                         'username': part.username,
                         'url': settings.SITE_URL + n_topic.get_absolute_url(),
