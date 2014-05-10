@@ -3,6 +3,7 @@
 {% load email_obfuscator %}
 {% load humanize %}
 {% load profile %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     {{ usr.username }}
@@ -132,6 +133,29 @@
             {{ profile.biography|emarkdown }}
         {% endif %}
     </div>
+
+    {% if old_tutos and perms.member.change_profile%}
+        <div class="large-12 columns">
+            <h2 class="box tutoriel">Anciens Tutos SDZ</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tuto</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for id, titre, tuto, image, logo in old_tutos %}
+                <tr>
+                  <td>{{titre}}</td>
+                  <td><a href="{% url "zds.member.views.remove_oldtuto" %}?id={{id}}&profile={{profile.pk}}" class="fi-x"></a></td>
+                </tr>
+              </tbody>
+              {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block headline-actions %}
@@ -143,6 +167,17 @@
             {% endifequal %}
             {% if perms.member.change_profile %}
                 <li><a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}">Modifier le profil</a></li>
+                <li>
+                <a href="#" data-dropdown="link-tuto-{{profile.pk}}">
+                    Attribuer un tuto SdZ
+                </a>
+                </li>
+                <div id="link-tuto-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
+                    <p>
+                        Choisi un tutoriel du SdZ à attribuer au membre.
+                    </p>
+                    {% crispy form %}
+                </div>
             {% endif %}
             {% if user.is_authenticated %}
                 {% with status=profile.user|state %}
@@ -154,21 +189,4 @@
         </ul>
     </div>
     
-{% endblock %}
-
-{% block contentant %}
-{# Biography #}
-
-{% if profile.biography %}
-<div class="row">
-    <div class="large-12 columns">
-        <h2>Biographie</h2>
-        {{ profile.biography|emarkdown }}
-        <h2>Signature</h2>
-        {{ profile.sign|emarkdown }}
-    </div>
-</div>
-
-{% endif %}
-
 {% endblock %}
