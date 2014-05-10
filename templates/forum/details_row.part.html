@@ -8,7 +8,9 @@
             read
         {% endif %}
     {% endif %}">
-    <td> 
+    <td>
+        <span class="{% if topic.is_sticky %}forum-entry-sticky{% endif %}">
+        </span>
         <span class="{% if topic.is_locked %}forum-entry-locked{% endif %}">
         </span>
         <span class="{% if topic.is_solved %}forum-entry-solved{% endif %}">
@@ -17,7 +19,7 @@
             {{ topic.title }}
         </a><br />
         {% if topic.subtitle %}
-            <small>
+            <small class="hide-for-small">
                 {{ topic.subtitle }}
             </small>
         {% endif %}
@@ -26,20 +28,21 @@
             Par {% include "member/member_item_common.part.html" %}
         {% endwith %}
     </td>
-    <td class="forum-entry-count hide-for-small" >
+    <td width="10%" class="forum-entry-count hide-for-small" >
         <span class="label">
             {{ topic.get_post_count|add:"-1" }}
         </span>
     </td>
-    <td width="290px">
+    <td width="28%">
         <p>
             {% with answer=topic.get_last_answer last=topic.last_read_post %}
                 {% if answer %}
-                    <span class="hide-for-small">Dernière rép. <span><a href="{{ last.get_absolute_url }}">{{ answer.pubdate|naturaltime }}</a>
-                        <br />par
+                    Dernière rép. <a href="{{ last.get_absolute_url }}">{{ answer.pubdate|naturaltime }}</a>
+                        <br /><span class="hide-for-small">par
                     {% with member=answer.author %}
                         {% include "member/member_item_common.part.html" %}
                     {% endwith %}
+                    </span>
                 {% else %}
                     Aucune réponse
                 {% endif %}

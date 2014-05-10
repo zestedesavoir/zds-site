@@ -37,9 +37,10 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic 
+from zds.member.models import get_info_old_tuto
 from zds.utils import render_template
-from zds.utils import slugify
+from django.template.defaultfilters import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
@@ -2001,41 +2002,40 @@ def find_tuto(request, pk_user):
         })
 
 
-def upload_images(request, tutorial):
+def upload_images(images, tutorial):
     mapping = OrderedDict()
     # download images
-    if 'images' in request.FILES:
-        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
-        os.makedirs(
-            os.path.abspath(
-                os.path.join(
-                    tutorial.get_path(),
-                    'images')))
-        for i in zfile.namelist():
-            ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
+    zfile = zipfile.ZipFile(images, 'a')
+    os.makedirs(
+        os.path.abspath(
+            os.path.join(
+                tutorial.get_path(),
+                'images')))
+    for i in zfile.namelist():
+        ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
+        try:
+            data = zfile.read(i)
+            fp = open(ph_temp, "wb")
+            fp.write(data)
+            fp.close()
+
+            f = File(open(ph_temp, 'rb'))
+            f.name = os.path.basename(i)
+            pic = Image()
+            pic.gallery = tutorial.gallery
+            pic.title = os.path.basename(i)
+            pic.pubdate = datetime.now()
+            pic.physical = f
+            pic.save()
+            mapping[i] = pic.physical.url
+            f.close()
+        except IOError:
             try:
-                data = zfile.read(i)
-                fp = open(ph_temp, "wb")
-                fp.write(data)
-                fp.close()
+                os.makedirs(ph_temp)
+            except:
+                pass
 
-                f = File(open(ph_temp, 'rb'))
-                f.name = os.path.basename(i)
-                pic = Image()
-                pic.gallery = tutorial.gallery
-                pic.title = os.path.basename(i)
-                pic.pubdate = datetime.now()
-                pic.physical = f
-                pic.save()
-                mapping[i] = pic.physical.url
-                f.close()
-            except IOError:
-                try:
-                    os.makedirs(ph_temp)
-                except:
-                    pass
-
-        zfile.close()
+    zfile.close()
     return mapping
 
 
@@ -2045,6 +2045,311 @@ def replace_real_url(md_text, dict):
 
     return md_text
 
+
+def import_content(request, tuto, images, logo):
+    tutorial = Tutorial()
+    # add create date
+    tutorial.create_at = datetime.now()
+
+    tree = etree.parse(tuto)
+    racine_big = tree.xpath("/bigtuto")
+    racine_mini = tree.xpath("/minituto")
+    if(len(racine_big) > 0):
+        # it's a big tuto
+        tutorial.type = 'BIG'
+        tutorial_title = tree.xpath("/bigtuto/titre")[0]
+        tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
+        tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
+
+        tutorial.title = tutorial_title.text.strip()
+        tutorial.description = tutorial_title.text.strip()
+        tutorial.images = 'images'
+        tutorial.introduction = 'introduction.md'
+        tutorial.conclusion = 'conclusion.md'
+        # Creating the gallery
+        gal = Gallery()
+        gal.title = tutorial_title.text
+        gal.slug = slugify(tutorial_title.text)
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # Attach user to gallery
+        userg = UserGallery()
+        userg.gallery = gal
+        userg.mode = 'W'  # write mode
+        userg.user = request.user
+        userg.save()
+
+        tutorial.gallery = gal
+
+        tutorial.save()
+
+        tuto_path = os.path.join(
+            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
+
+        mapping = upload_images(images, tutorial)
+
+        maj_repo_tuto(
+            request,
+            new_slug_path=tuto_path,
+            tuto=tutorial,
+            introduction=replace_real_url(
+                tutorial_intro.text,
+                mapping),
+            conclusion=replace_real_url(
+                tutorial_conclu.text,
+                mapping),
+            action='add')
+
+        tutorial.authors.add(request.user)
+        part_count = 1
+        for partie in tree.xpath("/bigtuto/parties/partie"):
+            part_title = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/titre")[0]
+            part_intro = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/introduction")[0]
+            part_conclu = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/conclusion")[0]
+
+            part = Part()
+            part.title = part_title.text.strip()
+            part.position_in_tutorial = part_count
+
+            part.tutorial = tutorial
+
+            part.introduction = os.path.join(
+                slugify(
+                    part_title.text.strip()),
+                'introduction.md')
+            part.conclusion = os.path.join(
+                slugify(
+                    part_title.text.strip()),
+                'conclusion.md')
+
+            part_path = os.path.join(
+                os.path.join(
+                    settings.REPO_PATH, str(
+                        part.tutorial.pk) + '_' + part.tutorial.slug), slugify(
+                    part.title))
+
+            part.save()
+
+            maj_repo_part(
+                request, None, part_path, part, replace_real_url(
+                    part_intro.text, mapping), replace_real_url(
+                    part_conclu.text, mapping), action='add')
+
+            chapter_count = 1
+            for chapitre in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre"):
+                chapter_title = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/titre")[0]
+                chapter_intro = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/introduction")[0]
+                chapter_conclu = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/conclusion")[0]
+
+                chapter = Chapter()
+                chapter.title = chapter_title.text.strip()
+                chapter.position_in_part = chapter_count
+                chapter.position_in_tutorial = part_count * \
+                    chapter_count
+                chapter.part = part
+
+                chapter.introduction = os.path.join(
+                    part.slug,
+                    os.path.join(
+                        slugify(
+                            chapter_title.text.strip()),
+                        'introduction.md'))
+                chapter.conclusion = os.path.join(
+                    part.slug,
+                    os.path.join(
+                        slugify(
+                            chapter_title.text.strip()),
+                        'conclusion.md'))
+
+                chapter_path = os.path.join(
+                    os.path.join(
+                        os.path.join(
+                            settings.REPO_PATH,
+                            str(
+                                chapter.part.tutorial.pk) +
+                            '_' +
+                            chapter.part.tutorial.slug),
+                        chapter.part.slug),
+                    slugify(
+                        chapter.title))
+
+                chapter.save()
+
+                maj_repo_chapter(
+                    request,
+                    new_slug_path=chapter_path,
+                    chapter=chapter,
+                    introduction=replace_real_url(
+                        chapter_intro.text,
+                        mapping),
+                    conclusion=replace_real_url(
+                        chapter_conclu.text,
+                        mapping),
+                    action='add')
+
+                extract_count = 1
+                for souspartie in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre[" + str(chapter_count) + "]/sousparties/souspartie"):
+                    extract_title = tree.xpath(
+                        "/bigtuto/parties/partie[" +
+                        str(part_count) +
+                        "]/chapitres/chapitre[" +
+                        str(chapter_count) +
+                        "]/sousparties/souspartie[" +
+                        str(extract_count) +
+                        "]/titre")[0]
+                    extract_text = tree.xpath(
+                        "/bigtuto/parties/partie[" +
+                        str(part_count) +
+                        "]/chapitres/chapitre[" +
+                        str(chapter_count) +
+                        "]/sousparties/souspartie[" +
+                        str(extract_count) +
+                        "]/texte")[0]
+
+                    extract = Extract()
+                    extract.title = extract_title.text.strip()
+                    extract.position_in_chapter = extract_count
+                    extract.chapter = chapter
+
+                    extract.text = extract.get_path(
+                        relative=True)
+                    extract.save()
+
+                    maj_repo_extract(
+                        request,
+                        new_slug_path=extract.get_path(),
+                        extract=extract,
+                        text=replace_real_url(
+                            extract_text.text,
+                            mapping),
+                        action='add')
+
+                    extract_count += 1
+
+                chapter_count += 1
+
+            part_count += 1
+    elif len(racine_mini) > 0:
+        # it's a mini tuto
+        tutorial.type = 'MINI'
+        tutorial_title = tree.xpath("/minituto/titre")[0]
+        tutorial_intro = tree.xpath(
+            "/minituto/introduction")[0]
+        tutorial_conclu = tree.xpath("/minituto/conclusion")[0]
+
+        tutorial.title = tutorial_title.text.strip()
+        tutorial.description = tutorial_title.text.strip()
+        tutorial.images = 'images'
+        tutorial.introduction = 'introduction.md'
+        tutorial.conclusion = 'conclusion.md'
+
+        # Creating the gallery
+        gal = Gallery()
+        gal.title = tutorial_title.text
+        gal.slug = slugify(tutorial_title.text)
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # Attach user to gallery
+        userg = UserGallery()
+        userg.gallery = gal
+        userg.mode = 'W'  # write mode
+        userg.user = request.user
+        userg.save()
+
+        tutorial.gallery = gal
+
+        tutorial.save()
+
+        tuto_path = os.path.join(
+            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
+
+        mapping = upload_images(images, tutorial)
+
+        maj_repo_tuto(
+            request,
+            new_slug_path=tuto_path,
+            tuto=tutorial,
+            introduction=replace_real_url(
+                tutorial_intro.text,
+                mapping),
+            conclusion=replace_real_url(
+                tutorial_conclu.text,
+                mapping),
+            action='add')
+
+        tutorial.authors.add(request.user)
+
+        chapter = Chapter()
+        chapter.tutorial = tutorial
+        chapter.save()
+
+        extract_count = 1
+        for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
+            extract_title = tree.xpath(
+                "/minituto/sousparties/souspartie[" +
+                str(extract_count) +
+                "]/titre")[0]
+            extract_text = tree.xpath(
+                "/minituto/sousparties/souspartie[" +
+                str(extract_count) +
+                "]/texte")[0]
+
+            extract = Extract()
+            extract.title = extract_title.text.strip()
+            extract.position_in_chapter = extract_count
+            extract.chapter = chapter
+            extract.text = extract.get_path(relative=True)
+
+            extract.save()
+
+            maj_repo_extract(
+                request,
+                new_slug_path=extract.get_path(),
+                extract=extract,
+                text=replace_real_url(
+                    extract_text.text,
+                    mapping),
+                action='add')
+
+            extract_count += 1
+    
+@can_write_and_read_now
+@login_required
+@require_POST
+def local_import(request):
+    tuto = open(request.POST['tuto'], "r").read()
+    images = open(request.POST['images'], "r").read()
+    logo = open(request.POST['logo'], "r").read()
+    
+    import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
+    
+    return redirect(reverse('zds.member.views.tutorials'))
 
 @can_write_and_read_now
 @login_required
@@ -2056,310 +2361,25 @@ def import_tuto(request):
             filename = str(request.FILES['file'])
             ext = filename.split('.')[-1]
             if ext == 'tuto':
-                if form.is_valid():
-
-                    tutorial = Tutorial()
-
-                    # add create date
-                    tutorial.create_at = datetime.now()
-
-                    tree = etree.parse(request.FILES['file'])
-                    racine_big = tree.xpath("/bigtuto")
-                    racine_mini = tree.xpath("/minituto")
-                    if(len(racine_big) > 0):
-                        # it's a big tuto
-                        tutorial.type = 'BIG'
-                        tutorial_title = tree.xpath("/bigtuto/titre")[0]
-                        tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
-                        tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
-
-                        tutorial.title = tutorial_title.text.strip()
-                        tutorial.description = tutorial_title.text.strip()
-                        tutorial.images = 'images'
-                        tutorial.introduction = 'introduction.md'
-                        tutorial.conclusion = 'conclusion.md'
-                        # Creating the gallery
-                        gal = Gallery()
-                        gal.title = tutorial_title.text
-                        gal.slug = slugify(tutorial_title.text)
-                        gal.pubdate = datetime.now()
-                        gal.save()
-
-                        # Attach user to gallery
-                        userg = UserGallery()
-                        userg.gallery = gal
-                        userg.mode = 'W'  # write mode
-                        userg.user = request.user
-                        userg.save()
-
-                        tutorial.gallery = gal
-
-                        tutorial.save()
-
-                        tuto_path = os.path.join(
-                            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
-
-                        mapping = upload_images(request, tutorial)
-
-                        maj_repo_tuto(
-                            request,
-                            new_slug_path=tuto_path,
-                            tuto=tutorial,
-                            introduction=replace_real_url(
-                                tutorial_intro.text,
-                                mapping),
-                            conclusion=replace_real_url(
-                                tutorial_conclu.text,
-                                mapping),
-                            action='add')
-
-                        tutorial.authors.add(request.user)
-                        part_count = 1
-                        for partie in tree.xpath("/bigtuto/parties/partie"):
-                            part_title = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/titre")[0]
-                            part_intro = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/introduction")[0]
-                            part_conclu = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/conclusion")[0]
-
-                            part = Part()
-                            part.title = part_title.text.strip()
-                            part.position_in_tutorial = part_count
-
-                            part.tutorial = tutorial
-
-                            part.introduction = os.path.join(
-                                slugify(
-                                    part_title.text.strip()),
-                                'introduction.md')
-                            part.conclusion = os.path.join(
-                                slugify(
-                                    part_title.text.strip()),
-                                'conclusion.md')
-
-                            part_path = os.path.join(
-                                os.path.join(
-                                    settings.REPO_PATH, str(
-                                        part.tutorial.pk) + '_' + part.tutorial.slug), slugify(
-                                    part.title))
-
-                            part.save()
-
-                            maj_repo_part(
-                                request, None, part_path, part, replace_real_url(
-                                    part_intro.text, mapping), replace_real_url(
-                                    part_conclu.text, mapping), action='add')
-
-                            chapter_count = 1
-                            for chapitre in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre"):
-                                chapter_title = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/titre")[0]
-                                chapter_intro = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/introduction")[0]
-                                chapter_conclu = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/conclusion")[0]
-
-                                chapter = Chapter()
-                                chapter.title = chapter_title.text.strip()
-                                chapter.position_in_part = chapter_count
-                                chapter.position_in_tutorial = part_count * \
-                                    chapter_count
-                                chapter.part = part
-
-                                chapter.introduction = os.path.join(
-                                    part.slug,
-                                    os.path.join(
-                                        slugify(
-                                            chapter_title.text.strip()),
-                                        'introduction.md'))
-                                chapter.conclusion = os.path.join(
-                                    part.slug,
-                                    os.path.join(
-                                        slugify(
-                                            chapter_title.text.strip()),
-                                        'conclusion.md'))
-
-                                chapter_path = os.path.join(
-                                    os.path.join(
-                                        os.path.join(
-                                            settings.REPO_PATH,
-                                            str(
-                                                chapter.part.tutorial.pk) +
-                                            '_' +
-                                            chapter.part.tutorial.slug),
-                                        chapter.part.slug),
-                                    slugify(
-                                        chapter.title))
-
-                                chapter.save()
-
-                                maj_repo_chapter(
-                                    request,
-                                    new_slug_path=chapter_path,
-                                    chapter=chapter,
-                                    introduction=replace_real_url(
-                                        chapter_intro.text,
-                                        mapping),
-                                    conclusion=replace_real_url(
-                                        chapter_conclu.text,
-                                        mapping),
-                                    action='add')
-
-                                extract_count = 1
-                                for souspartie in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre[" + str(chapter_count) + "]/sousparties/souspartie"):
-                                    extract_title = tree.xpath(
-                                        "/bigtuto/parties/partie[" +
-                                        str(part_count) +
-                                        "]/chapitres/chapitre[" +
-                                        str(chapter_count) +
-                                        "]/sousparties/souspartie[" +
-                                        str(extract_count) +
-                                        "]/titre")[0]
-                                    extract_text = tree.xpath(
-                                        "/bigtuto/parties/partie[" +
-                                        str(part_count) +
-                                        "]/chapitres/chapitre[" +
-                                        str(chapter_count) +
-                                        "]/sousparties/souspartie[" +
-                                        str(extract_count) +
-                                        "]/texte")[0]
-
-                                    extract = Extract()
-                                    extract.title = extract_title.text.strip()
-                                    extract.position_in_chapter = extract_count
-                                    extract.chapter = chapter
-
-                                    extract.text = extract.get_path(
-                                        relative=True)
-                                    extract.save()
-
-                                    maj_repo_extract(
-                                        request,
-                                        new_slug_path=extract.get_path(),
-                                        extract=extract,
-                                        text=replace_real_url(
-                                            extract_text.text,
-                                            mapping),
-                                        action='add')
-
-                                    extract_count += 1
-
-                                chapter_count += 1
-
-                            part_count += 1
-                    elif len(racine_mini) > 0:
-                        # it's a mini tuto
-                        tutorial.type = 'MINI'
-                        tutorial_title = tree.xpath("/minituto/titre")[0]
-                        tutorial_intro = tree.xpath(
-                            "/minituto/introduction")[0]
-                        tutorial_conclu = tree.xpath("/minituto/conclusion")[0]
-
-                        tutorial.title = tutorial_title.text.strip()
-                        tutorial.description = tutorial_title.text.strip()
-                        tutorial.images = 'images'
-                        tutorial.introduction = 'introduction.md'
-                        tutorial.conclusion = 'conclusion.md'
-
-                        # Creating the gallery
-                        gal = Gallery()
-                        gal.title = tutorial_title.text
-                        gal.slug = slugify(tutorial_title.text)
-                        gal.pubdate = datetime.now()
-                        gal.save()
-
-                        # Attach user to gallery
-                        userg = UserGallery()
-                        userg.gallery = gal
-                        userg.mode = 'W'  # write mode
-                        userg.user = request.user
-                        userg.save()
-
-                        tutorial.gallery = gal
-
-                        tutorial.save()
-
-                        tuto_path = os.path.join(
-                            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
-
-                        mapping = upload_images(request, tutorial)
-
-                        maj_repo_tuto(
-                            request,
-                            new_slug_path=tuto_path,
-                            tuto=tutorial,
-                            introduction=replace_real_url(
-                                tutorial_intro.text,
-                                mapping),
-                            conclusion=replace_real_url(
-                                tutorial_conclu.text,
-                                mapping),
-                            action='add')
-
-                        tutorial.authors.add(request.user)
-
-                        chapter = Chapter()
-                        chapter.tutorial = tutorial
-                        chapter.save()
-
-                        extract_count = 1
-                        for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
-                            extract_title = tree.xpath(
-                                "/minituto/sousparties/souspartie[" +
-                                str(extract_count) +
-                                "]/titre")[0]
-                            extract_text = tree.xpath(
-                                "/minituto/sousparties/souspartie[" +
-                                str(extract_count) +
-                                "]/texte")[0]
-
-                            extract = Extract()
-                            extract.title = extract_title.text.strip()
-                            extract.position_in_chapter = extract_count
-                            extract.chapter = chapter
-                            extract.text = extract.get_path(relative=True)
-
-                            extract.save()
-
-                            maj_repo_extract(
-                                request,
-                                new_slug_path=extract.get_path(),
-                                extract=extract,
-                                text=replace_real_url(
-                                    extract_text.text,
-                                    mapping),
-                                action='add')
-
-                            extract_count += 1
-
-                    return redirect(tutorial.get_absolute_url())
+                import_content(request, request.FILES['file'], request.FILES['images'], '')
             else:
                 raise Http404
 
+        return redirect(reverse('zds.member.views.tutorials'))
     else:
         form = ImportForm()
+        
+        profile = get_object_or_404(Profile, user=request.user) 
+        oldtutos = []
+        if profile.sdz_tutorial:
+            olds = profile.sdz_tutorial.strip().split(':')
+        else:
+            olds = []
+        for old in olds:
+            oldtutos.append(get_info_old_tuto(old))
 
     return render_template('tutorial/import_tutorial.html', {
-        'form': form
+        'form': form, 'old_tutos' : oldtutos,
     })
 
 
