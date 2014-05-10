@@ -343,6 +343,8 @@
 .fi-yen:before,
 .fi-zoom-in:before,
 .fi-zoom-out:before {
+  padding-left: 5px;
+  padding-right: 5px;
   font-family: "foundation-icons";
   color : #ff8c00;
   font-style: normal;
