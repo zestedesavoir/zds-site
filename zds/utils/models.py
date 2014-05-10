@@ -16,24 +16,6 @@ def image_path_category(instance, filename):
     return os.path.join('categorie/normal', str(instance.pk), filename)
 
 
-class Alert(models.Model):
-
-    class Meta:
-        verbose_name = 'Alerte'
-        verbose_name_plural = 'Alertes'
-
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='alerts')
-    text = models.TextField('Texte d\'alerte')
-    pubdate = models.DateTimeField(
-        'Date de publication',
-        blank=True,
-        null=True)
-
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
-
-
 class Category(models.Model):
 
     """Common category for several concepts of the application."""
@@ -186,12 +168,6 @@ class Comment(models.Model):
         max_length=80,
         default='')
 
-    alerts = models.ManyToManyField(
-        Alert,
-        verbose_name='Alertes',
-        null=True,
-        blank=True)
-
     def get_like_count(self):
         """Gets number of like for the post."""
         return CommentLike.objects.filter(comments__pk=self.pk).count()
@@ -200,6 +176,37 @@ class Comment(models.Model):
         """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
 
+
+class Alert(models.Model):
+    """Alerts on all kinds of Comments"""
+    
+    ARTICLE = 'A'
+    FORUM = 'F'
+    TUTORIAL = 'T'
+    MP = 'M'
+    SCOPE_CHOICES = (
+            (ARTICLE, 'Commentaire d\'article'),
+            (FORUM, 'Forum'),
+            (TUTORIAL, 'Commentaire de tuto'),
+            (MP, 'Message Privé'),
+    )
+
+    author = models.ForeignKey(User,
+                               verbose_name='Auteur',
+                               related_name='alerts')
+    comment = models.ForeignKey(Comment,
+                               verbose_name='Commentaire',
+                               related_name='comments')
+    scope = models.CharField(max_length=1, choices=SCOPE_CHOICES)
+    text = models.TextField('Texte d\'alerte')
+    pubdate = models.DateTimeField('Date de publication')
+
+    def __unicode__(self):
+        return u'{0}'.format(self.text)
+
+    class Meta:
+        verbose_name = 'Alerte'
+        verbose_name_plural = 'Alertes'
 
 class CommentLike(models.Model):
 
