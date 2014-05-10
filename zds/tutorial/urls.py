@@ -50,6 +50,7 @@ urlpatterns = patterns('',
 
                        url(r'^$', 'zds.tutorial.views.index'),
                        url(r'^importer/$', 'zds.tutorial.views.import_tuto'),
+                       url(r'^import_local/$', 'zds.tutorial.views.local_import'),
                        url(r'^telecharger/$', 'zds.tutorial.views.download'),
                        url(r'^telecharger/pdf/$', 'zds.tutorial.views.download_pdf'),
                        url(r'^telecharger/html/$', 'zds.tutorial.views.download_html'),
