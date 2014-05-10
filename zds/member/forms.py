@@ -2,17 +2,43 @@
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder
+from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder, Hidden
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.member.models import Profile
+from zds.member.models import Profile, listing
 
 # Max password length for the user.
 # Unlike other fileds, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
+
+class OldTutoForm(forms.Form):
+    
+    id = forms.ChoiceField(
+        label='Ancien Tutoriel',
+        required=True,
+        choices = listing(),
+    )
+    
+    def __init__(self, profile, *args, **kwargs):
+        super(OldTutoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('zds.member.views.add_oldtuto')
+
+        self.helper.layout = Layout(
+            Field('id'),
+            Hidden('profile_pk', '{{ profile.pk }}'),
+            ButtonHolder(
+                Submit(
+                    'submit',
+                    'Attribuer',
+                    css_class='button tiny'),
+            ),
+        )
 
 class LoginForm(forms.Form):
     username = forms.CharField(
