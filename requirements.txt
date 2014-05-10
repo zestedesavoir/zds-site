@@ -19,6 +19,7 @@ django-rest-swagger
 django-oauth2-provider
 django-guardian
 django-haystack
+django-model-utils
 lxml
 pygal
 httplib2
