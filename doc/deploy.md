@@ -62,7 +62,11 @@ EMAIL_PORT = 25
 
 `ps -x`
 
-le retour nous renvoit l'ensemble des processus qui tournent actuellement. Il y'en a normalement 5 labelisés avec python. Il faudra tuer le premier processus parmi ces cinq. Pour cela, il faut noter le PID et faire la commande suivante :
+le retour nous renvoit l'ensemble des processus qui tournent actuellement. Il y'en a normalement 5 labelisés avec python. Il faudra demander au premier processus parmi ces cinq de s'éteindre. Pour cela, il faut noter le PID et faire la commande suivante :
+
+`kill -15 <num_pid>`
+
+Si par hasard ceci ne fonctionne pas, il faut prendre les grands moyens et le buter :
 
 `kill -9 <num_pid>`
 
