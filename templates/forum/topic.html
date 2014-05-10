@@ -42,9 +42,9 @@
         {% endif %}
         {% if perms.forum.change_topic %}
             {% if topic.is_locked %}
-                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Dévérouiller</a></li>
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Déverrouiller</a></li>
             {% else %}
-                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span>Vérouiller le sujet</a></li>
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span> Verrouiller le sujet</a></li>
             {% endif %}
             {% if topic.is_sticky %}
                 <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"><span class="fi-price-tag size-16"></span> Enlever du Post-It</a></li>
