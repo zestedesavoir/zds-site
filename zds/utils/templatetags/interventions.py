@@ -107,16 +107,9 @@ def reads_tutorial(tutorial, user):
         return ''
 
 
-@register.filter(name='alerts_topic')
-def alerts_topic(user):
+@register.filter(name='alerts_list')
+def alerts_list(user):
     if user.is_authenticated():
-        return Post.objects.filter(alerts__isnull=False).distinct()
-    else:
-        return ''
-
-@register.filter(name='alerts_count')
-def alerts_count(user):
-    if user.is_authenticated():
-        return Alert.objects.all().count()
+        return Alert.objects.all()
     else:
         return ''
