@@ -764,7 +764,7 @@ class Extract(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.chapter.tutorial:
-                chapter_path = self.chapter.slug
+                chapter_path = ''
             else:
                 chapter_path = os.path.join(
                     self.chapter.part.slug,
@@ -772,9 +772,8 @@ class Extract(models.Model):
         else:
             if self.chapter.tutorial:
                 chapter_path = os.path.join(
-                    os.path.join(
                         settings.REPO_PATH, str(
-                            self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug), self.chapter.slug)
+                            self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug)
             else:
                 chapter_path = os.path.join(
                     os.path.join(
