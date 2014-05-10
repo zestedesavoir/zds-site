@@ -62,7 +62,7 @@ EMAIL_PORT = 25
 
 `ps -x`
 
-le retour nous renvoit l'ensemble des processus qui tournent actuellement. Il y'en a normalement 3 labelisés avec python. Il faudra tuer le premier processus parmi ces trois. Pour cela, il faut noter le PID et faire la commande suivante :
+le retour nous renvoit l'ensemble des processus qui tournent actuellement. Il y'en a normalement 5 labelisés avec python. Il faudra tuer le premier processus parmi ces cinq. Pour cela, il faut noter le PID et faire la commande suivante :
 
 `kill -9 <num_pid>`
 
@@ -73,7 +73,7 @@ le retour nous renvoit l'ensemble des processus qui tournent actuellement. Il y'
 
 - `cd /opt/zdsenv/ZesteDeSavoir`
 - `source ../bin/activate `
-- `gunicorn_django --workers=2 --bind 178.32.53.245:8001`
+- `gunicorn_django --workers=4 --bind 178.32.53.245:8001`
 
 Pour passer le process en arrire plan, faites Ctrl+Z et taper la commande suivante :
 
