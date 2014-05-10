@@ -56,6 +56,9 @@ class="active"
 
 {# Content #}
 {% block content %}
+	<div class="large-12 columns">
+		<p>{{ quote }}</p>
+	</div>
     <div class="large-6 columns">
       
         <h2 class="box article">Derniers Articles</h2>
@@ -100,7 +103,8 @@ class="active"
     </div>
 
     <div class="large-6 columns">
-        <h2 class="box tutoriel">Dernier tutoriels</h2>
+
+        <h2 class="box tutoriel">Derniers tutoriels</h2>
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">
