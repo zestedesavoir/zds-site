@@ -199,7 +199,7 @@ class Alert(models.Model):
                                related_name='alerts')
     comment = models.ForeignKey(Comment,
                                verbose_name='Commentaire',
-                               related_name='comments')
+                               related_name='alerts')
     scope = models.CharField(max_length=1, choices=SCOPE_CHOICES)
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de publication')
