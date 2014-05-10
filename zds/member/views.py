@@ -31,8 +31,9 @@ from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, \
-    ChangeUserForm, ForgotPasswordForm, NewPasswordForm
-from .models import Profile, TokenForgotPassword, Ban, TokenRegister
+    ChangeUserForm, ForgotPasswordForm, NewPasswordForm, OldTutoForm
+from .models import Profile, TokenForgotPassword, Ban, TokenRegister, get_info_old_tuto
+from django.core.exceptions import PermissionDenied
 
 
 @can_read_now
@@ -123,11 +124,20 @@ def details(request, user_name):
             tops.append(top)
             if len(tops)>=5 : break
     
+    form = OldTutoForm(profile)
+
+    oldtutos = []
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(':')
+    else:
+        olds = []
+    for old in olds:
+        oldtutos.append(get_info_old_tuto(old))
 
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans,
         'articles': my_articles, 'tutorials': my_tutorials,
-        'topics': tops
+        'topics': tops, 'form': form, 'old_tutos' : oldtutos
     })
 
 
@@ -784,3 +794,64 @@ def date_to_chart(posts):
                                            7] + 1
 
     return lst
+
+
+@can_read_now
+@login_required
+@require_POST
+def add_oldtuto(request):
+    
+    id = request.POST['id']
+    profile_pk = request.POST['profile_pk']
+    profile = get_object_or_404(Profile, pk = profile_pk)
+    
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(':')
+    else:
+        olds = []
+    last = str(id)
+    for old in olds:
+        last+=':{0}'.format(old)
+    
+    profile.sdz_tutorial = last
+    profile.save()
+    
+    messages.success(request, 'Le tutoriel a bien été lié au membre {0}'.format(profile.user.username))
+
+    return redirect(reverse('zds.member.views.details', args=[
+                profile.user.username]))
+
+@can_read_now
+@login_required
+def remove_oldtuto(request):
+    
+    if 'id' in request.GET:
+        id = request.GET['id']
+    else:
+        raise Http404
+    
+    if 'profile' in request.GET:
+        profile_pk = request.GET['profile']
+    else:
+        raise Http404
+
+    profile = get_object_or_404(Profile, pk = profile_pk)
+    
+    if profile.sdz_tutorial or not request.user.has_perm('member.change_profile'):
+        olds = profile.sdz_tutorial.strip().split(':')
+        olds.remove(str(id))
+    else:
+        raise PermissionDenied
+    
+    last = ''
+    for i in range(len(olds)):
+        if i>0: last+=':'
+        last+='{0}'.format(str(olds[i]))
+    
+    profile.sdz_tutorial = last
+    profile.save()
+    
+    messages.success(request, 'Le tutoriel a bien été retiré au membre {0}'.format(profile.user.username))
+
+    return redirect(reverse('zds.member.views.details', args=[
+                profile.user.username]))
