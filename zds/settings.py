@@ -285,6 +285,7 @@ MESSAGE_TAGS = {
 
 
 MAX_POST_LENGTH = 1000000
+SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
 
 # Load the production settings, overwrite the existing ones if needed
 try:
