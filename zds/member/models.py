@@ -27,7 +27,7 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -66,6 +66,11 @@ class Profile(models.Model):
     can_write = models.BooleanField('Possibilité d\'écrire', default=True)
     end_ban_write = models.DateTimeField(
         'Fin d\'interdiction d\'ecrire',
+        null=True,
+        blank=True)
+    
+    last_visit = models.DateTimeField(
+        'Date de dernière visite',
         null=True,
         blank=True)
 

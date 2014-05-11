@@ -1,12 +1,11 @@
 # coding: utf-8
 
-from django.test import TestCase
-
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from zds import settings
-from zds.member.factories import UserFactory, StaffFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils import slugify
@@ -15,8 +14,8 @@ from zds.utils import slugify
 class MPTests(TestCase):
 
     def setUp(self):
-        self.user1 = UserFactory()
-        self.staff = StaffFactory()
+        self.user1 = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
         log = self.client.login(
             username=self.user1.username,
             password='hostel77')
@@ -29,7 +28,7 @@ class MPTests(TestCase):
         Test: Send a MP from a user profile
         '''
         # User to send the MP
-        user2 = UserFactory()
+        user2 = ProfileFactory().user
 
         # Test if user is correctly added to the MP
         result = self.client.get(
@@ -69,8 +68,8 @@ class MPTests(TestCase):
     def test_create_mp(self):
         """To test all aspects of mp's creation by member."""
         # Another User
-        user2 = UserFactory()
-        user3 = UserFactory()
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
 
         result = self.client.post(
             reverse('zds.mp.views.new'),
@@ -105,8 +104,8 @@ class MPTests(TestCase):
         self.assertEquals(len(mail.outbox), 2)
 
         # check view authorisations
-        user4 = UserFactory()
-        staff1 = StaffFactory()
+        user4 = ProfileFactory().user
+        staff1 = StaffProfileFactory().user
 
         # user2 and user3 can view mp
         self.client.login(username=user2.username, password='hostel77')
@@ -205,7 +204,7 @@ class MPTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         # staff can't edit mp if he's not author
-        staff = StaffFactory()
+        staff = StaffProfileFactory().user
         log = self.client.login(username=staff.username, password='hostel77')
         self.assertEqual(log, True)
 
