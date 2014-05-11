@@ -110,6 +110,13 @@ def reads_tutorial(tutorial, user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     if user.is_authenticated():
-        return Alert.objects.all()
+        return Alert.objects.all().order_by('-pubdate')[:10]
     else:
         return ''
+
+@register.filter(name='alerts_count')
+def alerts_count(user):
+    if user.is_authenticated():
+        return Alert.objects.count()
+    else:
+        return 0

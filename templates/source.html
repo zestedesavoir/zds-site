@@ -148,10 +148,10 @@
           </li>
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
-            {% with alerts=user|alerts_list %}
+            {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
             <a href="#">
-              {% if alerts.count > 0 %}
-                  <span class="alert label round">{{ alerts.count }}</span>
+              {% if nb_alerts > 0 %}
+                  <span class="alert label round">{{ nb_alerts }}</span>
               {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
