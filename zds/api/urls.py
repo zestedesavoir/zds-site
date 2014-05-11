@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^forums/$', views.ForumList.as_view()),
     url(r'^topics/$', views.TopicList.as_view()),
     url(r'^posts/$', views.PostList.as_view()),
+    url(r'^tutorials/$', views.TutorialPublishedList.as_view()),
 )
