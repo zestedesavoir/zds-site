@@ -55,7 +55,7 @@
             </div>
             <div class="large-10 columns">
                 <p>
-                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
+                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ profile.last_visit|naturaltime }}.
                 </p>
                 {% if perms.member.show_ip %}
                     <p>
