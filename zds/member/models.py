@@ -68,6 +68,11 @@ class Profile(models.Model):
         'Fin d\'interdiction d\'ecrire',
         null=True,
         blank=True)
+    
+    last_visit = models.DateTimeField(
+        'Date de dernière visite',
+        null=True,
+        blank=True)
 
     def __unicode__(self):
         """Textual forum of a profile."""
