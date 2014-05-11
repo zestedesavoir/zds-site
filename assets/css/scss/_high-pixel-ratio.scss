@@ -140,6 +140,9 @@
             &.red:after {
                 @include sprite-pos($sprite2x, 'cross-red', true);
             }
+            &.white:after {
+                @include sprite-pos($sprite2x, 'cross-white', true);
+            }
         }
         &.pin {
             &:after {

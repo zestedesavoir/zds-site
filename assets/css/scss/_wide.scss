@@ -66,6 +66,8 @@
 
         .header-menu-list > li > a {
             max-width: 150px;
+            font-size: 1.6rem;
+            font-size: 16px;
         }
     }
 
@@ -354,7 +356,7 @@
 
 
     /* ==============
-       ALL: Main / Pagination
+       Main / Pagination
        ============== */
     .pagination {
         border: 1px solid #d2d5d6;
@@ -364,9 +366,31 @@
 
 
     /* ==============
-        ALL: Main / Content Wrappers
+        Main / Content Wrappers
        ============== */
     .content-wrapper {
         margin: 0 0 0 1.5%;
+    }
+
+
+
+    /* ==============
+        Modals boxes
+       ============== */
+    .enable-mobile-menu #modals .modal {
+        @include box-shadow(0 2px 7px rgba(0, 0, 0, .7));
+        
+        .modal-title {
+            line-height: 50px;
+        }
+
+        [type=submit],
+        .btn {
+            &:hover,
+            &:focus {
+                color: #EEE !important;
+                background: $blue !important;
+            }
+        }
     }
 }

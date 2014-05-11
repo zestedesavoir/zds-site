@@ -18,7 +18,7 @@
                                 <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
                                     Masquer
                                 </a>
-                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal">
+                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
                                     {% csrf_token %}
                                     {% if perms_change %}
                                         <p>
@@ -50,7 +50,7 @@
                             <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                 Signaler
                             </a>
-                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}" class="modal">
+                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
                                 {% csrf_token %}
                                 <p>
                                     Pour quelle raison signalez-vous ce message ?

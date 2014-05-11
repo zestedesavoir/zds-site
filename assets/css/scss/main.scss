@@ -23,6 +23,18 @@ $sprite2x: sprite-map("sprite@2x/*.png");
 
 
 /**
+ * Colors
+ */
+$blue: #084561;
+$orange: #ff8c00;
+$header-hover: #396a81;
+
+// Margins
+$modal-margin: 25px;
+
+
+
+/**
  * Custom mixins
  */
 @mixin sprite-pos($map, $_item, $retina: false){

@@ -6,7 +6,8 @@
 
 
 
-.content-container {
+.content-container,
+#modals {
 
     form {
         width: 100%;
@@ -77,7 +78,9 @@
     }
     input,
     textarea,
-    button {
+    button,
+    .btn {
+        -webkit-appearance: none;
         @include transition;
     }
 
@@ -88,16 +91,18 @@
     textarea {
         width: calc(98% - 2px);
         padding: 10px 1%;
+        font-family: Courier, "Lucida Sans Typewriter", "Lucida Typewriter", "DejaVu Sans Mono", monospace;
     }
 
     input,
     button,
     .btn {
         display: block;
-        height: 30px;
+        height: 35px;
     }
     .btn {
-        line-height: 30px;
+        line-height: 35px;
+        cursor: pointer;
     }
 
     input[type=radio],
@@ -105,22 +110,33 @@
         float: left;
         margin-right: 5px;
     }
-
-    input[type=submit],
-    input[type=reset],
+    [type=submit],
     button,
-    .btn-submit {
-        background: #084561;
+    .btn {
         color: #DDD;
         padding: 0 15px;
         border: none;
         float: right;
         text-decoration: none;
         margin-left: 1px;
+        outline: none;
+    }
+    [type=submit],
+    .btn-submit {
+        background: #084561;
 
         &:hover,
         &:focus {
             background: #396A81;
         }
     }
+    .btn-cancel {
+        background: #c0392b;
+
+        &:hover,
+        &:focus {
+            background: #e74c3c;
+        }
+    }
+
 }

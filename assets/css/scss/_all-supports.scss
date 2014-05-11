@@ -38,7 +38,7 @@
 
 .header-container header {
     background: #084561;
-    border-bottom: 3px solid #ff8c00;
+    border-bottom: 3px solid $orange;
 
     a,
     button {
@@ -92,12 +92,12 @@
     top: 50px;
     left: 0;
     right: 0;
-    background-color: #396a81;
+    background-color: $header-hover;
     margin: 0;
     padding: 10px 2.5%;
     font-size: 14px;
     font-size: 1.4rem;
-    border-bottom: 3px solid #ff8c00;
+    border-bottom: 3px solid $orange;
     z-index: 50;
 
     .dropdown-title {
@@ -111,6 +111,13 @@
     .dropdown-list > li {
         width: 20%;
         float: left;
+
+        &.dropdown-empty-message {
+            color: rgba(255, 255, 255, .5);
+            text-align: center;
+            line-height: 60px;
+            background: none !important;
+        }
 
         ul {
             margin: 0 0 10px;
@@ -142,7 +149,7 @@
         height: 30px;
         line-height: 30px;
         border-top: 1px solid #274a5a;
-        background-color: #396a81;
+        background-color: $header-hover;
         @include transition-property(color, background-color);
 
         &:first-child {
@@ -154,7 +161,7 @@
         &:focus {
             color: #95d7f5;
             background-color: #274a5a;
-            border-top: 1px solid #396a81;
+            border-top: 1px solid $header-hover;
         }
     }
 }
@@ -193,7 +200,7 @@
                 &:hover,
                 &:focus,
                 &.active {
-                    background: #396a81;
+                    background: $header-hover;
                 }
 
                 &.current {
@@ -207,7 +214,7 @@
                         height: 2px;
                         @include transition;
                         @include border-radius(2px 2px 0 0);
-                        background-color: #FF8C00;
+                        background-color: $orange;
                     }
                     &.active:before {
                         height: 0;
@@ -275,7 +282,7 @@
             &:hover,
             &:focus,
             &.active {
-                background: #396a81;
+                background: $header-hover;
             }
         }
     }
@@ -290,7 +297,7 @@
             line-height: 37px;
             text-align: center;
             border-bottom: 1px solid #274a5a;
-            background-color: #396a81;
+            background-color: $header-hover;
         }
 
         &,
@@ -321,7 +328,7 @@
                     }
                     &:hover,
                     &:focus {
-                        background-color: #396a81;
+                        background-color: $header-hover;
                         
                         .username {
                             @include text-shadow(rgba(0, 0, 0, .5) 0 0 5px);
@@ -396,7 +403,7 @@
 
             &:hover,
             &:focus {
-                background: #396A81;
+                background: $header-hover;
             }
         }
     }
@@ -413,7 +420,7 @@
 
             &:hover,
             &:focus {
-                background-color: rgba(255, 255, 255, .2);
+                background-color: $header-hover;
             }
         }
     }
@@ -496,6 +503,36 @@
         &:focus {
             background: rgba(255, 255, 255, .7);
         }
+    }
+}
+
+
+
+/* ==============
+    ALL: Alert boxes
+   ============== */
+.alert-box {
+    position: relative;
+    padding: 8px 15px;
+    margin: 0 0 15px 2%;
+    color: #FFF;
+
+    .close-alert-box {
+        display: block;
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        height: 20px;
+        width: 20px;
+        text-indent: -9999px;
+        text-decoration: none;
+    }
+
+    &.success {
+        background: #27ae60;
+    }
+    &.error {
+        background: #c0392b;
     }
 }
 
@@ -1431,8 +1468,8 @@ $helpful-background: #e9f9dc;
                     &:hover,
                     &:focus {
                         color: #FFF;
-                        background: #396A81;
-                        border-bottom-color: #396A81;
+                        background: $header-hover;
+                        border-bottom-color: $header-hover;
                     }
                 }
             }
@@ -1475,6 +1512,100 @@ form.forum-message {
    ============== */
 .modal {
     display: none;
+}
+#modals .modal {
+    position: fixed;
+    z-index: 50;
+    width: auto !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #EEE;
+    min-height: 220px;
+
+    .modal-title {
+        display: block;
+        border-bottom: 3px solid $orange;
+        line-height: 53px;
+        height: 50px;
+        text-indent: 15px;
+        margin-bottom: 20px;
+        background: $blue;
+        color: #FFF;
+        font-size: 1.6rem;
+        font-size: 16px;
+        text-transform: uppercase;
+        text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
+    }
+
+    p,
+    input,
+    select {
+        margin: 10px 15px;
+        width: calc(98% - 32px) !important;
+    }
+
+    [type=submit],
+    .btn {
+        position: absolute;
+        width: 50%;
+        height: 50px;
+        line-height: 50px;
+        bottom: 0;
+        right: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+        background: none !important;
+        border-top: 1px solid #CCC;
+        color: #333;
+    }
+    .btn-submit,
+    [type=submit] {
+        height: 51px;
+        color: $blue;
+        font-weight: bold;
+    }
+    .btn-cancel {
+        right: auto;
+        left: 0;
+        border-right: 1px solid #CCC;
+        color: #555;
+    }
+}
+.enable-mobile-menu #modals .modal {
+    top: $modal-margin;
+    right: $modal-margin;
+    bottom: $modal-margin;
+    left: $modal-margin;
+    @include box-shadow(0 0 5px #000);
+
+    &.modal-small {
+        top: 50%;
+        bottom: auto;
+        height: 220px;
+        margin: -110px auto 0;
+        max-width: 400px;
+    }
+
+    &.modal-medium {
+        top: 50%;
+        bottom: auto;
+        height: 250px;
+        margin: -125px auto 0;
+        max-width: 400px;
+    }
+}
+.enable-mobile-menu #modals-overlay {
+    position: fixed;
+    display: none;
+    z-index: 49;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, .7);
 }
 
 
@@ -1545,6 +1676,9 @@ form.forum-message {
         }
         &.red:after {
             @include sprite-pos($sprite, 'cross-red');
+        }
+        &.white:after {
+            @include sprite-pos($sprite, 'cross-white');
         }
     }
     &.pin {

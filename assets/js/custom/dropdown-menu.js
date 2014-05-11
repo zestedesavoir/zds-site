@@ -3,6 +3,7 @@
    ---------------------------------
    Dropdown menu open/close
    ========================================================================== */
+
 var dropdownMouseDown = false;
 
 $('.dropdown').each(function(){

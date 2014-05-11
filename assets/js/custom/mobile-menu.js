@@ -4,7 +4,6 @@
    Mobile sidebar menu, swipe open/close
    ========================================================================== */
 
-
 /**
  * Add class for mobile navigator does not support fixed position
  */

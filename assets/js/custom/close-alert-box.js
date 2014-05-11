@@ -1,9 +1,12 @@
 /* ===== Zeste de Savoir ====================================================
    Author: Alex-D / Alexandre Demode
    ---------------------------------
-   Auto submit forms
+   Close alert-boxes
    ========================================================================== */
 
-$(".select-autosubmit").change(function() {
-    $(this).parents('form:first').submit();
+$(".close-alert-box").on('click', function(e) {
+    $(this).parents('.alert-box:first').slideUp(150, function(){
+    	$(this).remove();
+    });
+    e.preventDefault();
 });

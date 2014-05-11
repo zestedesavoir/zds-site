@@ -52,9 +52,8 @@ class LoginForm(forms.Form):
             ButtonHolder(
                 Submit(
                     'submit',
-                    'Se connecter',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                    'Se connecter'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
             HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
@@ -101,9 +100,8 @@ class RegisterForm(forms.Form):
             ButtonHolder(
                 Submit(
                     'submit',
-                    'Valider mon inscription',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                    'Valider mon inscription'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
     def clean(self):
