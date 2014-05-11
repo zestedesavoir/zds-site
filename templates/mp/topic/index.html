@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load humanize %}
 {% load captureas %}
+{% load set %}
 {% load crispy_forms_tags %}
 
 
@@ -51,14 +52,15 @@
     <div class="content-wrapper">
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url "zds.mp.views.edit_post" %}?message={{ post.pk }}
+                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ post.pk }}
+                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
-
-            {% include 'misc/message.part.html' with can_hide=False %}
+    
+            {# TODO: permettre l'édition si aucune lecure sur le message #}
+            {% include 'misc/message.part.html' with can_hide=False can_edit=False %}
         {% endfor %}
     </div>
 

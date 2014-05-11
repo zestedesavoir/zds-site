@@ -9,41 +9,45 @@
 
 
     <div class="message">
-        {% if user.is_authenticated and message.is_visible %}
+        {% if user.is_authenticated and message.is_visible != False %}
             <ul class="message-actions">
                 {% if message.is_visible != False %}
                     {% if edit_link %}
-                        {% if message.author = user or perms_change and can_hide != False %}
-                            <li>
-                                <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
-                                    Masquer
-                                </a>
-                                <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
-                                    {% csrf_token %}
-                                    {% if perms_change %}
-                                        <p>
-                                            Pour quelle raison souhaitez vous masquer ce message ?
-                                        </p>
-                                        <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
-                                    {% else %}
-                                        <p>
-                                            Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
-                                        </p>
-                                    {% endif %}
+                        {% if message.author = user or perms_change %}
+                            {% if can_hide != False %}
+                                <li>
+                                    <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
+                                        Masquer
+                                    </a>
+                                    <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
+                                        {% csrf_token %}
+                                        {% if perms_change %}
+                                            <p>
+                                                Pour quelle raison souhaitez vous masquer ce message ?
+                                            </p>
+                                            <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
+                                        {% else %}
+                                            <p>
+                                                Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
+                                            </p>
+                                        {% endif %}
 
-                                    <button type="submit" name="delete_message">
-                                        Confirmer
-                                    </button>
-                                </form>
-                            </li>
+                                        <button type="submit" name="delete_message">
+                                            Confirmer
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
                         {% endif %}
 
                         {% if message.author = user or perms_change %}
-                            <li>
-                                <a href="{{ edit_link }}" class="ico-after edit">
-                                    Editer
-                                </a>
-                            </li>
+                            {% if can_edit != False %}
+                                <li>
+                                    <a href="{{ edit_link }}" class="ico-after edit">
+                                        Editer
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% endif %}
 
                         <li>
@@ -58,7 +62,7 @@
                                 <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ...">
 
                                 <button type="submit" name="signal_message">
-                                    Confirmer
+                                    Signaler
                                 </button>
                             </form>
                         </li>
@@ -127,18 +131,22 @@
                         {% endif %}
                     {% endwith %}
 
-                    {% if helpful_link %}
-                        {# TODO : Mettre le réel état #}
-                        {% if topic.author == user and message.author != user %}
-                            <a href="{{ helpful_link }}" class="tick ico-after active">
-                                Cette réponse m'a aidé
-                            </a>
-                        {% endif %}
-                    {% endif %}
-
 
                     {% if upvote_link %}
                         <div class="message-karma">
+                            {% if helpful_link %}
+                                {# TODO : Mettre le réel état #}
+                                {% if topic.author == user and message.author != user %}
+                                    <a href="{{ helpful_link }}" class="tick ico-after {# active ? #}">
+                                        Cette réponse m'a aidé
+                                    </a>
+                                {% elif perms_change %}
+                                    <a href="{{ helpful_link }}" class="tick ico-after {# active ? #}">
+                                        Cette réponse a aidé
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+
                             {# TODO : Mettre le réel pouce voté #}
                             <a href="{{ upvote_link }}"
                                class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"

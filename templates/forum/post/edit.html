@@ -1,6 +1,7 @@
 {% extends "forum/base.html" %}
 {% load profile %}
 {% load crispy_forms_tags %}
+{% load captureas %}
 
 
 
@@ -11,7 +12,7 @@
 
 
 {% block headline %}
-    <h2 class="box forum">Éditer un message : {{ post.topic.title }}</h2>
+    Éditer un message : {{ post.topic.title }}
 {% endblock %}
 
 
@@ -30,5 +31,5 @@
         {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
     {% endcaptureas %}
 
-    {% include "misc/message_form.html" with member=user %}
+    {% include "misc/message_form.html" with member=post.author %}
 {% endblock %}

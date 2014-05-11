@@ -115,6 +115,7 @@ PIPELINE_JS = {
     'main-js': {
         'source_filenames': (
             'js/vendor/jquery.js',
+            'js/vendor/jquery.tabbable.js',
 
             'js/custom/editor.js',
 

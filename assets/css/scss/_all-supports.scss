@@ -516,6 +516,7 @@
     padding: 8px 15px;
     margin: 0 0 15px 2%;
     color: #FFF;
+    text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 
     .close-alert-box {
         display: block;
@@ -533,6 +534,9 @@
     }
     &.error {
         background: #c0392b;
+    }
+    &.warning {
+        background: #e67e22;
     }
 }
 
