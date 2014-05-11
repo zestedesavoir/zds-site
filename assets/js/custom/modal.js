@@ -38,7 +38,8 @@ $('.open-modal').on('click', function(e){
     $($(this).attr('href')).show(0, function(){
         $(this).find('input:visible, select, textarea').first().focus();
     });
-    $('html').addClass('dropdown-active');
+    if(!$('html').hasClass('enable-mobile-menu'))
+        $('html').addClass('dropdown-active');
 
     e.preventDefault();
     e.stopPropagation();
