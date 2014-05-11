@@ -296,14 +296,14 @@ def answer(request):
                         message_html = get_template('email/mp.html').render(
                             Context({
                                 'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
+                                'url': settings.SITE_URL + post.get_absolute_url(),
                                 'author': request.user.username
                             })
                         )
                         message_txt = get_template('email/mp.txt').render(
                             Context({
                                 'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
+                                'url': settings.SITE_URL + post.get_absolute_url(),
                                 'author': request.user.username
                             })
                         )
