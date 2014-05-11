@@ -2369,7 +2369,7 @@ def import_tuto(request):
     else:
         form = ImportForm()
         
-        profile = get_object_or_404(Profile, user=request.user) 
+        profile = request.user.profile
         oldtutos = []
         if profile.sdz_tutorial:
             olds = profile.sdz_tutorial.strip().split(':')
