@@ -1,24 +1,20 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.core.urlresolvers import reverse
-
-from django.test import TestCase
-from django.test.utils import override_settings
-
-from zds.article.models import Article, Validation
-from zds.member.factories import UserFactory
-from django.core import mail
-
 import os
 import shutil
 
-from zds.member.factories import UserFactory, StaffFactory
-from zds.settings import SITE_ROOT
+from django.conf import settings
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.utils import override_settings
+
 from zds.article.factories import ArticleFactory, ReactionFactory
-from zds.article.models import Reaction, Article
-from zds.utils.models import Alert
+from zds.article.models import Article, Validation, Reaction, Article
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
+from zds.settings import SITE_ROOT
+from zds.utils.models import Alert
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -31,12 +27,12 @@ class ArticleTests(TestCase):
     def setUp(self):
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-        self.mas = UserFactory()
+        self.mas = ProfileFactory().user
         settings.BOT_ACCOUNT = self.mas.username
 
-        self.user_author = UserFactory()
-        self.user = UserFactory()
-        self.staff = StaffFactory()
+        self.user_author = ProfileFactory().user
+        self.user = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
 
         self.article = ArticleFactory()
         self.article.authors.add(self.user_author)
@@ -78,7 +74,7 @@ class ArticleTests(TestCase):
         self.assertEqual(pub.status_code, 302)
 
     def test_alert(self):
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         reaction = ReactionFactory(article=self.article, author = user1, position=1)
         login_check = self.client.login(
             username=self.user.username,
@@ -118,7 +114,7 @@ class ArticleTests(TestCase):
         
     def test_add_reaction(self):
         """To test add reaction for article."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         # add reaction

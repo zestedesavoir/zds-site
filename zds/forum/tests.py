@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from zds.utils import slugify
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.member.factories import UserFactory, StaffFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentLike, CommentDislike, Alert
 
 from .models import Post, Topic
@@ -37,8 +37,8 @@ class ForumMemberTests(TestCase):
         self.forum22 = ForumFactory(
             category=self.category2,
             position_in_category=2)
-        self.user = UserFactory()
-        self.user2 = UserFactory()
+        self.user = ProfileFactory().user
+        self.user2 = ProfileFactory().user
         log = self.client.login(
             username=self.user.username,
             password='hostel77')
@@ -113,7 +113,7 @@ class ForumMemberTests(TestCase):
 
     def test_answer(self):
         """To test all aspects of answer."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=self.user, position=2)
@@ -234,7 +234,7 @@ class ForumMemberTests(TestCase):
 
     def test_quote_post(self):
         """To test when a member quote anyone post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -251,7 +251,7 @@ class ForumMemberTests(TestCase):
     
     def test_signal_post(self):
         """To test when a member quote anyone post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -273,7 +273,7 @@ class ForumMemberTests(TestCase):
 
     def test_like_post(self):
         """Test when a member like any post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -335,7 +335,7 @@ class ForumMemberTests(TestCase):
 
     def test_dislike_post(self):
         """Test when a member dislike any post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -397,7 +397,7 @@ class ForumMemberTests(TestCase):
 
     def test_useful_post(self):
         """To test when a member mark a post is usefull."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -444,7 +444,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
         
         # useful if you are staff
-        staff = StaffFactory()
+        staff = StaffProfileFactory().user
         self.assertEqual(self.client.login(
                     username=self.user.username,
                     password='hostel77'), 
@@ -460,7 +460,7 @@ class ForumMemberTests(TestCase):
 
     def test_move_topic(self):
         """Test topic move."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -478,7 +478,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         # test with staff
-        staff1 = StaffFactory()
+        staff1 = StaffProfileFactory().user
         self.assertEqual(
             self.client.login(
                 username=staff1.username,
@@ -549,7 +549,7 @@ class ForumMemberTests(TestCase):
     
     def test_url_topic(self):
         """Test simple get request to the topic"""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -590,7 +590,7 @@ class ForumGuestTests(TestCase):
         self.forum22 = ForumFactory(
             category=self.category2,
             position_in_category=2)
-        self.user = UserFactory()
+        self.user = ProfileFactory().user
 
     def test_display(self):
         '''
@@ -635,7 +635,7 @@ class ForumGuestTests(TestCase):
 
     def test_answer(self):
         """To test all aspects of answer."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=self.user, position=2)
@@ -711,7 +711,7 @@ class ForumGuestTests(TestCase):
 
     def test_quote_post(self):
         """To test when a member quote anyone post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -728,7 +728,7 @@ class ForumGuestTests(TestCase):
 
     def test_signal_post(self):
         """To test when a member quote anyone post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -749,7 +749,7 @@ class ForumGuestTests(TestCase):
 
     def test_like_post(self):
         """Test when a member like any post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -772,7 +772,7 @@ class ForumGuestTests(TestCase):
 
     def test_dislike_post(self):
         """Test when a member dislike any post."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -795,7 +795,7 @@ class ForumGuestTests(TestCase):
 
     def test_useful_post(self):
         """To test when a guest mark a post is usefull."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -815,7 +815,7 @@ class ForumGuestTests(TestCase):
 
     def test_move_topic(self):
         """Test topic move."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
@@ -838,7 +838,7 @@ class ForumGuestTests(TestCase):
     
     def test_url_topic(self):
         """Test simple get request to the topic"""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)

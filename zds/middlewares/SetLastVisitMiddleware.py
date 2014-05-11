@@ -1,11 +1,10 @@
-from django.contrib.auth.models import User
 import datetime
 
 class SetLastVisitMiddleware(object):
     def process_response(self, request, response):
         # Update last visit time after request finished processing.
         if request.user.is_authenticated():
-            profile = User.objects.get(pk=request.user.pk).profile
+            profile = request.user.profile
             if profile.last_visit is None:
                 profile.last_visit = datetime.datetime.now()
                 profile.save()
