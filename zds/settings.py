@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'email_obfuscator',
     'pipeline',
     'haystack',
+    'munin',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
