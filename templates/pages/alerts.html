@@ -1,0 +1,41 @@
+{% extends "forum/base.html" %}
+
+{% load humanize %}
+
+{% block title %}
+  Liste des alertes en cours
+{% endblock %}
+
+{% block head-title %}
+  Liste des alertes en cours
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="current"><a href="#">Liste des alertes en cours</a></li>
+{% endblock %}
+
+{% block content %}
+<div>
+    <table class="topics-entries">
+    	<thead>
+    		<th>Type</th>
+    		<th>Auteur</th>
+    		<th>Date</th>
+    		<th>Message</th>
+    		<th>Sur un message de...</th>
+    	</thead>
+    	<tbody>
+		    {% for alert in alerts %}
+		    <tr>
+		    	<td>{{ alert.get_scope_display }}</td>
+		    	<td><a href="{% url "zds.member.views.details" alert.author.username %}">{{ alert.author.username }}</a></td>
+		    	<td>{{ alert.pubdate|naturaltime }}</td>
+		    	<td><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
+		    	<td><a href="{% url "zds.member.views.details" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, posté le {{ alert.comment.pubdate|naturaltime }}</td>
+		    </tr>
+		    {% endfor %}
+    	</tbody>
+    </table>
+</div>
+
+{% endblock %}
