@@ -27,7 +27,7 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',

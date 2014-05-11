@@ -69,7 +69,7 @@ def details(request, user_name):
     usr = get_object_or_404(User, username=user_name)
 
     try:
-        profile = usr.get_profile()
+        profile = usr.profile
         bans = Ban.objects.filter(user=usr).order_by('-pubdate')
 
     except SiteProfileNotAvailable:
@@ -217,7 +217,7 @@ def tutorials(request):
         type = None
 
     # Retrieves all tutorials of the current user.
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
     if type == 'draft':
         user_tutorials = profile.get_draft_tutos()
     elif type == 'public':
@@ -243,7 +243,7 @@ def articles(request):
         type = None
 
     # Retrieves all articles of the current user.
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
     if type == 'draft':
         user_articles = profile.get_draft_articles()
     elif type == 'public':
@@ -331,7 +331,7 @@ def settings_mini_profile(request, user_name):
 def settings_profile(request):
     """User's settings about his personal information."""
     # extra information about the current user
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
 
     if request.method == 'POST':
         form = ProfileForm(request.POST)
@@ -424,7 +424,7 @@ def settings_account(request):
 @login_required
 def settings_user(request):
     """User's settings about his email."""
-    profile = get_object_or_404(Profile, user__pk=request.user.pk)
+    profile = request.user.profile
 
     if request.method == 'POST':
         form = ChangeUserForm(request.POST)
