@@ -2,3 +2,4 @@
 {{ object.subtitle }}
 {{ object.author.username }}
 {{ object.first_post.text }}
+{{ object.forum }}

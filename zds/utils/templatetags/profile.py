@@ -13,7 +13,7 @@ register = template.Library()
 @register.filter('profile')
 def profile(user):
     try:
-        profile = Profile.objects.get(user=user)
+        profile = user.profile
     except Profile.DoesNotExist:
         profile = None
     return profile
@@ -38,7 +38,7 @@ def mode(mode):
 @register.filter('state')
 def state(user):
     try:
-        profile = Profile.objects.get(user=user)
+        profile = user.profile
         if not profile.user.is_active : state = 'DOWN'
         elif not profile.can_read_now() : state = 'BAN'
         elif not profile.can_write_now() : state = 'LS'
