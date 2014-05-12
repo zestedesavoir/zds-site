@@ -187,12 +187,10 @@ class Alert(models.Model):
     ARTICLE = 'A'
     FORUM = 'F'
     TUTORIAL = 'T'
-    MP = 'M'
     SCOPE_CHOICES = (
             (ARTICLE, 'Commentaire d\'article'),
             (FORUM, 'Forum'),
             (TUTORIAL, 'Commentaire de tuto'),
-            (MP, 'Message Privé'),
     )
 
     author = models.ForeignKey(User,
