@@ -56,7 +56,7 @@ class Category(models.Model):
     def get_subcategories(self):
         """Get only main subcategories of a category."""
         return CategorySubCategory.objects \
-            .filter(category__in=[self]                    , is_main=True)\
+            .filter(category__in=[self], is_main=True)\
             .all()
 
 
@@ -183,7 +183,7 @@ class Comment(models.Model):
 
 class Alert(models.Model):
     """Alerts on all kinds of Comments"""
-    
+
     ARTICLE = 'A'
     FORUM = 'F'
     TUTORIAL = 'T'
@@ -217,10 +217,11 @@ class Alert(models.Model):
 
     def __unicode__(self):
         return u'{0}'.format(self.text)
-    
+
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
+
 
 class CommentLike(models.Model):
 

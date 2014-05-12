@@ -822,7 +822,7 @@ def edit_reaction(request):
     g_article = None
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
-    
+
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
     if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') and 'signal-reaction' not in request.POST:

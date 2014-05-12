@@ -85,6 +85,8 @@ urlpatterns = patterns('',
 
                        url(r'^captcha/', include('captcha.urls')),
 
+                       ('^munin/',include('munin.urls')),
+                       
                        url(r'^$', 'zds.pages.views.home'),
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
