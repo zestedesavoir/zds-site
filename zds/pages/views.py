@@ -35,7 +35,7 @@ def home(request):
                     data['title'])])
 
         tutos.append(data)
-        
+
     try:
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
