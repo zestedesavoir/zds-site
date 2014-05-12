@@ -55,6 +55,9 @@ class Profile(models.Model):
     hover_or_click = models.BooleanField('Survol ou click ?',
                                          default=False)
 
+    email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
+                                         default=False)
+
     sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
