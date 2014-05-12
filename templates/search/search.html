@@ -1,6 +1,7 @@
 {% extends 'source.html' %}
 {% load humanize %}
 {% load emarkdown %}
+{% load topbar %}
 
 {% block title %}
     Recherche
@@ -27,7 +28,6 @@
             {% if query %}
                 {% if page.object_list %}
                     <h3>Resultats</h3>
-                    <h4>Messages postés</h4>
                         <table>
                           <thead>
                             <tr>
@@ -39,7 +39,9 @@
                           </thead>
                           <tbody>
                             {% for result in page.object_list %}
-                            
+                            {% if result.object.forum and not result.object.forum|auth_forum:user %}
+                            {% elif result.object.topic.forum and not result.object.topic.forum|auth_forum:user %}
+                            {% else %}
                             <tr>
                               <td>
                               	<span class="label">
@@ -98,17 +100,18 @@
                               <td>
                               	<p>
                                   {% if result.object.first_post %}
-                                      {{ result.object.first_post.text|truncatechars:200|emarkdown }}
+                                      {{ result.object.first_post.text|truncatechars:200|emarkdown|striptags }}
                                   {% elif result.object.get_introduction_online %}
-                                  	  {{ result.object.get_introduction_online|truncatechars:200|safe }}
+                                  	  {{ result.object.get_introduction_online|truncatechars:200|safe|striptags }}
                                   {% elif result.object.get_text_online %}
-                                  	  {{ result.object.get_text_online|truncatechars:200|safe }}
+                                  	  {{ result.object.get_text_online|truncatechars:200|safe|striptags }}
                                   {% else %}
-                                      {{ result.object.text|truncatechars:200|emarkdown }}
+                                      {{ result.object.text|truncatechars:200|emarkdown|striptags }}
                                   {% endif %}
                                 </p>
                               </td>
                             </tr>
+                            {% endif %}
                             {% endfor %}
                           </tbody>
                         </table>
