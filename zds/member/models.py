@@ -27,7 +27,7 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -54,7 +54,10 @@ class Profile(models.Model):
 
     hover_or_click = models.BooleanField('Survol ou click ?',
                                          default=False)
-    
+
+    email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
+                                         default=False)
+
     sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
@@ -66,6 +69,11 @@ class Profile(models.Model):
     can_write = models.BooleanField('Possibilité d\'écrire', default=True)
     end_ban_write = models.DateTimeField(
         'Fin d\'interdiction d\'ecrire',
+        null=True,
+        blank=True)
+
+    last_visit = models.DateTimeField(
+        'Date de dernière visite',
         null=True,
         blank=True)
 
@@ -252,13 +260,13 @@ class Ban(models.Model):
         null=True)
 
 def listing():
-    
+
     fichier = []
     if os.path.isdir(settings.SDZ_TUTO_DIR):
         for root in os.listdir(settings.SDZ_TUTO_DIR):
             if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, root)):
                 num = root.split('_')[0]
-                if num != None and num.isdigit(): 
+                if num != None and num.isdigit():
                     fichier.append((num, root))
         return fichier
     else:

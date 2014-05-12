@@ -141,6 +141,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
+    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -183,6 +184,7 @@ INSTALLED_APPS = (
     'email_obfuscator',
     'pipeline',
     'haystack',
+    'munin',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
