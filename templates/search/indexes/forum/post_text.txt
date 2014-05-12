@@ -1,3 +1,4 @@
+{{ object.topic.forum }}
 {{ object.topic.title }}
 {{ object.topic.subtitle }}
 {{ object.topic.author.username }}
