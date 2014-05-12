@@ -152,19 +152,18 @@
             <a href="#">
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
-                {% with posts=user|alerts_topic %}
+                {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
                 <li><label>
-                    {% if posts.count > 0 %}
-                    <span class="alert label round">{{ user|alerts_count }}</span>
+                    {% if nb_alerts > 0 %}
+                    <span class="alert label round">{{ nb_alerts }}</span>
                     {% endif %}
                     Alertes Modération 
                   </label>
               </li>
                 <li class="divider"></li>
                 
-                  {% for post in posts %}
-                  {% for alert in post.alerts.all %}
-                      <li><a href="{{ post.get_absolute_url }}">
+                  {% for alert in alerts %}
+                      <li><a href="{{ alert.get_comment_subclass.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
@@ -175,14 +174,13 @@
                               </div>
                             </div>
                             <div class="large-12 columns">
-                                {{ post.topic.title }}
+                                {{ alert.get_scope_display }}
                             </div>
                           </div>
                           </a>
                       </li>
                   {% endfor %}
-                  {% endfor %}
-                  {% if posts.count = 0 %}
+                  {% if nb_alerts = 0 %}
                       <li class="dropdown-empty-message">
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -250,7 +248,7 @@
                   {% endfor %}
                 {% endwith %}
                 <li class="divider"></li>
-              <li><a href="#"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
+              <li><a href="{% url "zds.pages.views.alerts" %}"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
             </ul>
             
           </li>

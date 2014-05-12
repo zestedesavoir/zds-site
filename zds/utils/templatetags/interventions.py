@@ -127,16 +127,16 @@ def alerts_validation_articles(user):
 
     return {'total':len(total), 'alert':total}
 
-@register.filter(name='alerts_topic')
-def alerts_topic(user):
+@register.filter(name='alerts_list')
+def alerts_list(user):
     if user.is_authenticated():
-        return Post.objects.filter(alerts__isnull=False).distinct()
+        return Alert.objects.all().order_by('-pubdate')[:10]
     else:
         return ''
 
 @register.filter(name='alerts_count')
 def alerts_count(user):
     if user.is_authenticated():
-        return Alert.objects.all().count()
+        return Alert.objects.count()
     else:
-        return ''
+        return 0

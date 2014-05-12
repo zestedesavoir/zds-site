@@ -796,7 +796,7 @@ def solve_alert(request):
         raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
-    reaction = Reaction.objects.get(alerts__in=[alert])
+    reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans l'article [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, reaction.author.username, reaction.article.title, settings.SITE_URL + reaction.get_absolute_url(), request.user.username, request.POST['text'])
     send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
@@ -822,7 +822,7 @@ def edit_reaction(request):
     g_article = None
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
-    
+
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
     if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') and 'signal-reaction' not in request.POST:
@@ -852,13 +852,13 @@ def edit_reaction(request):
                 reaction.text_hidden = ''
 
         if 'signal-reaction' in request.POST:
-            if reaction.author != request.user:
-                alert = Alert()
-                alert.author = request.user
-                alert.text = request.POST['signal-text']
-                alert.pubdate = datetime.now()
-                alert.save()
-                reaction.alerts.add(alert)
+            alert = Alert()
+            alert.author = request.user
+            alert.comment = reaction
+            alert.scope = Alert.ARTICLE
+            alert.text = request.POST['signal-text']
+            alert.pubdate = datetime.now()
+            alert.save()
 
         # Using the preview button
         if 'preview' in request.POST:

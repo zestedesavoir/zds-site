@@ -2,17 +2,14 @@
 
 from collections import OrderedDict
 from datetime import datetime
-from operator import itemgetter, attrgetter
+from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse
-import glob
 import json
 import os
 import os.path
 import re
 import shutil
-import subprocess
-import urllib
 import zipfile
 
 from PIL import Image as ImagePIL
@@ -28,16 +25,14 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.encoding import smart_str, smart_unicode
+from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import *
 from lxml import etree
 
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.mp.models import PrivateTopic 
 from zds.member.models import get_info_old_tuto
 from zds.utils import render_template
 from django.template.defaultfilters import slugify
@@ -114,8 +109,8 @@ def list_validation(request):
         else:
             validations = Validation.objects \
                 .filter(
-                        validator__isnull=True, 
-                        status='PENDING', 
+                        validator__isnull=True,
+                        status='PENDING',
                         tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
@@ -129,8 +124,8 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=False, 
-                        status='PENDING_V', 
+                .filter(validator__isnull=False,
+                        status='PENDING_V',
                         tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
@@ -194,7 +189,7 @@ def diff(request, tutorial_pk, tutorial_slug):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    
+
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
@@ -259,7 +254,7 @@ def history_validation(request, tutorial_pk):
             .all()
     else:
         validations = Validation.objects \
-            .filter(tutorial__pk=tutorial_pk, 
+            .filter(tutorial__pk=tutorial_pk,
                     tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition") \
             .all()
@@ -929,7 +924,7 @@ def edit_tutorial(request):
                 tutorial.image = img
 
             new_slug = os.path.join(
-                settings.REPO_PATH, 
+                settings.REPO_PATH,
                 str(tutorial.pk) + '_' + slugify(data['title']))
 
             tutorial.save()
@@ -1160,7 +1155,7 @@ def add_part(request):
             part.position_in_tutorial = tutorial.get_parts().count() + 1
 
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                part.tutorial.pk) + '_' + part.tutorial.slug),
                                     slugify(data['title']))
             part.introduction = os.path.join(
                 slugify(
@@ -1259,7 +1254,7 @@ def edit_part(request):
             # Update title and his slug.
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                part.tutorial.pk) + '_' + part.tutorial.slug),
                                     slugify(data['title']))
             old_slug = part.get_path()
 
@@ -1453,7 +1448,7 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                     "r")
                 chapter['conclu'] = conclu.read()
                 conclu.close()
-                
+
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
@@ -1688,7 +1683,7 @@ def edit_chapter(request):
             data = form.data
             if chapter.part:
                 if chapter.tutorial:
-                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, 
+                    new_slug = os.path.join(os.path.join(settings.REPO_PATH,
                                                          str(chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
                                             slugify(data['title']))
                 else:
@@ -2368,7 +2363,7 @@ def import_tuto(request):
         return redirect(reverse('zds.member.views.tutorials'))
     else:
         form = ImportForm()
-        
+
         profile = get_object_or_404(Profile, user=request.user) 
         oldtutos = []
         if profile.sdz_tutorial:
@@ -2919,7 +2914,7 @@ def MEP(tutorial, sha):
         '-o ' +
         os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'
         )
-    
+
     os.system(
         settings.PANDOC_LOC+"pandoc -s -S --toc " +
         os.path.join(
@@ -2931,7 +2926,7 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".epub")
     os.chdir(settings.SITE_ROOT)
-    
+
     return (output, err)
 
 def UNMEP(tutorial):
@@ -3110,13 +3105,14 @@ def edit_note(request):
                 note.text_hidden = ''
 
         if 'signal-note' in request.POST:
-            if note.author != request.user:
-                alert = Alert()
-                alert.author = request.user
-                alert.text = request.POST['signal-text']
-                alert.pubdate = datetime.now()
-                alert.save()
-                note.alerts.add(alert)
+            alert = Alert()
+            alert.author = request.user
+            alert.comment = note
+            alert.scope = Alert.TUTORIAL
+            alert.text = request.POST['signal-text']
+            alert.pubdate = datetime.now()
+            alert.save()
+
         # Using the preview button
         if 'preview' in request.POST:
             form = NoteForm(g_tutorial, request.user, initial={
