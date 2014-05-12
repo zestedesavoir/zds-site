@@ -169,7 +169,7 @@ class RegisterForm(forms.Form):
                     msg = u'Utilisez un autre fournisseur d\'adresses mail.'
                     self._errors['email'] = self.error_class([msg])
                     break
-        
+
         # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
             msg = u'Votre email est déjà utilisée'

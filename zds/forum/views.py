@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed, TopicRead
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
@@ -102,7 +102,7 @@ def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
     # TODO: Clean that up
     topic = get_object_or_404(Topic, pk=topic_pk)
-    
+
     if not topic.forum.can_read(request.user):
         raise PermissionDenied
 
@@ -158,7 +158,7 @@ def topic(request, topic_pk, topic_slug):
         'zds.forum.views.answer') + '?sujet=' + str(topic.pk)
 
     form_move = MoveTopicForm(topic=topic)
-    
+
     return render_template('forum/topic.html', {
         'topic': topic,
         'posts': res,
@@ -181,7 +181,7 @@ def new(request):
     except KeyError:
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
-    
+
     if not forum.can_read(request.user):
         raise PermissionDenied
 
@@ -276,10 +276,10 @@ def move_topic(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=request.POST['forum'])
-    
+
     if not forum.can_read(request.user):
         raise PermissionDenied
-    
+
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
@@ -366,7 +366,7 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
-    
+
     if not g_topic.forum.can_read(request.user):
         raise PermissionDenied
 
@@ -486,7 +486,7 @@ def edit_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
-    
+
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
@@ -546,7 +546,7 @@ def edit_post(request):
                 form = PostForm(post.topic, request.user, initial={
                     'text': request.POST['text']
                 })
-            
+
             form.helper.form_action = reverse(
                 'zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
@@ -606,7 +606,7 @@ def useful_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
-    
+
     # check that author can access the forum
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
@@ -635,7 +635,7 @@ def like_post(request):
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
-    
+
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
@@ -725,7 +725,7 @@ def find_topic(request, user_pk):
         .filter(author=u)\
         .order_by('-pubdate')\
         .all()
-    
+
     tops = []
     for top in topics :
         if not top.forum.can_read(request.user):
@@ -767,7 +767,7 @@ def find_post(request, user_pk):
             continue
         else:
             pts.append(post)
-            
+
     # Paginator
     paginator = Paginator(pts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')

@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -165,14 +165,14 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, 
-                              ctrl, 
-                              data['title'], 
-                              data['subtitle'], 
+            p_topic = send_mp(request.user,
+                              ctrl,
+                              data['title'],
+                              data['subtitle'],
                               data['text'],
                               True,
                               False)
-            
+
             return redirect(p_topic.get_absolute_url())
 
         else:
@@ -435,13 +435,13 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else : 
+        else :
             ptopic.participants.remove(request.user)
             ptopic.save()
-        
+
         messages.success(
                 request, 'Vous avez quitté la conversation avec succès.')
-    
+
     return redirect(reverse('zds.mp.views.index'))
 
 @can_read_now
@@ -458,7 +458,7 @@ def add_participant(request):
         else:
             ptopic.participants.add(part)
             ptopic.save()
-    
+
             messages.success(request, 'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
