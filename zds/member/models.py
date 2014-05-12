@@ -54,7 +54,7 @@ class Profile(models.Model):
 
     hover_or_click = models.BooleanField('Survol ou click ?',
                                          default=False)
-    
+
     sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
@@ -68,7 +68,7 @@ class Profile(models.Model):
         'Fin d\'interdiction d\'ecrire',
         null=True,
         blank=True)
-    
+
     last_visit = models.DateTimeField(
         'Date de dernière visite',
         null=True,
@@ -257,13 +257,13 @@ class Ban(models.Model):
         null=True)
 
 def listing():
-    
+
     fichier = []
     if os.path.isdir(settings.SDZ_TUTO_DIR):
         for root in os.listdir(settings.SDZ_TUTO_DIR):
             if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, root)):
                 num = root.split('_')[0]
-                if num != None and num.isdigit(): 
+                if num != None and num.isdigit():
                     fichier.append((num, root))
         return fichier
     else:
