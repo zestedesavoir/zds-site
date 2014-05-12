@@ -346,6 +346,9 @@ def settings_profile(request):
             profile.show_sign = 'show_sign' in form.cleaned_data.get('options')
             profile.hover_or_click = 'hover_or_click' in form.cleaned_data.get(
                 'options')
+            profile.email_for_answer = 'email_for_answer' in form.cleaned_data.get(
+                'options')
+            
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
@@ -374,6 +377,7 @@ def settings_profile(request):
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
             'hover_or_click': profile.hover_or_click,
+            'email_for_answer': profile.email_for_answer,
             'sign': profile.sign}
         )
         c = {
@@ -548,7 +552,8 @@ def register_view(request):
                 user=user,
                 show_email=False,
                 show_sign=True,
-                hover_or_click=True)
+                hover_or_click=True,
+                email_for_answer=False)
             profile.last_ip_address = get_client_ip(request)
             profile.save()
             user.backend = 'django.contrib.auth.backends.ModelBackend'
