@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -165,14 +165,14 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, 
-                              ctrl, 
-                              data['title'], 
-                              data['subtitle'], 
+            p_topic = send_mp(request.user,
+                              ctrl,
+                              data['title'],
+                              data['subtitle'],
                               data['text'],
                               True,
                               False)
-            
+
             return redirect(p_topic.get_absolute_url())
 
         else:
@@ -287,32 +287,34 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    pos = post.position_in_topic - 1
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=g_topic,
-                        privatepost__position_in_topic=pos,
-                        user=part).count()
-                    if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + post.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-                        message_txt = get_template('email/mp.txt').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + post.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
+                    profile = Profile.objects.get(user = part)
+                    if profile.email_for_answer :
+                        pos = post.position_in_topic - 1
+                        last_read = PrivateTopicRead.objects.filter(
+                            privatetopic=g_topic,
+                            privatepost__position_in_topic=pos,
+                            user=part).count()
+                        if last_read > 0:
+                            message_html = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                            message_txt = get_template('email/mp.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+    
+                            msg = EmailMultiAlternatives(
+                                subject, message_txt, from_email, [
+                                    part.email])
+                            msg.attach_alternative(message_html, "text/html")
+                            msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
@@ -435,13 +437,13 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else : 
+        else :
             ptopic.participants.remove(request.user)
             ptopic.save()
-        
+
         messages.success(
                 request, 'Vous avez quitté la conversation avec succès.')
-    
+
     return redirect(reverse('zds.mp.views.index'))
 
 @can_read_now
@@ -458,7 +460,7 @@ def add_participant(request):
         else:
             ptopic.participants.add(part)
             ptopic.save()
-    
+
             messages.success(request, 'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
