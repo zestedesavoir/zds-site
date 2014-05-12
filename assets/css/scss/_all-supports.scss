@@ -1055,123 +1055,126 @@
 
 
 /* ==============
-    ALL: Main / Article, Tutorial, Forum message
+    ALL: Main / Article, Tutorial, Forum, MP content
    ============== */
-.main .content-container .content-wrapper {
-    max-width: 960px;
-    margin: 0 auto;
+.main .content-container {
+    .content-wrapper {
+        max-width: 960px;
+        margin: 0 auto;
 
-    &.article-content,
-    &.authors {
-        padding-left: 2%;
-        padding-right: 2%;
-    }
-}
-.main .content-container .article-content,
-.main .content-container .message-content {
-    margin-top: 20px;
-    color: #424242;
-
-    h2,
-    h3 {
-        &,
-        a {
-            color: #ee8709;
-            margin-top: 40px;
-            text-decoration: none;
-        }
-        a:hover,
-        a:focus {
-            text-decoration: underline;
-        }
-    }
-    h2 {
-        font-size: 20px;
-        font-size: 2.0rem;
-        margin-bottom: 20px;
-        background:  #FFF;
-        border-top: 1px solid #e0e4e5;
-        padding-left: 1%;
-    }
-    h3 {
-        font-size: 18px;
-        font-size: 1.8rem;
-        margin-bottom: 14px;
-    }
-
-    .information,
-    .question,
-    .error,
-    .warning {
-        margin: 25px 0;
-        padding: 7px 20px 7px 45px;
-
-        &.ico-after:after {
-            position: absolute;
-            top: 50%;
-            left: 23px;
-            margin: -11px 0 0 -11px;
-            height: 22px;
-            width: 22px;
-        }
-    }
-    .information {
-        background: #daeaee;
-
-        &.ico-after:after {
-            @include sprite-pos($sprite, 'information');
-        }
-    }
-    .question {
-        background: #e2daee;
-
-        &.ico-after:after {
-            @include sprite-pos($sprite, 'question');
-        }
-    }
-    .error {
-        background: #eedada;
-
-        &.ico-after:after {
-            @include sprite-pos($sprite, 'error');
-        }
-    }
-    .warning {
-        background: #eee7da;
-
-        &.ico-after:after {
-            @include sprite-pos($sprite, 'warning');
+        &.article-content,
+        &.authors {
+            padding-left: 2%;
+            padding-right: 2%;
         }
     }
 
-    figure {
-        margin: 25px 0;
-        max-width: 100%;
-        padding: 10px;
-        background: #DDD;
-        text-align: center;
+    .article-content,
+    .message-content {
+        margin-top: 20px;
+        color: #424242;
 
-        img,
-        video,
-        pre,
-        code {
+        h2,
+        h3 {
+            &,
+            a {
+                color: #ee8709;
+                margin-top: 40px;
+                text-decoration: none;
+            }
+            a:hover,
+            a:focus {
+                text-decoration: underline;
+            }
+        }
+        h2 {
+            font-size: 20px;
+            font-size: 2.0rem;
+            margin-bottom: 20px;
+            background:  #FFF;
+            border-top: 1px solid #e0e4e5;
+            padding-left: 1%;
+        }
+        h3 {
+            font-size: 18px;
+            font-size: 1.8rem;
+            margin-bottom: 14px;
+        }
+
+        .information,
+        .question,
+        .error,
+        .warning {
+            margin: 25px 0;
+            padding: 7px 20px 7px 45px;
+
+            &.ico-after:after {
+                position: absolute;
+                top: 50%;
+                left: 23px;
+                margin: -11px 0 0 -11px;
+                height: 22px;
+                width: 22px;
+            }
+        }
+        .information {
+            background: #daeaee;
+
+            &.ico-after:after {
+                @include sprite-pos($sprite, 'information');
+            }
+        }
+        .question {
+            background: #e2daee;
+
+            &.ico-after:after {
+                @include sprite-pos($sprite, 'question');
+            }
+        }
+        .error {
+            background: #eedada;
+
+            &.ico-after:after {
+                @include sprite-pos($sprite, 'error');
+            }
+        }
+        .warning {
+            background: #eee7da;
+
+            &.ico-after:after {
+                @include sprite-pos($sprite, 'warning');
+            }
+        }
+
+        figure {
+            margin: 25px 0;
             max-width: 100%;
+            padding: 10px;
+            background: #DDD;
+            text-align: center;
+
+            img,
+            video,
+            pre,
+            code {
+                max-width: 100%;
+            }
+
+            figcaption {
+                display: block;
+                padding-top: 10px;
+            }
         }
 
-        figcaption {
-            display: block;
-            padding-top: 10px;
-        }
-    }
+        a {
+            color: #333;
+            @include transition;
 
-    a {
-        color: #333;
-        @include transition;
-
-        &:hover,
-        &:focus {
-            color: #EE8709;
-            text-decoration: none;
+            &:hover,
+            &:focus {
+                color: #EE8709;
+                text-decoration: none;
+            }
         }
     }
 }
@@ -1179,15 +1182,14 @@
 
 
 /* ==============
-    ALL: Main / Forum topic
+    ALL: Main / Article, Tutorial, Forum, MP message
    ============== */
-$helpful-background: #e9f9dc;
-.forum-message {
+.topic-message {
     position: relative;
 
     &.helpful {
         .message {
-            background-color: $helpful-background;
+            background-color: $helpful;
 
             .message-actions,
             .message-karma {
@@ -1503,7 +1505,7 @@ $helpful-background: #e9f9dc;
         }
     }
 }
-form.forum-message {
+form.topic-message {
     margin-top: 50px;
 }
 

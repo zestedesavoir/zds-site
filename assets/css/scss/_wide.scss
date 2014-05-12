@@ -311,7 +311,7 @@
     /* ============
        Main / Forum
        ============ */
-    .forum-message {
+    .topic-message {
         margin: 0 0 25px;
 
         .user,
@@ -349,7 +349,7 @@
             }
         }
         &.helpful .message:after {
-            border-right-color: $helpful-background;
+            border-right-color: $helpful;
         }
     }
 

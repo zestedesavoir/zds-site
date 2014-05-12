@@ -3,7 +3,7 @@
 
 
 {% with profile=member|profile %}
-    <a href="{{ member.get_absolute_url }}">
+    <a href="{{ member.get_absolute_url }}">{% spaceless %}
     	{% if avatar %}
         	<img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
     	{% endif %}
@@ -12,5 +12,5 @@
         {% if info %}
             <span class="info">({{ info }})</span>
         {% endif %}
-    </a>
+    {% endspaceless %}</a>
 {% endwith %}

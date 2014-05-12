@@ -22,48 +22,43 @@
 
 
 {% block content %}
-    <div class="forum-entries">
+    <div class="topic-list">
         {% for topic in privatetopics %}
-            <div class="forum-entry {% if topic.never_read %}unread{% endif %}">
-                <div class="forum-entry-title">
-                    <input name="items" type="checkbox" value="{{ topic.pk }}">
-                    <a href="{{ topic.get_absolute_url }}">
+            <div class="topic {% if topic.never_read %}unread{% endif %}">
+                <div class="topic-checkbox">
+                    <input name="topics" type="checkbox" value="{{ topic.pk }}">
+                </div>
+                <p class="topic-title">
+                    <a href="{{ topic.get_absolute_url }}">{% spaceless %}
                         {{ topic.title }}
-                    </a>
-                    <p>
-                        Participants : 
+                    {% endspaceless %}</a>
+
+                    Participants :
+                    <strong>
                         {% include "misc/member_item.part.html" with member=topic.author %}
+                    </strong>
 
-                        {% for member in topic.participants.all %}
-                            {% include "misc/member_item.part.html" %}
-                        {% endfor %}
-                    </p>
-                </div>
-                <div class="forum-entry-count">
-                    <span class="label">
-                        {{ topic.get_post_count|add:"-1" }}
-                    </span>
-                </div>
-                <div class="forum-entry-desc">
-                    <p>
-                        Par {% include "misc/member_item.part.html" with member=topic.author %}
-                        
-                        <br />
-
-                        {% with answer=topic.get_last_answer %}
-                            {% if answer %}
-                                Dernière rép.
-                                <a href="{{ answer.get_absolute_url }}">
-                                    {{ answer.pubdate|naturaltime }}
-                                </a>
-                                par
-                                {% include "misc/member_item.part.html" with member=answer.author %}
-                            {% else %}
-                                Aucune réponse
-                            {% endif %}
-                        {% endwith %}
-                    </p>
-                </div>
+                    {% for member in topic.participants.all %}, 
+                        {% include "misc/member_item.part.html" %}
+                    {% endfor %}
+                </p>
+                <p class="topic-responses">
+                    {{ topic.get_post_count|add:"-1" }}
+                </p>
+                <p class="topic-infos">
+                    {% with answer=topic.get_last_answer %}
+                        {% if answer %}
+                            <a href="{{ answer.get_absolute_url }}">
+                                Dernière réponse
+                                {{ answer.pubdate|naturaltime }}
+                            </a>
+                            par
+                            {% include "misc/member_item.part.html" with member=answer.author %}
+                        {% else %}
+                            Aucune réponse
+                        {% endif %}
+                    {% endwith %}
+                </p>
             </div>
         {% endfor %}
     </div>
