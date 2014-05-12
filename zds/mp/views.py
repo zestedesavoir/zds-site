@@ -287,32 +287,34 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    pos = post.position_in_topic - 1
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=g_topic,
-                        privatepost__position_in_topic=pos,
-                        user=part).count()
-                    if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + post.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-                        message_txt = get_template('email/mp.txt').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + post.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
+                    profile = Profile.objects.get(user = part)
+                    if profile.email_for_answer :
+                        pos = post.position_in_topic - 1
+                        last_read = PrivateTopicRead.objects.filter(
+                            privatetopic=g_topic,
+                            privatepost__position_in_topic=pos,
+                            user=part).count()
+                        if last_read > 0:
+                            message_html = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                            message_txt = get_template('email/mp.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+    
+                            msg = EmailMultiAlternatives(
+                                subject, message_txt, from_email, [
+                                    part.email])
+                            msg.attach_alternative(message_html, "text/html")
+                            msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
