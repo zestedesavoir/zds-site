@@ -233,7 +233,8 @@ class ProfileForm(MiniProfileForm):
         choices=(
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
-            ('hover_or_click', "Navigation au survol"),
+            ('hover_or_click', "Cochez pour dérouler les menus au survol"),
+            ('email_for_answer', "Recevez un email lorsque vous recevez une réponse à un message privé"),
         ),
         widget = forms.CheckboxSelectMultiple,
     )
@@ -256,6 +257,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'hover_or_click' in initial and initial['hover_or_click']:
             self.fields['options'].initial += 'hover_or_click'
+
+        if 'email_for_answer' in initial and initial['email_for_answer']:
+            self.fields['options'].initial += 'email_for_answer'
 
         self.helper.layout = Layout(
             Field('biography'),
