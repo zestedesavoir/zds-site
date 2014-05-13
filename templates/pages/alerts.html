@@ -20,8 +20,8 @@
     	<thead>
     		<th>Type</th>
     		<th>Auteur</th>
-    		<th>Date</th>
-    		<th>Message</th>
+    		<th class="hide-for-small" >Date</th>
+    		<th class="hide-for-small">Message</th>
     		<th>Sur un message de...</th>
     	</thead>
     	<tbody>
@@ -29,8 +29,8 @@
 		    <tr>
 		    	<td>{{ alert.get_scope_display }}</td>
 		    	<td><a href="{% url "zds.member.views.details" alert.author.username %}">{{ alert.author.username }}</a></td>
-		    	<td>{{ alert.pubdate|naturaltime }}</td>
-		    	<td><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
+		    	<td class="hide-for-small" >{{ alert.pubdate|naturaltime }}</td>
+		    	<td class="hide-for-small" ><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
 		    	<td><a href="{% url "zds.member.views.details" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, posté le {{ alert.comment.pubdate|naturaltime }}</td>
 		    </tr>
 		    {% endfor %}
