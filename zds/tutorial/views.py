@@ -539,6 +539,13 @@ def modify_tutorial(request):
             author = get_object_or_404(User, pk=author_pk)
 
             tutorial.authors.remove(author)
+            #user can access to gallery
+            try :
+                ug = UserGallery.objects.filter(user=author, gallery = tutorial.gallery)
+                ug.delete()
+            except:
+                ug = None
+
             tutorial.save()
 
             messages.success(
