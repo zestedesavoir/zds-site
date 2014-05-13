@@ -22,20 +22,20 @@
 
 
 {% block content %}
-    <div class="topic-list content-wrapper">
+    <div class="topic-list content-wrapper navigable-list">
         {% for topic in privatetopics %}
-            <div class="topic {% if topic.never_read %}unread{% endif %}">
-                <div class="topic-checkbox">
+            <div class="topic {% if topic.never_read %}unread{% endif %} navigable-elem">
+                <div class="topic-infos">
                     <input name="topics" type="checkbox" value="{{ topic.pk }}">
                 </div>
                 <div class="topic-description">
-                    <a href="{{ topic.get_absolute_url }}">{% spaceless %}
+                    <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
                         {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
                         <span class="topic-title">{{ topic.title }}</span>
                         <span class="topic-subtitle">{{ topic.subtitle }}</span>
                     {% endspaceless %}</a>
 
-                    <p class="topic-participants">
+                    <p class="topic-members">
                         Participants :
                         <em>
                             {% include "misc/member_item.part.html" with member=topic.author %}

@@ -3,6 +3,9 @@
 
 
 <div class="topic
+    {% if topic.is_sticky %}
+        topic-sticky
+    {% endif %}
     {% if topic.is_locked %}
         topic-locked
     {% endif %}
@@ -13,57 +16,39 @@
         unread
     {% endif %}">
 
-    <div class="forum-entry-title">
-        <a href="{{ topic.get_absolute_url }}">
-            {{ topic.title }}
+    <div class="topic-infos">
+        
+    </div>
+    <div class="topic-description">
+        <a href="{{ topic.get_absolute_url }}" class="navigable-link">
+            <span class="topic-title">{{ topic.title }}</span>
+            <span class="topic-subtitle">{{ topic.subtitle }}</span>
         </a>
-        {% if topic.subtitle %}
-            <p>
-                {{ topic.subtitle }}
-            </p>
+        <p class="topic-members">
+            Créé par
+            <em>
+                {% include "misc/member_item.part.html" with member=topic.author %}
+            </em>
+        </p>
+    </div>
+    <p class="topic-answers">
+        {% if topic.get_post_count > 1 %}
+            {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
         {% endif %}
-    </div>
-    <div class="forum-entry-count">
-        <span class="label">
-            {{ topic.get_post_count|add:"-1" }}
-        </span>
-    </div>
-    <div class="forum-entry-desc">
-        Par {% include "misc/member_item.part.html" with member=topic.author %}
-        <br />
+    </p>
+    <p class="topic-last-answer">
         {% with answer=topic.get_last_answer %}
             {% if answer %}
-                Dernière rép.
                 <a href="{{ answer.get_absolute_url }}">
+                    Dernière réponse <br>
                     {{ answer.pubdate|naturaltime }}
                 </a>
+                <br>
                 par
                 {% include "misc/member_item.part.html" with member=answer.author %}
             {% else %}
-                Aucune réponse
+                <span class="topic-no-last-answer">Aucune réponse</span>
             {% endif %}
         {% endwith %}
-    </div>
+    </p>
 </div>
-
-
-{# TODO : Différents états des forums à intégrer #}
-<!--
-{% if topic.is_sticky %}
-    <i class="icon-bookmark" title="Ce sujet est épinglé"></i>
-{% endif %}
-{% if topic.is_locked %}
-    <i class="icon-lock" title="Ce sujet est verrouillé"></i>
-{% endif %}
-{% if topic.is_solved %}
-    <i class="icon-ok" title="Ce sujet est résolu"></i>
-{% endif %}
-
-{% if user.is_authenticated %}
-    {% with topic.last_read_post as last_read_post %}
-        {% ifnotequal last_read_post topic.get_last_answer %}
-            <i class="icon-eye-open"></i>
-        {% endifnotequal %}
-    {% endwith %}
-{% endif %}
--->

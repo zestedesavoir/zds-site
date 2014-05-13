@@ -126,6 +126,7 @@ PIPELINE_JS = {
             'js/custom/accordeon.js',
             'js/custom/modal.js',
             'js/custom/close-alert-box.js',
+            'js/custom/keyboard-navigation.js',
         ),
         'output_filename': 'js/main.js'
     }

@@ -1065,6 +1065,7 @@
    ============== */
 .topic-list {
     margin-top: 50px !important;
+    margin-bottom: 50px !important;
     border-top: 1px solid #CCC;
 
     .topic {
@@ -1080,7 +1081,7 @@
         }
 
         &:hover,
-        &.actif {
+        &.active {
             &:before {
                 content: " ";
                 display: block;
@@ -1103,7 +1104,7 @@
         }
     }
 
-    .topic-checkbox,
+    .topic-infos,
     .topic-description,
     .topic-answers,
     .topic-last-answer {
@@ -1113,7 +1114,7 @@
         margin: 0;
     }
 
-    .topic-checkbox {
+    .topic-infos {
         width: 5%;
 
         input[type=checkbox] {
@@ -1141,7 +1142,7 @@
         .topic-subtitle {
             height: 24px;
         }
-        .topic-participants {
+        .topic-members {
             margin: 0;
             color: #777;
         }
