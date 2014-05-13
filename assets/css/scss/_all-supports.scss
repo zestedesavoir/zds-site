@@ -676,13 +676,13 @@
                         top: 0;
                         padding: 0;
                         z-index: 1;
-                        width: 27px;
-                        height: 24px;
+                        width: 30px;
+                        height: 30px;
                         text-indent: -9999px;
                         border-left: 1px solid transparent;
 
                         background: #d3d5d5;
-                        right: -29px;
+                        right: -32px;
 
                         &[data-title]:hover:before {
                             content: attr(data-title);
@@ -692,9 +692,9 @@
                             color: #555;
                             top: 0;
                             left: 35px;
-                            height: 22px;
-                            line-height: 22px;
-                            line-height: 2.2rem;
+                            height: 27px;
+                            line-height: 27px;
+                            line-height: 2.7rem;
                             text-indent: 0;
                             padding: 0 15px;
                             border: 1px solid #EEE;
@@ -711,6 +711,11 @@
             &.inactive span {
                 color: #555;
                 font-style: italic;
+            }
+
+            .last-answer {
+                // TODO : designer ce tooltip
+                display: none;
             }
 
             button {
@@ -1049,6 +1054,109 @@
             height: 35px;
             line-height: 35px;
             padding-bottom: 3px;
+        }
+    }
+}
+
+
+
+/* ==============
+    ALL: Main / Forum, MP list
+   ============== */
+.topic-list {
+    margin-top: 50px !important;
+    border-top: 1px solid #CCC;
+
+    .topic {
+        position: relative;
+        height: 80px;
+        font-size: 14px;
+        font-size: 1.4rem;
+        border-top: 1px solid #FFF;
+        border-bottom: 1px solid #CCC;
+
+        &.unread {
+            background: #e1eaee;
+        }
+
+        &:hover,
+        &.actif {
+            &:before {
+                content: " ";
+                display: block;
+                position: absolute;
+                background: $blue;
+                height: 100%;
+                width: 5px;
+                @include opacity(.5);
+            }
+        }
+    }
+    a {
+        text-decoration: none;
+        color: $blue;
+
+        &:hover,
+        &:focus {
+            color: $blue;
+            text-decoration: underline;
+        }
+    }
+
+    .topic-checkbox,
+    .topic-description,
+    .topic-answers,
+    .topic-last-answer {
+        display: block;
+        float: left;
+        padding: 4px 0;
+        margin: 0;
+    }
+
+    .topic-checkbox {
+        width: 5%;
+
+        input[type=checkbox] {
+            margin: 29px 25% 0;
+
+            &:checked {
+                background: #555;
+            }
+        }
+    }
+    .topic-description {
+        width: 60%;
+
+        .topic-title,
+        .topic-subtitle {
+            display: block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .topic-title {
+            font-size: 16px;
+            font-size: 1.6rem;
+        }
+        .topic-subtitle {
+            height: 24px;
+        }
+        .topic-participants {
+            margin: 0;
+            color: #777;
+        }
+    }
+    .topic-answers {
+        width: 20%;
+        text-align: center;
+        padding-top: 25px;
+    }
+    .topic-last-answer {
+        width: 15%;
+
+        .topic-no-last-answer {
+            display: block;
+            margin-top: 24px;
         }
     }
 }

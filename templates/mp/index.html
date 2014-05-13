@@ -22,40 +22,47 @@
 
 
 {% block content %}
-    <div class="topic-list">
+    <div class="topic-list content-wrapper">
         {% for topic in privatetopics %}
             <div class="topic {% if topic.never_read %}unread{% endif %}">
                 <div class="topic-checkbox">
                     <input name="topics" type="checkbox" value="{{ topic.pk }}">
                 </div>
-                <p class="topic-title">
+                <div class="topic-description">
                     <a href="{{ topic.get_absolute_url }}">{% spaceless %}
-                        {{ topic.title }}
+                        {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
+                        <span class="topic-title">{{ topic.title }}</span>
+                        <span class="topic-subtitle">{{ topic.subtitle }}</span>
                     {% endspaceless %}</a>
 
-                    Participants :
-                    <strong>
-                        {% include "misc/member_item.part.html" with member=topic.author %}
-                    </strong>
+                    <p class="topic-participants">
+                        Participants :
+                        <em>
+                            {% include "misc/member_item.part.html" with member=topic.author %}
+                        </em>{% spaceless %}
 
-                    {% for member in topic.participants.all %}, 
-                        {% include "misc/member_item.part.html" %}
-                    {% endfor %}
+                        {% endspaceless %}{% for member in topic.participants.all %}, 
+                            {% include "misc/member_item.part.html" %}
+                        {% endfor %}
+                    </p>
+                </div>
+                <p class="topic-answers">
+                    {% if topic.get_post_count > 1 %}
+                        {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
+                    {% endif %}
                 </p>
-                <p class="topic-responses">
-                    {{ topic.get_post_count|add:"-1" }}
-                </p>
-                <p class="topic-infos">
+                <p class="topic-last-answer">
                     {% with answer=topic.get_last_answer %}
                         {% if answer %}
                             <a href="{{ answer.get_absolute_url }}">
-                                Dernière réponse
+                                Dernière réponse <br>
                                 {{ answer.pubdate|naturaltime }}
                             </a>
+                            <br> 
                             par
                             {% include "misc/member_item.part.html" with member=answer.author %}
                         {% else %}
-                            Aucune réponse
+                            <span class="topic-no-last-answer">Aucune réponse</span>
                         {% endif %}
                     {% endwith %}
                 </p>

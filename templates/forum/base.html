@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load interventions %}
 {% load captureas %}
+{% load humanize %}
+{% load profile %}
 
 
 
@@ -49,35 +51,68 @@
                 <ul>
                     {% with topics=user|followed_topics %}
                         {% for topic in topics %}
-                            {% with topic=topic.topic state=topic|is_read %}
+                            {% with state=topic|is_read %}
                                 <li>
                                     <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
                                        class="ico-after cross red stop-follow action-hover" 
                                        data-title="Ne plus suivre">
                                         Ne plus suivre
                                     </a>
-                                    <a href="
+                                    
+                                    <a href="{% spaceless %}
                                         {% if first_unread %}
                                             {{ first_unread.get_absolute_url }}
                                         {% else %}
                                             {{ topic.last_read_post.get_absolute_url }}
-                                        {% endif %}"
-                                       class="{% if state != True %}unread{% endif %}
+                                        {% endif %}{% endspaceless %}"
+                                       class="{% if not state %}unread{% endif %}
                                         {% if topic.is_solved or topic.is_locked %}
                                             ico-after
 
                                             {% if topic.is_solved %}
                                                 tick active
-                                            {% elif topic.is_locked %}
+                                            {% endif %}
+                                            {% if topic.is_locked %}
                                                 lock
                                             {% endif %}
                                         {% endif %}"
                                        {% if topic.is_solved or topic.is_locked %}
-                                        data-prefix="{% if topic.is_solved %}Résolu{% elif topic.is_locked %}Fermé{% endif %}"
+                                        data-prefix="
+                                            {% if topic.is_solved %}
+                                                Résolu
+                                            {% endif %}
+                                            {% if topic.is_solved and topic.is_locked %}
+                                            |
+                                            {% endif %}
+                                            {% if topic.is_locked %}
+                                                Fermé
+                                            {% endif %}
+                                        "
                                        {% endif %}
                                     >
+                                        {% if not state %}
+                                            <span class="a11y">Non-lu :</span>
+                                        {% endif %}
                                         {{ topic.title }}
                                     </a>
+
+                                    <span class="last-answer">
+                                        {% with answer=topic.get_last_answer %}
+                                            {% if answer %}
+                                                {% with profile=answer.author|profile %}
+                                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                                {% endwith %}
+                                                Dernière réponse
+                                                {{ answer.pubdate|naturaltime }}
+                                                par
+                                                {{ answer.author.username }}
+                                            {% else %}
+                                                <span class="topic-no-last-answer">
+                                                    Aucune réponse
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </span>
                                 </li>
                             {% endwith %}
                         {% endfor %}

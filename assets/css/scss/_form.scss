@@ -109,6 +109,10 @@
     input[type=checkbox] {
         float: left;
         margin-right: 5px;
+        height: 15px;
+        width: 15px;
+        border: 1px solid #BBB;
+        background: #FCFCFC;
     }
     [type=submit],
     button,

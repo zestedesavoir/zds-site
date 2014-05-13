@@ -2,18 +2,18 @@
 
 
 
-<div class="forum-entry
+<div class="topic
     {% if topic.is_locked %}
-        forum-entry-locked
-    {% elif topic.is_solved %}
-        forum-entry-solved
+        topic-locked
+    {% endif %}
+    {% if topic.is_solved %}
+        topic-solved
+    {% endif %}
+    {% if user.is_authenticated and topic.never_read %}
+        unread
     {% endif %}">
 
-    <div class="forum-entry-title
-        {% if user.is_authenticated and topic.never_read %}
-            unread
-        {% endif %}">
-
+    <div class="forum-entry-title">
         <a href="{{ topic.get_absolute_url }}">
             {{ topic.title }}
         </a>
