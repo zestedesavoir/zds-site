@@ -172,7 +172,7 @@ class RegisterForm(forms.Form):
 
         # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre email est déjà utilisée'
+            msg = u'Votre adresse email est déjà utilisée'
             self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
