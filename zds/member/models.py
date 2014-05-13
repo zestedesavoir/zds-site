@@ -288,7 +288,7 @@ def get_info_old_tuto(id):
                                 tuto = os.path.join(root, file)
                             elif file.split('.')[-1]=='zip':
                                 images = os.path.join(root, file)
-                            elif file.split('.')[-1]=='png':
+                            elif file.split('.')[-1]in ['png', 'jpg', 'ico', 'jpeg', 'gif']:
                                 logo = os.path.join(root, file)
 
     return (id, titre, tuto, images, logo)
