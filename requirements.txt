@@ -20,7 +20,7 @@ django-oauth2-provider
 django-guardian
 django-haystack
 django-model-utils
-django-munin
+django-munin==0.1.4
 lxml
 pygal
 httplib2
