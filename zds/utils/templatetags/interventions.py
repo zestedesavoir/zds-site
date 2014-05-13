@@ -130,19 +130,19 @@ def alerts_validation_articles(user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total= []
-    alertes = Alert.objects.all().order_by('-pubdate')
-    for alerte in alertes:
-        if alerte.scope == 'F':
-            post = Post.objects.get(pk = alerte.comment.pk)
-            total.append({'title': post.topic.title, 'url':post.get_absolute_url(), 'pubdate' : post.pubdate, 'author' : post.author})
-        if alerte.scope == 'A':
-            reaction = Reaction.objects.get(pk = alerte.comment.pk)
-            total.append({'title': reaction.article.title, 'url':reaction.get_absolute_url(), 'pubdate' : reaction.pubdate, 'author' : reaction.author})
-        if alerte.scope == 'T':
-            note = Note.objects.get(pk = alerte.comment.pk)
-            total.append({'title': note.tutorial.title, 'url':note.get_absolute_url(), 'pubdate' : note.pubdate, 'author' : note.author})
+    alerts = Alert.objects.all().order_by('-pubdate')[:10]
+    for alert in alerts:
+        if alert.scope == Alert.FORUM:
+            post = Post.objects.get(pk = alert.comment.pk)
+            total.append({'title': post.topic.title, 'url':post.get_absolute_url(), 'pubdate' : post.pubdate, 'author' : alert.author})
+        if alert.scope == Alert.ARTICLE:
+            reaction = Reaction.objects.get(pk = alert.comment.pk)
+            total.append({'title': reaction.article.title, 'url':reaction.get_absolute_url(), 'pubdate' : reaction.pubdate, 'author' : alert.author})
+        if alert.scope == Alert.TUTORIAL:
+            note = Note.objects.get(pk = alert.comment.pk)
+            total.append({'title': note.tutorial.title, 'url':note.get_absolute_url(), 'pubdate' : note.pubdate, 'author' : alert.author})
     
-    return total[:10]
+    return total
 
 @register.filter(name='alerts_count')
 def alerts_count(user):
