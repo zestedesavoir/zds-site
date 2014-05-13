@@ -33,7 +33,7 @@ from lxml import etree
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
-from zds.member.models import get_info_old_tuto
+from zds.member.models import get_info_old_tuto, Profile
 from zds.utils import render_template
 from django.template.defaultfilters import slugify
 from zds.utils.models import Alert
@@ -2363,9 +2363,9 @@ def import_content(request, tuto, images, logo):
 @login_required
 @require_POST
 def local_import(request):
-    tuto = open(request.POST['tuto'], "r").read()
-    images = open(request.POST['images'], "r").read()
-    logo = open(request.POST['logo'], "r").read()
+    tuto = open(r'{0}'.format(request.POST['tuto'], "r")).read()
+    images = open(r'{0}'.format(request.POST['images'], "r")).read()
+    logo = open(r'{0}'.format(request.POST['logo']), "r").read()
     
     import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
     

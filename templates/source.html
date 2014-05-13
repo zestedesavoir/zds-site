@@ -163,7 +163,7 @@
                 <li class="divider"></li>
                 
                   {% for alert in alerts %}
-                      <li><a href="{{ alert.get_comment_subclass.get_absolute_url }}">
+                      <li><a href="{{ alert.url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
@@ -174,7 +174,7 @@
                               </div>
                             </div>
                             <div class="large-12 columns">
-                                {{ alert.get_scope_display }}
+                                {{ alert.title }}
                             </div>
                           </div>
                           </a>
@@ -191,6 +191,7 @@
                   {% endif %}
                 {% endwith %}
                 {% with alerts=user|alerts_validation_tutos %}
+                <li class="divider"></li>
                 <li><label>
                   {% if alerts.total > 0 %}
                     <span class="alert label round">{{ alerts.total }}</span>
@@ -199,7 +200,7 @@
                   </label></li>
                 <li class="divider"></li>
                   {% for alert in alerts.alert %}
-                    <li><a href="{{ post.get_absolute_url }}">
+                    <li><a href="{{ alert.tutorial.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
@@ -220,6 +221,7 @@
                   {% endfor %}
                 {% endwith %}
                 {% with alerts=user|alerts_validation_articles %}
+                <li class="divider"></li>
                 <li><label>
                   {% if alerts.total > 0 %}
                     <span class="alert label round">{{ alerts.total }}</span>
@@ -227,7 +229,7 @@
                   Validation Articles</label></li>
                 <li class="divider"></li>
                   {% for alert in alerts.alert %}
-                    <li><a href="{{ post.get_absolute_url }}">
+                    <li><a href="{{ alert.tutorial.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">

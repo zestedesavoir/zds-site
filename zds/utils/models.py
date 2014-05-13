@@ -202,6 +202,9 @@ class Alert(models.Model):
     scope = models.CharField(max_length=1, choices=SCOPE_CHOICES)
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de publication')
+    
+    def get_comment(self):
+        return Comment.objects.get(id=self.comment.id)
 
     def get_comment_subclass(self):
         """
