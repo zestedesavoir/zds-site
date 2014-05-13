@@ -317,10 +317,11 @@ class NoteForm(forms.Form):
         )
 
         if tutorial.antispam(user):
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
-                disabled=True)
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
+                    disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(
                 Field,

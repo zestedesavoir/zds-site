@@ -2,11 +2,11 @@
 
 from django import template
 
-from zds.article.models import never_read as never_read_article, Validation as ArticleValidation
+from zds.article.models import never_read as never_read_article, Validation as ArticleValidation, Reaction
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, Topic
 from zds.mp.models import PrivateTopic, never_privateread
 from zds.utils.models import Alert
-from zds.tutorial.models import never_read as never_read_tutorial, Validation as TutoValidation
+from zds.tutorial.models import never_read as never_read_tutorial, Validation as TutoValidation, Note
 from operator import itemgetter, attrgetter
 
 
@@ -115,7 +115,7 @@ def alerts_validation_tutos(user):
         if tuto.is_pending():
             total.append(tuto)
 
-    return {'total':len(total), 'alert':total}
+    return {'total':len(total), 'alert':total[:5]}
 
 @register.filter(name='alerts_validation_articles')
 def alerts_validation_articles(user):
@@ -125,14 +125,24 @@ def alerts_validation_articles(user):
         if article.is_pending():
             total.append(article)
 
-    return {'total':len(total), 'alert':total}
+    return {'total':len(total), 'alert':total[:5]}
 
 @register.filter(name='alerts_list')
 def alerts_list(user):
-    if user.is_authenticated():
-        return Alert.objects.all().order_by('-pubdate')[:10]
-    else:
-        return ''
+    total= []
+    alerts = Alert.objects.all().order_by('-pubdate')[:10]
+    for alert in alerts:
+        if alert.scope == Alert.FORUM:
+            post = Post.objects.get(pk = alert.comment.pk)
+            total.append({'title': post.topic.title, 'url':post.get_absolute_url(), 'pubdate' : post.pubdate, 'author' : alert.author})
+        if alert.scope == Alert.ARTICLE:
+            reaction = Reaction.objects.get(pk = alert.comment.pk)
+            total.append({'title': reaction.article.title, 'url':reaction.get_absolute_url(), 'pubdate' : reaction.pubdate, 'author' : alert.author})
+        if alert.scope == Alert.TUTORIAL:
+            note = Note.objects.get(pk = alert.comment.pk)
+            total.append({'title': note.tutorial.title, 'url':note.get_absolute_url(), 'pubdate' : note.pubdate, 'author' : alert.author})
+    
+    return total
 
 @register.filter(name='alerts_count')
 def alerts_count(user):

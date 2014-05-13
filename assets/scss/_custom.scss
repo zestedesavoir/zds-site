@@ -245,10 +245,12 @@ Side Bar
 }
 .side-nav h5 {
 	font-size: 1rem;
+	padding-left: $column-gutter*2;
 }
 .side-nav h4 {
 	font-size: 1.1rem;
 	border-bottom: 1px solid #CCC;
+	padding-left: $column-gutter;
 }
 .side-nav h3 {
 	height: 40px;
@@ -270,9 +272,6 @@ Side Bar
 	margin: 0;
 	padding-left: 45px;
 } 
-.side-nav h4 {
-	padding-left: 5px;
-}
 
 .side-nav ul {
 	margin-top: 10px;
@@ -309,13 +308,21 @@ Side Bar
 Box
 */
 
+.box {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .box + .subtitle {
 	font-size: 1rem;
 	color: #777;
 	margin-left: -$column-gutter;
 	margin-top: -15px;
 	margin-bottom: 15px;
-	padding: 10px 2%;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: $column-gutter*2;
 	background: #EEE;
 	font-weight: normal;
 }
@@ -540,31 +547,33 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	padding-top: 20px;
 }
 
-.message-forum:after{
-	content: " ";
-	left: -15px;
-	display: block;
-	position: absolute;
-	top: 15px;
-	height: 0;
-	width: 0;
-	border: 15px solid transparent;
-	border-left: 0;
-	border-right-color: #FFF;
-}
+@media #{$large-up} {
+	.message-forum:after{
+		content: " ";
+		left: -15px;
+		display: block;
+		position: absolute;
+		top: 15px;
+		height: 0;
+		width: 0;
+		border: 15px solid transparent;
+		border-left: 0;
+		border-right-color: #FFF;
+	}
 
 
-.avatar-forum:after{
-	content: " ";
-	right: 0px;
-	display: block;
-	position: absolute;
-	top: 17px;
-	height: 0;
-	width: 0;
-	border: 15px solid transparent;
-	border-left: 0;
-	border-right-color: #CCC;
+	.avatar-forum:after{
+		content: " ";
+		right: 0px;
+		display: block;
+		position: absolute;
+		top: 17px;
+		height: 0;
+		width: 0;
+		border: 15px solid transparent;
+		border-left: 0;
+		border-right-color: #CCC;
+	}
 }
 
 .message-forum .message-content {
@@ -632,16 +641,16 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	border-radius: 15%;
 }
 
+.upvote, .downvote {
+	font-weight: bold;
+}
+
 .upvote {
-	background-image: url("../img/thumb-up-voted.png");
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $success-color;
 }
 
 .downvote {
-	background-image: url("../img/thumb-down-voted.png");	
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $alert-color;
 }
 
 .form-alone
