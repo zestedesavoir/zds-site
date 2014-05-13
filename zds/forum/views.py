@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
@@ -266,6 +266,7 @@ def solve_alert(request):
 @can_write_and_read_now
 @login_required
 @require_POST
+@transaction.atomic
 def move_topic(request):
     # only staff can move topic
     if not request.user.has_perm('forum.change_topic'):
@@ -284,7 +285,12 @@ def move_topic(request):
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
-
+    #unfollow user auth
+    followers = TopicFollowed.objects.filter(topic = topic)
+    for follower in followers:
+        if not forum.can_read(follower.user):
+            follower.delete()
+     
     messages.success(
         request,
         u'Le sujet {0} a bien été déplacé dans {1}.'.format(
