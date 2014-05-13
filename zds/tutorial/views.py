@@ -2351,7 +2351,7 @@ def import_content(request, tuto, images, logo):
                 action='add')
 
             extract_count += 1
-
+    
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -2359,9 +2359,9 @@ def local_import(request):
     tuto = open(request.POST['tuto'], "r").read()
     images = open(request.POST['images'], "r").read()
     logo = open(request.POST['logo'], "r").read()
-
+    
     import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
-
+    
     return redirect(reverse('zds.member.views.tutorials'))
 
 @can_write_and_read_now
@@ -2382,7 +2382,7 @@ def import_tuto(request):
     else:
         form = ImportForm()
 
-        profile = request.user.profile
+        profile = get_object_or_404(Profile, user=request.user) 
         oldtutos = []
         if profile.sdz_tutorial:
             olds = profile.sdz_tutorial.strip().split(':')
