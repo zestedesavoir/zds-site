@@ -78,7 +78,7 @@
                       </li>
                       {% endwith %}
                   {% endfor %}
-                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                  {% if unread_topics|length = 0 %}
                       <li>
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -130,11 +130,11 @@
                       </li>
                       {% endwith %}
                   {% endfor %}
-                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                  {% if unread_topics|length = 0 %}
                       <li>
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
-                          Aucun message
+                          Aucune notification
                           </div></div>
                         </a>
                       </li>
@@ -148,15 +148,19 @@
           </li>
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
-            {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
+            
             <a href="#">
-              {% if nb_alerts > 0 %}
-                  <span class="alert label round">{{ nb_alerts }}</span>
-              {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
-              <li><label>Alertes Modération</label></li>
-              <li class="divider"></li>
+                {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
+                <li><label>
+                    {% if nb_alerts > 0 %}
+                    <span class="alert label round">{{ nb_alerts }}</span>
+                    {% endif %}
+                    Alertes Modération 
+                  </label>
+              </li>
+                <li class="divider"></li>
                 
                   {% for alert in alerts %}
                       <li><a href="{{ alert.get_comment_subclass.get_absolute_url }}">
@@ -176,7 +180,7 @@
                           </a>
                       </li>
                   {% endfor %}
-                  {% if alerts.count = 0 %}
+                  {% if nb_alerts = 0 %}
                       <li class="dropdown-empty-message">
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -185,10 +189,68 @@
                         </a>
                       </li>
                   {% endif %}
+                {% endwith %}
+                {% with alerts=user|alerts_validation_tutos %}
+                <li><label>
+                  {% if alerts.total > 0 %}
+                    <span class="alert label round">{{ alerts.total }}</span>
+                    {% endif %}
+                  Validation Tutoriels
+                  </label></li>
+                <li class="divider"></li>
+                  {% for alert in alerts.alert %}
+                    <li><a href="{{ post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                {% for author in alert.tutorial.authors.all %}
+                                  {{ author.username }} |
+                                {% endfor %}
+                              </div>
+                              <div class="right">
+                                  {{ alert.date_proposition|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ alert.tutorial.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                {% endwith %}
+                {% with alerts=user|alerts_validation_articles %}
+                <li><label>
+                  {% if alerts.total > 0 %}
+                    <span class="alert label round">{{ alerts.total }}</span>
+                    {% endif %}
+                  Validation Articles</label></li>
+                <li class="divider"></li>
+                  {% for alert in alerts.alert %}
+                    <li><a href="{{ post.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                {% for author in alert.article.authors.all %}
+                                  {{ author.username }} |
+                                {% endfor %}
+                              </div>
+                              <div class="right">
+                                  {{ alert.date_proposition|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ alert.article.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                {% endwith %}
                 <li class="divider"></li>
               <li><a href="{% url "zds.pages.views.alerts" %}"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
             </ul>
-            {% endwith %}
+            
           </li>
           {% endif %}
           <li class="has-dropdown">
