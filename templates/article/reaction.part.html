@@ -129,16 +129,18 @@
                     {% if user.is_authenticated %}
                     <div class="message-karma right">
                         {% if post.author != user %}
+                            {% with profile_user=user|profile %}
                             {% if post.like > post.dislike %}
-                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
+                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
                             {% else %}
-                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
+                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
                             {% endif%}
                             {% if post.dislike > post.like %}
-                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
                             {% else%}
-                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
                             {% endif%}
+                            {% endwith %}
                         {% else %}
                             {% if post.like > post.dislike %}
                                 <span href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</span>

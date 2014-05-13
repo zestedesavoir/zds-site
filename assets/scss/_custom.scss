@@ -641,16 +641,16 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	border-radius: 15%;
 }
 
+.upvote, .downvote {
+	font-weight: bold;
+}
+
 .upvote {
-	background-image: url("../img/thumb-up-voted.png");
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $success-color;
 }
 
 .downvote {
-	background-image: url("../img/thumb-down-voted.png");	
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $alert-color;
 }
 
 .form-alone

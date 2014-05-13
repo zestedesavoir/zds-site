@@ -5,6 +5,7 @@ from django import template
 from django.contrib.auth.models import User
 
 from zds.member.models import Profile
+from zds.utils.models import Comment, CommentLike, CommentDislike
 
 
 register = template.Library()
@@ -47,3 +48,13 @@ def state(user):
     except Profile.DoesNotExist:
         state = None
     return state
+
+@register.filter('liked')
+def liked(user, comment_pk):
+    comment = Comment.objects.get(pk = comment_pk)
+    return CommentLike.objects.filter(comments = comment, user=user).count() > 0
+
+@register.filter('disliked')
+def disliked(user, comment_pk):
+    comment = Comment.objects.get(pk = comment_pk)
+    return CommentDislike.objects.filter(comments = comment, user=user).count() > 0
