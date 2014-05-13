@@ -8,6 +8,10 @@
     <li><a href="{% url "zds.gallery.views.gallery_list" %}">Galeries</a></li>
 {% endblock %}
 
+{% block headline %}
+	<h2 class="box">{% block head-title %}{% endblock %}</h2>
+{% endblock %}
+
 {% block sidebar %}
 <aside class="sidebar mobile-menu-hide">
 	<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">

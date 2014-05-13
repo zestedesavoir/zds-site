@@ -452,22 +452,40 @@ def delete_tutorial(request, tutorial_pk):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
+    #when author is alone we can delete definitively tutorial
+    if tutorial.authors.count() == 1:
+        #user can access to gallery
+        try :
+            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+            ug.delete()
+        except:
+            ug = None
+        # Delete the tutorial on the repo and on the database.
+        old_slug = os.path.join(
+            settings.REPO_PATH, str(
+                tutorial.pk) + '_' + tutorial.slug)
+        maj_repo_tuto(request,
+                      old_slug_path=old_slug,
+                      tuto=tutorial,
+                      action='del')
 
-    # Delete the tutorial on the repo and on the database.
-    old_slug = os.path.join(
-        settings.REPO_PATH, str(
-            tutorial.pk) + '_' + tutorial.slug)
-    maj_repo_tuto(request,
-                  old_slug_path=old_slug,
-                  tuto=tutorial,
-                  action='del')
-
-    messages.success(
-        request,
-        u'Le tutoriel {0} a bien été supprimé.'.format(
-            tutorial.title))
-
-    tutorial.delete()
+        messages.success(
+            request,
+            u'Le tutoriel {0} a bien été supprimé.'.format(
+                tutorial.title))
+        tutorial.delete()
+    else:
+        tutorial.authors.remove(request.user)
+        #user can access to gallery
+        try :
+            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+            ug.delete()
+        except:
+            ug = None
+        tutorial.save()
+        messages.success(
+            request,
+            u'Vous ne faites plus partie des rédacteurs de ce tutoriel')
 
     return redirect(reverse('zds.tutorial.views.index'))
 
