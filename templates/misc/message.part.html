@@ -97,15 +97,15 @@
 
         <div class="message-metadata">
             <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
-            <a href="#m{{ message.pk }}" id="m{{ message.id }}" class="date">{{ message.pubdate|naturaltime|capfirst }}</a>
+            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date">{{ message.pubdate|naturaltime|capfirst }}</a>
         </div>
 
         <div class="message-content">
-            {% if not message.is_visible != False %}
+            {% if not message.is_visible %}
                 <p class="message-hidden">
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>
-            {% elif not message.update = None %}
+            {% elif message.update %}
                 <p class="message-edited">
                     Edité {{ message.update|naturaltime }} par {{ message.editor }}
                 </p>
@@ -129,37 +129,41 @@
                                 {% endif %}
                             {% endwith %}
                         {% endif %}
-                    {% endwith %}
 
 
-                    {% if upvote_link %}
-                        <div class="message-karma">
-                            {% if helpful_link %}
-                                {# TODO : Mettre le réel état #}
-                                {% if topic.author == user and message.author != user %}
-                                    <a href="{{ helpful_link }}" class="tick ico-after {# active ? #}">
-                                        Cette réponse m'a aidé
-                                    </a>
-                                {% elif perms_change %}
-                                    <a href="{{ helpful_link }}" class="tick ico-after {# active ? #}">
-                                        Cette réponse a aidé
-                                    </a>
+                        {% if upvote_link %}
+                            <div class="message-karma">
+                                {% if helpful_link %}
+                                    {# TODO : Mettre le réel état #}
+                                    {% if topic.author == user and message.author != user %}
+                                        <a href="{{ helpful_link }}"
+                                           class="tick ico-after {% if message.is_useful %}active{% endif %}"
+                                        >
+                                            Cette réponse m'a aidé
+                                        </a>
+                                    {% elif perms_change %}
+                                        <a href="{{ helpful_link }}"
+                                           class="tick ico-after {% if message.is_useful %}active{% endif %}">
+                                            Cette réponse a aidé
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
 
-                            {# TODO : Mettre le réel pouce voté #}
-                            <a href="{{ upvote_link }}"
-                               class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
-                            >
-                                +{{ message.like }}
-                            </a>
-                            <a href="{{ downvote_link }}" 
-                               class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
-                            >
-                                -{{ message.dislike }}
-                            </a>
-                        </div>
-                    {% endif %}
+                                <a href="{{ upvote_link }}"
+                                   class="upvote {% if message.like > message.dislike %}more-voted{% endif%} ico-after
+                                          {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                >
+                                    +{{ message.like }}
+                                </a>
+                                <a href="{{ downvote_link }}" 
+                                   class="downvote {% if message.like < message.dislike %}more-voted{% endif%} ico-after
+                                          {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                >
+                                    -{{ message.dislike }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                 {% else %}
                     {% with profile=message.author|profile %}
                         {% if profile.sign %}
@@ -170,12 +174,12 @@
 
                         <div class="message-karma">
                             <span
-                               class="upvote {% if message.like > message.dislike %}voted{% endif%} ico-after"
+                               class="upvote {% if message.like > message.dislike %}more-voted{% endif%} ico-after"
                             >
                                 +{{ message.like }}
                             </span>
                             <span 
-                               class="downvote {% if message.like < message.dislike %}voted{% endif%} ico-after"
+                               class="downvote {% if message.like < message.dislike %}more-voted{% endif%} ico-after"
                             >
                                 -{{ message.dislike }}
                             </span>

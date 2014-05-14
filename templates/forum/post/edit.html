@@ -11,12 +11,6 @@
 
 
 
-{% block headline %}
-    Éditer un message : {{ post.topic.title }}
-{% endblock %}
-
-
-
 {% block breadcrumb %}
     <li><a href="{{ post.topic.forum.category.get_absolute_url }}">{{ post.topic.forum.category.title }}</a></li>
     <li><a href="{{ post.topic.forum.get_absolute_url }}">{{ post.topic.forum.title }}</a></li>
@@ -26,10 +20,20 @@
 
 
 
-{% block content %}
-	{% captureas form_action %}
-        {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
-    {% endcaptureas %}
+{% block headline %}
+    Éditer un message : {{ post.topic.title }}
+{% endblock %}
 
-    {% include "misc/message_form.html" with member=post.author %}
+
+
+{% block content %}
+    {% crispy form %}
+
+    {# TODO: améliorer ça là... vivement le TEMPLATE PACK ><" #}
+    {% comment %}
+        {% captureas form_action %}
+            {% url "zds.forum.views.edit" %}?sujet={{ topic.pk }}
+        {% endcaptureas %}
+        {% include "misc/message_form.html" with member=post.author %}
+    {% endcomment %}
 {% endblock %}
