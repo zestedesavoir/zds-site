@@ -83,14 +83,16 @@
         <h3>Actions</h3>
         <ul>
             <li>
-                <a href="{% url "zds.mp.views.new" %}">
+                <a href="{% url "zds.mp.views.new" %}" class="ico-after plus blue">
                     Nouvelle conversation
                 </a>
             </li>
 
             {% if topic.author == user %}
                 <li>
-                    <a href="#add-participant" class="open-modal">Ajouter un membre</a>
+                    <a href="#add-participant" class="open-modal ico-after plus blue">
+                        Ajouter un membre
+                    </a>
                     <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
                         <p>
                             Vous allez rajouter un nouveau membre dans la conversation privé.
@@ -105,10 +107,12 @@
             {% endif %}
 
             <li>
-                <a href="#leave-conversation" class="open-modal">Quitter la conversation</a>
+                <a href="#leave-conversation" class="open-modal ico-after cross blue">
+                    Quitter la conversation
+                </a>
                 <form action="{% url "zds.mp.views.leave" %}" mathod="post" id="leave-conversation" class="modal modal-small">
                     <p>
-                        Attention, vous vous appretez à quitter définitivement de cette conversation.
+                        Attention, vous vous appretez à quitter définitivement cette conversation.
                     </p>
                     <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
 

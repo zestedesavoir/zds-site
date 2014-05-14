@@ -79,9 +79,15 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <h3>Actions</h3>
         <ul>
-            <li><a href="{% url "zds.mp.views.new" %}">Nouvelle conversation</a></li>
             <li>
-                <a href="#delete-conversations" class="open-modal">Supprimer les conversations</a>
+                <a href="{% url "zds.mp.views.new" %}" class="ico-after plus blue">
+                    Nouvelle conversation
+                </a>
+            </li>
+            <li>
+                <a href="#delete-conversations" class="open-modal ico-after cross blue">
+                    Supprimer les conversations
+                </a>
                 {# FIXME : Je pense qu'il manque une url pour le formulaire #}
                 <form action="" method="POST" id="delete-conversations" class="modal modal-small">
                     <p>
