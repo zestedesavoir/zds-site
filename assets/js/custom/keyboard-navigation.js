@@ -6,27 +6,30 @@
 
 var $list = $('.navigable-list');
 
-if($list.length == 1){
+if($list.length === 1){
+	var $navigableElems = $list.find('.navigable-elem');
 	$('body').on('keydown', function(e){
-		if(e.keyCode == 74 || e.keyCode == 75){
-			if($list.find('.navigable-elem.active').length == 0){
-				activeNavigableElem($list.find('.navigable-elem:first'));
-				return;
+		if(e.keyCode === 74 || e.keyCode === 75){
+			var $current = $list.find('.navigable-elem.active'),
+				nextIndex = null;
+
+			if($current.length === 1){
+				var currentIndex = $navigableElems.index($current);
+				if(e.keyCode === 75){ // J
+					if(currentIndex > 0)
+                        nextIndex = currentIndex - 1;
+				} else { // K
+					if(currentIndex + 1 < $navigableElems.length)
+                        nextIndex = currentIndex + 1;
+				}
+			} else {
+				nextIndex = 0;
 			}
 
-			var $old = $list.find('.navigable-elem.active');
-			var $next;
-			if(e.keyCode == 74){ // J
-				$next = $old.next('.navigable-elem:first');
-			} else if(e.keyCode == 75) { // K
-				$next = $old.prev('.navigable-elem:first');
+			if(nextIndex !== null){
+				$current.removeClass('active');
+				activeNavigableElem($navigableElems.eq(nextIndex));
 			}
-
-			if ($next.length == 0)
-				return false;
-
-			$old.removeClass('active');
-			activeNavigableElem($next);
 		}
 	});
 

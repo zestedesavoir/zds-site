@@ -6,6 +6,7 @@
 {% endblock %}
 
 
+
 {% block meta %}
     <meta name="description" content="Les forums vous permettent de venir poser
     vos questions aux autres membres mais aussi de s'entrainer ou tout
@@ -15,15 +16,11 @@
 {% endblock %}
 
 
-{% block header %}
-    <h1>
-        Forums
-    </h1>
-    <p>
-        Les forums vous permettent de venir poser vos questions aux autres membres mais aussi de s'entrainer ou <strong>tout simplement de discuter</strong>.
-        Cela fonctionne également dans l'autre sens : vous pouvez ici aider les autres et proposer des exercices au reste de la communauté.
-    </p>
+
+{% block breadcrumb %}
+    <li>Liste des forums</li>
 {% endblock %}
+
 
 
 {% block headline %}
@@ -31,19 +28,22 @@
 {% endblock %}
 
 
-{% block breadcrumb %}
-    <li>Liste des forums</li>
-{% endblock %}
-
 
 {% block content %}
+    <p class="content-wrapper">
+        Les forums vous permettent de venir poser vos questions aux autres 
+        membres mais aussi de s'entrainer ou <strong>tout simplement de discuter</strong>.
+        Cela fonctionne également dans l'autre sens : vous pouvez ici aider les autres et 
+        proposer des exercices au reste de la communauté.
+    </p>
 
-    {% for category in categories %}
-        <h3 class="subtitle">
-            {{ category.title }}
-        </h3>
+    <div class="content-wrapper topic-list forum-list navigable-list">
+        {% for category in categories %}
+            <h3 class="group-title content-wrapper">
+                {{ category.title }}
+            </h3>
 
-        {% include "forum/includes/forums.part.html" %}
-    {% endfor %}
-
+            {% include "forum/includes/forums.part.html" %}
+        {% endfor %}
+    </div>
 {% endblock %}
