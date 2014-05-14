@@ -25,7 +25,7 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Tal
 Comment démarrer une instance de ZdS ?
 --------------------------------------
 ### Pré-requis
-- Python 2.7 (avec les fichiers de developpement, le paquet `python-dev` sous Ubuntu)
+- Python 2.7 (avec les fichiers de developpement, les paquets `python-dev` et `python-lxml` sous Debian/Ubuntu)
 - Pip
 - git
 
@@ -96,6 +96,8 @@ Pour sortir de votre environnement : `deactive`
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
 **NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
+
+**NB2 : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.**
 
 ```console
 pip install --user -r requirements.txt
