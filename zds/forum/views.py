@@ -48,22 +48,26 @@ def details(request, cat_slug, forum_slug):
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')\
+        .select_related('author')\
         .all()
     if 'filter' in request.GET:
         if request.GET['filter'] == 'solve':
             topics = Topic.objects\
                 .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
                 .order_by('-last_message__pubdate')\
+                .select_related('author')\
                 .all()
         else:
             topics = Topic.objects\
                 .filter(forum__pk=forum.pk, is_sticky=False, is_solved=False)\
                 .order_by('-last_message__pubdate')\
+                .select_related('author')\
                 .all()
     else:
         topics = Topic.objects\
             .filter(forum__pk=forum.pk, is_sticky=False)\
             .order_by('-last_message__pubdate')\
+            .select_related('author')\
             .all()
 
     # Paginator
@@ -290,7 +294,7 @@ def move_topic(request):
     for follower in followers:
         if not forum.can_read(follower.user):
             follower.delete()
-     
+
     messages.success(
         request,
         u'Le sujet {0} a bien été déplacé dans {1}.'.format(
