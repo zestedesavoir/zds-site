@@ -319,23 +319,23 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
-                                    {% with posts=user|alerts_topic %}
+                                    {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
                                         <div>
                                             {# TODO : Il manque un lien / page ici #}
                                             <a href="#" class="ico-link">
                                                 <span class="notif-text ico ico-alerts">Alertes</span>
-                                                {% if posts.count > 0 %}
-                                                    <span class="notif-count">{{ posts.count }}</span>
+                                                {% if nb_alerts > 0 %}
+                                                    <span class="notif-count">{{ nb_alerts }}</span>
                                                 {% endif %}
                                             </a>
 
                                             <div class="dropdown">
                                                 <span class="dropdown-title">Alertes Modération</span>
                                                 <ul class="dropdown-list">
-                                                    {% for post in posts %}
+                                                    {% for alert in alerts %}
                                                         <li>
-                                                            <a href="{{ post.get_absolute_url }}">
-                                                                <span class="username">{{ post.topic.title }}</span>
+                                                            <a href="{{ alert.get_absolute_url }}">
+                                                                <span class="username">{{ alert.topic.title }}</span>
                                                                 <span class="date">FORUM</span>
                                                                 <span class="topic">MOTIF DE L'ALERTE</span>
                                                             </a>
