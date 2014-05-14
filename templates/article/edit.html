@@ -17,20 +17,51 @@
 
 {% block content %}
 
-{% if article.is_visible %}
-    <div class="row">
-        <div class="large-12 columns">
-            <div class="alert-box warning">
-                <strong>Cet article est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
-                Vous pouvez modifier la forme de celui-ci, mais évitez d'en modifier le fond !
-            </div>
-        </div>
-    </div>
-{% endif %}
-
 <div class="row">
     <div class="large-12 columns">
         {% crispy form %}
+    </div>
+    <hr />
+    <form action="{% url "zds.article.views.modify" %}" method="post">
+        <table width="100%">
+            <thead>
+                <th>Auteur</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                {% for member in article.authors.all %}
+                    <tr>
+                        <td>{% include "member/member_item_common.part.html" %}</td>
+                        <td>
+                            {% if article.authors.count > 1 %}
+                            <button type="submit" name="author" class="button tiny" value="{{ member.pk }}">
+                                Supprimer
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="hidden" name="remove_author" value="1" />
+        <input type="hidden" name="article" value="{{ article.pk }}" />
+        {% csrf_token %}
+    </form>
+    <div class="large-12 columns">
+        <form action="{% url "zds.article.views.modify" %}" method="post">
+            <div class="row collapse">
+                <div class="small-10 columns">
+                    <input type="text" name="author" placeholder="Nom de l'utilisateur à ajouter…" />
+                </div>
+                <div class="small-2 columns">
+                    <button type="submit" class="button tiny" name="add_author">
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="article" value="{{ article.pk }}" />
+            {% csrf_token %}
+        </form>
     </div>
 </div>
 

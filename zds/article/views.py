@@ -498,8 +498,12 @@ def modify(request):
     # User actions
     if request.user in article.authors.all():
         if 'delete' in data:
-            article.delete()
-            return redirect('/articles/')
+            if article.authors.count() == 1:
+                article.delete()
+            else:
+                article.authors.remove(request.user)
+                
+            return redirect(reverse('zds.article.views.index'))
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
@@ -517,6 +521,45 @@ def modify(request):
             validation.article.save()
 
             return redirect(article.get_absolute_url())
+        elif 'add_author' in request.POST:
+            redirect_url = reverse('zds.article.views.edit') + \
+                '?article={0}'.format(article.pk)
+
+            author_username = request.POST['author']
+            author = None
+            try:
+                author = User.objects.get(username=author_username)
+            except User.DoesNotExist:
+                return redirect(redirect_url)
+
+            article.authors.add(author)
+            article.save()
+
+            messages.success(
+                request,
+                u'L\'auteur {0} a bien été ajouté à la rédaction de l\'article.'.format(author.username))
+
+            return redirect(redirect_url)
+
+        elif 'remove_author' in request.POST:
+            redirect_url = reverse('zds.article.views.edit') + \
+                '?article={0}'.format(article.pk)
+
+            # Avoid orphan articles
+            if article.authors.all().count() <= 1:
+                raise Http404
+
+            author_pk = request.POST['author']
+            author = get_object_or_404(User, pk=author_pk)
+
+            article.authors.remove(author)
+            article.save()
+
+            messages.success(
+                request,
+                u'L\'auteur {0} a bien été retiré de l\'article.'.format(author.username))
+
+            return redirect(redirect_url)
 
     return redirect(article.get_absolute_url())
 
@@ -825,10 +868,10 @@ def edit_reaction(request):
 
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
-    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') and 'signal-reaction' not in request.POST:
+    if reaction.author != request.user and not request.user.has_perm('article.change_reaction') and 'signal-reaction' not in request.POST:
         raise PermissionDenied
 
-    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_reaction'):
+    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('article.change_reaction'):
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
