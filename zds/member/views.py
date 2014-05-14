@@ -31,8 +31,9 @@ from zds.utils import render_template
 from zds.utils.tokens import generate_token
 
 from .forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, \
-    ChangeUserForm, ForgotPasswordForm, NewPasswordForm
-from .models import Profile, TokenForgotPassword, Ban, TokenRegister
+    ChangeUserForm, ForgotPasswordForm, NewPasswordForm, OldTutoForm
+from .models import Profile, TokenForgotPassword, Ban, TokenRegister, get_info_old_tuto
+from django.core.exceptions import PermissionDenied
 
 
 @can_read_now
@@ -68,7 +69,7 @@ def details(request, user_name):
     usr = get_object_or_404(User, username=user_name)
 
     try:
-        profile = usr.get_profile()
+        profile = usr.profile
         bans = Ban.objects.filter(user=usr).order_by('-pubdate')
 
     except SiteProfileNotAvailable:
@@ -114,7 +115,7 @@ def details(request, user_name):
         .filter(author__pk=usr.pk)\
         .order_by('-pubdate')\
         .all()
-    
+
     tops = []
     for top in my_topics :
         if not top.forum.can_read(request.user):
@@ -122,12 +123,21 @@ def details(request, user_name):
         else:
             tops.append(top)
             if len(tops)>=5 : break
-    
+
+    form = OldTutoForm(profile)
+
+    oldtutos = []
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(':')
+    else:
+        olds = []
+    for old in olds:
+        oldtutos.append(get_info_old_tuto(old))
 
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans,
         'articles': my_articles, 'tutorials': my_tutorials,
-        'topics': tops
+        'topics': tops, 'form': form, 'old_tutos' : oldtutos
     })
 
 
@@ -142,8 +152,8 @@ def modify_profile(request, user_pk):
         ban.moderator = request.user
         ban.user = profile.user
         ban.pubdate = datetime.now()
-        
-        
+
+
         if 'ls' in request.POST:
             profile.can_write = False
             ban.type = u'Lecture Seule'
@@ -178,17 +188,19 @@ def modify_profile(request, user_pk):
             ban.text = request.POST['unban-text']
             profile.can_read = True
             detail = u"vous pouvez désormais vous connecter sur le site."
+
         
         profile.save()
         ban.save()
-        
+
+
         #send register message
         if 'un-ls' in request.POST or 'un-ban' in request.POST:
             msg = u"Bonjour **{0}**,\n\n**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.\n\nCe qui signifie que {2}\n\nLe motif de votre sanction est : \n\n`{3}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, detail, ban.text)
         else:
             msg = u"Bonjour **{0}**,\n\nVous avez été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, ban.type, detail, ban.text)
-        
-        
+
+
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(bot, [ban.user], ban.type, "Sanction", msg, True, direct = True)
 
@@ -207,7 +219,7 @@ def tutorials(request):
         type = None
 
     # Retrieves all tutorials of the current user.
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
     if type == 'draft':
         user_tutorials = profile.get_draft_tutos()
     elif type == 'public':
@@ -233,7 +245,7 @@ def articles(request):
         type = None
 
     # Retrieves all articles of the current user.
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
     if type == 'draft':
         user_articles = profile.get_draft_articles()
     elif type == 'public':
@@ -321,7 +333,7 @@ def settings_mini_profile(request, user_name):
 def settings_profile(request):
     """User's settings about his personal information."""
     # extra information about the current user
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
 
     if request.method == 'POST':
         form = ProfileForm(request.POST)
@@ -336,6 +348,9 @@ def settings_profile(request):
             profile.show_sign = 'show_sign' in form.cleaned_data.get('options')
             profile.hover_or_click = 'hover_or_click' in form.cleaned_data.get(
                 'options')
+            profile.email_for_answer = 'email_for_answer' in form.cleaned_data.get(
+                'options')
+            
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
@@ -364,6 +379,7 @@ def settings_profile(request):
             'show_email': profile.show_email,
             'show_sign': profile.show_sign,
             'hover_or_click': profile.hover_or_click,
+            'email_for_answer': profile.email_for_answer,
             'sign': profile.sign}
         )
         c = {
@@ -414,7 +430,7 @@ def settings_account(request):
 @login_required
 def settings_user(request):
     """User's settings about his email."""
-    profile = get_object_or_404(Profile, user__pk=request.user.pk)
+    profile = request.user.profile
 
     if request.method == 'POST':
         form = ChangeUserForm(request.POST)
@@ -498,7 +514,7 @@ def login_view(request):
                 messages.error(request, 'Vous n\'avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site. Regardez dans vos mails : '+str(user.email))
         else:
             messages.error(request, 'Les identifiants fournis ne sont pas valides')
-    
+
     form = LoginForm()
     form.helper.form_action = reverse(
         'zds.member.views.login_view') + "?next=" + str(next_page)
@@ -538,7 +554,8 @@ def register_view(request):
                 user=user,
                 show_email=False,
                 show_sign=True,
-                hover_or_click=True)
+                hover_or_click=True,
+                email_for_answer=False)
             profile.last_ip_address = get_client_ip(request)
             profile.save()
             user.backend = 'django.contrib.auth.backends.ModelBackend'
@@ -714,7 +731,7 @@ def generate_token_account(request):
         token = request.GET['token']
     except KeyError:
         return redirect(reverse('zds.pages.views.home'))
-    
+
     token = get_object_or_404(TokenRegister, token=token)
     # push date
     date_end = datetime.now() + timedelta(days=0,
@@ -723,7 +740,7 @@ def generate_token_account(request):
                                           seconds=0)
     token.date_end = date_end
     token.save()
-    
+
     # send email
     subject = "ZDS - Confirmation d'inscription"
     from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
@@ -774,3 +791,64 @@ def date_to_chart(posts):
                                            7] + 1
 
     return lst
+
+
+@can_read_now
+@login_required
+@require_POST
+def add_oldtuto(request):
+
+    id = request.POST['id']
+    profile_pk = request.POST['profile_pk']
+    profile = get_object_or_404(Profile, pk = profile_pk)
+
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(':')
+    else:
+        olds = []
+    last = str(id)
+    for old in olds:
+        last+=':{0}'.format(old)
+
+    profile.sdz_tutorial = last
+    profile.save()
+
+    messages.success(request, 'Le tutoriel a bien été lié au membre {0}'.format(profile.user.username))
+
+    return redirect(reverse('zds.member.views.details', args=[
+                profile.user.username]))
+
+@can_read_now
+@login_required
+def remove_oldtuto(request):
+
+    if 'id' in request.GET:
+        id = request.GET['id']
+    else:
+        raise Http404
+
+    if 'profile' in request.GET:
+        profile_pk = request.GET['profile']
+    else:
+        raise Http404
+
+    profile = get_object_or_404(Profile, pk = profile_pk)
+
+    if profile.sdz_tutorial or not request.user.has_perm('member.change_profile'):
+        olds = profile.sdz_tutorial.strip().split(':')
+        olds.remove(str(id))
+    else:
+        raise PermissionDenied
+
+    last = ''
+    for i in range(len(olds)):
+        if i>0: last+=':'
+        last+='{0}'.format(str(olds[i]))
+
+    profile.sdz_tutorial = last
+    profile.save()
+
+    messages.success(request, 'Le tutoriel a bien été retiré au membre {0}'.format(profile.user.username))
+
+    return redirect(reverse('zds.member.views.details', args=[
+                profile.user.username]))

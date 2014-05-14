@@ -27,7 +27,7 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -55,6 +55,11 @@ class Profile(models.Model):
     hover_or_click = models.BooleanField('Survol ou click ?',
                                          default=False)
 
+    email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
+                                         default=False)
+
+    sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
+
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField(
         'Fin d\'interdiction de lecture',
@@ -64,6 +69,11 @@ class Profile(models.Model):
     can_write = models.BooleanField('Possibilité d\'écrire', default=True)
     end_ban_write = models.DateTimeField(
         'Fin d\'interdiction d\'ecrire',
+        null=True,
+        blank=True)
+
+    last_visit = models.DateTimeField(
+        'Date de dernière visite',
         null=True,
         blank=True)
 
@@ -248,3 +258,37 @@ class Ban(models.Model):
         'Date de publication',
         blank=True,
         null=True)
+
+def listing():
+
+    fichier = []
+    if os.path.isdir(settings.SDZ_TUTO_DIR):
+        for root in os.listdir(settings.SDZ_TUTO_DIR):
+            if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, root)):
+                num = root.split('_')[0]
+                if num != None and num.isdigit():
+                    fichier.append((num, root))
+        return fichier
+    else:
+        return ()
+
+def get_info_old_tuto(id):
+    titre = ''
+    tuto = ''
+    images = ''
+    logo = ''
+    if os.path.isdir(settings.SDZ_TUTO_DIR):
+        for rep in os.listdir(settings.SDZ_TUTO_DIR):
+            if rep.startswith(str(id)+'_'):
+                if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                    for root, dirs, files in os.walk(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                        for file in files:
+                            if file.split('.')[-1]=='tuto':
+                                titre = os.path.splitext(file)[0]
+                                tuto = os.path.join(root, file)
+                            elif file.split('.')[-1]=='zip':
+                                images = os.path.join(root, file)
+                            elif file.split('.')[-1]in ['png', 'jpg', 'ico', 'jpeg', 'gif']:
+                                logo = os.path.join(root, file)
+
+    return (id, titre, tuto, images, logo)

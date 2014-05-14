@@ -1,18 +1,48 @@
 # coding: utf-8
 
-from crispy_forms.bootstrap import StrictButton
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder
+import os
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.member.models import Profile
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder, \
+    Hidden
+from zds.member.models import Profile, listing
+from zds.settings import SITE_ROOT
 
 # Max password length for the user.
 # Unlike other fileds, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
+
+class OldTutoForm(forms.Form):
+    
+    id = forms.ChoiceField(
+        label='Ancien Tutoriel',
+        required=True,
+        choices = listing(),
+    )
+    
+    def __init__(self, profile, *args, **kwargs):
+        super(OldTutoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('zds.member.views.add_oldtuto')
+
+        self.helper.layout = Layout(
+            Field('id'),
+            Hidden('profile_pk', '{{ profile.pk }}'),
+            ButtonHolder(
+                Submit(
+                    'submit',
+                    'Attribuer',
+                    css_class='button tiny'),
+            ),
+        )
 
 class LoginForm(forms.Form):
     username = forms.CharField(
@@ -128,10 +158,18 @@ class RegisterForm(forms.Form):
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
 
-        # Check that the email is unique
         email = cleaned_data.get('email')
+        # Chech if email provider is authorized
+        with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+            for provider in fh:
+                if provider.strip() in email:
+                    msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                    self._errors['email'] = self.error_class([msg])
+                    break
+
+        # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre email est déjà utilisée'
+            msg = u'Votre adresse email est déjà utilisée'
             self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
@@ -205,7 +243,8 @@ class ProfileForm(MiniProfileForm):
         choices=(
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
-            ('hover_or_click', "Navigation au survol"),
+            ('hover_or_click', "Cochez pour dérouler les menus au survol"),
+            ('email_for_answer', "Recevez un email lorsque vous recevez une réponse à un message privé"),
         ),
         widget = forms.CheckboxSelectMultiple,
     )
@@ -228,6 +267,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'hover_or_click' in initial and initial['hover_or_click']:
             self.fields['options'].initial += 'hover_or_click'
+
+        if 'email_for_answer' in initial and initial['email_for_answer']:
+            self.fields['options'].initial += 'email_for_answer'
 
         self.helper.layout = Layout(
             Field('biography'),

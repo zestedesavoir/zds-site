@@ -94,4 +94,5 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
         n_topic.author = move
         n_topic.participants.remove(move)
         n_topic.save()
+
     return n_topic

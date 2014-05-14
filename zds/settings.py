@@ -165,6 +165,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
+    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -206,6 +207,7 @@ INSTALLED_APPS = (
     'email_obfuscator',
     'pipeline',
     'haystack',
+    'munin',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -223,6 +225,10 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+if (DEBUG):
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -308,6 +314,7 @@ MESSAGE_TAGS = {
 
 
 MAX_POST_LENGTH = 1000000
+SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

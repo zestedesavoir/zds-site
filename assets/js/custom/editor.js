@@ -1,14 +1,9 @@
-/* ===== Zeste de Savoir ====================================================
-   Author: Thunderseb
-   ---------------------------------
-   Markdown editor helper
-   ========================================================================== */
 
 (function(){
     "use strict";
     
     var zForm = {
-        buttons: "bold,italic,strike,abbr,key#sup,sub#center,right#ul,ol#titles,blockcode,image,quote,link#infoblocks#information,attention,question,error,secret",
+        buttons: "bold,italic,strike,abbr,key#sup,sub#center,right#ul,ol#titles,blockcode,image,quote,link#infoblocks",
         isExecuted: false,
         selection: null,
         
@@ -176,7 +171,7 @@
                     '</div>' +  
                 '</section>' +
         
-                '<footer><a id="zform-modal-validate">Valider</a> <a id="zform-modal-cancel">Annuler</a></footer>' +
+                '<footer><a id="zform-modal-validate" class="button tiny">Valider</a> <a id="zform-modal-cancel" class="button secondary tiny">Annuler</a></footer>' +
             '</div>';
             
             this.addEvent(document.getElementById("zform-modal-validate"), "click", (function(_this) {
@@ -195,7 +190,7 @@
         setup: function(textareaId) {
             var elemTexta = document.getElementById(textareaId);
             var elemTools = document.createElement("ul");
-            elemTools.className = "zform-toolbar";
+            elemTools.className = "zform-toolbar hide-for-small";
             
             elemTexta.parentNode.insertBefore(elemTools, elemTexta);
             

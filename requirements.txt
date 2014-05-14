@@ -7,9 +7,10 @@ pytz==2013d
 PyYAML==3.10
 defusedxml
 django-dynamic-fixture
+crispy-forms-foundation==0.3.2
 django-crispy-forms==1.3.2
 django-simple-captcha
-django-email-obfuscator
+django-email-obfuscator==0.1.2
 django-debug-toolbar
 django-pipeline
 djangorestframework
@@ -18,6 +19,8 @@ django-rest-swagger
 django-oauth2-provider
 django-guardian
 django-haystack
+django-model-utils
+django-munin==0.1.4
 lxml
 pygal
 httplib2
@@ -26,5 +29,5 @@ factory-boy==2.2.1
 django-discover-runner==0.4
 pygeoip==0.3.1
 pillow
-git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4-zds.2.12
+git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4-zds.2.17
 git+https://github.com/zestedesavoir/GitPython.git@0.3.2-RC1.z2
