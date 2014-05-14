@@ -86,6 +86,7 @@ function triggerCloseDropdown($that){
 		$('body').one('click', function(e){
 			if(!$(e.target).hasClass('dropdown') && !$(e.target).parents('.dropdown').length) {
 				$that.removeClass('active');
+				$that.next(':visible:tabbable').focus();
 
 				if($that.is('[data-active]'))
 					$('#' + $that.attr('data-active')).removeClass('active');
