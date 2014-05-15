@@ -89,14 +89,10 @@ class SubCategory(models.Model):
             sha_public='').all()
 
     def get_absolute_url_tutorial(self):
-        url = reverse('zds.tutorial.views.index')
-        url = url + '?tag={}'.format(self.slug)
-        return url
+        return reverse('zds.tutorial.views.index') + '?tag={}'.format(self.slug)
 
     def get_absolute_url_article(self):
-        url = reverse('zds.article.views.index')
-        url = url + '?tag={}'.format(self.slug)
-        return url
+        return reverse('zds.article.views.index') + '?tag={}'.format(self.slug)
 
 
 class CategorySubCategory(models.Model):
