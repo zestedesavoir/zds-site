@@ -111,10 +111,14 @@ class TutorialForm(FormWithTitle):
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
-                StrictButton('Valider', type='submit', css_class='btn-submit'),
+                StrictButton('Valider', type='submit', css_class='button'),
             ),
         )
-
+        
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+            Field,
+            disabled=True)
 
 class PartForm(FormWithTitle):
 
