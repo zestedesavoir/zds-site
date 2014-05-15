@@ -1075,6 +1075,14 @@
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
 
+        &:nth-child(2n){
+            background: #FDFDFD;
+
+            &.unread {
+                background: lighten(#e1eaee, 3%);
+            }
+        }
+
         &.unread {
             background: #e1eaee;
         }
@@ -1171,6 +1179,7 @@
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
+        color: $orange;
     }
 
     .topic {
@@ -1178,6 +1187,10 @@
     }
     .topic-description {
         padding-left: 1.5%;
+
+        .topic-title {
+            font-weight: normal;
+        }
     }
     .topic-answers {
         padding-top: 17px;
