@@ -965,8 +965,9 @@ def edit_tutorial(request):
         else:
             licence = None
 
-        form = TutorialForm({
+        form = TutorialForm(initial={
             'title': json['title'],
+            'type': json['type'],
             'licence': licence,
             'description': json['description'],
             'subcategory': tutorial.subcategory.all(),

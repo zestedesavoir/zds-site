@@ -3,8 +3,8 @@
 from django.conf import settings
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
-    HTML, Hidden
+from crispy_forms_foundation.layout import HTML, Layout, Fieldset, Submit, Field, \
+    ButtonHolder, Hidden
 from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
