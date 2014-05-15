@@ -1,18 +1,17 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from zds.utils import slugify
 from math import ceil
 import os
 import string
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils import timezone
 
-from zds.utils import get_current_user
+from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment
 
 
@@ -39,7 +38,8 @@ class Category(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/'.format(self.slug)
+        return reverse('zds.forum.views.cat_details',
+                       kwargs={'cat_slug': self.slug})
 
     def get_forums(self):
         return Forum.objects.all()\
@@ -75,10 +75,9 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/{1}/'.format(
-            self.category.slug,
-            self.slug,
-        )
+        return reverse('zds.forum.views.details',
+                       kwargs = {'cat_slug': self.category.slug,
+                                 'forum_slug': self.slug,})
 
     def get_topic_count(self):
         """Gets the number of threads in the forum."""

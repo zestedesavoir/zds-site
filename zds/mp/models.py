@@ -1,14 +1,14 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from zds.utils import slugify
 from math import ceil
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils import timezone
 
-from zds.utils import get_current_user
+from zds.utils import get_current_user, slugify
 
 
 class PrivateTopic(models.Model):
@@ -35,7 +35,9 @@ class PrivateTopic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/mp/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.mp.views.topic',
+                       kwargs = {'topic_pk': self.pk,
+                                 'topic_slug': slugify(self.title)})
 
     def get_post_count(self):
         """Return the number of private posts in the private topic."""

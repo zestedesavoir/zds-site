@@ -1,13 +1,13 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.db import models
 from hashlib import md5
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 
 import pygeoip
 from zds.article.models import Article
@@ -83,7 +83,8 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return '/membres/voir/{0}'.format(self.user.username)
+        return reverse('zds.member.views.details',
+                       kwargs={'user_name': self.user.username })
 
     def get_city(self):
         """return physical adress by geolocalisation."""
