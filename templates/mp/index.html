@@ -1,5 +1,6 @@
 {% extends "mp/base.html" %}
 {% load humanize %}
+{% load profile %}
 
 
 
@@ -28,24 +29,26 @@
                 <div class="topic-infos">
                     <input name="topics" type="checkbox" value="{{ topic.pk }}">
                 </div>
-                <div class="topic-description">
-                    <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
-                        {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
-                        <span class="topic-title">{{ topic.title }}</span>
-                        <span class="topic-subtitle">{{ topic.subtitle }}</span>
-                    {% endspaceless %}</a>
+                {% with profile=topic.author|profile %}
+                    <div class="topic-description" style="background-image: url({{ profile.get_avatar_url }})">
+                        <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
+                            {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
+                            <span class="topic-title">{{ topic.title }}</span>
+                            <span class="topic-subtitle">{{ topic.subtitle }}</span>
+                        {% endspaceless %}</a>
 
-                    <p class="topic-members">
-                        Participants :
-                        <em>
-                            {% include "misc/member_item.part.html" with member=topic.author %}
-                        </em>{% spaceless %}
+                        <p class="topic-members">
+                            Participants :
+                            <em>
+                                {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
+                            </em>{% spaceless %}
 
-                        {% endspaceless %}{% for member in topic.participants.all %}, 
-                            {% include "misc/member_item.part.html" %}
-                        {% endfor %}
-                    </p>
-                </div>
+                            {% endspaceless %}{% for member in topic.participants.all %}
+                                {% include "misc/member_item.part.html" with avatar=True %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                {% endwith %}
                 <p class="topic-answers">
                     {% if topic.get_post_count > 1 %}
                         {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}

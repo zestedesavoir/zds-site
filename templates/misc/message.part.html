@@ -101,7 +101,7 @@
         </div>
 
         <div class="message-content">
-            {% if not message.is_visible %}
+            {% if message.is_visible == False %}
                 <p class="message-hidden">
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>

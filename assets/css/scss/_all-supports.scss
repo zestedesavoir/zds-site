@@ -385,6 +385,9 @@
         .username {
             display: none;
         }
+        .avatar {
+            background: $header-hover;
+        }
     }
 
     .dropdown.my-account-dropdown {
@@ -429,7 +432,7 @@
 .avatar {
     height: 60px;
     width: 60px;
-    background-color: #555;
+    background-color: #FFF;
 }
 
 
@@ -826,6 +829,22 @@
         background: #EEE;
         font-weight: normal;
     }
+
+    .member-item {
+        margin-right: 5px;
+
+        .avatar {
+            margin-top: -2px;
+            height: 20px;
+            width: 20px;
+            border: 1px solid #CCC;
+            @include border-radius(20px);
+        }
+
+        &:hover .avatar {
+            border-color: #777;
+        }
+    }
 }
 .main.home .content-container {
     margin-top: 0;
@@ -968,14 +987,15 @@
 
         li {
             display: inline-block;
-            margin: 0 7px;
+            margin: 0 5px;
 
             .avatar {
-                height: 30px;
-                width: 30px;
+                height: 28px;
+                width: 28px;
                 border: 1px solid #cdd0d1;
-                margin-right: 5px;
-                margin-top: -3px;
+                margin-right: 3px;
+                margin-top: -4px;
+                @include border-radius(30px);
             }
 
             a {
@@ -984,7 +1004,7 @@
                 color: #ee8709;
                 height: 36px;
                 line-height: 36px;
-                padding: 0 8px 0 2px;
+                padding: 0 8px 0 4px;
                 @include transition;
 
                 &:hover,
@@ -1075,6 +1095,15 @@
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
 
+        &:first-child:after {
+            display: block;
+            content: " ";
+            width: 100%;
+            height: 1px;
+            background: #CCC;
+            margin-top: -2px;
+        }
+
         &:nth-child(2n){
             background: #FDFDFD;
 
@@ -1134,7 +1163,25 @@
         }
     }
     .topic-description {
-        width: 60%;
+        position: relative;
+        width: 65%;
+        background-size: 0 0;
+
+        &[style]:before {
+            display: block;
+            position: absolute;
+            content: " ";
+            right: 0;
+            background-image: inherit;
+            background-repeat: no-repeat;
+            background-position: top right;
+            background-size: 80px 80px;
+            height: 100%;
+            width: 80px;
+            margin-top: -5px;
+            -webkit-mask-box-image: -webkit-linear-gradient(right, black, transparent);
+            @include opacity(.2);
+        }
 
         .topic-title,
         .topic-subtitle {
@@ -1158,7 +1205,7 @@
         }
     }
     .topic-answers {
-        width: 20%;
+        width: 15%;
         text-align: center;
         padding-top: 25px;
     }
@@ -1170,6 +1217,9 @@
             margin-top: 24px;
         }
     }
+}
+.no-cssmask .topic-list .topic-description[style]:before {
+    @include opacity(.1);
 }
 
 .forum-list {

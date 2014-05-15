@@ -1,4 +1,5 @@
 {% load humanize %}
+{% load profile %}
 
 
 
@@ -19,18 +20,20 @@
     <div class="topic-infos">
         
     </div>
-    <div class="topic-description">
-        <a href="{{ topic.get_absolute_url }}" class="navigable-link">
-            <span class="topic-title">{{ topic.title }}</span>
-            <span class="topic-subtitle">{{ topic.subtitle }}</span>
-        </a>
-        <p class="topic-members">
-            Créé par
-            <em>
-                {% include "misc/member_item.part.html" with member=topic.author %}
-            </em>
-        </p>
-    </div>
+    {% with profile=topic.author|profile %}
+        <div class="topic-description" style="background-image: url({{ profile.get_avatar_url }})">
+            <a href="{{ topic.get_absolute_url }}" class="navigable-link">
+                <span class="topic-title">{{ topic.title }}</span>
+                <span class="topic-subtitle">{{ topic.subtitle }}</span>
+            </a>
+            <p class="topic-members">
+                Créé par
+                <em>
+                    {% include "misc/member_item.part.html" with member=topic.author %}
+                </em>
+            </p>
+        </div>
+    {% endwith %}
     <p class="topic-answers">
         {% if topic.get_post_count > 1 %}
             {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
