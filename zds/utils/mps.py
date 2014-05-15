@@ -15,7 +15,7 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
     
     # Creating the thread
     n_topic = PrivateTopic()
-    n_topic.title = title
+    n_topic.title = title[:80]
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
