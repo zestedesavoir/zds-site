@@ -9,8 +9,8 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder, \
-    Hidden
+from crispy_forms_foundation.layout import HTML, Layout, Fieldset, Submit, Field, \
+    ButtonHolder, Hidden
 from zds.member.models import Profile, listing
 from zds.settings import SITE_ROOT
 
