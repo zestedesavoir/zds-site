@@ -45,7 +45,6 @@
           <li class="has-dropdown">
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
-            {% with read_topics=topics.read %}
             <a href="#">
               {% if unread_topics|length > 0 %}
                   <span class="alert label round">{{ unread_topics|length }}</span>
@@ -90,7 +89,6 @@
                 <li class="divider"></li>
                 <li><a href="{% url "zds.mp.views.index" %}"><div class="row"><div class="large-12 columns">Tous les messages</div></div></a></li>
             </ul>
-            {% endwith %}
             {% endwith %}
             {% endwith %}
           </li>

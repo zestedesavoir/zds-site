@@ -156,9 +156,6 @@ class Article(models.Model):
 
             image = Image.open(self.image)
 
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
-
             image.thumbnail(thumb_size, Image.ANTIALIAS)
 
             # save the thumbnail to memory
