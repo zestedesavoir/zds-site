@@ -99,6 +99,9 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+        
+        mail.outbox = []
 
     def test_add_note(self):
         """To test add note for tutorial."""
