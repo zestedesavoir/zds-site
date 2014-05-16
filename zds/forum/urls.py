@@ -28,7 +28,8 @@ urlpatterns = patterns('',
                        url(r'^sujet/deplacer$', 'zds.forum.views.move_topic'),
                        url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)$',
                            'zds.forum.views.topic'),
-                       url(r'^sujets/(?P<user_pk>.+)', 'zds.forum.views.find_topic'),
+                       url(r'^sujets/membre/(?P<user_pk>.+)', 'zds.forum.views.find_topic'),
+                       url(r'^sujets/tag/(?P<tag_slug>.+)/$', 'zds.forum.views.find_topic_by_tag'),
 
                        # Message-related
                        url(r'^message/editer$', 'zds.forum.views.edit_post'),
