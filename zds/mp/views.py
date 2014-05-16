@@ -17,6 +17,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from zds.member.decorator import can_read_now
+from zds.member.models import Profile
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -157,13 +158,19 @@ def new(request):
 
             # Retrieve all participants of the MP.
             ctrl = []
-            list_part = data['participants'].replace(',', ' ').split()
+            list_part = data['participants'].split(',')
             for part in list_part:
-                p = get_object_or_404(User, username=part)
-                # We don't the author of the MP.
-                if request.user == p:
-                    continue
-                ctrl.append(p)
+                if part.strip() != '':
+                    p = get_object_or_404(User, username=part.strip())
+                    # We don't the author of the MP.
+                    if request.user == p:
+                        continue
+                    elif not p.profile.can_read_now():
+                        messages.error(request, 'Le membre {0} ne peut pas recevoir de message privé car il est banni du site'.format(part.strip()))
+                    elif not p.is_active:
+                        messages.error(request, 'Le membre {0} ne peut pas recevoir de message privé car il n\'a pas encore activé son compte'.format(part.strip()))
+                    else:
+                        ctrl.append(p)
 
             p_topic = send_mp(request.user,
                               ctrl,
@@ -287,6 +294,9 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
+                    if not part.profile.can_read_now():
+                        messages.error(request, 'Le membre {0} ne peut pas recevoir de message privé car il est banni du site'.format(part.username))
+                        continue
                     profile = Profile.objects.get(user = part)
                     if profile.email_for_answer :
                         pos = post.position_in_topic - 1
@@ -457,6 +467,8 @@ def add_participant(request):
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+        elif not part.profile.can_read_now():
+            messages.error(request, 'Le membre {0} ne peut pas recevoir de message privé car il est banni du site'.format(part.username))
         else:
             ptopic.participants.add(part)
             ptopic.save()
