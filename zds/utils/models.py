@@ -6,7 +6,9 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_text
 from django.db import models
+from zds.utils import slugify
 
 from model_utils.managers import InheritanceManager
 
@@ -244,3 +246,21 @@ class CommentDislike(models.Model):
 
     comments = models.ForeignKey(Comment)
     user = models.ForeignKey(User, related_name='post_disliked')
+
+class Tag(models.Model):
+    """Set of tags"""
+    
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+    title = models.CharField(max_length=20, verbose_name='Titre')
+    slug = models.SlugField(max_length=20)
+    
+    def __unicode__(self):
+        """Textual Link Form."""
+        return u"{0}".format(self.title)
+
+    def save(self, *args, **kwargs):
+        self.title = smart_text(self.title)
+        self.slug = slugify(self.title)
+        super(Tag, self).save(*args, **kwargs)
