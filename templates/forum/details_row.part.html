@@ -15,6 +15,9 @@
         </span>
         <span class="{% if topic.is_solved %}forum-entry-solved{% endif %}">
         </span>
+        {% for tag in topic.tags.all %}
+            <a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}" class="label info radius">{{tag.title}}</a>
+        {% endfor %}
         <a href="{{ topic.get_absolute_url }}">
             {{ topic.title }}
         </a><br />

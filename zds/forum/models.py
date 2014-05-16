@@ -5,6 +5,7 @@ from django.db import models
 from zds.utils import slugify
 from math import ceil
 import os
+import re
 import string
 import uuid
 
@@ -13,8 +14,13 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse
 
 from zds.utils import get_current_user
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
 
+
+def sub_tag(g):
+    start = g.group('start')
+    end = g.group('end')
+    return u"{0}".format(start+end)
 
 def image_path_forum(instance, filename):
     """Return path to an image."""
@@ -140,6 +146,12 @@ class Topic(models.Model):
     is_solved = models.BooleanField('Est résolu', default=False)
     is_locked = models.BooleanField('Est verrouillé', default=False)
     is_sticky = models.BooleanField('Est en post-it', default=False)
+    
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name='Tags du forum',
+        null=True,
+        blank=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
