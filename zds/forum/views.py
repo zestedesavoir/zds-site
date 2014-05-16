@@ -16,14 +16,15 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed, sub_tag
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
-from zds.utils.models import Alert, CommentLike, CommentDislike
+from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+import re
 
 
 @can_read_now
@@ -175,6 +176,17 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
+
+
+def get_tag_by_title(title):
+    regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
+    tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
+    title = re.sub(
+        regex,
+        sub_tag,
+        title)
+    return (tags, title.strip())
+
 @can_write_and_read_now
 @login_required
 @transaction.atomic
@@ -207,13 +219,24 @@ def new(request):
         form = TopicForm(request.POST)
         data = form.data
         if form.is_valid():
+            #Treat title
+            (tags, title) = get_tag_by_title(data['title'])
             # Creating the thread
             n_topic = Topic()
             n_topic.forum = forum
-            n_topic.title = data['title']
+            n_topic.title = title
             n_topic.subtitle = data['subtitle']
             n_topic.pubdate = datetime.now()
             n_topic.author = request.user
+            n_topic.save()
+            #add tags
+            for tag in tags:
+                if tag[2].strip()!='':
+                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                    if tg == None:
+                        tg = Tag(title=tag[2])
+                        tg.save()
+                    n_topic.tags.add(tg)
             n_topic.save()
 
             # Adding the first message
@@ -577,8 +600,19 @@ def edit_post(request):
 
             # Modifying the thread info
             if g_topic:
-                g_topic.title = request.POST['title']
+                (tags, title) = get_tag_by_title(request.POST['title'])
+                g_topic.title = title
                 g_topic.subtitle = request.POST['subtitle']
+                g_topic.save()
+                g_topic.tags.clear()
+                #add tags
+                for tag in tags:
+                    if tag[2].strip()!='':
+                        tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                        if tg == None:
+                            tg = Tag(title=tag[2])
+                            tg.save()
+                        g_topic.tags.add(tg)
                 g_topic.save()
 
         post.save()
@@ -587,8 +621,11 @@ def edit_post(request):
 
     else:
         if g_topic:
+            prefix = u""
+            for tag in g_topic.tags.all():
+                prefix+=u"[{0}]".format(tag.title)
             form = TopicForm(initial={
-                'title': g_topic.title,
+                'title': u"{0} {1}".format(prefix, g_topic.title).strip(),
                 'subtitle': g_topic.subtitle,
                 'text': post.text
             })
@@ -728,6 +765,43 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
+@can_read_now
+def find_topic_by_tag(request, tag_slug):
+    """Finds all topics byg tag."""
+    tag = Tag.objects.filter(slug = tag_slug).first()
+    if tag == None :
+        return redirect(reverse('zds.forum.views.index'))
+    topics = Topic.objects\
+        .filter(tags__in=[tag])\
+        .order_by('-pubdate')\
+        .all()
+
+    tops = []
+    for top in topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
+
+    # Paginator
+    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    page = request.GET.get('page')
+
+    try:
+        shown_topics = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_topics = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_topics = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    return render_template('forum/find_topic_by_tag.html', {
+        'topics': shown_topics, 'tag': tag,
+        'pages': paginator_range(page, paginator.num_pages), 'nb': page
+    })
+    
 @can_read_now
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
