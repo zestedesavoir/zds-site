@@ -20,29 +20,37 @@
 {% block headline-actions %}
     <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
     <li>
-        <a href="#" data-dropdown="deletemp" ><span class="fi-x"></span> Supprimer les MP</a>
-        <div id="deletemp" class="f-dropdown small content" data-dropdown-content>
-            <form action="" method="POST" >
-            <p>
-                Attention, vous vous appretez à supprimer les MPs qui ont été sélectionnés.
-            </p>
-            <button type="submit tiny" name="delete" class="button expand alert tiny">Confirmer</button>
-             {% csrf_token %}
-            </form>
-        </div>
+        
     </li>
 {% endblock %}
 
 {% block content %}
+<form id="form" name="form" method="POST" action="{% url "zds.mp.views.index" %}">
 <div>
     <table class="topics-entries">
       <tbody>
+        <tr>
+            <td width="10px">
+                <a href="#" data-dropdown="deletemp" ><span class="fi-x"></span></a>
+                <div id="deletemp" class="f-dropdown small content" data-dropdown-content>  
+                    <p>
+                        Attention, vous vous appretez à supprimer les MPs qui ont été sélectionnés.
+                    </p>
+                    <button type="submit tiny" name="delete" class="button expand alert tiny">Confirmer</button>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
         {% for topic in privatetopics %}
             {% include "mp/details_row.part.html" %}
         {% endfor %}
       </tbody>
     </table>
 </div>
+{% csrf_token %}
+</form>
 {% include "mp/details_pagination.part.html" %}
 
 {% endblock %}
