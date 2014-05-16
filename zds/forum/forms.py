@@ -59,14 +59,15 @@ class TopicForm(forms.Form):
         title = cleaned_data.get('title')
         text = cleaned_data.get('text')
 
-        if title is not None and title.strip() == '':
-            self._errors['title'] = self.error_class(
-                [u'Le champ titre ne peut être vide'])
-            if 'title' in cleaned_data:
-                del cleaned_data['title']
-        elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)",sub_tag,title).strip()=='':
-            self._errors['title'] = self.error_class(
-                [u'Le titre ne peux pas contenir uniquement des tags'])
+        if title is not None:
+            if title.strip() == '':
+                self._errors['title'] = self.error_class(
+                    [u'Le champ titre ne peut être vide'])
+                if 'title' in cleaned_data:
+                    del cleaned_data['title']
+            elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)",sub_tag,title).strip()=='':
+                self._errors['title'] = self.error_class(
+                    [u'Le titre ne peux pas contenir uniquement des tags'])
         if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class(
                 [u'Le champ text ne peut être vide'])
