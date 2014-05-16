@@ -117,9 +117,8 @@ def topic(request, topic_pk, topic_slug):
 
     # If the user is authenticated and has never read topic, we mark it as
     # read.
-    if request.user.is_authenticated():
-        if never_read(topic):
-            mark_read(topic)
+    if request.user.is_authenticated() and never_read(topic):
+        mark_read(topic)
 
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
@@ -147,15 +146,15 @@ def topic(request, topic_pk, topic_slug):
     except EmptyPage:
         raise Http404
 
-    res = []
+    display_posts = []
     if page_nbr != 1:
         # Show the last post of the previous page
         last_page = paginator.page(page_nbr - 1).object_list
         last_post = (last_page)[len(last_page) - 1]
-        res.append(last_post)
+        display_posts.append(last_post)
 
     for post in posts:
-        res.append(post)
+        display_posts.append(post)
 
     # Build form to send a post for the current topic.
     form = PostForm(topic, request.user)
@@ -166,7 +165,7 @@ def topic(request, topic_pk, topic_slug):
 
     return render_template('forum/topic.html', {
         'topic': topic,
-        'posts': res,
+        'posts': display_posts,
         'categories': categories,
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,

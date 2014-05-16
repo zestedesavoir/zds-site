@@ -337,11 +337,8 @@ def never_read(topic, user=None):
 
 def mark_read(topic):
     """Mark a topic as read for the user."""
-    TopicRead.objects.filter(topic=topic, user=get_current_user()).delete()
-    t = TopicRead(
-        post=topic.last_message, topic=topic, user=get_current_user())
-    t.save()
-
+    TopicRead.objects.filter(topic=topic, user=get_current_user())\
+                     .update(post=topic.last_message)
 
 def follow(topic):
     """Toggle following of a topic for an user."""
