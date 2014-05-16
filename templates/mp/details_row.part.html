@@ -9,7 +9,7 @@
         {% endif %}
     {% endif %}">
     <td>
-        <input type="checkbox" name="check" value={{topic.pk}} />
+        <input name="items" type="checkbox" value="{{ topic.pk }}" />
     </td>
     <td>
         <span class="{% if topic.is_locked %}forum-entry-locked{% endif %}">
