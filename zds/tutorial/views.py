@@ -35,7 +35,7 @@ from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.member.models import get_info_old_tuto, Profile
 from zds.utils import render_template
-from django.template.defaultfilters import slugify
+from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory

@@ -1,0 +1,34 @@
+{% extends "forum/base.html" %}
+{% load humanize %}
+{% load profile %}
+{% load emarkdown %}
+
+{% block title %}
+    Tag : {{tag.title}}
+{% endblock %}
+
+{% block head-title %}
+    Tag : {{tag.title}}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li ><a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}">{{tag.title}}</a></li>
+    <li class="current"><a href="#">Index</a></li>
+{% endblock %}
+
+{% block content %}
+{% include "forum/details_pagination.part.html" with position="top" %}
+<div class="row">
+<div>
+    <table class="topics-entries">
+      <tbody>
+        {% for topic in topics %}
+            {% include "forum/details_row.part.html" %}
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+</div>
+{% include "forum/details_pagination.part.html" with position="bottom" %}
+
+{% endblock %}
