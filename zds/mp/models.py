@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from zds.utils import get_current_user
+from django.core.urlresolvers import reverse
 
 
 class PrivateTopic(models.Model):
@@ -35,7 +36,9 @@ class PrivateTopic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/mp/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.mp.views.topic',
+                       kwargs={'topic_pk': self.pk,
+                               'topic_slug': slugify(self.title)})
 
     def get_post_count(self):
         """Return the number of private posts in the private topic."""
