@@ -37,11 +37,19 @@
         <ul>
             {% for member in tutorial.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+
+    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                Attention, cette version du tutoriel est en BETA
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
@@ -79,8 +87,14 @@
 
     {% if not tutorial.in_validation %}
         <li>
-            {# FIXME : WTF ce nom de variable en camelCase ? #}
-            {% crispy formAskValidation %}
+            <a href="#ask-validation" class="open-modal">
+                Demander la validation
+            </a>
+
+            <div id="ask-validation" class="modal modal-small">
+                {# FIXME : WTF ce nom de variable en camelCase ? #}
+                {% crispy formAskValidation %}
+            </div>
         </li>
     {% endif %}
 {% endblock %}
@@ -89,7 +103,7 @@
 
 {% block sidebar_blocs %}
     {% if perms.tutorial.change_tutorial%}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>Admin<span class="wide">istration</span></h3>
             <ul>
                 <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
@@ -109,27 +123,11 @@
             </ul>
         </div>
     {% endif %}
-    
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3>Télécharger</h3>
-        <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
-            <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
-        </ul>
-    </div>
 {% endblock %}
 
 
 
 {% block content %}
-    {% if tutorial.in_beta and tutorial.sha_beta == version %}
-        <div>
-            Attention, cette version du tutoriel est en BETA
-        </div>
-    {% endif %}
-
     {% with tuto_version=tutorial|repo_tuto:version %}
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
@@ -140,7 +138,7 @@
         {% if tutorial.is_mini %}
             {# Small tutorial #}
 
-            {% include "tutorial/chapter.part.html" with authors=tutorial.authors.all %}
+            {% include "tutorial/includes/chapter.part.html" with authors=tutorial.authors.all %}
         {% else %}
             {# Large tutorial #}
 

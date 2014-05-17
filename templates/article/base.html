@@ -28,6 +28,17 @@
 
 
 {% block sidebar_actions %}
+    <div class="mobile-menu-block mobile-all-links" data-title="Actions">
+        <h3>Actions</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.article.views.new" %}">
+                    Nouvel article
+                </a>
+            </li>
+        </ul>
+    </div>
+    
     {% if user.is_authenticated %}
         {% captureas sidebarfilter %}{% spaceless %}
             {% block sidebar_filter %}{% endblock %}
@@ -42,17 +53,6 @@
             </div>
         {% endif %}
     {% endif %}
-
-    <div class="mobile-menu-block mobile-all-links" data-title="Actions">
-        <h3>Actions</h3>
-        <ul>
-            <li>
-                <a href="{% url "zds.article.views.new" %}">
-                    Nouvel article
-                </a>
-            </li>
-        </ul>
-    </div>
 
     <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
         <h3>Flux</h3>

@@ -350,7 +350,7 @@ class AskValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(), StrictButton(
-                'Demander la validation', type='submit'), Hidden(
+                'Confirmer', type='submit'), Hidden(
                 'tutorial', '{{ tutorial.pk }}'), Hidden(
                 'version', '{{ version }}'), )
 

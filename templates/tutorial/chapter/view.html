@@ -3,14 +3,15 @@
 
 
 
+
 {% block title %}
-    {{ chapter.title }} ({{ chapter.part.tutorial.title }})
+    {{ chapter.title }} ({{ tutorial.title }})
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ chapter.part.tutorial.title }}</a></li>
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ tutorial.title }}</a></li>
     <li><a href="{{ chapter.part.get_absolute_url }}?version={{version}}">{{ chapter.part.title }}</a></li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
@@ -18,18 +19,18 @@
 
 
 {% block headline %}
-    <h1 class="illu">
-        {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt="">
-        {% endif %}
-        {{ chapter.title }}
-    </h1>
-
     {% if chapter.tutorial %}
         {% set chapter.tutorial as tutorial %}
     {% else %}
         {% set chapter.part.tutorial as tutorial %}
     {% endif %}
+
+    <h1 class="illu">
+        {% if chapter.image %}
+            <img src="{{ chapter.image.thumb.url }}" alt="">
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
     
     <ul class="taglist">
         {% for category in tutorial.subcategory.all %}
@@ -37,23 +38,31 @@
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
     </ul>
-
+    
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+
+    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                Attention, cette version du tutoriel est en BETA
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
-    {% if user in chapter.part.tutorial.authors.all or user in chapter.tutorial.authors.all %}
+    {% if user in chapter.part.tutorial.authors.all or chapter.tutorial.authors.all %}
         <li>
             <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}">
                 Éditer le chapître
@@ -79,9 +88,12 @@
 
         {% if chapter.part %}
             <li>
-                <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST">
+                <a href="#move-chapter" class="open-modal">
+                    Déplacer <span class="wide">le chapitre</span>
+                </a>
+                <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="modal modal-small" id="move-chapter">
                     <select name="move_target" class="select-autosubmit">
-                        <option>
+                        <option disabled="disabled">
                             Déplacer
                         </option>
 
@@ -97,7 +109,7 @@
                             </option>
                         {% endif %}
 
-                        <option disabled>&mdash; Déplacer avant</option>
+                        <option disabled="disabled">&mdash; Déplacer avant</option>
 
                         {% for chapter_mv in chapter.part.get_chapters %}
                             {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"-1" != chapter.position_in_part %}
@@ -107,7 +119,7 @@
                             {% endif %}
                         {% endfor %}
 
-                        <option disabled>&mdash; Déplacer après</option>
+                        <option disabled="disabled">&mdash; Déplacer après</option>
 
                         {% for chapter_mv in chapter.part.get_chapters %}
                             {% if chapter != chapter_mv and chapter_mv.position_in_part|add:"1" != chapter.position_in_part %}
@@ -118,15 +130,11 @@
                         {% endfor %}
                     </select>
 
-                    <noscript>
-                        <button type="submit" class="button">
-                            Déplacer
-                        </button>
-                    </noscript>
-
                     <input type="hidden" name="move" value="">
                     <input type="hidden" name="chapter" value="{{ chapter.pk }}">
                     {% csrf_token %}
+
+                    <button type="submit">Déplacer</button>
                 </form>
             </li>
         {% endif %}

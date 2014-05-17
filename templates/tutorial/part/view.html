@@ -31,13 +31,21 @@
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
-            {% for member in part.tutorial.authors.all %}
+            {% for member in tutorial.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+
+    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                Attention, cette version du tutoriel est en BETA
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 
