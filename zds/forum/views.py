@@ -49,26 +49,26 @@ def details(request, cat_slug, forum_slug):
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')\
-        .prefetch_related('author')\
+        .prefetch_related('author', 'last_message')\
         .all()
     if 'filter' in request.GET:
         if request.GET['filter'] == 'solve':
             topics = Topic.objects\
                 .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
                 .order_by('-last_message__pubdate')\
-                .prefetch_related('author')\
+                .prefetch_related('author', 'last_message', 'tags')\
                 .all()
         else:
             topics = Topic.objects\
                 .filter(forum__pk=forum.pk, is_sticky=False, is_solved=False)\
                 .order_by('-last_message__pubdate')\
-                .prefetch_related('author')\
+                .prefetch_related('author', 'last_message', 'tags')\
                 .all()
     else:
         topics = Topic.objects\
             .filter(forum__pk=forum.pk, is_sticky=False)\
             .order_by('-last_message__pubdate')\
-            .prefetch_related('author')\
+            .prefetch_related('author', 'last_message', 'tags')\
             .all()
 
     # Paginator
@@ -95,7 +95,7 @@ def details(request, cat_slug, forum_slug):
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = Forum.objects.filter(category__pk=category.pk).all()
+    forums = Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
 
     return render_template('forum/cat_details.html', {
         'category': category, 'forums': forums
@@ -124,6 +124,7 @@ def topic(request, topic_pk, topic_slug):
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
                 .filter(topic__pk=topic.pk)\
+                .select_related()\
                 .order_by('position')\
                 .all()
 
@@ -417,6 +418,7 @@ def answer(request):
     # Retrieve 10 last posts of the currenta topic.
     posts = Post.objects\
         .filter(topic=g_topic)\
+        .prefetch_related()\
         .order_by('-pubdate')[:10]
 
     # User would like preview his post or post a new post on the topic.
@@ -773,6 +775,7 @@ def find_topic_by_tag(request, tag_slug):
         return redirect(reverse('zds.forum.views.index'))
     topics = Topic.objects\
         .filter(tags__in=[tag])\
+        .prefetch_related()\
         .order_by('-pubdate')\
         .all()
 
@@ -808,6 +811,7 @@ def find_topic(request, user_pk):
     u = get_object_or_404(User, pk=user_pk)
     topics = Topic.objects\
         .filter(author=u)\
+        .prefetch_related()\
         .order_by('-pubdate')\
         .all()
 
@@ -844,6 +848,7 @@ def find_post(request, user_pk):
     u = get_object_or_404(User, pk=user_pk)
     posts = Post.objects\
                 .filter(author=u)\
+                .prefetch_related()\
                 .order_by('-pubdate')\
                 .all()
     pts = []
