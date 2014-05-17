@@ -292,6 +292,12 @@ def reject_tutorial(request):
     tutorial.save()
     messages.info(request, u'Le tutoriel a bien été refusé.')
 
+    #send feedback
+    for author in tutorial.authors.all():
+        msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(author.username, tutorial.title, validation.validator.username, validation.validator.profile.get_absolute_url(), validation.comment_validator)
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(bot, [author], u"Refus de Validation : {0}".format(tutorial.title), "", msg, True, direct = False)
+
     return redirect(
         tutorial.get_absolute_url() +
         '?version=' +
@@ -330,6 +336,12 @@ def valid_tutorial(request):
     tutorial.save()
 
     messages.success(request, u'Le tutoriel a bien été validé.')
+
+    #send feedback
+    for author in tutorial.authors.all():
+        msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir l\'éplucher et réagir a son sujet. Je te conseille de rester a leur écoute afin d'apporter des corrections/compléments.\n\nUn Tutoriel vivant et a jour est bien plus lu qu'un sujet abandonné !".format(author.username, tutorial.title, tutorial.get_absolute_url_online())
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(bot, [author], u"Publication : {0}".format(tutorial.title), "", msg, True, direct = False)
 
     return redirect(
         tutorial.get_absolute_url() +
