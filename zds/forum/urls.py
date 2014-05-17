@@ -7,7 +7,8 @@ from . import views
 
 
 urlpatterns = patterns('',
-
+                       
+                       # Feeds
                        url(r'^flux/messages/rss/$',
                            feeds.LastPostsFeedRSS(),
                            name='post-feed-rss'),
@@ -21,6 +22,18 @@ urlpatterns = patterns('',
                        url(r'^flux/sujets/atom/$',
                            feeds.LastTopicsFeedATOM(),
                            name='topic-feed-atom'),
+                       
+# Developers warning: if you update something here, check and update help_text
+# on Category slug field
+
+                       # Home
+                       url(r'^$', 'zds.forum.views.index'),
+
+                       # Followed topics
+                       url(r'^notifications/$', 'zds.forum.views.followed_topics'),
+
+                       # Moderation
+                       url(r'^resolution_alerte/$', 'zds.forum.views.solve_alert'),
 
                        # Viewing a thread
                        url(r'^sujet/nouveau/$', 'zds.forum.views.new'),
@@ -45,13 +58,4 @@ urlpatterns = patterns('',
 
                        # Forums belonging to one category
                        url(r'^(?P<cat_slug>.+)/$', 'zds.forum.views.cat_details'),
-
-                       # Home
-                       url(r'^$', 'zds.forum.views.index'),
-
-                       # Followed topics
-                       url(r'^notifications/$', 'zds.forum.views.followed_topics'),
-
-                       # Moderation
-                       url(r'^resolution_alerte/$', 'zds.forum.views.solve_alert'),
                        )

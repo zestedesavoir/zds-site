@@ -13,6 +13,9 @@ urlpatterns = patterns('',
         name='article-feed-atom'),
 
     # TODO: Handle redirect
+    
+    # Moderation
+    url(r'^resolution_alerte/$', 'zds.article.views.solve_alert'),
 
     url(r'^voir/(?P<article_pk>\d+)/(?P<article_slug>.+)/$',
         'zds.article.views.deprecated_view_redirect'),
@@ -38,7 +41,4 @@ urlpatterns = patterns('',
     url(r'^message/nouveau/$', 'zds.article.views.answer'),
     url(r'^message/like/$', 'zds.article.views.like_reaction'),
     url(r'^message/dislike/$', 'zds.article.views.dislike_reaction'),
-    
-    # Moderation
-    url(r'^resolution_alerte/$', 'zds.article.views.solve_alert'),
 )
