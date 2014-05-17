@@ -452,6 +452,11 @@
 /* ====================
     Forums
    ==================== */
+    .topic-list {
+        .topic {
+            background: none !important;
+        }
+    }
 
     .main .content-container .forum-message {
         padding: 20px 0;

@@ -5,13 +5,13 @@
 
 
 {% block title %}
-    {{ chapter.title }} ({{ tutorial.title }})
+    {{ chapter.title }} - {{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ tutorial.title }}</a></li>
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}</a></li>
     <li><a href="{{ chapter.part.get_absolute_url }}?version={{version}}">{{ chapter.part.title }}</a></li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
@@ -73,18 +73,21 @@
                 Ajouter un extrait
             </a>
         </li>
-        <li>
-            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST">
-                {% if chapter.part %}
-                    <li>
-                        <button type="submit" name="delete">Supprimer</button>
-                    </li>
-                {% endif %}
+        {% if chapter.part %}
+            <li>
+                <a href="#delete-chapter" class="open-modal">Supprimer le chapitre</a>
+                <form action="{% url "zds.tutorial.views.modify_chapter" %}" id="delete-chapter" class="modal modal-small" method="post">
+                    <p>
+                        Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
+                    </p>
 
-                <input type="hidden" name="chapter" value="{{ chapter.pk }}">
-                {% csrf_token %}
-            </form>
-        </li>
+                    <input type="hidden" name="chapter" value="{{ chapter.pk }}">
+                    {% csrf_token %}
+
+                    <button type="submit">Confirmer</button>
+                </form>
+            </li>
+        {% endif %}
 
         {% if chapter.part %}
             <li>

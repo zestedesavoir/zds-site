@@ -311,6 +311,8 @@
     .topic-list {
         .topic {
             .topic-description {
+                background-size: 0 0;
+                
                 &[style]:before {
                     display: block;
                     position: absolute;

@@ -1167,7 +1167,6 @@
     .topic-description {
         position: relative;
         width: 65%;
-        background: none !important;
 
         .topic-title,
         .topic-subtitle {
@@ -1362,6 +1361,8 @@
             pre,
             code {
                 max-width: 100%;
+                margin: 0 auto;
+                display: block;
             }
 
             figcaption {

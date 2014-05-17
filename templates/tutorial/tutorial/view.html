@@ -61,6 +61,7 @@
 
 
 {% block sidebar_actions %}
+    {# TODO : passer tout ça en POST, CSRF toussa #}
     {% if tutorial.sha_draft = version %}
         <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
     {% endif %}
@@ -82,7 +83,15 @@
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
 
     {% if not tutorial.on_line %}
-        <li><a href="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}">Supprimer</a>
+        <li>
+            <a href="#delete-chapter" class="open-modal">Supprimer le tutoriel</a>
+            <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-chapter" class="modal modal-medium" method="get">
+                <p>
+                    Attention, vous vous apprêtez à supprimer définitivement le tutoriel "<em>{{ tutorial.title }}</em>".
+                </p>
+                <button type="submit">Confirmer</button>
+            </form>
+        </li>
     {% endif %}
 
     {% if not tutorial.in_validation %}
@@ -90,7 +99,6 @@
             <a href="#ask-validation" class="open-modal">
                 Demander la validation
             </a>
-
             <div id="ask-validation" class="modal modal-small">
                 {# FIXME : WTF ce nom de variable en camelCase ? #}
                 {% crispy formAskValidation %}
