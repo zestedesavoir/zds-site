@@ -56,6 +56,9 @@ class="active"
 
 {# Content #}
 {% block content %}
+	<div class="large-12 columns">
+		<p>{{ quote }}</p>
+	</div>
     <div class="large-6 columns">
       
         <h2 class="box article">Derniers Articles</h2>
@@ -72,7 +75,7 @@ class="active"
                         </div>
                         <div class="large-4 columns">
                             {% if article.get_reaction_count = 0 %}
-                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small>Aucune réaction</small></a>
+                                <a class="fi-comment size-16" href="{{article.get_absolute_url_online}}#reactions"><small>Aucune réaction</small></a>
                             {% elif article.get_reaction_count = 1 %}
                                 <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small> {{ article.get_reaction_count }} réaction</small></a>
                             {% else %}
@@ -100,8 +103,8 @@ class="active"
     </div>
 
     <div class="large-6 columns">
-        <h2 class="box tutoriel">Dernier tutoriels</h2>
-        
+
+        <h2 class="box tutoriel">Derniers tutoriels</h2>
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
                 <div class="row card">
@@ -121,6 +124,5 @@ class="active"
                 </div>
             {% endfor %}
         {% endif %}
-        
     </div>
 {% endblock %}

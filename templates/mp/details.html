@@ -15,7 +15,7 @@
 
 {% block breadcrumb %}
     <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
-    <li class="current"><a href="javascript:;">{{ forum.title }}</a></li>
+    <li class="current">{{ forum.title }}</li>
 {% endblock %}
 
 {% block headline-actions %}
@@ -32,7 +32,7 @@
     <table class="topics-entries">
       <tbody>
     {% for topic in topics %}
-        {% include "forum/details_row.part.html" %}
+        {% include "mp/details_row.part.html" %}
     {% endfor %}
       </tbody>
     </table>

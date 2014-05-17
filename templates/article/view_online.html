@@ -46,7 +46,12 @@
             <ul>
                 <li><a href="{{ article.get_absolute_url }}" class=" arrow-right blue">Version offline</a></li>
                 <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
-                <li><button class="secondary tiny" type="submit" name="invalid-article">Confirmer la dépublication</button></li>
+                <li>
+                    <a href="#" data-dropdown="invalid-article" >Dépublier l'article</a>
+                    <div id="invalid-article" class="f-dropdown small content" data-dropdown-content>
+                        <button class="secondary tiny" type="submit" name="invalid-article">Confirmer la dépublication</button>
+                    </div>
+                </li>
             </ul>
         </div>
 
@@ -78,76 +83,12 @@
 
 {% include "article/view_pager.part.html" %}
 
-<h2 class="box forum">Réactions</h2>
+<h2 id="reactions" class="box forum">Réactions</h2>
     {% with topic=article %}
     {% include "forum/topic_pagination.part.html" with position="top" %}
     {% endwith %}
-{% for reaction in reactions %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="large-1 columns">
-            <div class="centered">
-            <a href="{{ reaction.author.get_absolute_url }}" class="username">{{ reaction.author.username }}</a>
-            </div>
-            <a href="{{ reaction.author.get_absolute_url }}" class="hide-for-small">
-                {% with profile=reaction.author|profile %}
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar-forum">
-                {% endwith %}
-            </a>
-        </div>
-        <div class="large-11 columns message-forum">
-            <div class="row">
-                <div class="large-12 columns">
-                    {% if user.is_authenticated %}
-                    <div class="right message-actions">
-                        {% if reaction.author = user or perms.article.change_reaction %}
-                        <a href="{% url "zds.article.views.edit_reaction" %}?message={{ reaction.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
-                        {% endif %}
-                        <a href="#" class="tiny secondary actions">Signaler<span class="fi-alert"></span></a>
-                        {% if not topic.is_locked and not topic.antispam %}
-                        <a href="{% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ reaction.pk }}" class="tiny secondary actions">Citer<span class="fi-quote"></span></a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
-                    <div class="message-metadata left">
-                        <a href="#p{{ post.pk }}" class="date">{{ reaction.pubdate|naturaltime }}</a>
-                        {% if not post.is_visible %}
-                            <i>Masqué par {{ reaction.editor }} : {{ reaction.text_hidden }}</i>
-                        {% elif not post.update = None %}
-                            <i>(Edité {{ reaction.update|naturaltime }} par {{ reaction.editor }} )</i>
-                        {% endif %}
-                    </div>
-                <div class="large-12 columns">
-                <div class="message-content">
-                    {{ reaction.text|emarkdown }}
-                </div>
-                </div>
-                <div class="large-12 columns">
-                    <div class="left">
-                        {% if user.is_authenticated %}
-                            {% with profile_user=user|profile %}
-                                {% if profile_user.show_sign %}
-                                    {% with profile=reaction.author|profile %}
-                                        <span class="signature">{{profile.sign|emarkdown_inline}}</span>
-                                    {% endwith %}
-                                {% endif %}
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                    {% if user.is_authenticated %}
-                    <div class="message-karma right">
-                        <a href="{% url "zds.article.views.like_reaction" %}?message={{ reaction.pk }}" class="label secondary {% if reaction.like > reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{reaction.like}}</a>
-                        <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ reaction.pk }}" class="label secondary {% if reaction.like < reaction.dislike %}voted{% endif%}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{reaction.dislike}}</a>
-                    </div>
-                    {% endif %}
-                    
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% for post in reactions %}
+    {% include "article/reaction.part.html" %}
 {% endfor %}
 
 {% with topic=article %}
@@ -155,13 +96,19 @@
 {% endwith %}
 
 {% if user.is_authenticated %}
-{% with profile=user|profile%}
-<section>
-    <div class="user hide-for-small">
-        <img src="{{profile.get_avatar_url}}" alt="">
+{% with profile=user|profile %}
+<div class="large-12 columns">
+    {% crispy form %}
+</div>
+{% endwith %}
+{% else %}
+<div class="large-12 columns">
+    <div data-alert class="alert-box info radius">
+      Vous devrez vous connecter pour pouvoir poster votre message
+      <a href="#" class="close">&times;</a>
     </div>
     {% crispy form %}
-</section>
-{% endwith %}
+</div>
 {% endif %}
+
 {% endblock %}

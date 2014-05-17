@@ -16,7 +16,8 @@ from django.shortcuts import redirect, get_object_or_404
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.utils import render_template, slugify
+from zds.utils import render_template
+from zds.utils import slugify
 
 
 @can_read_now
@@ -261,8 +262,8 @@ def new_image(request, gal_pk):
 
             img.save()
 
-            # Redirect to the document list after POST
-            return redirect(gal.get_absolute_url())
+            # Redirect to the newly uploaded image edit page after POST
+            return redirect(reverse('zds.gallery.views.edit_image', args=[gal.pk, img.pk]))
         else:
             return render_template('gallery/new_image.html', {
                 'form': form,

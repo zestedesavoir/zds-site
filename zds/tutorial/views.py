@@ -2,51 +2,53 @@
 
 from collections import OrderedDict
 from datetime import datetime
-from django.conf import settings
-from django.core.files import File
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.utils.encoding import smart_str, smart_unicode
-from django.views.decorators.http import require_POST
-import glob
+from operator import attrgetter
+from urllib import urlretrieve
+from urlparse import urlparse
 import json
-from lxml import etree
-from operator import itemgetter, attrgetter
 import os
 import os.path
 import re
 import shutil
-from urllib import urlretrieve
-import urllib
-from urlparse import urlparse
 import zipfile
 
+from PIL import Image as ImagePIL
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import smart_str
+from django.views.decorators.http import require_POST
 from git import *
+from lxml import etree
 
-from PIL import Image as ImagePIL
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_read_now, can_write_and_read_now
-from zds.member.models import Profile
 from zds.member.views import get_client_ip
-from zds.utils import render_template, slugify
-from zds.utils.models import Category, Licence, CommentLike, CommentDislike,\
+from zds.member.models import get_info_old_tuto, Profile
+from zds.utils import render_template
+from zds.utils import slugify
+from zds.utils.models import Alert
+from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
+from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 
-from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm,\
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
-import subprocess
+
 
 @can_read_now
 def index(request):
@@ -107,8 +109,8 @@ def list_validation(request):
         else:
             validations = Validation.objects \
                 .filter(
-                        validator__isnull=True, 
-                        status='PENDING', 
+                        validator__isnull=True,
+                        status='PENDING',
                         tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
@@ -122,8 +124,8 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=False, 
-                        status='PENDING_V', 
+                .filter(validator__isnull=False,
+                        status='PENDING_V',
                         tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
@@ -180,7 +182,6 @@ def reservation(request, validation_pk):
 
 @can_read_now
 @login_required
-@permission_required('tutorial.change_tutorial', raise_exception=True)
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -188,6 +189,10 @@ def diff(request, tutorial_pk, tutorial_slug):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied
 
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
@@ -249,7 +254,7 @@ def history_validation(request, tutorial_pk):
             .all()
     else:
         validations = Validation.objects \
-            .filter(tutorial__pk=tutorial_pk, 
+            .filter(tutorial__pk=tutorial_pk,
                     tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition") \
             .all()
@@ -286,6 +291,12 @@ def reject_tutorial(request):
     tutorial.pubdate = None
     tutorial.save()
     messages.info(request, u'Le tutoriel a bien été refusé.')
+
+    #send feedback
+    for author in tutorial.authors.all():
+        msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(author.username, tutorial.title, validation.validator.username, validation.validator.profile.get_absolute_url(), validation.comment_validator)
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(bot, [author], u"Refus de Validation : {0}".format(tutorial.title), "", msg, True, direct = False)
 
     return redirect(
         tutorial.get_absolute_url() +
@@ -325,6 +336,12 @@ def valid_tutorial(request):
     tutorial.save()
 
     messages.success(request, u'Le tutoriel a bien été validé.')
+
+    #send feedback
+    for author in tutorial.authors.all():
+        msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir l\'éplucher et réagir a son sujet. Je te conseille de rester a leur écoute afin d'apporter des corrections/compléments.\n\nUn Tutoriel vivant et a jour est bien plus lu qu'un sujet abandonné !".format(author.username, tutorial.title, tutorial.get_absolute_url_online())
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(bot, [author], u"Publication : {0}".format(tutorial.title), "", msg, True, direct = False)
 
     return redirect(
         tutorial.get_absolute_url() +
@@ -447,22 +464,40 @@ def delete_tutorial(request, tutorial_pk):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
+    #when author is alone we can delete definitively tutorial
+    if tutorial.authors.count() == 1:
+        #user can access to gallery
+        try :
+            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+            ug.delete()
+        except:
+            ug = None
+        # Delete the tutorial on the repo and on the database.
+        old_slug = os.path.join(
+            settings.REPO_PATH, str(
+                tutorial.pk) + '_' + tutorial.slug)
+        maj_repo_tuto(request,
+                      old_slug_path=old_slug,
+                      tuto=tutorial,
+                      action='del')
 
-    # Delete the tutorial on the repo and on the database.
-    old_slug = os.path.join(
-        settings.REPO_PATH, str(
-            tutorial.pk) + '_' + tutorial.slug)
-    maj_repo_tuto(request,
-                  old_slug_path=old_slug,
-                  tuto=tutorial,
-                  action='del')
-
-    messages.success(
-        request,
-        u'Le tutoriel {0} a bien été supprimé.'.format(
-            tutorial.title))
-
-    tutorial.delete()
+        messages.success(
+            request,
+            u'Le tutoriel {0} a bien été supprimé.'.format(
+                tutorial.title))
+        tutorial.delete()
+    else:
+        tutorial.authors.remove(request.user)
+        #user can access to gallery
+        try :
+            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+            ug.delete()
+        except:
+            ug = None
+        tutorial.save()
+        messages.success(
+            request,
+            u'Vous ne faites plus partie des rédacteurs de ce tutoriel')
 
     return redirect(reverse('zds.tutorial.views.index'))
 
@@ -491,10 +526,16 @@ def modify_tutorial(request):
             tutorial.authors.add(author)
             tutorial.save()
 
+            #share gallery
+            ug = UserGallery()
+            ug.user = author
+            ug.gallery = tutorial.gallery
+            ug.mode = 'W'
+            ug.save()
+
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction '+ \
-                'du tutoriel.'.format(author_username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author.username))
 
             return redirect(redirect_url)
 
@@ -510,6 +551,13 @@ def modify_tutorial(request):
             author = get_object_or_404(User, pk=author_pk)
 
             tutorial.authors.remove(author)
+            #user can access to gallery
+            try :
+                ug = UserGallery.objects.filter(user=author, gallery = tutorial.gallery)
+                ug.delete()
+            except:
+                ug = None
+
             tutorial.save()
 
             messages.success(
@@ -588,12 +636,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            part['intro'] = get_blob(
-                repo.commit(sha).tree,
-                part['introduction'])
-            part['conclu'] = get_blob(
-                repo.commit(sha).tree,
-                part['conclusion'])
 
             cpt_c = 1
             for chapter in part['chapters']:
@@ -603,12 +645,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                chapter['intro'] = get_blob(
-                    repo.commit(sha).tree,
-                    chapter['introduction'])
-                chapter['conclu'] = get_blob(
-                    repo.commit(sha).tree,
-                    chapter['conclusion'])
+
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
@@ -705,22 +742,6 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['introduction'] +
-                    '.html'),
-                "r")
-            part['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['conclusion'] +
-                    '.html'),
-                "r")
-            part['conclu'] = conclu.read()
-            conclu.close()
 
             cpt_c = 1
             for chapter in part['chapters']:
@@ -730,41 +751,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['introduction'] +
-                        '.html'),
-                    "r")
-                chapter['intro'] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['conclusion'] +
-                        '.html'),
-                    "r")
-                chapter['conclu'] = conclu.read()
+
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    try :
-                        text = open(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html'),
-                            "r")
-                    except IOError:
-                        text = open(
-                            u"\\\\?\{0}".format(os.path.join(
-                                tutorial.get_prod_path(),
-                                ext['text'] +
-                                '.html')),
-                            "r")
-                    ext['txt'] = text.read()
-                    text.close()
                     cpt_e += 1
                 cpt_c += 1
 
@@ -958,7 +950,7 @@ def edit_tutorial(request):
                 tutorial.image = img
 
             new_slug = os.path.join(
-                settings.REPO_PATH, 
+                settings.REPO_PATH,
                 str(tutorial.pk) + '_' + slugify(data['title']))
 
             tutorial.save()
@@ -985,8 +977,9 @@ def edit_tutorial(request):
         else:
             licence = None
 
-        form = TutorialForm({
+        form = TutorialForm(initial={
             'title': json['title'],
+            'type': json['type'],
             'licence': licence,
             'description': json['description'],
             'subcategory': tutorial.subcategory.all(),
@@ -1049,18 +1042,11 @@ def view_part(request, tutorial_pk, tutorial_slug, part_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                chapter['intro'] = get_blob(
-                    repo.commit(sha).tree,
-                    chapter['introduction'])
-                chapter['conclu'] = get_blob(
-                    repo.commit(sha).tree,
-                    chapter['conclusion'])
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
                     cpt_e += 1
                 cpt_c += 1
 
@@ -1123,35 +1109,11 @@ def view_part_online(request, tutorial_pk, tutorial_slug, part_slug):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['introduction'] +
-                        '.html'),
-                    "r")
-                chapter['intro'] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['conclusion'] +
-                        '.html'),
-                    "r")
-                chapter['conclu'] = conclu.read()
-                conclu.close()
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_prod_path()
-                    text = open(
-                        os.path.join(
-                            tutorial.get_prod_path(),
-                            ext['text'] +
-                            '.html'),
-                        "r")
-                    ext['txt'] = text.read()
-                    text.close()
                     cpt_e += 1
                 cpt_c += 1
 
@@ -1189,7 +1151,7 @@ def add_part(request):
             part.position_in_tutorial = tutorial.get_parts().count() + 1
 
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                part.tutorial.pk) + '_' + part.tutorial.slug),
                                     slugify(data['title']))
             part.introduction = os.path.join(
                 slugify(
@@ -1288,7 +1250,7 @@ def edit_part(request):
             # Update title and his slug.
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
-                part.tutorial.pk) + '_' + part.tutorial.slug), 
+                part.tutorial.pk) + '_' + part.tutorial.slug),
                                     slugify(data['title']))
             old_slug = part.get_path()
 
@@ -1385,21 +1347,22 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            chapter['intro'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['introduction'])
-            chapter['conclu'] = get_blob(
-                repo.commit(sha).tree,
-                chapter['conclusion'])
             chapter['get_absolute_url'] = part[
-                'get_absolute_url'] + '{0}/'.format(chapter['slug'])
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
-                cpt_e += 1
+                    'get_absolute_url'] + '{0}/'.format(chapter['slug'])
+            if chapter_slug == slugify(chapter['title']):
+                chapter['intro'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['introduction'])
+                chapter['conclu'] = get_blob(
+                    repo.commit(sha).tree,
+                    chapter['conclusion'])
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    ext['txt'] = get_blob(repo.commit(sha).tree, ext['text'])
+                    cpt_e += 1
             chapter_tab.append(chapter)
 
             if chapter_slug == slugify(chapter['title']):
@@ -1462,38 +1425,44 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['type'] = 'BIG'
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
-            intro = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['introduction'] +
-                    '.html'),
-                "r")
-            chapter['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter['conclusion'] +
-                    '.html'),
-                "r")
-            chapter['conclu'] = conclu.read()
             chapter['get_absolute_url_online'] = part[
                 'get_absolute_url_online'] + '{0}/'.format(chapter['slug'])
-            conclu.close()
-            cpt_e = 1
-            for ext in chapter['extracts']:
-                ext['chapter'] = chapter
-                ext['position_in_chapter'] = cpt_e
-                ext['path'] = tutorial.get_path()
-                text = open(
+            if chapter_slug == slugify(chapter['title']):
+                intro = open(
                     os.path.join(
                         tutorial.get_prod_path(),
-                        ext['text'] +
+                        chapter['introduction'] +
                         '.html'),
                     "r")
-                ext['txt'] = text.read()
-                text.close()
-                cpt_e += 1
+                chapter['intro'] = intro.read()
+                intro.close()
+                conclu = open(
+                    os.path.join(
+                        tutorial.get_prod_path(),
+                        chapter['conclusion'] +
+                        '.html'),
+                    "r")
+                chapter['conclu'] = conclu.read()
+                conclu.close()
+
+                cpt_e = 1
+                for ext in chapter['extracts']:
+                    ext['chapter'] = chapter
+                    ext['position_in_chapter'] = cpt_e
+                    ext['path'] = tutorial.get_path()
+                    text = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            ext['text'] +
+                            '.html'),
+                        "r")
+                    ext['txt'] = text.read()
+                    text.close()
+                    cpt_e += 1
+            else:
+                intro =None
+                conclu =None
+
             chapter_tab.append(chapter)
             if chapter_slug == slugify(chapter['title']):
                 final_chapter = chapter
@@ -1710,7 +1679,7 @@ def edit_chapter(request):
             data = form.data
             if chapter.part:
                 if chapter.tutorial:
-                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, 
+                    new_slug = os.path.join(os.path.join(settings.REPO_PATH,
                                                          str(chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
                                             slugify(data['title']))
                 else:
@@ -2024,41 +1993,40 @@ def find_tuto(request, pk_user):
         })
 
 
-def upload_images(request, tutorial):
+def upload_images(images, tutorial):
     mapping = OrderedDict()
     # download images
-    if 'images' in request.FILES:
-        zfile = zipfile.ZipFile(request.FILES['images'], 'a')
-        os.makedirs(
-            os.path.abspath(
-                os.path.join(
-                    tutorial.get_path(),
-                    'images')))
-        for i in zfile.namelist():
-            ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
+    zfile = zipfile.ZipFile(images, 'a')
+    os.makedirs(
+        os.path.abspath(
+            os.path.join(
+                tutorial.get_path(),
+                'images')))
+    for i in zfile.namelist():
+        ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
+        try:
+            data = zfile.read(i)
+            fp = open(ph_temp, "wb")
+            fp.write(data)
+            fp.close()
+
+            f = File(open(ph_temp, 'rb'))
+            f.name = os.path.basename(i)
+            pic = Image()
+            pic.gallery = tutorial.gallery
+            pic.title = os.path.basename(i)
+            pic.pubdate = datetime.now()
+            pic.physical = f
+            pic.save()
+            mapping[i] = pic.physical.url
+            f.close()
+        except IOError:
             try:
-                data = zfile.read(i)
-                fp = open(ph_temp, "wb")
-                fp.write(data)
-                fp.close()
+                os.makedirs(ph_temp)
+            except:
+                pass
 
-                f = File(open(ph_temp, 'rb'))
-                f.name = os.path.basename(i)
-                pic = Image()
-                pic.gallery = tutorial.gallery
-                pic.title = os.path.basename(i)
-                pic.pubdate = datetime.now()
-                pic.physical = f
-                pic.save()
-                mapping[i] = pic.physical.url
-                f.close()
-            except IOError:
-                try:
-                    os.makedirs(ph_temp)
-                except:
-                    pass
-
-        zfile.close()
+    zfile.close()
     return mapping
 
 
@@ -2068,6 +2036,311 @@ def replace_real_url(md_text, dict):
 
     return md_text
 
+
+def import_content(request, tuto, images, logo):
+    tutorial = Tutorial()
+    # add create date
+    tutorial.create_at = datetime.now()
+
+    tree = etree.parse(tuto)
+    racine_big = tree.xpath("/bigtuto")
+    racine_mini = tree.xpath("/minituto")
+    if(len(racine_big) > 0):
+        # it's a big tuto
+        tutorial.type = 'BIG'
+        tutorial_title = tree.xpath("/bigtuto/titre")[0]
+        tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
+        tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
+
+        tutorial.title = tutorial_title.text.strip()
+        tutorial.description = tutorial_title.text.strip()
+        tutorial.images = 'images'
+        tutorial.introduction = 'introduction.md'
+        tutorial.conclusion = 'conclusion.md'
+        # Creating the gallery
+        gal = Gallery()
+        gal.title = tutorial_title.text
+        gal.slug = slugify(tutorial_title.text)
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # Attach user to gallery
+        userg = UserGallery()
+        userg.gallery = gal
+        userg.mode = 'W'  # write mode
+        userg.user = request.user
+        userg.save()
+
+        tutorial.gallery = gal
+
+        tutorial.save()
+
+        tuto_path = os.path.join(
+            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
+
+        mapping = upload_images(images, tutorial)
+
+        maj_repo_tuto(
+            request,
+            new_slug_path=tuto_path,
+            tuto=tutorial,
+            introduction=replace_real_url(
+                tutorial_intro.text,
+                mapping),
+            conclusion=replace_real_url(
+                tutorial_conclu.text,
+                mapping),
+            action='add')
+
+        tutorial.authors.add(request.user)
+        part_count = 1
+        for partie in tree.xpath("/bigtuto/parties/partie"):
+            part_title = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/titre")[0]
+            part_intro = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/introduction")[0]
+            part_conclu = tree.xpath(
+                "/bigtuto/parties/partie[" +
+                str(part_count) +
+                "]/conclusion")[0]
+
+            part = Part()
+            part.title = part_title.text.strip()
+            part.position_in_tutorial = part_count
+
+            part.tutorial = tutorial
+
+            part.introduction = os.path.join(
+                slugify(
+                    part_title.text.strip()),
+                'introduction.md')
+            part.conclusion = os.path.join(
+                slugify(
+                    part_title.text.strip()),
+                'conclusion.md')
+
+            part_path = os.path.join(
+                os.path.join(
+                    settings.REPO_PATH, str(
+                        part.tutorial.pk) + '_' + part.tutorial.slug), slugify(
+                    part.title))
+
+            part.save()
+
+            maj_repo_part(
+                request, None, part_path, part, replace_real_url(
+                    part_intro.text, mapping), replace_real_url(
+                    part_conclu.text, mapping), action='add')
+
+            chapter_count = 1
+            for chapitre in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre"):
+                chapter_title = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/titre")[0]
+                chapter_intro = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/introduction")[0]
+                chapter_conclu = tree.xpath(
+                    "/bigtuto/parties/partie[" +
+                    str(part_count) +
+                    "]/chapitres/chapitre[" +
+                    str(chapter_count) +
+                    "]/conclusion")[0]
+
+                chapter = Chapter()
+                chapter.title = chapter_title.text.strip()
+                chapter.position_in_part = chapter_count
+                chapter.position_in_tutorial = part_count * \
+                    chapter_count
+                chapter.part = part
+
+                chapter.introduction = os.path.join(
+                    part.slug,
+                    os.path.join(
+                        slugify(
+                            chapter_title.text.strip()),
+                        'introduction.md'))
+                chapter.conclusion = os.path.join(
+                    part.slug,
+                    os.path.join(
+                        slugify(
+                            chapter_title.text.strip()),
+                        'conclusion.md'))
+
+                chapter_path = os.path.join(
+                    os.path.join(
+                        os.path.join(
+                            settings.REPO_PATH,
+                            str(
+                                chapter.part.tutorial.pk) +
+                            '_' +
+                            chapter.part.tutorial.slug),
+                        chapter.part.slug),
+                    slugify(
+                        chapter.title))
+
+                chapter.save()
+
+                maj_repo_chapter(
+                    request,
+                    new_slug_path=chapter_path,
+                    chapter=chapter,
+                    introduction=replace_real_url(
+                        chapter_intro.text,
+                        mapping),
+                    conclusion=replace_real_url(
+                        chapter_conclu.text,
+                        mapping),
+                    action='add')
+
+                extract_count = 1
+                for souspartie in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre[" + str(chapter_count) + "]/sousparties/souspartie"):
+                    extract_title = tree.xpath(
+                        "/bigtuto/parties/partie[" +
+                        str(part_count) +
+                        "]/chapitres/chapitre[" +
+                        str(chapter_count) +
+                        "]/sousparties/souspartie[" +
+                        str(extract_count) +
+                        "]/titre")[0]
+                    extract_text = tree.xpath(
+                        "/bigtuto/parties/partie[" +
+                        str(part_count) +
+                        "]/chapitres/chapitre[" +
+                        str(chapter_count) +
+                        "]/sousparties/souspartie[" +
+                        str(extract_count) +
+                        "]/texte")[0]
+
+                    extract = Extract()
+                    extract.title = extract_title.text.strip()
+                    extract.position_in_chapter = extract_count
+                    extract.chapter = chapter
+
+                    extract.text = extract.get_path(
+                        relative=True)
+                    extract.save()
+
+                    maj_repo_extract(
+                        request,
+                        new_slug_path=extract.get_path(),
+                        extract=extract,
+                        text=replace_real_url(
+                            extract_text.text,
+                            mapping),
+                        action='add')
+
+                    extract_count += 1
+
+                chapter_count += 1
+
+            part_count += 1
+    elif len(racine_mini) > 0:
+        # it's a mini tuto
+        tutorial.type = 'MINI'
+        tutorial_title = tree.xpath("/minituto/titre")[0]
+        tutorial_intro = tree.xpath(
+            "/minituto/introduction")[0]
+        tutorial_conclu = tree.xpath("/minituto/conclusion")[0]
+
+        tutorial.title = tutorial_title.text.strip()
+        tutorial.description = tutorial_title.text.strip()
+        tutorial.images = 'images'
+        tutorial.introduction = 'introduction.md'
+        tutorial.conclusion = 'conclusion.md'
+
+        # Creating the gallery
+        gal = Gallery()
+        gal.title = tutorial_title.text
+        gal.slug = slugify(tutorial_title.text)
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # Attach user to gallery
+        userg = UserGallery()
+        userg.gallery = gal
+        userg.mode = 'W'  # write mode
+        userg.user = request.user
+        userg.save()
+
+        tutorial.gallery = gal
+
+        tutorial.save()
+
+        tuto_path = os.path.join(
+            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
+
+        mapping = upload_images(images, tutorial)
+
+        maj_repo_tuto(
+            request,
+            new_slug_path=tuto_path,
+            tuto=tutorial,
+            introduction=replace_real_url(
+                tutorial_intro.text,
+                mapping),
+            conclusion=replace_real_url(
+                tutorial_conclu.text,
+                mapping),
+            action='add')
+
+        tutorial.authors.add(request.user)
+
+        chapter = Chapter()
+        chapter.tutorial = tutorial
+        chapter.save()
+
+        extract_count = 1
+        for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
+            extract_title = tree.xpath(
+                "/minituto/sousparties/souspartie[" +
+                str(extract_count) +
+                "]/titre")[0]
+            extract_text = tree.xpath(
+                "/minituto/sousparties/souspartie[" +
+                str(extract_count) +
+                "]/texte")[0]
+
+            extract = Extract()
+            extract.title = extract_title.text.strip()
+            extract.position_in_chapter = extract_count
+            extract.chapter = chapter
+            extract.text = extract.get_path(relative=True)
+
+            extract.save()
+
+            maj_repo_extract(
+                request,
+                new_slug_path=extract.get_path(),
+                extract=extract,
+                text=replace_real_url(
+                    extract_text.text,
+                    mapping),
+                action='add')
+
+            extract_count += 1
+    
+@can_write_and_read_now
+@login_required
+@require_POST
+def local_import(request):
+    tuto = open(r'{0}'.format(request.POST['tuto'], "r")).read()
+    images = open(r'{0}'.format(request.POST['images'], "r")).read()
+    logo = open(r'{0}'.format(request.POST['logo']), "r").read()
+    
+    import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
+    
+    return redirect(reverse('zds.member.views.tutorials'))
 
 @can_write_and_read_now
 @login_required
@@ -2079,310 +2352,25 @@ def import_tuto(request):
             filename = str(request.FILES['file'])
             ext = filename.split('.')[-1]
             if ext == 'tuto':
-                if form.is_valid():
-
-                    tutorial = Tutorial()
-
-                    # add create date
-                    tutorial.create_at = datetime.now()
-
-                    tree = etree.parse(request.FILES['file'])
-                    racine_big = tree.xpath("/bigtuto")
-                    racine_mini = tree.xpath("/minituto")
-                    if(len(racine_big) > 0):
-                        # it's a big tuto
-                        tutorial.type = 'BIG'
-                        tutorial_title = tree.xpath("/bigtuto/titre")[0]
-                        tutorial_intro = tree.xpath("/bigtuto/introduction")[0]
-                        tutorial_conclu = tree.xpath("/bigtuto/conclusion")[0]
-
-                        tutorial.title = tutorial_title.text.strip()
-                        tutorial.description = tutorial_title.text.strip()
-                        tutorial.images = 'images'
-                        tutorial.introduction = 'introduction.md'
-                        tutorial.conclusion = 'conclusion.md'
-                        # Creating the gallery
-                        gal = Gallery()
-                        gal.title = tutorial_title.text
-                        gal.slug = slugify(tutorial_title.text)
-                        gal.pubdate = datetime.now()
-                        gal.save()
-
-                        # Attach user to gallery
-                        userg = UserGallery()
-                        userg.gallery = gal
-                        userg.mode = 'W'  # write mode
-                        userg.user = request.user
-                        userg.save()
-
-                        tutorial.gallery = gal
-
-                        tutorial.save()
-
-                        tuto_path = os.path.join(
-                            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
-
-                        mapping = upload_images(request, tutorial)
-
-                        maj_repo_tuto(
-                            request,
-                            new_slug_path=tuto_path,
-                            tuto=tutorial,
-                            introduction=replace_real_url(
-                                tutorial_intro.text,
-                                mapping),
-                            conclusion=replace_real_url(
-                                tutorial_conclu.text,
-                                mapping),
-                            action='add')
-
-                        tutorial.authors.add(request.user)
-                        part_count = 1
-                        for partie in tree.xpath("/bigtuto/parties/partie"):
-                            part_title = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/titre")[0]
-                            part_intro = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/introduction")[0]
-                            part_conclu = tree.xpath(
-                                "/bigtuto/parties/partie[" +
-                                str(part_count) +
-                                "]/conclusion")[0]
-
-                            part = Part()
-                            part.title = part_title.text.strip()
-                            part.position_in_tutorial = part_count
-
-                            part.tutorial = tutorial
-
-                            part.introduction = os.path.join(
-                                slugify(
-                                    part_title.text.strip()),
-                                'introduction.md')
-                            part.conclusion = os.path.join(
-                                slugify(
-                                    part_title.text.strip()),
-                                'conclusion.md')
-
-                            part_path = os.path.join(
-                                os.path.join(
-                                    settings.REPO_PATH, str(
-                                        part.tutorial.pk) + '_' + part.tutorial.slug), slugify(
-                                    part.title))
-
-                            part.save()
-
-                            maj_repo_part(
-                                request, None, part_path, part, replace_real_url(
-                                    part_intro.text, mapping), replace_real_url(
-                                    part_conclu.text, mapping), action='add')
-
-                            chapter_count = 1
-                            for chapitre in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre"):
-                                chapter_title = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/titre")[0]
-                                chapter_intro = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/introduction")[0]
-                                chapter_conclu = tree.xpath(
-                                    "/bigtuto/parties/partie[" +
-                                    str(part_count) +
-                                    "]/chapitres/chapitre[" +
-                                    str(chapter_count) +
-                                    "]/conclusion")[0]
-
-                                chapter = Chapter()
-                                chapter.title = chapter_title.text.strip()
-                                chapter.position_in_part = chapter_count
-                                chapter.position_in_tutorial = part_count * \
-                                    chapter_count
-                                chapter.part = part
-
-                                chapter.introduction = os.path.join(
-                                    part.slug,
-                                    os.path.join(
-                                        slugify(
-                                            chapter_title.text.strip()),
-                                        'introduction.md'))
-                                chapter.conclusion = os.path.join(
-                                    part.slug,
-                                    os.path.join(
-                                        slugify(
-                                            chapter_title.text.strip()),
-                                        'conclusion.md'))
-
-                                chapter_path = os.path.join(
-                                    os.path.join(
-                                        os.path.join(
-                                            settings.REPO_PATH,
-                                            str(
-                                                chapter.part.tutorial.pk) +
-                                            '_' +
-                                            chapter.part.tutorial.slug),
-                                        chapter.part.slug),
-                                    slugify(
-                                        chapter.title))
-
-                                chapter.save()
-
-                                maj_repo_chapter(
-                                    request,
-                                    new_slug_path=chapter_path,
-                                    chapter=chapter,
-                                    introduction=replace_real_url(
-                                        chapter_intro.text,
-                                        mapping),
-                                    conclusion=replace_real_url(
-                                        chapter_conclu.text,
-                                        mapping),
-                                    action='add')
-
-                                extract_count = 1
-                                for souspartie in tree.xpath("/bigtuto/parties/partie[" + str(part_count) + "]/chapitres/chapitre[" + str(chapter_count) + "]/sousparties/souspartie"):
-                                    extract_title = tree.xpath(
-                                        "/bigtuto/parties/partie[" +
-                                        str(part_count) +
-                                        "]/chapitres/chapitre[" +
-                                        str(chapter_count) +
-                                        "]/sousparties/souspartie[" +
-                                        str(extract_count) +
-                                        "]/titre")[0]
-                                    extract_text = tree.xpath(
-                                        "/bigtuto/parties/partie[" +
-                                        str(part_count) +
-                                        "]/chapitres/chapitre[" +
-                                        str(chapter_count) +
-                                        "]/sousparties/souspartie[" +
-                                        str(extract_count) +
-                                        "]/texte")[0]
-
-                                    extract = Extract()
-                                    extract.title = extract_title.text.strip()
-                                    extract.position_in_chapter = extract_count
-                                    extract.chapter = chapter
-
-                                    extract.text = extract.get_path(
-                                        relative=True)
-                                    extract.save()
-
-                                    maj_repo_extract(
-                                        request,
-                                        new_slug_path=extract.get_path(),
-                                        extract=extract,
-                                        text=replace_real_url(
-                                            extract_text.text,
-                                            mapping),
-                                        action='add')
-
-                                    extract_count += 1
-
-                                chapter_count += 1
-
-                            part_count += 1
-                    elif len(racine_mini) > 0:
-                        # it's a mini tuto
-                        tutorial.type = 'MINI'
-                        tutorial_title = tree.xpath("/minituto/titre")[0]
-                        tutorial_intro = tree.xpath(
-                            "/minituto/introduction")[0]
-                        tutorial_conclu = tree.xpath("/minituto/conclusion")[0]
-
-                        tutorial.title = tutorial_title.text.strip()
-                        tutorial.description = tutorial_title.text.strip()
-                        tutorial.images = 'images'
-                        tutorial.introduction = 'introduction.md'
-                        tutorial.conclusion = 'conclusion.md'
-
-                        # Creating the gallery
-                        gal = Gallery()
-                        gal.title = tutorial_title.text
-                        gal.slug = slugify(tutorial_title.text)
-                        gal.pubdate = datetime.now()
-                        gal.save()
-
-                        # Attach user to gallery
-                        userg = UserGallery()
-                        userg.gallery = gal
-                        userg.mode = 'W'  # write mode
-                        userg.user = request.user
-                        userg.save()
-
-                        tutorial.gallery = gal
-
-                        tutorial.save()
-
-                        tuto_path = os.path.join(
-                            settings.REPO_PATH, str(tutorial.pk) + '_' + slugify(tutorial.title))
-
-                        mapping = upload_images(request, tutorial)
-
-                        maj_repo_tuto(
-                            request,
-                            new_slug_path=tuto_path,
-                            tuto=tutorial,
-                            introduction=replace_real_url(
-                                tutorial_intro.text,
-                                mapping),
-                            conclusion=replace_real_url(
-                                tutorial_conclu.text,
-                                mapping),
-                            action='add')
-
-                        tutorial.authors.add(request.user)
-
-                        chapter = Chapter()
-                        chapter.tutorial = tutorial
-                        chapter.save()
-
-                        extract_count = 1
-                        for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
-                            extract_title = tree.xpath(
-                                "/minituto/sousparties/souspartie[" +
-                                str(extract_count) +
-                                "]/titre")[0]
-                            extract_text = tree.xpath(
-                                "/minituto/sousparties/souspartie[" +
-                                str(extract_count) +
-                                "]/texte")[0]
-
-                            extract = Extract()
-                            extract.title = extract_title.text.strip()
-                            extract.position_in_chapter = extract_count
-                            extract.chapter = chapter
-                            extract.text = extract.get_path(relative=True)
-
-                            extract.save()
-
-                            maj_repo_extract(
-                                request,
-                                new_slug_path=extract.get_path(),
-                                extract=extract,
-                                text=replace_real_url(
-                                    extract_text.text,
-                                    mapping),
-                                action='add')
-
-                            extract_count += 1
-
-                    return redirect(tutorial.get_absolute_url())
+                import_content(request, request.FILES['file'], request.FILES['images'], '')
             else:
                 raise Http404
 
+        return redirect(reverse('zds.member.views.tutorials'))
     else:
         form = ImportForm()
 
+        profile = get_object_or_404(Profile, user=request.user) 
+        oldtutos = []
+        if profile.sdz_tutorial:
+            olds = profile.sdz_tutorial.strip().split(':')
+        else:
+            olds = []
+        for old in olds:
+            oldtutos.append(get_info_old_tuto(old))
+
     return render_template('tutorial/import_tutorial.html', {
-        'form': form
+        'form': form, 'old_tutos' : oldtutos,
     })
 
 
@@ -2756,6 +2744,8 @@ def get_url_images(md_text, pt):
             # if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
+                if not os.path.isdir(os.path.join(pt,'images')):
+                    os.makedirs(os.path.join(pt,'images'))
 
                 # download image
                 urlretrieve(
@@ -2894,7 +2884,7 @@ def MEP(tutorial, sha):
     # load pandoc
     os.chdir(tutorial.get_prod_path())
     os.system(
-        "pandoc --latex-engine=xelatex -s -S --toc " +
+        settings.PANDOC_LOC+"pandoc --latex-engine=xelatex -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2903,27 +2893,27 @@ def MEP(tutorial, sha):
             tutorial.get_prod_path(),
             tutorial.slug) +
         ".html")
-    
-    rs = subprocess.Popen(['pandoc',
-          '--latex-engine=xelatex',
-          '--template=../../assets/tex/template.tex',
-          '-s',
-          '-S',
-          '-N',
-          '--toc',
-          '--variable','documentclass=scrbook',
-          '--variable','lang=francais',
-          '--variable','mainfont=Verdana',
-          '--variable','fontsize=12pt',
-          '--variable','geometry:margin=1in',
-          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md',
-          '-o',
-          os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'],
-               stdout=subprocess.PIPE)
-    output, err = rs.communicate()
-    
     os.system(
-        "pandoc -s -S --toc " +
+        settings.PANDOC_LOC+'pandoc ' +
+        '--latex-engine=xelatex ' +
+        '--template=../../assets/tex/template.tex ' +
+        '-s ' +
+        '-S ' +
+        '-N ' +
+        '--toc ' +
+        '-V documentclass=scrbook ' +
+        '-V lang=francais ' +
+        '-V mainfont=Verdana ' +
+        '-V monofont="Andale Mono" ' +
+        '-V fontsize=12pt ' +
+        '-V geometry:margin=1in ' +
+        os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md ' +
+        '-o ' +
+        os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'
+        )
+
+    os.system(
+        settings.PANDOC_LOC+"pandoc -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2933,7 +2923,7 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".epub")
     os.chdir(settings.SITE_ROOT)
-    
+
     return (output, err)
 
 def UNMEP(tutorial):
@@ -3023,6 +3013,8 @@ def answer(request):
         if 'cite' in request.GET:
             note_cite_pk = request.GET['cite']
             note_cite = Note.objects.get(pk=note_cite_pk)
+            if not note_cite.is_visible:
+                raise PermissionDenied
 
             for line in note_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
@@ -3043,6 +3035,27 @@ def answer(request):
             'form': form
         })
 
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    # only staff can move topic
+    if not request.user.has_perm('tutorial.change_note'):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
+    note = Note.objects.get(pk=alert.comment.id)
+    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, note.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
+    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.tutorial.title), "", msg, False)
+    alert.delete()
+
+    messages.success(
+        request,
+        u'L\'alerte a bien été résolue')
+
+    return redirect(note.get_absolute_url())
 
 @can_write_and_read_now
 @login_required
@@ -3062,7 +3075,7 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note
     # must to be the user logged.
-    if note.author != request.user and not request.user.has_perm('tutorial.change_note'):
+    if note.author != request.user and not request.user.has_perm('tutorial.change_note')and 'signal-note' not in request.POST:
         raise PermissionDenied
 
     if note.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_note'):
@@ -3089,13 +3102,14 @@ def edit_note(request):
                 note.text_hidden = ''
 
         if 'signal-note' in request.POST:
-            if note.author != request.user:
-                alert = Alert()
-                alert.author = request.user
-                alert.text = request.POST['signal-text']
-                alert.pubdate = datetime.now()
-                alert.save()
-                note.alerts.add(alert)
+            alert = Alert()
+            alert.author = request.user
+            alert.comment = note
+            alert.scope = Alert.TUTORIAL
+            alert.text = request.POST['signal-text']
+            alert.pubdate = datetime.now()
+            alert.save()
+
         # Using the preview button
         if 'preview' in request.POST:
             form = NoteForm(g_tutorial, request.user, initial={

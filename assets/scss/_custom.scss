@@ -4,6 +4,11 @@
 	line-height: 55px;
 }
 
+.top-bar-section .right .has-dropdown a:after{
+	display: none;
+
+}
+
 .top-bar-section .right .dropdown li:not(.has-form) a:not(.button), .top-bar-section .right .dropdown li:not(.has-form) label {
 	line-height: 24px;
 }
@@ -49,6 +54,28 @@
 	line-height: 40px;
 }
 
+.top-bar-section .dropdown form {
+	width: 100%;
+	height: 24px;
+
+	button {
+		width: 100%;
+		top: -1px;
+		text-align: left;
+		line-height: 24px;
+		height: 24px;
+		font-size: 13px;
+		padding: 0 20px;
+		background: #084561;
+
+		&:hover,
+		&:focus {
+			background: #396a81;
+			transition: background-color 150ms ease-out;
+		}
+	}
+}
+
 /*
 Logo
 */
@@ -59,13 +86,74 @@ Logo
 /*
 Fil d'ariance
 */
+/*
+.breadcrumb {
+        position: relative;
+        display: block;
+        float: left;
+        width: calc(100% - 230px);
+        height: 30px;
+
+        &:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 100%;
+            background-image :linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75));
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            li {
+                position: relative;
+                display: inline-block;
+                padding-right: 30px;
+                line-height: 30px;
+
+                a {
+                    text-decoration: none;
+                    color: #084561;
+
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                        outline: none;
+                    }
+                }
+
+                &:not(:last-child):after {
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    right: 7px;
+                    content: " ";
+                    height: 30px;
+                    width: 15px;
+                    background-image: url('../img/ariane.png');
+                    background-repeat: no-repeat;
+                    opacity : 0.2;
+                }
+            }
+        }
+    }
+*/
 .ariane {
 	border-top: 3px solid #ff8c00;
 	margin-bottom: 20px;
+	padding-left: 30px;
 	position: relative;
 	display: block;
 	float: left;
-	width: 100%;
+	width: calc(100%);
 	height: 33px;
 	background : #e7ebec;
 	-webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.25);
@@ -92,7 +180,7 @@ Fil d'ariance
 .ariane ul li a {
 	text-decoration: none;
 	color: #084561;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 
 .ariane ul li:not(:last-child):after {
@@ -108,6 +196,40 @@ Fil d'ariance
 	opacity: 0.2;
 }
 
+.search {
+        &:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            left: -20px;
+            height: 30px;
+            width: 20px;
+            background : linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0));
+        }
+        form {
+            input {
+                padding: 8px 10px;
+                height: 30px;
+                width: 150px;
+            }
+            button {
+                height: 30px;
+                line-height: 30px;
+                width: 30px;
+                position: absolute;
+
+                &:after {
+                    top: 7px;
+                }
+            }
+        }
+        .search-more {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+
 /*
 Side Bar
 */
@@ -116,22 +238,24 @@ Side Bar
 	border-bottom: none;
 
 	padding: 0 0 10px;
+	border-top: 1px solid #FFF;
 	border-bottom: 1px solid #FFF;
 	color: #424242;
-	margin: 0 0 0 -2.7%;
+	margin-left: -$column-gutter;
 }
 .side-nav h5 {
 	font-size: 1rem;
+	padding-left: $column-gutter*2;
 }
 .side-nav h4 {
 	font-size: 1.1rem;
 	border-bottom: 1px solid #CCC;
+	padding-left: $column-gutter;
 }
 .side-nav h3 {
 	height: 40px;
 	font-size: 1.2rem;
-	line-height: 40px;
-	line-height: 2.6rem;
+	line-height: 2.5rem;
 	color: #084561;
 	background-color: #d3d5d5;
 	margin-top: 30px;
@@ -143,12 +267,11 @@ Side Bar
 	background-image: linear-gradient(right, rgba(0,0,0,0.05),transparent 15px);
 }
 
-.side-nav h3, 
-.side-nav h4 {
+.side-nav h3 {
 	font-weight: 600;
 	margin: 0;
-	padding: 5px;
-}
+	padding-left: 45px;
+} 
 
 .side-nav ul {
 	margin-top: 10px;
@@ -184,6 +307,25 @@ Side Bar
 /**
 Box
 */
+
+.box {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.box + .subtitle {
+	font-size: 1rem;
+	color: #777;
+	margin-left: -$column-gutter;
+	margin-top: -15px;
+	margin-bottom: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: $column-gutter*2;
+	background: #EEE;
+	font-weight: normal;
+}
 
 h1.box, h2.box, h3.box, h4.box, h5.box {
 	line-height: 40px;
@@ -363,20 +505,38 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	width: 100%;
 	border : 0px;
 	border-collapse:collapse;
+
 }
 .topics-entries tr td{
 	border-bottom: 1px solid #ff8c00;
 }
 
-.topic_unread {
-	font-weight: 700;
+.unread a{
+	font-weight: bold;
 }
+
 .topics-entries .read{
-	background-color: #f4f6f6;
+	background-color: #EEE;
 }
 
 .topics-entries .unread{
 	background-color: #FFF;
+}
+
+.forum-entry-solved:before {
+	content:url("../img/thumb-up-voted.png");
+}
+
+.forum-entry-locked:before {
+	content:url("../img/lock-blue.png");
+}
+
+.forum-entry-sticky:before {
+	content:url("../img/pin-blue.png");
+}
+
+#id_text {
+	font-family: "Ubuntu Mono"
 }
 
 .message-forum {
@@ -387,37 +547,84 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	padding-top: 20px;
 }
 
-.message-forum:after{
-	content: " ";
-	left: -15px;
-	display: block;
-	position: absolute;
-	top: 15px;
-	height: 0;
-	width: 0;
-	border: 15px solid transparent;
-	border-left: 0;
-	border-right-color: #FFF;
+@media #{$large-up} {
+	.message-forum:after{
+		content: " ";
+		left: -15px;
+		display: block;
+		position: absolute;
+		top: 15px;
+		height: 0;
+		width: 0;
+		border: 15px solid transparent;
+		border-left: 0;
+		border-right-color: #FFF;
+	}
+
+
+	.avatar-forum:after{
+		content: " ";
+		right: 0px;
+		display: block;
+		position: absolute;
+		top: 17px;
+		height: 0;
+		width: 0;
+		border: 15px solid transparent;
+		border-left: 0;
+		border-right-color: #CCC;
+	}
 }
 
 .message-forum .message-content {
 	padding-top: 20px;
 }
 
+.message-content a{
+	color: #ff8c00;
+}
+
+.message-content a:hover{
+	text-decoration: underline;
+}
+
 .message-forum .message-content p{
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 .message-forum .message-actions a {
 	color: #999;
-	font-size: 0.9rem;
 	text-decoration: none;
 	margin-right: 5px;
+	font-size: 0.8rem;
+}
+.useful {
+	background-color: #e9f9dc;
 }
 
+.useful:after {
+	border-right-color: #e9f9dc;
+}
+
+.before {
+	background-color: #EEE
+}
+
+.before:after {
+	border-right-color: #EEE;
+}
+
+
+.signature {
+	text-overflow: ellipsis;
+	width: 85%;
+	white-space: nowrap;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+}
 .message-forum .message-metadata a,.message-forum .message-metadata i, .message-forum .signature p{
 	color: #999;
 	text-decoration: none;
-	font-size: 0.9rem;
+	font-size: 0.7rem;
 }
 
 .message-forum .message-metadata {
@@ -425,25 +632,26 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 }
 
 .username {
-	font-size: 0.8rem;
+	font-size: 0.7rem;
 	padding: 5px;
 	text-align: center;
+	word-wrap: break-word;
 }
 
 .avatar-forum {
 	border-radius: 15%;
 }
 
+.upvote, .downvote {
+	font-weight: bold;
+}
+
 .upvote {
-	background-image: url("../img/thumb-up-voted.png");
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $success-color;
 }
 
 .downvote {
-	background-image: url("../img/thumb-down-voted.png");	
-	width: 16px;
-	height: 16px;
+	border-left: 3px solid $alert-color;
 }
 
 .form-alone
@@ -468,7 +676,7 @@ figure figurecaption {
     display: block;
 }
 
-blockquote ~ figurecaption, blockquote {
+figure > table, blockquote ~ figurecaption, blockquote {
     text-align: left;
 }
 

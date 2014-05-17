@@ -16,6 +16,13 @@
     <h2 class="box article">{% block head-title %}{% endblock %}</h2>
 {% endblock %}
 
+
 {% block sidebar %}
+    <h3>Actions sur les articles</h3>
+    <ul>
+        <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
+        {% block headline-sub-actions %}{% endblock %}
+    </ul>
 	{% block headline-actions %}{% endblock %}
+    {% block headline-add %}{% endblock %}
 {% endblock %}

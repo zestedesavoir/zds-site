@@ -1,7 +1,6 @@
 <ul class="pagination">
-    <li class="arrow {% ifequal nb 1 %}unavaible{% endifequal %}">
-        <a href="{% ifnotequal nb 1 %}{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}{% else %}javascript:;{% endifnotequal %}">
-            «
+    <li class="{% ifequal nb 1 %}unavaible{% endifequal %}">
+        <a class="fi-rewind " href="{% ifnotequal nb 1 %}{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}{% else %}javascript:;{% endifnotequal %}">
         </a>
     </li>
 
@@ -26,9 +25,8 @@
         {% endif %}
     {% endfor %}
     
-    <li class="arrow {% ifequal nb pages|last %}unavaible{% endifequal %}">
-        <a href="{% ifnotequal nb pages|last %}{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}{% else %}javascript:;{% endifnotequal %}">
-            »
+    <li class="{% ifequal nb pages|last %}unavaible{% endifequal %}">
+        <a class="fi-fast-forward " href="{% ifnotequal nb pages|last %}{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}{% else %}javascript:;{% endifnotequal %}">
         </a>
     </li>
 </ul>

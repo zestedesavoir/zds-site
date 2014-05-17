@@ -34,4 +34,7 @@ def render_template(tmpl, dct=None):
 
 
 def slugify(text):
-    return defaultfilters.slugify(text)
+    if defaultfilters.slugify(text).strip('') == '':
+        return '--'
+    else:
+        return defaultfilters.slugify(text)

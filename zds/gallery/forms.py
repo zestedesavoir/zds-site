@@ -1,24 +1,26 @@
 # coding: utf-8
 
-from django import forms
 from django.conf import settings
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
-    HTML, Hidden
+from crispy_forms_foundation.layout import HTML, Layout, Fieldset, Submit, Field, \
+    ButtonHolder, Hidden
+from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+
+from zds.gallery.models import Gallery, Image
 
 
 class GalleryForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80
+        max_length = Gallery._meta.get_field('title').max_length,
     )
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length=200,
+        max_length = Gallery._meta.get_field('subtitle').max_length,
         required=False
     )
 
@@ -54,7 +56,7 @@ class GalleryForm(forms.Form):
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
         label='Membre',
-        max_length=80,
+        max_length = User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
             attrs={
@@ -105,13 +107,13 @@ class UserGalleryForm(forms.Form):
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = Image._meta.get_field('title').max_length,
         required=True,
     )
 
     legend = forms.CharField(
         label=u'Légende',
-        max_length=150,
+        max_length = Image._meta.get_field('legend').max_length,
         required=False,
     )
 

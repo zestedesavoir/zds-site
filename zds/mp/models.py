@@ -2,13 +2,14 @@
 
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import slugify
+from zds.utils import slugify
 from math import ceil
 
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from zds.utils import get_current_user
+from django.core.urlresolvers import reverse
 
 
 class PrivateTopic(models.Model):
@@ -35,7 +36,9 @@ class PrivateTopic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/mp/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.mp.views.topic',
+                       kwargs={'topic_pk': self.pk,
+                               'topic_slug': slugify(self.title)})
 
     def get_post_count(self):
         """Return the number of private posts in the private topic."""
@@ -77,32 +80,18 @@ class PrivateTopic(models.Model):
     def first_unread_post(self):
         """Return the first post the user has unread."""
         try:
-            # Retrieve all posts of the MP
-            post = PrivateTopicRead.objects\
+            last_post = PrivateTopicRead.objects\
                 .select_related()\
-                .filter(privatetopic=self, user=get_current_user())
-
-            # There isn't answer on the MP, last private post position is this
-            # first post.
-            if len(post) == 0:
-                last_private_post = self.first_post()
-                last_private_post_position = last_private_post.position_in_topic
-
-            # There are anwsers on the MP, we retrieve last private post read send
-            # and we take the next post of this last private post.
-            else:
-                last_private_post = post.latest(
-                    'privatepost__pubdate').privatepost
-                last_private_post_position = last_private_post.position_in_topic + \
-                    1
-
-            # Retrieve the first unread post.
-            next_private_post = PrivatePost.objects.get(
+                .filter(privatetopic=self, user=get_current_user())\
+                .latest('post__pubdate').privatepost
+            
+            next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                position_in_topic=last_private_post_position)
-            return next_private_post
-        except PrivatePost.DoesNotExist:
-            return self.last_read_post(self)
+                pubdate__gt=last_post__pubdate).first()
+
+            return next_post
+        except:
+            return self.first_post()
 
     def alone(self):
         """Check if there just one participant in the conversation

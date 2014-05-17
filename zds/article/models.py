@@ -18,6 +18,7 @@ from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
 from zds.utils.models import SubCategory, Comment
+from django.core.urlresolvers import reverse
 
 
 IMAGE_MAX_WIDTH = 480
@@ -82,13 +83,17 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/articles/off/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_absolute_url_online(self):
-        return '/articles/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view_online',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return '/articles/off/editer?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None
@@ -156,9 +161,6 @@ class Article(models.Model):
 
             image = Image.open(self.image)
 
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
-
             image.thumbnail(thumb_size, Image.ANTIALIAS)
 
             # save the thumbnail to memory
@@ -186,14 +188,11 @@ class Article(models.Model):
         try:
             last_reaction = Reaction.objects.all()\
                 .filter(article__pk=self.pk)\
-                .order_by('-pubdate')[0]
+                .order_by('pubdate').last()
         except:
             last_reaction = None
 
-        if last_reaction == self.first_reaction():
-            return None
-        else:
-            return last_reaction
+        return last_reaction
 
     def first_reaction(self):
         """Return the first post of a topic, written by topic's author."""

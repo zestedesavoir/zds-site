@@ -25,7 +25,7 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Tal
 Comment démarrer une instance de ZdS ?
 --------------------------------------
 ### Pré-requis
-- Python 2.7 (avec les fichiers de developpement, le paquet `python-dev` sous Ubuntu)
+- Python 2.7 (avec les fichiers de developpement, les paquets `python-dev` et `python-lxml` sous Debian/Ubuntu)
 - Pip
 - git
 
@@ -39,7 +39,7 @@ Comment démarrer une instance de ZdS ?
     - [PowerShell 3.0+](http://www.microsoft.com/fr-fr/download/details.aspx?id=40855)
     - [MinGW](http://sourceforge.net/projects/mingw/files/latest/download)
     - [Git](http://git-scm.com/download/win) (Git pour Eclipse ne suffit pas ; associez les .sh)
-- [Téléchargez et installez Python 2.7](https://www.python.org/ftp/python/2.7.5/python-2.7.5.msi)
+- [Téléchargez et installez Python 2.7](https://www.python.org/download/releases/2.7/)
 - Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) **en mode administrateur** et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
 - Redémarrez Powershell
 - Installez pip : `easy_install pip`
@@ -61,10 +61,43 @@ Comment démarrer une instance de ZdS ?
     - `python manage.py runserver`
 - Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
 
+####Sur OS X
+Avant de vous lancez dans l'installation de l'environnement de zds, il faut quelques pré-requis :
+* Installer [XCode](https://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12) pour pouvoir exécuter des commandes (g)cc.
+* Installer [MacPorts](http://www.macports.org/) pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
+
+Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds :
+```
+# Installation de virtualenv.
+pip install virtualenv
+pip install virtualenvwrapper
+mkdir ~/.virtualenvs
+echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
+
+# Création de votre environnement.
+mkvirtualenv zdsenv
+
+# Récupération de la librairie lxml pour python 2.7 via MacPorts.
+sudo port install py27-lxml
+
+# Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml.
+export CFLAGS=-Qunused-arguments
+export CPPFLAGS=-Qunused-arguments
+
+# Installation de toutes les dépendances.
+pip install -r requirements.txt
+```
+
+Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
+Pour sortir de votre environnement : `deactive`
+
 ####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
 **NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
+
+**NB2 : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.**
 
 ```console
 pip install --user -r requirements.txt
@@ -103,6 +136,18 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 
 ```console
 python manage.py test
+```
+
+Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
+
+```console
+/usr/bin/env python2 manage.py schemamigration app_name --auto
+```
+
+Si vous avez une connexion lente et que vous ne voulez travailler que sur une branche précise, vous pouvez toujours ne récupérer que celle-ci :
+
+```
+git clone https://github.com/Taluu/ZesteDeSavoir.git --depth 1
 ```
 
 En savoir plus

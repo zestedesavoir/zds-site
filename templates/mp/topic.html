@@ -69,7 +69,7 @@
 {% for post in posts %}
 <div class="row">
     <div class="large-12 columns">
-        <div class="large-1 columns">
+        <div class="large-1 columns avatar-forum">
             <div class="centered">
             <a href="{{ post.author.get_absolute_url }}" class="username">{{ post.author.username }}</a>
             </div>
@@ -95,11 +95,6 @@
 
                     <div class="message-metadata left">
                         <a href="#p{{ post.pk }}" class="date">{{ post.pubdate|naturaltime }}</a>
-                        {% if not post.is_visible %}
-                            <i>Masqué par {{ post.editor }} : {{ post.text_hidden }}</i>
-                        {% elif not post.update = None %}
-                            <i>(Edité {{ post.update|naturaltime }} par {{ post.editor }} )</i>
-                        {% endif %}
                     </div>
                 <div class="large-12 columns">
                 <div class="message-content">
@@ -131,12 +126,7 @@
 {% if user.is_authenticated %}
 {% with profile=user|profile%}
 <div class="large-12 columns">
-    <div class="large-1 columns user hide-for-small">
-        <img src="{{profile.get_avatar_url}}" alt="" class="avatar-forum avatar-link">
-    </div>
-    <div class="large-11 columns user hide-for-small">
-        {% crispy form %}
-    </div>
+    {% crispy form %}
 </div>
 {% endwith %}
 {% endif %}

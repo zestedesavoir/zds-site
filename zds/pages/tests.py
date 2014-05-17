@@ -1,21 +1,15 @@
 # coding: utf-8
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from django.core import mail
-from django.core.urlresolvers import reverse
-
-from zds import settings
-from zds.member.factories import UserFactory, StaffFactory
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.utils import slugify
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 
 class PagesMemberTests(TestCase):
 
     def setUp(self):
-        self.user1 = UserFactory()
+        self.user1 = ProfileFactory().user
         log = self.client.login(
             username=self.user1.username,
             password='hostel77')
@@ -89,7 +83,7 @@ class PagesMemberTests(TestCase):
 class PagesStaffTests(TestCase):
 
     def setUp(self):
-        self.staff = StaffFactory()
+        self.staff = StaffProfileFactory().user
         log = self.client.login(
             username=self.staff.username,
             password='hostel77')

@@ -13,12 +13,13 @@ from django.core.urlresolvers import reverse
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 from zds.utils.models import Category, SubCategory, Licence
+from zds.tutorial.models import Tutorial
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=80,
+        max_length = Tutorial._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -44,7 +45,7 @@ class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
         label='Description',
-        max_length=200,
+        max_length = Tutorial._meta.get_field('description').max_length,
         required=False,
     )
 
@@ -74,7 +75,8 @@ class TutorialForm(FormWithTitle):
     )
 
     type = forms.ChoiceField(
-        choices=TYPE_CHOICES
+        choices=TYPE_CHOICES,
+        required=False
     )
 
     subcategory = forms.ModelMultipleChoiceField(
@@ -110,10 +112,14 @@ class TutorialForm(FormWithTitle):
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
-                StrictButton('Valider', type='submit', css_class='btn-submit'),
+                StrictButton('Valider', type='submit', css_class='button'),
             ),
         )
-
+        
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+            Field,
+            disabled=True)
 
 class PartForm(FormWithTitle):
 
@@ -316,10 +322,11 @@ class NoteForm(forms.Form):
         )
 
         if tutorial.antispam(user):
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
-                disabled=True)
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
+                    disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(
                 Field,
