@@ -27,7 +27,7 @@
         {% for topic in privatetopics %}
             <div class="topic {% if topic.never_read %}unread{% endif %} navigable-elem">
                 <div class="topic-infos">
-                    <input name="topics" type="checkbox" value="{{ topic.pk }}">
+                    <input name="items" type="checkbox" value="{{ topic.pk }}">
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description" style="background-image: url({{ profile.get_avatar_url }})">
@@ -91,8 +91,8 @@
                 <a href="#delete-conversations" class="open-modal ico-after cross blue">
                     Supprimer les conversations
                 </a>
-                {# FIXME : Je pense qu'il manque une url pour le formulaire #}
-                <form action="" method="POST" id="delete-conversations" class="modal modal-small">
+                
+                <form action="{% url "zds.mp.views.index" %}" method="POST" id="delete-conversations" class="modal modal-small">
                     <p>
                         Attention, vous vous appretez à supprimer toutes les conversations sélectionnées.
                     </p>
