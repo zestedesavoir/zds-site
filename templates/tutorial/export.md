@@ -3,6 +3,7 @@
 % {% for member in tutorial.authors.all %}{{ member.username|title }}, {% endfor %}
 % {{ tutorial.pubdate|date:"d F Y" }}
 
+{% autoescape off %}
 {% if tutorial.intro %}
 #Introduction
 {{ tutorial.intro|safe }}
@@ -33,3 +34,4 @@
 #Conclusion
 {{ tutorial.conclu|safe }}
 {% endif %}
+{% endautoescape %}
