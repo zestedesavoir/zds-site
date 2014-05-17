@@ -27,7 +27,7 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur')
+    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -37,7 +37,7 @@ class Profile(models.Model):
 
     site = models.CharField('Site internet', max_length=128, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
-                                     default=True)
+                                     default=False)
 
     avatar_url = models.CharField(
         'URL de l\'avatar', max_length=128, null=True, blank=True
@@ -47,13 +47,18 @@ class Profile(models.Model):
 
     karma = models.IntegerField('Karma', default=0)
 
-    sign = models.TextField('Signature', blank=True)
+    sign = models.TextField('Signature', max_length=250, blank=True)
 
     show_sign = models.BooleanField('Voir les signatures',
                                     default=True)
 
     hover_or_click = models.BooleanField('Survol ou click ?',
                                          default=False)
+
+    email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
+                                         default=False)
+
+    sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField(
@@ -67,13 +72,19 @@ class Profile(models.Model):
         null=True,
         blank=True)
 
+    last_visit = models.DateTimeField(
+        'Date de dernière visite',
+        null=True,
+        blank=True)
+
     def __unicode__(self):
         """Textual forum of a profile."""
         return self.user.username
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return '/membres/voir/{0}'.format(self.user.username)
+        return reverse('zds.member.views.details',
+                       kwargs={'user_name': self.user.username})
 
     def get_city(self):
         """return physical adress by geolocalisation."""
@@ -84,7 +95,7 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         return u'{0} ({1}) : {2}'.format(
-            str(geo['city']), str(geo['postal_code']), str(geo['country_name']))
+            geo['city'], geo['postal_code'], geo['country_name'])
 
     def get_avatar_url(self):
         """Avatar URL (using custom URL or Gravatar)"""
@@ -173,16 +184,23 @@ class Profile(models.Model):
         return Alert.objects.filter(author=self.user).count()
 
     def can_read_now(self):
-        if self.end_ban_read:
-            return self.can_read or (self.end_ban_read < datetime.now())
-        else:
-            return self.can_read
+        if self.user.is_authenticated:
+            if self.user.is_active:
+                if self.end_ban_read:
+                    return self.can_read or (self.end_ban_read < datetime.now())
+                else:
+                    return self.can_read
+            else:
+                return False
 
     def can_write_now(self):
-        if self.end_ban_write:
-            return self.can_write or (self.end_ban_write < datetime.now())
+        if self.user.is_active:
+            if self.end_ban_write:
+                return self.can_write or (self.end_ban_write < datetime.now())
+            else:
+                return self.can_write
         else:
-            return self.can_write
+            return False
 
     def get_followed_topics(self):
         """Followed topics."""
@@ -241,3 +259,37 @@ class Ban(models.Model):
         'Date de publication',
         blank=True,
         null=True)
+
+def listing():
+
+    fichier = []
+    if os.path.isdir(settings.SDZ_TUTO_DIR):
+        for root in os.listdir(settings.SDZ_TUTO_DIR):
+            if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, root)):
+                num = root.split('_')[0]
+                if num != None and num.isdigit():
+                    fichier.append((num, root))
+        return fichier
+    else:
+        return ()
+
+def get_info_old_tuto(id):
+    titre = ''
+    tuto = ''
+    images = ''
+    logo = ''
+    if os.path.isdir(settings.SDZ_TUTO_DIR):
+        for rep in os.listdir(settings.SDZ_TUTO_DIR):
+            if rep.startswith(str(id)+'_'):
+                if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                    for root, dirs, files in os.walk(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                        for file in files:
+                            if file.split('.')[-1]=='tuto':
+                                titre = os.path.splitext(file)[0]
+                                tuto = os.path.join(root, file)
+                            elif file.split('.')[-1]=='zip':
+                                images = os.path.join(root, file)
+                            elif file.split('.')[-1]in ['png', 'jpg', 'ico', 'jpeg', 'gif']:
+                                logo = os.path.join(root, file)
+
+    return (id, titre, tuto, images, logo)

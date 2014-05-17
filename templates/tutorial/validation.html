@@ -21,9 +21,9 @@
 {% block headline-actions %}
     <h3>Navigation</h3>
     <ul>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}" class="button">Zone de validation</a></li>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="button">En cours de validation</a></li>
-        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="button">En attente de validateur</a></li>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}" >Zone de validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" >En cours de validation</a></li>
+        <li><a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" >En attente de validateur</a></li>
     </ul>
 {% endblock %}
 {% block content %}
@@ -61,7 +61,7 @@
                     </td>
                     <td>
                         {% for author in validation.tutorial.authors.all %}
-                        <a href="{% url "zds.member.views.details" user.username %}">{{ author.username }}</a>
+                        <a href="{% url "zds.member.views.details" author.username %}">{{ author.username }}</a>
                         {% endfor %}
                     </td>
                     <td>

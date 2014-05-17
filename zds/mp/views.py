@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -61,6 +61,7 @@ def index(request):
     except EmptyPage:
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
+
 
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
@@ -131,7 +132,7 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -164,8 +165,14 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, ctrl, data['title'], data['subtitle'], data['text'])
-            
+            p_topic = send_mp(request.user,
+                              ctrl,
+                              data['title'],
+                              data['subtitle'],
+                              data['text'],
+                              True,
+                              False)
+
             return redirect(p_topic.get_absolute_url())
 
         else:
@@ -191,7 +198,7 @@ def new(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 def edit(request):
@@ -221,7 +228,7 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -232,10 +239,6 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
-
-    # Check that the user isn't spamming
-    if g_topic.antispam(request.user):
-        raise PermissionDenied
 
     # Retrieve 3 last posts of the currenta topic.
     posts = PrivatePost.objects\
@@ -284,32 +287,34 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    pos = post.position_in_topic - 1
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=g_topic,
-                        privatepost__position_in_topic=pos,
-                        user=part).count()
-                    if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-                        message_txt = get_template('email/mp.txt').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
+                    profile = Profile.objects.get(user = part)
+                    if profile.email_for_answer :
+                        pos = post.position_in_topic - 1
+                        last_read = PrivateTopicRead.objects.filter(
+                            privatetopic=g_topic,
+                            privatepost__position_in_topic=pos,
+                            user=part).count()
+                        if last_read > 0:
+                            message_html = get_template('email/mp.html').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+                            message_txt = get_template('email/mp.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
+    
+                            msg = EmailMultiAlternatives(
+                                subject, message_txt, from_email, [
+                                    part.email])
+                            msg.attach_alternative(message_html, "text/html")
+                            msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
@@ -347,7 +352,7 @@ def answer(request):
         })
 
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 def edit_post(request):
     """Edit the given user's post."""
@@ -418,7 +423,7 @@ def edit_post(request):
             'form': form,
         })
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
@@ -432,16 +437,16 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else : 
+        else :
             ptopic.participants.remove(request.user)
             ptopic.save()
-        
+
         messages.success(
                 request, 'Vous avez quitté la conversation avec succès.')
-    
+
     return redirect(reverse('zds.mp.views.index'))
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @require_POST
 @transaction.atomic
@@ -449,11 +454,14 @@ def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
     try :
         part = User.objects.get(username=request.POST['user_pk'])
-        ptopic.participants.add(part)
-        ptopic.save()
+        if part.pk == ptopic.author.pk or part in ptopic.participants.all():
+            messages.warning(
+                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+        else:
+            ptopic.participants.add(part)
+            ptopic.save()
 
-        messages.success(
-                request, 'Le membre a bien été ajouté à la conversation')
+            messages.success(request, 'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
                 request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')

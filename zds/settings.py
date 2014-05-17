@@ -97,6 +97,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
+FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
     'main-js': {
@@ -140,6 +141,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
+    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -179,25 +181,31 @@ INSTALLED_APPS = (
     'south',
     'crispy_forms',
     'crispy_forms_foundation',
-    'captcha',
     'email_obfuscator',
     'pipeline',
     'haystack',
+    'munin',
 
-    'zds.member',
-    'zds.article',
-    'zds.forum',
+    # Apps DB tables are created in THIS order by default
+    # --> Order is CRITICAL to properly handle foreign keys
     'zds.utils',
     'zds.pages',
     'zds.gallery',
     'zds.mp',
-    'zds.tutorial',
     'zds.newsletter',
+    'zds.article',
+    'zds.forum',
+    'zds.tutorial',
+    'zds.member',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+if (DEBUG):
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -250,6 +258,7 @@ REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
+MEMBERS_PER_PAGE = 36
 
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
@@ -257,6 +266,8 @@ SPAM_LIMIT_PARTICIPANT = 2
 FOLLOWED_TOPICS_PER_PAGE = 21
 
 BOT_ACCOUNT = 'admin'
+
+PANDOC_LOC = ''
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -268,6 +279,19 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'alert',
+}
+
+
+MAX_POST_LENGTH = 1000000
+SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

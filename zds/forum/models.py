@@ -2,18 +2,25 @@
 
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import slugify
+from zds.utils import slugify
 from math import ceil
 import os
+import re
 import string
 import uuid
 
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from zds.utils import get_current_user
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
 
+
+def sub_tag(g):
+    start = g.group('start')
+    end = g.group('end')
+    return u"{0}".format(start+end)
 
 def image_path_forum(instance, filename):
     """Return path to an image."""
@@ -31,14 +38,19 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', null=True, blank=True)
-    slug = models.SlugField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80,
+                            unique=True,
+                            help_text="Ces slugs vont provoquer des conflits "\
+                            "d'URL et sont donc interdits : notifications " \
+                            "resolution_alerte sujet sujets message messages")
 
     def __unicode__(self):
         """Textual form of a category."""
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/'.format(self.slug)
+        return reverse('zds.forum.views.cat_details',
+                       kwargs={'cat_slug': self.slug})
 
     def get_forums(self):
         return Forum.objects.all()\
@@ -74,10 +86,9 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/{1}/'.format(
-            self.category.slug,
-            self.slug,
-        )
+        return reverse('zds.forum.views.details',
+                       kwargs={'cat_slug': self.category.slug,
+                               'forum_slug': self.slug})
 
     def get_topic_count(self):
         """Gets the number of threads in the forum."""
@@ -125,8 +136,8 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=60)
-    subtitle = models.CharField('Sous-titre', max_length=100)
+    title = models.CharField('Titre', max_length=80)
+    subtitle = models.CharField('Sous-titre', max_length=200)
 
     forum = models.ForeignKey(Forum, verbose_name='Forum')
     author = models.ForeignKey(User, verbose_name='Auteur',
@@ -139,24 +150,37 @@ class Topic(models.Model):
     is_solved = models.BooleanField('Est résolu', default=False)
     is_locked = models.BooleanField('Est verrouillé', default=False)
     is_sticky = models.BooleanField('Est en post-it', default=False)
+    
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name='Tags du forum',
+        null=True,
+        blank=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/sujet/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse(
+                'zds.forum.views.topic',
+                args=[self.pk, slugify(self.title)]
+                )
 
     def get_post_count(self):
         """Return the number of posts in the topic."""
         return Post.objects.filter(topic__pk=self.pk).count()
+    
+    def get_last_post(self):
+        """Gets the last post in the thread."""
+        return Post.objects.all()\
+            .filter(topic__pk=self.pk)\
+            .order_by('pubdate')\
+            .last()
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
-        last_post = Post.objects.all()\
-            .filter(topic__pk=self.pk)\
-            .order_by('-pubdate')\
-            .first()
+        last_post = self.get_last_post()
 
         if last_post == self.first_post():
             return None
@@ -167,6 +191,7 @@ class Topic(models.Model):
         """Return the first post of a topic, written by topic's author."""
         return Post.objects\
             .filter(topic=self)\
+            .select_related()\
             .order_by('pubdate')\
             .first()
 
@@ -187,16 +212,15 @@ class Topic(models.Model):
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-
-            last_post_position = last_post.position
-            next_post_position = last_post_position + 1
-            next_post = Post.objects.get(
+            
+            next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                position=next_post_position)
+                pubdate__gt=last_post.pubdate)\
+            .select_related().first()
 
             return next_post
         except:
-            return self.last_read_post(self)
+            return self.first_post()
 
     def is_followed(self, user=None):
         """Check if the topic is currently followed by the user.
@@ -226,13 +250,13 @@ class Topic(models.Model):
         if user is None:
             user = get_current_user()
 
-        last_user_posts = Post.objects\
+        last_user_post = Post.objects\
             .filter(topic=self)\
             .filter(author=user.pk)\
-            .order_by('-pubdate')
+            .order_by('pubdate')\
+            .last()
 
-        if last_user_posts and last_user_posts[0] == self.get_last_answer():
-            last_user_post = last_user_posts[0]
+        if last_user_post and last_user_post == self.get_last_post():
             t = timezone.now() - last_user_post.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
@@ -319,9 +343,12 @@ def never_read(topic, user=None):
 
 def mark_read(topic):
     """Mark a topic as read for the user."""
-    TopicRead.objects.filter(topic=topic, user=get_current_user()).delete()
-    t = TopicRead(
-        post=topic.last_message, topic=topic, user=get_current_user())
+    u=get_current_user()
+    t = TopicRead.objects.filter(topic=topic, user=u).first()
+    if t == None:
+        t = TopicRead(post=topic.last_message, topic=topic, user=u)
+    else:
+        t.post = topic.last_message
     t.save()
 
 

@@ -7,7 +7,8 @@ from . import views
 
 
 urlpatterns = patterns('',
-
+                       
+                       # Feeds
                        url(r'^flux/messages/rss/$',
                            feeds.LastPostsFeedRSS(),
                            name='post-feed-rss'),
@@ -21,22 +22,35 @@ urlpatterns = patterns('',
                        url(r'^flux/sujets/atom/$',
                            feeds.LastTopicsFeedATOM(),
                            name='topic-feed-atom'),
+                       
+# Developers warning: if you update something here, check and update help_text
+# on Category slug field
+
+                       # Home
+                       url(r'^$', 'zds.forum.views.index'),
+
+                       # Followed topics
+                       url(r'^notifications/$', 'zds.forum.views.followed_topics'),
+
+                       # Moderation
+                       url(r'^resolution_alerte/$', 'zds.forum.views.solve_alert'),
 
                        # Viewing a thread
-                       url(r'^sujet/nouveau$', 'zds.forum.views.new'),
-                       url(r'^sujet/editer$', 'zds.forum.views.edit'),
-                       url(r'^sujet/deplacer$', 'zds.forum.views.move_topic'),
-                       url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)$',
+                       url(r'^sujet/nouveau/$', 'zds.forum.views.new'),
+                       url(r'^sujet/editer/$', 'zds.forum.views.edit'),
+                       url(r'^sujet/deplacer/$', 'zds.forum.views.move_topic'),
+                       url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$',
                            'zds.forum.views.topic'),
-                       url(r'^sujets/(?P<user_pk>.+)', 'zds.forum.views.find_topic'),
+                       url(r'^sujets/membre/(?P<user_pk>.+)/$', 'zds.forum.views.find_topic'),
+                       url(r'^sujets/tag/(?P<tag_slug>.+)/$', 'zds.forum.views.find_topic_by_tag'),
 
                        # Message-related
-                       url(r'^message/editer$', 'zds.forum.views.edit_post'),
-                       url(r'^message/nouveau$', 'zds.forum.views.answer'),
-                       url(r'^message/utile$', 'zds.forum.views.useful_post'),
-                       url(r'^message/like$', 'zds.forum.views.like_post'),
-                       url(r'^message/dislike$', 'zds.forum.views.dislike_post'),
-                       url(r'^messages/(?P<user_pk>.+)$', 'zds.forum.views.find_post'),
+                       url(r'^message/editer/$', 'zds.forum.views.edit_post'),
+                       url(r'^message/nouveau/$', 'zds.forum.views.answer'),
+                       url(r'^message/utile/$', 'zds.forum.views.useful_post'),
+                       url(r'^message/like/$', 'zds.forum.views.like_post'),
+                       url(r'^message/dislike/$', 'zds.forum.views.dislike_post'),
+                       url(r'^messages/(?P<user_pk>.+)/$', 'zds.forum.views.find_post'),
 
                        # Forum details
                        url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$',
@@ -44,13 +58,4 @@ urlpatterns = patterns('',
 
                        # Forums belonging to one category
                        url(r'^(?P<cat_slug>.+)/$', 'zds.forum.views.cat_details'),
-
-                       # Home
-                       url(r'^$', 'zds.forum.views.index'),
-
-                       # Followed topics
-                       url(r'^notifications$', 'zds.forum.views.followed_topics'),
-
-                       # Moderation
-                       url(r'^resolution_alerte$', 'zds.forum.views.solve_alert'),
                        )

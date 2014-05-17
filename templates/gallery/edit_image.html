@@ -5,8 +5,8 @@
     Éditer une image
 {% endblock %}
 
-{% block headline %}
-    <h2>Éditer une image</h2>
+{% block head-title %}
+    Éditer une image
 {% endblock %}
 
 {% block breadcrumb %}
@@ -29,5 +29,9 @@
         </div>
     </div>
 </div>
+<p>
+    <strong>Code markdown d'insertion de l'image :</strong> <br>
+    <input type="text" value="![{{ image.legend }}]({{ image.physical.url }})" readonly >
+</p>
 
 {% endblock %}

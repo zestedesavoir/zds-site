@@ -1,16 +1,22 @@
 # coding: utf-8
 from datetime import datetime
+import os
+import shutil
+
 from django.conf import settings
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.member.factories import UserFactory, StaffFactory
+
+from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
 from zds.tutorial.models import Note, Tutorial
-import os
-import shutil
+from zds.utils.models import Alert
+from zds.mp.models import PrivateTopic
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -28,10 +34,12 @@ class BigTutorialTests(TestCase):
     def setUp(self):
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = ProfileFactory().user
+        settings.BOT_ACCOUNT = self.mas.username
 
-        self.user_author = UserFactory()
-        self.user = UserFactory()
-        self.staff = StaffFactory()
+        self.user_author = ProfileFactory().user
+        self.user = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
 
         self.bigtuto = BigTutorialFactory()
         self.bigtuto.authors.add(self.user_author)
@@ -63,8 +71,8 @@ class BigTutorialTests(TestCase):
             position_in_part=2,
             position_in_tutorial=5)
 
-        self.user = UserFactory()
-        self.staff = StaffFactory()
+        self.user = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
 
         login_check = self.client.login(
             username=self.staff.username,
@@ -91,10 +99,13 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+        
+        mail.outbox = []
 
     def test_add_note(self):
         """To test add note for tutorial."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         # add note
@@ -151,7 +162,7 @@ class BigTutorialTests(TestCase):
 
     def test_edit_note(self):
         """To test all aspects of the edition of note."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         note1 = NoteFactory(
@@ -204,7 +215,7 @@ class BigTutorialTests(TestCase):
 
     def test_quote_note(self):
         """check quote of note."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         note1 = NoteFactory(
@@ -238,7 +249,7 @@ class BigTutorialTests(TestCase):
 
     def test_like_note(self):
         """check like a note for tuto."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         note1 = NoteFactory(
@@ -289,7 +300,7 @@ class BigTutorialTests(TestCase):
 
     def test_dislike_note(self):
         """check like a note for tuto."""
-        user1 = UserFactory()
+        user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
         note1 = NoteFactory(
@@ -637,6 +648,45 @@ class BigTutorialTests(TestCase):
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
+
+    def test_alert(self):
+        user1 = ProfileFactory().user
+        note = NoteFactory(tutorial=self.bigtuto, author = user1, position=1)
+        login_check = self.client.login(
+            username=self.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        #signal note
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_note') +
+            '?message={0}'.format(
+                note.pk),
+            {
+                'signal-text': 'Troll',
+                'signal-note': 'Confirmer',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 1)
+        
+        # connect with staff
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        #solve alert
+        result = self.client.post(
+            reverse('zds.tutorial.views.solve_alert'),
+            {
+                'alert_pk': Alert.objects.first().pk,
+                'text': 'Ok',
+                'delete-post': 'Resoudre',
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 0)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user).count(), 1)
+        self.assertEquals(len(mail.outbox), 0)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):

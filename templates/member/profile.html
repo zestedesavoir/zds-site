@@ -2,6 +2,8 @@
 {% load emarkdown %}
 {% load email_obfuscator %}
 {% load humanize %}
+{% load profile %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     {{ usr.username }}
@@ -33,11 +35,27 @@
         <h2 class="box member">{{ usr.username }}</h2>
         <div class="row">
             <div class="large-2 columns">
-                <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
+                <div>
+                    <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
+                </div>
+                {% with status=usr|state %}
+                    {% if status == 'BAN'%}
+                        <div class="alert-box tiny alert username">{{status}}</div>
+                    {% endif %}
+                    {% if status == 'LS'%}
+                        <div class="alert-box tiny warning username">{{status}}</div>
+                    {% endif %}
+                    {% if status == 'STAFF' %}
+                        <div class="alert-box tiny success username">{{status}}</div>
+                    {% endif %}
+                    {% if status == 'DOWN' %}
+                        <div class="alert-box tiny secondary username">{{status}}</div>
+                    {% endif %}
+                {% endwith %}
             </div>
             <div class="large-10 columns">
                 <p>
-                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
+                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ profile.last_visit|naturaltime }}.
                 </p>
                 {% if perms.member.show_ip %}
                     <p>
@@ -47,11 +65,18 @@
                         Ville : {{ profile.get_city }}
                     </p>
                 {% endif %}
+                {% if profile.site %}
+                <p>
+                    <a class="fi-web" href="{{ profile.site }}">{{ profile.site }}</a>
+                </p>
+                {% endif %}
+
                 {% if profile.show_email and user.is_authenticated %}
                 <p>
                     <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
                 </p>
                 {% endif %}
+
                 <h3>Signature</h3>
                 {{ profile.sign|emarkdown }}
             </div>
@@ -59,7 +84,7 @@
     </div>
 
     <div class="large-6 columns">
-        <h2 class="box tutoriel">Dernier tutoriels</h2>
+        <h2 class="box tutoriel">Derniers tutoriels</h2>
         {% if tutorials %}
             {% for tutorial in tutorials %}
             <div class="row">
@@ -75,7 +100,7 @@
         {% endif %}
     </div>
     <div class="large-6 columns">
-        <h2 class="box article">Dernier articles</h2>
+        <h2 class="box article">Derniers articles</h2>
         {% if articles %}
             {% for article in articles %}
             <div class="row">
@@ -108,6 +133,29 @@
             {{ profile.biography|emarkdown }}
         {% endif %}
     </div>
+
+    {% if old_tutos and perms.member.change_profile%}
+        <div class="large-12 columns">
+            <h2 class="box tutoriel">Anciens Tutos SDZ</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tuto</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for id, titre, tuto, image, logo in old_tutos %}
+                <tr>
+                  <td>{{titre}}</td>
+                  <td><a href="{% url "zds.member.views.remove_oldtuto" %}?id={{id}}&profile={{profile.pk}}" class="fi-x"></a></td>
+                </tr>
+              </tbody>
+              {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block headline-actions %}
@@ -117,28 +165,28 @@
             {% ifequal profile.user user %}
             <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
             {% endifequal %}
-
+            {% if perms.member.change_profile %}
+                <li><a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}">Modifier le profil</a></li>
+                <li>
+                <a href="#" data-dropdown="link-tuto-{{profile.pk}}">
+                    Attribuer un tuto SdZ
+                </a>
+                </li>
+                <div id="link-tuto-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
+                    <p>
+                        Choisi un tutoriel du SdZ à attribuer au membre.
+                    </p>
+                    {% crispy form %}
+                </div>
+            {% endif %}
             {% if user.is_authenticated %}
-            <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
+                {% with status=profile.user|state %}
+                    {% if status != 'DOWN' and status != 'BAN' %}
+                    <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
+                    {% endif %}
+                {% endwith %}
             {% endif %}
         </ul>
     </div>
     
-{% endblock %}
-
-{% block contentant %}
-{# Biography #}
-
-{% if profile.biography %}
-<div class="row">
-    <div class="large-12 columns">
-        <h2>Biographie</h2>
-        {{ profile.biography|emarkdown }}
-        <h2>Signature</h2>
-        {{ profile.sign|emarkdown }}
-    </div>
-</div>
-
-{% endif %}
-
 {% endblock %}

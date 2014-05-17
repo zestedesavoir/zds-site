@@ -16,14 +16,15 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from .forms import TopicForm, PostForm, MoveTopicForm
-from .models import Category, Forum, Topic, Post, follow, never_read, mark_read
+from .models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed, sub_tag
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
-from zds.utils.models import Alert, CommentLike, CommentDislike
+from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+import re
 
 
 @can_read_now
@@ -43,16 +44,32 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
 
     if not forum.can_read(request.user):
-        raise Http404
+        raise PermissionDenied
 
     sticky_topics = Topic.objects\
         .filter(forum__pk=forum.pk, is_sticky=True)\
         .order_by('-last_message__pubdate')\
+        .prefetch_related('author', 'last_message')\
         .all()
-    topics = Topic.objects\
-        .filter(forum__pk=forum.pk, is_sticky=False)\
-        .order_by('-last_message__pubdate')\
-        .all()
+    if 'filter' in request.GET:
+        if request.GET['filter'] == 'solve':
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
+                .order_by('-last_message__pubdate')\
+                .prefetch_related('author', 'last_message', 'tags')\
+                .all()
+        else:
+            topics = Topic.objects\
+                .filter(forum__pk=forum.pk, is_sticky=False, is_solved=False)\
+                .order_by('-last_message__pubdate')\
+                .prefetch_related('author', 'last_message', 'tags')\
+                .all()
+    else:
+        topics = Topic.objects\
+            .filter(forum__pk=forum.pk, is_sticky=False)\
+            .order_by('-last_message__pubdate')\
+            .prefetch_related('author', 'last_message', 'tags')\
+            .all()
 
     # Paginator
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
@@ -78,7 +95,7 @@ def details(request, cat_slug, forum_slug):
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = Forum.objects.filter(category__pk=category.pk).all()
+    forums = Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
 
     return render_template('forum/cat_details.html', {
         'category': category, 'forums': forums
@@ -90,6 +107,9 @@ def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
     # TODO: Clean that up
     topic = get_object_or_404(Topic, pk=topic_pk)
+
+    if not topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     # Check link
     if not topic_slug == slugify(topic.title):
@@ -104,6 +124,7 @@ def topic(request, topic_pk, topic_slug):
     # Retrieves all posts of the topic and use paginator with them.
     posts = Post.objects\
                 .filter(topic__pk=topic.pk)\
+                .select_related()\
                 .order_by('position')\
                 .all()
 
@@ -156,6 +177,17 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
+
+
+def get_tag_by_title(title):
+    regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
+    tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
+    title = re.sub(
+        regex,
+        sub_tag,
+        title)
+    return (tags, title.strip())
+
 @can_write_and_read_now
 @login_required
 @transaction.atomic
@@ -165,8 +197,10 @@ def new(request):
         forum_pk = request.GET['forum']
     except KeyError:
         raise Http404
-
     forum = get_object_or_404(Forum, pk=forum_pk)
+
+    if not forum.can_read(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
 
@@ -186,13 +220,24 @@ def new(request):
         form = TopicForm(request.POST)
         data = form.data
         if form.is_valid():
+            #Treat title
+            (tags, title) = get_tag_by_title(data['title'])
             # Creating the thread
             n_topic = Topic()
             n_topic.forum = forum
-            n_topic.title = data['title']
+            n_topic.title = title
             n_topic.subtitle = data['subtitle']
             n_topic.pubdate = datetime.now()
             n_topic.author = request.user
+            n_topic.save()
+            #add tags
+            for tag in tags:
+                if tag[2].strip()!='':
+                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                    if tg == None:
+                        tg = Tag(title=tag[2])
+                        tg.save()
+                    n_topic.tags.add(tg)
             n_topic.save()
 
             # Adding the first message
@@ -233,9 +278,9 @@ def solve_alert(request):
         raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
-    post = Post.objects.get(alerts__in=[alert])
+    post = Post.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL+post.get_absolute_url(), request.user.username, request.POST['text'])
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL + post.get_absolute_url(), request.user.username, request.POST['text'])
     send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(post.topic.title), "", msg, False)
     alert.delete()
 
@@ -245,9 +290,11 @@ def solve_alert(request):
 
     return redirect(post.get_absolute_url())
 
+
 @can_write_and_read_now
 @login_required
 @require_POST
+@transaction.atomic
 def move_topic(request):
     # only staff can move topic
     if not request.user.has_perm('forum.change_topic'):
@@ -259,9 +306,18 @@ def move_topic(request):
         raise Http404
 
     forum = get_object_or_404(Forum, pk=request.POST['forum'])
+
+    if not forum.can_read(request.user):
+        raise PermissionDenied
+
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
+    #unfollow user auth
+    followers = TopicFollowed.objects.filter(topic = topic)
+    for follower in followers:
+        if not forum.can_read(follower.user):
+            follower.delete()
 
     messages.success(
         request,
@@ -327,7 +383,10 @@ def edit(request):
     if request.is_ajax():
         return HttpResponse(json.dumps(resp))
     else:
-        return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
+        if not g_topic.forum.can_read(request.user):
+            return redirect(reverse('zds.forum.views.index'))
+        else:
+            return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
 @can_write_and_read_now
@@ -343,6 +402,9 @@ def answer(request):
     # Retrieve current topic.
     g_topic = get_object_or_404(Topic, pk=topic_pk)
 
+    if not g_topic.forum.can_read(request.user):
+        raise PermissionDenied
+
     # Making sure posting is allowed
     if g_topic.is_locked:
         raise PermissionDenied
@@ -352,6 +414,12 @@ def answer(request):
         raise PermissionDenied
 
     last_post_pk = g_topic.last_message.pk
+
+    # Retrieve 10 last posts of the currenta topic.
+    posts = Post.objects\
+        .filter(topic=g_topic)\
+        .prefetch_related()\
+        .order_by('-pubdate')[:10]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -368,6 +436,7 @@ def answer(request):
             return render_template('forum/answer.html', {
                 'text': data['text'],
                 'topic': g_topic,
+                'posts': posts,
                 'last_post_pk': last_post_pk,
                 'newpost': newpost,
                 'form': form
@@ -401,6 +470,7 @@ def answer(request):
                 return render_template('forum/answer.html', {
                     'text': data['text'],
                     'topic': g_topic,
+                    'posts': posts,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
                     'form': form
@@ -414,13 +484,16 @@ def answer(request):
         if 'cite' in request.GET:
             post_cite_pk = request.GET['cite']
             post_cite = Post.objects.get(pk=post_cite_pk)
+            if not post_cite.is_visible:
+                raise PermissionDenied
 
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}\nSource:[{1}]({2})'.format(
+            text = u'{0}\nSource:[{1}]({2}{3})'.format(
                 text,
                 post_cite.author.username,
+                settings.SITE_URL,
                 post_cite.get_absolute_url())
 
         form = PostForm(g_topic, request.user, initial={
@@ -429,10 +502,6 @@ def answer(request):
         form.helper.form_action = reverse(
             'zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
 
-        # Retrieve 3 last posts of the currenta topic.
-        posts = Post.objects\
-            .filter(topic=g_topic)\
-            .order_by('-pubdate')[:3]
         return render_template('forum/answer.html', {
             'topic': g_topic,
             'posts': posts,
@@ -452,6 +521,9 @@ def edit_post(request):
         raise Http404
 
     post = get_object_or_404(Post, pk=post_pk)
+
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     g_topic = None
     if post.position <= 1:
@@ -488,10 +560,11 @@ def edit_post(request):
         if 'signal-post' in request.POST:
             alert = Alert()
             alert.author = request.user
+            alert.comment = post
+            alert.scope = Alert.FORUM
             alert.text = request.POST['signal-text']
             alert.pubdate = datetime.now()
             alert.save()
-            post.alerts.add(alert)
 
             messages.success(
                 request,
@@ -499,9 +572,17 @@ def edit_post(request):
 
         # Using the preview button
         if 'preview' in request.POST:
-            form = PostForm(post.topic, request.user, initial={
-                'text': request.POST['text']
-            })
+            if g_topic:
+                form = TopicForm(initial={
+                    'title': request.POST['title'],
+                    'subtitle': request.POST['subtitle'],
+                    'text': request.POST['text']
+                })
+            else:
+                form = PostForm(post.topic, request.user, initial={
+                    'text': request.POST['text']
+                })
+
             form.helper.form_action = reverse(
                 'zds.forum.views.edit_post') + '?message=' + str(post_pk)
             return render_template('forum/edit_post.html', {
@@ -521,8 +602,19 @@ def edit_post(request):
 
             # Modifying the thread info
             if g_topic:
-                g_topic.title = request.POST['title']
+                (tags, title) = get_tag_by_title(request.POST['title'])
+                g_topic.title = title
                 g_topic.subtitle = request.POST['subtitle']
+                g_topic.save()
+                g_topic.tags.clear()
+                #add tags
+                for tag in tags:
+                    if tag[2].strip()!='':
+                        tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                        if tg == None:
+                            tg = Tag(title=tag[2])
+                            tg.save()
+                        g_topic.tags.add(tg)
                 g_topic.save()
 
         post.save()
@@ -531,8 +623,11 @@ def edit_post(request):
 
     else:
         if g_topic:
+            prefix = u""
+            for tag in g_topic.tags.all():
+                prefix+=u"[{0}]".format(tag.title)
             form = TopicForm(initial={
-                'title': g_topic.title,
+                'title': u"{0} {1}".format(prefix, g_topic.title).strip(),
                 'subtitle': g_topic.subtitle,
                 'text': post.text
             })
@@ -562,9 +657,14 @@ def useful_post(request):
 
     post = get_object_or_404(Post, pk=post_pk)
 
+    # check that author can access the forum
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
+
     # Making sure the user is allowed to do that
     if post.author == request.user or request.user != post.topic.author:
-        raise Http404
+        if not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
 
     post.is_useful = not post.is_useful
 
@@ -585,6 +685,9 @@ def like_post(request):
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
+
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
 
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
@@ -630,6 +733,9 @@ def dislike_post(request):
     post = get_object_or_404(Post, pk=post_pk)
     user = request.user
 
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
+
     if post.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
         if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post_pk).count() == 0:
@@ -662,16 +768,62 @@ def dislike_post(request):
 
 
 @can_read_now
+def find_topic_by_tag(request, tag_slug):
+    """Finds all topics byg tag."""
+    tag = Tag.objects.filter(slug = tag_slug).first()
+    if tag == None :
+        return redirect(reverse('zds.forum.views.index'))
+    topics = Topic.objects\
+        .filter(tags__in=[tag])\
+        .prefetch_related()\
+        .order_by('-pubdate')\
+        .all()
+
+    tops = []
+    for top in topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
+
+    # Paginator
+    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    page = request.GET.get('page')
+
+    try:
+        shown_topics = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_topics = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_topics = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    return render_template('forum/find_topic_by_tag.html', {
+        'topics': shown_topics, 'tag': tag,
+        'pages': paginator_range(page, paginator.num_pages), 'nb': page
+    })
+    
+@can_read_now
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
     u = get_object_or_404(User, pk=user_pk)
     topics = Topic.objects\
         .filter(author=u)\
+        .prefetch_related()\
         .order_by('-pubdate')\
         .all()
 
+    tops = []
+    for top in topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
+
     # Paginator
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
@@ -696,11 +848,18 @@ def find_post(request, user_pk):
     u = get_object_or_404(User, pk=user_pk)
     posts = Post.objects\
                 .filter(author=u)\
+                .prefetch_related()\
                 .order_by('-pubdate')\
                 .all()
+    pts = []
+    for post in posts:
+        if not post.topic.forum.can_read(request.user):
+            continue
+        else:
+            pts.append(post)
 
     # Paginator
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(pts, settings.POSTS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
