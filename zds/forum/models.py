@@ -187,6 +187,7 @@ class Topic(models.Model):
         """Return the first post of a topic, written by topic's author."""
         return Post.objects\
             .filter(topic=self)\
+            .select_related()\
             .order_by('pubdate')\
             .first()
 
@@ -210,7 +211,8 @@ class Topic(models.Model):
             
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                pubdate__gt=last_post.pubdate).first()
+                pubdate__gt=last_post.pubdate)\
+            .select_related().first()
 
             return next_post
         except:
@@ -337,8 +339,12 @@ def never_read(topic, user=None):
 
 def mark_read(topic):
     """Mark a topic as read for the user."""
-    TopicRead.objects.filter(topic=topic, user=get_current_user()).delete()
-    t = TopicRead(post=topic.last_message, topic=topic, user=get_current_user())
+    u=get_current_user()
+    t = TopicRead.objects.filter(topic=topic, user=u).first()
+    if t == None:
+        t = TopicRead(post=topic.last_message, topic=topic, user=u)
+    else:
+        t.post = topic.last_message
     t.save()
 
 
