@@ -823,7 +823,7 @@ def followed_topics(request):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template('forum/topics/followed.html', {
+    return render_template('forum/topic/followed.html', {
         'followed_topics': shown_topics,
         'pages': paginator_range(page, paginator.num_pages),
         'nb': page

@@ -227,7 +227,7 @@ def tutorials(request):
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template('tutorial/admin/index.html', {
+    return render_template('tutorial/member/index.html', {
         'tutorials': user_tutorials,
         'type': type,
     })
@@ -253,7 +253,7 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render_template('article/admin/index.html', {
+    return render_template('article/member/index.html', {
         'articles': user_articles,
         'type': type,
     })

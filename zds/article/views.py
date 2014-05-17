@@ -109,7 +109,7 @@ def view(request, article_pk, article_slug):
 
     validation = Validation.objects.filter(article__pk=article.pk, version=sha)
     
-    return render_template('article/admin/view.html', {
+    return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -266,7 +266,7 @@ def new(request):
     else:
         form = ArticleForm()
 
-    return render_template('article/admin/new.html', {
+    return render_template('article/member/new.html', {
         'form': form
     })
 
@@ -326,7 +326,7 @@ def edit(request):
             'subcategory': article.subcategory.all(),
         })
 
-    return render_template('article/admin/edit.html', {
+    return render_template('article/member/edit.html', {
         'article': article, 'form': form
     })
 
@@ -658,7 +658,7 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
     
-    return render_template('article/admin/history.html', {
+    return render_template('article/member/history.html', {
         'article': article, 'logs': logs
     })
 
