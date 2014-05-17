@@ -9,7 +9,7 @@ urlpatterns = patterns('',
                        # Viewing
 
                        # Current URLs
-                       url(r'^recherche/(?P<pk_user>.+)$', 'zds.tutorial.views.find_tuto'),
+                       url(r'^recherche/(?P<pk_user>.+)/$', 'zds.tutorial.views.find_tuto'),
 
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
                            r'(?P<part_slug>.+)/' +
@@ -33,20 +33,20 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.view_tutorial_online'),
 
                        # Editing
-                       url(r'^editer/tutoriel$', 'zds.tutorial.views.edit_tutorial'),
-                       url(r'^modifier/tutoriel$', 'zds.tutorial.views.modify_tutorial'),
-                       url(r'^modifier/partie$', 'zds.tutorial.views.modify_part'),
-                       url(r'^editer/partie$', 'zds.tutorial.views.edit_part'),
-                       url(r'^modifier/chapitre$', 'zds.tutorial.views.modify_chapter'),
-                       url(r'^editer/chapitre$', 'zds.tutorial.views.edit_chapter'),
-                       url(r'^modifier/extrait$', 'zds.tutorial.views.modify_extract'),
-                       url(r'^editer/extrait$', 'zds.tutorial.views.edit_extract'),
+                       url(r'^editer/tutoriel/$', 'zds.tutorial.views.edit_tutorial'),
+                       url(r'^modifier/tutoriel/$', 'zds.tutorial.views.modify_tutorial'),
+                       url(r'^modifier/partie/$', 'zds.tutorial.views.modify_part'),
+                       url(r'^editer/partie/$', 'zds.tutorial.views.edit_part'),
+                       url(r'^modifier/chapitre/$', 'zds.tutorial.views.modify_chapter'),
+                       url(r'^editer/chapitre/$', 'zds.tutorial.views.edit_chapter'),
+                       url(r'^modifier/extrait/$', 'zds.tutorial.views.modify_extract'),
+                       url(r'^editer/extrait/$', 'zds.tutorial.views.edit_extract'),
 
                        # Adding
-                       url(r'^nouveau/tutoriel$', 'zds.tutorial.views.add_tutorial'),
-                       url(r'^nouveau/partie$', 'zds.tutorial.views.add_part'),
-                       url(r'^nouveau/chapitre$', 'zds.tutorial.views.add_chapter'),
-                       url(r'^nouveau/extrait$', 'zds.tutorial.views.add_extract'),
+                       url(r'^nouveau/tutoriel/$', 'zds.tutorial.views.add_tutorial'),
+                       url(r'^nouveau/partie/$', 'zds.tutorial.views.add_part'),
+                       url(r'^nouveau/chapitre/$', 'zds.tutorial.views.add_chapter'),
+                       url(r'^nouveau/extrait/$', 'zds.tutorial.views.add_extract'),
 
                        url(r'^$', 'zds.tutorial.views.index'),
                        url(r'^importer/$', 'zds.tutorial.views.import_tuto'),
@@ -69,25 +69,25 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.desactiv_beta'),
                        url(r'^suppression/(?P<tutorial_pk>\d+)/$',
                            'zds.tutorial.views.delete_tutorial'),
-                       url(r'^validation/tutoriel$', 'zds.tutorial.views.ask_validation'),
+                       url(r'^validation/tutoriel/$', 'zds.tutorial.views.ask_validation'),
 
                        # Validation
                        url(r'^validation/$', 'zds.tutorial.views.list_validation'),
                        url(r'^validation/reserver/(?P<validation_pk>\d+)/$',
                            'zds.tutorial.views.reservation'),
-                       url(r'^validation/reject$', 'zds.tutorial.views.reject_tutorial'),
-                       url(r'^validation/valid$', 'zds.tutorial.views.valid_tutorial'),
+                       url(r'^validation/reject/$', 'zds.tutorial.views.reject_tutorial'),
+                       url(r'^validation/valid/$', 'zds.tutorial.views.valid_tutorial'),
                        url(r'^validation/invalid/(?P<tutorial_pk>\d+)/$',
                            'zds.tutorial.views.invalid_tutorial'),
                        url(r'^validation/historique/(?P<tutorial_pk>\d+)/$',
                            'zds.tutorial.views.history_validation'),
 
                        # Reactions
-                       url(r'^message/editer$', 'zds.tutorial.views.edit_note'),
-                       url(r'^message/nouveau$', 'zds.tutorial.views.answer'),
-                       url(r'^message/like$', 'zds.tutorial.views.like_note'),
-                       url(r'^message/dislike$', 'zds.tutorial.views.dislike_note'),
+                       url(r'^message/editer/$', 'zds.tutorial.views.edit_note'),
+                       url(r'^message/nouveau/$', 'zds.tutorial.views.answer'),
+                       url(r'^message/like/$', 'zds.tutorial.views.like_note'),
+                       url(r'^message/dislike/$', 'zds.tutorial.views.dislike_note'),
                        
                        # Moderation
-                       url(r'^resolution_alerte$', 'zds.tutorial.views.solve_alert'),
+                       url(r'^resolution_alerte/$', 'zds.tutorial.views.solve_alert'),
                        )

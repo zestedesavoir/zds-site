@@ -45,7 +45,8 @@ class Category(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/'.format(self.slug)
+        return reverse('zds.forum.views.cat_details',
+                       kwargs={'cat_slug', self.slug})
 
     def get_forums(self):
         return Forum.objects.all()\
@@ -81,10 +82,9 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/{1}/'.format(
-            self.category.slug,
-            self.slug,
-        )
+        return reverse('zds.forum.views.details',
+                       kwargs={'cat_slug': self.category.slug,
+                               'forum_slug': self.slug})
 
     def get_topic_count(self):
         """Gets the number of threads in the forum."""
