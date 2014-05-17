@@ -103,6 +103,9 @@
             &.active:after {
                 @include sprite-pos($sprite2x, 'tick-active', true);
             }
+            &.white:after {
+                @include sprite-pos($sprite2x, 'tick-white', true);
+            }
         }
 
         &.upvote {

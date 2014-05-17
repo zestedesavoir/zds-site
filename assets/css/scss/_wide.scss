@@ -308,6 +308,29 @@
     }
 
 
+    .topic-list {
+        .topic {
+            .topic-description {
+                &[style]:before {
+                    display: block;
+                    position: absolute;
+                    content: " ";
+                    right: 0;
+                    background-image: inherit;
+                    background-repeat: no-repeat;
+                    background-position: top right;
+                    background-size: 80px 80px;
+                    height: 100%;
+                    width: 80px;
+                    margin-top: -5px;
+                    -webkit-mask-box-image: -webkit-linear-gradient(right, black, transparent);
+                    @include opacity(.2);
+                }
+            }
+        }
+    }
+
+
     /* ============
        Main / Forum
        ============ */

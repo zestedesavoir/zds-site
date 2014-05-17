@@ -103,6 +103,7 @@
     input[type=submit],
     button,
     .btn {
+        height: 40px;
         line-height: 40px;
         cursor: pointer;
     }
@@ -115,6 +116,10 @@
         width: 15px;
         border: 1px solid #BBB;
         background: #FCFCFC;
+
+        &:checked {
+            background: #555;
+        }
     }
     [type=submit],
     button,

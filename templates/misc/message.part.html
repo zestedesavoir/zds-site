@@ -101,6 +101,16 @@
         </div>
 
         <div class="message-content">
+            {% if message.is_useful and message.is_visible and user != message.author %}
+                <p class="message-helpful tick ico-after active">
+                    Cette réponse a aidé l'auteur du sujet
+                </p>
+            {% endif %}
+
+            {% if message.is_visible != False %}
+                {{ message.text|emarkdown }}
+            {% endif %}
+
             {% if message.is_visible == False %}
                 <p class="message-hidden">
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
@@ -109,10 +119,6 @@
                 <p class="message-edited">
                     Edité {{ message.update|naturaltime }} par {{ message.editor }}
                 </p>
-            {% endif %}
-
-            {% if message.is_visible != False %}
-                {{ message.text|emarkdown }}
             {% endif %}
         </div>
 

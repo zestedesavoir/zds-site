@@ -565,16 +565,16 @@
         font-weight: normal;
         margin: 0;
         padding: 0 0 0 2.5%;
-        text-transform: uppercase;
     }
     h3 {
         font-size: 18px;
         font-size: 1.8rem;
-        line-height: 40px;
-        line-height: 4.0rem;
+        line-height: 38px;
+        line-height: 3.8rem;
         color: $blue;
-        border-bottom: 1px solid lighten($orange, 10%);
+        border-bottom: 2px solid lighten($orange, 10%);
         margin-top: 30px;
+        text-transform: uppercase;
     }
     h4 {
         padding-top: 20px;
@@ -633,8 +633,8 @@
                 text-decoration: none;
                 color: #0079b2;
                 overflow: hidden;
-                height: 40px;
-                line-height: 40px;
+                height: 30px;
+                line-height: 30px;
                 font-size: 14px;
                 font-size: 1.4rem;
                 text-overflow: ellipsis;
@@ -665,7 +665,7 @@
 
                 &.ico-after {
                     &:after {
-                        top: 12px;
+                        top: 7px;
                         left: 0;
                         @include opacity(.7);
                     }
@@ -954,7 +954,7 @@
             &:focus {
                 background: #FFF;
                 color: lighten($blue, 15%);
-                border-bottom: 3px solid lighten($blue, 15%);
+                border-bottom: 1px solid lighten($blue, 15%);
             }
         }
     }
@@ -1162,32 +1162,12 @@
 
         input[type=checkbox] {
             margin: 29px 25% 0;
-
-            &:checked {
-                background: #555;
-            }
         }
     }
     .topic-description {
         position: relative;
         width: 65%;
-        background-size: 0 0;
-
-        &[style]:before {
-            display: block;
-            position: absolute;
-            content: " ";
-            right: 0;
-            background-image: inherit;
-            background-repeat: no-repeat;
-            background-position: top right;
-            background-size: 80px 80px;
-            height: 100%;
-            width: 80px;
-            margin-top: -5px;
-            -webkit-mask-box-image: -webkit-linear-gradient(right, black, transparent);
-            @include opacity(.2);
-        }
+        background: none !important;
 
         .topic-title,
         .topic-subtitle {
@@ -1568,11 +1548,24 @@
             }
 
             .message-edited,
-            .message-hidden {
-                background: #DDD;
+            .message-hidden,
+            .message-helpful {
                 display: inline-block;
                 padding: 3px 10px;
                 margin-bottom: 0;
+            }
+            .message-edited {
+                font-style: italic;
+                color: #777;
+            }
+            .message-helpful {
+                color: #48A200;
+                background: none;
+                text-indent: 20px;
+
+                &:after {
+                    margin: 7px;
+                }
             }
 
             textarea {
@@ -1869,6 +1862,9 @@ form.topic-message {
         }
         &.active:after {
             @include sprite-pos($sprite, 'tick-active');
+        }
+        &.white:after {
+            @include sprite-pos($sprite, 'tick-white');
         }
     }
 
