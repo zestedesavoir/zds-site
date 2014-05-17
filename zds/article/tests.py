@@ -72,6 +72,8 @@ class ArticleTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+        mail.outbox = []
 
     def test_alert(self):
         user1 = ProfileFactory().user
