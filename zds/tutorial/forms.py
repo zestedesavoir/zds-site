@@ -75,7 +75,8 @@ class TutorialForm(FormWithTitle):
     )
 
     type = forms.ChoiceField(
-        choices=TYPE_CHOICES
+        choices=TYPE_CHOICES,
+        required=False
     )
 
     subcategory = forms.ModelMultipleChoiceField(
