@@ -2892,6 +2892,7 @@ def MEP(tutorial, sha):
         '-V documentclass=scrbook ' +
         '-V lang=francais ' +
         '-V mainfont=Verdana ' +
+        '-V monofont="Andale Mono" ' +
         '-V fontsize=12pt ' +
         '-V geometry:margin=1in ' +
         os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md ' +

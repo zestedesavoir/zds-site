@@ -2,7 +2,7 @@
 
 {% with tutorial=part.tutorial%}
 {% with chapters=part.chapters %}
-{% if part.intro %}{{ part.intro|safe }}{% endif %}
+{% if part.intro %}{{ part.intro }}{% endif %}
 {% for chapter in chapters %}
 ## {{ chapter.title }}
 {% for extract in chapter.extracts %}
@@ -10,6 +10,6 @@
 {{ extract.txt|safe|decale_header_3 }}
 {% endfor %}
 {% endfor %}
-{% if part.conclu %}{{ part.conclu|safe }}{% endif %}
+{% if part.conclu %}{{ part.conclu }}{% endif %}
 {% endwith %}
 {% endwith %}
