@@ -38,14 +38,19 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', null=True, blank=True)
-    slug = models.SlugField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80,
+                            unique=True,
+                            help_text="Ces slugs vont provoquer des conflits "\
+                            "d'URL et sont donc interdits : notifications " \
+                            "resolution_alerte sujet sujets message messages")
 
     def __unicode__(self):
         """Textual form of a category."""
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/'.format(self.slug)
+        return reverse('zds.forum.views.cat_details',
+                       kwargs={'cat_slug', self.slug})
 
     def get_forums(self):
         return Forum.objects.all()\
@@ -81,10 +86,9 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/{1}/'.format(
-            self.category.slug,
-            self.slug,
-        )
+        return reverse('zds.forum.views.details',
+                       kwargs={'cat_slug': self.category.slug,
+                               'forum_slug': self.slug})
 
     def get_topic_count(self):
         """Gets the number of threads in the forum."""
