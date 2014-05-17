@@ -1550,22 +1550,28 @@
             .message-edited,
             .message-hidden,
             .message-helpful {
-                display: inline-block;
-                padding: 3px 10px;
-                margin-bottom: 0;
+                padding: 3px 0 0;
+
+                &.ico-after {
+                    text-indent: 20px;
+
+                    &:after {
+                        margin: 7px 0;
+                    }
+                }
             }
             .message-edited {
                 font-style: italic;
-                color: #777;
+                color: #999;
+
+                &:after {
+                    @include opacity(.5);
+                }
             }
             .message-helpful {
                 color: #48A200;
                 background: none;
                 text-indent: 20px;
-
-                &:after {
-                    margin: 7px;
-                }
             }
 
             textarea {

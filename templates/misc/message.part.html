@@ -101,7 +101,7 @@
         </div>
 
         <div class="message-content">
-            {% if message.is_useful and message.is_visible and user != message.author %}
+            {% if message.is_useful and not is_creator %}
                 <p class="message-helpful tick ico-after active">
                     Cette réponse a aidé l'auteur du sujet
                 </p>
@@ -116,7 +116,7 @@
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>
             {% elif message.update %}
-                <p class="message-edited">
+                <p class="message-edited ico-after edit">
                     Edité {{ message.update|naturaltime }} par {{ message.editor }}
                 </p>
             {% endif %}
@@ -155,18 +155,31 @@
                                     {% endif %}
                                 {% endif %}
 
-                                <a href="{{ upvote_link }}"
-                                   class="upvote {% if message.like > message.dislike %}more-voted{% endif%} ico-after
-                                          {% if profile_user|liked:message.pk %}voted{% endif %}"
-                                >
-                                    +{{ message.like }}
-                                </a>
-                                <a href="{{ downvote_link }}" 
-                                   class="downvote {% if message.like < message.dislike %}more-voted{% endif%} ico-after
-                                          {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                                >
-                                    -{{ message.dislike }}
-                                </a>
+                                {% if user != message.author %}
+                                    <a href="{{ upvote_link }}"
+                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after
+                                              {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                    >
+                                        +{{ message.like }}
+                                    </a>
+                                    <a href="{{ downvote_link }}" 
+                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after
+                                              {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                    >
+                                        -{{ message.dislike }}
+                                    </a>
+                                {% else %}
+                                    <span
+                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
+                                    >
+                                        +{{ message.like }}
+                                    </span>
+                                    <span 
+                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
+                                    >
+                                        -{{ message.dislike }}
+                                    </span>
+                                {% endif %}
                             </div>
                         {% endif %}
                     {% endwith %}
@@ -180,12 +193,12 @@
 
                         <div class="message-karma">
                             <span
-                               class="upvote {% if message.like > message.dislike %}more-voted{% endif%} ico-after"
+                               class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
                             >
                                 +{{ message.like }}
                             </span>
                             <span 
-                               class="downvote {% if message.like < message.dislike %}more-voted{% endif%} ico-after"
+                               class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
                             >
                                 -{{ message.dislike }}
                             </span>
