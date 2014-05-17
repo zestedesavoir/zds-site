@@ -832,17 +832,17 @@
 
     .member-item {
         margin-right: 5px;
+        margin-left: 2px;
 
         .avatar {
             margin-top: -2px;
             height: 20px;
             width: 20px;
             border: 1px solid #CCC;
-            @include border-radius(20px);
         }
 
         &:hover .avatar {
-            border-color: #777;
+            border-color: #999;
         }
     }
 }
@@ -949,8 +949,8 @@
             &:hover,
             &:focus {
                 background: #FFF;
-                color: #555;
-                border-bottom: 3px solid #999;
+                color: #0778AD;
+                border-bottom: 3px solid #0778AD;
             }
         }
     }
@@ -995,7 +995,6 @@
                 border: 1px solid #cdd0d1;
                 margin-right: 3px;
                 margin-top: -4px;
-                @include border-radius(30px);
             }
 
             a {
@@ -1004,7 +1003,7 @@
                 color: #ee8709;
                 height: 36px;
                 line-height: 36px;
-                padding: 0 8px 0 4px;
+                padding: 0 8px;
                 @include transition;
 
                 &:hover,
@@ -1108,34 +1107,35 @@
             background: #FDFDFD;
 
             &.unread {
-                background: lighten(#e1eaee, 3%);
+                background: lighten($orange, 29%);
             }
         }
 
         &.unread {
-            background: #e1eaee;
+            background: lighten($orange, 32%);
         }
 
         &:hover,
         &.active {
+            border-bottom-color: $orange;
+
             &:before {
                 content: " ";
                 display: block;
                 position: absolute;
-                background: $blue;
+                background: $orange;
                 height: 100%;
                 width: 5px;
-                @include opacity(.5);
             }
         }
     }
     a {
         text-decoration: none;
-        color: $blue;
+        color: #0778AD;
 
         &:hover,
         &:focus {
-            color: $blue;
+            color: #0778AD;
             text-decoration: underline;
             outline: none;
         }
@@ -1409,12 +1409,8 @@
         .message {
             background-color: $helpful;
 
-            .message-actions,
-            .message-karma {
-                a,
-                span {
-                   background-color: #FDFDFD;
-                }
+            &:after {
+                border-right-color: $helpful;
             }
         }
     }
@@ -1482,8 +1478,9 @@
 
                 &:hover,
                 &:focus {
-                    border-bottom-width: 3px;
+                    border-bottom-width: 1px;
                     border-bottom-color: #777;
+                    background: #FFF;
                 }
 
                 &.positive {
@@ -1506,23 +1503,36 @@
 
         .message-metadata {
             display: inline-block;
-            border-bottom: 1px solid #D2D5D6;
-            margin: 5px 0 0 10px;
+            font-size: 14px;
+            font-size: 1.4rem;
+            margin-left: 5px;
 
             a {
+                display: block;
+                float: left;
                 color: #999;
                 text-decoration: none;
+                height: 30px;
+                line-height: 30px;
+                padding: 0 5px;
+                border-bottom: 1px solid #D2D5D6;
+                @include transition;
 
                 &:hover,
                 &:focus {
-                    text-decoration: underline;
+                    border-bottom: 1px solid #0778AD;
+                    color: #0778AD;
+                    outline: none;
                 }
             }
             .username {
                 color: #484848;
                 font-size: 16px;
                 font-size: 1.6rem;
-                margin-right: 10px;
+                margin-right: 3px;
+            }
+            .date {
+                line-height: 32px;
             }
         }
 
@@ -1533,6 +1543,9 @@
             position: absolute;
             top: 0;
             right: 0;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-size: 1.4rem;
 
             li {
                 float: left;
@@ -1591,6 +1604,11 @@
 
             .message-karma {
                 margin-left: auto;
+                margin-bottom: -2px;
+
+                a {
+                    border-bottom-width: 3px;
+                }
 
                 .tick {
                     overflow: hidden;
@@ -1656,14 +1674,13 @@
             button {
                 display: block;
                 float: left;
-                background-color: #edefef;
-                border-bottom: 3px solid #edefef;
+                border-bottom: 1px solid #D2D5D6;
                 text-decoration: none;
                 color: #999;
-                height: 27px;
+                height: 29px;
                 line-height: 30px;
                 padding: 0 10px;
-                margin-left: 1px;
+                margin-left: 3px;
                 @include transition;
 
                 &.ico-after {
@@ -1674,7 +1691,7 @@
                     top: 7px;
                     left: 7px;
                     @include transition;
-                    @include opacity(.5);
+                    @include opacity(.3);
                 }
             }
             button {
@@ -1703,11 +1720,11 @@
 
                 &:hover,
                 &:focus {
-                    border-bottom-color: #999;
+                    border-bottom-color: #0778AD;
                     outline: none;
 
                     &:after {
-                        @include opacity(1);
+                        @include opacity(.7);
                     }
                 }
             }
