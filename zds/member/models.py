@@ -83,7 +83,8 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return '/membres/voir/{0}'.format(self.user.username)
+        return reverse('zds.member.views.details',
+                       kwargs={'user_name': self.user.username})
 
     def get_city(self):
         """return physical adress by geolocalisation."""
