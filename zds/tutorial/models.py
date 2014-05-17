@@ -122,8 +122,8 @@ class Tutorial(models.Model):
             return self.get_absolute_url()
 
     def get_edit_url(self):
-        return '/tutorial/editer?tutorial={0}'.format(self.pk)
-
+        return reverse('zds.tutorial.views.modify_tutorial') + '?tutorial={0}'.format(self.pk)
+    
     def get_parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
@@ -572,7 +572,7 @@ class Chapter(models.Model):
             return self.part.get_absolute_url() + '{0}/'.format(self.slug)
 
         else:
-            return '/tutoriels/'
+            return reverse('zds.tutorial.views.index')
 
     def get_absolute_url_online(self):
         if self.tutorial:
@@ -583,7 +583,7 @@ class Chapter(models.Model):
             ) + '{0}/'.format(self.slug)
 
         else:
-            return '/tutoriels/'
+            return reverse('zds.tutorial.views.index')
 
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
