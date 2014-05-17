@@ -20,7 +20,7 @@
 {% block breadcrumb %}
     <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
     <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li class="current"><a href="javascript:;">{{ topic.title }}</a></li>
+    <li class="current">{{ topic.title }}</li>
 {% endblock %}
 
 {% block headline-actions %}
