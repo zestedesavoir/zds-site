@@ -98,8 +98,10 @@
     button,
     .btn {
         display: block;
-        height: 40px;
+        height: 30px;
     }
+    input[type=submit],
+    button,
     .btn {
         line-height: 40px;
         cursor: pointer;
@@ -127,6 +129,7 @@
     }
     [type=submit],
     .btn-submit {
+        color: #FFF;
         background: #084561;
 
         &:hover,
@@ -142,5 +145,14 @@
             background: #e74c3c;
         }
     }
+    .btn-grey {
+        background: #EEE;
+        color: #555;
 
+        &:hover,
+        &:focus {
+            background: #CCC;
+            color: #333;
+        }
+    }
 }

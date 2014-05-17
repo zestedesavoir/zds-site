@@ -39,16 +39,16 @@
         <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
     </ul>
 
-    {% if topic.is_solved %}
-        <div class="alert-box success">
-            <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
-            solution satisfaisant son problème.
-        </div>
-    {% endif %}
-
     {% include "misc/pagination.part.html" with position="top" %}
 
     <div class="content-wrapper">
+        {% if topic.is_solved %}
+            <div class="alert-box success">
+                <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
+                solution satisfaisant son problème.
+            </div>
+        {% endif %}
+
         {% for message in posts %}
             {% captureas edit_link %}
                 {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
@@ -124,7 +124,9 @@
 
     {% if perms.forum.change_topic %}
         </ul>
-        <h4>Modération</h4>
+    </div>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico">
+        <h3>Modération</h3>
         <ul>
         {% if topic.is_locked %}
             <li>

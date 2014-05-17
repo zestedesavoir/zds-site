@@ -38,42 +38,43 @@
 
         {% block sidebar_blocs %}{% endblock %}
 
-        {# Ce bloc n'a rien à faire là #}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-            <h3>Télécharger</h3>
-            <ul>
-                {% if tutorial.on_line %}
-                    {% if perms.tutorial.change_tutorial %}
-                       <li>
-                        <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
-                            Markdown
-                        </a>
-                    </li>
+        {% if tutorial %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+                <h3>Télécharger</h3>
+                <ul>
+                    {% if tutorial.on_line %}
+                        {% if perms.tutorial.change_tutorial %}
+                           <li>
+                            <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
+                                Markdown
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">
+                                HTML
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">
+                                PDF
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">
+                                EPUB
+                            </a>
+                        </li>
                     {% endif %}
 
                     <li>
-                        <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">
-                            HTML
+                        <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">
+                            Archive
                         </a>
                     </li>
-                    <li>
-                        <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">
-                            PDF
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">
-                            EPUB
-                        </a>
-                    </li>
-                {% endif %}
-
-                <li>
-                    <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">
-                        Archive
-                    </a>
-                </li>
-            </ul>
-        </div>
+                </ul>
+            </div>
+        {% endif %}
     </aside>
 {% endblock %}

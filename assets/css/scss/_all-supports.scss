@@ -542,6 +542,9 @@
         background: #e67e22;
     }
 }
+.content-wrapper .alert-box {
+    margin: 0 0 20px;
+}
 
 
 
@@ -562,14 +565,15 @@
         font-weight: normal;
         margin: 0;
         padding: 0 0 0 2.5%;
+        text-transform: uppercase;
     }
     h3 {
         font-size: 18px;
         font-size: 1.8rem;
         line-height: 40px;
         line-height: 4.0rem;
-        color: #084561;
-        background-color: #d3d5d5;
+        color: $blue;
+        border-bottom: 1px solid lighten($orange, 10%);
         margin-top: 30px;
     }
     h4 {
@@ -596,7 +600,7 @@
     }
 
     h3 + ul {
-        margin: 15px 0 7px;
+        margin: 7px 0;
     }
 
     ul {
@@ -629,8 +633,8 @@
                 text-decoration: none;
                 color: #0079b2;
                 overflow: hidden;
-                height: 30px;
-                line-height: 30px;
+                height: 40px;
+                line-height: 40px;
                 font-size: 14px;
                 font-size: 1.4rem;
                 text-overflow: ellipsis;
@@ -661,7 +665,7 @@
 
                 &.ico-after {
                     &:after {
-                        top: 7px;
+                        top: 12px;
                         left: 0;
                         @include opacity(.7);
                     }
@@ -949,8 +953,8 @@
             &:hover,
             &:focus {
                 background: #FFF;
-                color: #0778AD;
-                border-bottom: 3px solid #0778AD;
+                color: lighten($blue, 15%);
+                border-bottom: 3px solid lighten($blue, 15%);
             }
         }
     }
@@ -1000,7 +1004,7 @@
             a {
                 display: block;
                 text-decoration: none;
-                color: #ee8709;
+                color: lighten($blue, 20%);
                 height: 36px;
                 line-height: 36px;
                 padding: 0 8px;
@@ -1093,6 +1097,7 @@
         font-size: 1.4rem;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
+        background: #e1ebef;
 
         &:first-child:after {
             display: block;
@@ -1104,38 +1109,39 @@
         }
 
         &:nth-child(2n){
-            background: #FDFDFD;
+            background: none;
 
             &.unread {
-                background: lighten($orange, 29%);
+                background: lighten($orange, 33%);
             }
         }
 
         &.unread {
-            background: lighten($orange, 32%);
+            background: lighten($orange, 30%);
         }
 
         &:hover,
         &.active {
-            border-bottom-color: $orange;
-
             &:before {
                 content: " ";
                 display: block;
                 position: absolute;
-                background: $orange;
+                background: lighten($blue, 15%);
                 height: 100%;
                 width: 5px;
+            }
+            &.unread:before {
+                background: $orange;
             }
         }
     }
     a {
         text-decoration: none;
-        color: #0778AD;
+        color: lighten($blue, 15%);
 
         &:hover,
         &:focus {
-            color: #0778AD;
+            color: lighten($blue, 15%);
             text-decoration: underline;
             outline: none;
         }
@@ -1520,8 +1526,8 @@
 
                 &:hover,
                 &:focus {
-                    border-bottom: 1px solid #0778AD;
-                    color: #0778AD;
+                    border-bottom: 1px solid lighten($blue, 15%);
+                    color: lighten($blue, 15%);
                     outline: none;
                 }
             }
@@ -1661,6 +1667,7 @@
 
         .message-submit {
             margin-left: auto;
+            margin-right: 10px;
         }
 
         .message-actions,
@@ -1674,12 +1681,6 @@
             button {
                 display: block;
                 float: left;
-                border-bottom: 1px solid #D2D5D6;
-                text-decoration: none;
-                color: #999;
-                height: 29px;
-                line-height: 30px;
-                padding: 0 10px;
                 margin-left: 3px;
                 @include transition;
 
@@ -1694,33 +1695,21 @@
                     @include opacity(.3);
                 }
             }
-            button {
-                padding: 0 15px;
-                height: 30px;
-                border-top: none;
-                border-right: none;
-                border-left: none;
-                
-                &[type=submit] {
-                    background: #084561;
-                    border-bottom-color: #084561;
-                    color: #DDD;
-
-                    &:hover,
-                    &:focus {
-                        color: #FFF;
-                        background: $header-hover;
-                        border-bottom-color: $header-hover;
-                    }
-                }
-            }
             a,
-            button {
+            span {
+                border-bottom: 1px solid #D2D5D6;
+                text-decoration: none;
+                color: #999;
+                height: 29px;
+                line-height: 30px;
+                padding: 0 10px;
+            }
+            a {
                 cursor: pointer;
 
                 &:hover,
                 &:focus {
-                    border-bottom-color: #0778AD;
+                    border-bottom-color: lighten($blue, 15%);
                     outline: none;
 
                     &:after {

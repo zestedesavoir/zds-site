@@ -3,12 +3,12 @@
 
 
 <section class="content-wrapper topic-message">
-	<form action="{{ form_action }}" method="post">
-		{% include "misc/message_user.html" with hide_metadata=True %}
+    <form action="{{ form_action }}" method="post">
+        {% include "misc/message_user.html" with hide_metadata=True %}
 
 
-		<div class="message">
-	        <div class="message-content">
+        <div class="message">
+            <div class="message-content">
                 <textarea
                     name="text"
                     id="text"
@@ -24,32 +24,33 @@
                         {{ text }}
                     {% endif %}
                 {% endspaceless %}</textarea>
-	        </div>
+            </div>
 
-	        <div class="message-bottom">
-	            <div class="message-submit">
-	                <button
-	                    type="submit"
-	                    name="preview"
-	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-	                >
-	                    Aperçu
-	                </button>
+            <div class="message-bottom">
+                <div class="message-submit">
+                    <button
+                        type="submit"
+                        name="preview"
+                        class="btn-grey"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                    >
+                        Aperçu
+                    </button>
 
-	                <button
-	                    type="submit"
-	                    name="answer"
-	                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-	                >
-	                    Envoyer
-	                </button>
-	            </div>
-	        </div>
+                    <button
+                        type="submit"
+                        name="answer"
+                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                    >
+                        Envoyer
+                    </button>
+                </div>
+            </div>
 
-	        <input type="hidden" name="last_note" value="{{ last_note_pk }}">
-	        <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
-	        <input type="hidden" name="last_post" value="{{ last_post_pk }}">
-	        {% csrf_token %}
-	    </div>
-	</form>
+            <input type="hidden" name="last_note" value="{{ last_note_pk }}">
+            <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
+            <input type="hidden" name="last_post" value="{{ last_post_pk }}">
+            {% csrf_token %}
+        </div>
+    </form>
 </section>
