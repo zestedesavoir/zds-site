@@ -34,7 +34,7 @@ class Profile(models.Model):
 
     last_ip_address = models.CharField(
         'Adresse IP',
-        max_length=15,
+        max_length=39,
         blank=True,
         null=True)
 
