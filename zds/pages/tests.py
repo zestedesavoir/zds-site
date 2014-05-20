@@ -80,6 +80,7 @@ class PagesMemberTests(TestCase):
         # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
+
 class PagesStaffTests(TestCase):
 
     def setUp(self):

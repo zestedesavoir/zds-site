@@ -84,7 +84,7 @@ class PrivateTopic(models.Model):
                 .select_related()\
                 .filter(privatetopic=self, user=get_current_user())\
                 .latest('post__pubdate').privatepost
-            
+
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
                 pubdate__gt=last_post__pubdate).first()
@@ -94,9 +94,8 @@ class PrivateTopic(models.Model):
             return self.first_post()
 
     def alone(self):
-        """Check if there just one participant in the conversation
-        """
-        return self.participants.count()==0
+        """Check if there just one participant in the conversation."""
+        return self.participants.count() == 0
 
     def never_read(self):
         return never_privateread(self)

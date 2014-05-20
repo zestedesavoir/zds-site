@@ -19,14 +19,15 @@ from zds.settings import SITE_ROOT
 # Unlike other fileds, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
 
+
 class OldTutoForm(forms.Form):
-    
+
     id = forms.ChoiceField(
         label='Ancien Tutoriel',
         required=True,
-        choices = listing(),
+        choices=listing(),
     )
-    
+
     def __init__(self, profile, *args, **kwargs):
         super(OldTutoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -45,16 +46,17 @@ class OldTutoForm(forms.Form):
             ),
         )
 
+
 class LoginForm(forms.Form):
     username = forms.CharField(
         label='Identifiant',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
     )
 
     password = forms.CharField(
         label='Mot magique',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
@@ -94,26 +96,26 @@ class LoginForm(forms.Form):
 class RegisterForm(forms.Form):
     email = forms.EmailField(
         label='Adresse e-mail',
-        max_length = User._meta.get_field('email').max_length,
+        max_length=User._meta.get_field('email').max_length,
         required=True,
     )
 
     username = forms.CharField(
         label='Nom d\'utilisateur',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
     )
 
     password = forms.CharField(
         label='Mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmation du mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
@@ -177,6 +179,7 @@ class RegisterForm(forms.Form):
 
         return cleaned_data
 
+
 class MiniProfileForm(forms.Form):
     biography = forms.CharField(
         label='Biographie',
@@ -191,7 +194,7 @@ class MiniProfileForm(forms.Form):
     site = forms.CharField(
         label='Site internet',
         required=False,
-        max_length = Profile._meta.get_field('site').max_length,
+        max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Lien vers votre site internet personnel (ne pas oublier le http:// ou https:// devant).'
@@ -202,7 +205,7 @@ class MiniProfileForm(forms.Form):
     avatar_url = forms.CharField(
         label='Avatar',
         required=False,
-        max_length = Profile._meta.get_field('avatar_url').max_length,
+        max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
@@ -213,7 +216,7 @@ class MiniProfileForm(forms.Form):
     sign = forms.CharField(
         label='Signature',
         required=False,
-        max_length = Profile._meta.get_field('sign').max_length,
+        max_length=Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Elle apparaitra dans les messages de forums. '
@@ -233,12 +236,16 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton('Editer le profil', type='submit', css_class='button'),
+                StrictButton(
+                    'Editer le profil',
+                    type='submit',
+                    css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
-            )
-        )
+            ))
 
 # update extra information about user
+
+
 class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
@@ -281,10 +288,12 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton('Editer mon profil', type='submit', css_class='button'),
+                StrictButton(
+                    'Editer mon profil',
+                    type='submit',
+                    css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
-            )
-        )
+            ))
 
 # to update email/username
 
@@ -293,7 +302,7 @@ class ChangeUserForm(forms.Form):
 
     username_new = forms.CharField(
         label='Nouveau pseudo',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -304,7 +313,7 @@ class ChangeUserForm(forms.Form):
 
     email_new = forms.EmailField(
         label='Nouvel e-mail',
-        max_length = User._meta.get_field('email').max_length,
+        max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -355,19 +364,19 @@ class ChangeUserForm(forms.Form):
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
         label='Nouveau mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_old = forms.CharField(
         label='Mot de passe actuel',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmer le nouveau mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
@@ -428,7 +437,7 @@ class ChangePasswordForm(forms.Form):
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label='Nom d\'utilisateur',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True
     )
 
@@ -462,12 +471,12 @@ class ForgotPasswordForm(forms.Form):
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
         label='Mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
         label='Confirmation',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 

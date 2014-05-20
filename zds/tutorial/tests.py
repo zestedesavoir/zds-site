@@ -100,7 +100,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
-        
+
         mail.outbox = []
 
     def test_add_note(self):
@@ -651,12 +651,12 @@ class BigTutorialTests(TestCase):
 
     def test_alert(self):
         user1 = ProfileFactory().user
-        note = NoteFactory(tutorial=self.bigtuto, author = user1, position=1)
+        note = NoteFactory(tutorial=self.bigtuto, author=user1, position=1)
         login_check = self.client.login(
             username=self.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #signal note
+        # signal note
         result = self.client.post(
             reverse('zds.tutorial.views.edit_note') +
             '?message={0}'.format(
@@ -668,13 +668,13 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 1)
-        
+
         # connect with staff
         login_check = self.client.login(
             username=self.staff.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #solve alert
+        # solve alert
         result = self.client.post(
             reverse('zds.tutorial.views.solve_alert'),
             {
@@ -685,7 +685,10 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 0)
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user).count(), 1)
+        self.assertEqual(
+            PrivateTopic.objects.filter(
+                author=self.user).count(),
+            1)
         self.assertEquals(len(mail.outbox), 0)
 
     def tearDown(self):

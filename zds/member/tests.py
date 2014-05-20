@@ -62,7 +62,7 @@ class MemberTests(TestCase):
         result = self.client.get(
             settings.SITE_URL + token.get_absolute_url(),
             follow=False)
-        
+
         self.assertEqual(result.status_code, 200)
         self.assertEquals(len(mail.outbox), 2)
 

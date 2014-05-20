@@ -93,7 +93,8 @@ class Article(models.Model):
                                'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return reverse('zds.article.views.edit') + '?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + \
+            '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None

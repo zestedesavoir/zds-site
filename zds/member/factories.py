@@ -3,7 +3,10 @@ import factory
 
 from zds.member.models import Profile
 
-# Don't try to directly use UserFactory, this didn't create Profile then don't work!
+# Don't try to directly use UserFactory, this didn't create Profile then
+# don't work!
+
+
 class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
@@ -23,7 +26,10 @@ class UserFactory(factory.DjangoModelFactory):
                 user.save()
         return user
 
-# Don't try to directly use StaffFactory, this didn't create Profile then don't work!
+# Don't try to directly use StaffFactory, this didn't create Profile then
+# don't work!
+
+
 class StaffFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
@@ -68,7 +74,7 @@ class ProfileFactory(factory.DjangoModelFactory):
             self.user.username.lower())
 
     sign = 'Please look my flavour'
-    
+
 
 class StaffProfileFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Profile

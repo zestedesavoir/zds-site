@@ -62,7 +62,6 @@ def index(request):
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
@@ -287,8 +286,8 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    profile = Profile.objects.get(user = part)
-                    if profile.email_for_answer :
+                    profile = Profile.objects.get(user=part)
+                    if profile.email_for_answer:
                         pos = post.position_in_topic - 1
                         last_read = PrivateTopicRead.objects.filter(
                             privatetopic=g_topic,
@@ -309,7 +308,7 @@ def answer(request):
                                     'author': request.user.username
                                 })
                             )
-    
+
                             msg = EmailMultiAlternatives(
                                 subject, message_txt, from_email, [
                                     part.email])
@@ -423,6 +422,7 @@ def edit_post(request):
             'form': form,
         })
 
+
 @can_read_now
 @login_required
 @require_POST
@@ -437,14 +437,15 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else :
+        else:
             ptopic.participants.remove(request.user)
             ptopic.save()
 
         messages.success(
-                request, 'Vous avez quitté la conversation avec succès.')
+            request, 'Vous avez quitté la conversation avec succès.')
 
     return redirect(reverse('zds.mp.views.index'))
+
 
 @can_read_now
 @login_required
@@ -452,20 +453,23 @@ def leave(request):
 @transaction.atomic
 def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
-    try :
+    try:
         part = User.objects.get(username=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
-                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+                request,
+                'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
         else:
             ptopic.participants.add(part)
             ptopic.save()
 
-            messages.success(request, 'Le membre a bien été ajouté à la conversation')
+            messages.success(
+                request,
+                'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
-                request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+            request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
 
     return redirect(reverse('zds.mp.views.topic', args=[
-                ptopic.pk,
-                slugify(ptopic.title)]))
+        ptopic.pk,
+        slugify(ptopic.title)]))

@@ -263,7 +263,12 @@ def new_image(request, gal_pk):
             img.save()
 
             # Redirect to the newly uploaded image edit page after POST
-            return redirect(reverse('zds.gallery.views.edit_image', args=[gal.pk, img.pk]))
+            return redirect(
+                reverse(
+                    'zds.gallery.views.edit_image',
+                    args=[
+                        gal.pk,
+                        img.pk]))
         else:
             return render_template('gallery/new_image.html', {
                 'form': form,

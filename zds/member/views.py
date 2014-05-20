@@ -56,7 +56,6 @@ def index(request):
         shown_members = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-
     return render_template('member/index.html', {
         'members': shown_members, 'count': members.count(),
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
@@ -117,12 +116,13 @@ def details(request, user_name):
         .all()
 
     tops = []
-    for top in my_topics :
+    for top in my_topics:
         if not top.forum.can_read(request.user):
             continue
         else:
             tops.append(top)
-            if len(tops)>=5 : break
+            if len(tops) >= 5:
+                break
 
     form = OldTutoForm(profile)
 
@@ -137,7 +137,7 @@ def details(request, user_name):
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans,
         'articles': my_articles, 'tutorials': my_tutorials,
-        'topics': tops, 'form': form, 'old_tutos' : oldtutos
+        'topics': tops, 'form': form, 'old_tutos': oldtutos
     })
 
 
@@ -153,7 +153,6 @@ def modify_profile(request, user_pk):
         ban.user = profile.user
         ban.pubdate = datetime.now()
 
-
         if 'ls' in request.POST:
             profile.can_write = False
             ban.type = u'Lecture Seule'
@@ -165,14 +164,16 @@ def modify_profile(request, user_pk):
             profile.can_write = False
             profile.end_ban_write = datetime.now(
             ) + timedelta(days=int(request.POST['ls-jrs']), hours=0, minutes=0, seconds=0)
-            detail = u"vous ne pouvez plus poster dans les forums, ni dans les commentaires d'articles et de tutoriels pendant "+request.POST['ls-jrs']+" jours."
+            detail = u"vous ne pouvez plus poster dans les forums, ni dans les commentaires d'articles et de tutoriels pendant " + \
+                request.POST['ls-jrs'] + " jours."
         if 'ban-temp' in request.POST:
             ban.type = u'Ban Temporaire'
             ban.text = request.POST['ban-temp-text']
             profile.can_read = False
             profile.end_ban_read = datetime.now(
             ) + timedelta(days=int(request.POST['ban-jrs']), hours=0, minutes=0, seconds=0)
-            detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir pendant "+request.POST['ban-jrs']+" jours."
+            detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir pendant " + \
+                request.POST['ban-jrs'] + " jours."
         if 'ban' in request.POST:
             ban.type = u'Ban définitif'
             ban.text = request.POST['ban-text']
@@ -192,15 +193,23 @@ def modify_profile(request, user_pk):
         profile.save()
         ban.save()
 
-        #send register message
+        # send register message
         if 'un-ls' in request.POST or 'un-ban' in request.POST:
-            msg = u"Bonjour **{0}**,\n\n**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.\n\nCe qui signifie que {2}\n\nLe motif de votre sanction est : \n\n`{3}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, detail, ban.text)
+            msg = u"Bonjour **{0}**,\n\n**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.\n\nCe qui signifie que {2}\n\nLe motif de votre sanction est : \n\n`{3}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(
+                ban.user,
+                ban.moderator,
+                detail,
+                ban.text)
         else:
-            msg = u"Bonjour **{0}**,\n\nVous avez été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(ban.user, ban.moderator, ban.type, detail, ban.text)
-
+            msg = u"Bonjour **{0}**,\n\nVous avez été santionné par **{1}**.\n\nLa sanction est de type *{2}*, ce qui signifie que {3}\n\nLe motif de votre sanction est : \n\n`{4}`\n\nCordialement, L'équipe ZesteDeSavoir.\n\n".format(
+                ban.user,
+                ban.moderator,
+                ban.type,
+                detail,
+                ban.text)
 
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(bot, [ban.user], ban.type, "Sanction", msg, True, direct = True)
+        send_mp(bot, [ban.user], ban.type, "Sanction", msg, True, direct=True)
 
     return redirect(profile.get_absolute_url())
 
@@ -274,10 +283,11 @@ def actions(request):
 
 # settings for public profile
 
+
 @can_write_and_read_now
 @login_required
 def settings_mini_profile(request, user_name):
-    """Minimal settings of users for staff"""
+    """Minimal settings of users for staff."""
     # extra information about the current user
     profile = Profile.objects.get(user__username=user_name)
 
@@ -300,11 +310,16 @@ def settings_mini_profile(request, user_name):
                 profile.save()
             except:
                 messages.error(request, 'Une erreur est survenue.')
-                return redirect(reverse('zds.member.views.settings_mini_profile'))
+                return redirect(
+                    reverse('zds.member.views.settings_mini_profile'))
 
             messages.success(
                 request, 'Le profil a correctement été mis à jour.')
-            return redirect(reverse('zds.member.views.details', args=[profile.user.username]))
+            return redirect(
+                reverse(
+                    'zds.member.views.details',
+                    args=[
+                        profile.user.username]))
         else:
             return render_to_response(
                 'member/settings_mini_profile.html',
@@ -325,6 +340,7 @@ def settings_mini_profile(request, user_name):
             'member/settings_mini_profile.html',
             c,
             RequestContext(request))
+
 
 @can_write_and_read_now
 @login_required
@@ -348,7 +364,7 @@ def settings_profile(request):
                 'options')
             profile.email_for_answer = 'email_for_answer' in form.cleaned_data.get(
                 'options')
-            
+
             profile.avatar_url = form.data['avatar_url']
             profile.sign = form.data['sign']
 
@@ -495,7 +511,7 @@ def login_view(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             profile = get_object_or_404(Profile, user=user)
-            if user.is_active :
+            if user.is_active:
                 if profile.can_read_now():
                     login(request, user)
                     request.session['get_token'] = generate_token()
@@ -507,11 +523,19 @@ def login_view(request):
                     except:
                         return redirect(reverse('zds.pages.views.home'))
                 else:
-                    messages.error(request, 'Vous n\'êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur')
+                    messages.error(
+                        request,
+                        'Vous n\'êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur')
             else:
-                messages.error(request, 'Vous n\'avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site. Regardez dans vos mails : '+str(user.email))
+                messages.error(
+                    request,
+                    'Vous n\'avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site. Regardez dans vos mails : ' +
+                    str(
+                        user.email))
         else:
-            messages.error(request, 'Les identifiants fournis ne sont pas valides')
+            messages.error(
+                request,
+                'Les identifiants fournis ne sont pas valides')
 
     form = LoginForm()
     form.helper.form_action = reverse(
@@ -707,24 +731,40 @@ def active_account(request):
     usr = token.user
     # User can't confirm his request if it is too late.
     if datetime.now() > token.date_end:
-        return render_template('member/token_account_failed.html', {'token': token})
+        return render_template(
+            'member/token_account_failed.html', {'token': token})
 
     usr.is_active = True
     usr.save()
 
-
-    #send register message
+    # send register message
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour **{0}**,\n\nTon compte a été activé, et tu es donc officiellement membre de la communauté de ZesteDeSavoir.\n\nZesteDeSavoir est une communauté dont le but est de diffuser des connaissances au plus grand nombre.\n\nSur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans plusieurs domaines et plus particulièrement autour de l'informatique et des sciences. Tu y retrouveras aussi des [articles]({2}) traitant de sujets d'actualités ou non, qui, tout comme les tutoriels, sont écrits par des [membres]({3}) de la communauté. Pendant tes lectures et ton apprentissage, si jamais tu as des questions à poser, tu retrouveras sur les [forums]({4}) des personnes prêtes à te filer un coup de main et ainsi t'éviter de passer plusieurs heures sur un problème.\n\nL'ensemble du contenu disponible sur le site est et sera toujours gratuit, car la communauté de ZesteDeSavoir est attachée aux valeurs du libre partage et désire apporter le savoir à tout le monde quelques soit ses moyens.\n\nEn espérant que tu t'y plaira ici, je te laisse maintenant faire le tour".format(usr.username,settings.SITE_URL+reverse('zds.tutorial.views.index'),settings.SITE_URL+reverse('zds.article.views.index'),settings.SITE_URL+reverse('zds.member.views.index'),settings.SITE_URL+reverse('zds.forum.views.index'))
-    send_mp(bot, [usr], u"Bienvenue sur ZesteDeSavoir", u"Le manuel du nouveau membre", msg, True, True, False)
+    msg = u"Bonjour **{0}**,\n\nTon compte a été activé, et tu es donc officiellement membre de la communauté de ZesteDeSavoir.\n\nZesteDeSavoir est une communauté dont le but est de diffuser des connaissances au plus grand nombre.\n\nSur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans plusieurs domaines et plus particulièrement autour de l'informatique et des sciences. Tu y retrouveras aussi des [articles]({2}) traitant de sujets d'actualités ou non, qui, tout comme les tutoriels, sont écrits par des [membres]({3}) de la communauté. Pendant tes lectures et ton apprentissage, si jamais tu as des questions à poser, tu retrouveras sur les [forums]({4}) des personnes prêtes à te filer un coup de main et ainsi t'éviter de passer plusieurs heures sur un problème.\n\nL'ensemble du contenu disponible sur le site est et sera toujours gratuit, car la communauté de ZesteDeSavoir est attachée aux valeurs du libre partage et désire apporter le savoir à tout le monde quelques soit ses moyens.\n\nEn espérant que tu t'y plaira ici, je te laisse maintenant faire le tour".format(
+        usr.username,
+        settings.SITE_URL +
+        reverse('zds.tutorial.views.index'),
+        settings.SITE_URL +
+        reverse('zds.article.views.index'),
+        settings.SITE_URL +
+        reverse('zds.member.views.index'),
+        settings.SITE_URL +
+        reverse('zds.forum.views.index'))
+    send_mp(
+        bot,
+        [usr],
+        u"Bienvenue sur ZesteDeSavoir",
+        u"Le manuel du nouveau membre",
+        msg,
+        True,
+        True,
+        False)
     return render_template('member/token_account_success.html', {'usr': usr})
 
     token.delete()
 
+
 def generate_token_account(request):
-    """
-    Generate token for account
-    """
+    """Generate token for account."""
     try:
         token = request.GET['token']
     except KeyError:
@@ -767,6 +807,7 @@ def generate_token_account(request):
     return render_template('member/register_success.html', {
     })
 
+
 def get_client_ip(request):
     """Retrieve the real IP address of the client."""
     if 'HTTP_X_REAL_IP' in request.META:  # nginx
@@ -798,7 +839,7 @@ def add_oldtuto(request):
 
     id = request.POST['id']
     profile_pk = request.POST['profile_pk']
-    profile = get_object_or_404(Profile, pk = profile_pk)
+    profile = get_object_or_404(Profile, pk=profile_pk)
 
     if profile.sdz_tutorial:
         olds = profile.sdz_tutorial.strip().split(':')
@@ -806,15 +847,19 @@ def add_oldtuto(request):
         olds = []
     last = str(id)
     for old in olds:
-        last+=':{0}'.format(old)
+        last += ':{0}'.format(old)
 
     profile.sdz_tutorial = last
     profile.save()
 
-    messages.success(request, 'Le tutoriel a bien été lié au membre {0}'.format(profile.user.username))
+    messages.success(
+        request,
+        'Le tutoriel a bien été lié au membre {0}'.format(
+            profile.user.username))
 
     return redirect(reverse('zds.member.views.details', args=[
-                profile.user.username]))
+        profile.user.username]))
+
 
 @can_read_now
 @login_required
@@ -830,7 +875,7 @@ def remove_oldtuto(request):
     else:
         raise Http404
 
-    profile = get_object_or_404(Profile, pk = profile_pk)
+    profile = get_object_or_404(Profile, pk=profile_pk)
 
     if profile.sdz_tutorial or not request.user.has_perm('member.change_profile'):
         olds = profile.sdz_tutorial.strip().split(':')
@@ -840,13 +885,17 @@ def remove_oldtuto(request):
 
     last = ''
     for i in range(len(olds)):
-        if i>0: last+=':'
-        last+='{0}'.format(str(olds[i]))
+        if i > 0:
+            last += ':'
+        last += '{0}'.format(str(olds[i]))
 
     profile.sdz_tutorial = last
     profile.save()
 
-    messages.success(request, 'Le tutoriel a bien été retiré au membre {0}'.format(profile.user.username))
+    messages.success(
+        request,
+        'Le tutoriel a bien été retiré au membre {0}'.format(
+            profile.user.username))
 
     return redirect(reverse('zds.member.views.details', args=[
-                profile.user.username]))
+        profile.user.username]))

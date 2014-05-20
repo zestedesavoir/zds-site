@@ -41,7 +41,7 @@ class MPTests(TestCase):
         self.assertContains(result, user2.username)
 
     def test_view_mp(self):
-        """check mp is readable"""
+        """check mp is readable."""
         ptopic1 = PrivateTopicFactory(author=self.user1)
         ppost1 = PrivatePostFactory(
             privatetopic=ptopic1,

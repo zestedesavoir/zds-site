@@ -248,7 +248,7 @@ class ForumMemberTests(TestCase):
             follow=True)
 
         self.assertEqual(result.status_code, 200)
-    
+
     def test_signal_post(self):
         """To test when a member quote anyone post."""
         user1 = ProfileFactory().user
@@ -261,15 +261,15 @@ class ForumMemberTests(TestCase):
             reverse('zds.forum.views.edit_post') +
             '?message={0}'.format(post2.pk),
             {
-             'signal-text': u'Troll',
-             'signal-post': 'confirmer'
-             },
+                'signal-text': u'Troll',
+                'signal-post': 'confirmer'
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(),1)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(),1)
-        self.assertEqual(Alert.objects.get(author=self.user).text,u'Troll')
+        self.assertEqual(Alert.objects.all().count(), 1)
+        self.assertEqual(Alert.objects.filter(author=self.user).count(), 1)
+        self.assertEqual(Alert.objects.get(author=self.user).text, u'Troll')
 
     def test_like_post(self):
         """Test when a member like any post."""
@@ -442,13 +442,13 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
-        
+
         # useful if you are staff
         staff = StaffProfileFactory().user
         self.assertEqual(self.client.login(
-                    username=self.user.username,
-                    password='hostel77'), 
-                         True)
+            username=self.user.username,
+            password='hostel77'),
+            True)
         result = self.client.get(
             reverse('zds.forum.views.useful_post') +
             '?message={0}'.format(
@@ -546,16 +546,16 @@ class ForumMemberTests(TestCase):
             follow=False)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Topic.objects.all().count(), init_topic_count)
-    
+
     def test_url_topic(self):
-        """Test simple get request to the topic"""
+        """Test simple get request to the topic."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        #simple member can read public topic
+        # simple member can read public topic
         result = self.client.get(
             reverse(
                 'zds.forum.views.topic',
@@ -738,14 +738,14 @@ class ForumGuestTests(TestCase):
             reverse('zds.forum.views.edit_post') +
             '?message={0}'.format(post2.pk),
             {
-             'signal-text': u'Troll',
-             'signal-post': 'confirmer'
-             },
+                'signal-text': u'Troll',
+                'signal-post': 'confirmer'
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(),0)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(),0)
+        self.assertEqual(Alert.objects.all().count(), 0)
+        self.assertEqual(Alert.objects.filter(author=self.user).count(), 0)
 
     def test_like_post(self):
         """Test when a member like any post."""
@@ -835,16 +835,16 @@ class ForumGuestTests(TestCase):
             Topic.objects.get(
                 pk=topic1.pk).forum,
             self.forum12)
-    
+
     def test_url_topic(self):
-        """Test simple get request to the topic"""
+        """Test simple get request to the topic."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        #guest can read public topic
+        # guest can read public topic
         result = self.client.get(
             reverse(
                 'zds.forum.views.topic',

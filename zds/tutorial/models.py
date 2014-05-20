@@ -122,8 +122,9 @@ class Tutorial(models.Model):
             return self.get_absolute_url()
 
     def get_edit_url(self):
-        return reverse('zds.tutorial.views.modify_tutorial') + '?tutorial={0}'.format(self.pk)
-    
+        return reverse('zds.tutorial.views.modify_tutorial') + \
+            '?tutorial={0}'.format(self.pk)
+
     def get_parts(self):
         return Part.objects.all()\
             .filter(tutorial__pk=self.pk)\
@@ -772,8 +773,8 @@ class Extract(models.Model):
         else:
             if self.chapter.tutorial:
                 chapter_path = os.path.join(
-                        settings.REPO_PATH, str(
-                            self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug)
+                    settings.REPO_PATH, str(
+                        self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug)
             else:
                 chapter_path = os.path.join(
                     os.path.join(

@@ -109,9 +109,9 @@ def list_validation(request):
         else:
             validations = Validation.objects \
                 .filter(
-                        validator__isnull=True,
-                        status='PENDING',
-                        tutorial__subcategory__in=[subcategory]) \
+                    validator__isnull=True,
+                    status='PENDING',
+                    tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
 
@@ -292,11 +292,24 @@ def reject_tutorial(request):
     tutorial.save()
     messages.info(request, u'Le tutoriel a bien été refusé.')
 
-    #send feedback
+    # send feedback
     for author in tutorial.authors.all():
-        msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(author.username, tutorial.title, validation.validator.username, validation.validator.profile.get_absolute_url(), validation.comment_validator)
+        msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(
+            author.username,
+            tutorial.title,
+            validation.validator.username,
+            validation.validator.profile.get_absolute_url(),
+            validation.comment_validator)
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(bot, [author], u"Refus de Validation : {0}".format(tutorial.title), "", msg, True, direct = False)
+        send_mp(
+            bot,
+            [author],
+            u"Refus de Validation : {0}".format(
+                tutorial.title),
+            "",
+            msg,
+            True,
+            direct=False)
 
     return redirect(
         tutorial.get_absolute_url() +
@@ -337,11 +350,22 @@ def valid_tutorial(request):
 
     messages.success(request, u'Le tutoriel a bien été validé.')
 
-    #send feedback
+    # send feedback
     for author in tutorial.authors.all():
-        msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir l\'éplucher et réagir a son sujet. Je te conseille de rester a leur écoute afin d'apporter des corrections/compléments.\n\nUn Tutoriel vivant et a jour est bien plus lu qu'un sujet abandonné !".format(author.username, tutorial.title, tutorial.get_absolute_url_online())
+        msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir l\'éplucher et réagir a son sujet. Je te conseille de rester a leur écoute afin d'apporter des corrections/compléments.\n\nUn Tutoriel vivant et a jour est bien plus lu qu'un sujet abandonné !".format(
+            author.username,
+            tutorial.title,
+            tutorial.get_absolute_url_online())
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(bot, [author], u"Publication : {0}".format(tutorial.title), "", msg, True, direct = False)
+        send_mp(
+            bot,
+            [author],
+            u"Publication : {0}".format(
+                tutorial.title),
+            "",
+            msg,
+            True,
+            direct=False)
 
     return redirect(
         tutorial.get_absolute_url() +
@@ -464,11 +488,13 @@ def delete_tutorial(request, tutorial_pk):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied
-    #when author is alone we can delete definitively tutorial
+    # when author is alone we can delete definitively tutorial
     if tutorial.authors.count() == 1:
-        #user can access to gallery
-        try :
-            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+        # user can access to gallery
+        try:
+            ug = UserGallery.objects.filter(
+                user=request.user,
+                gallery=tutorial.gallery)
             ug.delete()
         except:
             ug = None
@@ -488,9 +514,11 @@ def delete_tutorial(request, tutorial_pk):
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)
-        #user can access to gallery
-        try :
-            ug = UserGallery.objects.filter(user=request.user, gallery = tutorial.gallery)
+        # user can access to gallery
+        try:
+            ug = UserGallery.objects.filter(
+                user=request.user,
+                gallery=tutorial.gallery)
             ug.delete()
         except:
             ug = None
@@ -526,7 +554,7 @@ def modify_tutorial(request):
             tutorial.authors.add(author)
             tutorial.save()
 
-            #share gallery
+            # share gallery
             ug = UserGallery()
             ug.user = author
             ug.gallery = tutorial.gallery
@@ -535,7 +563,8 @@ def modify_tutorial(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(author.username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction du tutoriel.'.format(
+                    author.username))
 
             return redirect(redirect_url)
 
@@ -551,9 +580,11 @@ def modify_tutorial(request):
             author = get_object_or_404(User, pk=author_pk)
 
             tutorial.authors.remove(author)
-            #user can access to gallery
-            try :
-                ug = UserGallery.objects.filter(user=author, gallery = tutorial.gallery)
+            # user can access to gallery
+            try:
+                ug = UserGallery.objects.filter(
+                    user=author,
+                    gallery=tutorial.gallery)
                 ug.delete()
             except:
                 ug = None
@@ -1152,7 +1183,7 @@ def add_part(request):
 
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
                 part.tutorial.pk) + '_' + part.tutorial.slug),
-                                    slugify(data['title']))
+                slugify(data['title']))
             part.introduction = os.path.join(
                 slugify(
                     data['title']),
@@ -1251,7 +1282,7 @@ def edit_part(request):
             part.title = data['title']
             new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
                 part.tutorial.pk) + '_' + part.tutorial.slug),
-                                    slugify(data['title']))
+                slugify(data['title']))
             old_slug = part.get_path()
 
             # Update path for introduction and conclusion.
@@ -1348,7 +1379,7 @@ def view_chapter(request, tutorial_pk, tutorial_slug, part_slug,
             chapter['position_in_part'] = cpt_c
             chapter['position_in_tutorial'] = cpt_c * cpt_p
             chapter['get_absolute_url'] = part[
-                    'get_absolute_url'] + '{0}/'.format(chapter['slug'])
+                'get_absolute_url'] + '{0}/'.format(chapter['slug'])
             if chapter_slug == slugify(chapter['title']):
                 chapter['intro'] = get_blob(
                     repo.commit(sha).tree,
@@ -1460,8 +1491,8 @@ def view_chapter_online(request, tutorial_pk, tutorial_slug, part_slug,
                     text.close()
                     cpt_e += 1
             else:
-                intro =None
-                conclu =None
+                intro = None
+                conclu = None
 
             chapter_tab.append(chapter)
             if chapter_slug == slugify(chapter['title']):
@@ -1532,7 +1563,7 @@ def add_chapter(request):
                         os.path.join(
                             settings.REPO_PATH, str(
                                 chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
-                                                chapter.slug)
+                        chapter.slug)
                     chapter.introduction = os.path.join(
                         chapter.slug,
                         'introduction.md')
@@ -1679,9 +1710,8 @@ def edit_chapter(request):
             data = form.data
             if chapter.part:
                 if chapter.tutorial:
-                    new_slug = os.path.join(os.path.join(settings.REPO_PATH,
-                                                         str(chapter.tutorial.pk) + '_' + chapter.tutorial.slug),
-                                            slugify(data['title']))
+                    new_slug = os.path.join(os.path.join(settings.REPO_PATH, str(
+                        chapter.tutorial.pk) + '_' + chapter.tutorial.slug), slugify(data['title']))
                 else:
                     new_slug = os.path.join(
                         os.path.join(
@@ -2329,7 +2359,8 @@ def import_content(request, tuto, images, logo):
                 action='add')
 
             extract_count += 1
-    
+
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -2337,10 +2368,15 @@ def local_import(request):
     tuto = open(r'{0}'.format(request.POST['tuto'], "r")).read()
     images = open(r'{0}'.format(request.POST['images'], "r")).read()
     logo = open(r'{0}'.format(request.POST['logo']), "r").read()
-    
-    import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
-    
+
+    import_content(
+        request,
+        request.POST['tuto'],
+        request.POST['images'],
+        request.POST['logo'])
+
     return redirect(reverse('zds.member.views.tutorials'))
+
 
 @can_write_and_read_now
 @login_required
@@ -2352,7 +2388,11 @@ def import_tuto(request):
             filename = str(request.FILES['file'])
             ext = filename.split('.')[-1]
             if ext == 'tuto':
-                import_content(request, request.FILES['file'], request.FILES['images'], '')
+                import_content(
+                    request,
+                    request.FILES['file'],
+                    request.FILES['images'],
+                    '')
             else:
                 raise Http404
 
@@ -2360,7 +2400,7 @@ def import_tuto(request):
     else:
         form = ImportForm()
 
-        profile = get_object_or_404(Profile, user=request.user) 
+        profile = get_object_or_404(Profile, user=request.user)
         oldtutos = []
         if profile.sdz_tutorial:
             olds = profile.sdz_tutorial.strip().split(':')
@@ -2370,7 +2410,7 @@ def import_tuto(request):
             oldtutos.append(get_info_old_tuto(old))
 
     return render_template('tutorial/import_tutorial.html', {
-        'form': form, 'old_tutos' : oldtutos,
+        'form': form, 'old_tutos': oldtutos,
     })
 
 
@@ -2744,8 +2784,8 @@ def get_url_images(md_text, pt):
             # if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
-                if not os.path.isdir(os.path.join(pt,'images')):
-                    os.makedirs(os.path.join(pt,'images'))
+                if not os.path.isdir(os.path.join(pt, 'images')):
+                    os.makedirs(os.path.join(pt, 'images'))
 
                 # download image
                 urlretrieve(
@@ -2857,13 +2897,12 @@ def MEP(tutorial, sha):
 
         target = os.path.join(tutorial.get_prod_path(), fichier + '.html')
         os.chdir(os.path.dirname(target))
-        
-        try :
-            html_file = open(target,"w")
-        except IOError: #handle limit of 255 on windows
-            target =u"\\\\?\{0}".format(target)
-            html_file = open(target,"w")
-            
+
+        try:
+            html_file = open(target, "w")
+        except IOError:  # handle limit of 255 on windows
+            target = u"\\\\?\{0}".format(target)
+            html_file = open(target, "w")
 
         if md_file_contenu is not None:
             html_file.write(emarkdown(md_file_contenu))
@@ -2884,7 +2923,7 @@ def MEP(tutorial, sha):
     # load pandoc
     os.chdir(tutorial.get_prod_path())
     os.system(
-        settings.PANDOC_LOC+"pandoc --latex-engine=xelatex -s -S --toc " +
+        settings.PANDOC_LOC + "pandoc --latex-engine=xelatex -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2894,7 +2933,7 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".html")
     os.system(
-        settings.PANDOC_LOC+'pandoc ' +
+        settings.PANDOC_LOC + 'pandoc ' +
         '--latex-engine=xelatex ' +
         '--template=../../assets/tex/template.tex ' +
         '-s ' +
@@ -2910,10 +2949,10 @@ def MEP(tutorial, sha):
         os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.md ' +
         '-o ' +
         os.path.join(tutorial.get_prod_path(), tutorial.slug) + '.pdf'
-        )
+    )
 
     os.system(
-        settings.PANDOC_LOC+"pandoc -s -S --toc " +
+        settings.PANDOC_LOC + "pandoc -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2925,6 +2964,7 @@ def MEP(tutorial, sha):
     os.chdir(settings.SITE_ROOT)
 
     return (output, err)
+
 
 def UNMEP(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
@@ -3035,6 +3075,7 @@ def answer(request):
             'form': form
         })
 
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -3047,8 +3088,18 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     note = Note.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, note.author.username, note.tutorial.title, settings.SITE_URL + note.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(note.tutorial.title), "", msg, False)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(
+        alert.author.username,
+        note.author.username,
+        note.tutorial.title,
+        settings.SITE_URL +
+        note.get_absolute_url(),
+        request.user.username,
+        request.POST['text'])
+    send_mp(
+        bot, [
+            alert.author], u"Résolution d'alerte : {0}".format(
+            note.tutorial.title), "", msg, False)
     alert.delete()
 
     messages.success(
@@ -3056,6 +3107,7 @@ def solve_alert(request):
         u'L\'alerte a bien été résolue')
 
     return redirect(note.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required

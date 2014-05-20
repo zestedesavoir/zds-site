@@ -19,7 +19,8 @@ def is_read(topic):
         return False
     else:
         return True
-    
+
+
 @register.filter('followed_topics')
 def followed_topics(user):
     topicsfollowed = TopicFollowed.objects.filter(user=user)\
@@ -28,6 +29,7 @@ def followed_topics(user):
     for tf in topicsfollowed:
         topics.append(tf.topic)
     return topics
+
 
 @register.filter('interventions_topics')
 def interventions_topics(user):
@@ -40,7 +42,7 @@ def interventions_topics(user):
         if never_read_topic(topicfollowed.topic):
             topics_unread.append(topicfollowed.topic)
 
-    return {'unread': topics_unread,}
+    return {'unread': topics_unread, }
 
 
 @register.filter('interventions_privatetopics')
@@ -102,15 +104,17 @@ def reads_tutorial(tutorial, user):
     else:
         return ''
 
+
 @register.filter(name='alerts_validation_tutos')
-def alerts_validation_tutos(user):    
+def alerts_validation_tutos(user):
     tutos = TutoValidation.objects.order_by('-date_proposition').all()
     total = []
     for tuto in tutos:
         if tuto.is_pending():
             total.append(tuto)
 
-    return {'total':len(total), 'alert':total[:5]}
+    return {'total': len(total), 'alert': total[:5]}
+
 
 @register.filter(name='alerts_validation_articles')
 def alerts_validation_articles(user):
@@ -120,24 +124,35 @@ def alerts_validation_articles(user):
         if article.is_pending():
             total.append(article)
 
-    return {'total':len(total), 'alert':total[:5]}
+    return {'total': len(total), 'alert': total[:5]}
+
 
 @register.filter(name='alerts_list')
 def alerts_list(user):
-    total= []
+    total = []
     alerts = Alert.objects.all().order_by('-pubdate')[:10]
     for alert in alerts:
         if alert.scope == Alert.FORUM:
-            post = Post.objects.get(pk = alert.comment.pk)
-            total.append({'title': post.topic.title, 'url':post.get_absolute_url(), 'pubdate' : post.pubdate, 'author' : alert.author})
+            post = Post.objects.get(pk=alert.comment.pk)
+            total.append({'title': post.topic.title,
+                          'url': post.get_absolute_url(),
+                          'pubdate': post.pubdate,
+                          'author': alert.author})
         if alert.scope == Alert.ARTICLE:
-            reaction = Reaction.objects.get(pk = alert.comment.pk)
-            total.append({'title': reaction.article.title, 'url':reaction.get_absolute_url(), 'pubdate' : reaction.pubdate, 'author' : alert.author})
+            reaction = Reaction.objects.get(pk=alert.comment.pk)
+            total.append({'title': reaction.article.title,
+                          'url': reaction.get_absolute_url(),
+                          'pubdate': reaction.pubdate,
+                          'author': alert.author})
         if alert.scope == Alert.TUTORIAL:
-            note = Note.objects.get(pk = alert.comment.pk)
-            total.append({'title': note.tutorial.title, 'url':note.get_absolute_url(), 'pubdate' : note.pubdate, 'author' : alert.author})
-    
+            note = Note.objects.get(pk=alert.comment.pk)
+            total.append({'title': note.tutorial.title,
+                          'url': note.get_absolute_url(),
+                          'pubdate': note.pubdate,
+                          'author': alert.author})
+
     return total
+
 
 @register.filter(name='alerts_count')
 def alerts_count(user):

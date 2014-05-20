@@ -426,7 +426,7 @@ def modify(request):
 
     # Validator actions
     if request.user.has_perm('article.change_article'):
-        
+
         # A validator would like to invalid an article in validation.
         # We must mark article rejected with the current sha of
         # validation.
@@ -444,12 +444,25 @@ def modify(request):
             article.sha_validation = None
             article.pubdate = None
             article.save()
-            
-            #send feedback
+
+            # send feedback
             for author in article.authors.all():
-                msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(author.username, article.title, validation.validator.username, validation.validator.profile.get_absolute_url(), validation.comment_validator)
+                msg = u"Désolé **{0}**, ton zeste **{1}** n'a malheureusement pas passé l’étape de validation. Mais ne désespère pas, certaines corrections peuvent surement être faite pour l’améliorer et repasser la validation plus tard. Voici le message que [{2}]({3}), ton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté.".format(
+                    author.username,
+                    article.title,
+                    validation.validator.username,
+                    validation.validator.profile.get_absolute_url(),
+                    validation.comment_validator)
                 bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(bot, [author], u"Refus de Validation : {0}".format(article.title), "", msg, True, direct = False)
+                send_mp(
+                    bot,
+                    [author],
+                    u"Refus de Validation : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
             return redirect(
                 article.get_absolute_url() +
@@ -496,12 +509,23 @@ def modify(request):
             article.sha_validation = None
             article.pubdate = datetime.now()
             article.save()
-            
-            #send feedback
+
+            # send feedback
             for author in article.authors.all():
-                msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir le lire et réagir a son sujet. Je te conseil de rester a leur écoute afin d'apporter des corrections/compléments. Un Article vivant et a jour est bien plus lu qu'un sujet abandonné !".format(author.username, article.title, article.get_absolute_url_online())
+                msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2}) est maintenant publié ! Les lecteurs du monde entier peuvent venir le lire et réagir a son sujet. Je te conseil de rester a leur écoute afin d'apporter des corrections/compléments. Un Article vivant et a jour est bien plus lu qu'un sujet abandonné !".format(
+                    author.username,
+                    article.title,
+                    article.get_absolute_url_online())
                 bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(bot, [author], u"Publication : {0}".format(article.title), "", msg, True, direct = False)
+                send_mp(
+                    bot,
+                    [author],
+                    u"Publication : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
             return redirect(
                 article.get_absolute_url() +
@@ -515,7 +539,7 @@ def modify(request):
                 article.delete()
             else:
                 article.authors.remove(request.user)
-                
+
             return redirect(reverse('zds.article.views.index'))
 
         # User would like to validate his article. So we must save the
@@ -550,7 +574,8 @@ def modify(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à la rédaction de l\'article.'.format(author.username))
+                u'L\'auteur {0} a bien été ajouté à la rédaction de l\'article.'.format(
+                    author.username))
 
             return redirect(redirect_url)
 
@@ -570,7 +595,8 @@ def modify(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été retiré de l\'article.'.format(author.username))
+                u'L\'auteur {0} a bien été retiré de l\'article.'.format(
+                    author.username))
 
             return redirect(redirect_url)
 
@@ -842,6 +868,7 @@ def answer(request):
             'form': form
         })
 
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -854,8 +881,18 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans l'article [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, reaction.author.username, reaction.article.title, settings.SITE_URL + reaction.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans l'article [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(
+        alert.author.username,
+        reaction.author.username,
+        reaction.article.title,
+        settings.SITE_URL +
+        reaction.get_absolute_url(),
+        request.user.username,
+        request.POST['text'])
+    send_mp(
+        bot, [
+            alert.author], u"Résolution d'alerte : {0}".format(
+            reaction.article.title), "", msg, False)
     alert.delete()
 
     messages.success(
@@ -863,6 +900,7 @@ def solve_alert(request):
         u'L\'alerte a bien été résolue')
 
     return redirect(reaction.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required

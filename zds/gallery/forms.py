@@ -15,12 +15,12 @@ from zds.gallery.models import Gallery, Image
 class GalleryForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Gallery._meta.get_field('title').max_length,
+        max_length=Gallery._meta.get_field('title').max_length,
     )
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length = Gallery._meta.get_field('subtitle').max_length,
+        max_length=Gallery._meta.get_field('subtitle').max_length,
         required=False
     )
 
@@ -56,7 +56,7 @@ class GalleryForm(forms.Form):
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
         label='Membre',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
             attrs={
@@ -107,13 +107,13 @@ class UserGalleryForm(forms.Form):
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Image._meta.get_field('title').max_length,
+        max_length=Image._meta.get_field('title').max_length,
         required=True,
     )
 
     legend = forms.CharField(
         label=u'Légende',
-        max_length = Image._meta.get_field('legend').max_length,
+        max_length=Image._meta.get_field('legend').max_length,
         required=False,
     )
 
