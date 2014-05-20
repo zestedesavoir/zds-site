@@ -4,9 +4,9 @@ from datetime import timedelta
 
 from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.utils.datetime_safe import datetime, strftime
-from django.utils.tzinfo import LocalTimezone
 from django.template.defaultfilters import date
+from django.utils.datetime_safe import datetime
+from django.utils.tzinfo import LocalTimezone
 
 
 register = template.Library()

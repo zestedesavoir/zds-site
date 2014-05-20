@@ -120,7 +120,8 @@ class ReactionForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=u'Vous ne pouvez pas encore poster sur cet article (protection antispam de 15 min).',
+                    placeholder=u'Vous ne pouvez pas encore poster u\
+                    usur cet article (protection antispam de 15 min).',
                     disabled=True)
         elif article.is_locked:
             self.helper['text'].wrap(

@@ -6,7 +6,6 @@ from zds.utils import slugify
 from math import ceil
 
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from zds.utils import get_current_user
 from django.core.urlresolvers import reverse
@@ -87,7 +86,7 @@ class PrivateTopic(models.Model):
 
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                pubdate__gt=last_post__pubdate).first()
+                pubdate__gt=last_post.pubdate).first()
 
             return next_post
         except:
@@ -162,7 +161,8 @@ def never_privateread(privatetopic, user=None):
         user = get_current_user()
 
     return PrivateTopicRead.objects\
-        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)\
+        .filter(privatepost=privatetopic.last_message,
+                privatetopic=privatetopic, user=user)\
         .count() == 0
 
 

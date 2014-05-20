@@ -3,11 +3,10 @@
 from django import template
 
 from zds.article.models import never_read as never_read_article, Validation as ArticleValidation, Reaction
-from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, Topic
+from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic, never_privateread
 from zds.utils.models import Alert
 from zds.tutorial.models import never_read as never_read_tutorial, Validation as TutoValidation, Note
-from operator import itemgetter, attrgetter
 
 
 register = template.Library()

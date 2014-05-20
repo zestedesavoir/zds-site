@@ -87,9 +87,7 @@ def contact(request):
 
 @can_read_now
 def eula(request):
-    '''
-    End-User Licence Agreement
-    '''
+    """End-User Licence Agreement."""
     return render_template('pages/eula.html')
 
 

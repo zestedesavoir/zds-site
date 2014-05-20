@@ -230,7 +230,8 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
+        if last_user_reactions \
+                and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:

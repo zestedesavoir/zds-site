@@ -5,7 +5,6 @@ from django.db import models
 from zds.utils import slugify
 from math import ceil
 import os
-import re
 import string
 import uuid
 

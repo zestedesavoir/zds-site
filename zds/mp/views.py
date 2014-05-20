@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,13 +10,14 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+
 from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
@@ -76,7 +78,8 @@ def topic(request, topic_pk, topic_slug):
     # TODO: Clean that up
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    if not g_topic.author == request.user and not request.user in list(g_topic.participants.all()):
+    if not g_topic.author == request.user \
+            and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
     # Check link
@@ -214,8 +217,6 @@ def edit(request):
     except KeyError:
         page = 1
 
-    data = request.POST
-
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
     if request.POST['username']:
@@ -286,7 +287,7 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    profile = Profile.objects.get(user=part)
+                    profile = part.profile
                     if profile.email_for_answer:
                         pos = post.position_in_topic - 1
                         last_read = PrivateTopicRead.objects.filter(
@@ -294,17 +295,20 @@ def answer(request):
                             privatepost__position_in_topic=pos,
                             user=part).count()
                         if last_read > 0:
-                            message_html = get_template('email/mp.html').render(
+                            message_html = get_template('email/mp.html') \
+                                .render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'url': settings.SITE_URL
+                                    + post.get_absolute_url(),
                                     'author': request.user.username
                                 })
                             )
                             message_txt = get_template('email/mp.txt').render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'url': settings.SITE_URL
+                                    + post.get_absolute_url(),
                                     'author': request.user.username
                                 })
                             )
@@ -378,7 +382,7 @@ def edit_post(request):
         raise PermissionDenied
 
     if request.method == 'POST':
-        if not 'text' in request.POST:
+        if 'text' not in request.POST:
             # if preview mode return on
             if 'preview' in request.POST:
                 return redirect(
@@ -458,7 +462,8 @@ def add_participant(request):
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
-                'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+                'Le membre que vous essayez d\'ajouter u\
+                uà la conversation y est déjà')
         else:
             ptopic.participants.add(part)
             ptopic.save()

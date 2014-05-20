@@ -8,8 +8,7 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
-    ButtonHolder, Hidden
+from crispy_forms_foundation.layout import Layout, Field, Hidden
 from zds.forum.models import Forum, Topic, sub_tag
 from zds.utils.forms import CommonLayoutEditor
 
@@ -65,7 +64,8 @@ class TopicForm(forms.Form):
                     [u'Le champ titre ne peut être vide'])
                 if 'title' in cleaned_data:
                     del cleaned_data['title']
-            elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)", sub_tag, title).strip() == '':
+            elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)", sub_tag, title) \
+                    .strip() == '':
                 self._errors['title'] = self.error_class(
                     [u'Le titre ne peux pas contenir uniquement des tags'])
         if text is not None and text.strip() == '':
@@ -106,7 +106,8 @@ class PostForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=u'Vous ne pouvez pas encore poster sur ce topic (protection antispam de 15 min).',
+                    placeholder=u'Vous ne pouvez pas encore poster u\
+                    usur ce topic (protection antispam de 15 min).',
                     disabled=True)
         elif topic.is_locked:
             self.helper['text'].wrap(

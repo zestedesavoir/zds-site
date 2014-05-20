@@ -1,5 +1,4 @@
 # coding: utf-8
-
 import os
 import shutil
 
@@ -10,7 +9,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.article.factories import ArticleFactory, ReactionFactory
-from zds.article.models import Article, Validation, Reaction, Article
+from zds.article.models import Validation, Reaction, Article
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
@@ -26,7 +25,8 @@ class ArticleTests(TestCase):
 
     def setUp(self):
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.BOT_ACCOUNT = self.mas.username
 
@@ -161,7 +161,7 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-        reaction1 = ReactionFactory(
+        ReactionFactory(
             article=self.article,
             position=2,
             author=self.staff)

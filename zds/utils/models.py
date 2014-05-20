@@ -210,13 +210,11 @@ class Alert(models.Model):
         return Comment.objects.get(id=self.comment.id)
 
     def get_comment_subclass(self):
-        """
-        Used to retrieve comment URLs (simple call to get_absolute_url doesn't
-        work: objects are retrived as Comment and not subclasses)
-        As real Comment implementation (subclasses) can't be hard-coded due to
-        unresolvable import loops, use InheritanceManager from
-        django-model-utils.
-        """
+        """Used to retrieve comment URLs (simple call to get_absolute_url
+        doesn't work: objects are retrived as Comment and not subclasses) As
+        real Comment implementation (subclasses) can't be hard-coded due to
+        unresolvable import loops, use InheritanceManager from django-model-
+        utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
     def __unicode__(self):

@@ -9,8 +9,8 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import HTML, Layout, Fieldset, Submit, Field, \
-    ButtonHolder, Hidden
+from crispy_forms_foundation.layout import HTML, Layout, \
+    Submit, Field, ButtonHolder, Hidden
 from zds.member.models import Profile, listing
 from zds.settings import SITE_ROOT
 
@@ -66,8 +66,8 @@ class LoginForm(forms.Form):
         choices=(
             ('remember', "Connexion automatique"),
         ),
-        initial = 'remember',
-        widget = forms.CheckboxSelectMultiple,
+        initial='remember',
+        widget=forms.CheckboxSelectMultiple,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -89,7 +89,8 @@ class LoginForm(forms.Form):
                     css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
+            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">u\
+            uMot de passe oublié ?</a>'),
         )
 
 
@@ -165,7 +166,8 @@ class RegisterForm(forms.Form):
 
         email = cleaned_data.get('email')
         # Chech if email provider is authorized
-        with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+        with open(os.path.join(SITE_ROOT,
+                               'forbidden_email_providers.txt'), 'r') as fh:
             for provider in fh:
                 if provider.strip() in email:
                     msg = u'Utilisez un autre fournisseur d\'adresses mail.'
@@ -197,7 +199,8 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers votre site internet personnel (ne pas oublier le http:// ou https:// devant).'
+                'placeholder': 'Lien vers votre site internet u\
+                upersonnel (ne pas oublier le http:// ou https:// devant).'
             }
         )
     )
@@ -208,7 +211,8 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
+                'placeholder': 'Lien vers un avatar externe u\
+                u(laisser vide pour utiliser Gravatar).'
             }
         )
     )
@@ -254,9 +258,10 @@ class ProfileForm(MiniProfileForm):
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
             ('hover_or_click', "Cochez pour dérouler les menus au survol"),
-            ('email_for_answer', "Recevez un email lorsque vous recevez une réponse à un message privé"),
+            ('email_for_answer', "Recevez un email lorsque vous u\
+            urecevez une réponse à un message privé"),
         ),
-        widget = forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple,
     )
 
     def __init__(self, *args, **kwargs):

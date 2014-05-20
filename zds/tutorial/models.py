@@ -1,16 +1,15 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from git.repo import Repo
-import json
 from math import ceil
-from os import path
+import json
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils import timezone
+from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
@@ -166,7 +165,8 @@ class Tutorial(models.Model):
     def get_prod_path(self):
         data = self.load_json_for_public()
         return os.path.join(
-            settings.REPO_PATH_PROD, str(self.pk) + '_' + slugify(data['title']))
+            settings.REPO_PATH_PROD,
+            str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = self.get_absolute_url_online()
@@ -431,8 +431,8 @@ class Part(models.Model):
         super(Part, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'<Partie pour {0}, {1}>'.format\
-            (self.tutorial.title, self.position_in_tutorial)
+        return u'<Partie pour {0}, {1}>' \
+            .format(self.tutorial.title, self.position_in_tutorial)
 
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_part', args=[
@@ -459,7 +459,8 @@ class Part(models.Model):
             return os.path.join(
                 os.path.join(
                     settings.REPO_PATH, str(
-                        self.tutorial.pk) + '_' + self.tutorial.slug), self.slug)
+                        self.tutorial.pk) + '_' + self.tutorial.slug),
+                self.slug)
 
     def get_introduction(self):
         intro = open(
@@ -560,8 +561,8 @@ class Chapter(models.Model):
         if self.tutorial:
             return u'<minituto \'{0}\'>'.format(self.tutorial.title)
         elif self.part:
-            return u'<bigtuto \'{0}\', \'{1}\'>'.format \
-                (self.part.tutorial.title, self.title)
+            return u'<bigtuto \'{0}\', \'{1}\'>' \
+                .format(self.part.tutorial.title, self.title)
         else:
             return u'<orphelin>'
 
@@ -625,13 +626,17 @@ class Chapter(models.Model):
                 chapter_path = os.path.join(
                     os.path.join(
                         settings.REPO_PATH, str(
-                            self.tutorial.pk) + '_' + self.tutorial.slug), self.slug)
+                            self.tutorial.pk) + '_' + self.tutorial.slug),
+                    self.slug)
             else:
                 chapter_path = os.path.join(
                     os.path.join(
                         os.path.join(
                             settings.REPO_PATH, str(
-                                self.part.tutorial.pk) + '_' + self.part.tutorial.slug), self.part.slug), self.slug)
+                                self.part.tutorial.pk)
+                            + '_'
+                            + self.part.tutorial.slug),
+                        self.part.slug), self.slug)
 
         return chapter_path
 
@@ -774,7 +779,9 @@ class Extract(models.Model):
             if self.chapter.tutorial:
                 chapter_path = os.path.join(
                     settings.REPO_PATH, str(
-                        self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug)
+                        self.chapter.tutorial.pk)
+                    + '_'
+                    + self.chapter.tutorial.slug)
             else:
                 chapter_path = os.path.join(
                     os.path.join(
@@ -794,7 +801,9 @@ class Extract(models.Model):
             chapter_path = os.path.join(
                 os.path.join(
                     settings.REPO_PATH_PROD, str(
-                        self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug), self.chapter.slug)
+                        self.chapter.tutorial.pk)
+                    + '_'
+                    + self.chapter.tutorial.slug), self.chapter.slug)
         else:
             chapter_path = os.path.join(
                 os.path.join(

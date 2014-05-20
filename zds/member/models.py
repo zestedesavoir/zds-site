@@ -292,14 +292,21 @@ def get_info_old_tuto(id):
         for rep in os.listdir(settings.SDZ_TUTO_DIR):
             if rep.startswith(str(id) + '_'):
                 if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, rep)):
-                    for root, dirs, files in os.walk(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                    for root, dirs, files in os.walk(
+                            os.path.join(
+                                settings.SDZ_TUTO_DIR, rep
+                            )):
                         for file in files:
                             if file.split('.')[-1] == 'tuto':
                                 titre = os.path.splitext(file)[0]
                                 tuto = os.path.join(root, file)
                             elif file.split('.')[-1] == 'zip':
                                 images = os.path.join(root, file)
-                            elif file.split('.')[-1]in ['png', 'jpg', 'ico', 'jpeg', 'gif']:
+                            elif file.split('.')[-1] in ['png',
+                                                         'jpg',
+                                                         'ico',
+                                                         'jpeg',
+                                                         'gif']:
                                 logo = os.path.join(root, file)
 
     return (id, titre, tuto, images, logo)
