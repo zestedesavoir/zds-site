@@ -88,14 +88,15 @@
 
 
 
-{% block sidebar_actions %}
-    <li>
-        <a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="ico-after">
-            Nouveau Sujet
-        </a>
-    </li>
-    
+{% block new_btn %}
+    <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+        Nouveau sujet
+    </a>
+{% endblock %}
 
+
+
+{% block sidebar_actions %}
     {# TODO : protéger tout ça des CSRF #}
 
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}

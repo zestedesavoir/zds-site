@@ -33,6 +33,14 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         {% if user.is_authenticated %}
+            {% captureas newbtn %}
+                {% block new_btn %}{% endblock %}
+            {% endcaptureas %}
+
+            {% if newbtn %}
+                {{ newbtn|safe }}
+            {% endif %}
+
             {% captureas sidebaractions %}
                 {% block sidebar_actions %}{% endblock %}
             {% endcaptureas %}

@@ -554,11 +554,31 @@
 
 .main .sidebar {
     padding: 0 0 10px;
-    background: #e3e5e5;
+    // background: #e3e5e5;
+    // background: #F4F6F6;
+    // background: #E9EAED;
     border-bottom: 1px solid #FFF;
     color: #424242;
     width: 105%;
     margin: 0 0 0 -2.7%;
+
+    .new-btn {
+        display: block;
+        margin-top: 31px;
+        height: 40px;
+        background: #FCFCFC;
+        padding-left: 11.5%;
+        text-decoration: none;
+        line-height: 40px;
+        text-indent: 25px;
+        position: relative;
+        color: #0079B2;
+
+        &:after {
+            top: 12px;
+            left: 11.5%;
+        }
+    }
 
     h3,
     h4 {
@@ -572,7 +592,7 @@
         line-height: 38px;
         line-height: 3.8rem;
         color: $blue;
-        border-bottom: 2px solid lighten($orange, 10%);
+        border-bottom: 1px solid $orange;
         margin-top: 30px;
         text-transform: uppercase;
     }
@@ -792,13 +812,13 @@
 
     h1,
     h2 {
-        font-size: 18px;
-        font-size: 1.8rem;
-        line-height: 40px;
-        line-height: 4.0rem;
-        color: #084561;
+        font-size: 22px;
+        font-size: 2.2rem;
+        line-height: 38px;
+        line-height: 3.8rem;
+        color: $blue;
         font-weight: normal;
-        background-color: #e0e4e5;
+        border-bottom: 1px solid $orange;
         margin: 1px 0 15px;
         padding: 0 0 0 2%;
 
@@ -824,14 +844,14 @@
     }
 
     .subtitle {
-        font-size: 15px;
-        font-size: 1.5rem;
-        color: #777;
+        font-size: 18px;
+        font-size: 1.8rem;
+        color: #999;
         margin-top: -15px;
         margin-bottom: 15px;
         padding: 10px 2%;
-        background: #EEE;
         font-weight: normal;
+        border-bottom: 1px solid #EEE;
     }
 
     .member-item {
