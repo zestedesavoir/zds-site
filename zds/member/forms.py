@@ -16,17 +16,19 @@ from zds.settings import SITE_ROOT
 
 
 # Max password length for the user.
-# Unlike other fileds, this is not the length of DB field
+# Unlike other fields, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
+# Min password length for the user.
+MIN_PASSWORD_LENGTH = 6
 
 class OldTutoForm(forms.Form):
-    
+
     id = forms.ChoiceField(
         label='Ancien Tutoriel',
         required=True,
         choices = listing(),
     )
-    
+
     def __init__(self, profile, *args, **kwargs):
         super(OldTutoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -155,11 +157,25 @@ class RegisterForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
+        # Check that the password is at least MIN_PASSWORD_LENGTH
+        if len(password) < MIN_PASSWORD_LENGTH:
+            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
+            self._errors['password'] = self.error_class([msg])
+            del cleaned_data['password']
+            del cleaned_data['password_confirm']
+
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
         if User.objects.filter(username=username).count() > 0:
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
+
+        # Check that password != username
+        if password == username:
+            msg = u'Le mot de passe doit être différent du pseudo'
+            self._errors['password'] = self.error_class([msg])
+            del cleaned_data['password']
+            del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
         # Chech if email provider is authorized
