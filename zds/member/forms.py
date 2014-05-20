@@ -161,8 +161,10 @@ class RegisterForm(forms.Form):
         if len(password) < MIN_PASSWORD_LENGTH:
             msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
             self._errors['password'] = self.error_class([msg])
-            del cleaned_data['password']
-            del cleaned_data['password_confirm']
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
@@ -174,8 +176,10 @@ class RegisterForm(forms.Form):
         if password == username:
             msg = u'Le mot de passe doit être différent du pseudo'
             self._errors['password'] = self.error_class([msg])
-            del cleaned_data['password']
-            del cleaned_data['password_confirm']
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
         # Chech if email provider is authorized
