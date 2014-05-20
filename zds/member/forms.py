@@ -436,6 +436,26 @@ class ChangePasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
+        # Check that the password is at least MIN_PASSWORD_LENGTH
+        if len(password_new) < MIN_PASSWORD_LENGTH:
+            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
+            self._errors['password_new'] = self.error_class([msg])
+            if 'password_new' in cleaned_data:
+                del cleaned_data['password_new']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
+        # Check that password != username
+        if password_new == self.user.username:
+            msg = u'Le mot de passe doit être différent de votre pseudo'
+            self._errors['password_new'] = self.error_class([msg])
+            if 'password_new' in cleaned_data:
+                del cleaned_data['password_new']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
         return cleaned_data
 
 # Reset the password
