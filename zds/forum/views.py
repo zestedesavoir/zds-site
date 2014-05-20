@@ -52,6 +52,7 @@ def details(request, cat_slug, forum_slug):
         .prefetch_related('author', 'last_message')\
         .all()
     if 'filter' in request.GET:
+        filter = request.GET['filter']
         if request.GET['filter'] == 'solve':
             topics = Topic.objects\
                 .filter(forum__pk=forum.pk, is_sticky=False, is_solved=True)\
@@ -65,6 +66,7 @@ def details(request, cat_slug, forum_slug):
                 .prefetch_related('author', 'last_message', 'tags')\
                 .all()
     else:
+        filter = None
         topics = Topic.objects\
             .filter(forum__pk=forum.pk, is_sticky=False)\
             .order_by('-last_message__pubdate')\
@@ -85,17 +87,23 @@ def details(request, cat_slug, forum_slug):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template('forum/details.html', {
-        'forum': forum, 'sticky_topics': sticky_topics, 'topics': shown_topics,
-        'pages': paginator_range(page, paginator.num_pages), 'nb': page
-    })
+    return render_template('forum/details.html',
+                           {'forum': forum,
+                            'sticky_topics': sticky_topics,
+                            'topics': shown_topics,
+                            'pages': paginator_range(page,
+                                                     paginator.num_pages),
+                            'nb': page,
+                            'filter': filter,
+                            })
 
 
 @can_read_now
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
+    forums = Forum.objects.filter(
+        category__pk=category.pk).prefetch_related().all()
 
     return render_template('forum/cat_details.html', {
         'category': category, 'forums': forums
@@ -177,8 +185,6 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-
-
 def get_tag_by_title(title):
     regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
     tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
@@ -187,6 +193,7 @@ def get_tag_by_title(title):
         sub_tag,
         title)
     return (tags, title.strip())
+
 
 @can_write_and_read_now
 @login_required
@@ -220,7 +227,7 @@ def new(request):
         form = TopicForm(request.POST)
         data = form.data
         if form.is_valid():
-            #Treat title
+            # Treat title
             (tags, title) = get_tag_by_title(data['title'])
             # Creating the thread
             n_topic = Topic()
@@ -230,11 +237,11 @@ def new(request):
             n_topic.pubdate = datetime.now()
             n_topic.author = request.user
             n_topic.save()
-            #add tags
+            # add tags
             for tag in tags:
-                if tag[2].strip()!='':
+                if tag[2].strip() != '':
                     tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                    if tg == None:
+                    if tg is None:
                         tg = Tag(title=tag[2])
                         tg.save()
                     n_topic.tags.add(tg)
@@ -280,8 +287,18 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     post = Post.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, post.author.username, post.topic.title, settings.SITE_URL + post.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(post.topic.title), "", msg, False)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(
+        alert.author.username,
+        post.author.username,
+        post.topic.title,
+        settings.SITE_URL +
+        post.get_absolute_url(),
+        request.user.username,
+        request.POST['text'])
+    send_mp(
+        bot, [
+            alert.author], u"Résolution d'alerte : {0}".format(
+            post.topic.title), "", msg, False)
     alert.delete()
 
     messages.success(
@@ -313,8 +330,8 @@ def move_topic(request):
     topic = get_object_or_404(Topic, pk=topic_pk)
     topic.forum = forum
     topic.save()
-    #unfollow user auth
-    followers = TopicFollowed.objects.filter(topic = topic)
+    # unfollow user auth
+    followers = TopicFollowed.objects.filter(topic=topic)
     for follower in followers:
         if not forum.can_read(follower.user):
             follower.delete()
@@ -386,7 +403,10 @@ def edit(request):
         if not g_topic.forum.can_read(request.user):
             return redirect(reverse('zds.forum.views.index'))
         else:
-            return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
+            return redirect(
+                u'{}?page={}'.format(
+                    g_topic.get_absolute_url(),
+                    page))
 
 
 @can_write_and_read_now
@@ -607,11 +627,11 @@ def edit_post(request):
                 g_topic.subtitle = request.POST['subtitle']
                 g_topic.save()
                 g_topic.tags.clear()
-                #add tags
+                # add tags
                 for tag in tags:
-                    if tag[2].strip()!='':
+                    if tag[2].strip() != '':
                         tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                        if tg == None:
+                        if tg is None:
                             tg = Tag(title=tag[2])
                             tg.save()
                         g_topic.tags.add(tg)
@@ -625,7 +645,7 @@ def edit_post(request):
         if g_topic:
             prefix = u""
             for tag in g_topic.tags.all():
-                prefix+=u"[{0}]".format(tag.title)
+                prefix += u"[{0}]".format(tag.title)
             form = TopicForm(initial={
                 'title': u"{0} {1}".format(prefix, g_topic.title).strip(),
                 'subtitle': g_topic.subtitle,
@@ -770,17 +790,34 @@ def dislike_post(request):
 @can_read_now
 def find_topic_by_tag(request, tag_slug):
     """Finds all topics byg tag."""
-    tag = Tag.objects.filter(slug = tag_slug).first()
-    if tag == None :
+    tag = Tag.objects.filter(slug=tag_slug).first()
+    if tag is None:
         return redirect(reverse('zds.forum.views.index'))
-    topics = Topic.objects\
-        .filter(tags__in=[tag])\
-        .prefetch_related()\
-        .order_by('-pubdate')\
-        .all()
+
+    if 'filter' in request.GET:
+        filter = request.GET['filter']
+        if request.GET['filter'] == 'solve':
+            topics = Topic.objects\
+                .filter(tags__in=[tag], is_sticky=False, is_solved=True)\
+                .order_by('-last_message__pubdate')\
+                .prefetch_related('author', 'last_message', 'tags')\
+                .all()
+        else:
+            topics = Topic.objects\
+                .filter(tags__in=[tag], is_sticky=False, is_solved=False)\
+                .order_by('-last_message__pubdate')\
+                .prefetch_related('author', 'last_message', 'tags')\
+                .all()
+    else:
+        filter = None
+        topics = Topic.objects\
+            .filter(tags__in=[tag], is_sticky=False)\
+            .order_by('-last_message__pubdate')\
+            .prefetch_related('author', 'last_message', 'tags')\
+            .all()
 
     tops = []
-    for top in topics :
+    for top in topics:
         if not top.forum.can_read(request.user):
             continue
         else:
@@ -802,9 +839,11 @@ def find_topic_by_tag(request, tag_slug):
 
     return render_template('forum/find_topic_by_tag.html', {
         'topics': shown_topics, 'tag': tag,
-        'pages': paginator_range(page, paginator.num_pages), 'nb': page
+        'pages': paginator_range(page, paginator.num_pages), 'nb': page,
+        'filter': filter
     })
-    
+
+
 @can_read_now
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
@@ -816,7 +855,7 @@ def find_topic(request, user_pk):
         .all()
 
     tops = []
-    for top in topics :
+    for top in topics:
         if not top.forum.can_read(request.user):
             continue
         else:

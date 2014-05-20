@@ -70,10 +70,11 @@
         </div>
     </div>
 </div>
+{% include "forum/topic_pagination.part.html" with position="top" %}
 {% for post in posts %}
     {% include "forum/post.part.html" %}
 {% endfor %}
-{% include "forum/topic_pagination.part.html" with position="top" %}
+{% include "forum/topic_pagination.part.html" with position="bottom" %}
 
 {% if user.is_authenticated %}
 {% with profile=user|profile %}
