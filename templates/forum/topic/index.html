@@ -114,7 +114,7 @@
 
     <li>
         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
-           class="ico-after view {% if topic.is_followed %}grey{% else %}blue{% endif %}">
+           class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}">
             {% if topic.is_followed %}
                 Ne plus suivre ce sujet
             {% else %}
