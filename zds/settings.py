@@ -240,7 +240,7 @@ AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
 }
 
 
