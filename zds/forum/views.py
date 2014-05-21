@@ -717,7 +717,7 @@ def like_post(request):
     resp["upvotes"] = post.like
     resp["downvotes"] = post.dislike
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json.dumps(resp), content_type='application/json')
     else:
         return redirect(post.get_absolute_url())
 

@@ -1,16 +1,15 @@
 # encoding: utf-8
 
-from django.conf.urls.static import static
-
 from django.conf.urls import patterns, include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
-from . import pages.views
-from . import settings
 from zds.article.models import Article
 from zds.forum.models import Category, Forum, Topic
 from zds.tutorial.models import Tutorial
+
+from . import settings
 
 
 # SiteMap data
