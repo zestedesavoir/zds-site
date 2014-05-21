@@ -102,7 +102,7 @@
 
         <div class="message-content">
             {% if message.is_useful and not is_creator %}
-                <p class="message-helpful tick ico-after active">
+                <p class="message-helpful tick ico-after green">
                     Cette réponse a aidé l'auteur du sujet
                 </p>
             {% endif %}
@@ -143,13 +143,13 @@
                                     {# TODO : Mettre le réel état #}
                                     {% if topic.author == user and message.author != user %}
                                         <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}active{% endif %}"
+                                           class="tick ico-after {% if message.is_useful %}green{% endif %}"
                                         >
                                             Cette réponse m'a aidé
                                         </a>
                                     {% elif perms_change %}
                                         <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}active{% endif %}">
+                                           class="tick ico-after {% if message.is_useful %}green{% endif %}">
                                             Cette réponse a aidé
                                         </a>
                                     {% endif %}

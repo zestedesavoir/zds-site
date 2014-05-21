@@ -102,7 +102,7 @@
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
             <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
-               class="ico-after tick {% if topic.is_solved %}blue{% else %}active{% endif %}">
+               class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}">
                 {% if topic.is_solved %}
                     Marquer comme non résolu
                 {% else %}

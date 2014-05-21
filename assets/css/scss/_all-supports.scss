@@ -566,13 +566,18 @@
         display: block;
         margin-top: 31px;
         height: 40px;
-        background: #FCFCFC;
         padding-left: 11.5%;
         text-decoration: none;
         line-height: 40px;
         text-indent: 25px;
         position: relative;
-        color: #0079B2;
+        color: lighten($blue, 20%);
+        @include transition;
+
+        &:hover,
+        &:focus {
+            background: $sidebar-hover;
+        }
 
         &:after {
             top: 12px;
@@ -636,7 +641,7 @@
 
             &:not(.inactive):hover,
             a:focus {
-                background: #d3d5d5;
+                background: $sidebar-hover;
                 outline: none;
 
                 .ico-after.action-hover {
@@ -708,14 +713,14 @@
                         text-indent: -9999px;
                         border-left: 1px solid transparent;
 
-                        background: #d3d5d5;
+                        background: $sidebar-hover;
                         right: -32px;
 
                         &[data-title]:hover:before {
                             content: attr(data-title);
                             display: block;
                             position: absolute;
-                            background: #d3d5d5;
+                            background: $sidebar-hover;
                             color: #555;
                             top: 0;
                             left: 35px;
@@ -762,7 +767,7 @@
                     &:hover,
                     &:focus {
                         color: #0079B2;
-                        background: #E3E5E5;
+                        background: $sidebar-hover;
                         margin-left: -11px;
 
                         &:before {
@@ -1864,6 +1869,7 @@ form.topic-message {
 /* ==============
     ALL: Icons
    ============== */
+// TODO : Refaire tout ça
 .ico-after {
     &.view {
         &:after {
@@ -1887,8 +1893,8 @@ form.topic-message {
         &:after {
             @include sprite-pos($sprite, 'tick');
         }
-        &.active:after {
-            @include sprite-pos($sprite, 'tick-active');
+        &.green:after {
+            @include sprite-pos($sprite, 'tick-green');
         }
         &.white:after {
             @include sprite-pos($sprite, 'tick-white');
@@ -1961,12 +1967,6 @@ form.topic-message {
             @include sprite-pos($sprite, 'star-blue');
         }
     }
-
-    /**
-     TODO
-        - history icon (+ blue)
-        - download icon (+ blue)
-    */
 }
 
 

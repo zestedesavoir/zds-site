@@ -16,9 +16,9 @@
  */
 $default-transition-duration: .15s;
 
-$sprite: sprite-map("sprite/*.png");
+//$sprite: sprite-map("sprite/*.png");
 $sprite2x: sprite-map("sprite@2x/*.png");
-//$sprite: $sprite2x;
+$sprite: $sprite2x;
 
 
 
@@ -29,6 +29,7 @@ $blue: #084561;
 $orange: #F8AD32;
 $header-hover: #396a81;
 $helpful: #e9f9dc;
+$sidebar-hover: #EEE;
 
 // Margins
 $modal-margin: 25px;
