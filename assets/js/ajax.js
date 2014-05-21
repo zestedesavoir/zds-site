@@ -1,4 +1,4 @@
-function vote(id_post)
+function vote(id_post, tb_up, tb_up_vote, tb_down, tb_down_vote)
 {
     $("#upvote"+id_post).click(function(e){
         var lien = $(this).attr('href');
@@ -15,16 +15,16 @@ function vote(id_post)
                     }
                 }
                 if (parseInt(json["upvotes"])>parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up-voted.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down.png' %}");
+                    $("#upvote"+id_post).children("img").attr("src",tb_up_vote);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down);
                 }
                 if (parseInt(json["upvotes"])<parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down-voted.png' %}");
+                    $("#upvote"+id_post).children("img").attr("src",tb_up);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down_vote);
                 }
                 if (parseInt(json["upvotes"])== parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down.png' %}");
+                    $("#upvote"+id_post).children("img").attr("src",tb_up);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down);
                 }
 
                 $('#cptdown'+id_post).fadeOut('fast');
@@ -52,16 +52,16 @@ function vote(id_post)
                 }
 
                 if (parseInt(json["upvotes"])>parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up-voted.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down.png' %}");
+                    $("#upvote"+id_post).children("img").attr("src",tb_up_vote);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down);
                 }
                 if (parseInt(json["upvotes"])<parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down-voted.png' %}");
+                    $("#upvote"+id_post).children("img").attr("src",tb_up);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down_vote);
                 }
-                if (parseInt(json["upvotes"])==parseInt(json["downvotes"])) {
-                    $("#upvote"+id_post).children("img").attr("src","{% static 'img/thumb-up.png' %}");
-                    $("#downvote"+id_post).children("img").attr("src","{% static 'img/thumb-down.png' %}");
+                if (parseInt(json["upvotes"])== parseInt(json["downvotes"])) {
+                    $("#upvote"+id_post).children("img").attr("src",tb_up);
+                    $("#downvote"+id_post).children("img").attr("src",tb_down);
                 }
 
                 $('#cptup'+id_post).fadeOut('fast');

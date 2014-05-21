@@ -191,7 +191,7 @@ class Topic(models.Model):
         """Return the first post of a topic, written by topic's author."""
         return Post.objects\
             .filter(topic=self)\
-            .select_related()\
+            .select_related("author")\
             .order_by('pubdate')\
             .first()
 
@@ -209,14 +209,13 @@ class Topic(models.Model):
         """Return the first post the user has unread."""
         try:
             last_post = TopicRead.objects\
-                .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
 
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
                 pubdate__gt=last_post.pubdate)\
-                .select_related().first()
+                .select_related("author").first()
 
             return next_post
         except:

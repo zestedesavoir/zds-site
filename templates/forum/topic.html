@@ -98,7 +98,7 @@
     <script type="text/javascript">
     $(document).ready(function(){
         {% for post in posts %}
-            vote({{post.pk}});
+            vote({{post.pk}}, "{% static 'img/thumb-up.png' %}", "{% static 'img/thumb-up-voted.png' %}", "{% static 'img/thumb-down.png' %}", "{% static 'img/thumb-down-voted.png' %}");
         {% endfor %}
     });
     </script>
