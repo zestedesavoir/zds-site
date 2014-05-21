@@ -52,9 +52,9 @@
                 <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"><span class="fi-price-tag size-16"></span> Marquer en Post-It</a></li>
             {% endif %}
             <li>
-                <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
+                <a href="#" class="tiny secondary actions" data-dropdown="dropsign"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
             </li>
-            <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+            <div id="dropsign" class="f-dropdown small content" data-dropdown-content>
                 {% crispy form_move %}
             </div>
         {% endif %}
@@ -92,4 +92,14 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {% for post in posts %}
+            vote({{post.pk}});
+        {% endfor %}
+    });
+    </script>
 {% endblock %}

@@ -131,14 +131,14 @@
                         {% if post.author != user %}
                             {% with profile_user=user|profile %}
                             {% if post.like > post.dislike %}
-                                <a href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
+                                <a id="upvote{{post.pk}}" href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" /><span id="cptup{{post.pk}}">+{{post.like}}</span></a>
                             {% else %}
-                                <a href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
+                                <a id="upvote{{post.pk}}" href="{% url "zds.tutorial.views.like_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up.png" %}" alt="" /><span id="cptup{{post.pk}}">+{{post.like}}</span></a>
                             {% endif%}
                             {% if post.dislike > post.like %}
-                                <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a id="downvote{{post.pk}}" href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" /><span id="cptdown{{post.pk}}">-{{post.dislike}}</span></a>
                             {% else%}
-                                <a href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a id="downvote{{post.pk}}" href="{% url "zds.tutorial.views.dislike_note" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down.png" %}" alt="" /><span id="cptdown{{post.pk}}">-{{post.dislike}}</span></a>
                             {% endif%}
                             {% endwith %}
                         {% else %}

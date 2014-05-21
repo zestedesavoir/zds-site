@@ -112,3 +112,13 @@
 {% endif %}
 
 {% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {% for post in posts %}
+            vote({{post.pk}});
+        {% endfor %}
+    });
+    </script>
+{% endblock %}

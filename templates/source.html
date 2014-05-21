@@ -423,9 +423,12 @@
     <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
     <script type="text/javascript" src="{% static "js/newsletter.js" %}"></script>
     <script type="text/javascript" src="{% static "js/editor.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/ajax.js" %}"></script>
     <script>
       $(document).foundation();
     </script>
+    {% block additionnal-js %}
+    {% endblock %}
 
     {# MathJax #}
     <script type="text/x-mathjax-config">
@@ -434,7 +437,7 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 processEscapes: true,
             },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
             messageStyle: "none",
         });
     </script>
