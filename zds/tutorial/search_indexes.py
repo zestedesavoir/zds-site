@@ -47,8 +47,9 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Only chapters online."""
-        return self.get_model().objects.filter(Q(tutorial__sha_public__isnull=False)
-                                               | Q(part__tutorial__sha_public__isnull=False))
+        return self.get_model()\
+            .objects.filter(Q(tutorial__sha_public__isnull=False)
+                            | Q(part__tutorial__sha_public__isnull=False))
 
 
 class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
@@ -62,5 +63,5 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Only extracts online."""
-        return self.get_model().objects.filter(Q(chapter__tutorial__sha_public__isnull=False)
-                                               | Q(chapter__part__tutorial__sha_public__isnull=False))
+        return self.get_model() .objects.filter(Q(chapter__tutorial__sha_public__isnull=False)
+                                                | Q(chapter__part__tutorial__sha_public__isnull=False))

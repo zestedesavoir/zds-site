@@ -93,7 +93,8 @@ class Article(models.Model):
                                'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return reverse('zds.article.views.edit') + '?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + \
+            '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None
@@ -229,7 +230,8 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
+        if last_user_reactions \
+                and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:

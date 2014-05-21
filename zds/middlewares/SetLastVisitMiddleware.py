@@ -1,6 +1,8 @@
 import datetime
 
+
 class SetLastVisitMiddleware(object):
+
     def process_response(self, request, response):
         # Update last visit time after request finished processing.
         if request.user.is_authenticated():

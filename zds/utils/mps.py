@@ -8,11 +8,18 @@ from django.template import Context
 from django.template.loader import get_template
 from zds.utils.templatetags.emarkdown import emarkdown
 
-def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True, direct=False):
-    """
-    Send MP at members
-    """
-    
+
+def send_mp(
+        author,
+        users,
+        title,
+        subtitle,
+        text,
+        send_by_mail=True,
+        leave=True,
+        direct=False):
+    """Send MP at members."""
+
     # Creating the thread
     n_topic = PrivateTopic()
     n_topic.title = title[:80]
@@ -20,11 +27,11 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
     n_topic.pubdate = datetime.now()
     n_topic.author = author
     n_topic.save()
-    
+
     # Add all participants on the MP.
     for part in users:
         n_topic.participants.add(part)
-    
+
     # Addi the first message
     post = PrivatePost()
     post.privatetopic = n_topic
@@ -33,13 +40,13 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
     post.pubdate = datetime.now()
     post.position_in_topic = 1
     post.save()
-    
+
     n_topic.last_message = post
     n_topic.save()
-    
-        # send email
+
+    # send email
     if send_by_mail:
-        if direct :
+        if direct:
             subject = "ZDS : " + n_topic.title
             from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
             for part in users:
@@ -53,12 +60,12 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
                         'msg': text
                     })
                 )
-        
+
                 msg = EmailMultiAlternatives(
                     subject, message_txt, from_email, [
                         part.email])
                 msg.attach_alternative(message_html, "text/html")
-                try :
+                try:
                     msg.send()
                 except:
                     msg = None
@@ -80,12 +87,12 @@ def send_mp(author, users, title, subtitle, text, send_by_mail=True, leave=True,
                         'author': author.username
                     })
                 )
-        
+
                 msg = EmailMultiAlternatives(
                     subject, message_txt, from_email, [
                         part.email])
                 msg.attach_alternative(message_html, "text/html")
-                try :
+                try:
                     msg.send()
                 except:
                     msg = None

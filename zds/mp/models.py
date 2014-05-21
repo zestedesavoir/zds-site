@@ -6,7 +6,6 @@ from zds.utils import slugify
 from math import ceil
 
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from zds.utils import get_current_user
 from django.core.urlresolvers import reverse
@@ -84,19 +83,18 @@ class PrivateTopic(models.Model):
                 .select_related()\
                 .filter(privatetopic=self, user=get_current_user())\
                 .latest('post__pubdate').privatepost
-            
+
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                pubdate__gt=last_post__pubdate).first()
+                pubdate__gt=last_post.pubdate).first()
 
             return next_post
         except:
             return self.first_post()
 
     def alone(self):
-        """Check if there just one participant in the conversation
-        """
-        return self.participants.count()==0
+        """Check if there just one participant in the conversation."""
+        return self.participants.count() == 0
 
     def never_read(self):
         return never_privateread(self)
@@ -163,7 +161,8 @@ def never_privateread(privatetopic, user=None):
         user = get_current_user()
 
     return PrivateTopicRead.objects\
-        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)\
+        .filter(privatepost=privatetopic.last_message,
+                privatetopic=privatetopic, user=user)\
         .count() == 0
 
 

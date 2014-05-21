@@ -184,38 +184,37 @@ class Comment(models.Model):
 
 
 class Alert(models.Model):
-    """Alerts on all kinds of Comments"""
+
+    """Alerts on all kinds of Comments."""
 
     ARTICLE = 'A'
     FORUM = 'F'
     TUTORIAL = 'T'
     SCOPE_CHOICES = (
-            (ARTICLE, 'Commentaire d\'article'),
-            (FORUM, 'Forum'),
-            (TUTORIAL, 'Commentaire de tuto'),
+        (ARTICLE, 'Commentaire d\'article'),
+        (FORUM, 'Forum'),
+        (TUTORIAL, 'Commentaire de tuto'),
     )
 
     author = models.ForeignKey(User,
                                verbose_name='Auteur',
                                related_name='alerts')
     comment = models.ForeignKey(Comment,
-                               verbose_name='Commentaire',
-                               related_name='alerts')
+                                verbose_name='Commentaire',
+                                related_name='alerts')
     scope = models.CharField(max_length=1, choices=SCOPE_CHOICES)
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de publication')
-    
+
     def get_comment(self):
         return Comment.objects.get(id=self.comment.id)
 
     def get_comment_subclass(self):
-        """
-        Used to retrieve comment URLs (simple call to get_absolute_url doesn't
-        work: objects are retrived as Comment and not subclasses)
-        As real Comment implementation (subclasses) can't be hard-coded due to
-        unresolvable import loops, use InheritanceManager from
-        django-model-utils.
-        """
+        """Used to retrieve comment URLs (simple call to get_absolute_url
+        doesn't work: objects are retrived as Comment and not subclasses) As
+        real Comment implementation (subclasses) can't be hard-coded due to
+        unresolvable import loops, use InheritanceManager from django-model-
+        utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
     def __unicode__(self):
@@ -247,15 +246,17 @@ class CommentDislike(models.Model):
     comments = models.ForeignKey(Comment)
     user = models.ForeignKey(User, related_name='post_disliked')
 
+
 class Tag(models.Model):
-    """Set of tags"""
-    
+
+    """Set of tags."""
+
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
     title = models.CharField(max_length=20, verbose_name='Titre')
     slug = models.SlugField(max_length=20)
-    
+
     def __unicode__(self):
         """Textual Link Form."""
         return u"{0}".format(self.title)

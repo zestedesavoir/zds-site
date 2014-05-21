@@ -73,8 +73,12 @@ def association(request):
 @can_read_now
 def contact(request):
     """Display contact page."""
-    staffs = User.objects.filter(groups__in=Group.objects.filter(name__contains='staff')).all()
-    devs = User.objects.filter(groups__in=Group.objects.filter(name__contains='dev')).all()
+    staffs = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='staff')).all()
+    devs = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='dev')).all()
     return render_template('pages/contact.html', {
         'staffs': staffs,
         'devs': devs
@@ -83,10 +87,9 @@ def contact(request):
 
 @can_read_now
 def eula(request):
-    '''
-    End-User Licence Agreement
-    '''
+    """End-User Licence Agreement."""
     return render_template('pages/eula.html')
+
 
 @can_write_and_read_now
 @login_required
@@ -94,9 +97,9 @@ def alerts(request):
     # only staff can see alerts list
     if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
-    
+
     alerts = Alert.objects.all().order_by('-pubdate')
-    
+
     return render_template('pages/alerts.html', {
         'alerts': alerts,
     })

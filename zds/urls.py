@@ -6,8 +6,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
-import pages.views
-import settings
+from . import pages.views
+from . import settings
 from zds.article.models import Article
 from zds.forum.models import Category, Forum, Topic
 from zds.tutorial.models import Tutorial
@@ -85,8 +85,8 @@ urlpatterns = patterns('',
 
                        url(r'^captcha/', include('captcha.urls')),
 
-                       ('^munin/',include('munin.urls')),
-                       
+                       ('^munin/', include('munin.urls')),
+
                        url(r'^$', 'zds.pages.views.home'),
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

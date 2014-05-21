@@ -3,7 +3,10 @@ import factory
 
 from zds.member.models import Profile
 
-# Don't try to directly use UserFactory, this didn't create Profile then don't work!
+# Don't try to directly use UserFactory, this didn't create Profile then
+# don't work!
+
+
 class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
@@ -23,7 +26,10 @@ class UserFactory(factory.DjangoModelFactory):
                 user.save()
         return user
 
-# Don't try to directly use StaffFactory, this didn't create Profile then don't work!
+# Don't try to directly use StaffFactory, this didn't create Profile then
+# don't work!
+
+
 class StaffFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
@@ -64,11 +70,12 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(
+        return 'My name is {0} and I i\'m the u\
+        uguy who kill the bad guys '.format(
             self.user.username.lower())
 
     sign = 'Please look my flavour'
-    
+
 
 class StaffProfileFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Profile
@@ -80,7 +87,8 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(
+        return 'My name is {0} and I i\'m the u\
+        uguy who kill the bad guys '.format(
             self.user.username.lower())
 
     sign = 'Please look my flavour'
