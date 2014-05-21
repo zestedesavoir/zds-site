@@ -31,5 +31,5 @@ pygeoip==0.3.1
 pillow
 git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4-zds.2.18
 git+https://github.com/zestedesavoir/GitPython.git@0.3.2-RC1.z2
-pyflake8
+flake8
 autopep8
