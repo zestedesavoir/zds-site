@@ -77,8 +77,7 @@ class MPTests(TestCase):
                                                   user3.username),
                 'title': u'Un autre MP',
                 'subtitle': u'Encore ces lombards en plein été',
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -169,8 +168,7 @@ class MPTests(TestCase):
             reverse('zds.mp.views.edit_post') + '?message={0}'
             .format(ppost3.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -191,8 +189,7 @@ class MPTests(TestCase):
         self.assertEqual(
             PrivatePost.objects.get(
                 pk=ppost3.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de u\
-            uParis que je voudrais vous conter ')
+            u"C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ")
 
         # check no email has been sent
         self.assertEquals(len(mail.outbox), 0)
@@ -202,8 +199,7 @@ class MPTests(TestCase):
             reverse('zds.mp.views.edit_post') + '?message={0}'
             .format(ppost2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u"C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter "
             },
             follow=False)
 
@@ -218,8 +214,7 @@ class MPTests(TestCase):
             reverse('zds.mp.views.edit_post') + '?message={0}'
             .format(ppost3.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 

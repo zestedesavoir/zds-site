@@ -76,8 +76,7 @@ class ForumMemberTests(TestCase):
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire u\
-             ude la ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
              },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -125,8 +124,7 @@ class ForumMemberTests(TestCase):
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire u\
-                ude la ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -150,8 +148,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(
             Post.objects.get(
                 pk=4).text,
-            u'C\'est tout simplement l\'histoire de la ville de u\
-            uParis que je voudrais vous conter ')
+            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
 
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by member."""
@@ -167,8 +164,7 @@ class ForumMemberTests(TestCase):
             .format(post1.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la u\
-             uville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
              },
             follow=False)
 
@@ -197,8 +193,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(
             Post.objects.get(
                 pk=post1.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville u\
-            ude Paris que je voudrais vous conter ')
+            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
 
         # check edit data
         self.assertEqual(Post.objects.get(pk=post1.pk).editor, self.user)
@@ -214,8 +209,7 @@ class ForumMemberTests(TestCase):
             reverse('zds.forum.views.edit_post') + '?message={0}'
             .format(post2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -236,8 +230,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(
             Post.objects.get(
                 pk=post2.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de u\
-            uParis que je voudrais vous conter ')
+            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
 
         # check edit data
         self.assertEqual(Post.objects.get(pk=post2.pk).editor, self.user)
@@ -656,8 +649,7 @@ class ForumGuestTests(TestCase):
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -683,8 +675,7 @@ class ForumGuestTests(TestCase):
             .format(post1.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de u\
-             ula ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
              },
             follow=False)
 
