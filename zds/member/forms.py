@@ -525,11 +525,12 @@ class NewPasswordForm(forms.Form):
         widget=forms.PasswordInput
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, identifier, *args, **kwargs):
         super(NewPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-alone'
         self.helper.form_method = 'post'
+        self.username = identifier
 
         self.helper.layout = Layout(
             Field('password'),
@@ -568,14 +569,14 @@ class NewPasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
-        # # Check that password != username
-        # if password == username:
-        #     msg = u'Le mot de passe doit être différent de votre pseudo'
-        #     self._errors['password'] = self.error_class([msg])
-        #     if 'password' in cleaned_data:
-        #         del cleaned_data['password']
+        # Check that password != username
+        if password == self.username:
+            msg = u'Le mot de passe doit être différent de votre pseudo'
+            self._errors['password'] = self.error_class([msg])
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
 
-        #     if 'password_confirm' in cleaned_data:
-        #         del cleaned_data['password_confirm']
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
 
         return cleaned_data
