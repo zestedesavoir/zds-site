@@ -28,7 +28,7 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}
@@ -56,9 +56,13 @@
 
 
 
-{% block headline_sub-actions %}
-    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}">Ajouter un chapitre</a></li>
-    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}">Éditer la partie</a></li>
+{% block sidebar_actions %}
+    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}" class="ico-after more blue">
+        Ajouter un chapitre
+    </a></li>
+    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}" class="ico-after edit blue">
+        Éditer la partie
+    </a></li>
 {% endblock %}
 
 
@@ -74,7 +78,7 @@
         <ul>
             {% for chapter in part.chapters %}
                 <li>
-                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.slug }}</a></h3>
+                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.title }}</a></h3>
                 </li>
             {% endfor %}
         </ul>

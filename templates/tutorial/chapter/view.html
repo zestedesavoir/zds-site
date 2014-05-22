@@ -25,7 +25,7 @@
         {% set chapter.part.tutorial as tutorial %}
     {% endif %}
 
-    <h1 class="illu">
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
             <img src="{{ chapter.image.thumb.url }}" alt="">
         {% endif %}
@@ -39,7 +39,7 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}
@@ -64,18 +64,22 @@
 {% block sidebar_actions %}
     {% if user in chapter.part.tutorial.authors.all or chapter.tutorial.authors.all %}
         <li>
-            <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}">
+            <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
+               class="ico-after edit blue"
+            >
                 Éditer le chapître
             </a>
         </li>
         <li>
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}">
+            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}"
+               class="ico-after more blue"
+            >
                 Ajouter un extrait
             </a>
         </li>
         {% if chapter.part %}
             <li>
-                <a href="#delete-chapter" class="open-modal">Supprimer le chapitre</a>
+                <a href="#delete-chapter" class="open-modal ico-after cross red">Supprimer le chapitre</a>
                 <form action="{% url "zds.tutorial.views.modify_chapter" %}" id="delete-chapter" class="modal modal-small" method="post">
                     <p>
                         Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
@@ -91,7 +95,7 @@
 
         {% if chapter.part %}
             <li>
-                <a href="#move-chapter" class="open-modal">
+                <a href="#move-chapter" class="open-modal ico-after arrow-right blue">
                     Déplacer <span class="wide">le chapitre</span>
                 </a>
                 <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="modal modal-small" id="move-chapter">

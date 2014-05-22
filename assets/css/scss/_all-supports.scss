@@ -823,7 +823,6 @@
         font-weight: normal;
         border-bottom: 1px solid $orange;
         margin: 1px 0 15px;
-        padding: 0 0 0 2%;
 
         &.ico,
         &.illu {
@@ -1382,9 +1381,16 @@
             img,
             video,
             pre,
-            code {
+            code,
+            table {
                 max-width: 100%;
                 margin: 0 auto;
+                text-align: left;
+            }
+            img,
+            video,
+            pre,
+            code {
                 display: block;
             }
 

@@ -192,5 +192,14 @@
                 @include sprite-pos($sprite2x, 'download-blue', true);
             }
         }
+
+        &.history {
+            &:after {
+                @include sprite-pos($sprite2x, 'history', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'history-blue', true);
+            }
+        }
     }
 //}

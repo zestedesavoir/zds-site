@@ -1,4 +1,5 @@
 {% extends "base_content_page.html" %}
+{% load captureas %}
 
 
 
@@ -28,13 +29,24 @@
 
 {% block sidebar %}
     <aside class="sidebar sommaire mobile-menu-hide">
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-            <h3>Actions</h3>
-            <ul>
-                <li><a href="{% url "zds.tutorial.views.add_tutorial" %}">Nouveau tutoriel</a></li>
-                {% block sidebar_actions %}{% endblock %}
-            </ul>
+        <div>
+            <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+                Nouveau tutoriel
+            </a>
         </div>
+
+        {% captureas sidebaractions %}
+            {% block sidebar_actions %}{% endblock %}
+        {% endcaptureas %}
+
+        {% if sidebaractions %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                <h3>Actions</h3>
+                <ul>
+                    {{ sidebaractions|safe }}
+                </ul>
+            </div>
+        {% endif %}
 
         {% block sidebar_blocs %}{% endblock %}
 
@@ -69,7 +81,7 @@
                     {% endif %}
 
                     <li>
-                        <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">
+                        <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                             Archive
                         </a>
                     </li>

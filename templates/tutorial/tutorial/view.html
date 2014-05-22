@@ -18,7 +18,7 @@
 
 
 {% block headline %}
-    <h1 class="illu">
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
             <img src="{{tutorial.image.thumb.url }}" alt="">
         {% endif %}
@@ -32,7 +32,7 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}
@@ -63,28 +63,28 @@
 {% block sidebar_actions %}
     {# TODO : passer tout ça en POST, CSRF toussa #}
     {% if tutorial.sha_draft = version %}
-        <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}">Éditer</a></li>
+        <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue">Éditer</a></li>
     {% endif %}
 
     <li>
         {% if not tutorial.is_mini %}
-            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}">Ajouter une partie</a>
+            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue">Ajouter une partie</a>
         {% else %}
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}">Ajouter un extrait</a>
+            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue">Ajouter un extrait</a>
         {% endif %}
     </li>
 
     {% if not tutorial.in_beta %}
-        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}">Activer la beta</a></li>
+        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after arrow-right blue">Activer la beta</a></li>
     {% else %}
         <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
     {% endif %}
 
-    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}">Historique des versions</a>
+    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">Historique des versions</a>
 
     {% if not tutorial.on_line %}
         <li>
-            <a href="#delete-chapter" class="open-modal">Supprimer le tutoriel</a>
+            <a href="#delete-chapter" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
             <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-chapter" class="modal modal-medium" method="get">
                 <p>
                     Attention, vous vous apprêtez à supprimer définitivement le tutoriel "<em>{{ tutorial.title }}</em>".
@@ -96,7 +96,7 @@
 
     {% if not tutorial.in_validation %}
         <li>
-            <a href="#ask-validation" class="open-modal">
+            <a href="#ask-validation" class="open-modal ico-after tick green">
                 Demander la validation
             </a>
             <div id="ask-validation" class="modal modal-small">
@@ -111,10 +111,10 @@
 
 {% block sidebar_blocs %}
     {% if perms.tutorial.change_tutorial%}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
-            <h3>Admin<span class="wide">istration</span></h3>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>Validation</h3>
             <ul>
-                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
+                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
                 
                 {% if tutorial.on_line %}
                     <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
@@ -122,10 +122,16 @@
 
                 {% if tutorial.in_validation %}
                     <li>
-                        {% crispy formValid %}
+                        <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
+                        <div class="modal modal-small" id="valid-publish">
+                            {% crispy formValid %}
+                        </div>
                     </li>
                     <li>
-                        {% crispy formReject %}
+                        <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
+                        <div class="modal modal-small" id="reject">
+                            {% crispy formReject %}
+                        </div>
                     </li>
                 {% endif %}
             </ul>
