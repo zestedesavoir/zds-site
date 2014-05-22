@@ -641,13 +641,12 @@ def new_password(request):
         token = request.GET["token"]
     except KeyError:
         return redirect(reverse("zds.pages.views.home"))
+    token = get_object_or_404(TokenForgotPassword, token=token)
     if request.method == "POST":
-        form = NewPasswordForm(request.POST)
+        form = NewPasswordForm(token.user.username, request.POST)
         if form.is_valid():
             data = form.data
             password = data["password"]
-            token = get_object_or_404(TokenForgotPassword, token=token)
-
             # User can't confirm his request if it is too late.
 
             if datetime.now() > token.date_end:
@@ -658,7 +657,7 @@ def new_password(request):
             return render_template("member/new_password_success.html")
         else:
             return render_template("member/new_password.html", {"form": form})
-    form = NewPasswordForm()
+    form = NewPasswordForm(identifier=token.user.username)
     return render_template("member/new_password.html", {"form": form})
 
 
