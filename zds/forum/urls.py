@@ -50,6 +50,8 @@ urlpatterns = patterns('',
                            'zds.forum.views.find_topic'),
                        url(r'^sujets/tag/(?P<tag_slug>.+)/$',
                            'zds.forum.views.find_topic_by_tag'),
+                       url(r'^sujets/recherche/$',
+                           'zds.forum.views.complete_topic'),
 
                        # Message-related
                        url(r'^message/editer/$',

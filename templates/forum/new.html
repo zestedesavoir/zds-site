@@ -6,8 +6,8 @@
     Nouveau sujet
 {% endblock %}
 
-{% block headline %}
-    <h2 class="box forum">Nouveau sujet</h2>
+{% block head-title %}
+    Nouveau sujet
 {% endblock %}
 
 {% block breadcrumb %}
@@ -35,3 +35,12 @@
 {% endif %}
 
 {% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        find_solved_post("{% url "zds.forum.views.complete_topic" %}")
+    });
+    </script>
+{% endblock %}
+
