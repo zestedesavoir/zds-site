@@ -554,9 +554,7 @@
 
 .main .sidebar {
     padding: 0 0 10px;
-    // background: #e3e5e5;
-    // background: #F4F6F6;
-    // background: #E9EAED;
+    background: $sidebar-background;
     border-bottom: 1px solid #FFF;
     color: #424242;
     width: 105%;
@@ -1122,7 +1120,7 @@
         font-size: 1.4rem;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
-        background: #e1ebef;
+        background: lighten($blue, 76%);
 
         &:first-child:after {
             display: block;
