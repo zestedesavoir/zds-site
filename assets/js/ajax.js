@@ -74,3 +74,20 @@ function vote(id_post, tb_up, tb_up_vote, tb_down, tb_down_vote)
         e.preventDefault()
     });
 }
+
+function find_solved_post(url) {
+    $("#id_title").focusout(function(e){
+        var lien = url+"?q="+$("#id_title").val();
+        $('#tb-results').fadeOut('fast', function(){
+            $('#tb-results').load(lien, function(data) {
+                var json = $.parseJSON(data);
+                $('#tb-results').html("<thead><tr><th>Sujets semblables au votre et déjà résolus</th></tr></thead>");
+                $.each(json, function(i, item) {
+                    $('#tb-results').append( '<tr><td><a href="'+item[2]+'">'+item[0]+'</a> </td></tr>' );
+                    $('#tb-results').fadeIn('fast');
+                });
+            });
+        });
+        e.preventDefault()
+    });
+}

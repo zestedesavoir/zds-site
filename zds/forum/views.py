@@ -24,6 +24,8 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 import re
+from haystack.query import SearchQuerySet
+from haystack.inputs import AutoQuery
 
 
 @can_read_now
@@ -920,3 +922,23 @@ def followed_topics(request):
                             "pages": paginator_range(page,
                                                      paginator.num_pages),
                             "nb": page})
+
+
+def complete_topic(request):
+    sqs = SearchQuerySet(). \
+    filter(content=AutoQuery(request.GET.get('q'))). \
+    order_by('-pubdate').all()
+
+    suggestions = {}
+
+    cpt = 0
+    for result in sqs:
+        if cpt > 5:
+            break
+        if 'Topic' in str(result.model) and result.object.is_solved:
+            suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
+            cpt += 1
+
+    the_data = json.dumps(suggestions)
+
+    return HttpResponse(the_data, content_type='application/json')

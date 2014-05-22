@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML
 from crispy_forms_foundation.layout import Layout, Field, Hidden
 from zds.forum.models import Forum, Topic, sub_tag
 from zds.utils.forms import CommonLayoutEditor
@@ -48,6 +49,7 @@ class TopicForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('title', autocomplete='off'),
+            HTML('<div id="results" ><table id="tb-results" class="topics-entries"></table></div>'),
             Field('subtitle', autocomplete='off'),
             CommonLayoutEditor(),
         )
