@@ -328,7 +328,8 @@ def valid_tutorial(request):
 
     tutorial.sha_public = validation.version
     tutorial.sha_validation = None
-    tutorial.pubdate = datetime.now()
+    if request.POST.get('is_major', False):
+        tutorial.pubdate = datetime.now()
     tutorial.save()
     messages.success(request, u"Le tutoriel a bien été validé.")
 

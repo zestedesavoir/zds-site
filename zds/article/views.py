@@ -519,7 +519,8 @@ def modify(request):
             # So, the user can continue to edit his article in offline.
             article.sha_public = validation.version
             article.sha_validation = None
-            article.pubdate = datetime.now()
+            if request.POST.get('is_major', False):
+                article.pubdate = datetime.now()
             article.save()
 
             # send feedback
