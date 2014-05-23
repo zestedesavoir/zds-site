@@ -326,10 +326,10 @@ def valid_tutorial(request):
     # Update sha_public with the sha of validation. We don't update sha_draft.
     # So, the user can continue to edit his tutorial in offline.
 
+    if request.POST.get('is_major', False) or tutorial.sha_public == None:
+        tutorial.pubdate = datetime.now()
     tutorial.sha_public = validation.version
     tutorial.sha_validation = None
-    if request.POST.get('is_major', False):
-        tutorial.pubdate = datetime.now()
     tutorial.save()
     messages.success(request, u"Le tutoriel a bien été validé.")
 
