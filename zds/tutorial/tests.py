@@ -95,7 +95,8 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.valid_tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
-                'text': u'Ce tuto est excellent'
+                'text': u'Ce tuto est excellent',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
