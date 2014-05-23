@@ -672,23 +672,23 @@ figure {
     text-align: center;
 }
 
-figure figurecaption {
+figure figcaption {
     display: block;
 }
 
-figure > table, blockquote ~ figurecaption, blockquote {
+figure > table, blockquote ~ figcaption, blockquote {
     text-align: left;
 }
 
-img ~ figurecaption {
+img ~ figcaption {
     margin-top: 15px;
     font-style: italic;
 }
 
-blockquote ~ figurecaption p:before {
+blockquote ~ figcaption p:before {
     content: "- ";
 }
 
-blockquote ~ figurecaption {
+blockquote ~ figcaption {
     font-style: italic;
 }
