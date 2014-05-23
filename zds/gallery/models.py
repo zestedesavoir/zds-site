@@ -131,7 +131,7 @@ class Image(models.Model):
 
             image = PILImage.open(self.physical)
 
-            if image.mode not in ('L', 'RGB'):
+            if image.mode not in ('L', 'RGB', 'P', 'RGBA'):
                 image = image.convert('RGB')
 
             # Medium
