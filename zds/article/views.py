@@ -517,9 +517,10 @@ def modify(request):
             # Update sha_public with the sha of validation.
             # We don't update sha_draft.
             # So, the user can continue to edit his article in offline.
+            if request.POST.get('is_major', False) or article.sha_public == None:
+                article.pubdate = datetime.now()
             article.sha_public = validation.version
             article.sha_validation = None
-            article.pubdate = datetime.now()
             article.save()
 
             # send feedback

@@ -51,7 +51,8 @@ class ArticleTests(TestCase):
                 'article': self.article.pk,
                 'comment': u'Valides moi ce bébé',
                 'pending': 'Demander validation',
-                'version': self.article.sha_draft
+                'version': self.article.sha_draft,
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -68,7 +69,8 @@ class ArticleTests(TestCase):
             {
                 'article': self.article.pk,
                 'comment-v': u'Cet article est excellent',
-                'valid-article': 'Demander validation'
+                'valid-article': 'Demander validation',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)

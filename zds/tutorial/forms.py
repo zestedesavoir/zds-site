@@ -378,6 +378,7 @@ class ValidForm(forms.Form):
             }
         )
     )
+    is_major = forms.BooleanField(label='Version majeure ?', required=False)
 
     def __init__(self, *args, **kwargs):
         super(ValidForm, self).__init__(*args, **kwargs)
@@ -386,12 +387,12 @@ class ValidForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(), StrictButton(
-                'Publier', type='submit', css_class='button success tiny'),
-            Hidden(
-                'tutorial', '{{ tutorial.pk }}'),
-            Hidden(
-                'version', '{{ version }}'), )
+            CommonLayoutModalText(),
+            Field('is_major'),
+            StrictButton('Publier', type='submit', css_class='button success tiny'),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
 
 
 class RejectForm(forms.Form):
