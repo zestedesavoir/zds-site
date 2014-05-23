@@ -1,21 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
-from django.http import Http404, HttpResponse
-from django.views.decorators.http import require_POST
 import json
+import re
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, never_read, \
     mark_read, TopicFollowed, sub_tag
+from zds.forum.models import TopicRead
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
@@ -676,6 +680,39 @@ def useful_post(request):
     post.is_useful = not post.is_useful
     post.save()
     return redirect(post.get_absolute_url())
+
+
+@can_write_and_read_now
+@login_required
+def unread_post(request):
+    """Marks a message as unread """
+
+    try:
+        post_pk = request.GET["message"]
+    except KeyError:
+        raise Http404
+    post = get_object_or_404(Post, pk=post_pk)
+
+    # check that author can access the forum
+
+    if not post.topic.forum.can_read(request.user):
+        raise PermissionDenied
+
+    t = TopicRead.objects.filter(topic=post.topic, user=request.user).first()
+    if t is None:
+        if post.position > 1:
+            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+            t = TopicRead(post=unread, topic=unread.topic, user=request.user)
+            t.save()
+    else:
+        if post.position > 1:
+            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+            t.post = unread
+            t.save()
+        else:
+            t.delete()
+
+    return redirect(reverse("zds.forum.views.details", args=[post.topic.forum.category.slug, post.topic.forum.slug]))
 
 
 @can_write_and_read_now

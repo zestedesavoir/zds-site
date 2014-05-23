@@ -91,8 +91,7 @@ class LoginForm(forms.Form):
                     css_class='button'),
                 HTML('<a class="button secondary" href="/">Annuler</a>'),
             ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">u\
-            uMot de passe oublié ?</a>'),
+            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
 

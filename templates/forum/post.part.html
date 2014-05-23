@@ -79,6 +79,7 @@
                             {% endif %}
                         {% endif %}
                         {% if post.is_visible %}
+                        <a href="{% url "zds.forum.views.unread_post" %}?message={{ post.pk }}" class="tiny secondary actions">Non lu<span class="fi-star"></span></a>
                         {% if post.author = user or perms.forum.change_post %}
                         <a href="{% url "zds.forum.views.edit_post" %}?message={{ post.pk }}" class="tiny secondary actions">Editer<span class="fi-pencil"></span></a>
                         {% endif %}
