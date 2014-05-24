@@ -6,7 +6,7 @@
 {% for chapter in chapters %}
 ## {{ chapter.title }}
 {% for extract in chapter.extracts %}
-###{{ extract.title }}
+### {{ extract.title }}
 {{ extract.txt|safe|decale_header_3 }}
 {% endfor %}
 {% endfor %}

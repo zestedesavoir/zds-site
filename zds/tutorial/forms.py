@@ -49,7 +49,7 @@ class TutorialForm(FormWithTitle):
     )
 
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
         required=False
     )
 
@@ -156,7 +156,7 @@ class PartForm(FormWithTitle):
 class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
         required=False
     )
 
@@ -204,7 +204,7 @@ class EmbdedChapterForm(forms.Form):
     )
 
     image = forms.ImageField(
-        label='Selectionnez une image',
+        label='Sélectionnez une image',
         required=False)
 
     conclusion = forms.CharField(
@@ -268,7 +268,7 @@ class ExtractForm(FormWithTitle):
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label='Selectionnez le tutoriel à importer',
+        label='Sélectionnez le tutoriel à importer',
         required=False
     )
     images = forms.FileField(

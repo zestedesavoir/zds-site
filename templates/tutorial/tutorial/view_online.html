@@ -32,7 +32,7 @@
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
     </ul>
-    
+
     <div class="authors content-wrapper">
         <span class="authors-label">Auteurs : </span>
         <ul>
@@ -58,7 +58,7 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
         <h3>Admin<span class="wide">istration</span></h3>
         <ul>
-            <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version offline</a></li>
+            <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version hors-ligne</a></li>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
             <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
         </ul>
@@ -66,7 +66,7 @@
     {% endif %}
 
     {% include "tutorial/includes/summary.html" %}
-    
+
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
         <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
@@ -74,7 +74,7 @@
                 <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
                 <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
             {% endif %}
-            
+
             <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
             <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
         </ul>
@@ -121,7 +121,7 @@
         <p>Aucune conclusion.</p>
     {% endif %}
 
-     
+
     <h1>Commentaires</h1>
     {% include "misc/pagination.part.html" with position="top" topic=tutorial %}
 

@@ -31,7 +31,7 @@
                     <th width="8%">Auteur(s)</th>
                     <th width="8%">Proposé</th>
                     <th width="8%">Validateur</th>
-                    <th width="8%">Réservé</th>
+                    <th width="8%">Statut</th>
                     <th width="8%">Action</th>
                 </tr>
             </thead>
@@ -66,7 +66,7 @@
                         </td>
                         <td>
                             {% if validation.is_pending %}
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réservé</a>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
                             {% elif validation.is_pending_valid %}
                                 <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
                             {% elif validation.is_accept %}

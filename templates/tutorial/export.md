@@ -4,14 +4,14 @@
 % {{ tutorial.pubdate|date:"d F Y" }}
 
 {% if tutorial.intro %}
-#Introduction
+# Introduction
 {{ tutorial.intro|safe }}
 {% endif %}
 
 {% if tutorial.is_mini %}
 {# Small tutorial #}
 {% for extract in chapter.extracts %}
-#{{ extract.title }}
+# {{ extract.title }}
 {% if extract.txt %}
 {{ extract.txt|safe|decale_header_1 }}
 {% endif %}
@@ -30,6 +30,6 @@
 {% endif %}
 
 {% if tutorial.conclu %}
-#Conclusion
+# Conclusion
 {{ tutorial.conclu|safe }}
 {% endif %}
