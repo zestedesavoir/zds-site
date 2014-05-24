@@ -824,11 +824,13 @@
         border-bottom: 1px solid $orange;
         margin: 1px 0 15px;
 
-        &.ico,
         &.illu {
             padding: 0 0 0 85px;
         }
 
+        &.ico {
+            padding: 0 0 0 50px;
+        }
         &.ico-articles {
             @include sprite-pos($sprite, 'articles');
         }
