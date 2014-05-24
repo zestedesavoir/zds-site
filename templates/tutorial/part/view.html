@@ -67,6 +67,18 @@
 
 
 
+{% block sidebar_blocks %}
+    {% with tutorial=part.tutorial %}
+        {% with parts=part.tutorial.get_parts %}
+            {% with chapter_current=part.chapter %}
+                {% include "tutorial/includes/summary.part.html" %}
+            {% endwith %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
+
+
+
 {% block content %}
     {% if part.intro %}
         {{ part.intro|emarkdown }}

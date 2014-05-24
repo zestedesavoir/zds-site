@@ -11,8 +11,8 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}?version={{version}}">{{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}</a></li>
-    <li><a href="{{ chapter.part.get_absolute_url }}?version={{version}}">{{ chapter.part.title }}</a></li>
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}{% if version %}?version={{version}}{% endif %}">{{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}</a></li>
+    <li><a href="{{ chapter.part.get_absolute_url }}{% if version %}?version={{version}}{% endif %}">{{ chapter.part.title }}</a></li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
 
@@ -146,6 +146,18 @@
             </li>
         {% endif %}
     {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% with tutorial=chapter.part.tutorial %}
+        {% with parts=chapter.part.tutorial.get_parts %}
+            {% with chapter_current=chapter %}
+                {% include "tutorial/includes/summary.part.html" %}
+            {% endwith %}
+        {% endwith %}
+    {% endwith %}
 {% endblock %}
 
 

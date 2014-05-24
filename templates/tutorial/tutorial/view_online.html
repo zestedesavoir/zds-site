@@ -53,8 +53,8 @@
 
 
 
-{% block sidebar_blocs %}
-    {% include "tutorial/includes/summary.html" %}
+{% block sidebar_blocks %}
+    {% include "tutorial/includes/summary.part.html" with online=True %}
 
     {% if perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
