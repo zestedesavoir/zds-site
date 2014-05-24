@@ -70,9 +70,7 @@
 {% block sidebar_blocks %}
     {% with tutorial=part.tutorial %}
         {% with parts=part.tutorial.get_parts %}
-            {% with chapter_current=part.chapter %}
-                {% include "tutorial/includes/summary.part.html" %}
-            {% endwith %}
+            {% include "tutorial/includes/summary.part.html" %}
         {% endwith %}
     {% endwith %}
 {% endblock %}
@@ -99,6 +97,6 @@
     {% if part.conclu %}
         {{ part.conclu|emarkdown }}
     {% else %}
-        <p>Aucune conclusion.</p>
+        <p class="warning ico-after">Vous n'avez mis aucune conclusion.</p>
     {% endif %}
 {% endblock %}

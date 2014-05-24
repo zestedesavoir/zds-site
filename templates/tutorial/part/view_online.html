@@ -46,7 +46,7 @@
 
 
 
-{% block sidebar_actions %}
+{% block sidebar_blocks %}
     {% if perms.tutorial.change_tutorial%}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administrations">
             <h3>Admin<span class="wide">istration</span></h3>
@@ -58,7 +58,7 @@
 
     {% with tutorial=part.tutorial %}
         {% with parts=part.tutorial.get_parts %}
-            {% include "tutorial/includes/summary.html" %}
+            {% include "tutorial/includes/summary.part.html" with online=True %}
         {% endwith %}
     {% endwith %}
 {% endblock %}
