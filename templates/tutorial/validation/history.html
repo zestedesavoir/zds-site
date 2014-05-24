@@ -66,13 +66,13 @@
                         </td>
                         <td>
                             {% if validation.is_pending %}
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réservé</a>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
                             {% elif validation.is_pending_valid %}
                                 <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
                             {% elif validation.is_accept %}
-                                <span>Accepté</span>
+                                <span>Accepter</span>
                             {% elif validation.is_reject %}
-                                <span>Rejeté</span>
+                                <span>Rejeter</span>
                             {% endif %}
                         </td>
                     </tr>

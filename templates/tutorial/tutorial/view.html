@@ -31,7 +31,7 @@
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
     </ul>
-    
+
     <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
@@ -75,9 +75,9 @@
     </li>
 
     {% if not tutorial.in_beta %}
-        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after arrow-right blue">Activer la beta</a></li>
+        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after arrow-right blue">Activer la bêta</a></li>
     {% else %}
-        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la beta</a></li>
+        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la bêta</a></li>
     {% endif %}
 
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">Historique des versions</a>
@@ -115,7 +115,7 @@
             <h3>Validation</h3>
             <ul>
                 <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
-                
+
                 {% if tutorial.on_line %}
                     <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
                 {% endif %}

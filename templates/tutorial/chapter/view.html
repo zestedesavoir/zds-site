@@ -31,14 +31,14 @@
         {% endif %}
         {{ chapter.title }}
     </h1>
-    
+
     <ul class="taglist">
         {% for category in tutorial.subcategory.all %}
             {# TODO : Mettre le lien des tags #}
             <li><a href="#">{{ category.title }}</a></li>
         {% endfor %}
     </ul>
-    
+
     <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
@@ -53,7 +53,7 @@
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
             <div class="alert-box warning">
-                Attention, cette version du tutoriel est en BETA
+                Attention, cette version du tutoriel est en BETA !
             </div>
         </div>
     {% endif %}
@@ -67,7 +67,7 @@
             <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
                class="ico-after edit blue"
             >
-                Éditer le chapître
+                Éditer le chapitre
             </a>
         </li>
         <li>
