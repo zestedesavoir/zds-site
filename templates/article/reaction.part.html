@@ -109,7 +109,12 @@
 
                 <div class="message-content">
                     {% if post.is_visible %}
-                    {{ post.text|emarkdown }}
+                        {{ post.text_html|safe }}
+                    {% elif perms.article.change_reaction %}
+                        <a href="#" data-reveal-id="modal-show-{{post.pk}}" class="radius button tiny secondary right">Voir le message masqué</a>
+                        <div id="modal-show-{{post.pk}}" class="reveal-modal" data-reveal>
+                          {{ post.text_html|safe }}
+                          <a class="close-reveal-modal">&#215;</a>
                     {% endif %}
                 </div>
                 </div>
