@@ -3,6 +3,16 @@
 
 
 
+{% block sidebar_new_tutorial %}
+    <div>
+        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+            Nouveau tutoriel
+        </a>
+    </div>
+{% endblock %}
+
+
+
 {% block sidebar_actions %}
     <li><a href="{% url "zds.tutorial.views.import_tuto" %}" class="ico-after import blue">Importer</a></li>
 {% endblock %}

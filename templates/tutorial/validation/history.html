@@ -4,19 +4,21 @@
 
 
 {% block title %}
-    Historique de validation du tutoriel
-{% endblock %}
-
-
-
-{% block headline %}
-    <h1>Historique de validation du tutoriel</h1>
+    Historique de validation
 {% endblock %}
 
 
 
 {% block breadcrumb %}
+    <li><a href="{% url "zds.tutorial.views.list_validation" %}">Validation</a></li>
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
     <li>Historique</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>Historique de validation</h1>
 {% endblock %}
 
 
@@ -80,6 +82,6 @@
             </tbody>
         </table>
     {% else %}
-        <p>Aucun tutoriel soumis en validation.</p>
+        <p>Ce tutoriel n'a jamais été soumis en validation.</p>
     {% endif %}
 {% endblock %}

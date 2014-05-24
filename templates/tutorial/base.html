@@ -4,7 +4,7 @@
 
 
 {% block title_base %}
-    &#183; Tutoriels
+    &#183; Mes tutoriels
 {% endblock %}
 
 
@@ -16,7 +16,7 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+    <li><a href="{% url "zds.member.views.tutorials" %}">Mes tutoriels</a></li>
 {% endblock %}
 
 
@@ -29,11 +29,7 @@
 
 {% block sidebar %}
     <aside class="sidebar sommaire mobile-menu-hide">
-        <div>
-            <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
-                Nouveau tutoriel
-            </a>
-        </div>
+        {% block sidebar_new_tutorial %}{% endblock %}
 
         {% captureas sidebaractions %}
             {% block sidebar_actions %}{% endblock %}

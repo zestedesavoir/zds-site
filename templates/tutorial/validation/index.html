@@ -1,34 +1,30 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_online.html" %}
 {% load humanize %}
 
 
 
 {% block title %}
-    Liste des tutoriels soumis en validation
+    Validation
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Tutoriels en attente de validation</li>
+    <li>Validation</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Liste des tutoriels soumis en validation</h1>
+    <h2>Validation</h2>
 {% endblock %}
 
 
 
+{% block sidebar_new_tutorial %}{% endblock %}
 {% block sidebar_blocs %}
-    <h3>Navigation</h3>
+    <h3>Filtres</h3>
     <ul>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}">
-                Zone de validation
-            </a>
-        </li>
         <li>
             <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
                 En cours de validation
@@ -37,6 +33,11 @@
         <li>
             <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
                 En attente de validateur
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}">
+                Annuler le filtre
             </a>
         </li>
     </ul>

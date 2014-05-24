@@ -1,0 +1,24 @@
+{% extends "tutorial/base.html" %}
+{% load captureas %}
+
+
+
+{% block title_base %}
+    &#183; Tutoriels
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+{% endblock %}
+
+
+
+{% block sidebar_new_tutorial %}
+    <div>
+        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+            Nouveau tutoriel
+        </a>
+    </div>
+{% endblock %}
