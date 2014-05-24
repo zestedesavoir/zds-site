@@ -59,17 +59,19 @@
     /* ==============
         Markdown icons
        ============== */
-    .information:after {
-        @include sprite-pos($sprite, 'information');
-    }
-    .question {
-        @include sprite-pos($sprite, 'question');
-    }
-    .error {
-        @include sprite-pos($sprite, 'error');
-    }
-    .warning {
-        @include sprite-pos($sprite, 'warning');
+    .main .content-container .article-content {
+        .information.ico-after:after {
+            @include sprite-pos($sprite2x, 'information', true);
+        }
+        .question.ico-after:after {
+            @include sprite-pos($sprite2x, 'question', true);
+        }
+        .error.ico-after:after {
+            @include sprite-pos($sprite2x, 'error', true);
+        }
+        .warning.ico-after:after {
+            @include sprite-pos($sprite2x, 'warning', true);
+        }
     }
 
 
@@ -86,8 +88,13 @@
                 @include sprite-pos($sprite2x, 'view-blue', true);
             }
         }
-        &.edit:after {
-            @include sprite-pos($sprite2x, 'edit', true);
+        &.edit {
+            &:after {
+                @include sprite-pos($sprite2x, 'edit', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'edit-blue', true);
+            }
         }
         &.alert:after {
             @include sprite-pos($sprite2x, 'alert', true);
@@ -190,6 +197,15 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'download-blue', true);
+            }
+        }
+
+        &.import {
+            &:after {
+                @include sprite-pos($sprite2x, 'import', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'import-blue', true);
             }
         }
 
