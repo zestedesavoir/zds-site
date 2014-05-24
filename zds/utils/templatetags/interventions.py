@@ -35,13 +35,13 @@ def interventions_topics(user):
     topicsfollowed = TopicFollowed.objects.filter(user=user)\
         .order_by('-topic__last_message__pubdate')
 
-    topics_unread = []
+    posts_unread = []
 
     for topicfollowed in topicsfollowed:
         if never_read_topic(topicfollowed.topic):
-            topics_unread.append(topicfollowed.topic)
+            posts_unread.append((topicfollowed.topic.first_unread_post()))
 
-    return {'unread': topics_unread, }
+    return posts_unread
 
 
 @register.filter('interventions_privatetopics')

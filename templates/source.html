@@ -93,20 +93,17 @@
             {% endwith %}
           </li>
           <li class="has-dropdown">
-            {% with topics=user|interventions_topics %}
-            {% with unread_topics=topics.unread %}
-            {% with read_topics=topics.read %}
+            {% with unread_posts=user|interventions_topics %}
             <a href="#">
-              {% if unread_topics|length > 0 %}
-                  <span class="alert label round">{{ unread_topics|length }}</span>
+              {% if unread_posts|length > 0 %}
+                  <span class="alert label round">{{ unread_posts|length }}</span>
               {% endif %}
               <img src="{% static "img/notifications.png" %}" alt="Notifications" /> <span class="hide-for-large-up">Notifications</span></a>
             <ul class="dropdown">
               <li><label>Notifications</label></li>
               <li class="divider"></li>
                 
-                  {% for topic in unread_topics %}
-                      {% with first_unread=topic.first_unread_post %}
+                  {% for first_unread in unread_posts %}
                       <li><a href="{{ first_unread.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
@@ -121,14 +118,13 @@
                               </div>
                             </div>
                             <div class="large-12 columns">
-                                {{ topic.title }}
+                                {{ first_unread.topic.title }}
                             </div>
                           </div>
                           </a>
                       </li>
-                      {% endwith %}
                   {% endfor %}
-                  {% if unread_topics|length = 0 %}
+                  {% if unread_posts|length = 0 %}
                       <li>
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -140,8 +136,6 @@
                 <li class="divider"></li>
               <li><a href="{% url "zds.forum.views.followed_topics" %}"><div class="row"><div class="large-5 columns centered">Toutes les notifications</div></div></a></li>
             </ul>
-            {% endwith %}
-            {% endwith %}
             {% endwith %}
           </li>
           {% if perms.forum.change_post %}
