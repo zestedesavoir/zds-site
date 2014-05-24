@@ -70,7 +70,6 @@ class LoginForm(forms.Form):
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
         self.helper.form_action = reverse('zds.member.views.login_view')
         self.helper.form_method = 'post'
 
@@ -85,7 +84,6 @@ class LoginForm(forms.Form):
                     'Se connecter'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
 

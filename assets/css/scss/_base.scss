@@ -60,6 +60,16 @@ textarea {
     resize: vertical;
 }
 
+a {
+    color: lighten($blue, 20%);
+    @include transition;
+
+    &:hover {
+        color: darken($orange, 15%);
+        text-decoration: none;
+    }
+}
+
 .chromeframe {
     margin: 0;
     background: #ccc;

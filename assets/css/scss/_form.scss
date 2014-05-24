@@ -12,13 +12,6 @@
     form {
         width: 100%;
 
-        &.form-alone {
-            width: 90%;
-            max-width: 500px;
-            padding: 0 5%;
-            margin: 20px auto;
-        }
-
         p {
             position: relative;
         }
@@ -158,6 +151,26 @@
         &:focus {
             background: #CCC;
             color: #333;
+        }
+    }
+
+    .form-sub-link {
+        display: block;
+        margin-top: 8px;
+    }
+
+
+
+
+
+
+
+    // TEMP STYLES TO PATCH TEMP TEMPLATE PACK MIX
+
+    .checkbox {
+        padding: 10px 0;
+        input {
+            margin-top: 8px;
         }
     }
 }
