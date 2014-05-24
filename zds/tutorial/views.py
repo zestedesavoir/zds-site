@@ -163,7 +163,7 @@ def reservation(request, validation_pk):
         validation.status = 'PENDING'
         validation.save()
 
-        messages.info(request, u'Le tutoriel n\'est plus sous réserve.')
+        messages.info(request, u'Le tutoriel n\'est plus réservé.')
 
         return redirect(reverse('zds.tutorial.views.list_validation'))
 
@@ -485,7 +485,7 @@ def delete_tutorial(request, tutorial_pk):
         tutorial.save()
         messages.success(
             request,
-            u'Vous ne faites plus partie des rédacteurs de ce tutoriel')
+            u'Vous ne faites plus partie des rédacteurs de ce tutoriel.')
 
     return redirect(reverse('zds.tutorial.views.index'))
 
@@ -2316,7 +2316,7 @@ def import_content(request, tuto, images, logo):
                 action='add')
 
             extract_count += 1
-    
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -2324,9 +2324,9 @@ def local_import(request):
     tuto = open(r'{0}'.format(request.POST['tuto'], "r")).read()
     images = open(r'{0}'.format(request.POST['images'], "r")).read()
     logo = open(r'{0}'.format(request.POST['logo']), "r").read()
-    
+
     import_content(request, request.POST['tuto'], request.POST['images'], request.POST['logo'])
-    
+
     return redirect(reverse('zds.member.views.tutorials'))
 
 @can_write_and_read_now
@@ -2347,7 +2347,7 @@ def import_tuto(request):
     else:
         form = ImportForm()
 
-        profile = get_object_or_404(Profile, user=request.user) 
+        profile = get_object_or_404(Profile, user=request.user)
         oldtutos = []
         if profile.sdz_tutorial:
             olds = profile.sdz_tutorial.strip().split(':')
@@ -2844,13 +2844,13 @@ def MEP(tutorial, sha):
 
         target = os.path.join(tutorial.get_prod_path(), fichier + '.html')
         os.chdir(os.path.dirname(target))
-        
+
         try :
             html_file = open(target,"w")
         except IOError: #handle limit of 255 on windows
             target =u"\\\\?\{0}".format(target)
             html_file = open(target,"w")
-            
+
 
         if md_file_contenu is not None:
             html_file.write(emarkdown(md_file_contenu))
