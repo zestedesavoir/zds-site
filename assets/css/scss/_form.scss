@@ -130,16 +130,16 @@
         color: #FFF;
         background: #084561;
 
-        &:hover,
-        &:focus {
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
             background: #396A81;
         }
     }
     .btn-cancel {
         background: #c0392b;
 
-        &:hover,
-        &:focus {
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
             background: #e74c3c;
         }
     }
@@ -147,11 +147,16 @@
         background: #EEE;
         color: #555;
 
-        &:hover,
-        &:focus {
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
             background: #CCC;
             color: #333;
         }
+    }
+    [disabled] {
+        cursor: default;
+        background: #F7F7F7;
+        color: #CCC;
     }
 
     .form-sub-link {

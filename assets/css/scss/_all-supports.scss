@@ -1407,7 +1407,7 @@
             }
         }
 
-        a {
+        /* a {
             color: #333;
             @include transition;
 
@@ -1415,6 +1415,33 @@
             &:focus {
                 color: #EE8709;
                 text-decoration: none;
+            }
+        } */
+
+        table {
+            margin: 15px;
+            border-top: 1px solid #DDD;
+
+            thead {
+                background: #DDD;
+                color: $blue;
+            }
+            th, td {
+                text-align: left;
+                padding: 5px 15px 5px 7px;
+                border-right: 1px solid #DDD;
+
+                &:first-child {
+                    border-left: 1px solid #DDD;
+                }
+            }
+
+            tbody tr {
+                border-bottom: 1px solid #DDD;
+
+                &:nth-child(2n+1) {
+                    background: #F7F7F7;
+                }
             }
         }
     }
