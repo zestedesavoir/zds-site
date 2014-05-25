@@ -82,12 +82,6 @@
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <h3>Actions</h3>
         <ul>
-            <li>
-                <a href="{% url "zds.mp.views.new" %}" class="ico-after plus blue">
-                    Nouvelle conversation
-                </a>
-            </li>
-
             {% if topic.author == user %}
                 <li>
                     <a href="#add-participant" class="open-modal ico-after plus blue">

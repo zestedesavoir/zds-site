@@ -83,13 +83,8 @@
         <h3>Actions</h3>
         <ul>
             <li>
-                <a href="{% url "zds.mp.views.new" %}" class="ico-after plus blue">
-                    Nouvelle conversation
-                </a>
-            </li>
-            <li>
-                <a href="#delete-conversations" class="open-modal ico-after cross blue">
-                    Supprimer les conversations
+                <a href="#delete-conversations" class="open-modal ico-after cross red">
+                    Supprimer les conversations sélectionnées
                 </a>
                 
                 <form action="{% url "zds.mp.views.index" %}" method="POST" id="delete-conversations" class="modal modal-small">

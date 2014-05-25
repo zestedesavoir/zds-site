@@ -27,6 +27,9 @@
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
+        <a href="{% url "zds.mp.views.new" %}" class="new-btn ico-after more blue">
+            Nouvelle conversation
+        </a>
         {% block sidebar_actions %}{% endblock %}
     </aside>
 {% endblock %}
