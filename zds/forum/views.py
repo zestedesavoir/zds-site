@@ -509,7 +509,7 @@ def edit_post(request):
 
     # Making sure the user is allowed to do that. Author of the post
     # must to be the user logged.
-    if post.author != request.user and not request.user.has_perm('forum.change_post') and 'signal-post' not in request.POST:
+    if post.author != request.user and not request.user.has_perm('forum.change_post') and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if post.author != request.user and request.method == 'GET' and request.user.has_perm('forum.change_post'):
@@ -521,7 +521,7 @@ def edit_post(request):
 
     if request.method == 'POST':
 
-        if 'delete-post' in request.POST:
+        if 'delete_message' in request.POST:
             if post.author == request.user or request.user.has_perm('forum.change_post'):
                 post.alerts.all().delete()
                 post.is_visible = False
@@ -530,17 +530,17 @@ def edit_post(request):
                 post.editor = request.user
                 messages.success(request, u'Le message est désormais masqué')
 
-        if 'show-post' in request.POST:
+        if 'show_message' in request.POST:
             if request.user.has_perm('forum.change_post'):
                 post.is_visible = True
                 post.text_hidden = ''
 
-        if 'signal-post' in request.POST:
+        if 'signal_message' in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = post
             alert.scope = Alert.FORUM
-            alert.text = request.POST['signal-text']
+            alert.text = request.POST['signal_text']
             alert.pubdate = datetime.now()
             alert.save()
 
@@ -570,7 +570,7 @@ def edit_post(request):
                 'form': form,
             })
 
-        if not 'delete-post' in request.POST and not 'signal-post' in request.POST and not 'show-post' in request.POST:
+        if not 'delete_message' in request.POST and not 'signal_message' in request.POST and not 'show_message' in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 post.text = request.POST['text']
