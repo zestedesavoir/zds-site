@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm
+from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_read_now, can_write_and_read_now
 from zds.utils import render_template
@@ -175,8 +175,7 @@ def edit_image(request, gal_pk, img_pk):
     img = get_object_or_404(Image, pk=img_pk)
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
-        if form.is_valid() and request.FILES["physical"].size \
-                < settings.IMAGE_MAX_SIZE:
+        if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:
             img.title = request.POST["title"]
             img.legend = request.POST["legend"]
             img.physical = request.FILES["physical"]
@@ -185,13 +184,18 @@ def edit_image(request, gal_pk, img_pk):
             img.save()
 
             # Redirect to the document list after POST
-
             return redirect(gal.get_absolute_url())
     else:
-        form = ImageForm(initial={"title": img.title, "legend": img.legend,
-                                  "physical": img.physical})
+        form = ImageForm(initial={"title": img.title, "legend": img.legend, "physical": img.physical})
+
+    as_avatar_form = ImageAsAvatarForm()
     return render_template(
-        "gallery/edit_image.html", {"form": form, "gallery": gal, "image": img})
+        "gallery/edit_image.html", {
+            "form": form,
+            "as_avatar_form": as_avatar_form,
+            "gallery": gal,
+            "image": img
+        })
 
 
 @can_write_and_read_now

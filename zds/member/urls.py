@@ -25,6 +25,8 @@ urlpatterns = patterns('',
 
                        url(r'^parametres/profil/$',
                            'zds.member.views.settings_profile'),
+                       url(r'^parametres/profil/maj_avatar/$',
+                           'zds.member.views.update_avatar'),
                        url(r'^parametres/mini_profil/(?P<user_name>.+)/$',
                            'zds.member.views.settings_mini_profile'),
                        url(r'^parametres/compte/$',

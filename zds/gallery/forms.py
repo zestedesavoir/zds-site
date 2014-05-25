@@ -144,3 +144,20 @@ class ImageForm(forms.Form):
                 uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
+
+
+class ImageAsAvatarForm(forms.Form):
+    """"Form to add current image as avatar"""
+    def __init__(self, *args, **kwargs):
+        super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_action = reverse('zds.member.views.update_avatar')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Hidden('avatar_url', '{{ image.physical.url }}'),
+            ButtonHolder(
+                Submit('submit', "Utiliser comme avatar", css_class='button tiny'),
+            ),
+        )
