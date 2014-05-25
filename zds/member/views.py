@@ -27,6 +27,7 @@ from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     OldTutoForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto
+from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic
 from zds.member.decorator import can_read_now, can_write_and_read_now
@@ -408,6 +409,28 @@ def settings_profile(request):
         c = {"form": form}
         return render_to_response("member/settings_profile.html", c,
                                   RequestContext(request))
+
+
+@can_write_and_read_now
+@login_required
+@require_POST
+def update_avatar(request):
+    """
+    Update avatar from gallery.
+    Specific method instead using settings_profile() to avoid to handle all required fields.
+    """
+    profile = request.user.profile
+    form = ImageAsAvatarForm(request.POST)
+    if form.is_valid():
+        profile.avatar_url = form.data["avatar_url"]
+        try:
+            profile.save()
+        except:
+            messages.error(request, "Une erreur est survenue.")
+            return redirect(reverse("zds.member.views.settings_profile"))
+        messages.success(request, "L'avatar a correctement été mis à jour.")
+
+    return redirect(reverse("zds.member.views.settings_profile"))
 
 
 @can_write_and_read_now

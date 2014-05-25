@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block headline-actions %}
-            <li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
+    <li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
 {% endblock %}
 
 {% block content %}
@@ -32,6 +32,7 @@
 <p>
     <strong>Code markdown d'insertion de l'image :</strong> <br>
     <input type="text" value="![{{ image.legend }}]({{ image.physical.url }})" readonly >
+    {% crispy as_avatar_form %}
 </p>
 
 {% endblock %}
