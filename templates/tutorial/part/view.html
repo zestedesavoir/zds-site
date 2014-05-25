@@ -21,9 +21,11 @@
         {{ part.title }}
     </h1>
 
-    <h3 class="subtitle">
-        {{ part.tutorial.description }}
-    </h3>
+    {% if part.tutorial.description %}
+        <h3 class="subtitle">
+            {{ part.tutorial.description }}
+        </h3>
+    {% endif %}
 
     <ul class="taglist">
         {% for category in part.tutorial.subcategory.all %}

@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load humanize %}
 {% load profile %}
+{% load captureas %}
 {% load crispy_forms_tags %}
 
 
@@ -19,12 +20,16 @@
 
 
 {% block headline %}
-    <h1 class="illu">
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
             <img src="{{tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
+
+    <h3 class="subtitle">
+        {{ tutorial.description }}
+    </h3>
 
     <ul class="taglist">
         {% for category in tutorial.subcategory.all %}
@@ -33,50 +38,14 @@
         {% endfor %}
     </ul>
 
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
-        </ul>
-    </div>
-{% endblock %}
-
-
-
-{% block headline_sub %}
-    {{ tutorial.description }}
-{% endblock %}
-
-
-
-{% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with online=True %}
-
-    {% if perms.tutorial.change_tutorial %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
-            <h3>Admin<span class="wide">istration</span></h3>
-            <ul>
-                <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue" >Version hors-ligne</a></li>
-                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}">Historique validation</a></li>
-                <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
-            </ul>
-        </div>
-    {% endif %}
-
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-        <h3>Télécharger</h3>
-        <ul class="sidebar-standalone mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Téléchargements">
-            {% if perms.tutorial.change_tutorial %}
-                <li><a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}">Archive</a></li>
-                <li><a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">Markdown</a></li>
-            {% endif %}
-
-            <li><a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">PDF</a></li>
-            <li><a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">EPUB</a></li>
         </ul>
     </div>
 {% endblock %}
@@ -152,5 +121,22 @@
                 {% crispy form %}
             </section>
         {% endwith %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% include "tutorial/includes/summary.part.html" with online=True %}
+
+    {% if perms.tutorial.change_tutorial %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after arrow-right blue">Version hors-ligne</a></li>
+                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
+                <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="ico-after cross blue">Dépublier</a>
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}

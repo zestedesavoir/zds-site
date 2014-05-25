@@ -25,9 +25,11 @@
         {{ tutorial.title }}
     </h1>
 
-    <h3 class="subtitle">
-        {{ tutorial.description }}
-    </h3>
+    {% if tutorial.description %}
+        <h3 class="subtitle">
+            {{ tutorial.description }}
+        </h3>
+    {% endif %}
 
     <ul class="taglist">
         {% for category in tutorial.subcategory.all %}
@@ -49,7 +51,7 @@
 
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
-            <div class="warning ico-after">
+            <div class="alert-box warning">
                 Attention, cette version du tutoriel est en BETA !
             </div>
         </div>
@@ -118,7 +120,7 @@
     {% if not tutorial.in_beta %}
         <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after arrow-right blue">Activer la bêta</a></li>
     {% else %}
-        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}">Désactiver la bêta</a></li>
+        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" class="ico-after cross blue">Désactiver la bêta</a></li>
     {% endif %}
 
     <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">Historique des versions</a>
@@ -149,7 +151,7 @@
                 <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
 
                 {% if tutorial.on_line %}
-                    <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}">Dépublier</a>
+                    <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="ico-after cross blue">Dépublier</a>
                 {% endif %}
 
                 {% if tutorial.in_validation %}
@@ -172,10 +174,10 @@
 
     {% include "tutorial/includes/summary.part.html" %}
 
-    {% if not tutorial.on_line %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-            <h3>Suppression</h3>
-            <ul>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+        <h3>Suppression</h3>
+        <ul>
+            {% if not tutorial.on_line %}
                 <li>
                     <a href="#delete-chapter" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
                     <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-chapter" class="modal modal-medium" method="get">
@@ -185,7 +187,11 @@
                         <button type="submit">Confirmer</button>
                     </form>
                 </li>
-            </ul>
-        </div>
-    {% endif %}
+            {% else %}
+                <li class="inactive">
+                    <span>Impossible car publié</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 {% endblock %}

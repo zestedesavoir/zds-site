@@ -67,20 +67,24 @@
 
 
 {% block sidebar_blocks %}
+    {% if chapter.tutorial %}
+        {% set chapter.tutorial as tutorial %}
+    {% else %}
+        {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
     {% if perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>Admin<span class="wide">istration</span></h3>
             <ul>
-                <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">Version hors-ligne</a></li>
+                <li><a href="{{ tutorial.get_absolute_url }}">Version hors-ligne</a></li>
             </ul>
         </div>
     {% endif %}
 
-    {% with tutorial=chapter.part.tutorial %}
-        {% with parts=chapter.part.tutorial.get_parts %}
-            {% with chapter_current=chapter %}
-                {% include "tutorial/includes/summary.part.html" with online=True %}
-            {% endwith %}
+    {% with parts=tutorial.get_parts %}
+        {% with chapter_current=chapter %}
+            {% include "tutorial/includes/summary.part.html" with online=True %}
         {% endwith %}
     {% endwith %}
 {% endblock %}

@@ -19,6 +19,7 @@
     <h1>
         {{ part.title }}
     </h1>
+
     <ul class="taglist">
         {% for category in part.tutorial.subcategory.all %}
             {# TODO : mettre le lien des tags #}
@@ -26,7 +27,7 @@
         {% endfor %}
     </ul>
 
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in part.tutorial.authors.all %}

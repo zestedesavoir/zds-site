@@ -53,24 +53,24 @@
                     {% if tutorial.on_line %}
                         {% if perms.tutorial.change_tutorial %}
                            <li>
-                            <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}">
-                                Markdown
-                            </a>
-                        </li>
+                                <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    Markdown
+                                </a>
+                            </li>
                         {% endif %}
 
                         <li>
-                            <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}">
+                            <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 HTML
                             </a>
                         </li>
                         <li>
-                            <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}">
+                            <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 PDF
                             </a>
                         </li>
                         <li>
-                            <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}">
+                            <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 EPUB
                             </a>
                         </li>
