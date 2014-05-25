@@ -4,7 +4,7 @@
    Close alert-boxes
    ========================================================================== */
 
-$(".close-alert-box").on('click', function(e) {
+$(".close-alert-box:not(.open-modal)").on('click', function(e) {
     $(this).parents('.alert-box:first').slideUp(150, function(){
     	$(this).remove();
     });
