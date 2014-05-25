@@ -310,9 +310,9 @@ class ProfileForm(MiniProfileForm):
             Field('site'),
             Field('avatar_url'),
             HTML(u"""
-                <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une gallerie</a><br/>
+                <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une galerie</a><br/>
                    Naviguez vers l'image voulue et cliquer sur le bouton "Choisir comme avatar".<br/>
-                   Créez une gallerie et importez votre avatar si ce n'est pas déjà fait !</p>
+                   Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
             """),
             Field('sign'),
             Field('options'),
