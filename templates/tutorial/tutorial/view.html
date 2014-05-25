@@ -179,8 +179,8 @@
         <ul>
             {% if not tutorial.on_line %}
                 <li>
-                    <a href="#delete-chapter" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
-                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-chapter" class="modal modal-medium" method="get">
+                    <a href="#delete-tutorial" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
+                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-tutorial" class="modal modal-medium" method="get">
                         <p>
                             Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
                         </p>

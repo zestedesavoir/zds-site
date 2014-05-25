@@ -3,35 +3,6 @@
 
 
 
-{% block sidebar_new_tutorial %}
-    <div>
-        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
-            Nouveau tutoriel
-        </a>
-    </div>
-{% endblock %}
-
-
-
-{% block sidebar_actions %}
-    <li><a href="{% url "zds.tutorial.views.import_tuto" %}" class="ico-after import blue">Importer</a></li>
-{% endblock %}
-
-
-
-{% block sidebar_blocks %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Filtres</h3>
-        <ul>
-            <li><a href="{% url "zds.member.views.tutorials" %}">Tous</a></li>
-            <li><a href="{% url "zds.member.views.tutorials" %}?type=public">Publics</a></li>
-            <li><a href="{% url "zds.member.views.tutorials" %}?type=draft">Brouillons</a><li>
-        </ul>
-    </div>
-{% endblock %}
-
-
-
 {% block content %}
     {% if tutorials %}
         {% for tuto in tutorials %}
@@ -61,4 +32,33 @@
             Aucun tutoriel disponible.
         </p>
     {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_new %}
+    <div>
+        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+            Nouveau tutoriel
+        </a>
+    </div>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <li><a href="{% url "zds.tutorial.views.import_tuto" %}" class="ico-after import blue">Importer</a></li>
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3>Filtres</h3>
+        <ul>
+            <li><a href="{% url "zds.member.views.tutorials" %}">Tous</a></li>
+            <li><a href="{% url "zds.member.views.tutorials" %}?type=public">Publics</a></li>
+            <li><a href="{% url "zds.member.views.tutorials" %}?type=draft">Brouillons</a><li>
+        </ul>
+    </div>
 {% endblock %}
