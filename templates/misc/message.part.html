@@ -122,6 +122,24 @@
             {% endif %}
         </div>
 
+        {% if perms.forum.change_post %}
+            {% for alert in message.alerts.all %}
+                <div class="alert-box error">
+                    {% include "misc/member_item.part.html" with member=alert.author %}
+                    {{ alert.pubdate|naturaltime }} : <em>{{ alert.text }}</em>
+
+                    <a href="#solve-alert-{{alert.pk}}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
+                    <form id="solve-alert-{{alert.pk}}" method="post" action="{% url "zds.forum.views.solve_alert" %}" class="modal modal-medium">
+                        <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
+                        <input type="hidden" name="alert_pk" value="{{alert.pk}}">
+
+                        {% csrf_token %}
+                        <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% if message.is_visible != False %}
             <div class="message-bottom">
                 {% if user.is_authenticated %}

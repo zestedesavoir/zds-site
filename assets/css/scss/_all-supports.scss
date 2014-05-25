@@ -531,6 +531,11 @@
         text-indent: -9999px;
         text-decoration: none;
     }
+    .close-alert-box-text {
+        width: auto;
+        text-indent: 0;
+        top: 8px;
+    }
 
     &.success {
         background: #27ae60;
@@ -540,6 +545,10 @@
     }
     &.warning {
         background: #e67e22;
+    }
+
+    a {
+        color: #EEE;
     }
 }
 .content-wrapper .alert-box {
@@ -1852,9 +1861,13 @@ form.topic-message {
 
     p,
     input,
-    select {
+    select,
+    textarea {
         margin: 10px 15px;
         width: calc(98% - 32px) !important;
+    }
+    textarea {
+        margin-top: 0;
     }
 
     [type=submit],
@@ -1906,6 +1919,10 @@ form.topic-message {
         height: 250px;
         margin: -125px auto 0;
         max-width: 400px;
+
+        textarea {
+            height: 80px;
+        }
     }
 }
 .enable-mobile-menu #modals-overlay {
