@@ -112,7 +112,7 @@ apt-get install --reinstall ttf-mscorefonts-installer
 apt-get install texlive
 apt-get install texlive-xetex
 apt-get install texlive-lang-french
-apt-get install texlive-wallpaper
+apt-get install texlive-latex-extra
 apt-get install pandoc
 ```
 
