@@ -129,9 +129,12 @@
                 Demander la validation
             </a>
             <div id="ask-validation" class="modal modal-small">
-                {# FIXME : WTF ce nom de variable en camelCase ? #}
                 {% crispy formAskValidation %}
             </div>
+        </li>
+    {% else %}
+        <li class="inactive">
+            <span>En attente de validation</span>
         </li>
     {% endif %}
 {% endblock %}
