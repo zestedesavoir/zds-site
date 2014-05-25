@@ -3,7 +3,6 @@
 
 
 
-
 {% block title %}
     {{ chapter.title }} - {{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}
 {% endblock %}
@@ -52,11 +51,23 @@
 
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
-            <div class="alert-box warning">
+            <div class="warning ico-after">
                 Attention, cette version du tutoriel est en BETA !
             </div>
         </div>
     {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% with tutorial=chapter.get_tutorial %}
+        {% with authors=tutorial.authors.all %}
+            {% include "tutorial/includes/chapter_pager.part.html" %}
+            {% include "tutorial/includes/chapter.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" %}
+        {% endwith %}
+    {% endwith %}
 {% endblock %}
 
 
@@ -156,18 +167,6 @@
             {% with chapter_current=chapter %}
                 {% include "tutorial/includes/summary.part.html" %}
             {% endwith %}
-        {% endwith %}
-    {% endwith %}
-{% endblock %}
-
-
-
-{% block content %}
-    {% with tutorial=chapter.get_tutorial %}
-        {% with authors=tutorial.authors.all %}
-            {% include "tutorial/includes/chapter_pager.part.html" %}
-            {% include "tutorial/includes/chapter.part.html" %}
-            {% include "tutorial/includes/chapter_pager.part.html" %}
         {% endwith %}
     {% endwith %}
 {% endblock %}

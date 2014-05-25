@@ -1,9 +1,10 @@
 {% extends "tutorial/base.html" %}
+{% load set %}
 
 
 
 {% block title %}
-    {{ chapter.title }} ({{ chapter.part.tutorial.title }})
+    {{ chapter.title }} - {{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}
 {% endblock %}
 
 
@@ -18,55 +19,6 @@
 
 
 
-{% block headline %}
-    <h1 class="illu">
-        {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt="">
-        {% endif %}
-        {{ chapter.title }}
-    </h1>
-
-    {% if chapter.tutorial %}
-        <ul class="taglist">
-            {% for category in chapter.tutorial.subcategory.all %}
-                {# TODO : mettre le lien sur les tags #}
-                <li><a href="#">{{ category.title }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <div class="authors content-wrapper">
-            <span class="authors-label">Auteurs : </span>
-            <ul>
-                {% for member in chapter.tutorial.authors.all %}
-                    <li>
-                        {% include "misc/member_item.part.html" with avatar=True %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% else %}
-        <ul class="taglist">
-            {% for category in chapter.part.tutorial.subcategory.all %}
-                {# TODO : mettre le lien sur les tags #}
-                <li><a href="#">{{ category.title }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <div class="authors content-wrapper">
-            <span class="authors-label">Auteurs : </span>
-            <ul>
-                {% for member in chapter.part.tutorial.authors.all %}
-                    <li>
-                        {% include "misc/member_item.part.html" %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endblock %}
-
-
-
 {% block content %}
     {% with tutorial=chapter.get_tutorial %}
         {% with authors=tutorial.authors.all %}
@@ -75,6 +27,41 @@
             {% include "tutorial/includes/chapter_online_pager.part.html" %}
         {% endwith %}
     {% endwith %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if chapter.tutorial %}
+        {% set chapter.tutorial as tutorial %}
+    {% else %}
+        {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
+        {% if chapter.image %}
+            <img src="{{ chapter.image.thumb.url }}" alt="">
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
+
+    <ul class="taglist">
+        {% for category in tutorial.subcategory.all %}
+            {# TODO : Mettre le lien des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div class="authors">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+            {% for member in tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
 
 

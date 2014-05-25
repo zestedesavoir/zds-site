@@ -1,21 +1,13 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
     Nouvel extrait &ndash; Tutoriels
 {% endblock %}
 
-{% block head-title %}
-    Nouvel Extrait
-{% endblock %}
 
-{% block headline_sub %}
-    {% if chapter.part %}
-        {{ chapter.title }}
-    {% else %}
-        {{ chapter.tutorial.title }}
-    {% endif %}
-{% endblock %}
 
 {% block breadcrumb %}
     {% if chapter.part %}
@@ -28,18 +20,24 @@
     <li><a href="#">Ajouter un extrait</a></li>
 {% endblock %}
 
+
+
+{% block headline %}
+    <h2>Nouvel extrait</h2>
+
+    {% if chapter.part %}
+        <h3 class="subtitle">{{ chapter.title }}</h3>
+    {% else %}
+        <h3 class="subtitle">{{ chapter.tutorial.title }}</h3>
+    {% endif %}
+{% endblock %}
+
+
+
 {% block content %}
+    {% crispy form %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
-
-{% if form.text.value %}
-    {% with text=form.text.value %}
-        {% include "misc/previsualization.part.html" %}
-    {% endwith %}
-{% endif %}
-
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
 {% endblock %}

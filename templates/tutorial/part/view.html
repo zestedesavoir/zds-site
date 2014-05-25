@@ -21,6 +21,10 @@
         {{ part.title }}
     </h1>
 
+    <h3 class="subtitle">
+        {{ part.tutorial.description }}
+    </h3>
+
     <ul class="taglist">
         {% for category in part.tutorial.subcategory.all %}
             {# TODO : mettre les liens des tags #}
@@ -50,8 +54,28 @@
 
 
 
-{% block headline_sub %}
-    {{ part.tutorial.description }}
+{% block content %}
+    {% if part.intro %}
+        {{ part.intro|emarkdown }}
+    {% else %}
+        <p class="warning ico-after">Il n'y a pas d'introduction.</p>
+    {% endif %}
+
+    {% if part.chapters %}
+        <ul>
+            {% for chapter in part.chapters %}
+                <li>
+                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.title }}</a></h3>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if part.conclu %}
+        {{ part.conclu|emarkdown }}
+    {% else %}
+        <p class="warning ico-after">Il n'y a pas de conclusion.</p>
+    {% endif %}
 {% endblock %}
 
 
@@ -73,30 +97,4 @@
             {% include "tutorial/includes/summary.part.html" %}
         {% endwith %}
     {% endwith %}
-{% endblock %}
-
-
-
-{% block content %}
-    {% if part.intro %}
-        {{ part.intro|emarkdown }}
-    {% else %}
-        <p>Aucune introduction.</p>
-    {% endif %}
-
-    {% if part.chapters %}
-        <ul>
-            {% for chapter in part.chapters %}
-                <li>
-                    <h3><a href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.title }}</a></h3>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    {% if part.conclu %}
-        {{ part.conclu|emarkdown }}
-    {% else %}
-        <p class="warning ico-after">Vous n'avez mis aucune conclusion.</p>
-    {% endif %}
 {% endblock %}

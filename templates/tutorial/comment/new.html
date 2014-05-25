@@ -10,8 +10,7 @@
 
 
 {% block breadcrumb %}
-    {# TODO : Mettre le lien vers le tutoriel #}
-    <li><a href="#href-to-do">{{ tutorial.title }}</a></li>
+    <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
     <li>Commenter le tutoriel</li>
 {% endblock %}
 
