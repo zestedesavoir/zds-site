@@ -322,7 +322,7 @@
                                     {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
                                         <div>
                                             {# TODO : Il manque un lien / page ici #}
-                                            <a href="#" class="ico-link">
+                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
                                                 <span class="notif-text ico ico-alerts">Alertes</span>
                                                 {% if nb_alerts > 0 %}
                                                     <span class="notif-count">{{ nb_alerts }}</span>
@@ -334,10 +334,10 @@
                                                 <ul class="dropdown-list">
                                                     {% for alert in alerts %}
                                                         <li>
-                                                            <a href="{{ alert.get_absolute_url }}">
-                                                                <span class="username">{{ alert.topic.title }}</span>
-                                                                <span class="date">FORUM</span>
-                                                                <span class="topic">MOTIF DE L'ALERTE</span>
+                                                            <a href="{{ alert.url }}">
+                                                                <span class="username">{{ alert.title }}</span>
+                                                                <span class="date">{{ alert.pubdate|naturaltime }}</span>
+                                                                <span class="topic">{{ alert.text }}</span>
                                                             </a>
                                                         </li>
                                                     {% empty %}
@@ -347,7 +347,7 @@
                                                     {% endfor %}
                                                 </ul>
                                                 {# TODO : Il manque un lien / page ici (idem qu'au dessus) #}
-                                                <a href="#" class="dropdown-link-all">
+                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
                                                     Toutes les alertes
                                                 </a>
                                             </div>
