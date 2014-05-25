@@ -217,5 +217,17 @@
                 @include sprite-pos($sprite2x, 'history-blue', true);
             }
         }
+
+        &.rss {
+            &:after {
+                @include sprite-pos($sprite2x, 'rss', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'rss-blue', true);
+            }
+            &.orange:after {
+                @include sprite-pos($sprite2x, 'rss-orange', true);
+            }
+        }
     }
 //}

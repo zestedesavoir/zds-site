@@ -1728,7 +1728,7 @@
                     top: 7px;
                     left: 7px;
                     @include transition;
-                    @include opacity(.3);
+                    @include opacity(.5);
                 }
             }
             a,
@@ -1749,7 +1749,7 @@
                     outline: none;
 
                     &:after {
-                        @include opacity(.7);
+                        @include opacity(1);
                     }
                 }
             }
