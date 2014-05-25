@@ -9,7 +9,10 @@ install:
   - "sudo apt-get install texlive-xetex"
   - "sudo apt-get install texlive-lang-french"
   - "sudo apt-get install texlive-latex-extra"
-  - "sudo apt-get install pandoc"
+  - "sudo apt-get install haskell-platform"
+  - "sudo cabal update"
+  - "sudo cabal install pandoc"
+  - "sudo export PATH=$PATH:~/.cabal/bin"
   - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"
 script: 
