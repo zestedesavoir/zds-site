@@ -15,6 +15,7 @@ def top_categories(user):
 
     return categories
 
+
 @register.filter('auth_forums')
 def auth_forums(forums, user):
     auth = []
@@ -23,6 +24,11 @@ def auth_forums(forums, user):
             auth.append(forum)
 
     return auth
+
+
+@register.filter('auth_forum')
+def auth_forum(forum, user):
+    return forum.can_read(user)
 
 
 @register.filter('top_categories_tuto')

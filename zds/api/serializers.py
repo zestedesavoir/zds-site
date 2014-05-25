@@ -6,29 +6,13 @@ from django.contrib.auth.models import User
 from zds.article.models import Article
 from zds.forum.models import Forum, Topic, Post
 from zds.tutorial.models import Tutorial
-
-class UnixDateField(serializers.DateTimeField):
-    def to_native(self, value):
-        '''Returns timestamp for a datetime object or None'''
-        import time
-        try:
-            return int(time.mktime(value.timetuple()))
-        except (AttributeError, TypeError):
-            return None
-
-    def from_native(self, value):
-        import datetime
-        return datetime.datetime.fromtimestamp(int(value))
-
-class HtmlField(serializers.Field):
-    def to_native(self, value):
-        '''Returns html path of the tutorial given'''
-        try:
-            return '/tutoriels/telecharger/html/?tutoriel={0}'.format(int(value))
-        except TypeError:
-            return None
+from .fields import UnixDateField, HtmlField, ArticleArchiveLinkField
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer of an user. We retrieve all these information on the website like
+    tutorials, articles and posts on forums.
+    """
     tutorials = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
     articles = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
     comments = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
@@ -37,7 +21,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'tutorials', 'articles', 'comments')
 
-class ArticleSerializer(serializers.ModelSerializer):
+class ArticleListSerializer(serializers.ModelSerializer):
+    """
+    Serializer of articles. We retrieve some importants information about
+    articles. If the user would like to know more about one of these articles,
+    he must to call another api to retrieve details.
+    """
     slug = serializers.Field()
     authors = serializers.RelatedField(many = True)
     image = serializers.Field('image.url')
@@ -48,7 +37,27 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta():
         model = Article
         fields = ('id', 'slug', 'title', 'description', 'authors', 
-            'image', 'is_locked', 'create_at', 'pubdate', 'update')
+            'image', 'create_at', 'pubdate', 'update')
+
+class ArticleSerializer(serializers.ModelSerializer):
+    """
+    Serializer of an article specified. We retrieve all information of the article.
+    Basics information and hyperlinks to download some formats of the article like
+    markdown or html.
+    """
+    slug = serializers.Field()
+    authors = serializers.RelatedField(many = True)
+    image = serializers.Field('image.url')
+    archive = ArticleArchiveLinkField(source = 'archive')
+    create_at = UnixDateField(source = 'create_at')
+    pubdate = UnixDateField(source = 'pubdate')
+    update = UnixDateField(source = 'update')
+
+    class Meta():
+        model = Article
+        fields = ('id', 'slug', 'title', 'description', 'authors', 'image', 
+            'is_locked', 'is_visible', 'archive', 'create_at', 'pubdate', 'update')
+        
 
 class ForumSerializer(serializers.ModelSerializer):
     slug = serializers.Field()

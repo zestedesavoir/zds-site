@@ -1,13 +1,12 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.test import TestCase
-
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
-from zds.member.factories import UserFactory, StaffFactory, ProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import Profile
 
 from .models import TokenRegister, Ban
@@ -16,25 +15,29 @@ from .models import TokenRegister, Ban
 class MemberTests(TestCase):
 
     def setUp(self):
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-        self.mas = UserFactory()
-        settings.BOT_ACCOUNT = self.mas.username
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = ProfileFactory()
+        settings.BOT_ACCOUNT = self.mas.user.username
 
     def test_login(self):
         """To test user login."""
-        user = UserFactory()
-        profile = ProfileFactory(user=user)
+        user = ProfileFactory()
 
         result = self.client.post(
             reverse('zds.member.views.login_view'),
-            {'username': user.username, 'password': 'hostel', 'remember': 'remember'},
+            {'username': user.user.username,
+             'password': 'hostel',
+             'remember': 'remember'},
             follow=False)
         # bad password then no redirection
         self.assertEqual(result.status_code, 200)
 
         result = self.client.post(
             reverse('zds.member.views.login_view'),
-            {'username': user.username, 'password': 'hostel77', 'remember': 'remember'},
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
             follow=False)
         # good password then redirection
         self.assertEqual(result.status_code, 302)
@@ -64,7 +67,7 @@ class MemberTests(TestCase):
         result = self.client.get(
             settings.SITE_URL + token.get_absolute_url(),
             follow=False)
-        
+
         self.assertEqual(result.status_code, 200)
         self.assertEquals(len(mail.outbox), 2)
 
@@ -73,9 +76,9 @@ class MemberTests(TestCase):
     def test_sanctions(self):
         """Test various sanctions."""
 
-        staff = StaffFactory()
+        staff = StaffProfileFactory()
         login_check = self.client.login(
-            username=staff.username,
+            username=staff.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
 
@@ -102,7 +105,8 @@ class MemberTests(TestCase):
             reverse(
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ls.user.id}), {
-                'un-ls': '', 'unls-text': 'Texte de test pour un-LS'}, follow=False)
+                'un-ls': '', 'unls-text': 'Texte de test pour un-LS'},
+            follow=False)
         user = Profile.objects.get(id=user_ls.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -110,7 +114,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, u'Authorisation d\'écrire')
+        self.assertEqual(ban.type, u'Autorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
 
@@ -120,7 +124,9 @@ class MemberTests(TestCase):
             reverse(
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
-                'ls-temp': '', 'ls-jrs': 10, 'ls-temp-text': 'Texte de test pour LS TEMP'}, follow=False)
+                'ls-temp': '', 'ls-jrs': 10,
+                'ls-temp-text': 'Texte de test pour LS TEMP'},
+            follow=False)
         user = Profile.objects.get(
             id=user_ls_temp.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -155,8 +161,10 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse(
                 'zds.member.views.modify_profile', kwargs={
-                    'user_pk': user_ban.user.id}), {
-                'un-ban': '', 'unban-text': 'Texte de test pour BAN'}, follow=False)
+                    'user_pk': user_ban.user.id}),
+            {'un-ban': '',
+             'unban-text': 'Texte de test pour BAN'},
+            follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -164,15 +172,17 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Authorisation de se connecter')
+        self.assertEqual(ban.type, 'Autorisation de se connecter')
         self.assertEqual(ban.text, 'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
         result = self.client.post(
-            reverse('zds.member.views.modify_profile', kwargs={'user_pk': user_ban_temp.user.id}),
-            {'ban-temp': '', 'ban-jrs': 10, 'ban-temp-text': 'Texte de test pour BAN TEMP'},
+            reverse('zds.member.views.modify_profile',
+                    kwargs={'user_pk': user_ban_temp.user.id}),
+            {'ban-temp': '', 'ban-jrs': 10,
+             'ban-temp-text': 'Texte de test pour BAN TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ban_temp.id)    # Refresh profile from DB

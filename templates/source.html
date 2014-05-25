@@ -45,7 +45,6 @@
           <li class="has-dropdown">
             {% with topics=user|interventions_privatetopics %}
             {% with unread_topics=topics.unread %}
-            {% with read_topics=topics.read %}
             <a href="#">
               {% if unread_topics|length > 0 %}
                   <span class="alert label round">{{ unread_topics|length }}</span>
@@ -78,7 +77,7 @@
                       </li>
                       {% endwith %}
                   {% endfor %}
-                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                  {% if unread_topics|length = 0 %}
                       <li>
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -92,23 +91,19 @@
             </ul>
             {% endwith %}
             {% endwith %}
-            {% endwith %}
           </li>
           <li class="has-dropdown">
-            {% with topics=user|interventions_topics %}
-            {% with unread_topics=topics.unread %}
-            {% with read_topics=topics.read %}
+            {% with unread_posts=user|interventions_topics %}
             <a href="#">
-              {% if unread_topics|length > 0 %}
-                  <span class="alert label round">{{ unread_topics|length }}</span>
+              {% if unread_posts|length > 0 %}
+                  <span class="alert label round">{{ unread_posts|length }}</span>
               {% endif %}
               <img src="{% static "img/notifications.png" %}" alt="Notifications" /> <span class="hide-for-large-up">Notifications</span></a>
             <ul class="dropdown">
               <li><label>Notifications</label></li>
               <li class="divider"></li>
                 
-                  {% for topic in unread_topics %}
-                      {% with first_unread=topic.first_unread_post %}
+                  {% for first_unread in unread_posts %}
                       <li><a href="{{ first_unread.get_absolute_url }}">
                           <div class="row">
                             <div class="large-12 columns">
@@ -123,18 +118,17 @@
                               </div>
                             </div>
                             <div class="large-12 columns">
-                                {{ topic.title }}
+                                {{ first_unread.topic.title }}
                             </div>
                           </div>
                           </a>
                       </li>
-                      {% endwith %}
                   {% endfor %}
-                  {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                  {% if unread_posts|length = 0 %}
                       <li>
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
-                          Aucun message
+                          Aucune notification
                           </div></div>
                         </a>
                       </li>
@@ -143,24 +137,25 @@
               <li><a href="{% url "zds.forum.views.followed_topics" %}"><div class="row"><div class="large-5 columns centered">Toutes les notifications</div></div></a></li>
             </ul>
             {% endwith %}
-            {% endwith %}
-            {% endwith %}
           </li>
           {% if perms.forum.change_post %}
           <li class="has-dropdown">
-            {% with posts=user|alerts_topic %}
+            
             <a href="#">
-              {% if posts.count > 0 %}
-                  <span class="alert label round">{{ user|alerts_count }}</span>
-              {% endif %}
               <img src="{% static "img/gear.png" %}" alt="Alertes" /> <span class="hide-for-large-up">Modération</span></a>
             <ul class="dropdown">
-              <li><label>Alertes Modération</label></li>
-              <li class="divider"></li>
+                {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
+                <li><label>
+                    {% if nb_alerts > 0 %}
+                    <span class="alert label round">{{ nb_alerts }}</span>
+                    {% endif %}
+                    Alertes Modération 
+                  </label>
+              </li>
+                <li class="divider"></li>
                 
-                  {% for post in posts %}
-                  {% for alert in post.alerts.all %}
-                      <li><a href="{{ post.get_absolute_url }}">
+                  {% for alert in alerts %}
+                      <li><a href="{{ alert.url }}">
                           <div class="row">
                             <div class="large-12 columns">
                               <div class="left">
@@ -171,14 +166,13 @@
                               </div>
                             </div>
                             <div class="large-12 columns">
-                                {{ post.topic.title }}
+                                {{ alert.title }}
                             </div>
                           </div>
                           </a>
                       </li>
                   {% endfor %}
-                  {% endfor %}
-                  {% if posts.count = 0 %}
+                  {% if nb_alerts = 0 %}
                       <li class="dropdown-empty-message">
                         <a href="#">
                         <div class="row"><div class="large-5 columns centered">
@@ -187,10 +181,70 @@
                         </a>
                       </li>
                   {% endif %}
+                {% endwith %}
+                {% with alerts=user|alerts_validation_tutos %}
                 <li class="divider"></li>
-              <li><a href="#"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
+                <li><label>
+                  {% if alerts.total > 0 %}
+                    <span class="alert label round">{{ alerts.total }}</span>
+                    {% endif %}
+                  Validation Tutoriels
+                  </label></li>
+                <li class="divider"></li>
+                  {% for alert in alerts.alert %}
+                    <li><a href="{{ alert.tutorial.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                {% for author in alert.tutorial.authors.all %}
+                                  {{ author.username }} |
+                                {% endfor %}
+                              </div>
+                              <div class="right">
+                                  {{ alert.date_proposition|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ alert.tutorial.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                {% endwith %}
+                {% with alerts=user|alerts_validation_articles %}
+                <li class="divider"></li>
+                <li><label>
+                  {% if alerts.total > 0 %}
+                    <span class="alert label round">{{ alerts.total }}</span>
+                    {% endif %}
+                  Validation Articles</label></li>
+                <li class="divider"></li>
+                  {% for alert in alerts.alert %}
+                    <li><a href="{{ alert.tutorial.get_absolute_url }}">
+                          <div class="row">
+                            <div class="large-12 columns">
+                              <div class="left">
+                                {% for author in alert.article.authors.all %}
+                                  {{ author.username }} |
+                                {% endfor %}
+                              </div>
+                              <div class="right">
+                                  {{ alert.date_proposition|naturaltime }}
+                              </div>
+                            </div>
+                            <div class="large-12 columns">
+                                {{ alert.article.title }}
+                            </div>
+                          </div>
+                          </a>
+                      </li>
+                  {% endfor %}
+                {% endwith %}
+                <li class="divider"></li>
+              <li><a href="{% url "zds.pages.views.alerts" %}"><div class="row"><div class="large-5 columns centered">Toutes les alertes</div></div></a></li>
             </ul>
-            {% endwith %}
+            
           </li>
           {% endif %}
           <li class="has-dropdown">
@@ -227,7 +281,7 @@
                 {% endif %}
 
                 <li>
-                	<form method="post" action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}">
+                	<form method="post" action="{% url "zds.member.views.logout_view" %}">
                 		<button type="submit">Déconnexion</button>
                 		{% csrf_token %}
                 	</form>
@@ -363,9 +417,12 @@
     <script type="text/javascript" src="{% static "bower_components/foundation/js/foundation.min.js" %}"></script>
     <script type="text/javascript" src="{% static "js/newsletter.js" %}"></script>
     <script type="text/javascript" src="{% static "js/editor.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/ajax.js" %}"></script>
     <script>
       $(document).foundation();
     </script>
+    {% block additionnal-js %}
+    {% endblock %}
 
     {# MathJax #}
     <script type="text/x-mathjax-config">
@@ -374,7 +431,7 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 processEscapes: true,
             },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
             messageStyle: "none",
         });
     </script>

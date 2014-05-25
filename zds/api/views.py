@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 
 from rest_framework import generics
 
-from .serializers import UserSerializer, ArticleSerializer, ForumSerializer,\
-    TopicSerializer, PostSerializer, TutorialSerializer
+from .serializers import UserSerializer, ArticleListSerializer, ArticleSerializer,\
+    ForumSerializer, TopicSerializer, PostSerializer, TutorialSerializer
 
-from zds.article.models import get_last_articles
+from zds.article.models import Article, get_last_articles
 from zds.tutorial.models import get_last_tutorials
 from zds.forum.models import Forum, Topic, Post
 
@@ -24,6 +24,11 @@ class UserDetail(generics.RetrieveAPIView):
 class ArticlePublishedList(generics.ListAPIView):
     '''List all published articles.'''
     queryset = get_last_articles()
+    serializer_class = ArticleListSerializer
+
+class ArticlePublishedDetail(generics.RetrieveAPIView):
+    '''Detail of an article given.'''
+    queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
 class ForumList(generics.ListAPIView):

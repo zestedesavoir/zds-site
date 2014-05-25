@@ -1,12 +1,11 @@
 # coding: utf-8
 
-from django.test import TestCase
-
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from zds import settings
-from zds.member.factories import UserFactory, StaffFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils import slugify
@@ -15,21 +14,20 @@ from zds.utils import slugify
 class MPTests(TestCase):
 
     def setUp(self):
-        self.user1 = UserFactory()
-        self.staff = StaffFactory()
+        self.user1 = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
         log = self.client.login(
             username=self.user1.username,
             password='hostel77')
         self.assertEqual(log, True)
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
 
     def test_mp_from_profile(self):
-        '''
-        Test: Send a MP from a user profile
-        '''
+        """Test: Send a MP from a user profile."""
         # User to send the MP
-        user2 = UserFactory()
+        user2 = ProfileFactory().user
 
         # Test if user is correctly added to the MP
         result = self.client.get(
@@ -42,17 +40,17 @@ class MPTests(TestCase):
         self.assertContains(result, user2.username)
 
     def test_view_mp(self):
-        """check mp is readable"""
+        """check mp is readable."""
         ptopic1 = PrivateTopicFactory(author=self.user1)
-        ppost1 = PrivatePostFactory(
+        PrivatePostFactory(
             privatetopic=ptopic1,
             author=self.user1,
             position_in_topic=1)
-        ppost2 = PrivatePostFactory(
+        PrivatePostFactory(
             privatetopic=ptopic1,
             author=self.staff,
             position_in_topic=2)
-        ppost3 = PrivatePostFactory(
+        PrivatePostFactory(
             privatetopic=ptopic1,
             author=self.user1,
             position_in_topic=3)
@@ -69,13 +67,14 @@ class MPTests(TestCase):
     def test_create_mp(self):
         """To test all aspects of mp's creation by member."""
         # Another User
-        user2 = UserFactory()
-        user3 = UserFactory()
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
 
         result = self.client.post(
             reverse('zds.mp.views.new'),
             {
-                'participants': '{0}, {1}'.format(user2.username, user3.username),
+                'participants': '{0}, {1}'.format(user2.username,
+                                                  user3.username),
                 'title': u'Un autre MP',
                 'subtitle': u'Encore ces lombards en plein été',
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -105,8 +104,8 @@ class MPTests(TestCase):
         self.assertEquals(len(mail.outbox), 2)
 
         # check view authorisations
-        user4 = UserFactory()
-        staff1 = StaffFactory()
+        user4 = ProfileFactory().user
+        staff1 = StaffProfileFactory().user
 
         # user2 and user3 can view mp
         self.client.login(username=user2.username, password='hostel77')
@@ -166,7 +165,8 @@ class MPTests(TestCase):
             position_in_topic=3)
 
         result = self.client.post(
-            reverse('zds.mp.views.edit_post') + '?message={0}'.format(ppost3.pk),
+            reverse('zds.mp.views.edit_post') + '?message={0}'
+            .format(ppost3.pk),
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
@@ -189,28 +189,30 @@ class MPTests(TestCase):
         self.assertEqual(
             PrivatePost.objects.get(
                 pk=ppost3.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
+            u"C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ")
 
         # check no email has been sent
         self.assertEquals(len(mail.outbox), 0)
 
         # i can edit a mp if it's not last
         result = self.client.post(
-            reverse('zds.mp.views.edit_post') + '?message={0}'.format(ppost2.pk),
+            reverse('zds.mp.views.edit_post') + '?message={0}'
+            .format(ppost2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': u"C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter "
             },
             follow=False)
 
         self.assertEqual(result.status_code, 403)
 
         # staff can't edit mp if he's not author
-        staff = StaffFactory()
+        staff = StaffProfileFactory().user
         log = self.client.login(username=staff.username, password='hostel77')
         self.assertEqual(log, True)
 
         result = self.client.post(
-            reverse('zds.mp.views.edit_post') + '?message={0}'.format(ppost3.pk),
+            reverse('zds.mp.views.edit_post') + '?message={0}'
+            .format(ppost3.pk),
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },

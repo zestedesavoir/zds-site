@@ -1,14 +1,20 @@
 # coding: utf-8
 
+import os.path
+import random
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group, User
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
 from zds.article.models import get_last_articles
 from zds.forum.models import get_last_topics
-from zds.member.decorator import can_read_now
+from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template
-from zds.utils import slugify
-from django.contrib.auth.models import Group, User
+from zds.utils import render_template, slugify
+from zds.utils.models import Alert
 
 
 @can_read_now
@@ -33,10 +39,17 @@ def home(request):
 
         tutos.append(data)
 
+    try:
+        with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
+            quote = random.choice(fh.readlines())
+    except:
+        quote = u'Zeste de Savoir, la connaissance pour tous et sans pépins !'
+
     return render_template('home.html', {
         'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
         'last_articles': get_last_articles(),
+        'quote': quote,
     })
 
 
@@ -60,8 +73,12 @@ def association(request):
 @can_read_now
 def contact(request):
     """Display contact page."""
-    staffs = User.objects.filter(groups__in=Group.objects.filter(name__contains='staff')).all()
-    devs = User.objects.filter(groups__in=Group.objects.filter(name__contains='dev')).all()
+    staffs = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='staff')).all()
+    devs = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='dev')).all()
     return render_template('pages/contact.html', {
         'staffs': staffs,
         'devs': devs
@@ -70,7 +87,19 @@ def contact(request):
 
 @can_read_now
 def eula(request):
-    '''
-    End-User Licence Agreement
-    '''
+    """End-User Licence Agreement."""
     return render_template('pages/eula.html')
+
+
+@can_write_and_read_now
+@login_required
+def alerts(request):
+    # only staff can see alerts list
+    if not request.user.has_perm('forum.change_post'):
+        raise PermissionDenied
+
+    alerts = Alert.objects.all().order_by('-pubdate')
+
+    return render_template('pages/alerts.html', {
+        'alerts': alerts,
+    })

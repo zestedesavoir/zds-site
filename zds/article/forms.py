@@ -13,7 +13,7 @@ from zds.utils.models import SubCategory
 class ArticleForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Article._meta.get_field('title').max_length,
+        max_length=Article._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -22,7 +22,7 @@ class ArticleForm(forms.Form):
     )
 
     description = forms.CharField(
-        max_length = Article._meta.get_field('description').max_length,
+        max_length=Article._meta.get_field('description').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -117,10 +117,12 @@ class ReactionForm(forms.Form):
         )
 
         if article.antispam(user):
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur cet article (protection antispam de 15 min).',
-                disabled=True)
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Vous ne pouvez pas encore poster u\
+                    usur cet article (protection antispam de 15 min).',
+                    disabled=True)
         elif article.is_locked:
             self.helper['text'].wrap(
                 Field,

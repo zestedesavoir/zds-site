@@ -141,6 +141,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
+    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -184,6 +185,7 @@ INSTALLED_APPS = (
     'pipeline',
     'haystack',
     'rest_framework',
+    'munin',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -201,6 +203,10 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+if (DEBUG):
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -231,28 +237,11 @@ LOGGING = {
     }
 }
 
-REST_FRAMEWORK = {
-
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
-    'DEFAULT_MODEL_SERIALIZER_CLASS': 'rest_framework.serializers.HyperlinkedModelSerializer',
-
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}
-
 AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
 }
 
 
@@ -303,6 +292,7 @@ MESSAGE_TAGS = {
 
 
 MAX_POST_LENGTH = 1000000
+SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

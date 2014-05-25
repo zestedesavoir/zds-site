@@ -1,6 +1,7 @@
 div.information{
 	border : 1px solid #6ab0de;
 	background-color: #e7f2fa;
+	margin-bottom: 20px;
 }
 
 div.information > *{
@@ -22,6 +23,7 @@ div.information:before {
 div:not(.alert-box).warning{
 	border : 1px solid #f0b37e;
 	background-color: #ffedcc;
+	margin-bottom: 20px;
 }
 
 div:not(.alert-box).warning > *{
@@ -43,6 +45,8 @@ div:not(.alert-box).warning:before {
 *:not(form) > div:not(.alert-box).error{
 	border : 1px solid #6B0D0D;
 	background-color: #F7230C;
+	margin-bottom: 20px;
+	color : #FFF;
 }
 
 *:not(form) > div:not(.alert-box).error > *{
@@ -64,6 +68,7 @@ div:not(.alert-box).warning:before {
 div.question{
 	border : 1px solid #DF73FF;
 	background-color: #DF73FF;
+	margin-bottom: 20px;
 }
 
 div.question > *{
@@ -84,6 +89,7 @@ div.question:before {
 
 div.spoiler {
 	background-color: #333;
+	margin-bottom: 20px;
 }
 div.spoiler > *{
 	color : #FFF;

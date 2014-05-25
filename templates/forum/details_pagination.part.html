@@ -1,6 +1,6 @@
 <ul class="pagination">
     <li class="arrow {% ifequal nb 1 %}unavaible{% endifequal %}">
-        <a href="{% ifnotequal nb 1 %}{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}{% else %}javascript:;{% endifnotequal %}">
+        <a href="{% ifnotequal nb 1 %}{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}&{% else %}?{% endifnotequal %}{% if filter %}filter={{filter}}{% endif %}">
             «
         </a>
     </li>
@@ -8,7 +8,7 @@
     {% for page in pages %}
         {% if page %}
             <li >
-                <a class="{% ifequal page nb %}current{% endifequal %}" href="{% ifnotequal page nb %}{{ topic.get_absolute_url }}?page={{ page }}{% else %}javascript:;{% endifnotequal %}">
+                <a class="{% ifequal page nb %}current{% endifequal %}" href="{% ifnotequal page nb %}{{ topic.get_absolute_url }}?page={{ page }}&{% else %}?{% endifnotequal %}{% if filter %}filter={{filter}}{% endif %}">
                 {{ page }}
             </a>
             </li>
@@ -27,7 +27,7 @@
     {% endfor %}
     
     <li class="arrow {% ifequal nb pages|last %}unavaible{% endifequal %}">
-        <a href="{% ifnotequal nb pages|last %}{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}{% else %}javascript:;{% endifnotequal %}">
+        <a href="{% ifnotequal nb pages|last %}{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}&{% else %}?{% endifnotequal %}{% if filter %}filter={{filter}}{% endif %}">
             »
         </a>
     </li>

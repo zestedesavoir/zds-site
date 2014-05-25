@@ -20,7 +20,7 @@
 {% block breadcrumb %}
     <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
     <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li class="current"><a href="javascript:;">{{ topic.title }}</a></li>
+    <li class="current">{{ topic.title }}</li>
 {% endblock %}
 
 {% block headline-actions %}
@@ -42,9 +42,9 @@
         {% endif %}
         {% if perms.forum.change_topic %}
             {% if topic.is_locked %}
-                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Dévérouiller</a></li>
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false" ><span class="fi-unlock grey size-16"></span> Déverrouiller</a></li>
             {% else %}
-                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span>Vérouiller le sujet</a></li>
+                <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"><span class="fi-lock grey size-16"></span> Verrouiller le sujet</a></li>
             {% endif %}
             {% if topic.is_sticky %}
                 <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"><span class="fi-price-tag size-16"></span> Enlever du Post-It</a></li>
@@ -52,9 +52,9 @@
                 <li><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"><span class="fi-price-tag size-16"></span> Marquer en Post-It</a></li>
             {% endif %}
             <li>
-                <a href="#" class="tiny secondary actions" data-dropdown="dropsign{{post.pk}}"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
+                <a href="#" class="tiny secondary actions" data-dropdown="dropsign"><span class="fi-arrow-right size-16"></span> Déplacer ce sujet</a>
             </li>
-            <div id="dropsign{{post.pk}}" class="f-dropdown small content" data-dropdown-content>
+            <div id="dropsign" class="f-dropdown small content" data-dropdown-content>
                 {% crispy form_move %}
             </div>
         {% endif %}
@@ -70,10 +70,11 @@
         </div>
     </div>
 </div>
+{% include "forum/topic_pagination.part.html" with position="top" %}
 {% for post in posts %}
     {% include "forum/post.part.html" %}
 {% endfor %}
-{% include "forum/topic_pagination.part.html" with position="top" %}
+{% include "forum/topic_pagination.part.html" with position="bottom" %}
 
 {% if user.is_authenticated %}
 {% with profile=user|profile %}
@@ -91,4 +92,14 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {% for post in posts %}
+            vote({{post.pk}}, "{% static 'img/thumb-up.png' %}", "{% static 'img/thumb-up-voted.png' %}", "{% static 'img/thumb-down.png' %}", "{% static 'img/thumb-down-voted.png' %}");
+        {% endfor %}
+    });
+    </script>
 {% endblock %}
