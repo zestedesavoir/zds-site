@@ -48,7 +48,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     slug = serializers.Field()
     authors = serializers.RelatedField(many = True)
     image = serializers.Field('image.url')
-    archive = ArticleArchiveLinkField(source = 'archive')
+    archive = ArticleArchiveLinkField(source = 'id')
     create_at = UnixDateField(source = 'create_at')
     pubdate = UnixDateField(source = 'pubdate')
     update = UnixDateField(source = 'update')
