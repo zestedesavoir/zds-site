@@ -27,7 +27,6 @@ from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-import re
 from haystack.query import SearchQuerySet
 from haystack.inputs import AutoQuery
 
@@ -962,9 +961,7 @@ def followed_topics(request):
 
 
 def complete_topic(request):
-    sqs = SearchQuerySet(). \
-    filter(content=AutoQuery(request.GET.get('q'))). \
-    order_by('-pubdate').all()
+    sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
 
     suggestions = {}
 
