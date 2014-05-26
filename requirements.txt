@@ -2,6 +2,7 @@ django>=1.6,<1.7
 bleach==1.2.2
 pygments
 coverage==3.7.1
+coveralls
 south
 pytz==2013d
 PyYAML==3.10
