@@ -39,12 +39,15 @@ def index(request):
             liste = request.POST.getlist('items')
             topics = PrivateTopic.objects.filter(pk__in=liste).all()
             for topic in topics:
-                if request.user == topic.author:
+                if topic.participants.all().count() == 0:
+                    topic.delete()
+                elif request.user == topic.author:
                     topic.author = topic.participants.all()[0]
                     topic.participants.remove(topic.participants.all()[0])
+                    topic.save()
                 else:
                     topic.participants.remove(request.user)
-                topic.save()
+                    topic.save()
 
     privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
