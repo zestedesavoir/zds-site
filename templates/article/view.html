@@ -52,7 +52,6 @@
     {% if perms.article.change_article %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>Validation</h3>
-            {# TODO : Mettre des icônes #}
             <ul>
                 <li>
                     <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
@@ -80,8 +79,17 @@
                 </li>
             </ul>
         </div>
-
-        {# TODO : Rajouter un else if, les contributeurs doivent avoir accès à la version hors ligne facilement. #}
+    {% elif user in authors.all %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
+            <h3>Gestion</h3>
+            <ul>
+                <li>
+                    <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
+                        Version hors ligne
+                    </a>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
