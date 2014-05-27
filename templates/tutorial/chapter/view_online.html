@@ -22,9 +22,9 @@
 {% block content %}
     {% with tutorial=chapter.get_tutorial %}
         {% with authors=tutorial.authors.all %}
-            {% include "tutorial/includes/chapter_online_pager.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
             {% include "tutorial/includes/chapter_online.part.html" %}
-            {% include "tutorial/includes/chapter_online_pager.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
         {% endwith %}
     {% endwith %}
 {% endblock %}

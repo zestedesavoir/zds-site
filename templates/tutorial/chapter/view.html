@@ -61,9 +61,9 @@
 {% block content %}
     {% with tutorial=chapter.part.tutorial %}
         {% with authors=tutorial.authors.all %}
-            {% include "tutorial/includes/chapter_pager.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="top" %}
             {% include "tutorial/includes/chapter.part.html" %}
-            {% include "tutorial/includes/chapter_pager.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="bottom" %}
         {% endwith %}
     {% endwith %}
 {% endblock %}

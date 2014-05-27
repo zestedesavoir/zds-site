@@ -1130,6 +1130,39 @@
             padding-bottom: 3px;
         }
     }
+
+    &.pagination-chapter {
+        margin-left: 0;
+
+        a {
+            padding: 0 15px;
+
+            &.ico-after:after {
+                margin-top: 12px;
+            }
+        }
+
+        .prev {
+            .ico-after {
+                padding-left: 30px;
+
+                &:after {
+                    margin-left: 8px;
+                }
+            }
+        }
+        .next {
+            float: right;
+            .ico-after {
+                padding-right: 30px;
+
+                &:after {
+                    right: 8px;
+                    left: auto;
+                }
+            }
+        }
+    }
 }
 
 
@@ -1325,7 +1358,7 @@
 
     .article-content {
         p,
-        ul {
+        ul:not(.pagination) {
             // TODO : Améliorer ça...
             font-family: "Liberation Serif", "Times New Roman", Times, Georgia, FreeSerif, serif;
             font-size: 18px;

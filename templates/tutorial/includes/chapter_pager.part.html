@@ -1,20 +1,31 @@
-{# TODO : Pagination précédant/suivant uniquement #}
-
-<div class="row">
-    <div class="large-6 columns">
-        {% if prev %}
-            <a class="button secondary" href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
-                « {{ prev.title }}
+<ul class="pagination pagination-{{ position }} pagination-chapter">
+    {% if prev %}
+        <li class="prev">
+            <a
+                {% if online %}
+                    href="{{ prev.get_absolute_url_online }}"
+                {% else %}
+                    href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"
+                {% endif %}
+                class="ico-after arrow-left"
+            >
+                {{ prev.title }}
             </a>
-        {% endif %}
-    </div>
-    <div class="large-6 columns">
-        <div class="right">
-            {% if next %}
-                <a class="button secondary" href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}">
-                    {{ next.title }} »
-                </a>
-            {% endif %}
-        </div>
-    </div>
-</div>
+        </li>
+    {% endif %}
+
+    {% if next %}
+        <li class="next">
+            <a
+                {% if online %}
+                    href="{{ next.get_absolute_url_online }}"
+                {% else %}
+                    href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"
+                {% endif %}
+                class="ico-after arrow-right"
+            >
+                {{ next.title }}
+            </a>
+        </li>
+    {% endif %}
+</ul>

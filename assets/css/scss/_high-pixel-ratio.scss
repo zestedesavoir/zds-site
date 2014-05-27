@@ -175,8 +175,6 @@
         }
         // TODO : faire une vraie icône beta
         &.beta,
-        // TODO : faire une vraie icône move
-        &.move,
         // TODO : faire une vraie icône offline
         &.offline,
         &.arrow-right {
@@ -185,6 +183,22 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'arrow-right-blue', true);
+            }
+        }
+        &.arrow-left {
+            &:after {
+                @include sprite-pos($sprite2x, 'arrow-left', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'arrow-left-blue', true);
+            }
+        }
+        &.move {
+            &:after {
+                @include sprite-pos($sprite2x, 'move', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'move-blue', true);
             }
         }
         &.star {
