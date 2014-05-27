@@ -80,6 +80,8 @@
         ALL: Icons
        ============== */
     .ico-after {
+        // TODO : faire une vraie icône online
+        &.online,
         &.view {
             &:after {
                 @include sprite-pos($sprite2x, 'view', true);
@@ -175,6 +177,8 @@
         &.beta,
         // TODO : faire une vraie icône move
         &.move,
+        // TODO : faire une vraie icône offline
+        &.offline,
         &.arrow-right {
             &:after {
                 @include sprite-pos($sprite2x, 'arrow-right', true);
