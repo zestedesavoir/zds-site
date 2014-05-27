@@ -537,12 +537,14 @@
         top: 8px;
     }
 
+    &.info, // TEMP PATCH WITH DJANGO ALERTS
     &.success {
         background: #27ae60;
     }
     &.error {
         background: #c0392b;
     }
+    &.alert, // TEMP PATCH WITH DJANGO ALERTS
     &.warning {
         background: #e67e22;
     }
