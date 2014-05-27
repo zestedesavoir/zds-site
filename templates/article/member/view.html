@@ -42,12 +42,12 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Contributeurs : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>

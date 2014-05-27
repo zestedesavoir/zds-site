@@ -571,7 +571,6 @@
 
     .new-btn {
         display: block;
-        margin-top: 31px;
         height: 40px;
         padding-left: 11.5%;
         text-decoration: none;
@@ -580,6 +579,10 @@
         position: relative;
         color: lighten($blue, 20%);
         @include transition;
+
+        &:first-child {
+            margin-top: 31px;
+        }
 
         &:hover,
         &:focus {
@@ -834,16 +837,22 @@
         margin: 1px 0 15px;
 
         &.illu {
-            padding: 0 0 0 85px;
+            padding-left: 85px;
         }
 
-        &.ico {
-            padding: 0 0 0 50px;
+        &.ico-after {
+            padding-left: 80px;
+
+            &:after {
+                width: 80px;
+                height: 40px;
+                margin-left: 21px;
+            }
         }
-        &.ico-articles {
+        &.ico-articles:after {
             @include sprite-pos($sprite, 'articles');
         }
-        &.ico-tutorials {
+        &.ico-tutorials:after {
             @include sprite-pos($sprite, 'tutorials');
         }
 
@@ -891,6 +900,7 @@
     ALL: Main / Home
    ============== */
 .home .main .content-container article {
+    height: 60px;
     padding: 20px 2%;
     border-bottom: 1px solid #e0e4e5;
 
@@ -906,6 +916,7 @@
     a h3,
     h3 a {
         color: #424242;
+        font-weight: normal;
     }
     h3 {
         margin: 0;
@@ -1360,6 +1371,28 @@
             margin-bottom: 12px;
         }
 
+        .actions-title {
+            float: right;
+            margin: -60px 10px 0 0;
+
+            .btn {
+                height: 30px;
+                line-height: 30px;
+                margin-left: 3px;
+                text-transform: uppercase;
+                @include opacity(.7);
+
+                &.ico-after:after {
+                    margin-top: 7px;
+                }
+
+                &:hover,
+                &:focus {
+                    @include opacity(1);
+                }
+            }
+        }
+
         .information,
         .question,
         .error,
@@ -1446,7 +1479,7 @@
         } */
 
         table {
-            margin: 15px;
+            margin: 15px 0;
             border-top: 1px solid #DDD;
 
             thead {

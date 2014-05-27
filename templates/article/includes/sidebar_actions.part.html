@@ -1,77 +1,109 @@
-<form action="{% url "zds.article.views.modify" %}" method="post">
-    {% if user in authors.all or perms.article.change_article %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
-            <h3>Gestion</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">
-                        Éditer
-                    </a>
-                </li>
+{% if user in authors.all or perms.article.change_article %}
+    <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
+        Éditer
+    </a>
 
-                {% if article.sha_validation = None %}
-                    <li>
-                        <button type="submit" name="pending">
-                            Demander la validation
-                        </button>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
+        <h3>Gestion</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.article.views.history" article.pk article.slug %}" class="ico-after history blue">
+                    Historique des versions
+                </a>
+            </li>
+
+            {% if article.sha_validation = None %}
+                <li>
+                    <a href="#valid" class="open-modal ico-after tick green">Demander la validation</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="valid">
                         <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"></textarea>
-                    </li>
-                {% endif %}
 
-                {% if article.sha_public = None %}
-                    <li>
-                        <button type="submit" name="delete">
-                            Supprimer
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                        <button type="submit" name="pending">
+                            Confirmer
                         </button>
-                    </li>
-                {% endif %}
-                
-                <li>
-                    <a href="{% url "zds.article.views.history" article.pk article.slug %}">
-                        Historique des versions
-                    </a>
+                    </form>
                 </li>
-            </ul>
-        </div>
-    {% endif %}
-
-    {% if perms.article.change_article %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-            <h3>Validation</h3>
-            {# TODO : Mettre des icônes #}
-            <ul>
-                {% if not article.sha_validation = None %}
-                    <li>
-                        <button type="submit" name="valid-article">Publier</button>
-                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                    </li>
-                    <li>
-                        <button type="submit" name="reject-article">Rejeter</button>
-                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                    </li>
-                {% endif %}
-                
-                <li>
-                    <a href="{% url "zds.article.views.history_validation" article.pk %}">
-                        Historique de validation
-                    </a>
+            {% else %}
+                <li class="inactive">
+                    <span>En attente de validation</span>
                 </li>
-            </ul>
-        </div>
-    {% endif %}
+            {% endif %}
 
-    <input type="hidden" name="article" value="{{ article.pk }}">
-    <input type="hidden" name="version" value="{{ version }}">
-    {% csrf_token %}
-</form>
+            {% if article.sha_public = None %}
+                <li>
+                    <a href="#delete" class="open-modal ico-after cross red">Supprimer</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="delete">
+                        <p>
+                            Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article.title }}</em>".
+                        </p>
+
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                        <button type="submit" name="delete">
+                            Confirmer
+                        </button>
+                    </form>
+                </li>
+                <li>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}
 
 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
     <h3>Télécharger</h3>
     <ul>
         <li>
-            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">
+            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
                 Archive
             </a>
         </li>
     </ul>
 </div>
+
+
+
+
+    {% if perms.article.change_article %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>Validation</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                        Historique de validation
+                    </a>
+                </li>
+
+                {% if not article.sha_validation = None %}
+                    <li>
+                        <a href="#publish" class="open-modal ico-after tick green">Publier</a>
+                        <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="publish">
+                            <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"></textarea>
+
+                            <input type="hidden" name="article" value="{{ article.pk }}">
+                            <input type="hidden" name="version" value="{{ version }}">
+                            {% csrf_token %}
+                            <button type="submit" name="valid-article">Confirmer</button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
+                        <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="reject">
+                            <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"></textarea>
+
+                            <input type="hidden" name="article" value="{{ article.pk }}">
+                            <input type="hidden" name="version" value="{{ version }}">
+                            {% csrf_token %}
+                            <button type="submit" name="reject-article">Confirmer</button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+</form>

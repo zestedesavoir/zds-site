@@ -92,6 +92,14 @@
     .btn {
         display: block;
         height: 30px;
+
+        &.ico-after {
+            padding-left: 30px;
+
+            &:after {
+                margin: 12px 0 0 7px;
+            }
+        }
     }
     input[type=submit],
     button,

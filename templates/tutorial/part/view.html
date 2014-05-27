@@ -17,9 +17,9 @@
 
 
 {% block headline %}
-    <h1>
+    <h2>
         {{ part.title }}
-    </h1>
+    </h2>
 
     {% if part.tutorial.description %}
         <h3 class="subtitle">
@@ -67,7 +67,11 @@
         <ul>
             {% for chapter in part.chapters %}
                 <li>
-                    <h3><a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.slug chapter.slug %}?version={{version}}">{{ chapter.title }}</a></h3>
+                    <h3>
+                        <a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.slug chapter.slug %}?version={{version}}">
+                            {{ chapter.title }}
+                        </a>
+                    </h3>
                 </li>
             {% endfor %}
         </ul>
@@ -76,19 +80,21 @@
     {% if part.conclu %}
         {{ part.conclu|emarkdown }}
     {% else %}
-        <p class="warning ico-after">Il n'y a pas de conclusion.</p>
+        <p class="warning ico-after">
+            Il n'y a pas de conclusion.
+        </p>
     {% endif %}
 {% endblock %}
 
 
 
-{% block sidebar_actions %}
-    <li><a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}" class="ico-after more blue">
+{% block sidebar_new %}
+    <a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}" class="ico-after more blue new-btn">
         Ajouter un chapitre
-    </a></li>
-    <li><a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}" class="ico-after edit blue">
+    </a>
+    <a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}" class="ico-after edit blue new-btn">
         Éditer la partie
-    </a></li>
+    </a>
 {% endblock %}
 
 

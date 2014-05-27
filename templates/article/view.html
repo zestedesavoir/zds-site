@@ -34,7 +34,7 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Contributeurs : </span>
         <ul>
             {% for member in authors.all %}
@@ -50,33 +50,36 @@
 
 {% block sidebar_actions %}
     {% if perms.article.change_article %}
-        <form action="{% url "zds.article.views.modify" %}" method="post">
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-                <h3>Validation</h3>
-                {# TODO : Mettre des icônes #}
-                <ul>
-                    <li>
-                        <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
-                            Version hors ligne
-                        </a>
-                    </li>
-                    <li>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>Validation</h3>
+            {# TODO : Mettre des icônes #}
+            <ul>
+                <li>
+                    <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue">
+                        Version hors ligne
+                    </a>
+                </li>
+                <li>
+                    <a href="#unpublish" class="open-modal ico-after cross blue">Dépublier</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="unpublish">
+                        <p>
+                            <strong>Attention !</strong> Vous allez dépublier un article actuellement <strong>en ligne</strong>.
+                        </p>
                         <button type="submit" name="invalid-article">
-                            Dépublier
+                            Confirmer
                         </button>
-                    </li>
-                    <li>
-                        <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
-                            Historique de validation
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <input type="hidden" name="article" value="{{ article.pk }}">
-            <input type="hidden" name="version" value="{{ version }}">
-            {% csrf_token %}
-        </form>
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                    </form>
+                </li>
+                <li>
+                    <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                        Historique de validation
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         {# TODO : Rajouter un else if, les contributeurs doivent avoir accès à la version hors ligne facilement. #}
     {% endif %}

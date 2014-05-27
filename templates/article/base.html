@@ -28,17 +28,10 @@
 
 
 {% block sidebar_actions %}
-    <div class="mobile-menu-block mobile-all-links" data-title="Actions">
-        <h3>Actions</h3>
-        <ul>
-            <li>
-                <a href="{% url "zds.article.views.new" %}">
-                    Nouvel article
-                </a>
-            </li>
-        </ul>
-    </div>
-    
+    <a href="{% url "zds.article.views.new" %}" class="ico-after more blue new-btn">
+        Nouvel article
+    </a>
+
     {% if user.is_authenticated %}
         {% captureas sidebarfilter %}{% spaceless %}
             {% block sidebar_filter %}{% endblock %}
@@ -58,12 +51,12 @@
         <h3>Flux</h3>
         <ul>
             <li>
-                <a href="{% url "article-feed-rss" %}">
+                <a href="{% url "article-feed-rss" %}" class="ico-after rss blue">
                     Nouveaux articles (RSS)
                 </a>
             </li>
             <li>
-                <a href="{% url "article-feed-atom" %}">
+                <a href="{% url "article-feed-atom" %}" class="ico-after rss blue">
                     Nouveaux articles (ATOM)
                 </a>
             </li>

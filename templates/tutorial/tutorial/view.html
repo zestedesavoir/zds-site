@@ -65,7 +65,9 @@
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
         {% else %}
-            <p class="warning ico-after">Il n'y a pas d'introduction.</p>
+            <p class="warning ico-after">
+                Il n'y a pas d'introduction.
+            </p>
         {% endif %}
 
         {% if tutorial.is_mini %}
@@ -96,29 +98,37 @@
         {% if tuto_version.conclusion %}
             {{ tuto_version.conclusion|emarkdown }}
         {% else %}
-            <p class="warning ico-after">Il n'y a pas de conclusion.</p>
+            <p class="warning ico-after">
+                Il n'y a pas de conclusion.
+            </p>
         {% endif %}
     {% endwith %}
 {% endblock %}
 
 
 
-{% block sidebar_actions %}
+{% block sidebar_new %}
     {# TODO : passer tout ça en POST, CSRF toussa #}
-    {% if tutorial.sha_draft = version %}
-        <li><a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue">Éditer</a></li>
+    {% if not tutorial.is_mini %}
+        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">Ajouter une partie</a>
+    {% else %}
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">Ajouter un extrait</a>
     {% endif %}
 
-    <li>
-        {% if not tutorial.is_mini %}
-            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue">Ajouter une partie</a>
-        {% else %}
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue">Ajouter un extrait</a>
-        {% endif %}
-    </li>
+    {% if tutorial.sha_draft = version %}
+        <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">Éditer</a>
+    {% endif %}
+{% endblock %}
 
+
+
+{% block sidebar_actions %}
+    {% if tutorial.sha_public %}
+        <li><a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">Voir <span class="wide">la version</span> en ligne</a></li>
+    {% endif %}
+    {# TODO : passer tout ça en POST, CSRF toussa #}
     {% if not tutorial.in_beta %}
-        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after arrow-right blue">Activer la bêta</a></li>
+        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after beta blue">Activer la bêta</a></li>
     {% else %}
         <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" class="ico-after cross blue">Désactiver la bêta</a></li>
     {% endif %}

@@ -29,6 +29,7 @@
 
     {% with categories='.'|top_categories_tuto %}
     {% for category in categories %}
+        {# FIXME: il manque un lien ici #}
         <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
         <ul>
             {% for catofsubcat in category.get_subcategories %}
@@ -54,7 +55,7 @@
 {# Content #}
 {% block content_out %}
     <section class="content-col">
-        <h2 class="ico ico-articles">Derniers Articles</h2>
+        <h2 class="ico-after ico-articles">Derniers Articles</h2>
 
         {% if last_articles %}
             {% for article in last_articles %}
@@ -81,7 +82,7 @@
     </section>
 
     <section class="content-col">
-        <h2 class="ico ico-tutorials">Dernier tutoriels</h2>
+        <h2 class="ico-after ico-tutorials">Dernier tutoriels</h2>
 
         
         {% if last_tutorials %}

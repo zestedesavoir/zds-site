@@ -23,9 +23,9 @@
 
 
 {% block headline %}
-    <h1 class="illu">
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
-            <img src="{{chapter.image.thumb.url }}" alt="">
+            <img src="{{ chapter.image.thumb.url }}" alt="">
         {% endif %}
         Éditer le chapitre : {{ part.title }}
     </h1>

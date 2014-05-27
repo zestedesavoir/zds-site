@@ -18,50 +18,48 @@
 
 
 {% block headline %}
-    {% if chapter.tutorial %}
-        {% set chapter.tutorial as tutorial %}
-    {% else %}
-        {% set chapter.part.tutorial as tutorial %}
-    {% endif %}
+    {% with tutorial=chapter.part.tutorial %}
+        {% with authors=tutorial.authors.all %}
+            <h1 {% if chapter.image %}class="illu"{% endif %}>
+                {% if chapter.image %}
+                    <img src="{{ chapter.image.thumb.url }}" alt="">
+                {% endif %}
+                {{ chapter.title }}
+            </h1>
 
-    <h1 {% if chapter.image %}class="illu"{% endif %}>
-        {% if chapter.image %}
-            <img src="{{ chapter.image.thumb.url }}" alt="">
-        {% endif %}
-        {{ chapter.title }}
-    </h1>
+            <ul class="taglist">
+                {% for category in tutorial.subcategory.all %}
+                    {# TODO : Mettre le lien des tags #}
+                    <li><a href="#">{{ category.title }}</a></li>
+                {% endfor %}
+            </ul>
 
-    <ul class="taglist">
-        {% for category in tutorial.subcategory.all %}
-            {# TODO : Mettre le lien des tags #}
-            <li><a href="#">{{ category.title }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    {% if tutorial.in_beta and tutorial.sha_beta == version %}
-        <div class="content-wrapper">
-            <div class="alert-box warning">
-                Attention, cette version du tutoriel est en BETA !
+            <div class="authors">
+                <span class="authors-label">Auteurs : </span>
+                <ul>
+                    {% for member in authors %}
+                        <li>
+                            {% include "misc/member_item.part.html" with avatar=True %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
-        </div>
-    {% endif %}
+
+            {% if tutorial.in_beta and tutorial.sha_beta == version %}
+                <div class="content-wrapper">
+                    <div class="alert-box warning">
+                        Attention, cette version du tutoriel est en BETA !
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endwith %}
 {% endblock %}
 
 
 
 {% block content %}
-    {% with tutorial=chapter.get_tutorial %}
+    {% with tutorial=chapter.part.tutorial %}
         {% with authors=tutorial.authors.all %}
             {% include "tutorial/includes/chapter_pager.part.html" %}
             {% include "tutorial/includes/chapter.part.html" %}
@@ -78,6 +76,11 @@
     >
         Ajouter un extrait
     </a>
+    <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
+       class="ico-after edit blue new-btn"
+    >
+        Éditer le chapitre
+    </a>
 {% endblock %}
 
 
@@ -85,11 +88,6 @@
 {% block sidebar_actions %}
     {% if user in chapter.part.tutorial.authors.all or chapter.tutorial.authors.all %}
         <li>
-            <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
-               class="ico-after edit blue"
-            >
-                Éditer le chapitre
-            </a>
         </li>
 
         {% if chapter.part %}
