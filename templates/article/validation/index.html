@@ -23,14 +23,9 @@
 
 
 {% block sidebar_actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-        <h3>Validation</h3>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>Filtres</h3>
         <ul>
-            <li>
-                <a href="{% url "zds.article.views.list_validation" %}">
-                    Zone de validation
-                </a>
-            </li>
             <li>
                 <a href="{% url "zds.article.views.list_validation" %}?type=reserved">
                     En cours de validation
@@ -39,6 +34,11 @@
             <li>
                 <a href="{% url "zds.article.views.list_validation" %}?type=orphan">
                     En attente de validateur
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.article.views.list_validation" %}">
+                    Annuler le filtre
                 </a>
             </li>
         </ul>
