@@ -211,11 +211,9 @@ Le motif de votre sanction est :
 
 Cordialement, L'équipe ZesteDeSavoir.
 
-""".format(ban.user,
-                    ban.moderator, detail, ban.text)
+""".format(ban.user, ban.moderator, detail, ban.text)
         else:
-            msg = \
-                u"""Bonjour **{0}**,
+            msg = u"""Bonjour **{0}**,
 
 Vous avez été santionné par **{1}**.
 
@@ -227,8 +225,7 @@ Le motif de votre sanction est :
 
 Cordialement, L'équipe ZesteDeSavoir.
 
-""".format(ban.user,
-                    ban.moderator, ban.type, detail, ban.text)
+""".format(ban.user, ban.moderator, ban.type, detail, ban.text)
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
             bot,

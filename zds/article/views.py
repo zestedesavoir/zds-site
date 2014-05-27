@@ -593,8 +593,7 @@ def modify(request):
             messages.success(
                 request,
                 u'L\'auteur {0} a bien été ajouté à u\
-                ula rédaction de l\'article.'.format(
-                    author.username))
+                ula rédaction de l\'article.'.format(author.username))
 
             return redirect(redirect_url)
 

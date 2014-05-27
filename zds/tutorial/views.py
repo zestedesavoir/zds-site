@@ -163,8 +163,8 @@ def reservation(request, validation_pk):
         validation.status = "PENDING_V"
         validation.save()
         messages.info(request,
-                      u"Le tutoriel a bien été u\
-                      uréservé par {0}.".format(request.user.username))
+                      u"Le tutoriel a bien été \
+                      réservé par {0}.".format(request.user.username))
         return redirect(validation.tutorial.get_absolute_url())
 
 
@@ -274,14 +274,14 @@ def reject_tutorial(request):
 
     for author in tutorial.authors.all():
         msg = \
-            u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
-            upas passé l’étape de validation. Mais ne désespère pas, u\
-            ucertaines corrections peuvent surement être faite pour u\
-            ul’améliorer et repasser la validation plus tard. u\
-            uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
-            uN'hésite pas a lui envoyer un petit message pour discuter u\
-            ude la décision ou demander plus de détail si tout cela te u\
-            usemble injuste ou manque de clarté."""\
+            u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement \
+            pas passé l’étape de validation. Mais ne désespère pas, \
+            certaines corrections peuvent surement être faite pour \
+            l’améliorer et repasser la validation plus tard. \
+            Voici le message que [{2}]({3}), ton validateur t'a laissé `{4}`\
+            N'hésite pas a lui envoyer un petit message pour discuter \
+            de la décision ou demander plus de détail si tout cela te \
+            semble injuste ou manque de clarté."""\
             .format(author.username, tutorial.title, validation.validator.username,
                     validation.validator.profile.get_absolute_url(), validation.comment_validator)
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
@@ -337,13 +337,13 @@ def valid_tutorial(request):
 
     for author in tutorial.authors.all():
         msg = \
-            u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
-            uest maintenant publié ! Les lecteurs du monde entier u\
-            upeuvent venir l'éplucher et réagir a son sujet. u\
-            uJe te conseille de rester a leur écoute afin u\
-            ud'apporter des corrections/compléments.u\
-            uUn Tutoriel vivant et a jour est bien plus lu u\
-            uqu'un sujet abandonné !"""\
+            u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) \
+            est maintenant publié ! Les lecteurs du monde entier \
+            peuvent venir l'éplucher et réagir a son sujet. \
+            Je te conseille de rester a leur écoute afin \
+            d'apporter des corrections/compléments.\
+            Un Tutoriel vivant et a jour est bien plus lu \
+            qu'un sujet abandonné !"""\
             .format(author.username, tutorial.title, tutorial.get_absolute_url_online())
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
@@ -488,8 +488,8 @@ def delete_tutorial(request, tutorial_pk):
         maj_repo_tuto(request, old_slug_path=old_slug, tuto=tutorial,
                       action="del")
         messages.success(request,
-                         u"Le tutoriel {0} a bien u\
-                         uété supprimé.".format(tutorial.title))
+                         u"Le tutoriel {0} a bien \
+                         été supprimé.".format(tutorial.title))
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)
@@ -505,8 +505,8 @@ def delete_tutorial(request, tutorial_pk):
             ug = None
         tutorial.save()
         messages.success(request,
-                         u"Vous ne faites plus partie des rédacteurs de ce u\
-                         ututoriel")
+                         u"Vous ne faites plus partie des rédacteurs de ce \
+                         tutoriel")
     return redirect(reverse("zds.tutorial.views.index"))
 
 
@@ -540,8 +540,8 @@ def modify_tutorial(request):
             ug.mode = "W"
             ug.save()
             messages.success(request,
-                             u"L'auteur {0} a bien été ajouté à la rédaction u\
-                             udu tutoriel.".format(author.username))
+                             u"L'auteur {0} a bien été ajouté à la rédaction \
+                             du tutoriel.".format(author.username))
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
             redirect_url = reverse("zds.tutorial.views.edit_tutorial") \
@@ -1522,14 +1522,14 @@ def add_chapter(request):
                 if "submit_continue" in request.POST:
                     form = ChapterForm()
                     messages.success(request,
-                                     u"Chapitre « {0} » ajouté u\
-                                     uavec succès.".format(chapter.title))
+                                     u"Chapitre « {0} » ajouté \
+                                     avec succès.".format(chapter.title))
                 else:
                     return redirect(chapter.get_absolute_url())
             else:
                 messages.error(request,
-                               u"Un chapitre portant le même nom existe u\
-                               uexiste dans cette partie.")
+                               u"Un chapitre portant le même nom existe \
+                               existe dans cette partie.")
     else:
         form = ChapterForm()
     return render_template("tutorial/new_chapter.html", {"part": part,
@@ -2852,18 +2852,17 @@ def solve_alert(request):
     note = Note.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = \
-        u"""Bonjour {0},u\
-        uVous recevez ce message car vous avez signalé le message de *{1}*, u\
-        udans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** u\
-        uet il vous a laissé le message suivant :u\
-        u\n\n`{5}`\n\nToute l'équipe de la modération vous remercie""".format(
-            alert.author.username,
-            note.author.username,
-            note.tutorial.title,
-            settings.SITE_URL + note.get_absolute_url(),
-            request.user.username,
-            request.POST["text"],
-        )
+        u"""Bonjour {0},\
+        Vous recevez ce message car vous avez signalé le message de *{1}*, \
+        dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** \
+        et il vous a laissé le message suivant :\
+        \n\n`{5}`\n\nToute l'équipe de la modération vous remercie""".format(
+        alert.author.username,
+        note.author.username,
+        note.tutorial.title,
+        settings.SITE_URL + note.get_absolute_url(),
+        request.user.username, request.POST["text"]
+    )
     send_mp(
         bot,
         [alert.author],
@@ -2901,10 +2900,10 @@ def edit_note(request):
     if note.author != request.user and request.method == "GET" \
             and request.user.has_perm("tutorial.change_note"):
         messages.add_message(request, messages.WARNING,
-                             u"Vous \xe9ditez ce message en tant que u\
-                             umod\xe9rateur (auteur : {}). Soyez encore plus u\
-                             uprudent lors de l'\xe9dition de u\
-                             ucelui-ci !".format(note.author.username))
+                             u"Vous \xe9ditez ce message en tant que \
+                             mod\xe9rateur (auteur : {}). Soyez encore plus \
+                             prudent lors de l'\xe9dition de \
+                             celui-ci !".format(note.author.username))
         note.alerts.all().delete()
     if request.method == "POST":
         if "delete-note" in request.POST:

@@ -292,13 +292,12 @@ uet il vous a laissé le message suivant :
 
 
 Toute l'équipe de la modération vous remercie""".format(
-            alert.author.username,
-            post.author.username,
-            post.topic.title,
-            settings.SITE_URL + post.get_absolute_url(),
-            request.user.username,
-            request.POST["text"],
-        )
+        alert.author.username,
+        post.author.username,
+        post.topic.title,
+        settings.SITE_URL + post.get_absolute_url(),
+        request.user.username,
+        request.POST["text"])
     send_mp(
         bot,
         [alert.author],
