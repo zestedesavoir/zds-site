@@ -48,9 +48,11 @@
     form.forum-message .message {
         padding-top: 0 !important;
     }
-    .message-buttons,
-    .message-actions {
-        display: none !important;
+    .message-actions a {
+        width: 0px;
+    }
+    .message-bottom .message-karma a {
+        border-bottom-width: 1px !important;
     }
     .message-submit {
         display: block !important;
