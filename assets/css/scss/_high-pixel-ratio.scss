@@ -173,8 +173,14 @@
                 @include sprite-pos($sprite2x, 'pin-blue', true);
             }
         }
-        // TODO : faire une vraie icône beta
-        &.beta,
+        &.beta {
+            &:after {
+                @include sprite-pos($sprite2x, 'beta', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'beta-blue', true);
+            }
+        }
         // TODO : faire une vraie icône offline
         &.offline,
         &.arrow-right {
