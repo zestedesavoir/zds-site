@@ -1895,6 +1895,55 @@ form.topic-message {
 
 
 
+/* ==============
+    ALL: Footer
+   ============== */
+.page-footer {
+    background: darken($blue, 10%);
+    height: 50px;
+    line-height: 50px;
+    border-top: 3px solid $orange;
+    font-size: 14px;
+    font-size: 1.4rem;
+
+    .wrapper {
+        width: 960px;
+        margin: 0 auto;
+    }
+
+    p {
+        float: left;
+        color: #EEE;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    ul {
+        list-style: none;
+        float: right;
+        margin: 0;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            margin-left: 25px;
+
+            a {
+                text-decoration: none;
+                color: #EEE;
+                text-transform: uppercase;
+                border-bottom: 1px solid transparent;
+
+                &:hover,
+                &:focus {
+                    border-bottom-color: $orange;
+                }
+            }
+        }
+    }
+}
+
+
 
 /* ==============
     ALL: Modals
@@ -2124,16 +2173,6 @@ form.topic-message {
 .footer-container footer {
     color: #424242;
     padding: 20px 0;
-}
-
-
-
-/* ===============
-    ALL: IE Fixes
-   =============== */
-
-.ie7 .header-logo {
-    padding-top: 20px;
 }
 
 

@@ -16,7 +16,7 @@
     <title>
         {% block title %}{% endblock %}
         {% block title_base %}{% endblock %}
-        &bull; ZesteDeSavoir
+        &bull; Zeste de Savoir
     </title>
 
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
@@ -495,7 +495,22 @@
 
 
 
-        <!-- TODO : Footer -->
+        <footer class="page-footer">
+            <div class="wrapper">
+                <p>
+                    Zeste de Savoir &bull; 2014
+                </p>
+                <ul>
+                    <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
+                    <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+                    <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
+                    {% endif %}
+                    <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
+                </ul>
+            </div>
+        </footer>
     </div>
 
 
