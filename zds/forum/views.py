@@ -486,23 +486,13 @@ def answer(request):
                     follow(g_topic)
                 return redirect(post.get_absolute_url())
             else:
-<<<<<<< HEAD
-                return render_template('forum/post/new.html', {
-                    'text': data['text'],
-                    'topic': g_topic,
-                    'posts': posts,
-                    'last_post_pk': last_post_pk,
-                    'newpost': newpost,
-                    'form': form
-=======
-                return render_template("forum/answer.html", {
+                return render_template("forum/post/new.html", {
                     "text": data["text"],
                     "topic": g_topic,
                     "posts": posts,
                     "last_post_pk": last_post_pk,
                     "newpost": newpost,
                     "form": form,
->>>>>>> origin/dev
                 })
     else:
 
@@ -524,29 +514,15 @@ def answer(request):
                 post_cite.author.username,
                 settings.SITE_URL,
                 post_cite.get_absolute_url())
-<<<<<<< HEAD
-
-        form = PostForm(g_topic, request.user, initial={
-            'text': text
-        })
-        form.helper.form_action = reverse(
-            'zds.forum.views.answer') + '?sujet=' + str(g_topic.pk)
-
-        return render_template('forum/post/new.html', {
-            'topic': g_topic,
-            'posts': posts,
-            'last_post_pk': last_post_pk,
-            'form': form
-=======
+        
         form = PostForm(g_topic, request.user, initial={"text": text})
         form.helper.form_action = reverse("zds.forum.views.answer") \
             + "?sujet=" + str(g_topic.pk)
-        return render_template("forum/answer.html", {
+        return render_template("forum/post/new.html", {
             "topic": g_topic,
             "posts": posts,
             "last_post_pk": last_post_pk,
             "form": form,
->>>>>>> origin/dev
         })
 
 

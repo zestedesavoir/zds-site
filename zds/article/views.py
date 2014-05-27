@@ -962,7 +962,7 @@ def edit_reaction(request):
     if request.method == 'POST':
 
         if 'delete_message' in request.POST:
-            if reaction.author == request.user
+            if reaction.author == request.user \
                     or request.user.has_perm('article.change_reaction'):
                 reaction.alerts.all().delete()
                 reaction.is_visible = False
