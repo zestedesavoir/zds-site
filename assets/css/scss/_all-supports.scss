@@ -1484,7 +1484,8 @@
             video,
             pre,
             code,
-            table {
+            table,
+            blockquote {
                 max-width: 100%;
                 margin: 0 auto;
                 text-align: left;
@@ -1925,6 +1926,14 @@ form.topic-message {
         font-size: 16px;
         text-transform: uppercase;
         text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
+
+        &.ico-after {
+            text-indent: 40px;
+
+            &:after {
+                margin: 18px 0 0 15px;
+            }
+        }
     }
 
     p,
@@ -2036,9 +2045,6 @@ form.topic-message {
         }
         &.green:after {
             @include sprite-pos($sprite, 'tick-green');
-        }
-        &.white:after {
-            @include sprite-pos($sprite, 'tick-white');
         }
     }
 

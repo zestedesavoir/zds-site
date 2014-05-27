@@ -195,7 +195,7 @@ function appendToSidebar($elem, force){
 
     $links.each(function(){
         if($(this).parents('.mobile-menu-imported').length == 0)
-            $div.append($(this).clone());
+            $div.append($(this).clone().addClass('light'));
     });
 
     $elem.addClass('mobile-menu-imported');

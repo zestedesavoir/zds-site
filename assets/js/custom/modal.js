@@ -24,9 +24,10 @@ $('.modal').each(function(){
         e.preventDefault();
         e.stopPropagation();
     }));
+    var $link = $('[href=#'+$(this).attr('id')+']:first');
     $(this).prepend($('<span/>', {
-        'class': 'modal-title',
-        'text': $('[href=#'+$(this).attr('id')+']:first').text()
+        'class': 'modal-title light ' + $link.attr('class'),
+        'text': $link.text()
     }));
 });
 $('#modals').append($overlay);

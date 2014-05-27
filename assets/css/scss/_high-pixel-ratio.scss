@@ -89,6 +89,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'view-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'view-light', true);
+            }
         }
         &.edit {
             &:after {
@@ -97,12 +100,31 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'edit-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'edit-light', true);
+            }
         }
-        &.alert:after {
-            @include sprite-pos($sprite2x, 'alert', true);
+        &.alert {
+            &:after {
+                @include sprite-pos($sprite2x, 'alert', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'alert-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'alert-light', true);
+            }
         }
-        &.cite:after {
-            @include sprite-pos($sprite2x, 'cite', true);
+        &.cite {
+            &:after {
+                @include sprite-pos($sprite2x, 'cite', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'cite-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'cite-light', true);
+            }
         }
 
         &.tick {
@@ -112,8 +134,8 @@
             &.green:after {
                 @include sprite-pos($sprite2x, 'tick-green', true);
             }
-            &.white:after {
-                @include sprite-pos($sprite2x, 'tick-white', true);
+            &.light:after {
+                @include sprite-pos($sprite2x, 'tick-light', true);
             }
         }
 
@@ -141,6 +163,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'lock-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'lock-light', true);
+            }
         }
 
         &.more {
@@ -149,6 +174,9 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'more-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'more-light', true);
             }
         }
         &.cross {
@@ -161,6 +189,9 @@
             &.red:after {
                 @include sprite-pos($sprite2x, 'cross-red', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'cross-light', true);
+            }
             &.white:after {
                 @include sprite-pos($sprite2x, 'cross-white', true);
             }
@@ -172,6 +203,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'pin-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'pin-light', true);
+            }
         }
         &.beta {
             &:after {
@@ -179,6 +213,9 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'beta-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'beta-light', true);
             }
         }
         // TODO : faire une vraie icône offline
@@ -190,6 +227,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'arrow-right-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'arrow-right-light', true);
+            }
         }
         &.arrow-left {
             &:after {
@@ -198,6 +238,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'arrow-left-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'arrow-left-light', true);
+            }
         }
         &.move {
             &:after {
@@ -205,6 +248,9 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'move-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'move-light', true);
             }
         }
         &.star {
@@ -217,6 +263,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'star-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'star-light', true);
+            }
         }
 
         &.download {
@@ -225,6 +274,9 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'download-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'download-light', true);
             }
         }
 
@@ -235,6 +287,9 @@
             &.blue:after {
                 @include sprite-pos($sprite2x, 'import-blue', true);
             }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'import-light', true);
+            }
         }
 
         &.history {
@@ -243,6 +298,9 @@
             }
             &.blue:after {
                 @include sprite-pos($sprite2x, 'history-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'history-light', true);
             }
         }
 
@@ -255,6 +313,9 @@
             }
             &.orange:after {
                 @include sprite-pos($sprite2x, 'rss-orange', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'rss-light', true);
             }
         }
     }

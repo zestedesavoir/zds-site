@@ -178,36 +178,6 @@
                 padding: 0 0 0 10px;
             }
         }
-
-        .ico-after {
-            // Force to @2x
-            &:after {
-                background-size: round(image-width(sprite-path($sprite2x)) / 2) round(image-height(sprite-path($sprite2x)) / 2) !important;
-                background-image: $sprite2x !important;
-            }
-
-            &.view:after {
-                @include sprite-pos($sprite2x, 'view-light', true);
-            }
-            &.tick:after {
-                @include sprite-pos($sprite2x, 'tick-light', true);
-            }
-            &.lock:after {
-                @include sprite-pos($sprite2x, 'lock-light', true);
-            }
-            &.cross:after {
-                @include sprite-pos($sprite2x, 'cross-light', true);
-            }
-            &.pin:after {
-                @include sprite-pos($sprite2x, 'pin-light', true);
-            }
-            &.arrow-right:after {
-                @include sprite-pos($sprite2x, 'arrow-right-light', true);
-            }
-            &.star:after {
-                @include sprite-pos($sprite2x, 'star-light', true);
-            }
-        }
     }
     .js.show-mobile-menu {
         width: 100%;
