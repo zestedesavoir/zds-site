@@ -27,7 +27,8 @@ from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.articles import *
 from zds.utils.mps import send_mp
-from zds.utils.models import SubCategory, Category, CommentLike, CommentDislike, Alert
+from zds.utils.models import SubCategory, Category, CommentLike, \
+    CommentDislike, Alert
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -406,7 +407,8 @@ def download(request):
             'rb').read(),
         mimetype='application/tar')
     response[
-        'Content-Disposition'] = 'attachment; filename={0}.tar'.format(article.slug)
+        'Content-Disposition'] = 'attachment; filename={0}.tar' \
+        .format(article.slug)
 
     return response
 
@@ -430,7 +432,8 @@ def modify(request):
         # validation.
         if 'reject-article' in request.POST:
             validation = Validation.objects\
-                .filter(article__pk=article.pk, version=article.sha_validation)\
+                .filter(article__pk=article.pk,
+                        version=article.sha_validation)\
                 .latest('date_proposition')
             validation.comment_validator = request.POST['comment-r']
             validation.status = 'REJECTED'
@@ -442,6 +445,33 @@ def modify(request):
             article.sha_validation = None
             article.pubdate = None
             article.save()
+
+            # send feedback
+            for author in article.authors.all():
+                msg = u"Désolé **{0}**, ton zeste **{1}** u\
+                un'a malheureusement pas passé l’étape de validation. u\
+                uMais ne désespère pas, certaines corrections peuvent u\
+                usurement être faite pour l’améliorer et repasser la u\
+                uvalidation plus tard. Voici le message que [{2}]({3}), u\
+                uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
+                ului envoyer un petit message pour discuter de la décision u\
+                uou demander plus de détail si tout cela te semble u\
+                uinjuste ou manque de clarté.".format(
+                    author.username,
+                    article.title,
+                    validation.validator.username,
+                    validation.validator.profile.get_absolute_url(),
+                    validation.comment_validator)
+                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                send_mp(
+                    bot,
+                    [author],
+                    u"Refus de Validation : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
             return redirect(
                 article.get_absolute_url() +
@@ -475,19 +505,44 @@ def modify(request):
         elif 'valid-article' in request.POST:
             MEP(article, article.sha_validation)
             validation = Validation.objects\
-                .filter(article__pk=article.pk, version=article.sha_validation)\
+                .filter(article__pk=article.pk,
+                        version=article.sha_validation)\
                 .latest('date_proposition')
             validation.comment_validator = request.POST['comment-v']
             validation.status = 'PUBLISHED'
             validation.date_validation = datetime.now()
             validation.save()
 
-            # Update sha_public with the sha of validation. We don't update sha_draft.
+            # Update sha_public with the sha of validation.
+            # We don't update sha_draft.
             # So, the user can continue to edit his article in offline.
+            if request.POST.get('is_major', False) or article.sha_public is None:
+                article.pubdate = datetime.now()
             article.sha_public = validation.version
             article.sha_validation = None
-            article.pubdate = datetime.now()
             article.save()
+
+            # send feedback
+            for author in article.authors.all():
+                msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
+                u est maintenant publié ! Les lecteurs du monde entier u\
+                upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
+                u de rester a leur écoute afin d'apporter des u\
+                ucorrections/compléments. Un Article vivant et a jour u\
+                uest bien plus lu qu'un sujet abandonné !".format(
+                    author.username,
+                    article.title,
+                    article.get_absolute_url_online())
+                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                send_mp(
+                    bot,
+                    [author],
+                    u"Publication : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
             return redirect(
                 article.get_absolute_url() +
@@ -497,8 +552,12 @@ def modify(request):
     # User actions
     if request.user in article.authors.all():
         if 'delete' in data:
-            article.delete()
-            return redirect('/articles/')
+            if article.authors.count() == 1:
+                article.delete()
+            else:
+                article.authors.remove(request.user)
+
+            return redirect(reverse('zds.article.views.index'))
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
@@ -516,6 +575,48 @@ def modify(request):
             validation.article.save()
 
             return redirect(article.get_absolute_url())
+        elif 'add_author' in request.POST:
+            redirect_url = reverse('zds.article.views.edit') + \
+                '?article={0}'.format(article.pk)
+
+            author_username = request.POST['author']
+            author = None
+            try:
+                author = User.objects.get(username=author_username)
+            except User.DoesNotExist:
+                return redirect(redirect_url)
+
+            article.authors.add(author)
+            article.save()
+
+            messages.success(
+                request,
+                u'L\'auteur {0} a bien été ajouté à u\
+                ula rédaction de l\'article.'.format(
+                    author.username))
+
+            return redirect(redirect_url)
+
+        elif 'remove_author' in request.POST:
+            redirect_url = reverse('zds.article.views.edit') + \
+                '?article={0}'.format(article.pk)
+
+            # Avoid orphan articles
+            if article.authors.all().count() <= 1:
+                raise Http404
+
+            author_pk = request.POST['author']
+            author = get_object_or_404(User, pk=author_pk)
+
+            article.authors.remove(author)
+            article.save()
+
+            messages.success(
+                request,
+                u'L\'auteur {0} a bien été retiré de l\'article.'.format(
+                    author.username))
+
+            return redirect(redirect_url)
 
     return redirect(article.get_absolute_url())
 
@@ -548,7 +649,8 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=True, status='PENDING', article__subcategory__in=[subcategory]) \
+                .filter(validator__isnull=True, status='PENDING',
+                        article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
 
@@ -561,7 +663,8 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(validator__isnull=False, status='PENDING', article__subcategory__in=[subcategory]) \
+                .filter(validator__isnull=False, status='PENDING',
+                        article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
 
@@ -574,7 +677,8 @@ def list_validation(request):
                 .all()
         else:
             validations = Validation.objects \
-                .filter(status='PENDING', article__subcategory__in=[subcategory]) \
+                .filter(status='PENDING',
+                        article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
     return render_template('article/validation/index.html', {
@@ -604,7 +708,8 @@ def history_validation(request, article_pk):
             .all()
     else:
         validations = Validation.objects \
-            .filter(article__pk=article_pk, article__subcategory__in=[subcategory]) \
+            .filter(article__pk=article_pk,
+                    article__subcategory__in=[subcategory]) \
             .order_by("date_proposition") \
             .all()
 
@@ -784,6 +889,7 @@ def answer(request):
             'form': form
         })
 
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -796,8 +902,22 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez signalé le message de *{1}*, dans l'article [{2}]({3}). Votre alerte a été traitée par **{4}** et il vous a laissé le message suivant :\n\n`{5}`\n\n\nToute l'équipe de la modération vous remercie".format(alert.author.username, reaction.author.username, reaction.article.title, settings.SITE_URL + reaction.get_absolute_url(), request.user.username, request.POST['text'])
-    send_mp(bot, [alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
+    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez u\
+    usignalé le message de *{1}*, dans l'article [{2}]({3}). u\
+    uVotre alerte a été traitée par **{4}** et il vous a laissé u\
+    ule message suivant :\n\n`{5}`\n\n\nToute l'équipe de u\
+    ula modération vous remercie".format(
+        alert.author.username,
+        reaction.author.username,
+        reaction.article.title,
+        settings.SITE_URL +
+        reaction.get_absolute_url(),
+        request.user.username,
+        request.POST['text'])
+    send_mp(
+        bot, [
+            alert.author], u"Résolution d'alerte : {0}".format(
+            reaction.article.title), "", msg, False)
     alert.delete()
 
     messages.success(
@@ -805,6 +925,7 @@ def solve_alert(request):
         u'L\'alerte a bien été résolue')
 
     return redirect(reaction.get_absolute_url())
+
 
 @can_write_and_read_now
 @login_required
@@ -823,10 +944,14 @@ def edit_reaction(request):
 
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
-    if reaction.author != request.user and not request.user.has_perm('tutorial.change_reaction') and 'signal-reaction' not in request.POST:
+    if reaction.author != request.user \
+            and not request.user.has_perm('article.change_reaction') \
+            and 'signal-reaction' not in request.POST:
         raise PermissionDenied
 
-    if reaction.author != request.user and request.method == 'GET' and request.user.has_perm('tutorial.change_reaction'):
+    if reaction.author != request.user \
+            and request.method == 'GET' \
+            and request.user.has_perm('article.change_reaction'):
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
@@ -837,7 +962,8 @@ def edit_reaction(request):
     if request.method == 'POST':
 
         if 'delete_message' in request.POST:
-            if reaction.author == request.user or request.user.has_perm('article.change_reaction'):
+            if reaction.author == request.user
+                    or request.user.has_perm('article.change_reaction'):
                 reaction.alerts.all().delete()
                 reaction.is_visible = False
                 if request.user.has_perm('article.change_reaction'):
@@ -864,14 +990,18 @@ def edit_reaction(request):
                 'text': request.POST['text']
             })
             form.helper.form_action = reverse(
-                'zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
+                'zds.article.views.edit_reaction') + \
+                '?message=' + \
+                str(reaction_pk)
             return render_template('article/reaction/edit.html', {
                 'reaction': reaction,
                 'article': g_article,
                 'form': form
             })
 
-        if 'delete_message' not in request.POST and 'signal_message' not in request.POST and 'show_message' not in request.POST:
+        if 'delete_message' not in request.POST \
+                and 'signal_message' not in request.POST \
+                and 'show_message' not in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 reaction.text = request.POST['text']
@@ -912,14 +1042,17 @@ def like_reaction(request):
 
     if reaction.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
-        if CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count() == 0:
+        if CommentLike.objects.filter(user__pk=user.pk,
+                                      comments__pk=reaction_pk).count() == 0:
             like = CommentLike()
             like.user = user
             like.comments = reaction
             reaction.like = reaction.like + 1
             reaction.save()
             like.save()
-            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count() > 0:
+            if CommentDislike.objects.filter(user__pk=user.pk,
+                                             comments__pk=reaction_pk) \
+                    .count() > 0:
                 CommentDislike.objects.filter(
                     user__pk=user.pk,
                     comments__pk=reaction_pk).all().delete()
@@ -956,14 +1089,18 @@ def dislike_reaction(request):
 
     if reaction.author.pk != request.user.pk:
         # Making sure the user is allowed to do that
-        if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count() == 0:
+        if CommentDislike.objects.filter(user__pk=user.pk,
+                                         comments__pk=reaction_pk) \
+                .count() == 0:
             dislike = CommentDislike()
             dislike.user = user
             dislike.comments = reaction
             reaction.dislike = reaction.dislike + 1
             reaction.save()
             dislike.save()
-            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=reaction_pk).count() > 0:
+            if CommentLike.objects.filter(user__pk=user.pk,
+                                          comments__pk=reaction_pk) \
+                    .count() > 0:
                 CommentLike.objects.filter(
                     user__pk=user.pk,
                     comments__pk=reaction_pk).all().delete()

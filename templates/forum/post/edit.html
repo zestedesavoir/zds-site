@@ -28,12 +28,4 @@
 
 {% block content %}
     {% crispy form %}
-
-    {# TODO: améliorer ça là... vivement le TEMPLATE PACK ><" #}
-    {% comment %}
-        {% captureas form_action %}
-            {% url "zds.forum.views.edit" %}?sujet={{ topic.pk }}
-        {% endcaptureas %}
-        {% include "misc/message_form.html" with member=post.author %}
-    {% endcomment %}
 {% endblock %}

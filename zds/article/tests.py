@@ -1,5 +1,4 @@
 # coding: utf-8
-
 import os
 import shutil
 
@@ -10,7 +9,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.article.factories import ArticleFactory, ReactionFactory
-from zds.article.models import Article, Validation, Reaction, Article
+from zds.article.models import Validation, Reaction, Article
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
@@ -26,7 +25,8 @@ class ArticleTests(TestCase):
 
     def setUp(self):
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.BOT_ACCOUNT = self.mas.username
 
@@ -51,7 +51,8 @@ class ArticleTests(TestCase):
                 'article': self.article.pk,
                 'comment': u'Valides moi ce bébé',
                 'pending': 'Demander validation',
-                'version': self.article.sha_draft
+                'version': self.article.sha_draft,
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -68,19 +69,25 @@ class ArticleTests(TestCase):
             {
                 'article': self.article.pk,
                 'comment-v': u'Cet article est excellent',
-                'valid-article': 'Demander validation'
+                'valid-article': 'Demander validation',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+        mail.outbox = []
 
     def test_alert(self):
         user1 = ProfileFactory().user
-        reaction = ReactionFactory(article=self.article, author = user1, position=1)
+        reaction = ReactionFactory(
+            article=self.article,
+            author=user1,
+            position=1)
         login_check = self.client.login(
             username=self.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #signal reaction
+        # signal reaction
         result = self.client.post(
             reverse('zds.article.views.edit_reaction') +
             '?message={0}'.format(
@@ -92,13 +99,13 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 1)
-        
+
         # connect with staff
         login_check = self.client.login(
             username=self.staff.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #solve alert
+        # solve alert
         result = self.client.post(
             reverse('zds.article.views.solve_alert'),
             {
@@ -109,9 +116,12 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 0)
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user).count(), 1)
+        self.assertEqual(
+            PrivateTopic.objects.filter(
+                author=self.user).count(),
+            1)
         self.assertEquals(len(mail.outbox), 0)
-        
+
     def test_add_reaction(self):
         """To test add reaction for article."""
         user1 = ProfileFactory().user
@@ -153,7 +163,7 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-        reaction1 = ReactionFactory(
+        ReactionFactory(
             article=self.article,
             position=2,
             author=self.staff)

@@ -6,9 +6,9 @@ from zds.utils import slugify
 from math import ceil
 
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from zds.utils import get_current_user
+from django.core.urlresolvers import reverse
 
 
 class PrivateTopic(models.Model):
@@ -35,7 +35,9 @@ class PrivateTopic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/mp/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.mp.views.topic',
+                       kwargs={'topic_pk': self.pk,
+                               'topic_slug': slugify(self.title)})
 
     def get_post_count(self):
         """Return the number of private posts in the private topic."""
@@ -81,19 +83,18 @@ class PrivateTopic(models.Model):
                 .select_related()\
                 .filter(privatetopic=self, user=get_current_user())\
                 .latest('post__pubdate').privatepost
-            
+
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                pubdate__gt=last_post__pubdate).first()
+                pubdate__gt=last_post.pubdate).first()
 
             return next_post
         except:
             return self.first_post()
 
     def alone(self):
-        """Check if there just one participant in the conversation
-        """
-        return self.participants.count()==0
+        """Check if there just one participant in the conversation."""
+        return self.participants.count() == 0
 
     def never_read(self):
         return never_privateread(self)
@@ -160,7 +161,8 @@ def never_privateread(privatetopic, user=None):
         user = get_current_user()
 
     return PrivateTopicRead.objects\
-        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)\
+        .filter(privatepost=privatetopic.last_message,
+                privatetopic=privatetopic, user=user)\
         .count() == 0
 
 

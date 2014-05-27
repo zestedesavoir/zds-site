@@ -78,9 +78,14 @@ local.properties
 # PDT-specific
 .buildpath
 
+#############
+## PyCharm
+#############
+.idea/
+
 
 #############
-## Windows detritus
+## OS detritus
 #############
 
 # Windows image file caches

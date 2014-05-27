@@ -27,11 +27,14 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
-    user = models.OneToOneField(User, verbose_name='Utilisateur', related_name="profile")
+    user = models.OneToOneField(
+        User,
+        verbose_name='Utilisateur',
+        related_name="profile")
 
     last_ip_address = models.CharField(
         'Adresse IP',
-        max_length=15,
+        max_length=39,
         blank=True,
         null=True)
 
@@ -56,9 +59,13 @@ class Profile(models.Model):
                                          default=False)
 
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
-                                         default=False)
+                                           default=False)
 
-    sdz_tutorial = models.CharField('Identifiant des tutos SdZ', max_length=30, blank=True, null=True)
+    sdz_tutorial = models.CharField(
+        'Identifiant des tutos SdZ',
+        max_length=30,
+        blank=True,
+        null=True)
 
     can_read = models.BooleanField('Possibilité de lire', default=True)
     end_ban_read = models.DateTimeField(
@@ -83,7 +90,8 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return '/membres/voir/{0}'.format(self.user.username)
+        return reverse('zds.member.views.details',
+                       kwargs={'user_name': self.user.username})
 
     def get_city(self):
         """return physical adress by geolocalisation."""
@@ -186,7 +194,8 @@ class Profile(models.Model):
         if self.user.is_authenticated:
             if self.user.is_active:
                 if self.end_ban_read:
-                    return self.can_read or (self.end_ban_read < datetime.now())
+                    return self.can_read or (
+                        self.end_ban_read < datetime.now())
                 else:
                     return self.can_read
             else:
@@ -259,6 +268,7 @@ class Ban(models.Model):
         blank=True,
         null=True)
 
+
 def listing():
 
     fichier = []
@@ -266,11 +276,12 @@ def listing():
         for root in os.listdir(settings.SDZ_TUTO_DIR):
             if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, root)):
                 num = root.split('_')[0]
-                if num != None and num.isdigit():
+                if num is not None and num.isdigit():
                     fichier.append((num, root))
         return fichier
     else:
         return ()
+
 
 def get_info_old_tuto(id):
     titre = ''
@@ -279,16 +290,23 @@ def get_info_old_tuto(id):
     logo = ''
     if os.path.isdir(settings.SDZ_TUTO_DIR):
         for rep in os.listdir(settings.SDZ_TUTO_DIR):
-            if rep.startswith(str(id)+'_'):
+            if rep.startswith(str(id) + '_'):
                 if os.path.isdir(os.path.join(settings.SDZ_TUTO_DIR, rep)):
-                    for root, dirs, files in os.walk(os.path.join(settings.SDZ_TUTO_DIR, rep)):
+                    for root, dirs, files in os.walk(
+                            os.path.join(
+                                settings.SDZ_TUTO_DIR, rep
+                            )):
                         for file in files:
-                            if file.split('.')[-1]=='tuto':
+                            if file.split('.')[-1] == 'tuto':
                                 titre = os.path.splitext(file)[0]
                                 tuto = os.path.join(root, file)
-                            elif file.split('.')[-1]=='zip':
+                            elif file.split('.')[-1] == 'zip':
                                 images = os.path.join(root, file)
-                            elif file.split('.')[-1]in ['png', 'jpg', 'ico', 'jpeg', 'gif']:
+                            elif file.split('.')[-1] in ['png',
+                                                         'jpg',
+                                                         'ico',
+                                                         'jpeg',
+                                                         'gif']:
                                 logo = os.path.join(root, file)
 
     return (id, titre, tuto, images, logo)

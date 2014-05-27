@@ -1,5 +1,5 @@
 # coding: utf-8
-from datetime import datetime
+
 import os
 import shutil
 
@@ -16,7 +16,6 @@ from zds.tutorial.factories import BigTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
 from zds.tutorial.models import Note, Tutorial
 from zds.utils.models import Alert
-from zds.mp.models import PrivateTopic
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -33,7 +32,8 @@ class BigTutorialTests(TestCase):
 
     def setUp(self):
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.BOT_ACCOUNT = self.mas.username
 
@@ -95,10 +95,14 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.valid_tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
-                'text': u'Ce tuto est excellent'
+                'text': u'Ce tuto est excellent',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+
+        mail.outbox = []
 
     def test_add_note(self):
         """To test add note for tutorial."""
@@ -141,7 +145,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-        note1 = NoteFactory(
+        NoteFactory(
             tutorial=self.bigtuto,
             position=2,
             author=self.staff)
@@ -215,11 +219,11 @@ class BigTutorialTests(TestCase):
         user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
-        note1 = NoteFactory(
+        NoteFactory(
             tutorial=self.bigtuto,
             position=1,
             author=self.user)
-        note2 = NoteFactory(tutorial=self.bigtuto, position=2, author=user1)
+        NoteFactory(tutorial=self.bigtuto, position=2, author=user1)
         note3 = NoteFactory(
             tutorial=self.bigtuto,
             position=3,
@@ -235,7 +239,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # quote on anstispamm => false
-        note4 = NoteFactory(tutorial=self.bigtuto, position=4, author=user1)
+        NoteFactory(tutorial=self.bigtuto, position=4, author=user1)
         result = self.client.get(
             reverse('zds.tutorial.views.answer') +
             '?tutorial={0}&cite={1}'.format(
@@ -648,12 +652,12 @@ class BigTutorialTests(TestCase):
 
     def test_alert(self):
         user1 = ProfileFactory().user
-        note = NoteFactory(tutorial=self.bigtuto, author = user1, position=1)
+        note = NoteFactory(tutorial=self.bigtuto, author=user1, position=1)
         login_check = self.client.login(
             username=self.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #signal note
+        # signal note
         result = self.client.post(
             reverse('zds.tutorial.views.edit_note') +
             '?message={0}'.format(
@@ -665,13 +669,13 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 1)
-        
+
         # connect with staff
         login_check = self.client.login(
             username=self.staff.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #solve alert
+        # solve alert
         result = self.client.post(
             reverse('zds.tutorial.views.solve_alert'),
             {
@@ -682,7 +686,10 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 0)
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user).count(), 1)
+        self.assertEqual(
+            PrivateTopic.objects.filter(
+                author=self.user).count(),
+            1)
         self.assertEquals(len(mail.outbox), 0)
 
     def tearDown(self):

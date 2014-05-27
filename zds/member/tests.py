@@ -15,7 +15,8 @@ from .models import TokenRegister, Ban
 class MemberTests(TestCase):
 
     def setUp(self):
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
         settings.BOT_ACCOUNT = self.mas.user.username
 
@@ -25,14 +26,18 @@ class MemberTests(TestCase):
 
         result = self.client.post(
             reverse('zds.member.views.login_view'),
-            {'username': user.user.username, 'password': 'hostel', 'remember': 'remember'},
+            {'username': user.user.username,
+             'password': 'hostel',
+             'remember': 'remember'},
             follow=False)
         # bad password then no redirection
         self.assertEqual(result.status_code, 200)
 
         result = self.client.post(
             reverse('zds.member.views.login_view'),
-            {'username': user.user.username, 'password': 'hostel77', 'remember': 'remember'},
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
             follow=False)
         # good password then redirection
         self.assertEqual(result.status_code, 302)
@@ -62,7 +67,7 @@ class MemberTests(TestCase):
         result = self.client.get(
             settings.SITE_URL + token.get_absolute_url(),
             follow=False)
-        
+
         self.assertEqual(result.status_code, 200)
         self.assertEquals(len(mail.outbox), 2)
 
@@ -100,7 +105,8 @@ class MemberTests(TestCase):
             reverse(
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ls.user.id}), {
-                'un-ls': '', 'unls-text': 'Texte de test pour un-LS'}, follow=False)
+                'un-ls': '', 'unls-text': 'Texte de test pour un-LS'},
+            follow=False)
         user = Profile.objects.get(id=user_ls.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -118,7 +124,9 @@ class MemberTests(TestCase):
             reverse(
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
-                'ls-temp': '', 'ls-jrs': 10, 'ls-temp-text': 'Texte de test pour LS TEMP'}, follow=False)
+                'ls-temp': '', 'ls-jrs': 10,
+                'ls-temp-text': 'Texte de test pour LS TEMP'},
+            follow=False)
         user = Profile.objects.get(
             id=user_ls_temp.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -153,8 +161,10 @@ class MemberTests(TestCase):
         result = self.client.post(
             reverse(
                 'zds.member.views.modify_profile', kwargs={
-                    'user_pk': user_ban.user.id}), {
-                'un-ban': '', 'unban-text': 'Texte de test pour BAN'}, follow=False)
+                    'user_pk': user_ban.user.id}),
+            {'un-ban': '',
+             'unban-text': 'Texte de test pour BAN'},
+            follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -169,8 +179,10 @@ class MemberTests(TestCase):
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
         result = self.client.post(
-            reverse('zds.member.views.modify_profile', kwargs={'user_pk': user_ban_temp.user.id}),
-            {'ban-temp': '', 'ban-jrs': 10, 'ban-temp-text': 'Texte de test pour BAN TEMP'},
+            reverse('zds.member.views.modify_profile',
+                    kwargs={'user_pk': user_ban_temp.user.id}),
+            {'ban-temp': '', 'ban-jrs': 10,
+             'ban-temp-text': 'Texte de test pour BAN TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ban_temp.id)    # Refresh profile from DB

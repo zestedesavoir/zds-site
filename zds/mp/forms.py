@@ -15,12 +15,13 @@ class PrivateTopicForm(forms.Form):
         label='Participants',
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Les participants doivent être séparés par une virgule.',
+                'placeholder': u'Les participants doivent u\
+                uêtre séparés par une virgule.',
                 'required': 'required'}))
 
     title = forms.CharField(
         label='Titre',
-        max_length = PrivateTopic._meta.get_field('title').max_length,
+        max_length=PrivateTopic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required'
@@ -30,7 +31,7 @@ class PrivateTopicForm(forms.Form):
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length = PrivateTopic._meta.get_field('subtitle').max_length,
+        max_length=PrivateTopic._meta.get_field('subtitle').max_length,
         required=False
     )
 
@@ -113,7 +114,8 @@ class PrivatePostForm(forms.Form):
         if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Vous êtes seul dans cette conversation, vous ne pouvez plus y écrire.',
+                placeholder=u'Vous êtes seul dans cette conversation, u\
+                uvous ne pouvez plus y écrire.',
                 disabled=True)
 
     def clean(self):

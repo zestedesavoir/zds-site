@@ -263,7 +263,7 @@ AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
 }
 
 
@@ -315,6 +315,8 @@ MESSAGE_TAGS = {
 
 MAX_POST_LENGTH = 1000000
 SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
+
+MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

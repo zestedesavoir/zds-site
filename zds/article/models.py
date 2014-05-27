@@ -18,6 +18,7 @@ from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
 from zds.utils.models import SubCategory, Comment
+from django.core.urlresolvers import reverse
 
 
 IMAGE_MAX_WIDTH = 480
@@ -82,13 +83,18 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/articles/off/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_absolute_url_online(self):
-        return '/articles/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view_online',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return '/articles/off/editer?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + \
+            '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None
@@ -155,9 +161,6 @@ class Article(models.Model):
             # TODO : delete old image
 
             image = Image.open(self.image)
-
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
 
             image.thumbnail(thumb_size, Image.ANTIALIAS)
 
@@ -227,7 +230,8 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
+        if last_user_reactions \
+                and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
