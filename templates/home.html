@@ -80,7 +80,7 @@
         {% endif %}
     </section>
 
-    <section class="content-col-2">
+    <section class="content-col-2 tutorial-list">
         <h2 class="ico-after ico-tutorials">Dernier tutoriels</h2>
 
         
@@ -92,13 +92,13 @@
                         <div class="tutorial-infos">
                             <h3>{{ tutorial.title }}</h3>
                             
-                            <p class="article-metadata">
+                            <span class="article-metadata">
                                 {% if tutorial.subcategory %}
                                     {% for category in tutorial.subcategory.all %}
                                         {{ category.title }}                                    
                                     {% endfor %}
                                 {% endif %}
-                            </p>
+                            </span>
                         </div>
                     </a>
                 </article>

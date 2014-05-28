@@ -897,7 +897,8 @@
 /* ==============
     ALL: Main / Home
    ============== */
-.home .main .content-container article {
+.tutorial-list article,
+.main .article-content .tutorial-list article {
     height: 60px;
     padding: 20px 2%;
     border-bottom: 1px solid #e0e4e5;
@@ -1910,7 +1911,7 @@ form.topic-message {
     font-size: 1.4rem;
 
     .wrapper {
-        width: 960px;
+        max-width: 960px;
         margin: 0 auto;
     }
 

@@ -23,7 +23,7 @@
 
 {% block content %}
     {% if tutorials %}
-        <div class="tutorials-list">
+        <div class="tutorial-list">
             {% for tutorial in tutorials %}
                 <article>
                     <a href="
@@ -37,14 +37,14 @@
                         <div class="tutorial-infos">
                             <h3>{{ tutorial.title }}</h3>
                             
-                            <p class="article-metadata">
+                            <span class="article-metadata">
                                 {% if tutorial.subcategory %}
                                     {% for category in tutorial.subcategory.all %}
                                         {{ category.title }}                                    
                                     {% endfor %}
                                 {% endif %}
                                 - Créé {{ tutorial.create_at|naturaltime }}
-                            </p>
+                            </span>
                         </div>
                     </a>
                 </article>

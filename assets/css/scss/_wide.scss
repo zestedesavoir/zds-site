@@ -310,7 +310,16 @@
         }
     }
 
+    body:not(.home) .tutorial-list article {
+        width: 50%;
+        float: left;
+    }
 
+
+
+    /* ============
+       Main / Topics
+       ============ */
     .topic-list {
         .topic {
             .topic-description {
@@ -337,7 +346,7 @@
 
 
     /* ============
-       Main / Forum
+       Main / Message
        ============ */
     .topic-message {
         margin: 0 0 25px;
@@ -396,6 +405,10 @@
     .content-wrapper {
         margin: 0 0 0 1.5%;
     }
+
+
+
+
 
 
 
