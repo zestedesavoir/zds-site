@@ -10,6 +10,9 @@
     .wide {
         display: inline;
     }
+    table .wide {
+      display: table-cell;
+    }
 
     .header-container .header-menu {
         width: 40%;
