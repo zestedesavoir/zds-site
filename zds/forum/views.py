@@ -184,8 +184,10 @@ def topic(request, topic_pk, topic_slug):
 
 
 def get_tag_by_title(title):
-    regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
-    tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
+    regex = ur"(?P<start>)(\[.{1,%s}\])(?P<end>)" \
+        % Tag._meta.get_field('title').max_length
+    tags = re.findall(ur"((.*?)\[(.{1,%s})\](.*?))" \
+        % Tag._meta.get_field('title').max_length, title)
     title = re.sub(regex, sub_tag, title)
     return (tags, title.strip())
 
@@ -236,7 +238,9 @@ def new(request):
             # add tags
 
             for tag in tags:
-                if tag[2].strip() != "":
+                if tag[2].strip() != "" and \
+                    len(tag[2]) <= Tag._meta.get_field('title').max_length \
+                    :
                     tg = Tag.objects.filter(slug=slugify(tag[2])).first()
                     if tg is None:
                         tg = Tag(title=tag[2])
@@ -621,7 +625,9 @@ def edit_post(request):
                 # add tags
 
                 for tag in tags:
-                    if tag[2].strip() != "":
+                    if tag[2].strip() != "" and \
+                        len(tag[2]) <= Tag._meta.get_field('title').max_length \
+                        :
                         tg = Tag.objects.filter(slug=slugify(tag[2])).first()
                         if tg is None:
                             tg = Tag(title=tag[2])
