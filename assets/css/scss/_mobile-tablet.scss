@@ -533,4 +533,28 @@
             }
         }
     }
+
+
+
+
+    .page-footer {
+        text-align: center;
+        height: auto;
+
+        p {
+            border-bottom: 1px solid darken($orange, 40%);
+        }
+        p,
+        ul {
+            display: block;
+            float: none;
+        }
+        ul {
+            line-height: 30px;
+
+            li {
+                margin: 0 5px;
+            }
+        }
+    }
 }
