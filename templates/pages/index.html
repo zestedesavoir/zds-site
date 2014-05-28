@@ -1,0 +1,31 @@
+{% extends "pages/base.html" %}
+
+
+
+{% block title %}
+    Pages
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Liste des pages</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>Pages</h1>
+{% endblock %}
+
+
+
+{% block content %}
+    <ul>
+        <li><a href="{% url "zds.pages.views.eula" %}"><abbr title="Conditions générales d'utilisation">CGU</abbr></a></li>
+        <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+        <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
+        <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
+    </ul>
+{% endblock %}
