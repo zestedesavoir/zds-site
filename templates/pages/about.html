@@ -22,59 +22,65 @@
 
 {% block content %}
 	<p>
-        Si vous vous intéressez à tous ça, vous devriez songer à <a href="https://github.com/Taluu/ZesteDeSavoir">contribuer au développement du site</a> !
+        Si vous vous intéressez par tout celà, vous devriez songer à <a href="https://github.com/zestedesavoir/zds-site">contribuer au développement du site</a> !
     </p>
 
-    <h3>Copyrights</h3>
-    <p>
-        Zeste de Savoir est un site donc le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en parti de <a href="http://progdupeu.pl">Progdupeupl</a>.
-    </p>
-    <p>
-        {# TODO : Ajouter un lien vers le logo #}
-        <a href="#">Le logo de Zeste de Savoir</a> est créé par MaxRoyo et sous
-    	<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-            <img alt="Creative Commons License" src="http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png">
-    	    Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International
-        </a>.
-    </p>
+    <div class="colonne-3">
+        <h3>Droits</h3>
+        <p>
+            Zeste de Savoir est un site donc le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://progdupeu.pl">Progdupeupl</a>.
+        </p>
+        <p>
+            {# TODO : Ajouter un lien vers le logo #}
+            <a href="#">Le logo de Zeste de Savoir</a> est créé par MaxRoyo et sous
+        	<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                <img alt="Creative Commons License" src="http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png">
+        	    Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International
+            </a>.
+        </p>
+    </div>
 
+    <div class="colonne-3">
+        <h3>Système</h3>
+        <p>
+            Le serveur de Zeste de Savoir tourne avec ces technologies :
+        </p>
 
-    <h3>Système</h3>
-    <p>
-        Le serveur de Zeste de Savoir tourne avec ces technologies :
-    </p>
+        <h3>Site</h3>
+        <ul>
+            <li><a href="http://www.python.org/">Python 2.7</a></li>
+            <li><a href="https://www.djangoproject.com/">Django 1.6</a></li>
+        </ul>
 
-    <h3>Site</h3>
-    <ul>
-        <li><a href="http://www.python.org/">Python 2.7</a></li>
-        <li><a href="https://www.djangoproject.com/">Django 1.6</a></li>
-    </ul>
+        <h3>HTTP(S) + WSGI</h3>
+        <ul>
+            <li><a href="http://nginx.org/">NGinx</a></li>
+            <li><a href="http://gunicorn.org/">Gunicorn</a></li>
+        </ul>
 
-    <h3>HTTP(S) + WSGI</h3>
-    <ul>
-        <li><a href="http://nginx.org/">NGinx</a></li>
-        <li><a href="http://gunicorn.org/">Gunicorn</a></li>
-    </ul>
+        <h3>Base de données</h3>
+        <ul>
+            <li><a href="http://www.postgresql.org/">PostgreSQL</a></li>
+        </ul>
+    </div>
 
-    <h3>Base de données</h3>
-    <ul>
-        <li><a href="http://www.postgresql.org/">PostgreSQL</a></li>
-    </ul>
+    <div class="colonne-3">
+        <h3>Technologies</h3>
+        <p>
+            Le site Zeste de Savoir utilise les technologies suivantes pour l'affichage :
+        </p>
 
+        <h3>Feuilles de style</h3>
+        <ul>
+            <li><a href="http://necolas.github.io/normalize.css/">Normalize.css</a></li>
+            <li><a href="http://sass-lang.com/">SCSS</a></li>
+            <li><a href="http://compass-style.org/">Compass</a></li>
+        </ul>
 
-    <h3>Technologies</h3>
-    <p>
-        Le site Zeste de Savoir utilise les technologies suivantes pour l'affichage :
-    </p>
-
-    <h3>Feuilles de style</h3>
-    <ul>
-        <li><a href="http://compass-style.org/">Compass</a></li>
-    </ul>
-
-    <h3>Javascript</h3>
-    <ul>
-        <li><a href="http://modernizr.com/">Modernizr</a></li>
-        <li><a href="http://jquery.com/">jQuery 2.x</a></li>
-    </ul>
+        <h3>Javascript</h3>
+        <ul>
+            <li><a href="http://modernizr.com/">Modernizr</a></li>
+            <li><a href="http://jquery.com/">jQuery 2.x</a></li>
+        </ul>
+    </div>
 {% endblock %}

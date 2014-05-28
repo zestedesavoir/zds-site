@@ -19,6 +19,6 @@ install:
 script: 
   - python manage.py test
   - coverage run --source='.' manage.py test
-  - flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403 zds
+  - flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
 after_success:
   - coveralls
