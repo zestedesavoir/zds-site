@@ -16,7 +16,7 @@
 
 
 {% block headline %}
-    <h2 class="ico ico-articles">Mes Articles</h2>
+    <h2>Mes Articles</h2>
 {% endblock %}
 
 
@@ -31,7 +31,7 @@
 
 {% block content %}
     {% if articles %}
-        <div class="article-items">
+        <div class="tutorial-list">
             {% for article in articles %}
                 {% include "article/includes/article_item.part.html" with link=article.get_absolute_url %}
             {% endfor %}

@@ -32,7 +32,7 @@
 
 {% block content %}
     {% if articles %}
-        <div class="article-items">
+        <div class="tutorial-list">
             {% for article in articles %}
                 {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
             {% endfor %}
