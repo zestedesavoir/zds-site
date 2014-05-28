@@ -161,7 +161,15 @@
                 <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
 
                 {% if tutorial.on_line %}
-                    <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="ico-after cross blue">Dépublier</a>
+                    <li>
+                        <a href="#unpublish" class="ico-after open-modal cross blue">Dépublier</a>
+                        <div class="modal modal-small" id="unpublish">
+                            <p>
+                                Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>"
+                            </p>
+                            <a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="btn btn-submit">Confirmer</a>
+                        </div>
+                    </li>
                 {% endif %}
 
                 {% if tutorial.in_validation %}

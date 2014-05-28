@@ -69,8 +69,6 @@
     // TODO : Améliorer l'image du logo (prendre la version vecto et faire une image à fond transparent)
     background: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
-    @include transition-property("opacity !important");
-    @include transition-duration;
 
     &.oldie {
         width: 240px;
@@ -107,6 +105,7 @@
     
     .dropdown-list {
         width: 100%;
+        padding: 0;
     }
     .dropdown-list > li {
         width: 20%;
@@ -1994,7 +1993,9 @@ form.topic-message {
     select,
     textarea {
         margin: 10px 15px;
-        width: calc(98% - 32px) !important;
+        &:not([type=checkbox]):not([type=radio]) {
+            width: calc(98% - 32px) !important;
+        }
     }
     textarea {
         margin-top: 0;

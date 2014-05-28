@@ -1,5 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load humanize %}
+{% load topbar %}
 
 
 
@@ -30,24 +31,55 @@
 
 {% block content %}
     {% if tutorials %}
-        {% for tuto in tutorials %}
-            <article>
-                <a href="{{ tuto.get_absolute_url_online }}">
-                    {% if tuto.image %}
-                        <img src="{{tuto.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                    {% endif %}
-                    <div class="tutorial-infos">
-                        <h3>{{ tuto.title }}</h3>
-                        <p class="article-metadata">
-                            crée {{ tuto.pubdate|naturaltime }}
-                        </p>
-                    </div>
-                </a>
-            </article>
-        {% endfor %}
+        <div class="tutorials-list">
+            {% for tutorial in tutorials %}
+                <article>
+                    <a href="{{ tutorial.get_absolute_url_online }}">
+                        <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
+                        <div class="tutorial-infos">
+                            <h3>{{ tutorial.title }}</h3>
+                            
+                            <p class="article-metadata">
+                                {% if tutorial.subcategory %}
+                                    {% for category in tutorial.subcategory.all %}
+                                        {{ category.title }}                                    
+                                    {% endfor %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
     {% else %}
         <p>
             Aucun tutoriel disponible.
         </p>
     {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+           data-title="Catégories de tutoriels"
+    >
+        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+
+        {% with categories='.'|top_categories_tuto %}
+            {% for category in categories %}
+                {# FIXME: il manque un lien ici #}
+                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+                <ul>
+                    {% for catofsubcat in category.get_subcategories %}
+                        <li>
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                {{ catofsubcat.subcategory }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endwith %}
+    </aside>
 {% endblock %}

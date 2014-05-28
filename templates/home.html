@@ -22,28 +22,27 @@
 
 
 {% block sidebar %}
-<aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
-       data-title="Catégories de tutoriels"
->
-    <h3>Catégories <span class="wide">de tutoriels</span></h3>
+    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+           data-title="Catégories de tutoriels"
+    >
+        <h3>Catégories <span class="wide">de tutoriels</span></h3>
 
-    {% with categories='.'|top_categories_tuto %}
-    {% for category in categories %}
-        {# FIXME: il manque un lien ici #}
-        <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
-        <ul>
-            {% for catofsubcat in category.get_subcategories %}
-                <li>
-                    <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                        {{ catofsubcat.subcategory }}
-                    </a>
-                </li>
+        {% with categories='.'|top_categories_tuto %}
+            {% for category in categories %}
+                {# FIXME: il manque un lien ici #}
+                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+                <ul>
+                    {% for catofsubcat in category.get_subcategories %}
+                        <li>
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                {{ catofsubcat.subcategory }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endfor %}
-        </ul>
-    {% endfor %}
-    {% endwith %}
-
-</aside>
+        {% endwith %}
+    </aside>
 {% endblock %}
 
 
