@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev)](https://travis-ci.org/zestedesavoir/zds-site)
-[![Coverage Status](https://coveralls.io/repos/zestedesavoir/zds-site/badge.png)](https://coveralls.io/r/zestedesavoir/zds-site)
+[![Coverage Status](https://coveralls.io/repos/zestedesavoir/zds-site/badge.png?branch=dev)](https://coveralls.io/r/zestedesavoir/zds-site?branch=dev)
 [![Licnce GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
 
 ZesteDeSavoir
