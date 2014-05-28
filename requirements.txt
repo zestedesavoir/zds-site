@@ -21,6 +21,7 @@ django-guardian
 django-haystack
 django-model-utils
 django-munin==0.1.4
+python-memcached
 lxml
 pygal
 httplib2

@@ -236,6 +236,15 @@ LOGGING = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
 AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
@@ -291,7 +300,7 @@ MESSAGE_TAGS = {
 
 
 MAX_POST_LENGTH = 1000000
-SDZ_TUTO_DIR = 'C:\Users\Willy\Desktop\listing'
+SDZ_TUTO_DIR = ''
 
 MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 
