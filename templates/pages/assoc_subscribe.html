@@ -1,23 +1,26 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
+
+
 {% block title %}
     Adhérer à l'association Zeste de Savoir
 {% endblock %}
 
-{% block head-title %}
-    Adhérer à l'association Zeste de Savoir
-{% endblock %}
+
 
 {% block breadcrumb %}
-  <li class="current">Adhérer à l'association Zeste de Savoir</li>
+  	<li>Adhérer à l'association Zeste de Savoir</li>
 {% endblock %}
 
-{% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        {% crispy form %}
-    </div>
-</div>
 
+
+{% block headline %}
+    <h2>Adhérer à l'association Zeste de Savoir</h2>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
 {% endblock %}

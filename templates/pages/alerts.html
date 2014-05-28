@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "pages/base.html" %}
 {% load humanize %}
 
 
@@ -9,14 +9,14 @@
 
 
 
-{% block headline %}
-    Liste des alertes en cours
+{% block breadcrumb %}
+    <li>Liste des alertes en cours</li>
 {% endblock %}
 
 
 
-{% block breadcrumb %}
-    <li>Liste des alertes en cours</li>
+{% block headline %}
+    <h2>Liste des alertes en cours</h2>
 {% endblock %}
 
 

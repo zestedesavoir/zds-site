@@ -236,13 +236,14 @@
 
             .content-col-2 {
                 width: 49.5%;
+                margin: 0 0 0 1%;
             }
             .content-col-3 {
                 width: 32%;
+                margin: 0 0 0 2%;
             }
             .content-col-2,
             .content-col-3 {
-                margin: 0 0 0 2%;
                 float: left;
 
                 &:first-child {
