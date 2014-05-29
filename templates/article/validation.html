@@ -78,7 +78,7 @@ Liste des Articles soumis en validation
                     </td>
                     <td>
                         {% if validation.is_pending %}
-                        <a href="{% url "zds.article.views.reservation" validation.pk %}">Réservé</a>
+                        <a href="{% url "zds.article.views.reservation" validation.pk %}">Réserver</a>
                         {% elif validation.is_pending_valid %}
                         <a href="{% url "zds.article.views.reservation" validation.pk %}">Se retirer</a>
                         {% elif validation.is_accept %}
