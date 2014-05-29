@@ -71,17 +71,17 @@ class TopicForm(forms.Form):
                 self._errors['title'] = self.error_class(
                     [u'Le titre ne peux pas contenir uniquement des tags'])
             else:
-                tags = re.findall(ur"((.*?)\[(.*?)\](.*?))" , title)
+                tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
                 for tag in tags:
-                    if tag[2].strip() == "" :
+                    if tag[2].strip() == "":
                         if 'title' in cleaned_data:
                             self._errors['title'] = self.error_class(
                                 [u'Un tag ne peut être vide'])
-                    
+
                     elif len(tag[2]) > Tag._meta.get_field('title').max_length:
                         if 'title' in cleaned_data:
                             self._errors['title'] = self.error_class(
-                                [(u'Un tag doit faire moins de {0} caractères'). \
+                                [(u'Un tag doit faire moins de {0} caractères').
                                     format(Tag._meta.get_field('title').max_length)])
         if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class(
