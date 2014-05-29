@@ -70,7 +70,7 @@ class ArticleTests(TestCase):
             reverse('zds.article.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        
+
         # publish article
         pub = self.client.post(
             reverse('zds.article.views.modify'),

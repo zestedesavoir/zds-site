@@ -108,7 +108,7 @@ def view(request, article_pk, article_slug):
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-    validation = Validation.objects.filter(article__pk=article.pk, 
+    validation = Validation.objects.filter(article__pk=article.pk,
                                             version=sha)\
                                     .latest("date_proposition")
 

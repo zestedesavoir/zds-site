@@ -89,7 +89,7 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        
+
         # reserve tutorial
         validation = Validation.objects.get(
             tutorial__pk=self.bigtuto.pk)

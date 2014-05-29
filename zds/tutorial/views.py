@@ -258,7 +258,7 @@ def reject_tutorial(request):
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    
+
     if request.user == validation.validator:
         validation.comment_validator = request.POST["text"]
         validation.status = "REJECT"
@@ -323,7 +323,7 @@ def valid_tutorial(request):
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    
+
     if request.user == validation.validator:
         (output, err) = MEP(tutorial, tutorial.sha_validation)
         messages.info(request, output)
@@ -373,6 +373,7 @@ def valid_tutorial(request):
                     "pour pouvoir le valider.")
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
+
 
 @can_write_and_read_now
 @login_required
