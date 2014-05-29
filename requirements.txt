@@ -30,7 +30,7 @@ factory-boy==2.2.1
 django-discover-runner==0.4
 pygeoip==0.3.1
 pillow
-git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4-zds.2.18
+git+https://github.com/zestedesavoir/Python-ZMarkdown.git@2.4.1-zds.1
 git+https://github.com/zestedesavoir/GitPython.git@0.3.2-RC1.z2
 flake8
 autopep8
