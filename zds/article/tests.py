@@ -63,6 +63,14 @@ class ArticleTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
 
+        # reserve tutorial
+        validation = Validation.objects.get(
+            article__pk=self.article.pk)
+        pub = self.client.get(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
         # publish article
         pub = self.client.post(
             reverse('zds.article.views.modify'),

@@ -71,25 +71,40 @@
         <div>
             <h3>Administration</h3>
             <ul>
-                {% if not article.sha_validation = None %}
-                <li>
-                    <a href="#" data-dropdown="valid-article" >Publier l'article</a>
-                    <div id="valid-article" class="f-dropdown small content" data-dropdown-content>
-                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                        <input id="id_is_major" name="is_major" type="checkbox">
-                        <label for="id_is_major">Version majeure ?</label>
-                        <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
-                    </div>
-                </li>
-                <li>
-                    <a href="#" data-dropdown="reject-article" >Rejeter l'article</a>
-                    <div id="reject-article" class="f-dropdown small content" data-dropdown-content>
-                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                        <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
-                    </div>
-                </li>
-                {% endif %}
                 <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
+                {% if not article.sha_validation = None %}
+                    {% if validation.is_pending %}
+                        <li>
+                            <a href="{% url "zds.article.views.reservation" validation.pk %}">Réserver</a>
+                        </li>
+                    {% elif validation.is_pending_valid %}
+                        {% if validation.validator = user %}
+                            <li>
+                                <a href="{% url "zds.article.views.reservation" validation.pk %}">Se retirer</a>
+                            </li>
+                            <li>
+                                <a href="#" data-dropdown="valid-article" >Publier l'article</a>
+                                <div id="valid-article" class="f-dropdown small content" data-dropdown-content>
+                                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                                    <input id="id_is_major" name="is_major" type="checkbox">
+                                    <label for="id_is_major">Version majeure ?</label>
+                                    <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#" data-dropdown="reject-article" >Rejeter l'article</a>
+                                <div id="reject-article" class="f-dropdown small content" data-dropdown-content>
+                                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                                    <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url "zds.article.views.reservation" validation.pk %}">Réservé par {{ validation.validator.username }}, le retirer</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
             </ul>
         </div>
         {% endif %}
