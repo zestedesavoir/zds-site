@@ -157,9 +157,8 @@ class Article(models.Model):
 
         self.slug = slugify(self.title)
 
-        if has_changed(self, 'image') and self.image:
-            # TODO : delete old image
-
+        if has_changed(self, 'image') and self.image:         
+            
             image = Image.open(self.image)
 
             image.thumbnail(thumb_size, Image.ANTIALIAS)
@@ -174,9 +173,17 @@ class Article(models.Model):
                                      temp_handle.read(),
                                      content_type='image/png')
             self.thumbnail.save(suf.name + '.png', suf, save=False)
-
+            
+    	    old = get_old_field_value(self,'thumbnail','objects')
+    	    
             # save the image object
             super(Article, self).save(force_update, force_insert)
+            
+            #delete the image if the update went well
+            if old != None:
+                name = os.path.join(settings.SITE_ROOT,"media",old.name)
+    	        os.remove(name)
+			
         else:
             super(Article, self).save()
 
@@ -244,11 +251,17 @@ def has_changed(instance, field, manager='objects'):
     model.save() method."""
     if not instance.pk:
         return True
-    manager = getattr(instance.__class__, manager)
-    old = getattr(manager.get(pk=instance.pk), field)
+    old = get_old_field_value(instance,field,manager)
     return not getattr(instance, field) == old
 
-
+def get_old_field_value(instance, field, manager):
+    """returns the old instance of the field. Should be used when you 
+    want to delete an old image.""" 
+    if not instance.pk:
+		return None
+    manager = getattr(instance.__class__, manager)
+    return getattr(manager.get(pk=instance.pk), field)
+    
 def get_last_articles():
     return Article.objects.all()\
         .exclude(sha_public__isnull=True)\
