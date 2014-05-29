@@ -1,5 +1,5 @@
 {% extends "mp/base.html" %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 
 
@@ -59,7 +59,7 @@
                         {% if answer %}
                             <a href="{{ answer.get_absolute_url }}">
                                 Dernière réponse <br>
-                                {{ answer.pubdate|naturaltime }}
+                                {{ answer.pubdate|format_date }}
                             </a>
                             <br> 
                             par

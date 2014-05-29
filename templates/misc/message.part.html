@@ -1,6 +1,6 @@
 {% load profile %}
-{% load humanize %}
 {% load emarkdown %}
+{% load date %}
 
 
 
@@ -117,7 +117,7 @@
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    Edité {{ message.update|naturaltime }} par {{ message.editor }}
+                    Edité {{ message.update|format_date }} par {{ message.editor }}
                 </p>
             {% endif %}
         </div>
@@ -125,8 +125,8 @@
         {% if perms.forum.change_post %}
             {% for alert in message.alerts.all %}
                 <div class="alert-box error">
-                    {% include "misc/member_item.part.html" with member=alert.author %}
-                    {{ alert.pubdate|naturaltime }} : <em>{{ alert.text }}</em>
+                    {% include "misc/member_item.part.html" with member=alert.author %} - 
+                    {{ alert.pubdate|format_date|capfirst }} : <em>{{ alert.text }}</em>
 
                     <a href="#solve-alert-{{alert.pk}}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
                     <form id="solve-alert-{{alert.pk}}" method="post" action="{% url "zds.forum.views.solve_alert" %}" class="modal modal-medium">

@@ -1,7 +1,7 @@
 {% extends "member/base.html" %}
 {% load emarkdown %}
 {% load email_obfuscator %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 
 
@@ -40,7 +40,7 @@
 
 
     <p>
-        Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ usr.last_login|naturaltime }}.
+        Inscrit {{ usr.date_joined|format_date }}, dernière connexion {{ usr.last_login|format_date }}.
     </p>
     {% if perms.member.show_ip %}
         <p>

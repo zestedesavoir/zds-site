@@ -1,5 +1,5 @@
 {% extends "pages/base.html" %}
-{% load humanize %}
+{% load date %}
 
 
 
@@ -35,9 +35,9 @@
                 <tr>
                     <td>{{ alert.get_scope_display }}</td>
                     <td><a href="{% url "zds.member.views.details" alert.author.username %}">{{ alert.author.username }}</a></td>
-                    <td class="wide">{{ alert.pubdate|naturaltime }}</td>
+                    <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
                     <td class="wide"><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
-                    <td><a href="{% url "zds.member.views.details" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, posté le {{ alert.comment.pubdate|naturaltime }}</td>
+                    <td><a href="{% url "zds.member.views.details" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, posté le {{ alert.comment.pubdate|format_date }}</td>
                 </tr>
             {% endfor %}
         </tbody>

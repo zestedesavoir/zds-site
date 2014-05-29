@@ -1,6 +1,5 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
-{% load humanize %}
 {% load repo_reader %}
 
 
@@ -37,7 +36,7 @@
         {% endfor %}
     </ul>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Auteurs : </span>
         <ul>
             {% for member in tutorial.authors.all %}

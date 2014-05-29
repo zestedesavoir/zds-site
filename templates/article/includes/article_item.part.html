@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load date %}
 
 
 
@@ -11,7 +11,7 @@
         <div class="article-infos">
             <h3>{{ article.title }}</h3>
             <p class="article-metadata">
-                Créé {{ article.pubdate|naturaltime }}
+                Créé {{ article.pubdate|format_date }}
             </p>
         </div>
     </a>

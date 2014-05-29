@@ -1,5 +1,5 @@
 {% extends "forum/base.html" %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -49,7 +49,7 @@
                     </div>
                 </td>
                 <td>
-                    {{ post.pubdate|naturaltime }}
+                    {{ post.pubdate|format_date }}
                 </td>
                 <td>
                     {{ post.text|truncatechars:200|emarkdown|striptags }}

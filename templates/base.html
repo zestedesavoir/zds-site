@@ -4,7 +4,7 @@
 {% load interventions %}
 {% load topbar %}
 {% load captureas %}
-{% load humanize %}
+{% load date %}
 
 
 
@@ -198,7 +198,7 @@
                                                                 <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
-                                                            <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|format_date|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
                                                         </a>
                                                     </li>
@@ -221,7 +221,7 @@
                                                             <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ last_read.author.username }}</span>
-                                                            <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="date">{{ last_read.pubdate|format_date|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
                                                         </a>
                                                         {% endwith %}
@@ -267,7 +267,7 @@
                                                             {% with p=first_unread.author|profile %}
                                                             <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                             <span class="username">{{ first_unread.author.username }}</span>
-                                                            <span class="date">{{ first_unread.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|format_date|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
                                                             {% endwith %}
                                                         </a>
@@ -290,7 +290,7 @@
                                                             {% with p=last_read.author|profile %}
                                                             <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                             <span class="username">{{ last_read.author.username }}</span>
-                                                            <span class="date">{{ last_read.pubdate|naturaltime|capfirst }}</span>
+                                                            <span class="date">{{ last_read.pubdate|format_date|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
                                                             {% endwith %}
                                                         </a>
@@ -333,7 +333,7 @@
                                                         <li>
                                                             <a href="{{ alert.url }}">
                                                                 <span class="username">{{ alert.title }}</span>
-                                                                <span class="date">{{ alert.pubdate|naturaltime }}</span>
+                                                                <span class="date">{{ alert.pubdate|format_date|capfirst }}</span>
                                                                 <span class="topic">{{ alert.text }}</span>
                                                             </a>
                                                         </li>

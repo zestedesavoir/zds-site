@@ -1,4 +1,4 @@
-{% load emarkdown %}{% load humanize %}{% load profile %}
+{% load emarkdown %}{% load profile %}
 % {{ tutorial.title|safe|upper }}
 % {% for member in tutorial.authors.all %}{{ member.username|title }}, {% endfor %}
 % {{ tutorial.pubdate|date:"d F Y" }}

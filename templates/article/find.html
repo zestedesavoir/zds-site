@@ -1,5 +1,5 @@
 {% extends "article/base.html" %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -62,7 +62,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ date=article.pubdate|naturaltime|capfirst }}
+                        {{ date=article.pubdate|format_date|capfirst }}
                     </td>
                     <td>
                         {{ article.text|truncatechars:200|emarkdown }}

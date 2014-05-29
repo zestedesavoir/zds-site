@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load date %}
 {% load profile %}
 
 
@@ -31,6 +31,10 @@
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
+                -
+                {% for tag in topic.tags.all %}
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}" class="topic-tag">{{ tag.title }}</a>
+                {% endfor %}
             </p>
         </div>
     {% endwith %}
@@ -44,7 +48,7 @@
             {% if answer %}
                 <a href="{{ answer.get_absolute_url }}">
                     Dernière réponse <br>
-                    {{ answer.pubdate|naturaltime }}
+                    {{ answer.pubdate|format_date }}
                 </a>
                 <br>
                 par

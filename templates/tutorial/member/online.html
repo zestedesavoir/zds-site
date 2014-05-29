@@ -1,5 +1,5 @@
 {% extends "tutorial/base_online.html" %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 {% load emarkdown %}
 
@@ -52,7 +52,7 @@
                     </td>
                     <td>
                         {% if tuto.pubdate %}
-                            {{ tuto.pubdate|naturaltime }}
+                            {{ tuto.pubdate|format_date|captfirst }}
                         {% endif %}
                     </td>
                     <td>

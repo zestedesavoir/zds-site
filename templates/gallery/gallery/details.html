@@ -29,15 +29,17 @@
 
 
 
-{% block sidebar_actions %}
-    <li><a href="{% url "zds.gallery.views.new_image" gallery.pk %}">Ajouter une image</a></li>
+{% block new_btn %}
+    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
+        Ajouter une image
+    </a>
 {% endblock %}
 
 
 
 {% block content %}
-    <div class="authors content-wrapper">
-        <span class="authors-label">Membres partageant cette galerie : </span>
+    <div class="authors">
+        <span class="authors-label">Galerie partagée avec : </span>
         <ul>
             {% for u in gallery.get_users %}
                 {% captureas mode %}
@@ -48,7 +50,7 @@
                     {% endif %}
                 {% endcaptureas %}
                 <li>
-                    {% include "misc/member_item.part.html" with member=u.user info=mode %}
+                    {% include "misc/member_item.part.html" with member=u.user info=mode avatar=True %}
                 </li>
             {% endfor %}
         </ul>
@@ -62,7 +64,7 @@
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
 
-        <table>
+        <table class="fullwidth">
             <thead>
                <tr>
                    <th style="width: 3%;"></th>

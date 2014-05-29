@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load humanize %}
+{% load date %}
 {% load emarkdown %}
 
 
@@ -95,28 +95,24 @@
                                 {% if result.object.pubdate %}
                                     {% if result.object.first_post %}
                                         <a href="{{ result.object.get_absolute_url }}">
-                                            {{ result.object.pubdate|naturaltime }}
-                                        </a>
                                     {% elif result.object.get_introduction_online %}
                                         <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.pubdate|naturaltime }}
-                                        </a>
                                     {% else %}
                                         <a href="{{ result.object.get_absolute_url }}">
-                                            {{ result.object.pubdate|naturaltime }}
-                                        </a>
                                     {% endif %}
+                                            {{ result.object.pubdate|format_date }}
+                                        </a>
                                 {% elif result.object.tutorial.pubdate %}
                                     <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.tutorial.pubdate|naturaltime }}
+                                        {{ result.object.tutorial.pubdate|format_date }}
                                     </a>
                                 {% elif result.object.part.tutorial.pubdate %}
                                     <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.part.tutorial.pubdate|naturaltime }}
+                                        {{ result.object.part.tutorial.pubdate|format_date }}
                                     </a>
                                 {% elif result.object.chapter.part.tutorial.pubdate %}
                                     <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.chapter.part.tutorial.pubdate|naturaltime }}
+                                        {{ result.object.chapter.part.tutorial.pubdate|format_date }}
                                     </a>
                                 {% endif %}
                             </td>
@@ -137,20 +133,16 @@
             </table>
 
             {% if page.has_previous or page.has_next %}
-                <div>
+                <div class="pagination pagination-bottom pagination-chapter">
                     {% if page.has_previous %}
-                        <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">
-                    {% endif %}
-                    &laquo; Page précédente
-                    {% if page.has_previous %}
+                        <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}" class="ico-after prev arrow-left">
+                            Page précédente
                         </a>
                     {% endif %}
-                    |
+                    
                     {% if page.has_next %}
-                        <a href="?q={{ query }}&amp;page={{ page.next_page_number }}">
-                    {% endif %}
-                    Page suivante &raquo;
-                    {% if page.has_next %}
+                        <a href="?q={{ query }}&amp;page={{ page.next_page_number }}" class="ico-after prev arrow-right">
+                            Page suivante
                         </a>
                     {% endif %}
                 </div>

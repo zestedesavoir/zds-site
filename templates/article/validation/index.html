@@ -1,5 +1,5 @@
 {% extends "article/base.html" %}
-{% load humanize %}
+{% load date %}
 
 
 
@@ -86,7 +86,7 @@
                             {% endfor %}
                         </td>
                         <td>
-                            <span>{{ validation.date_proposition|naturaltime }}</span>
+                            <span>{{ validation.date_proposition|format_date|capfirst }}</span>
                         </td>
                         <td>
                             {% if validation.validator %}
@@ -97,7 +97,7 @@
                         </td>
                         <td>
                             {% if validation.date_reserve %}
-                                <span>{{ validation.date_reserve|naturaltime }}</span>
+                                <span>{{ validation.date_reserve|format_date|capfirst }}</span>
                             {% endif %}
                         </td>
                         <td>

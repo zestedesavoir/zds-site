@@ -22,13 +22,12 @@
 
 
 
-{% block sidebar_actions %}
-    <li>
-        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}">
-            Ajouter une image
-        </a>
-    </li>
+{% block new_btn %}
+    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
+        Ajouter une image
+    </a>
 {% endblock %}
+
 
 
 

@@ -1,5 +1,4 @@
 {% extends "tutorial/base.html" %}
-{% load humanize %}
 
 
 
@@ -43,7 +42,7 @@
                                         {{ category.title }}                                    
                                     {% endfor %}
                                 {% endif %}
-                                - Créé {{ tutorial.create_at|naturaltime }}
+                                - Créé {{ tutorial.create_at|format_date }}
                             </span>
                         </div>
                     </a>

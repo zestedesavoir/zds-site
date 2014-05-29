@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load emarkdown %}
-{% load humanize %}
+{% load date %}
 {% load interventions %}
 {% load topbar %}
 
@@ -53,7 +53,7 @@
 
 {# Content #}
 {% block content_out %}
-    <section class="content-col-2">
+    <section class="content-col-2 tutorial-list">
         <h2 class="ico-after ico-articles">Derniers Articles</h2>
 
         {% if last_articles %}
@@ -61,7 +61,7 @@
                 <article>
                     <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
                     <p class="article-metadata">
-                        {{ article.pubdate|naturaltime|capfirst }} -
+                        {{ article.pubdate|format_date|capfirst }} -
                         <a href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }} réactions</a>
                     </p>
                     {% if article.image %}

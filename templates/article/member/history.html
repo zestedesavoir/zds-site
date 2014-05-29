@@ -1,6 +1,6 @@
 {% extends "article/member/base.html" %}
 {% load emarkdown %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
 
 
@@ -32,7 +32,7 @@
         Historique de : {{ article.title }}
     </h1>
     
-    <div class="authors content-wrapper">
+    <div class="authors">
         <span class="authors-label">Contributeurs : </span>
         <ul>
             {% for member in article.authors.all %}
@@ -72,7 +72,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    {{ log.time.0|naturaltime }}
+                    {{ log.time.0|format_date|capfirst }}
                 </td>
                 <td>
                     <a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}">

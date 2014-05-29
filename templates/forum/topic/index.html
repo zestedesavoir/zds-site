@@ -1,6 +1,5 @@
 {% extends "forum/base.html" %}
 {% load emarkdown %}
-{% load humanize %}
 {% load captureas %}
 {% load profile %}
 {% load crispy_forms_tags %}
@@ -35,8 +34,9 @@
 
 {% block content %}
     <ul class="taglist">
-        <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-        <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+        {% for tag in topic.tags.all %}
+            <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}">{{ tag.title }}</a></li>
+        {% endfor %}
     </ul>
 
     {% include "misc/pagination.part.html" with position="top" %}
@@ -122,50 +122,50 @@
             {% endif %}
         </a>
     </li>
+{% endblock %}
 
+
+
+{% block sidebar_blocks %}
     {% if perms.forum.change_topic %}
-        </ul>
-    </div>
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
-        <h3>Modération</h3>
-        <ul>
-        {% if topic.is_locked %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
-                   class="ico-after lock blue">
-                    Dévérouiller
-                </a>
-            </li>
-        {% else %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"
-                   class="ico-after lock blue">
-                    Vérouiller le sujet
-                </a>
-            </li>
-        {% endif %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
+            <h3>Modération</h3>
+            <ul>
+                <li>
+                    {% if topic.is_locked %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
+                           class="ico-after lock blue">
+                            Dévérouiller
+                        </a>
+                    {% else %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"
+                           class="ico-after lock blue">
+                            Vérouiller le sujet
+                        </a>
+                    {% endif %}
+                </li>
 
-        {% if topic.is_sticky %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
-                   class="ico-after pin blue">
-                    Enlever du Post-It
-                </a>
-            </li>
-        {% else %}
-            <li>
-                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"
-                   class="ico-after pin blue">
-                    Marquer en Post-It
-                </a>
-            </li>
-        {% endif %}
+                <li>
+                    {% if topic.is_sticky %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
+                           class="ico-after pin blue">
+                            Enlever du Post-It
+                        </a>
+                    {% else %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"
+                           class="ico-after pin blue">
+                            Marquer en Post-It
+                        </a>
+                    {% endif %}
+                </li>
 
-        <li>
-            <a href="#move-topic" class="ico-after arrow-right blue open-modal">Déplacer le sujet</a>
-            <div class="modal modal-small" id="move-topic">
-                {% crispy form_move %}
-            </div>
-        </li>
+                <li>
+                    <a href="#move-topic" class="ico-after arrow-right blue open-modal">Déplacer le sujet</a>
+                    <div class="modal modal-small" id="move-topic">
+                        {% crispy form_move %}
+                    </div>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}
