@@ -29,6 +29,7 @@ from zds.utils.models import Alert
         SITE_ROOT,
         'articles-data-test'))
 
+
 class BigTutorialTests(TestCase):
 
     def setUp(self):
@@ -703,6 +704,7 @@ class BigTutorialTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
+
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -1085,7 +1087,6 @@ class MiniTutorialTests(TestCase):
                     self.minituto.slug]),
             follow=True)
         self.assertEqual(result.status_code, 403)
-
 
     def test_url_for_author(self):
         """Test simple get request by author."""
