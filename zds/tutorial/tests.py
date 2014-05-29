@@ -28,8 +28,6 @@ from zds.utils.models import Alert
     REPO_ARTICLE_PATH=os.path.join(
         SITE_ROOT,
         'articles-data-test'))
-
-
 class BigTutorialTests(TestCase):
 
     def setUp(self):
