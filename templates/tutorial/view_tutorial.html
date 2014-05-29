@@ -82,21 +82,36 @@
         <ul>
             <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}"><span class="fi-graph-trend grey size-16"></span> Historique validation</a></li>
             {% if tutorial.on_line %}
-            <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}"><span class="fi-x-circle grey size-16"></span> Dépublier</a>
+                <li><a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}"><span class="fi-x-circle grey size-16"></span> Dépublier</a>
             {% endif %}
             {% if tutorial.in_validation %}
-            <li>
-                <a href="#" data-dropdown="public-tuto" ><span class="fi-page-export"></span> Publier ce tutoriel</a>
-                <div id="public-tuto" class="f-dropdown small content" data-dropdown-content>
-                    {% crispy formValid %}
-                </div>
-            </li>
-            <li>
-                <a href="#" data-dropdown="reject-tuto" ><span class="fi-page-delete"></span> Rejeter ce tutoriel</a>
-                <div id="reject-tuto" class="f-dropdown small content" data-dropdown-content>
-                    {% crispy formReject %}
-                </div>
-            </li>
+                {% if validation.is_pending %}
+                    <li>
+                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}"><span class="fi-lock grey size-16"></span> Réserver</a>
+                    </li>
+                {% elif validation.is_pending_valid %}
+                    {% if validation.validator = user %}
+                        <li>
+                            <a href="{% url "zds.tutorial.views.reservation" validation.pk %}"><span class="fi-unlock grey size-16"></span> Se retirer</a>
+                        </li>
+                        <li>
+                            <a href="#" data-dropdown="public-tuto" ><span class="fi-page-export"></span> Publier ce tutoriel</a>
+                            <div id="public-tuto" class="f-dropdown small content" data-dropdown-content>
+                                {% crispy formValid %}
+                            </div>
+                        </li>
+                        <li>
+                            <a href="#" data-dropdown="reject-tuto" ><span class="fi-page-delete"></span> Rejeter ce tutoriel</a>
+                            <div id="reject-tuto" class="f-dropdown small content" data-dropdown-content>
+                                {% crispy formReject %}
+                            </div>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url "zds.tutorial.views.reservation" validation.pk %}"><span class="fi-unlock grey size-16"></span> Réservé par {{ validation.validator.username }}, le retirer</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
             {% endif %}
         </ul>
     </div>

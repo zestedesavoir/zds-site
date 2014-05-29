@@ -258,44 +258,52 @@ def reject_tutorial(request):
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    validation.comment_validator = request.POST["text"]
-    validation.status = "REJECT"
-    validation.date_validation = datetime.now()
-    validation.save()
+    
+    if request.user == validation.validator:
+        validation.comment_validator = request.POST["text"]
+        validation.status = "REJECT"
+        validation.date_validation = datetime.now()
+        validation.save()
 
-    # Remove sha_validation because we rejected this version of the tutorial.
+        # Remove sha_validation because we rejected this version of the tutorial.
 
-    tutorial.sha_validation = None
-    tutorial.pubdate = None
-    tutorial.save()
-    messages.info(request, u"Le tutoriel a bien été refusé.")
+        tutorial.sha_validation = None
+        tutorial.pubdate = None
+        tutorial.save()
+        messages.info(request, u"Le tutoriel a bien été refusé.")
 
-    # send feedback
+        # send feedback
 
-    for author in tutorial.authors.all():
-        msg = \
-            u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
-            upas passé l’étape de validation. Mais ne désespère pas, u\
-            ucertaines corrections peuvent surement être faite pour u\
-            ul’améliorer et repasser la validation plus tard. u\
-            uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
-            uN'hésite pas a lui envoyer un petit message pour discuter u\
-            ude la décision ou demander plus de détail si tout cela te u\
-            usemble injuste ou manque de clarté."""\
-            .format(author.username, tutorial.title, validation.validator.username,
-                    validation.validator.profile.get_absolute_url(), validation.comment_validator)
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(
-            bot,
-            [author],
-            u"Refus de Validation : {0}".format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+        for author in tutorial.authors.all():
+            msg = \
+                u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
+                upas passé l’étape de validation. Mais ne désespère pas, u\
+                ucertaines corrections peuvent surement être faite pour u\
+                ul’améliorer et repasser la validation plus tard. u\
+                uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
+                uN'hésite pas a lui envoyer un petit message pour discuter u\
+                ude la décision ou demander plus de détail si tout cela te u\
+                usemble injuste ou manque de clarté."""\
+                .format(author.username, tutorial.title, validation.validator.username,
+                        validation.validator.profile.get_absolute_url(), validation.comment_validator)
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Refus de Validation : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
+    else:
+        messages.error(request,
+                    "Vous devez avoir réservé ce tutoriel "
+                    "pour pouvoir le refuser.")
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
 
 
 @can_write_and_read_now
@@ -312,52 +320,59 @@ def valid_tutorial(request):
     except KeyError:
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    (output, err) = MEP(tutorial, tutorial.sha_validation)
-    messages.info(request, output)
-    messages.error(request, err)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    validation.comment_validator = request.POST["text"]
-    validation.status = "ACCEPT"
-    validation.date_validation = datetime.now()
-    validation.save()
+    
+    if request.user == validation.validator:
+        (output, err) = MEP(tutorial, tutorial.sha_validation)
+        messages.info(request, output)
+        messages.error(request, err)
+        validation.comment_validator = request.POST["text"]
+        validation.status = "ACCEPT"
+        validation.date_validation = datetime.now()
+        validation.save()
 
-    # Update sha_public with the sha of validation. We don't update sha_draft.
-    # So, the user can continue to edit his tutorial in offline.
+        # Update sha_public with the sha of validation. We don't update sha_draft.
+        # So, the user can continue to edit his tutorial in offline.
 
-    if request.POST.get('is_major', False) or tutorial.sha_public is None:
-        tutorial.pubdate = datetime.now()
-    tutorial.sha_public = validation.version
-    tutorial.sha_validation = None
-    tutorial.save()
-    messages.success(request, u"Le tutoriel a bien été validé.")
+        if request.POST.get('is_major', False) or tutorial.sha_public is None:
+            tutorial.pubdate = datetime.now()
+        tutorial.sha_public = validation.version
+        tutorial.sha_validation = None
+        tutorial.save()
+        messages.success(request, u"Le tutoriel a bien été validé.")
 
-    # send feedback
+        # send feedback
 
-    for author in tutorial.authors.all():
-        msg = \
-            u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
-            uest maintenant publié ! Les lecteurs du monde entier u\
-            upeuvent venir l'éplucher et réagir a son sujet. u\
-            uJe te conseille de rester a leur écoute afin u\
-            ud'apporter des corrections/compléments.u\
-            uUn Tutoriel vivant et a jour est bien plus lu u\
-            uqu'un sujet abandonné !"""\
-            .format(author.username, tutorial.title, tutorial.get_absolute_url_online())
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(
-            bot,
-            [author],
-            u"Publication : {0}".format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
-
+        for author in tutorial.authors.all():
+            msg = \
+                u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
+                uest maintenant publié ! Les lecteurs du monde entier u\
+                upeuvent venir l'éplucher et réagir a son sujet. u\
+                uJe te conseille de rester a leur écoute afin u\
+                ud'apporter des corrections/compléments.u\
+                uUn Tutoriel vivant et a jour est bien plus lu u\
+                uqu'un sujet abandonné !"""\
+                .format(author.username, tutorial.title, tutorial.get_absolute_url_online())
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Publication : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
+    else:
+        messages.error(request,
+                    "Vous devez avoir réservé ce tutoriel "
+                    "pour pouvoir le valider.")
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
 
 @can_write_and_read_now
 @login_required
@@ -664,7 +679,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk,
-                                           version=sha)
+                                           version=sha)\
+                                    .latest("date_proposition")
     formAskValidation = AskValidationForm()
     formValid = ValidForm()
     formReject = RejectForm()
