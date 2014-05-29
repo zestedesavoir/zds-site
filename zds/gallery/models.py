@@ -125,7 +125,7 @@ class Image(models.Model):
             IMAGE_THUMB_MAX_HEIGHT),
         medium_size=(
             IMAGE_MEDIUM_MAX_WIDTH,
-            IMAGE_MEDIUM_MAX_HEIGHT)):
+            IMAGE_MEDIUM_MAX_HEIGHT), *args, **kwargs):
         if has_changed(self, 'physical') and self.physical:
             # TODO : delete old image
 
