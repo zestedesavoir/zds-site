@@ -98,6 +98,13 @@ Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échou
 **NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. **
 **NB2 : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.**
 
+Une liste des dépendances du projets :
+- python-dev
+- libxml2-dev
+- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
+- libz-dev
+- python-sqlparse
+
 ```console
 pip install --user --upgrade -r requirements.txt
 python manage.py syncdb
