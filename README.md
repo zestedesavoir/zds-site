@@ -145,7 +145,7 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 
 ```console
 python manage.py test
-flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403 zds
+flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
 ```
 
 Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
