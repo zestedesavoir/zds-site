@@ -92,8 +92,8 @@ def assoc_subscribe(request):
             subject = "Demande d'adhésion de {}".format(user.username)
             from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
             reply_to_email = "{} <{}>".format(user.username, data['email'])
-            message_html = get_template("email/assoc_subscribe.html").render(Context(context))
-            message_txt = get_template("email/assoc_subscribe.txt") .render(Context(context))
+            message_html = get_template("email/assoc/subscribe.html").render(Context(context))
+            message_txt = get_template("email/assoc/subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
@@ -107,10 +107,10 @@ def assoc_subscribe(request):
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
-        return render_template("pages/assoc_subscribe.html", {"form": form})
+        return render_template("pages/assoc/subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})
-    return render_template("pages/assoc_subscribe.html", {"form": form})
+    return render_template("pages/assoc/subscribe.html", {"form": form})
 
 
 @can_read_now

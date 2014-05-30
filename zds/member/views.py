@@ -600,9 +600,9 @@ def register_view(request):
 
             subject = "ZDS - Confirmation d'inscription"
             from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
-            message_html = get_template("email/confirm_register.html").render(Context(
+            message_html = get_template("email/register/confirm.html").render(Context(
                 {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
-            message_txt = get_template("email/confirm_register.txt") .render(Context(
+            message_txt = get_template("email/register/confirm.txt") .render(Context(
                 {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [user.email])
