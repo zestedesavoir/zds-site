@@ -351,8 +351,12 @@
                 .username {
                     display: block;
                     float: left;
-                    margin: 3px 0 0 7px;
+                    margin: 3px 0 3px 7px;
                     color: #95D7F5;
+                    width: 50%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
                 .date {
                     color: #5196b6;
@@ -362,7 +366,10 @@
                 }
                 .topic {
                     display: block;
-                    padding: 32px 7px 0;
+                    padding: 4px 7px 0;
+                    height: 25px;
+                    overflow: hidden;
+                    float: left;
                 }
 
                 &:nth-child(2n+1) {
