@@ -1,20 +1,17 @@
-{# TODO : refaire cette pagination #}
-
-<div class="row">
-    <div class="large-6 columns">
-        {% if prev %}
-            <a class="button secondary " href="{{ prev.get_absolute_url_online }}">
-                <span class="fi-arrow-left"></span> {{ prev.title }}
+<ul class="pagination pagination-top pagination-chapter">
+    {% if prev %}
+        <li class="prev">
+            <a href="{{ prev.get_absolute_url_online }}" class="ico-after arrow-left blue">
+                {{ prev.title }}
             </a>
-        {% endif %}
-    </div>
-    <div class="large-6 columns">
-        <div class="right">
-            {% if next %}
-               <a class="button secondary" href="{{ next.get_absolute_url_online }}">
-                   {{ next.title }} <span class="fi-arrow-right">
-               </a>
-           {% endif %}
-        </div>
-    </div>
-</div>
+        </li>
+    {% endif %}
+
+    {% if next %}
+        <li class="next">
+            <a href="{{ next.get_absolute_url_online }}" class="ico-after arrow-right blue">
+                {{ next.title }}
+            </a>
+        </li>
+    {% endif %}
+</ul>

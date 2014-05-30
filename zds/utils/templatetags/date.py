@@ -12,7 +12,7 @@ from django.utils.tzinfo import LocalTimezone
 register = template.Library()
 
 
-def date_formatter(value, tooltip):
+def date_formatter(value, tooltip, small):
     try:
         value = datetime(value.year, value.month, value.day,
                          value.hour, value.minute, value.second)
@@ -34,15 +34,17 @@ def date_formatter(value, tooltip):
         # Reverse if in tooltip
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
+        elif small:
+            return date(value, 'd/m/y à G\hi')
         else:
             return date(value, 'l d F Y à G\hi')
 
 
 @register.filter
-def format_date(value):
-    return date_formatter(value, False)
+def format_date(value, small=False):
+    return date_formatter(value, False, small)
 
 
 @register.filter
 def tooltip_date(value):
-    return date_formatter(value, True)
+    return date_formatter(value, True, False)

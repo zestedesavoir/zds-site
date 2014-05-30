@@ -351,8 +351,12 @@
                 .username {
                     display: block;
                     float: left;
-                    margin: 3px 0 0 7px;
+                    margin: 3px 0 3px 7px;
                     color: #95D7F5;
+                    width: 50%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
                 .date {
                     color: #5196b6;
@@ -362,7 +366,10 @@
                 }
                 .topic {
                     display: block;
-                    padding: 32px 7px 0;
+                    padding: 4px 7px 0;
+                    height: 25px;
+                    overflow: hidden;
+                    float: left;
                 }
 
                 &:nth-child(2n+1) {
@@ -899,13 +906,10 @@
    ============== */
 .tutorial-list article,
 .main .article-content .tutorial-list article {
-    height: 60px;
+    min-height: 60px;
     padding: 20px 2%;
     border-bottom: 1px solid #e0e4e5;
 
-    &:nth-child(2) {
-        padding-top: 10px;
-    }
     &:nth-child(2n+1) {
         background-color: rgba(255, 255, 255, .8);
     }
@@ -922,6 +926,10 @@
         padding: 0;
         font-size: 20px;
         font-size: 2.0rem;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     a {
         text-decoration: none;
@@ -934,6 +942,11 @@
 
         a {
             color: #ee8709;
+
+            &:hover,
+            &:focus {
+                text-decoration: underline;
+            }
         }
     }
 
@@ -953,7 +966,7 @@
         }
     }
     .resume {
-        margin: 7px 0 0;
+        margin: 20px 0 0;
         padding: 0;
     }
 
@@ -1133,6 +1146,10 @@
 
         a {
             padding: 0 15px;
+            max-width: 50%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
 
             &.ico-after:after {
                 margin-top: 12px;
@@ -1271,12 +1288,12 @@
         }
     }
     .topic-answers {
-        width: 15%;
+        width: 12%;
         text-align: center;
         padding-top: 25px;
     }
     .topic-last-answer {
-        width: 15%;
+        width: 18%;
 
         .topic-no-last-answer {
             display: block;
@@ -1499,17 +1516,14 @@
                 padding-top: 10px;
             }
         }
+    }
 
-        /* a {
-            color: #333;
-            @include transition;
-
-            &:hover,
-            &:focus {
-                color: #EE8709;
-                text-decoration: none;
-            }
-        } */
+    .reactions-title {
+        margin: 50px 0 20px;
+        color: $blue;
+        border-bottom: 1px solid $orange;
+        text-transform: uppercase;
+        font-weight: normal;
     }
 }
 

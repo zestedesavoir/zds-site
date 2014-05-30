@@ -264,8 +264,8 @@ class ForumMemberTests(TestCase):
             reverse('zds.forum.views.edit_post') +
             '?message={0}'.format(post2.pk),
             {
-                'signal-text': u'Troll',
-                'signal-post': 'confirmer'
+                'signal_text': u'Troll',
+                'signal_message': 'confirmer'
             },
             follow=False)
 
@@ -747,8 +747,8 @@ class ForumGuestTests(TestCase):
             reverse('zds.forum.views.edit_post') +
             '?message={0}'.format(post2.pk),
             {
-                'signal-text': u'Troll',
-                'signal-post': 'confirmer'
+                'signal_text': u'Troll',
+                'signal_message': 'confirmer'
             },
             follow=False)
 

@@ -112,9 +112,12 @@
 
 
     {% include "article/includes/pager.part.html" %}
+{% endblock %}
 
 
-    <h3 class="subtitle">Réactions</h3>
+
+{% block content_after %}
+    <h3 class="reactions-title">Réactions</h3>
 
 
     {% include "misc/pagination.part.html" with position="top" topic=article %}

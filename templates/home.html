@@ -59,19 +59,30 @@
         {% if last_articles %}
             {% for article in last_articles %}
                 <article>
-                    <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
-                    <p class="article-metadata">
-                        {{ article.pubdate|format_date|capfirst }} -
-                        <a href="{{article.get_last_reaction.get_absolute_url}}">{{ article.get_reaction_count }} réactions</a>
-                    </p>
-                    {% if article.image %}
-                    <a href="{{ article.get_absolute_url_online }}" 
-                       tabindex="-1"
-                       style="background-image: url({{ article.image.url }})" 
-                       class="article-illu">
-                        <img src="{{ article.image.url }}" alt="">
+                    <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
+                        <img src="{{ article.image.thumb.url }}" alt="" class="tutorial-img avatar">
                     </a>
-                    {% endif %}
+                    <div class="tutorial-infos">
+                        <h3>
+                            <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}">
+                                {{ article.title }}
+                            </a>
+                        </h3>
+                        
+                        <span class="article-metadata">
+                            {{ article.pubdate|format_date|capfirst }} -
+                            <a href="{{ article.get_last_reaction.get_absolute_url }}">
+                                {% if article.get_reaction_count == 0 %}
+                                    Aucune réaction
+                                {% elif article.get_reaction_count == 1 %}
+                                    1 réaction
+                                {% else %}
+                                    {{ article.get_reaction_count }} réactions
+                                {% endif %}
+                            </a>
+                        </span>
+                    </div>
+
                     <p class="resume">
                         {{ article.description }}
                     </p>

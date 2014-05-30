@@ -2904,7 +2904,7 @@ def edit_note(request):
 
     if note.author != request.user \
             and not request.user.has_perm("tutorial.change_note") \
-            and "signal-note" not in request.POST:
+            and "signal_message" not in request.POST:
         raise PermissionDenied
     if note.author != request.user and request.method == "GET" \
             and request.user.has_perm("tutorial.change_note"):
@@ -2915,7 +2915,7 @@ def edit_note(request):
                              ucelui-ci !".format(note.author.username))
         note.alerts.all().delete()
     if request.method == "POST":
-        if "delete-note" in request.POST:
+        if "delete_message" in request.POST:
             if note.author == request.user \
                     or request.user.has_perm("tutorial.change_note"):
                 note.alerts.all().delete()
@@ -2923,16 +2923,16 @@ def edit_note(request):
                 if request.user.has_perm("tutorial.change_note"):
                     note.text_hidden = request.POST["text_hidden"]
                 note.editor = request.user
-        if "show-note" in request.POST:
+        if "show_message" in request.POST:
             if request.user.has_perm("tutorial.change_note"):
                 note.is_visible = True
                 note.text_hidden = ""
-        if "signal-note" in request.POST:
+        if "signal_message" in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = note
             alert.scope = Alert.TUTORIAL
-            alert.text = request.POST["signal-text"]
+            alert.text = request.POST["signal_text"]
             alert.pubdate = datetime.now()
             alert.save()
 
