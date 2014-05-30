@@ -236,12 +236,11 @@ def new(request):
             # add tags
 
             for tag in tags:
-                if tag[2].strip() != "":
-                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                    if tg is None:
-                        tg = Tag(title=tag[2])
-                        tg.save()
-                    n_topic.tags.add(tg)
+                tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                if tg is None:
+                    tg = Tag(title=tag[2])
+                    tg.save()
+                n_topic.tags.add(tg)
             n_topic.save()
 
             # Adding the first message
@@ -621,12 +620,11 @@ def edit_post(request):
                 # add tags
 
                 for tag in tags:
-                    if tag[2].strip() != "":
-                        tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                        if tg is None:
-                            tg = Tag(title=tag[2])
-                            tg.save()
-                        g_topic.tags.add(tg)
+                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                    if tg is None:
+                        tg = Tag(title=tag[2])
+                        tg.save()
+                    g_topic.tags.add(tg)
                 g_topic.save()
         post.save()
         return redirect(post.get_absolute_url())
