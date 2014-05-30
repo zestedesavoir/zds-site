@@ -30,14 +30,11 @@ class ArticleListSerializer(serializers.ModelSerializer):
     slug = serializers.Field()
     authors = serializers.RelatedField(many = True)
     image = serializers.Field('image.url')
-    create_at = UnixDateField(source = 'create_at')
     pubdate = UnixDateField(source = 'pubdate')
-    update = UnixDateField(source = 'update')
 
     class Meta():
         model = Article
-        fields = ('id', 'slug', 'title', 'description', 'authors', 
-            'image', 'create_at', 'pubdate', 'update')
+        fields = ('id', 'slug', 'title', 'description', 'authors',  'image', 'pubdate')
 
 class ArticleSerializer(serializers.ModelSerializer):
     """
@@ -57,7 +54,43 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ('id', 'slug', 'title', 'description', 'authors', 'image', 
             'is_locked', 'is_visible', 'archive', 'create_at', 'pubdate', 'update')
+
+class TutorialListSerializer(object):
+    """
+    Serializer of tutorials. We retrieve some importants information about
+    tutorials. If the user would like to know more about one of these tutorials,
+    he must to call another api to retrieve details.
+    """
+    slug = serializers.Field()
+    authors = serializers.RelatedField(many = True)
+    image = serializers.Field('image.url')
+    create_at = UnixDateField(source = 'create_at')
+    pubdate = UnixDateField(source = 'pubdate')
+    update = UnixDateField(source = 'update')
+
+    class Meta:
+        model = Tutorial
+        fields = ('id', 'slug', 'title', 'description', 'image', 'pubdate', 'html')
         
+
+class TutorialSerializer(serializers.ModelSerializer):
+    """
+    Serializer of a tutorial specified. We retrieve all information of the tutorial.
+    Basics information and hyperlinks to download some formats of the tutorial like
+    markdown or html.
+    """
+    slug = serializers.Field()
+    authors = serializers.RelatedField(many = True)
+    image = serializers.Field('image.url')
+    create_at = UnixDateField(source = 'create_at')
+    pubdate = UnixDateField(source = 'pubdate')
+    update = UnixDateField(source = 'update')
+    html = HtmlField(source = 'id')
+
+    class Meta:
+        model = Tutorial
+        fields = ('id', 'slug', 'title', 'description', 'image', 
+            'is_locked', 'create_at', 'pubdate', 'update', 'html')
 
 class ForumSerializer(serializers.ModelSerializer):
     slug = serializers.Field()
@@ -82,17 +115,3 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 'text', 'topic', 'author', 'pubdate', 'update')
-
-class TutorialSerializer(serializers.ModelSerializer):
-    slug = serializers.Field()
-    authors = serializers.RelatedField(many = True)
-    image = serializers.Field('image.url')
-    create_at = UnixDateField(source = 'create_at')
-    pubdate = UnixDateField(source = 'pubdate')
-    update = UnixDateField(source = 'update')
-    html = HtmlField(source = 'id')
-
-    class Meta:
-        model = Tutorial
-        fields = ('id', 'slug', 'title', 'description', 'image', 
-            'is_locked', 'create_at', 'pubdate', 'update', 'html')
