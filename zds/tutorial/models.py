@@ -39,7 +39,9 @@ class Tutorial(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.CharField('Description', max_length=200)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, 
+                                     verbose_name='Auteurs',
+                                     related_name='tutorials')
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',

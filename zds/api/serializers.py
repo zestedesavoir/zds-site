@@ -15,11 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
     """
     tutorials = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
     articles = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
-    comments = serializers.PrimaryKeyRelatedField(many=True, read_only='true')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'tutorials', 'articles', 'comments')
+        fields = ('id', 'username', 'tutorials', 'articles')
 
 class ArticleListSerializer(serializers.ModelSerializer):
     """
