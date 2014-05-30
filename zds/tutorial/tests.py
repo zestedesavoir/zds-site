@@ -711,6 +711,16 @@ class BigTutorialTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
 
 
+@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
+@override_settings(
+    REPO_PATH_PROD=os.path.join(
+        SITE_ROOT,
+        'tutoriels-public-test'))
+@override_settings(
+    REPO_ARTICLE_PATH=os.path.join(
+        SITE_ROOT,
+        'articles-data-test'))
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
