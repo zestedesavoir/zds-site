@@ -547,11 +547,6 @@
    ==================== */
     .main .content-container {
         .article-content {
-            p {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-
             p,
             ul:not(.pagination) {
                 font-size: 15px;
@@ -567,8 +562,10 @@
             h5,
             h6,
             .subtitle,
-            .authors {
+            .authors,
+            p {
                 padding-left: 15px;
+                padding-right: 15px;
             }
         }
     }
