@@ -4,9 +4,9 @@ from rest_framework import serializers
 
 from django.contrib.auth.models import User
 from zds.article.models import Article
-from zds.forum.models import Forum, Topic, Post
+from zds.forum.models import Category, Forum, Topic, Post
 from zds.tutorial.models import Tutorial
-from .fields import UnixDateField, HtmlField, ArticleArchiveLinkField
+from .fields import UnixDateField, TutorialHtmlField, ArticleArchiveLinkField
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -83,30 +83,50 @@ class TutorialSerializer(serializers.ModelSerializer):
     create_at = UnixDateField(source = 'create_at')
     pubdate = UnixDateField(source = 'pubdate')
     update = UnixDateField(source = 'update')
-    html = HtmlField(source = 'id')
+    html = TutorialHtmlField(source = 'id')
 
     class Meta:
         model = Tutorial
         fields = ('id', 'slug', 'title', 'description', 'authors','image', 
             'is_locked', 'create_at', 'pubdate', 'update', 'html')
 
-class ForumSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for categories. We retrieve all information about categories.
+    """
     slug = serializers.Field()
 
     class Meta:
+        model = Category
+        fields = ('id', 'title', 'position', 'slug')
+
+class ForumSerializer(serializers.ModelSerializer):
+    """
+    Serializer for forums. We retrieve all information about forums.
+    """
+    slug = serializers.Field()
+    image = serializers.Field('image.url')
+
+    class Meta:
         model = Forum
-        fields = ('id', 'title', 'subtitle', 'slug')
+        fields = ('id', 'title', 'subtitle', 'slug', 'category')
 
 class TopicSerializer(serializers.ModelSerializer):
+    """
+    Serializer for topics. We retrieve all information about topics.
+    """
     author = serializers.Field(source='author.username')
     pubdate = UnixDateField(source = 'pubdate')
 
     class Meta:
         model = Topic
-        fields = ('id', 'title', 'subtitle', 'forum', 'author',
-                  'pubdate', 'is_solved', 'is_locked', 'is_sticky')
+        fields = ('id', 'title', 'subtitle', 'forum', 'author', 'pubdate', 
+            'is_solved', 'is_locked', 'is_sticky')
 
 class PostSerializer(serializers.ModelSerializer):
+    """
+    Serializer for posts. We retrieve all information about posts.
+    """
     author = serializers.Field(source='author.username')
     update = UnixDateField(source = 'update')
 

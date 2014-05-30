@@ -23,7 +23,7 @@ class UnixDateField(serializers.DateTimeField):
         import datetime
         return datetime.datetime.fromtimestamp(int(value))
 
-class HtmlField(serializers.Field):
+class TutorialHtmlField(serializers.Field):
     def to_native(self, value):
         """
         Returns html path of the tutorial given.

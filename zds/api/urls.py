@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^tutorials/$', views.TutorialPublishedList.as_view()),
     url(r'^tutorials/(?P<pk>[0-9]+)/$', views.TutorialPublishedDetail.as_view()),
 
+	url(r'^categories/$', views.CategoryList.as_view()),
     url(r'^forums/$', views.ForumList.as_view()),
     url(r'^topics/$', views.TopicList.as_view()),
     url(r'^posts/$', views.PostList.as_view()),

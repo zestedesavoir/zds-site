@@ -5,12 +5,12 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 
 from .serializers import UserSerializer, ArticleListSerializer, ArticleSerializer,\
-    TutorialListSerializer, TutorialSerializer, ForumSerializer, TopicSerializer,\
-    PostSerializer
+    TutorialListSerializer, TutorialSerializer, CategorySerializer, ForumSerializer,\
+    TopicSerializer, PostSerializer
 
 from zds.article.models import Article, get_last_articles
 from zds.tutorial.models import Tutorial, get_last_tutorials
-from zds.forum.models import Forum, Topic, Post
+from zds.forum.models import Category, Forum, Topic, Post
 
 class UserList(generics.ListAPIView):
     '''List all users.'''
@@ -46,6 +46,11 @@ class ForumList(generics.ListAPIView):
     '''List all forums.'''
     queryset = Forum.objects.all()
     serializer_class = ForumSerializer
+
+class CategoryList(generics.ListAPIView):
+    '''List all categories.'''
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 class TopicList(generics.ListAPIView):
     '''List all topics.'''
