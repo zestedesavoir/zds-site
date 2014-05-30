@@ -108,7 +108,10 @@ def view(request, article_pk, article_slug):
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-    validation = Validation.objects.filter(article__pk=article.pk, version=sha)
+    validation = Validation.objects.filter(article__pk=article.pk,
+                                            version=sha)\
+                                    .order_by("-date_proposition")\
+                                    .first()
 
     return render_template('article/view.html', {
         'article': article_version,
@@ -436,48 +439,58 @@ def modify(request):
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
                 .latest('date_proposition')
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECTED'
-            validation.date_validation = datetime.now()
-            validation.save()
 
-            # Remove sha_validation because we rejected this version
-            # of the article.
-            article.sha_validation = None
-            article.pubdate = None
-            article.save()
+            if request.user == validation.validator:
+                validation.comment_validator = request.POST['comment-r']
+                validation.status = 'REJECTED'
+                validation.date_validation = datetime.now()
+                validation.save()
 
-            # send feedback
-            for author in article.authors.all():
-                msg = u"Désolé **{0}**, ton zeste **{1}** u\
-                un'a malheureusement pas passé l’étape de validation. u\
-                uMais ne désespère pas, certaines corrections peuvent u\
-                usurement être faite pour l’améliorer et repasser la u\
-                uvalidation plus tard. Voici le message que [{2}]({3}), u\
-                uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
-                ului envoyer un petit message pour discuter de la décision u\
-                uou demander plus de détail si tout cela te semble u\
-                uinjuste ou manque de clarté.".format(
-                    author.username,
-                    article.title,
-                    validation.validator.username,
-                    validation.validator.profile.get_absolute_url(),
-                    validation.comment_validator)
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(
-                    bot,
-                    [author],
-                    u"Refus de Validation : {0}".format(
-                        article.title),
-                    "",
-                    msg,
-                    True,
-                    direct=False)
+                # Remove sha_validation because we rejected this version
+                # of the article.
+                article.sha_validation = None
+                article.pubdate = None
+                article.save()
 
-            return redirect(
-                article.get_absolute_url() +
-                '?version=' +
-                validation.version)
+                # send feedback
+                for author in article.authors.all():
+                    msg = u"Désolé **{0}**, ton zeste **{1}** u\
+                    un'a malheureusement pas passé l’étape de validation. u\
+                    uMais ne désespère pas, certaines corrections peuvent u\
+                    usurement être faite pour l’améliorer et repasser la u\
+                    uvalidation plus tard. Voici le message que [{2}]({3}), u\
+                    uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
+                    ului envoyer un petit message pour discuter de la décision u\
+                    uou demander plus de détail si tout cela te semble u\
+                    uinjuste ou manque de clarté.".format(
+                        author.username,
+                        article.title,
+                        validation.validator.username,
+                        validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator)
+                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    send_mp(
+                        bot,
+                        [author],
+                        u"Refus de Validation : {0}".format(
+                            article.title),
+                        "",
+                        msg,
+                        True,
+                        direct=False)
+
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
+            else:
+                messages.error(request,
+                    "Vous devez avoir réservé cet article "
+                    "pour pouvoir le refuser.")
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
 
         # A validator would like to invalid an article published. We must
         # come back to sha_validation with the current sha of validation.
@@ -509,46 +522,56 @@ def modify(request):
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
                 .latest('date_proposition')
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'PUBLISHED'
-            validation.date_validation = datetime.now()
-            validation.save()
 
-            # Update sha_public with the sha of validation.
-            # We don't update sha_draft.
-            # So, the user can continue to edit his article in offline.
-            if request.POST.get('is_major', False) or article.sha_public is None:
-                article.pubdate = datetime.now()
-            article.sha_public = validation.version
-            article.sha_validation = None
-            article.save()
+            if request.user == validation.validator:
+                validation.comment_validator = request.POST['comment-v']
+                validation.status = 'PUBLISHED'
+                validation.date_validation = datetime.now()
+                validation.save()
 
-            # send feedback
-            for author in article.authors.all():
-                msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
-                u est maintenant publié ! Les lecteurs du monde entier u\
-                upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
-                u de rester a leur écoute afin d'apporter des u\
-                ucorrections/compléments. Un Article vivant et a jour u\
-                uest bien plus lu qu'un sujet abandonné !".format(
-                    author.username,
-                    article.title,
-                    article.get_absolute_url_online())
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(
-                    bot,
-                    [author],
-                    u"Publication : {0}".format(
-                        article.title),
-                    "",
-                    msg,
-                    True,
-                    direct=False)
+                # Update sha_public with the sha of validation.
+                # We don't update sha_draft.
+                # So, the user can continue to edit his article in offline.
+                if request.POST.get('is_major', False) or article.sha_public is None:
+                    article.pubdate = datetime.now()
+                article.sha_public = validation.version
+                article.sha_validation = None
+                article.save()
 
-            return redirect(
-                article.get_absolute_url() +
-                '?version=' +
-                validation.version)
+                # send feedback
+                for author in article.authors.all():
+                    msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
+                    u est maintenant publié ! Les lecteurs du monde entier u\
+                    upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
+                    u de rester a leur écoute afin d'apporter des u\
+                    ucorrections/compléments. Un Article vivant et a jour u\
+                    uest bien plus lu qu'un sujet abandonné !".format(
+                        author.username,
+                        article.title,
+                        article.get_absolute_url_online())
+                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    send_mp(
+                        bot,
+                        [author],
+                        u"Publication : {0}".format(
+                            article.title),
+                        "",
+                        msg,
+                        True,
+                        direct=False)
+
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
+            else:
+                messages.error(request,
+                    "Vous devez avoir réservé cet article "
+                    "pour pouvoir le publier.")
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
 
     # User actions
     if request.user in article.authors.all():

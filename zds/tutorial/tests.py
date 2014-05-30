@@ -14,7 +14,7 @@ from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
-from zds.tutorial.models import Note, Tutorial
+from zds.tutorial.models import Note, Tutorial, Validation
 from zds.utils.models import Alert
 
 
@@ -87,6 +87,14 @@ class BigTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'version': self.bigtuto.sha_draft
             },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=self.bigtuto.pk)
+        pub = self.client.get(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
@@ -739,6 +747,14 @@ class MiniTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'version': self.minituto.sha_draft
             },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=self.minituto.pk)
+        pub = self.client.get(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
