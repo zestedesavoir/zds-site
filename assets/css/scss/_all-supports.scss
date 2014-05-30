@@ -1139,6 +1139,10 @@
 
         a {
             padding: 0 15px;
+            max-width: 50%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
 
             &.ico-after:after {
                 margin-top: 12px;
@@ -1505,17 +1509,14 @@
                 padding-top: 10px;
             }
         }
+    }
 
-        /* a {
-            color: #333;
-            @include transition;
-
-            &:hover,
-            &:focus {
-                color: #EE8709;
-                text-decoration: none;
-            }
-        } */
+    .reactions-title {
+        margin: 50px 0 20px;
+        color: $blue;
+        border-bottom: 1px solid $orange;
+        text-transform: uppercase;
+        font-weight: normal;
     }
 }
 
