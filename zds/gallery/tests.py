@@ -30,8 +30,8 @@ class GalleryTests(TestCase):
 
         result = self.client.post(
             reverse('zds.gallery.views.new_gallery'),
-            {'title': u"Ma gallerie super trop cool",
-             'subtitle': u"La gallerie de ma gallerie est ma gallerie"},
+            {'title': u"Ma galerie super trop cool",
+             'subtitle': u"La galerie de ma galerie est ma galerie"},
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -44,7 +44,7 @@ class GalleryTests(TestCase):
 
         result = self.client.post(
             reverse('zds.gallery.views.new_gallery'),
-            {'subtitle': u"La gallerie de ma gallerie est ma gallerie"},
+            {'subtitle': u"La galerie de ma galerie est ma galerie"},
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -116,7 +116,7 @@ class ImageTests(TestCase):
             reverse('zds.gallery.views.new_image',
                     args=[self.gallery.pk]),
             {'title': u"Mon image super trop cool",
-             'legend': u"Légende de ma gallerie",
+             'legend': u"Légende de ma galerie",
              'physical': open(
                     os.path.join(
                         settings.SITE_ROOT,
