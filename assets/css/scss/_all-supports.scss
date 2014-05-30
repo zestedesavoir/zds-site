@@ -903,9 +903,6 @@
     padding: 20px 2%;
     border-bottom: 1px solid #e0e4e5;
 
-    &:nth-child(2) {
-        padding-top: 10px;
-    }
     &:nth-child(2n+1) {
         background-color: rgba(255, 255, 255, .8);
     }

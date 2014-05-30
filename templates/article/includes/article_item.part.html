@@ -5,10 +5,10 @@
 <article>
     <a href="{{ link }}">
         {% if article.image %}
-            <img src="{{ article.image.thumb.url }}" alt="" class="article-img avatar">
+            <img src="{{ article.image.thumb.url }}" alt="" class="tutorial-img avatar">
         {% endif %}
 
-        <div class="article-infos">
+        <div class="tutorial-infos">
             <h3>{{ article.title }}</h3>
             <p class="article-metadata">
                 Créé {{ article.pubdate|format_date }}

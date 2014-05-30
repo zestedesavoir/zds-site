@@ -107,10 +107,10 @@ def assoc_subscribe(request):
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
-        return render_template("pages/assoc/subscribe.html", {"form": form})
+        return render_template("pages/assoc_subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})
-    return render_template("pages/assoc/subscribe.html", {"form": form})
+    return render_template("pages/assoc_subscribe.html", {"form": form})
 
 
 @can_read_now
