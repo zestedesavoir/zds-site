@@ -1,0 +1,21 @@
+{% extends "member/source.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+   Paramètres
+{% endblock %}
+
+{% block head-title %} Paramètres : {{profile.user.username}} {% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.details" profile.user.username %}">{{profile.user.username}}</a></li>
+    <li class="current"><a href="#">Modifier</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="large-12 columns">
+            {% crispy form %}
+        </div>
+    </div>
+{% endblock %}

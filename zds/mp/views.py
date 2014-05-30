@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,14 +10,15 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.member.decorator import can_read_now, can_write_and_read_now
+
+from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -37,12 +39,15 @@ def index(request):
             liste = request.POST.getlist('items')
             topics = PrivateTopic.objects.filter(pk__in=liste).all()
             for topic in topics:
-                if request.user == topic.author:
+                if topic.participants.all().count() == 0:
+                    topic.delete()
+                elif request.user == topic.author:
                     topic.author = topic.participants.all()[0]
                     topic.participants.remove(topic.participants.all()[0])
+                    topic.save()
                 else:
                     topic.participants.remove(request.user)
-                topic.save()
+                    topic.save()
 
     privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
@@ -62,7 +67,6 @@ def index(request):
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
@@ -77,7 +81,8 @@ def topic(request, topic_pk, topic_slug):
     # TODO: Clean that up
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    if not g_topic.author == request.user and not request.user in list(g_topic.participants.all()):
+    if not g_topic.author == request.user \
+            and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
     # Check link
@@ -165,14 +170,14 @@ def new(request):
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, 
-                              ctrl, 
-                              data['title'], 
-                              data['subtitle'], 
+            p_topic = send_mp(request.user,
+                              ctrl,
+                              data['title'],
+                              data['subtitle'],
                               data['text'],
                               True,
                               False)
-            
+
             return redirect(p_topic.get_absolute_url())
 
         else:
@@ -214,8 +219,6 @@ def edit(request):
         page = int(request.POST['page'])
     except KeyError:
         page = 1
-
-    data = request.POST
 
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
@@ -287,32 +290,37 @@ def answer(request):
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    pos = post.position_in_topic - 1
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=g_topic,
-                        privatepost__position_in_topic=pos,
-                        user=part).count()
-                    if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-                        message_txt = get_template('email/mp.txt').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
+                    profile = part.profile
+                    if profile.email_for_answer:
+                        pos = post.position_in_topic - 1
+                        last_read = PrivateTopicRead.objects.filter(
+                            privatetopic=g_topic,
+                            privatepost__position_in_topic=pos,
+                            user=part).count()
+                        if last_read > 0:
+                            message_html = get_template('email/mp.html') \
+                                .render(
+                                    Context({
+                                        'username': part.username,
+                                        'url': settings.SITE_URL
+                                        + post.get_absolute_url(),
+                                        'author': request.user.username
+                                    })
+                                )
+                            message_txt = get_template('email/mp.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL
+                                    + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
 
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
+                            msg = EmailMultiAlternatives(
+                                subject, message_txt, from_email, [
+                                    part.email])
+                            msg.attach_alternative(message_html, "text/html")
+                            msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
@@ -377,7 +385,7 @@ def edit_post(request):
         raise PermissionDenied
 
     if request.method == 'POST':
-        if not 'text' in request.POST:
+        if 'text' not in request.POST:
             # if preview mode return on
             if 'preview' in request.POST:
                 return redirect(
@@ -421,6 +429,7 @@ def edit_post(request):
             'form': form,
         })
 
+
 @can_read_now
 @login_required
 @require_POST
@@ -435,14 +444,15 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else : 
+        else:
             ptopic.participants.remove(request.user)
             ptopic.save()
-        
+
         messages.success(
-                request, 'Vous avez quitté la conversation avec succès.')
-    
+            request, 'Vous avez quitté la conversation avec succès.')
+
     return redirect(reverse('zds.mp.views.index'))
+
 
 @can_read_now
 @login_required
@@ -450,20 +460,24 @@ def leave(request):
 @transaction.atomic
 def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
-    try :
+    try:
         part = User.objects.get(username=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
-                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+                request,
+                'Le membre que vous essayez d\'ajouter u\
+                uà la conversation y est déjà')
         else:
             ptopic.participants.add(part)
             ptopic.save()
-    
-            messages.success(request, 'Le membre a bien été ajouté à la conversation')
+
+            messages.success(
+                request,
+                'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
-                request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+            request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
 
     return redirect(reverse('zds.mp.views.topic', args=[
-                ptopic.pk,
-                slugify(ptopic.title)]))
+        ptopic.pk,
+        slugify(ptopic.title)]))

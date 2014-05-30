@@ -1,4 +1,5 @@
-[![Build Status](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir.png?token=Cu35XY4F6RcYoPgjjcbA)](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir)
+[![Build Status](https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev)](https://travis-ci.org/zestedesavoir/zds-site)
+[![Coverage Status](https://coveralls.io/repos/zestedesavoir/zds-site/badge.png?branch=dev)](https://coveralls.io/r/zestedesavoir/zds-site?branch=dev)
 [![Licnce GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
 
 ZesteDeSavoir
@@ -20,12 +21,12 @@ Fonctionnalités implementées
 
 Fonctionnalités à venir
 -----------------------
-Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Taluu/ZesteDeSavoir/issues?state=open)
+Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues)
 
 Comment démarrer une instance de ZdS ?
 --------------------------------------
 ### Pré-requis
-- Python 2.7 (avec les fichiers de developpement, le paquet `python-dev` sous Ubuntu)
+- Python 2.7 (avec les fichiers de developpement, les paquets `python-dev` et `python-lxml` sous Debian/Ubuntu)
 - Pip
 - git
 
@@ -37,9 +38,8 @@ Comment démarrer une instance de ZdS ?
 
 - Téléchargez et installez les outils suivants :
     - [PowerShell 3.0+](http://www.microsoft.com/fr-fr/download/details.aspx?id=40855)
-    - [MinGW](http://sourceforge.net/projects/mingw/files/latest/download)
     - [Git](http://git-scm.com/download/win) (Git pour Eclipse ne suffit pas ; associez les .sh)
-- [Téléchargez et installez Python 2.7](https://www.python.org/ftp/python/2.7.5/python-2.7.5.msi)
+- [Téléchargez et installez Python 2.7](https://www.python.org/download/releases/2.7/)
 - Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) **en mode administrateur** et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
 - Redémarrez Powershell
 - Installez pip : `easy_install pip`
@@ -67,13 +67,13 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 * Installer [MacPorts](http://www.macports.org/) pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds :
-```
+```console
 # Installation de virtualenv.
 pip install virtualenv
 pip install virtualenvwrapper
 mkdir ~/.virtualenvs
-export WORKON_HOME=$HOME/.virtualenvs # A rajouter dans ~/.bash_profile
-source /usr/local/bin/virtualenvwrapper.sh # A rajouter dans ~/.bash_profile
+echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
 
 # Création de votre environnement.
 mkvirtualenv zdsenv
@@ -86,7 +86,7 @@ export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 
 # Installation de toutes les dépendances.
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 ```
 
 Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
@@ -95,25 +95,48 @@ Pour sortir de votre environnement : `deactive`
 ####Sur Linux
 Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
 
-**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
+**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. **
+**NB2 : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.**
+
+Assurez vous que les dépendances suivantes soient résolues :
+- python-dev
+- libxml2-dev
+- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
+- libz-dev (peut être libz1g-dev sur système 64bits)
+- python-sqlparse
+- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+
+Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
+
 
 ```console
-pip install --user -r requirements.txt
-/usr/bin/env python2 manage.py syncdb
-/usr/bin/env python2 manage.py migrate
-/usr/bin/env python2 manage.py runserver
+sudo pip install -I pillow
+pip install --user --upgrade -r requirements.txt
+python manage.py syncdb
+python manage.py migrate
+python manage.py runserver
 ```
 
+Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX, Pandoc et les polices Microsoft. Ce qui revient à lancer les commmandes suivantes :
+
+```console
+apt-get install --reinstall ttf-mscorefonts-installer
+apt-get install texlive
+apt-get install texlive-xetex
+apt-get install texlive-lang-french
+apt-get install texlive-latex-extra
+apt-get install pandoc
+```
 
 ### Données de test
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-/usr/bin/env python2 manage.py loaddata fixtures/users.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/forums.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/topics.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/mps.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/categories.yaml
+python manage.py loaddata fixtures/users.yaml
+python manage.py loaddata fixtures/forums.yaml
+python manage.py loaddata fixtures/topics.yaml
+python manage.py loaddata fixtures/mps.yaml
+python manage.py loaddata fixtures/categories.yaml
 ```
 
 Cela va créer plusieurs entitées :
@@ -130,16 +153,23 @@ Cela va créer plusieurs entitées :
 
 ### Conseil de developpement
 
-Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant la suite complète :
+Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires et qu'il est compatible PEP-8 (sinon votre Pull Request se verra refusée) en exécutant les commandes suivantes :
 
 ```console
 python manage.py test
+flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
 ```
 
 Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
 
 ```console
 /usr/bin/env python2 manage.py schemamigration app_name --auto
+```
+
+Si vous avez une connexion lente et que vous ne voulez travailler que sur une branche précise, vous pouvez toujours ne récupérer que celle-ci :
+
+```
+git clone https://github.com/zestedesavoir/zds-site.git --depth 1
 ```
 
 En savoir plus

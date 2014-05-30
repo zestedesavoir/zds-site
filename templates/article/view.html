@@ -48,12 +48,20 @@
                 {% endif %}
                 {% if article.sha_validation = None %}
                 <li>
-                    <button type="submit" class="secondary tiny" name="pending">Demander la validation</button>
-                    <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+                    <a href="#" data-dropdown="ask-article" >Demander la validation</a>
+                    <div id="ask-article" class="f-dropdown small content" data-dropdown-content>
+                        <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
+                        <button type="submit" class="secondary tiny" name="pending">Demander la validation</button>
+                    </div>
                 </li>
                 {% endif %}
                 {% if article.sha_public = None %}
-                <li><button type="submit" class="secondary tiny" name="delete">Confirmer la suppression</button></li>
+                <li>
+                    <a href="#" data-dropdown="delete-article" >Supprimer l'article</a>
+                    <div id="delete-article" class="f-dropdown small content" data-dropdown-content>
+                        <button type="submit" class="secondary tiny" name="delete">Confirmer la suppression</button>
+                    </div>
+                </li>
                 {% endif %}
                 <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
         </div>
@@ -65,12 +73,20 @@
             <ul>
                 {% if not article.sha_validation = None %}
                 <li>
-                    <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
-                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                    <a href="#" data-dropdown="valid-article" >Publier l'article</a>
+                    <div id="valid-article" class="f-dropdown small content" data-dropdown-content>
+                        <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
+                        <input id="id_is_major" name="is_major" type="checkbox">
+                        <label for="id_is_major">Version majeure ?</label>
+                        <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
+                    </div>
                 </li>
                 <li>
-                    <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
-                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                    <a href="#" data-dropdown="reject-article" >Rejeter l'article</a>
+                    <div id="reject-article" class="f-dropdown small content" data-dropdown-content>
+                        <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
+                        <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
+                    </div>
                 </li>
                 {% endif %}
                 <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>

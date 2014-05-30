@@ -6,14 +6,14 @@
     Nouveau sujet
 {% endblock %}
 
-{% block headline %}
-    <h2 class="box forum">Nouveau sujet</h2>
+{% block head-title %}
+    Nouveau sujet
 {% endblock %}
 
 {% block breadcrumb %}
     <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
     <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-    <li class="current"><a href="javascript:;">Nouveau sujet</a></li>
+    <li class="current">Nouveau sujet</li>
 {% endblock %}
 
 {% block content %}
@@ -35,3 +35,12 @@
 {% endif %}
 
 {% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        find_solved_post("{% url "zds.forum.views.complete_topic" %}")
+    });
+    </script>
+{% endblock %}
+

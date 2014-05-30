@@ -5,21 +5,20 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div
 from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
-from zds.utils.models import Category, SubCategory, Licence
+from zds.utils.models import SubCategory, Licence
 from zds.tutorial.models import Tutorial
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Tutorial._meta.get_field('title').max_length,
+        max_length=Tutorial._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -45,7 +44,7 @@ class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
         label='Description',
-        max_length = Tutorial._meta.get_field('description').max_length,
+        max_length=Tutorial._meta.get_field('description').max_length,
         required=False,
     )
 
@@ -75,7 +74,8 @@ class TutorialForm(FormWithTitle):
     )
 
     type = forms.ChoiceField(
-        choices=TYPE_CHOICES
+        choices=TYPE_CHOICES,
+        required=False
     )
 
     subcategory = forms.ModelMultipleChoiceField(
@@ -111,9 +111,14 @@ class TutorialForm(FormWithTitle):
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
-                StrictButton('Valider', type='submit', css_class='btn-submit'),
+                StrictButton('Valider', type='submit', css_class='button'),
             ),
         )
+
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+                Field,
+                disabled=True)
 
 
 class PartForm(FormWithTitle):
@@ -157,7 +162,8 @@ class PartForm(FormWithTitle):
 class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Selectionnez le logo du tutoriel u\
+        u(max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
         required=False
     )
 
@@ -317,10 +323,12 @@ class NoteForm(forms.Form):
         )
 
         if tutorial.antispam(user):
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur ce tutoriel (protection antispam de 15 min).',
-                disabled=True)
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Vous ne pouvez pas encore poster sur ce u\
+                    ututoriel (protection antispam de 15 min).',
+                    disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(
                 Field,
@@ -351,7 +359,10 @@ class AskValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(), StrictButton(
-                'Demander la validation', type='submit', css_class='button tiny'), Hidden(
+                'Demander la validation',
+                type='submit',
+                css_class='button tiny'),
+            Hidden(
                 'tutorial', '{{ tutorial.pk }}'), Hidden(
                 'version', '{{ version }}'), )
 
@@ -367,6 +378,7 @@ class ValidForm(forms.Form):
             }
         )
     )
+    is_major = forms.BooleanField(label='Version majeure ?', required=False)
 
     def __init__(self, *args, **kwargs):
         super(ValidForm, self).__init__(*args, **kwargs)
@@ -375,10 +387,12 @@ class ValidForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(), StrictButton(
-                'Publier', type='submit', css_class='button success tiny'), Hidden(
-                'tutorial', '{{ tutorial.pk }}'), Hidden(
-                'version', '{{ version }}'), )
+            CommonLayoutModalText(),
+            Field('is_major'),
+            StrictButton('Publier', type='submit', css_class='button success tiny'),
+            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('version', '{{ version }}'),
+        )
 
 
 class RejectForm(forms.Form):
@@ -402,8 +416,9 @@ class RejectForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             ButtonHolder(
-                StrictButton('Rejeter', type='submit', css_class='button alert tiny'),
-            ),
+                StrictButton(
+                    'Rejeter',
+                    type='submit',
+                    css_class='button alert tiny'),),
             Hidden('tutorial', '{{ tutorial.pk }}'),
-            Hidden('version', '{{ version }}'),
-        )
+            Hidden('version', '{{ version }}'), )

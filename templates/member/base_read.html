@@ -3,6 +3,7 @@
 {% block headline %}{% endblock %}
 
 {% block sidebar %}
+    {% block headline-actions %}{% endblock %}
     <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="POST" id="edit_form">
     <h3>Activités</h3>
     <ul>
@@ -52,7 +53,7 @@
     		Nombres de messages modérés<span class="label right secondary">{{ profile.get_invisible_posts_count }}</span>
 		</li>
 		<li>
-    		Nombres d'alertes déclarées<span class="label right secondary">{{ profile.get_alerts_posts_count }}</span>
+    		Nombres d'alertes actives<span class="label right secondary">{{ profile.get_alerts_posts_count }}</span>
 		</li>
 	</li>
 	<li>

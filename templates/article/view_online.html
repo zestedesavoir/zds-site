@@ -46,7 +46,12 @@
             <ul>
                 <li><a href="{{ article.get_absolute_url }}" class=" arrow-right blue">Version offline</a></li>
                 <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
-                <li><button class="secondary tiny" type="submit" name="invalid-article">Confirmer la dépublication</button></li>
+                <li>
+                    <a href="#" data-dropdown="invalid-article" >Dépublier l'article</a>
+                    <div id="invalid-article" class="f-dropdown small content" data-dropdown-content>
+                        <button class="secondary tiny" type="submit" name="invalid-article">Confirmer la dépublication</button>
+                    </div>
+                </li>
             </ul>
         </div>
 
@@ -106,4 +111,14 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block additionnal-js %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {% for post in posts %}
+            vote({{post.pk}}, "{% static 'img/thumb-up.png' %}", "{% static 'img/thumb-up-voted.png' %}", "{% static 'img/thumb-down.png' %}", "{% static 'img/thumb-down-voted.png' %}");
+        {% endfor %}
+    });
+    </script>
 {% endblock %}

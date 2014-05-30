@@ -18,6 +18,7 @@ from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
 from zds.utils.models import SubCategory, Comment
+from django.core.urlresolvers import reverse
 
 
 IMAGE_MAX_WIDTH = 480
@@ -41,7 +42,9 @@ class Article(models.Model):
     description = models.CharField('Description', max_length=200)
     slug = models.SlugField(max_length=80)
 
-    authors = models.ManyToManyField(User, verbose_name='Auteurs', related_name='articles')
+    authors = models.ManyToManyField(User, 
+                                     verbose_name='Auteurs',
+                                     related_name='articles')
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField(
@@ -82,13 +85,18 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/articles/off/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_absolute_url_online(self):
-        return '/articles/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view_online',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return '/articles/off/editer?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + \
+            '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None
@@ -152,12 +160,8 @@ class Article(models.Model):
         self.slug = slugify(self.title)
 
         if has_changed(self, 'image') and self.image:
-            # TODO : delete old image
 
             image = Image.open(self.image)
-
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
 
             image.thumbnail(thumb_size, Image.ANTIALIAS)
 
@@ -172,8 +176,18 @@ class Article(models.Model):
                                      content_type='image/png')
             self.thumbnail.save(suf.name + '.png', suf, save=False)
 
+            old = get_old_field_value(self, 'thumbnail', 'objects')
+
             # save the image object
             super(Article, self).save(force_update, force_insert)
+
+            # delete the image if the update went well and has no image
+            # before
+            if old is not None and len(old.name) > 0:
+                root = settings.MEDIA_ROOT
+                name = os.path.join(root, old.name)
+                os.remove(name)
+
         else:
             super(Article, self).save()
 
@@ -227,7 +241,8 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
+        if last_user_reactions \
+                and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
@@ -240,9 +255,17 @@ def has_changed(instance, field, manager='objects'):
     model.save() method."""
     if not instance.pk:
         return True
-    manager = getattr(instance.__class__, manager)
-    old = getattr(manager.get(pk=instance.pk), field)
+    old = get_old_field_value(instance, field, manager)
     return not getattr(instance, field) == old
+
+
+def get_old_field_value(instance, field, manager):
+    """returns the old instance of the field. Should be used when you
+    want to delete an old image."""
+    if not instance.pk:
+        return None
+    manager = getattr(instance.__class__, manager)
+    return getattr(manager.get(pk=instance.pk), field)
 
 
 def get_last_articles():

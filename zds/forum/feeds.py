@@ -12,7 +12,8 @@ from .models import Post, Topic
 class LastPostsFeedRSS(Feed):
     title = u'Derniers messages sur Zeste de Savoir'
     link = '/forums/'
-    description = u'Les derniers messages parus sur le forum de Zeste de Savoir.'
+    description = u'Les derniers messages u\
+    uparus sur le forum de Zeste de Savoir.'
 
     def items(self):
         return Post.objects\

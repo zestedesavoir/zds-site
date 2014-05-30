@@ -5,7 +5,7 @@
 {% load staticfiles %}
 <div class="row">
     <div class="large-12 columns">
-        <div class="large-1 columns">
+        <div class="large-1 columns avatar-forum">
             <div class="centered">
             <div class="username"><a href="{{ post.author.get_absolute_url }}">{{ post.author.username }}</a></div>
             </div>
@@ -109,7 +109,12 @@
 
                 <div class="message-content">
                     {% if post.is_visible %}
-                    {{ post.text|emarkdown }}
+                        {{ post.text_html|safe }}
+                    {% elif perms.article.change_reaction %}
+                        <a href="#" data-reveal-id="modal-show-{{post.pk}}" class="radius button tiny secondary right">Voir le message masqué</a>
+                        <div id="modal-show-{{post.pk}}" class="reveal-modal" data-reveal>
+                          {{ post.text_html|safe }}
+                          <a class="close-reveal-modal">&#215;</a>
                     {% endif %}
                 </div>
                 </div>
@@ -129,16 +134,18 @@
                     {% if user.is_authenticated %}
                     <div class="message-karma right">
                         {% if post.author != user %}
+                            {% with profile_user=user|profile %}
                             {% if post.like > post.dislike %}
-                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</a>
+                                <a id="upvote{{post.pk}}" href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up-voted.png" %}" alt="" /><span id="cptup{{post.pk}}">+{{post.like}}</span></a>
                             {% else %}
-                                <a href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up.png" %}" alt="" />+{{post.like}}</a>
+                                <a id="upvote{{post.pk}}" href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|liked:post.pk %}upvote{% endif %}"><img src="{% static "img/thumb-up.png" %}" alt="" /><span id="cptup{{post.pk}}">+{{post.like}}</span></a>
                             {% endif%}
                             {% if post.dislike > post.like %}
-                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down-voted.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a id="downvote{{post.pk}}" href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down-voted.png" %}" alt="" /><span id="cptdown{{post.pk}}">-{{post.dislike}}</span></a>
                             {% else%}
-                                <a href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-down.png" %}" alt="" />-{{post.dislike}}</a>
+                                <a id="downvote{{post.pk}}" href="{% url "zds.article.views.dislike_reaction" %}?message={{ post.pk }}" class="label secondary {% if profile_user|disliked:post.pk %}downvote{% endif %}"><img src="{% static "img/thumb-down.png" %}" alt="" /><span id="cptdown{{post.pk}}">-{{post.dislike}}</span></a>
                             {% endif%}
+                            {% endwith %}
                         {% else %}
                             {% if post.like > post.dislike %}
                                 <span href="{% url "zds.article.views.like_reaction" %}?message={{ post.pk }}" class="label secondary"><img src="{% static "img/thumb-up-voted.png" %}" alt="" />+{{post.like}}</span>

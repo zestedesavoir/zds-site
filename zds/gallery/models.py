@@ -125,13 +125,13 @@ class Image(models.Model):
             IMAGE_THUMB_MAX_HEIGHT),
         medium_size=(
             IMAGE_MEDIUM_MAX_WIDTH,
-            IMAGE_MEDIUM_MAX_HEIGHT)):
+            IMAGE_MEDIUM_MAX_HEIGHT), *args, **kwargs):
         if has_changed(self, 'physical') and self.physical:
             # TODO : delete old image
 
             image = PILImage.open(self.physical)
 
-            if image.mode not in ('L', 'RGB'):
+            if image.mode not in ('L', 'RGB', 'P', 'RGBA'):
                 image = image.convert('RGB')
 
             # Medium

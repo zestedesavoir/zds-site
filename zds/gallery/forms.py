@@ -3,8 +3,8 @@
 from django.conf import settings
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder, Submit,\
-    HTML, Hidden
+from crispy_forms_foundation.layout import HTML, Layout, Submit, \
+    Field, ButtonHolder, Hidden
 from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -15,12 +15,12 @@ from zds.gallery.models import Gallery, Image
 class GalleryForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Gallery._meta.get_field('title').max_length,
+        max_length=Gallery._meta.get_field('title').max_length,
     )
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length = Gallery._meta.get_field('subtitle').max_length,
+        max_length=Gallery._meta.get_field('subtitle').max_length,
         required=False
     )
 
@@ -44,7 +44,7 @@ class GalleryForm(forms.Form):
 
         title = cleaned_data.get('title')
 
-        if title.strip() == '':
+        if title and title.strip() == '':
             self._errors['title'] = self.error_class(
                 [u'Le champ titre ne peut être vide'])
             if 'title' in cleaned_data:
@@ -56,7 +56,7 @@ class GalleryForm(forms.Form):
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
         label='Membre',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
             attrs={
@@ -71,8 +71,8 @@ class UserGalleryForm(forms.Form):
             ('R', "En mode lecture"),
             ('W', "En mode écriture"),
         ),
-        required = True,
-        widget = forms.RadioSelect,
+        required=True,
+        widget=forms.RadioSelect,
     )
 
     def __init__(self, *args, **kwargs):
@@ -107,20 +107,22 @@ class UserGalleryForm(forms.Form):
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Image._meta.get_field('title').max_length,
+        max_length=Image._meta.get_field('title').max_length,
         required=True,
     )
 
     legend = forms.CharField(
         label=u'Légende',
-        max_length = Image._meta.get_field('legend').max_length,
+        max_length=Image._meta.get_field('legend').max_length,
         required=False,
     )
 
     physical = forms.ImageField(
         label=u'Sélectionnez votre image',
         required=True,
-        help_text='Taille maximum : ' + str(settings.IMAGE_MAX_SIZE) + ' megabytes'
+        help_text='Taille maximum : '
+        + str(settings.IMAGE_MAX_SIZE)
+        + ' megabytes'
     )
 
     def __init__(self, *args, **kwargs):
@@ -138,6 +140,24 @@ class ImageForm(forms.Form):
                     'submit',
                     u'Ajouter',
                     css_class='button'),
-                HTML('<a class="button secondary" href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                HTML('<a class="button secondary" u\
+                uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
+            ),
+        )
+
+
+class ImageAsAvatarForm(forms.Form):
+    """"Form to add current image as avatar"""
+    def __init__(self, *args, **kwargs):
+        super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-alone'
+        self.helper.form_action = reverse('zds.member.views.update_avatar')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Hidden('avatar_url', '{{ image.physical.url }}'),
+            ButtonHolder(
+                Submit('submit', "Utiliser comme avatar", css_class='button tiny'),
             ),
         )
