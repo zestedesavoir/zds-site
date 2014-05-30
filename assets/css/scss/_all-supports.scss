@@ -1132,6 +1132,15 @@
             }
         }
 
+        &.ico-after:after {
+            margin-top: 12px;
+        }
+
+        &.prev,
+        &.next {
+            padding: 0 15px;
+        }
+
         &.prev {
             .ico-after {
                 padding-left: 30px;
@@ -1173,14 +1182,9 @@
         }
 
         a {
-            padding: 0 15px;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-
-            &.ico-after:after {
-                margin-top: 12px;
-            }
         }
     }
 }
