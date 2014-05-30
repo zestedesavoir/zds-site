@@ -59,9 +59,11 @@
         {% if last_articles %}
             {% for article in last_articles %}
                 <article>
-                    <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
-                        <img src="{{ article.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                    </a>
+                    {% if article.thumbnail %}
+                        <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
+                            <img src="{{ article.thumbnail.url }}" alt="" class="tutorial-img avatar">
+                        </a>
+                    {% endif %}
                     <div class="tutorial-infos">
                         <h3>
                             <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}">
