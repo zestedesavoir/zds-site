@@ -30,12 +30,25 @@ class GalleryTests(TestCase):
 
         result = self.client.post(
             reverse('zds.gallery.views.new_gallery'),
-            {'title': u"Ma gallerie super trop cool",
-             'subtitle': u"La gallerie de ma gallerie est ma gallerie"},
+            {'title': u"Ma galerie super trop cool",
+             'subtitle': u"La galerie de ma galerie est ma galerie"},
             follow=True)
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(Gallery.objects.count(), 1)
+
+    def test_create_gallery_empty_title(self):
+        """To test user create gallery with an empty title."""
+
+        self.assertEqual(Gallery.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('zds.gallery.views.new_gallery'),
+            {'subtitle': u"La galerie de ma galerie est ma galerie"},
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(Gallery.objects.count(), 0)
 
     def test_url_gallery(self):
         """To test url of gallery."""
@@ -103,7 +116,7 @@ class ImageTests(TestCase):
             reverse('zds.gallery.views.new_image',
                     args=[self.gallery.pk]),
             {'title': u"Mon image super trop cool",
-             'legend': u"Légende de ma gallerie",
+             'legend': u"Légende de ma galerie",
              'physical': open(
                     os.path.join(
                         settings.SITE_ROOT,
