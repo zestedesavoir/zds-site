@@ -1126,18 +1126,18 @@
                 border-right: 2px solid #d2d5d6;
             }
 
+            &.ico-after:after {
+                margin-top: 12px;
+            }
+
             &[href]:hover,
             &[href]:focus {
                 background: #d2d5d6;
             }
         }
 
-        &.ico-after:after {
-            margin-top: 12px;
-        }
-
-        &.prev,
-        &.next {
+        &.prev a,
+        &.next a {
             padding: 0 15px;
         }
 
