@@ -1144,9 +1144,13 @@
     &.pagination-chapter {
         margin-left: 0;
 
+        li {
+            max-width: 45%;
+        }
+
         a {
             padding: 0 15px;
-            max-width: 50%;
+            width: 100%;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
@@ -1264,7 +1268,7 @@
     }
     .topic-description {
         position: relative;
-        width: 65%;
+        width: 60%;
 
         .topic-title,
         .topic-subtitle {
@@ -1288,12 +1292,12 @@
         }
     }
     .topic-answers {
-        width: 12%;
+        width: 15%;
         text-align: center;
         padding-top: 25px;
     }
     .topic-last-answer {
-        width: 18%;
+        width: 20%;
 
         .topic-no-last-answer {
             display: block;
