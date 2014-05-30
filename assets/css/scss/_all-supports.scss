@@ -848,7 +848,7 @@
         margin: 1px 0 15px;
 
         &.illu {
-            padding-left: 85px;
+            padding-left: 70px;
         }
 
         &.ico-after {
@@ -1131,6 +1131,27 @@
                 background: #d2d5d6;
             }
         }
+
+        &.prev {
+            .ico-after {
+                padding-left: 30px;
+
+                &:after {
+                    margin-left: 8px;
+                }
+            }
+        }
+        &.next {
+            float: right;
+            .ico-after {
+                padding-right: 30px;
+
+                &:after {
+                    right: 8px;
+                    left: auto;
+                }
+            }
+        }
     }
 
     &.pagination-top {
@@ -1159,27 +1180,6 @@
 
             &.ico-after:after {
                 margin-top: 12px;
-            }
-        }
-
-        .prev {
-            .ico-after {
-                padding-left: 30px;
-
-                &:after {
-                    margin-left: 8px;
-                }
-            }
-        }
-        .next {
-            float: right;
-            .ico-after {
-                padding-right: 30px;
-
-                &:after {
-                    right: 8px;
-                    left: auto;
-                }
             }
         }
     }
@@ -1294,12 +1294,12 @@
         }
     }
     .topic-answers {
-        width: 15%;
+        width: 13%;
         text-align: center;
         padding-top: 25px;
     }
     .topic-last-answer {
-        width: 20%;
+        width: 22%;
 
         .topic-no-last-answer {
             display: block;
@@ -1778,6 +1778,11 @@ table {
                 font-size: 1.2rem;
                 color: #999;
                 flex: 1;
+
+                p {
+                    margin: 0;
+                    padding: 0;
+                }
 
                 a {
                     color: #999;
