@@ -19,7 +19,13 @@
             {% else %}
                 <li>
                     {# TODO : Accès direct à une page donnée via JS #}
-                    <a>…</a>
+                    <a href="#pagination-{{ topic.get_absolute_url }}-{{ position }}" class="open-modal">…</a>
+                    <form action="{{ topic.get_absolute_url }}" method="get" class="modal modal-small" id="pagination-{{ topic.get_absolute_url }}-{{ position }}">
+                        <input type="text" name="page">
+                        <button type="submit">
+                            Aller à la page
+                        </button>
+                    </form>
                 </li>
             {% endif %}
         {% endfor %}
