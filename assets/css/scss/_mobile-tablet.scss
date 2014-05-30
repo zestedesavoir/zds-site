@@ -559,12 +559,14 @@
                 font-size: 1.8ex;
             }
         }
-        h1,
-        h2,
-        h3,
-        .subtitle,
-        .authors {
-            padding-left: 15px;
+        .content-wrapper {
+            h1,
+            h2,
+            h3,
+            .subtitle,
+            .authors {
+                padding-left: 15px;
+            }
         }
     }
 
