@@ -84,12 +84,18 @@
     {% if tutorial.get_conclusion_online %}
         {{ tutorial.get_conclusion_online|safe }}
     {% endif %}
+{% endblock %}
 
 
-    <h2>Commentaires</h2>
+
+{% block content_after %}
+    <h2 class="reactions-title">Commentaires</h2>
+
+
     {% include "misc/pagination.part.html" with position="top" topic=tutorial %}
 
-    {% for note in notes %}
+
+    {% for message in notes %}
         {% captureas edit_link %}
             {% url "zds.tutorial.views.edit_note" %}?message={{ message.pk }}
         {% endcaptureas %}
@@ -109,7 +115,9 @@
         {% include 'misc/message.part.html' with perms_change=perms.tutorial.change_note topic=tutorial %}
     {% endfor %}
 
+
     {% include "misc/pagination.part.html" with position="bottom" topic=tutorial %}
+
 
     
     {% captureas form_action %}
