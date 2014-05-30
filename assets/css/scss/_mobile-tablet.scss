@@ -411,6 +411,11 @@
         }
     }
 
+    .content-col-2:not(:first-child),
+    .content-col-3:not(:first-child) {
+        margin-top: 50px;
+    }
+
 
 
     .header-menu-dropdown {
@@ -534,6 +539,34 @@
         }
     }
 
+
+
+
+/* ====================
+    Tutorials/Articles
+   ==================== */
+    .main .content-container {
+        .article-content {
+            p {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            p,
+            ul:not(.pagination) {
+                font-size: 15px;
+                font-size: 1.5rem;
+                font-size: 1.8ex;
+            }
+        }
+        h1,
+        h2,
+        h3,
+        .subtitle,
+        .authors {
+            padding-left: 15px;
+        }
+    }
 
 
 

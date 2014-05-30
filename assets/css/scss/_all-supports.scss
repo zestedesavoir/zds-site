@@ -1126,10 +1126,19 @@
                 border-right: 2px solid #d2d5d6;
             }
 
+            &.ico-after:after {
+                margin-top: 12px;
+            }
+
             &[href]:hover,
             &[href]:focus {
                 background: #d2d5d6;
             }
+        }
+
+        &.prev a,
+        &.next a {
+            padding: 0 15px;
         }
 
         &.prev {
@@ -1173,14 +1182,9 @@
         }
 
         a {
-            padding: 0 15px;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-
-            &.ico-after:after {
-                margin-top: 12px;
-            }
         }
     }
 }
