@@ -804,6 +804,10 @@
         h4 {
             border-bottom: 1px solid #d8dada;
             padding-bottom: 5px;
+            padding-right: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             & + ul > li:first-child {
                 margin-top: 5px;
@@ -1509,7 +1513,9 @@
             pre,
             code,
             table,
-            blockquote {
+            blockquote,
+            embed,
+            video {
                 max-width: 100%;
                 margin: 0 auto;
                 text-align: left;

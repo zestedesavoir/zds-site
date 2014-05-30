@@ -91,11 +91,11 @@
 
     {% for note in notes %}
         {% captureas edit_link %}
-            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% url "zds.tutorial.views.edit_note" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "zds.forum.views.answer" %}?tutorial={{ article.pk }}&amp;cite={{ message.pk }}
+            {% url "zds.tutorial.views.answer" %}?tutorial={{ article.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}
@@ -111,16 +111,12 @@
 
     {% include "misc/pagination.part.html" with position="bottom" topic=tutorial %}
 
-    {% if user.is_authenticated %}
-        {% with profile=user|profile%}
-            <section>
-                <div class="user">
-                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar avatar-link">
-                </div>
-                {% crispy form %}
-            </section>
-        {% endwith %}
-    {% endif %}
+    
+    {% captureas form_action %}
+        {% url 'zds.tutorial.views.answer' %}?tutorial={{ tutorial.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
 {% endblock %}
 
 
