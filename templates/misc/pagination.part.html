@@ -1,8 +1,8 @@
 {% if pages|length > 1 %}
     <ul class="pagination pagination-{{ position }}">
         {% ifnotequal nb 1 %}
-            <li>
-                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}">
+            <li class="prev">
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}" class="ico-after arrow-left blue">
                     Précédente
                 </a>
             </li>
@@ -25,8 +25,8 @@
         {% endfor %}
         
         {% if pages|last > 0 and pages|last != nb %}
-            <li>
-                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}">
+            <li class="next">
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}" class="ico-after arrow-right blue">
                     Suivante
                 </a>
             </li>
