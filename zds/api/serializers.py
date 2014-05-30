@@ -55,7 +55,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = ('id', 'slug', 'title', 'description', 'authors', 'image', 
             'is_locked', 'is_visible', 'archive', 'create_at', 'pubdate', 'update')
 
-class TutorialListSerializer(object):
+class TutorialListSerializer(serializers.ModelSerializer):
     """
     Serializer of tutorials. We retrieve some importants information about
     tutorials. If the user would like to know more about one of these tutorials,
@@ -64,13 +64,11 @@ class TutorialListSerializer(object):
     slug = serializers.Field()
     authors = serializers.RelatedField(many = True)
     image = serializers.Field('image.url')
-    create_at = UnixDateField(source = 'create_at')
     pubdate = UnixDateField(source = 'pubdate')
-    update = UnixDateField(source = 'update')
 
     class Meta:
         model = Tutorial
-        fields = ('id', 'slug', 'title', 'description', 'image', 'pubdate', 'html')
+        fields = ('id', 'slug', 'title', 'description', 'authors', 'image', 'pubdate')
         
 
 class TutorialSerializer(serializers.ModelSerializer):
@@ -89,7 +87,7 @@ class TutorialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutorial
-        fields = ('id', 'slug', 'title', 'description', 'image', 
+        fields = ('id', 'slug', 'title', 'description', 'authors','image', 
             'is_locked', 'create_at', 'pubdate', 'update', 'html')
 
 class ForumSerializer(serializers.ModelSerializer):
