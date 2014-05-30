@@ -147,9 +147,9 @@
                         {% if profile_user.show_sign %}
                             {% with profile=message.author|profile %}
                                 {% if profile.sign %}
-                                    <p class="signature">
+                                    <div class="signature">
                                         {{ profile.sign|emarkdown_inline }}
-                                    </p>
+                                    </div>
                                 {% endif %}
                             {% endwith %}
                         {% endif %}
@@ -204,9 +204,9 @@
                 {% else %}
                     {% with profile=message.author|profile %}
                         {% if profile.sign %}
-                            <p class="signature">
+                            <div class="signature">
                                 {{ profile.sign|emarkdown_inline }}
-                            </p>
+                            </div>
                         {% endif %}
 
                         <div class="message-karma">

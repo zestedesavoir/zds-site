@@ -83,7 +83,7 @@
         <ul>
             {% if topic.author == user %}
                 <li>
-                    <a href="#add-participant" class="open-modal ico-after plus blue">
+                    <a href="#add-participant" class="open-modal ico-after more blue">
                         Ajouter un membre
                     </a>
                     <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">

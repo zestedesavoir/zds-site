@@ -313,9 +313,10 @@
 
                 a {
                     display: block;
+                    overflow: hidden;
+                    position: relative;
                     height: 100%;
                     width: 100%;
-                    overflow: hidden;
 
                     &,
                     &:hover,
@@ -351,7 +352,7 @@
                 .username {
                     display: block;
                     float: left;
-                    margin: 3px 0 3px 7px;
+                    margin: 3px 0 0 7px;
                     color: #95D7F5;
                     width: 50%;
                     overflow: hidden;
@@ -366,10 +367,12 @@
                 }
                 .topic {
                     display: block;
-                    padding: 4px 7px 0;
-                    height: 25px;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
                     overflow: hidden;
-                    float: left;
+                    height: 25px;
+                    padding: 4px 7px 2px;
                 }
 
                 &:nth-child(2n+1) {
@@ -1144,9 +1147,12 @@
     &.pagination-chapter {
         margin-left: 0;
 
+        li {
+            max-width: 45%;
+        }
+
         a {
             padding: 0 15px;
-            max-width: 50%;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
@@ -1264,7 +1270,7 @@
     }
     .topic-description {
         position: relative;
-        width: 65%;
+        width: 60%;
 
         .topic-title,
         .topic-subtitle {
@@ -1288,12 +1294,12 @@
         }
     }
     .topic-answers {
-        width: 12%;
+        width: 15%;
         text-align: center;
         padding-top: 25px;
     }
     .topic-last-answer {
-        width: 18%;
+        width: 20%;
 
         .topic-no-last-answer {
             display: block;
