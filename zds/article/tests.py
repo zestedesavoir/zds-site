@@ -77,6 +77,58 @@ class ArticleTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
         mail.outbox = []
 
+
+    def test_delete_image_on_change(self):
+        """test que l'image est bien supprimée quand on la change"""
+        
+        root = settings.SITE_ROOT
+        if not os.path.isdir(settings.MEDIA_ROOT):
+            os.mkdir(settings.MEDIA_ROOT)
+        shutil.copyfile(
+            os.path.join(root, 'fixtures', 'logo.png'),
+            os.path.join(settings.MEDIA_ROOT, 'logo2.png')
+        )
+        shutil.copyfile(
+            os.path.join(settings.MEDIA_ROOT, 'logo2.png'),
+            os.path.join(settings.MEDIA_ROOT, 'logo.png')
+        )
+        self.logo1 = os.path.join(settings.MEDIA_ROOT, 'logo.png')
+        self.logo2 = os.path.join(settings.MEDIA_ROOT, 'logo2.png')
+        
+        self.article.image = self.logo1
+        self.article.save()
+        self.assertEqual(
+            os.path.exists(
+                os.path.join(
+                    settings.MEDIA_ROOT, self.article.thumbnail.name
+                )
+            ),
+            True
+        )
+        #now that we have a first image, let's change it
+        second_image = open(self.logo2)
+        oldAddress = self.article.thumbnail.name
+        self.article.image = self.logo2
+        self.article.save()
+        self.assertEqual(
+            os.path.exists(
+                os.path.join(
+                    settings.MEDIA_ROOT, self.article.thumbnail.name
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            os.path.exists(
+                os.path.join(settings.MEDIA_ROOT, oldAddress)
+            ),
+            False
+        )
+        os.unlink(self.logo1)
+        os.unlink(self.logo2)   
+        #shutil.rmtree(settings.MEDIA_ROOT)
+
+
     def test_alert(self):
         user1 = ProfileFactory().user
         reaction = ReactionFactory(
@@ -306,3 +358,5 @@ class ArticleTests(TestCase):
             shutil.rmtree(settings.REPO_ARTICLE_PATH)
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+        
+	

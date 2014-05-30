@@ -179,9 +179,11 @@ class Article(models.Model):
             # save the image object
             super(Article, self).save(force_update, force_insert)
 
-            # delete the image if the update went well
-            if old is not None:
-                name = os.path.join(settings.SITE_ROOT, "media", old.name)
+            # delete the image if the update went well and has no image 
+            #before
+            if old is not None and len(old.name) > 0:
+                root = settings.MEDIA_ROOT
+                name = os.path.join(root, old.name)
                 os.remove(name)
 
         else:
