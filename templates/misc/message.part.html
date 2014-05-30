@@ -19,7 +19,7 @@
                                     <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
                                         Masquer
                                     </a>
-                                    <form action="{{ edit_link }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
+                                    <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
@@ -43,7 +43,7 @@
                         {% if message.author = user or perms_change %}
                             {% if can_edit != False %}
                                 <li>
-                                    <a href="{{ edit_link }}" class="ico-after edit">
+                                    <a href="{{ edit_link|safe }}" class="ico-after edit">
                                         Editer
                                     </a>
                                 </li>
@@ -54,7 +54,7 @@
                             <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                 Signaler
                             </a>
-                            <form action="{{ edit_link }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
+                            <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
                                 {% csrf_token %}
                                 <p>
                                     Pour quelle raison signalez-vous ce message ?
@@ -70,7 +70,7 @@
 
                     {% if cite_link and not topic.is_locked and not topic.antispam %}
                         <li>
-                            <a href="{{ cite_link }}" class="ico-after cite">
+                            <a href="{{ cite_link|safe }}" class="ico-after cite">
                                 Citer
                             </a>
                         </li>
@@ -80,7 +80,7 @@
                         <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
                             Afficher
                         </a>
-                        <form action="{{ hide_link }}" method="post" id="show-message-{{ message.id }}" class="modal">
+                        <form action="{{ hide_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal">
                             {% csrf_token %}
                             <p>
                                 Ce message a été masqué, êtes vous certains de vouloir le ré-afficher ?

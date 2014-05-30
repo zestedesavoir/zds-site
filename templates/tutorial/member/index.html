@@ -1,4 +1,5 @@
 {% extends "tutorial/base.html" %}
+{% load date %}
 
 
 
@@ -37,10 +38,12 @@
                             <h3>{{ tutorial.title }}</h3>
                             
                             <span class="article-metadata">
-                                {% if tutorial.subcategory %}
+                                {% if tutorial.subcategory.all %}
                                     {% for category in tutorial.subcategory.all %}
                                         {{ category.title }}                                    
                                     {% endfor %}
+                                {% else %}
+                                    Aucune catégorie
                                 {% endif %}
                                 - Créé {{ tutorial.create_at|format_date }}
                             </span>

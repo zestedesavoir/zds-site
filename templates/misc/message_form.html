@@ -3,54 +3,60 @@
 
 
 <section class="content-wrapper topic-message">
-    <form action="{{ form_action }}" method="post">
-        {% include "misc/message_user.html" with hide_metadata=True %}
+    {% if user.is_authenticated %}
+        <form action="{{ form_action }}" method="post">
+            {% include "misc/message_user.html" with hide_metadata=True %}
 
 
-        <div class="message">
-            <div class="message-content">
-                <textarea
-                    name="text"
-                    id="text"
-                    class="md-editor"
-                    {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                    placeholder="Votre message au format Markdown"
-                >{% spaceless %}
-                    {% if topic.is_locked %}
-                        Ce sujet est verrouillé.
-                    {% elif topic.antispam  %}
-                        Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
-                    {% else %}
-                        {{ text }}
-                    {% endif %}
-                {% endspaceless %}</textarea>
-            </div>
-
-            <div class="message-bottom">
-                <div class="message-submit">
-                    <button
-                        type="submit"
-                        name="preview"
-                        class="btn-grey"
+            <div class="message">
+                <div class="message-content">
+                    <textarea
+                        name="text"
+                        id="text"
+                        class="md-editor"
                         {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                    >
-                        Aperçu
-                    </button>
-
-                    <button
-                        type="submit"
-                        name="answer"
-                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
-                    >
-                        Envoyer
-                    </button>
+                        placeholder="Votre message au format Markdown"
+                    >{% spaceless %}
+                        {% if topic.is_locked %}
+                            Ce sujet est verrouillé.
+                        {% elif topic.antispam  %}
+                            Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                        {% else %}
+                            {{ text }}
+                        {% endif %}
+                    {% endspaceless %}</textarea>
                 </div>
-            </div>
 
-            <input type="hidden" name="last_note" value="{{ last_note_pk }}">
-            <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
-            <input type="hidden" name="last_post" value="{{ last_post_pk }}">
-            {% csrf_token %}
-        </div>
-    </form>
+                <div class="message-bottom">
+                    <div class="message-submit">
+                        <button
+                            type="submit"
+                            name="preview"
+                            class="btn-grey"
+                            {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                        >
+                            Aperçu
+                        </button>
+
+                        <button
+                            type="submit"
+                            name="answer"
+                            {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                        >
+                            Envoyer
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" name="last_note" value="{{ last_note_pk }}">
+                <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
+                <input type="hidden" name="last_post" value="{{ last_post_pk }}">
+                {% csrf_token %}
+            </div>
+        </form>
+    {% else %}
+        <p>
+            Vous devez être connecté pour pouvoir poster un message.
+        </p>
+    {% endif %}
 </section>

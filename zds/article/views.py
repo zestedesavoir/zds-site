@@ -946,7 +946,7 @@ def edit_reaction(request):
     # must to be the user logged.
     if reaction.author != request.user \
             and not request.user.has_perm('article.change_reaction') \
-            and 'signal-reaction' not in request.POST:
+            and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user \
