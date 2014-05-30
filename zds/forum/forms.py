@@ -10,7 +10,7 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
 from crispy_forms_foundation.layout import Layout, Field, Hidden
-from zds.forum.models import Forum, Topic, sub_tag
+from zds.forum.models import Forum, Topic, sub_tag, Tag
 from zds.utils.forms import CommonLayoutEditor
 
 
@@ -70,6 +70,19 @@ class TopicForm(forms.Form):
                     .strip() == '':
                 self._errors['title'] = self.error_class(
                     [u'Le titre ne peux pas contenir uniquement des tags'])
+            else:
+                tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
+                for tag in tags:
+                    if tag[2].strip() == "":
+                        if 'title' in cleaned_data:
+                            self._errors['title'] = self.error_class(
+                                [u'Un tag ne peut être vide'])
+
+                    elif len(tag[2]) > Tag._meta.get_field('title').max_length:
+                        if 'title' in cleaned_data:
+                            self._errors['title'] = self.error_class(
+                                [(u'Un tag doit faire moins de {0} caractères').
+                                    format(Tag._meta.get_field('title').max_length)])
         if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class(
                 [u'Le champ text ne peut être vide'])

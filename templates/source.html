@@ -406,6 +406,9 @@
             <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
             <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
             <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+            {% if user.is_authenticated %}
+              <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
+            {% endif %}
             <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
           </ul>
         </div>

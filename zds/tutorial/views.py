@@ -326,7 +326,7 @@ def valid_tutorial(request):
     # Update sha_public with the sha of validation. We don't update sha_draft.
     # So, the user can continue to edit his tutorial in offline.
 
-    if request.POST.get('is_major', False) or tutorial.sha_public == None:
+    if request.POST.get('is_major', False) or tutorial.sha_public is None:
         tutorial.pubdate = datetime.now()
     tutorial.sha_public = validation.version
     tutorial.sha_validation = None
@@ -2863,7 +2863,7 @@ def solve_alert(request):
             settings.SITE_URL + note.get_absolute_url(),
             request.user.username,
             request.POST["text"],
-        )
+    )
     send_mp(
         bot,
         [alert.author],

@@ -3,16 +3,21 @@ python:
   - "2.7"
 install:
   - "sudo apt-get update"
-  - "sudo apt-get install --reinstall ttf-mscorefonts-installer"
+  - "sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections"
+  - "sudo apt-get install ttf-mscorefonts-installer"
   - "sudo apt-get install texlive"
   - "sudo apt-get install texlive-xetex"
   - "sudo apt-get install texlive-lang-french"
-  - "sudo apt-get install pandoc"
+  - "sudo apt-get install texlive-latex-extra"
+  - "sudo apt-get install haskell-platform"
+  - "sudo cabal update"
+  - "sudo cabal install pandoc"
+  - "export PATH=$PATH:~/.cabal/bin"
   - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"
+  - "pip install coveralls"
 script: 
   - python manage.py test
   - coverage run --source='.' manage.py test
-  - flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403
 after_success:
   - coveralls

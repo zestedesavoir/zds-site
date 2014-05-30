@@ -2,15 +2,21 @@
 
 import os.path
 import random
+from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
+from django.template import Context
+from django.template.loader import get_template
+from zds import settings
 
 from zds.article.models import get_last_articles
 from zds.forum.models import get_last_topics
 from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
 from zds.utils import render_template, slugify
@@ -62,6 +68,49 @@ def index(request):
 def about(request):
     """Display many informations about the website."""
     return render_template('pages/about.html')
+
+
+@can_write_and_read_now
+@login_required
+def assoc_subscribe(request):
+    if request.method == "POST":
+        form = AssocSubscribeForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            data = form.data
+            context = {
+                'first_name': data['first_name'],
+                'surname': data['surname'],
+                'email': data['email'],
+                'justification': data['justification'],
+                'username': user.username,
+                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
+                                                           kwargs={'user_name': user.username})
+            }
+
+            # Send email
+            subject = "Demande d'adhésion de {}".format(user.username)
+            from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
+            reply_to_email = "{} <{}>".format(user.username, data['email'])
+            message_html = get_template("email/assoc_subscribe.html").render(Context(context))
+            message_txt = get_template("email/assoc_subscribe.txt") .render(Context(context))
+            msg = EmailMultiAlternatives(
+                subject,
+                message_txt,
+                from_email,
+                [settings.MAIL_CA_ASSO],
+                headers={'Reply-To': reply_to_email})
+            msg.attach_alternative(message_html, "text/html")
+            try:
+                msg.send()
+                messages.success(request, "Votre demande d'adhésion a bien été envoyée et va être étudiée.")
+            except:
+                msg = None
+                messages.error(request, "Une erreur est survenue.")
+        return render_template("pages/assoc_subscribe.html", {"form": form})
+
+    form = AssocSubscribeForm(initial={'email': request.user.email})
+    return render_template("pages/assoc_subscribe.html", {"form": form})
 
 
 @can_read_now
