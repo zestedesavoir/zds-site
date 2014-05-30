@@ -118,11 +118,11 @@ class ImageTests(TestCase):
             {'title': u"Mon image super trop cool",
              'legend': u"Légende de ma galerie",
              'physical': open(
-                    os.path.join(
-                        settings.SITE_ROOT,
-                        'fixtures',
-                        'logo.png',),
-                    'r')},
+                       os.path.join(
+                           settings.SITE_ROOT,
+                           'fixtures',
+                           'logo.png',
+                       ), 'r')},
             follow=True)
         self.assertEqual(result.status_code, 200)
 

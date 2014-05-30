@@ -2863,7 +2863,7 @@ def solve_alert(request):
             settings.SITE_URL + note.get_absolute_url(),
             request.user.username,
             request.POST["text"],
-        )
+    )
     send_mp(
         bot,
         [alert.author],

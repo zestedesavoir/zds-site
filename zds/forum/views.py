@@ -298,7 +298,7 @@ Toute l'équipe de la modération vous remercie""".format(
             settings.SITE_URL + post.get_absolute_url(),
             request.user.username,
             request.POST["text"],
-        )
+    )
     send_mp(
         bot,
         [alert.author],

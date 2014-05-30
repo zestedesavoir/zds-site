@@ -300,13 +300,13 @@ def answer(request):
                         if last_read > 0:
                             message_html = get_template('email/mp.html') \
                                 .render(
-                                Context({
-                                    'username': part.username,
-                                    'url': settings.SITE_URL
-                                    + post.get_absolute_url(),
-                                    'author': request.user.username
-                                })
-                            )
+                                    Context({
+                                        'username': part.username,
+                                        'url': settings.SITE_URL
+                                        + post.get_absolute_url(),
+                                        'author': request.user.username
+                                    })
+                                )
                             message_txt = get_template('email/mp.txt').render(
                                 Context({
                                     'username': part.username,
