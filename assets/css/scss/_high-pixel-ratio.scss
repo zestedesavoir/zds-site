@@ -59,18 +59,21 @@
     /* ==============
         Markdown icons
        ============== */
-    .main .content-container .article-content {
-        .information.ico-after:after {
-            @include sprite-pos($sprite2x, 'information', true);
-        }
-        .question.ico-after:after {
-            @include sprite-pos($sprite2x, 'question', true);
-        }
-        .error.ico-after:after {
-            @include sprite-pos($sprite2x, 'error', true);
-        }
-        .warning.ico-after:after {
-            @include sprite-pos($sprite2x, 'warning', true);
+    .main .content-container {
+        .article-content,
+        .message-content {
+            .information.ico-after:after {
+                @include sprite-pos($sprite2x, 'information', true);
+            }
+            .question.ico-after:after {
+                @include sprite-pos($sprite2x, 'question', true);
+            }
+            .error.ico-after:after {
+                @include sprite-pos($sprite2x, 'error', true);
+            }
+            .warning.ico-after:after {
+                @include sprite-pos($sprite2x, 'warning', true);
+            }
         }
     }
 
