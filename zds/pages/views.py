@@ -82,6 +82,11 @@ def assoc_subscribe(request):
                 'first_name': data['first_name'],
                 'surname': data['surname'],
                 'email': data['email'],
+                'adresse1': data['adresse1'],
+                'adresse2': data['adresse2'],
+                'code_postal': data['code_postal'],
+                'ville': data['ville'],
+                'pays': data['pays'],
                 'justification': data['justification'],
                 'username': user.username,
                 'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
@@ -91,15 +96,15 @@ def assoc_subscribe(request):
             # Send email
             subject = "Demande d'adhésion de {}".format(user.username)
             from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
-            reply_to_email = "{} <{}>".format(user.username, data['email'])
+            #reply_to_email = "{} <{}>".format(user.username, data['email'])
             message_html = get_template("email/assoc_subscribe.html").render(Context(context))
             message_txt = get_template("email/assoc_subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
                 from_email,
-                [settings.MAIL_CA_ASSO],
-                headers={'Reply-To': reply_to_email})
+                [settings.MAIL_CA_ASSO])#,
+                #headers={'Reply-To': reply_to_email})
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
