@@ -98,7 +98,19 @@ Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échou
 **NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. **
 **NB2 : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.**
 
+Assurez vous que les dépendances suivantes soient résolues :
+- python-dev
+- libxml2-dev
+- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
+- libz-dev (peut être libz1g-dev sur système 64bits)
+- python-sqlparse
+- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+
+Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
+
+
 ```console
+sudo pip install -I pillow
 pip install --user --upgrade -r requirements.txt
 python manage.py syncdb
 python manage.py migrate
@@ -145,7 +157,7 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 
 ```console
 python manage.py test
-flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403 zds
+flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
 ```
 
 Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
@@ -157,7 +169,7 @@ Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
 Si vous avez une connexion lente et que vous ne voulez travailler que sur une branche précise, vous pouvez toujours ne récupérer que celle-ci :
 
 ```
-git clone https://github.com/Taluu/ZesteDeSavoir.git --depth 1
+git clone https://github.com/zestedesavoir/zds-site.git --depth 1
 ```
 
 En savoir plus

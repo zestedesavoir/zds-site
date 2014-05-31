@@ -1,6 +1,7 @@
 # coding: utf-8
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit
+from crispy_forms.bootstrap import StrictButton
 
 from django import forms
 
@@ -43,6 +44,6 @@ class AssocSubscribeForm(forms.Form):
             Field('email'),
             Field('justification'),
             ButtonHolder(
-                Submit('submit', 'Valider', css_class='button'),
+                StrictButton('Valider', type='submit'),
             )
         )
