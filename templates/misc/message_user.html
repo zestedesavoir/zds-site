@@ -18,11 +18,13 @@
         {% endwith %}
 
         {# TODO : ajouter les metadatas #}
-        {% if not hide_metadata and perms.forum.change_post %}
-            <div class="user-metadata">
-                <a href="#" class="user-karma negative">-X</a>
-                <a href="#">IPs</a>
-            </div>
-        {% endif %}
+        {% comment %}
+            {% if not hide_metadata and perms.forum.change_post %}
+                <div class="user-metadata">
+                    <a href="#" class="user-karma negative">-X</a>
+                    <a href="#">IPs</a>
+                </div>
+            {% endif %}
+        {% endcomment %}
     {% endwith %}
 </div>

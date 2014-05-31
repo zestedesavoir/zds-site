@@ -933,6 +933,7 @@
         padding: 0;
         font-size: 20px;
         font-size: 2.0rem;
+        height: 27px;
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1275,6 +1276,14 @@
         input[type=checkbox] {
             margin: 29px 25% 0;
         }
+        .ico-after {
+            display: block;
+            text-indent: -9999px;
+
+            &:after {
+                margin: 25px 0 0 15px;
+            }
+        }
     }
     .topic-description {
         position: relative;
@@ -1299,6 +1308,9 @@
         .topic-members {
             margin: 0;
             color: #777;
+        }
+        .topic-tag:before {
+            content: "#";
         }
     }
     .topic-answers {
@@ -1459,9 +1471,10 @@
         .information,
         .question,
         .error,
-        .warning {
+        .warning,
+        .spoiler {
             margin: 25px 0;
-            padding: 7px 20px 7px 45px;
+            padding: 7px 15px 7px 45px;
 
             &.ico-after:after {
                 position: absolute;
@@ -1499,6 +1512,28 @@
             &.ico-after:after {
                 @include sprite-pos($sprite, 'warning');
             }
+        }
+        .spoiler-title {
+            display: block;
+            background: #EEE;
+            margin-top: 15px;
+            padding: 3px 15px 3px 40px;
+            text-decoration: none;
+            border-bottom: 1px solid #DDD;
+            color: #555;
+
+            &.ico-after:after {
+                margin: 8px 0 0 10px;
+            }
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        .spoiler {
+            margin-top: 0;
+            padding-left: 15px;
+            background: #EEE;
         }
 
         figure {
@@ -1541,6 +1576,9 @@
         text-transform: uppercase;
         font-weight: normal;
     }
+}
+.js .spoiler {
+    display: none;
 }
 
 /**
@@ -1741,6 +1779,10 @@ table {
                 margin-top: 7px;
             }
 
+            .message-hidden-content {
+                display: none;
+            }
+
             .message-edited,
             .message-hidden,
             .message-helpful {
@@ -1754,7 +1796,8 @@ table {
                     }
                 }
             }
-            .message-edited {
+            .message-edited,
+            .message-hidden {
                 font-style: italic;
                 color: #999;
 
@@ -1762,9 +1805,11 @@ table {
                     @include opacity(.5);
                 }
             }
+            .message-hidden {
+                margin-top: 1px;
+            }
             .message-helpful {
                 color: #48A200;
-                background: none;
                 text-indent: 20px;
             }
 
@@ -2032,6 +2077,9 @@ form.topic-message {
         &:not([type=checkbox]):not([type=radio]) {
             width: calc(98% - 32px) !important;
         }
+    }
+    label {
+        margin: 0 15px;
     }
     textarea {
         margin-top: 0;

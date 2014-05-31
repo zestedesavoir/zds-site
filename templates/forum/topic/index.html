@@ -7,7 +7,7 @@
 
 
 {% block title %}
-    {{ topic.title }}
+    {% if topic.is_solved %}[Résolu]{% endif %} {{ topic.title }}
 {% endblock %}
 
 
