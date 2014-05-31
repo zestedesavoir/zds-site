@@ -31,7 +31,7 @@
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
                 {% if topic.tags.all %}
-                    -
+                    - Tags : 
                     {% for tag in topic.tags.all %}
                         <a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}" class="topic-tag">{{ tag.title }}</a>
                     {% endfor %}
