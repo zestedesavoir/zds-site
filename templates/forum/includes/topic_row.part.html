@@ -4,21 +4,34 @@
 
 
 <div class="topic navigable-elem
-    {% if topic.is_sticky %}
-        topic-sticky
-    {% endif %}
-    {% if topic.is_locked %}
-        topic-locked
-    {% endif %}
-    {% if topic.is_solved %}
-        topic-solved
-    {% endif %}
     {% if user.is_authenticated and topic.never_read %}
         unread
     {% endif %}">
 
     <div class="topic-infos">
-        
+        {% if topic.is_sticky or topic.is_locked or topic.is_solved %}
+            <span class="ico-after 
+                {% if topic.is_sticky %}
+                    pin
+                {% endif %}
+                {% if topic.is_locked %}
+                    lock
+                {% endif %}
+                {% if topic.is_solved %}
+                    tick green
+                {% endif %}
+            ">
+                {% if topic.is_sticky %}
+                    [Epinglé]
+                {% endif %}
+                {% if topic.is_locked %}
+                    [Fermé]
+                {% endif %}
+                {% if topic.is_solved %}
+                    [Résolu]
+                {% endif %}
+            </span>
+        {% endif %}
     </div>
     {% with profile=topic.author|profile %}
         <div class="topic-description" style="background-image: url({{ profile.get_avatar_url }})">

@@ -1276,6 +1276,14 @@
         input[type=checkbox] {
             margin: 29px 25% 0;
         }
+        .ico-after {
+            display: block;
+            text-indent: -9999px;
+
+            &:after {
+                margin: 25px 0 0 15px;
+            }
+        }
     }
     .topic-description {
         position: relative;
@@ -1516,7 +1524,6 @@
 
             &.ico-after:after {
                 margin: 8px 0 0 10px;
-                @include opacity(.7);
             }
 
             &:hover {
