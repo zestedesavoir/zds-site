@@ -13,6 +13,7 @@ install:
   - "sudo apt-get install texlive-latex-extra"
   - "sudo mkdir -p ~/cabal/bin"
   - "sudo mkdir -p ~/.pandoc"
+  - "sudo wget -P ~/cabal/bin https://dl.dropboxusercontent.com/u/18967337/pandoc"
   - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.epub"
   - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.html"
   - "sudo touch ~/.pandoc/epub.css"
