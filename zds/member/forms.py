@@ -40,10 +40,7 @@ class OldTutoForm(forms.Form):
             Field('id'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Attribuer',
-                    css_class='button tiny'),
+                StrictButton('Attribuer', type='submit'),
             ),
         )
 
@@ -83,9 +80,7 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Se connecter'),
+                StrictButton('Se connecter', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
@@ -130,9 +125,7 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Valider mon inscription'),
+                Submit('submit', 'Valider mon inscription'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
@@ -254,11 +247,8 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton(
-                    'Editer le profil',
-                    type='submit',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Editer le profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
 # update extra information about user
@@ -312,11 +302,8 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton(
-                    'Editer mon profil',
-                    type='submit',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Editer mon profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
 # to update email/username
@@ -356,7 +343,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
+                StrictButton('Changer', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
@@ -417,7 +404,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
+                StrictButton('Changer', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
@@ -494,7 +481,7 @@ class ForgotPasswordForm(forms.Form):
         self.helper.layout = Layout(
             Field('username'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
+                StrictButton('Envoyer', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
@@ -535,7 +522,7 @@ class NewPasswordForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
+                StrictButton('Envoyer', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )

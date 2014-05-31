@@ -137,9 +137,7 @@ class ImageForm(forms.Form):
             Field('legend'),
             Field('physical'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    u'Ajouter'),
+                StrictButton('Ajouter', type='submit'),
                 HTML('<a class="btn btn-cancel" u\
                 uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
@@ -158,6 +156,6 @@ class ImageAsAvatarForm(forms.Form):
         self.helper.layout = Layout(
             Hidden('avatar_url', '{{ image.physical.url }}'),
             ButtonHolder(
-                Submit('submit', "Utiliser comme avatar", css_class='button tiny'),
+                StrictButton("Utiliser comme avatar", type='submit'),
             ),
         )

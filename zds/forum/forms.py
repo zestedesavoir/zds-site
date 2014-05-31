@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Field, Hidden
+from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic, sub_tag, Tag
 from zds.utils.forms import CommonLayoutEditor
 
@@ -166,5 +167,5 @@ class MoveTopicForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('forum'),
-            StrictButton('Valider', type='submit', css_class='button tiny'),
+            StrictButton('Valider', type='submit'),
         )
