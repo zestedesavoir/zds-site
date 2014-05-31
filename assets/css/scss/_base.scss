@@ -13,8 +13,12 @@ button,
 input,
 select,
 textarea {
-    font-family: "Segoe UI", "Roboto", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
+    font-family: $font-sans-serif;
     color: #222;
+
+    .wf-active & {
+        font-family: $font-sans-serif-active;
+    }
 }
 
 html {
@@ -25,8 +29,8 @@ html {
 }
 body {
     background: $body-background;
-    font-size: 16px;
-    font-size: 1.6rem;
+    font-size: 14px;
+    font-size: 1.4rem;
     line-height: 1.5em;
     min-height: 100%;
     width: 100%;

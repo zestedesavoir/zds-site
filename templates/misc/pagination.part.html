@@ -21,7 +21,10 @@
                     {# TODO : Accès direct à une page donnée via JS #}
                     <a href="#pagination-{{ topic.get_absolute_url }}-{{ position }}" class="open-modal">…</a>
                     <form action="{{ topic.get_absolute_url }}" method="get" class="modal modal-small" id="pagination-{{ topic.get_absolute_url }}-{{ position }}">
-                        <input type="text" name="page">
+                        <p>
+                            Indiquez la page à laquelle vous souhaitez vous rendre.
+                        </p>
+                        <input type="number" name="page" min="1" max="{{ pages|last }}">
                         <button type="submit">
                             Aller à la page
                         </button>

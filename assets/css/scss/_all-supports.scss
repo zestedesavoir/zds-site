@@ -497,6 +497,7 @@
         }
     }
     .search-more {
+        // TODO : mettre l'icône en background plutôt que tout ça
         display: block;
         float: left;
         height: 40px;
@@ -1401,8 +1402,7 @@
     .article-content {
         p,
         ul:not(.pagination) {
-            // TODO : Améliorer ça...
-            font-family: "Liberation Serif", "Times New Roman", Times, Georgia, FreeSerif, serif;
+            font-family: $font-serif;
             font-size: 18px;
             font-size: 1.8rem;
             font-size: 2.2ex;
@@ -1577,6 +1577,12 @@
         border-bottom: 1px solid $orange;
         text-transform: uppercase;
         font-weight: normal;
+    }
+}
+.wf-active .main .content-container .article-content {
+    p,
+    ul:not(.pagination) {
+        font-family: $font-serif-active;
     }
 }
 .js .spoiler {
@@ -1764,8 +1770,8 @@ table {
             top: 0;
             right: 0;
             text-transform: uppercase;
-            font-size: 14px;
-            font-size: 1.4rem;
+            font-size: 13px;
+            font-size: 1.3rem;
 
             li {
                 float: left;
