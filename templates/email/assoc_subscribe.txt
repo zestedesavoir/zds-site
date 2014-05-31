@@ -5,7 +5,7 @@ Le membre {{ username }} demande à adhérer à Zeste de Savoir !
 Prénom : {{ first_name }}
 Nom de famille : {{ surname }}
 Adresse mail : {{ email }}
-Adresse : {{ adresse1 }}, {{ adresse2 }}
+Adresse : {{ adresse }}, {{ adresse_complement }}
 CP et ville : {{ code_postal }} {{ ville }}
 Pays : {{ pays }}
 Raison de cette demande :

@@ -21,13 +21,13 @@ class AssocSubscribeForm(forms.Form):
         required=True,
     )
     
-    adresse1 = forms.CharField(
+    adresse = forms.CharField(
         label=u'Adresse',
         required=True,
     )
     
-    adresse2 = forms.CharField(
-        label=u'Adresse (suite)',
+    adresse_complement = forms.CharField(
+        label=u'Complément d\'adresse',
         required=False,
     )
     
@@ -66,8 +66,8 @@ class AssocSubscribeForm(forms.Form):
             Field('first_name'),
             Field('surname'),
             Field('email'),
-            Field('adresse1'),
-            Field('adresse2'),
+            Field('adresse'),
+            Field('adresse_complement'),
             Field('code_postal'),
             Field('ville'),
             Field('pays'),
