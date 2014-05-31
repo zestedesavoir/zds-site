@@ -1281,7 +1281,7 @@
             text-indent: -9999px;
 
             &:after {
-                margin: 25px 0 0 15px;
+                margin: 4px 0 0 15px;
             }
         }
     }
@@ -1324,6 +1324,8 @@
         .topic-no-last-answer {
             display: block;
             margin-top: 24px;
+            color: $blue;
+            @include opacity(.5);
         }
     }
 }
@@ -1364,7 +1366,7 @@
         width: 18%;
 
         .topic-no-last-answer {
-            margin-top: 15px;
+            margin-top: 13px;
         }
         .forum-last-message {
             color: #777;
