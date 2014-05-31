@@ -7,8 +7,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML
-from crispy_forms_foundation.layout import Layout, Field, Hidden
+from crispy_forms.layout import HTML, Layout, Field, Hidden
 from zds.forum.models import Forum, Topic, sub_tag, Tag
 from zds.utils.forms import CommonLayoutEditor
 
