@@ -127,6 +127,7 @@ PIPELINE_JS = {
             'js/custom/modal.js',
             'js/custom/close-alert-box.js',
             'js/custom/keyboard-navigation.js',
+            'js/custom/message-hidden.js',
         ),
         'output_filename': 'js/main.js'
     }
@@ -191,6 +192,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages'
 )
+
+CRISPY_TEMPLATE_PACK='bootstrap'
 
 INSTALLED_APPS = (
     'django.contrib.auth',

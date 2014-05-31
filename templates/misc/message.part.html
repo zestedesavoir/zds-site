@@ -9,7 +9,7 @@
 
 
     <div class="message">
-        {% if user.is_authenticated and message.is_visible != False %}
+        {% if user.is_authenticated %}
             <ul class="message-actions">
                 {% if message.is_visible != False %}
                     {% if edit_link %}
@@ -77,13 +77,18 @@
                     {% endif %}
                 {% elif perms_change %}
                     <li>
-                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
-                            Afficher
+                        <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
+                            Voir
                         </a>
-                        <form action="{{ hide_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal">
+                    </li>
+                    <li>
+                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
+                            Démasquer
+                        </a>
+                        <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
                             {% csrf_token %}
                             <p>
-                                Ce message a été masqué, êtes vous certains de vouloir le ré-afficher ?
+                                Ce message a été masqué par <strong>{{ message.editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
                             </p>
 
                             <button type="submit" name="show_message">
@@ -109,6 +114,10 @@
 
             {% if message.is_visible != False %}
                 {{ message.text|emarkdown }}
+            {% elif perms_change %}
+                <div class="message-hidden-content">
+                    {{ message.text|emarkdown }}
+                </div>
             {% endif %}
 
             {% if message.is_visible == False %}
@@ -122,7 +131,7 @@
             {% endif %}
         </div>
 
-        {% if perms.forum.change_post %}
+        {% if perms_change %}
             {% for alert in message.alerts.all %}
                 <div class="alert-box error">
                     {% include "misc/member_item.part.html" with member=alert.author %} - 
