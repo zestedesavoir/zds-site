@@ -1301,6 +1301,9 @@
             margin: 0;
             color: #777;
         }
+        .topic-tag:before {
+            content: "#";
+        }
     }
     .topic-answers {
         width: 13%;
