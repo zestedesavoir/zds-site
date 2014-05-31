@@ -2944,8 +2944,8 @@ def edit_note(request):
                 + "?message=" + str(note_pk)
             return render_template(
                 "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
-        if "delete_messsage" not in request.POST and "signal_messsage" \
-                not in request.POST and "show_messsage" not in request.POST:
+        if "delete_message" not in request.POST and "signal_message" \
+                not in request.POST and "show_message" not in request.POST:
 
             # The user just sent data, handle them
 
