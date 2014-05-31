@@ -2,7 +2,6 @@
 {% load emarkdown %}
 {% load profile %}
 {% load captureas %}
-{% load crispy_forms_tags %}
 
 
 
@@ -101,7 +100,7 @@
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "zds.tutorial.views.answer" %}?tutorial={{ article.pk }}&amp;cite={{ message.pk }}
+            {% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}
