@@ -1463,9 +1463,10 @@
         .information,
         .question,
         .error,
-        .warning {
+        .warning,
+        .spoiler {
             margin: 25px 0;
-            padding: 7px 20px 7px 45px;
+            padding: 7px 15px 7px 45px;
 
             &.ico-after:after {
                 position: absolute;
@@ -1503,6 +1504,29 @@
             &.ico-after:after {
                 @include sprite-pos($sprite, 'warning');
             }
+        }
+        .spoiler-title {
+            display: block;
+            background: #EEE;
+            margin-top: 15px;
+            padding: 3px 15px 3px 40px;
+            text-decoration: none;
+            border-bottom: 1px solid #DDD;
+            color: #555;
+
+            &.ico-after:after {
+                margin: 8px 0 0 10px;
+                @include opacity(.7);
+            }
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        .spoiler {
+            margin-top: 0;
+            padding-left: 15px;
+            background: #EEE;
         }
 
         figure {
@@ -1545,6 +1569,9 @@
         text-transform: uppercase;
         font-weight: normal;
     }
+}
+.js .spoiler {
+    display: none;
 }
 
 /**
