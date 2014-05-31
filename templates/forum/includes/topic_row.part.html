@@ -9,28 +9,14 @@
     {% endif %}">
 
     <div class="topic-infos">
-        {% if topic.is_sticky or topic.is_locked or topic.is_solved %}
-            <span class="ico-after 
-                {% if topic.is_sticky %}
-                    pin
-                {% endif %}
-                {% if topic.is_locked %}
-                    lock
-                {% endif %}
-                {% if topic.is_solved %}
-                    tick green
-                {% endif %}
-            ">
-                {% if topic.is_sticky %}
-                    [Epinglé]
-                {% endif %}
-                {% if topic.is_locked %}
-                    [Fermé]
-                {% endif %}
-                {% if topic.is_solved %}
-                    [Résolu]
-                {% endif %}
-            </span>
+        {% if topic.is_sticky %}
+            <span class="ico-after pin blue">[Epinglé]</span>
+        {% endif %}
+        {% if topic.is_solved %}
+            <span class="ico-after tick green">[Résolu]</span>
+        {% endif %}
+        {% if topic.is_locked %}
+            <span class="ico-after lock blue">[Fermé]</span>
         {% endif %}
     </div>
     {% with profile=topic.author|profile %}
