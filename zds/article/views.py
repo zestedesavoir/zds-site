@@ -108,18 +108,12 @@ def view(request, article_pk, article_slug):
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-<<<<<<< HEAD
-    validation = Validation.objects.filter(article__pk=article.pk, version=sha)
-    
-    return render_template('article/member/view.html', {
-=======
     validation = Validation.objects.filter(article__pk=article.pk,
                                             version=sha)\
                                     .order_by("-date_proposition")\
                                     .first()
 
-    return render_template('article/view.html', {
->>>>>>> dev
+    return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
