@@ -26,12 +26,14 @@ if(disableMobileMenu)
 /**
  * Hide address bar
  */
-window.addEventListener("load",function() {
-    setTimeout(function(){
-        window.scrollTo(0, 1);
-        window.scrollTo(0, 0);
-    }, 0);
-});
+if(!window.location.hash) {
+    window.addEventListener("load",function() {
+        setTimeout(function(){
+            window.scrollTo(0, 1);
+            window.scrollTo(0, 0);
+        }, 0);
+    });
+}
 
 
 
