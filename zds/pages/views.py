@@ -96,15 +96,13 @@ def assoc_subscribe(request):
             # Send email
             subject = "Demande d'adhésion de {}".format(user.username)
             from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
-            #reply_to_email = "{} <{}>".format(user.username, data['email'])
             message_html = get_template("email/assoc_subscribe.html").render(Context(context))
             message_txt = get_template("email/assoc_subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
                 from_email,
-                [settings.MAIL_CA_ASSO])#,
-                #headers={'Reply-To': reply_to_email})
+                [settings.MAIL_CA_ASSO])
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
