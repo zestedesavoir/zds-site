@@ -1,3 +1,5 @@
+git:
+  depth: 1
 language: python
 python:
   - "2.7"
@@ -9,10 +11,16 @@ install:
   - "sudo apt-get install texlive-xetex"
   - "sudo apt-get install texlive-lang-french"
   - "sudo apt-get install texlive-latex-extra"
-  - "sudo apt-get install haskell-platform"
-  - "sudo cabal update"
-  - "sudo cabal install pandoc"
-  - "export PATH=$PATH:~/.cabal/bin"
+  - "sudo mkdir -p ~/cabal/bin"
+  - "sudo mkdir -p ~/.pandoc"
+  - "sudo wget -P ~/cabal/bin https://dl.dropboxusercontent.com/u/18967337/pandoc"
+  - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.epub"
+  - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.html"
+  - "sudo touch ~/.pandoc/epub.css"
+  - "sudo touch ~/.pandoc/templates/epub.css"
+  - "sudo chmod u+x,g+x,o+x ~/cabal/bin/pandoc"
+  - "export PATH=$PATH:~/cabal/bin"
+  - "sudo ~/cabal/bin/pandoc --version"
   - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"
   - "pip install coveralls"
