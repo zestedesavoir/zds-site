@@ -7,7 +7,7 @@
 
 WebFontConfig = {
     google: {
-      families: ['Roboto:300', 'Droid Serif']
+      families: ['Source Sans Pro', 'Droid Serif']
     }
 };
 
