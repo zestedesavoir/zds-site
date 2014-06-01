@@ -33,22 +33,7 @@
         {% if tutorials %}
             <div class="tutorial-list">
                 {% for tutorial in tutorials %}
-                    <article>
-                        <a href="{{ tutorial.get_absolute_url_online }}">
-                            <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                            <div class="tutorial-infos">
-                                <h3>{{ tutorial.title }}</h3>
-                                
-                                <span class="article-metadata">
-                                    {% if tutorial.subcategory %}
-                                        {% for category in tutorial.subcategory.all %}
-                                            {{ category.title }}                                    
-                                        {% endfor %}
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </a>
-                    </article>
+                    {% include 'tutorial/includes/tutorial_item.part.html' %}
                 {% endfor %}
             </div>
         {% else %}
