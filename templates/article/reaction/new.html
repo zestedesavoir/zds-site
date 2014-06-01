@@ -9,16 +9,15 @@
 
 
 
-{% block headline %}
-    <h2>{{ article.title }}</h2>
-    <h3 class="subtitle">Répondre à l'article</h3>
+{% block breadcrumb %}
+    <li><a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a></li>
+    <li>Répondre à l'article</li>
 {% endblock %}
 
 
 
-{% block breadcrumb %}
-    <li><a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a></li>
-    <li>Répondre à l'article</li>
+{% block headline %}
+    Répondre à l'article : {{ article.title }}
 {% endblock %}
 
 
