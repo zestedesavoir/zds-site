@@ -1,6 +1,18 @@
-{% extends "article/member/base.html" %}
+{% extends "article/base_content.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+
+
+
+{% block title_base %}
+    &#183; Mes articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+{% endblock %}
 
 
 

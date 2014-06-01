@@ -6,8 +6,6 @@
 
 
 
-{# Titles #}
-
 {% block title %}
     Accueil
 {% endblock %}
@@ -21,37 +19,10 @@
 
 
 
-{% block sidebar %}
-    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
-           data-title="Catégories de tutoriels"
-    >
-        <h3>Catégories <span class="wide">de tutoriels</span></h3>
-
-        {% with categories='.'|top_categories_tuto %}
-            {% for category in categories %}
-                {# FIXME: il manque un lien ici #}
-                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
-                <ul>
-                    {% for catofsubcat in category.get_subcategories %}
-                        <li>
-                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                {{ catofsubcat.subcategory }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        {% endwith %}
-    </aside>
-{% endblock %}
+{% block body_class %}home content-cols{% endblock %}
 
 
 
-{% block body_class %}home{% endblock %}
-
-
-
-{# Content #}
 {% block content_out %}
     <section class="content-col-2 tutorial-list">
         <h2 class="ico-after ico-articles">Derniers Articles</h2>
@@ -95,7 +66,6 @@
 
     <section class="content-col-2 tutorial-list">
         <h2 class="ico-after ico-tutorials">Dernier tutoriels</h2>
-
         
         {% if last_tutorials %}
             {% for tutorial in last_tutorials %}
@@ -119,4 +89,30 @@
         {% endif %}
         
     </section>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+           data-title="Catégories de tutoriels"
+    >
+        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+
+        {% with categories='.'|top_categories_tuto %}
+            {% for category in categories %}
+                {# FIXME: il manque un lien ici #}
+                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+                <ul>
+                    {% for catofsubcat in category.get_subcategories %}
+                        <li>
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                {{ catofsubcat.subcategory }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endwith %}
+    </aside>
 {% endblock %}

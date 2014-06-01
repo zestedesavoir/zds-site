@@ -250,9 +250,7 @@
                 margin: -20px -22px 0 0;
                 padding: 0 5px;
                 height: 16px;
-                line-height: 16px;
-                font-size: 14px;
-                font-size: 1.4rem;
+                line-height: 14px;
                 background: #c0392b;
                 @include border-radius(16px);
             }
@@ -354,7 +352,7 @@
                 .username {
                     display: block;
                     float: left;
-                    margin: 3px 0 0 7px;
+                    margin: 4px 0 0 7px;
                     color: #95D7F5;
                     width: 50%;
                     overflow: hidden;
@@ -364,7 +362,7 @@
                 .date {
                     color: #5196b6;
                     float: right;
-                    padding: 3px 10px 0 0;
+                    padding: 4px 10px 0 0;
                     @include transition-property(color);
                 }
                 .topic {
@@ -375,6 +373,10 @@
                     overflow: hidden;
                     height: 25px;
                     padding: 4px 7px 2px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    width: 95%;
+                    width: calc(100% - 14px);
                 }
 
                 &:nth-child(2n+1) {
@@ -931,6 +933,13 @@
         color: #424242;
         font-weight: normal;
     }
+    a h3,
+    h3 a {
+        &:hover,
+        &:focus {
+            text-decoration: underline;
+        }
+    }
     h3 {
         margin: 0;
         padding: 0;
@@ -1032,7 +1041,8 @@
 /* ==============
     ALL: Main / Content Wrappers
    ============== */
-.content-wrapper {
+.content-wrapper,
+.full-content-wrapper {
     margin: 0 2%;
 }
 .small-content-wrapper {
@@ -1538,6 +1548,10 @@
 
             &.ico-after:after {
                 margin: 8px 0 0 10px;
+            }
+
+            &:nth-last-child(2) {
+                margin-bottom: 15px;
             }
 
             &:hover {

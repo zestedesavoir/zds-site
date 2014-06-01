@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_content_page.html" %}
 
 
 
@@ -26,8 +26,6 @@
 
 
 
-{% block sidebar %}
-    <aside class="sidebar mobile-menu-hide">
-		{% include "article/includes/sidebar_base.html" %}
-	</aside>
+{% block sidebar_actions %}
+    {% include "article/includes/sidebar_base.html" %}
 {% endblock %}

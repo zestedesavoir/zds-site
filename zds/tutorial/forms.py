@@ -258,18 +258,8 @@ class ExtractForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('text'),
-            ButtonHolder(
-                StrictButton(
-                    'Valider',
-                    type='submit',
-                    css_class='btn-submit'),
-                StrictButton(
-                    u'Aperçu',
-                    type='submit',
-                    css_class='btn-submit',
-                    name='preview'),
-            ))
+            CommonLayoutEditor()
+        )
 
 
 class ImportForm(forms.Form):
