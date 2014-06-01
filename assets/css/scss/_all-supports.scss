@@ -1292,6 +1292,17 @@
         position: relative;
         width: 60%;
 
+        .topic-title-link {
+            &:hover,
+            &:after {
+                text-decoration: none;
+
+                .topic-title {
+                    text-decoration: underline;
+                }
+            }
+        }
+
         .topic-title,
         .topic-subtitle {
             display: block;
