@@ -11,7 +11,7 @@ class Newsletter(models.Model):
         verbose_name_plural = 'Newsletter'
 
     email = models.CharField('email', max_length=80)
-    ip = models.CharField('ip_adress', max_length=20)
+    ip = models.CharField('ip_adress', max_length=39)
 
     def __unicode__(self):
         """Textual Newsletter."""
