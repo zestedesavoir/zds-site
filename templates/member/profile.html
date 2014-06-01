@@ -70,14 +70,11 @@
 
 
 
-    <section class="content-col-2">
+    <section class="content-col-2 tutorial-list">
         {% if tutorials %}
             <h2 class="ico-after ico-tutorials">Derniers tutoriels</h2>
             {% for tutorial in tutorials %}
-                <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
-
-                <h4><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h4>
-                <h5>{{ tutorial.description }}</h5>
+                {% include 'tutorial/includes/tutorial_item.part.html' %}
             {% endfor %}
         {% endif %}
 
