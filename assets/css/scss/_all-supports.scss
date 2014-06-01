@@ -128,6 +128,8 @@
                 a {
                     display: block;
                     width: 95%;
+                    height: 25px;
+                    line-height: 25px;
                     color: #95d7f5;
                     @include transition;
 
@@ -1206,11 +1208,12 @@
 
     .topic {
         position: relative;
-        height: 80px;
+        height: 81px;
         line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
         background: lighten($blue, 76%);
+        overflow: hidden;
 
         &:first-child:after {
             display: block;
@@ -1304,6 +1307,8 @@
         }
         .topic-subtitle {
             height: 24px;
+            line-height: 1.3em;
+            color: #777;
         }
         .topic-members {
             margin: 0;

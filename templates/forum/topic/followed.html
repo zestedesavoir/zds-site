@@ -23,9 +23,11 @@
 {% block content %}
     {% include "misc/pagination.part.html" with position="top" %}
 
-    {% for topic in followed_topics %}
-        {% include "forum/includes/topic_row.part.html" %}
-    {% endfor %}
+	<div class="topic-list navigable-list">
+	    {% for topic in followed_topics %}
+	        {% include "forum/includes/topic_row.part.html" %}
+	    {% endfor %}
+    </div>
     
     {% include "misc/pagination.part.html" with position="bottom" %}
 {% endblock %}
