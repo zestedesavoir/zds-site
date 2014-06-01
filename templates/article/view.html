@@ -144,7 +144,12 @@
             {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% include 'misc/message.part.html' with perms_change=perms.article.change_reaction topic=article %}
+        {% captureas alert_solve_link %}
+            {% url "zds.article.views.solve_alert" %}
+        {% endcaptureas %}
+
+
+        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
     {% endfor %}
 
 
