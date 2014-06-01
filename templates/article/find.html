@@ -1,4 +1,4 @@
-{% extends "article/base.html" %}
+{% extends "article/index.html" %}
 {% load date %}
 {% load profile %}
 {% load emarkdown %}
@@ -32,43 +32,4 @@
         </a>
     </li>
     <li>Liste des articles rédigés par {{ usr.username }}</li>
-{% endblock %}
-
-
-
-{% block content %}
-    {# TODO : Faire le design de ce genre de page #}
-    <table>
-        <thead>
-            <tr>
-                <th width="20%">Article</th>
-                <th width="10%">Date</th>
-                <th width="70%">Extrait</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for article in articles %}
-                <tr>
-                    <td>
-                        <img src="{{ article.thumbnail.url }}" alt="">
-
-                        <a href="{{ article.get_absolute_url }}">
-                            {{ article.title }}
-                        </a> 
-                        {% if article.description %}
-                            <p>
-                                {{ article.description }}
-                            </p>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ date=article.pubdate|format_date|capfirst }}
-                    </td>
-                    <td>
-                        {{ article.text|truncatechars:200|emarkdown }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 {% endblock %}

@@ -16,7 +16,8 @@ textarea {
     font-family: $font-sans-serif;
     color: #222;
 
-    .wf-active & {
+    .wf-active &,
+    .no-js & {
         font-family: $font-sans-serif-active;
     }
 }
@@ -31,7 +32,7 @@ body {
     background: $body-background;
     font-size: 14px;
     font-size: 1.4rem;
-    line-height: 1.5em;
+    line-height: 1.7em;
     min-height: 100%;
     width: 100%;
 }

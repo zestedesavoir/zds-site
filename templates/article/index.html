@@ -23,22 +23,26 @@
 
 
 
-{% block headline %}
-    <h2 class="ico-after ico-articles">Liste des articles</h2>
-{% endblock %}
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-articles">
+            {% block headline %}
+                Liste des articles
+            {% endblock %}
+        </h2>
 
-
-
-{% block content_after %}
-    {% if articles %}
-        <div class="tutorial-list">
-            {% for article in articles %}
-                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>
-            Aucun article disponible.
-        </p>
-    {% endif %}
+        {% block content %}
+            {% if articles %}
+                <div class="tutorial-list">
+                    {% for article in articles %}
+                        {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>
+                    Aucun article disponible.
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
 {% endblock %}

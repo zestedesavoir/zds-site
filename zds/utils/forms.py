@@ -22,7 +22,8 @@ class CommonLayoutEditor(Layout):
                     StrictButton(
                         u'Aperçu',
                         type='submit',
-                        name='preview'),
+                        name='preview',
+                        css_class='btn-grey'),
                 ),
             ),
         )

@@ -1,4 +1,16 @@
-{% extends "article/member/base.html" %}
+{% extends "article/index.html" %}
+
+
+
+{% block title_base %}
+    &#183; Mes articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+{% endblock %}
 
 
 
@@ -9,7 +21,7 @@
 
 
 {% block headline %}
-    <h2>Mes Articles</h2>
+    Mes Articles
 {% endblock %}
 
 

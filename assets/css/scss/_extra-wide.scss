@@ -11,11 +11,15 @@
         display: inline;
     }
     table .wide {
-      display: table-cell;
+        display: table-cell;
     }
 
     .header-container .header-menu {
         width: 40%;
         margin-left: 5%;
+    }
+
+    body:not(.home) .tutorial-list article {
+        width: 29.3%;
     }
 }
