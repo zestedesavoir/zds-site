@@ -447,8 +447,6 @@
 
 .sub-header {
     background: #EEE;
-    font-size: 13px;
-    font-size: 1.3rem;
 }
 .breadcrumb {
     display: none;
@@ -586,8 +584,10 @@
         height: 40px;
         padding-left: 11.5%;
         text-decoration: none;
-        line-height: 40px;
         text-indent: 25px;
+        line-height: 40px;
+        font-size: 16px;
+        font-size: 1.6rem;
         position: relative;
         color: lighten($blue, 20%);
         @include transition;
@@ -1207,8 +1207,7 @@
     .topic {
         position: relative;
         height: 80px;
-        font-size: 14px;
-        font-size: 1.4rem;
+        line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
         background: lighten($blue, 76%);
@@ -1770,8 +1769,6 @@ table {
             top: 0;
             right: 0;
             text-transform: uppercase;
-            font-size: 13px;
-            font-size: 1.3rem;
 
             li {
                 float: left;
