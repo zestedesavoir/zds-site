@@ -129,7 +129,6 @@ PIPELINE_JS = {
             'js/custom/keyboard-navigation.js',
             'js/custom/message-hidden.js',
             'js/custom/spoiler.js',
-            'js/custom/webfont.js',
         ),
         'output_filename': 'js/main.js'
     }

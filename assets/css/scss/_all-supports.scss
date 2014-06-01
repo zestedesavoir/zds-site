@@ -1207,8 +1207,7 @@
     .topic {
         position: relative;
         height: 80px;
-        font-size: 14px;
-        font-size: 1.4rem;
+        line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
         background: lighten($blue, 76%);
