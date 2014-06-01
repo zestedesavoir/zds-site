@@ -68,6 +68,11 @@
                 outline-color: #C0392B;
             }
         }
+
+        &[disabled] {
+            background: #DDD !important;
+            color: #555;
+        }
     }
     input,
     textarea,
