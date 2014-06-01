@@ -154,18 +154,6 @@ def modify_gallery(request):
             })
     return redirect(gallery.get_absolute_url())
 
-
-@can_write_and_read_now
-@login_required
-def del_image(request, gal_pk):
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    if request.method == "POST":
-        liste = request.POST.getlist("items")
-        Image.objects.filter(pk__in=liste).delete()
-        return redirect(gal.get_absolute_url())
-    return redirect(gal.get_absolute_url())
-
-
 @can_write_and_read_now
 @login_required
 def edit_image(request, gal_pk, img_pk):
