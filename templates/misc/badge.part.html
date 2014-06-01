@@ -1,7 +1,13 @@
-{% if not profile.can_read_now() %}
-    <span class="badge banned">Banni</span>
-{% elif not profile.can_write_now() %}
-    <span class="badge readonly">LS</span>
-{% elif perms.forum.change_topic %}
-    <span class="badge staff">Staff</span>
-{% endif %}
+{% load profile %}
+
+
+
+{% with status=usr|state %}
+    {% if status == 'BAN'%}
+        <span class="badge banned">Banni</span>
+    {% elif status == 'LS'%}
+        <span class="badge readonly">LS</span>
+    {% elif status == 'STAFF' %}
+        <span class="badge staff">Staff</span>
+    {% endif %}
+{% endwith %}

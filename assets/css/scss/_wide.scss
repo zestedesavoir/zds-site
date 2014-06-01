@@ -294,12 +294,13 @@
     /* ============
        Main / Home
        ============ */
-    .home .main {
+    .content-cols .main {
         .content-container {
             width: 79%;
             margin-left: 1.5%;
         }
-
+    }
+    .home .main {
         .sidebar {
             margin-top: 30px;
             border-top: 1px solid #FFF;
