@@ -173,18 +173,37 @@
                 {% endif %}
 
                 {% if tutorial.in_validation %}
-                    <li>
-                        <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
-                        <div class="modal modal-small" id="valid-publish">
-                            {% crispy formValid %}
-                        </div>
-                    </li>
-                    <li>
-                        <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
-                        <div class="modal modal-small" id="reject">
-                            {% crispy formReject %}
-                        </div>
-                    </li>
+                    {% if validation.is_pending %}
+                        <li>
+                            <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="ico-after lock blue">Réserver</a>
+                        </li>
+                    {% elif validation.is_pending_valid %}
+                        {% if validation.validator = user %}
+                            <li>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
+                                    Se retirer
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
+                                <div class="modal modal-small" id="valid-publish">
+                                    {% crispy formValid %}
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
+                                <div class="modal modal-small" id="reject">
+                                    {% crispy formReject %}
+                                </div>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
+                                    Réservé par {{ validation.validator.username }}, le retirer
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>
