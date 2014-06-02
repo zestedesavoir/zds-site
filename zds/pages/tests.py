@@ -78,7 +78,7 @@ class PagesMemberTests(TestCase):
         """To test the "subscription to the association" form."""
 
         result = self.client.post(
-            reverse('zds.page.views.assoc_subscribe'),
+            reverse('zds.pages.views.assoc_subscribe'),
             {
                 'first_name': 'Anne',
                 'surname': 'Onyme',

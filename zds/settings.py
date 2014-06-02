@@ -304,8 +304,8 @@ SDZ_TUTO_DIR = ''
 
 MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 
-# ATTENTION, CETTE ADRESSE NE DOIT PAS ETRE CHANGÉE
-# SANS ACCORD DU Conseil d'Administraton de l'association ZdS
+# CAREFUL! THIS EMAIL ADRESS SHOULD NOT BE CHANGED
+# WITHOUT THE APPROVAL OF THE ASSOCIATION COMMITEE
 MAIL_NOREPLY = 'noreply@zestedesavoir.com'
 
 # Load the production settings, overwrite the existing ones if needed
