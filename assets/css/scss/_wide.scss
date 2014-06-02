@@ -230,6 +230,8 @@
         .content-container {
             width: 80%;
             margin-right: 0;
+            
+            @include single-transition(width, $reader-mode-transition-duration);
 
             h1,
             h2 {
