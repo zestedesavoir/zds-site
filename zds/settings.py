@@ -58,7 +58,7 @@ USE_TZ = False
 
 SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
-SITE_URL = 'http://127.0.0.1:8000'
+SITE_URL = 'http://localhost:8000'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -129,6 +129,7 @@ PIPELINE_JS = {
             'js/custom/keyboard-navigation.js',
             'js/custom/message-hidden.js',
             'js/custom/spoiler.js',
+            'js/custom/reader-mode.js'
         ),
         'output_filename': 'js/main.js'
     }
