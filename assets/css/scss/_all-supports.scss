@@ -1859,6 +1859,42 @@ table {
             }
         }
 
+        .markdown-help {
+            .open-markdown-help {
+                display: block;
+                position: absolute;
+                bottom: 0;
+                left: 8px;
+
+                .close-markdown-help-text {
+                    display: none;
+                }
+            }
+
+            .markdown-help-more {
+                display: none;
+                background: #EEE;
+                padding: 15px;
+                margin-bottom: 5px;
+
+                pre {
+                    margin: 0;
+                }
+
+                &.show-markdown-help {
+                    display: block;
+                }
+            }
+            .show-markdown-help + .open-markdown-help {
+                .close-markdown-help-text {
+                    display: inline;
+                }
+                .open-markdown-help-text {
+                    display: none;
+                }
+            }
+        }
+
         .message-bottom {
             @include display(flex);
             @include align-items(flex-start);

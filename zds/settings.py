@@ -130,6 +130,7 @@ PIPELINE_JS = {
             'js/custom/message-hidden.js',
             'js/custom/spoiler.js',
             'js/custom/karma-ajax.js',
+            'js/custom/markdown-help.js',
         ),
         'output_filename': 'js/main.js'
     }
