@@ -14,6 +14,9 @@ class PagesMemberTests(TestCase):
             username=self.user1.username,
             password='hostel77')
         self.assertEqual(log, True)
+        
+        settings.EMAIL_BACKEND = \
+            'django.core.mail.backends.locmem.EmailBackend'
 
     def test_url_home(self):
         """Test: check that home page is alive."""
@@ -70,6 +73,31 @@ class PagesMemberTests(TestCase):
         # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
+    def test_subscribe_association(self):
+        """To test the "subscription to the association" form."""
+
+        result = self.client.post(
+            reverse('zds.page.views.assoc_subscribe'),
+            {
+                'first_name': 'Anne',
+                'surname': 'Onyme',
+                'email': 'anneonyme@test.com',
+                'adresse': '42 rue du savoir',
+                'adresse_complement': 'appartement 42',
+                'code_postal': '75000',
+                'ville': 'Paris',
+                'pays': 'France',
+                'justification': 'Parce que l\'assoc est trop swag !',
+                'username': self.user1.username,
+                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
+                                                           kwargs={'user_name': self.user1.username})
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 1)
 
 class PagesStaffTests(TestCase):
 
