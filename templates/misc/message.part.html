@@ -50,22 +50,24 @@
                             {% endif %}
                         {% endif %}
 
-                        <li>
-                            <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
-                                Signaler
-                            </a>
-                            <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
-                                {% csrf_token %}
-                                <p>
-                                    Pour quelle raison signalez-vous ce message ?
-                                </p>
-                                <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ...">
-
-                                <button type="submit" name="signal_message">
+                        {% if can_hide %}
+                            <li>
+                                <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     Signaler
-                                </button>
-                            </form>
-                        </li>
+                                </a>
+                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
+                                    {% csrf_token %}
+                                    <p>
+                                        Pour quelle raison signalez-vous ce message ?
+                                    </p>
+                                    <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ...">
+
+                                    <button type="submit" name="signal_message">
+                                        Signaler
+                                    </button>
+                                </form>
+                            </li>
+                        {% endif %}
                     {% endif %}
 
                     {% if cite_link and not topic.is_locked and not topic.antispam %}
@@ -134,13 +136,14 @@
         {% if perms_change %}
             {% for alert in message.alerts.all %}
                 <div class="alert-box error">
-                    {% include "misc/member_item.part.html" with member=alert.author %} - 
-                    {{ alert.pubdate|format_date|capfirst }} : <em>{{ alert.text }}</em>
+                    {{ alert.pubdate|format_date|capfirst }} par 
+                    {% include "misc/member_item.part.html" with member=alert.author %} : 
+                    <em>{{ alert.text }}</em>
 
-                    <a href="#solve-alert-{{alert.pk}}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
-                    <form id="solve-alert-{{alert.pk}}" method="post" action="{% url "zds.forum.views.solve_alert" %}" class="modal modal-medium">
+                    <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
+                    <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-medium">
                         <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
-                        <input type="hidden" name="alert_pk" value="{{alert.pk}}">
+                        <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                         {% csrf_token %}
                         <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>

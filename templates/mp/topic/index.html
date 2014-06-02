@@ -57,9 +57,13 @@
             {% captureas cite_link %}
                 {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
-    
+
             {# TODO: permettre l'édition si aucune lecure sur le message #}
-            {% include 'misc/message.part.html' with can_hide=False can_edit=False %}
+            {% if True %}
+                {% set False as can_edit %}
+            {% endif %}
+    
+            {% include "misc/message.part.html" with can_hide=False %}
         {% endfor %}
     </div>
 

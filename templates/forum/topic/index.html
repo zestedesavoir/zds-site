@@ -70,7 +70,12 @@
                 {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
             {% endcaptureas %}
 
-            {% include 'misc/message.part.html' with perms_change=perms.forum.change_topic %}
+            {% captureas alert_solve_link %}
+                {% url "zds.forum.views.solve_alert" %}
+            {% endcaptureas %}
+            
+
+            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
         {% endfor %}
     </div>
 
