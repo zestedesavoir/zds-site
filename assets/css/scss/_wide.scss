@@ -37,6 +37,8 @@
         position: relative;
         @include box-shadow(0 0 4px rgba(0, 0, 0, .3));
 
+        @include single-transition(margin-top, $reader-mode-transition-duration);
+
         header {
             @include background-image(
                 linear-gradient(left, transparent 20%, rgba(255, 255, 255, .07) 40%, rgba(255, 255, 255, .07) 60%, transparent 80%)
@@ -256,6 +258,9 @@
             width: 22.5%;
             border-bottom: none;
 
+            @include single-transition(width, $reader-mode-transition-duration);
+            overflow: hidden;
+
             h3,
             h4,
             ul li {
@@ -287,6 +292,28 @@
                     }
                 }
             }
+        }
+    }
+
+    /* ============
+       Reader mode
+       ============ */
+    body.reader-mode {
+        .content-container {
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 0%;
+        }
+
+        .header-container {
+            @include box-shadow(0 0 0 #000);
+            margin-top: -93px;
+        }
+
+        .hidden-reader-mode { // To hide some element in reader-mode
+            display: none;
         }
     }
 

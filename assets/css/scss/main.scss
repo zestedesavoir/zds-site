@@ -16,6 +16,8 @@
  */
 $default-transition-duration: .15s;
 
+$reader-mode-transition-duration: .4s;
+
 //$sprite: sprite-map("sprite/*.png");
 $sprite2x: sprite-map("sprite@2x/*.png");
 $sprite: $sprite2x;
