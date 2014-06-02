@@ -304,10 +304,9 @@ SDZ_TUTO_DIR = ''
 
 MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 
-# ATTENTION, CETTE ADRESSE NE DOIT PAS ETRE CHANGÉE SANS ACCORD DU CA
+# ATTENTION, CETTE ADRESSE NE DOIT PAS ETRE CHANGÉE
+# SANS ACCORD DU Conseil d'Administraton de l'association ZdS
 MAIL_NOREPLY = 'noreply@zestedesavoir.com'
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Load the production settings, overwrite the existing ones if needed
 try:
