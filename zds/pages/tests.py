@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from django.conf import settings
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -14,7 +16,6 @@ class PagesMemberTests(TestCase):
             username=self.user1.username,
             password='hostel77')
         self.assertEqual(log, True)
-        
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
 
@@ -98,6 +99,7 @@ class PagesMemberTests(TestCase):
 
         # check email has been sent
         self.assertEquals(len(mail.outbox), 1)
+
 
 class PagesStaffTests(TestCase):
 
