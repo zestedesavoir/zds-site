@@ -25,7 +25,9 @@
 
 
 {% block content %}
-    {% crispy form %}
+	<div data-solved-topics-url="{% url "zds.forum.views.complete_topic" %}">
+   		{% crispy form %}
+    </div>
 
     {% if text %}
         {% include "misc/previsualization.part.html" %}
