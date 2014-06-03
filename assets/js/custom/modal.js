@@ -26,7 +26,7 @@ $('.modal').each(function(){
     }));
     var $link = $('[href=#'+$(this).attr('id')+']:first');
     $(this).prepend($('<span/>', {
-        'class': 'modal-title light ' + $link.attr('class'),
+        'class': 'modal-title light ' + $link.attr('class').replace(/btn[a-z-]*/g, ''),
         'text': $link.text()
     }));
 });

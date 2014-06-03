@@ -42,7 +42,10 @@
         {% if user in authors %}
             <div class="actions-title">
                 <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">Supprimer</a>
-                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal">
+                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
+                    <p>
+                        Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract.title }}</em> ?
+                    </p>
                     <input type="hidden" name="extract" value="{{ extract.pk }}" />
                     {% csrf_token %}
                     <button type="submit" name="delete">
