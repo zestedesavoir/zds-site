@@ -243,7 +243,7 @@
                                                            class="read"
                                                         >
                                                             {% with p=last_read.author|profile %}
-                                                            <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ last_read.author.username }}</span>
                                                             <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
@@ -271,12 +271,10 @@
 
                                 {# NOTIFICATIONS #}
                                 <div>
-                                    {% with topics=user|interventions_topics %}
-                                    {% with unread_topics=topics.unread %}
-                                    {% with read_topics=topics.read %}
+                                    {% with unread_posts=user|interventions_topics %}
                                         <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
-                                            {% if unread_topics|length > 0 %}
-                                                <span class="notif-count">{{ unread_topics|length }}</span>
+                                            {% if unread_posts|length > 0 %}
+                                                <span class="notif-count">{{ unread_posts|length }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-notifs">Notifications</span>
                                         </a>
@@ -285,23 +283,21 @@
                                             <span class="dropdown-title">Notifications</span>
 
                                             <ul class="dropdown-list">
-                                                {% for topic in unread_topics %}
-                                                    {% with first_unread=topic.first_unread_post %}
+                                                {% for first_unread in unread_posts %}
                                                     <li>
                                                         <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                             {% with p=first_unread.author|profile %}
-                                                            <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                            {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
-                                                            {% endwith %}
                                                         </a>
                                                     </li>
-                                                    {% endwith %}
                                                 {% endfor %}
 
-                                                {% for topic in read_topics %}
-                                                    {% with last_read=topic.last_read_post %}
+                                                {# TODO : restore read posts notifications #}
+                                                {% for last_read in read_posts %}
                                                     <li>
                                                         {% with last_answer=topic.get_last_answer %}
                                                         <a href="
@@ -313,20 +309,20 @@
                                                            class="read"
                                                         >
                                                             {% with p=last_read.author|profile %}
-                                                            <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                            {% endwith %}
                                                             <span class="username">{{ last_read.author.username }}</span>
                                                             <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
                                                             <span class="topic">{{ topic.title }}</span>
-                                                            {% endwith %}
                                                         </a>
                                                         {% endwith %}
                                                     </li>
-                                                    {% endwith %}
                                                 {% endfor %}
-
-                                                {% if read_topics|length = 0 and unread_topics|length = 0 %}
+    
+                                                {# {% if read_topics|length = 0 and unread_topics|length = 0 %} #}
+                                                {% if unread_posts|length = 0 %}
                                                     <li class="dropdown-empty-message">
-                                                        Aucun sujet suivi
+                                                        Aucune notification
                                                     </li>
                                                 {% endif %}
                                             </ul>
@@ -335,15 +331,12 @@
                                             </a>
                                         </div>
                                     {% endwith %}
-                                    {% endwith %}
-                                    {% endwith %}
                                 </div>
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
                                     {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
                                         <div>
-                                            {# TODO : Il manque un lien / page ici #}
                                             <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
                                                 <span class="notif-text ico ico-alerts">Alertes</span>
                                                 {% if nb_alerts > 0 %}
@@ -368,7 +361,6 @@
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
-                                                {# TODO : Il manque un lien / page ici (idem qu'au dessus) #}
                                                 <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
                                                     Toutes les alertes
                                                 </a>
