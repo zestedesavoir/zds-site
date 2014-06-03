@@ -6,10 +6,11 @@
 
 if($('.article-content').length > 0){
     $('.content-container .authors').before($('<button/>', {
-        'class': 'btn btn-grey ico-after view',
+        'class': 'btn btn-grey ico-after view open-zen-mode',
         'text': 'Zen mode',
         'click': function(e){
             $('.content-container').toggleClass('zen-mode tab-modalize');
+            $(this).blur();
             e.preventDefault();
             e.stopPropagation();
         }
@@ -20,6 +21,7 @@ if($('.article-content').length > 0){
             // Espace close modal
             if(e.keyCode === 27){
                 $('.content-container').toggleClass('zen-mode tab-modalize');
+                $(this).blur();
                 e.stopPropagation();
             }
         }

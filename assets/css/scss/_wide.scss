@@ -231,6 +231,7 @@
 
             &.zen-mode {
                 width: 100%;
+                min-height: calc(100% - 200px);
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -238,6 +239,16 @@
                 z-index: 100;
                 background: #FCFCFC;
                 padding: 100px 0;
+                margin-bottom: 0;
+
+                .open-zen-mode:before {
+                    content: "Quitter le ";
+                }
+
+                .reactions-title,
+                .topic-message {
+                    display: none;
+                }
             }
 
             h1,
