@@ -304,6 +304,10 @@ SDZ_TUTO_DIR = ''
 
 MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 
+# CAREFUL! THIS EMAIL ADRESS SHOULD NOT BE CHANGED
+# WITHOUT THE APPROVAL OF THE ASSOCIATION COMMITEE
+MAIL_NOREPLY = 'noreply@zestedesavoir.com'
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *

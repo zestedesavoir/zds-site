@@ -48,7 +48,7 @@ def send_mp(
     if send_by_mail:
         if direct:
             subject = "ZDS : " + n_topic.title
-            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
             for part in users:
                 message_html = get_template('email/mp_direct.html').render(
                     Context({
@@ -71,7 +71,7 @@ def send_mp(
                     msg = None
         else:
             subject = "ZDS - MP: " + n_topic.title
-            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
             for part in users:
                 message_html = get_template('email/mp.html').render(
                     Context({
