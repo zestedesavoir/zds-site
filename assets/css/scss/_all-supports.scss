@@ -1234,8 +1234,8 @@
         line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
-        background: lighten($blue, 76%);
         overflow: hidden;
+        border-left: 1px solid transparent;
 
         &:first-child:after {
             display: block;
@@ -1246,30 +1246,34 @@
             margin-top: -2px;
         }
 
+        &:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            background: transparent;
+            height: 100%;
+            width: 2px;
+        }
+        &.unread:before {
+            background: lighten($blue, 20%);
+        }
+
         &:nth-child(2n){
             background: none;
-
-            &.unread {
-                background: lighten($orange, 33%);
-            }
         }
 
         &.unread {
-            background: lighten($orange, 30%);
+            .topic-title {
+                font-weight: bold;
+            }
+            background: #FFF;
         }
 
         &:hover,
         &.active {
             &:before {
-                content: " ";
-                display: block;
-                position: absolute;
-                background: lighten($blue, 15%);
-                height: 100%;
                 width: 5px;
-            }
-            &.unread:before {
-                background: $orange;
+                background: lighten($blue, 20%);
             }
         }
     }
