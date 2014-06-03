@@ -162,6 +162,19 @@ def edit_image(request, gal_pk, img_pk):
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
+
+    # check if user can edit image
+    try:
+        permission = UserGallery.objects.get(user=request.user, gallery=gal)
+        if permission.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
+    # check if the image belong to the gallery
+    if img.gallery != gal:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:

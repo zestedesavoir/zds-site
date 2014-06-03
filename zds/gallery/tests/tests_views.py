@@ -414,7 +414,7 @@ class ModifyImageTest(TestCase):
         response = self.client.get(reverse('zds.gallery.views.modify_image'), follow=True)
         self.assertRedirects(response,
                 reverse('zds.member.views.login_view')
-                + ' ?next=' + urllib.quote(reverse('zds.gallery.views.modify_image'), ''))
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.modify_image'), ''))
 
     def test_fail_modify_image_with_no_permission(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
