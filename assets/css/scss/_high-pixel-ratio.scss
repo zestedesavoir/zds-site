@@ -13,7 +13,9 @@
     }
     .ico,
     .ico-after:after,
-    .breadcrumb ul li:not(:last-child):after {
+    .breadcrumb ul li:not(:last-child):after,
+    input[type=radio]:checked,
+    input[type=checkbox]:checked {
         background-size: round(image-width(sprite-path($sprite2x)) / 2) round(image-height(sprite-path($sprite2x)) / 2) !important;
         background-image: $sprite2x !important;
     }
@@ -51,6 +53,21 @@
         }
         &.ico-tutorials:after {
             @include sprite-pos($sprite2x, 'tutorials', true);
+        }
+    }
+
+
+
+    /* ==============
+        Forms
+       ============== */
+    .content-container,
+    #modals {
+        input[type=radio]:checked {
+            @include sprite-pos($sprite2x, 'radio', true);
+        }
+        input[type=checkbox]:checked {
+            @include sprite-pos($sprite2x, 'check', true);
         }
     }
 

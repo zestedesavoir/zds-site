@@ -14,7 +14,7 @@ $overlay = $('<div/>', {
 
 $('body').append($('<div/>', { 'id': 'modals' }));
 $('.modal').each(function(){
-    $('#modals').append($(this));
+    $('#modals').append($(this).addClass('tab-modalize'));
     $(this).append($('<a/>', {
         'class': 'btn btn-cancel ' + ($(this).is('[data-modal-close]') ? 'btn-modal-fullwidth' : ''),
         'href': '#close-modal',
@@ -47,34 +47,11 @@ $('.open-modal').on('click', function(e){
 });
 
 $('body').on('keydown', function(e){
-    var $modal = $('#modals .modal:visible');
-    if($modal.length > 0){
+    if($('#modals .modal:visible').length > 0){
         // Espace close modal
         if(e.keyCode === 27){
             closeModal();
             e.stopPropagation();
-        }
-
-        // Tab do not go out modal
-        if(e.keyCode === 9){
-            var $current = $modal.find(':focus'),
-                $tabbables = $modal.find(':tabbable'),
-                nextIndex = e.shiftKey ? $tabbables.length - 1 : 0;
-
-            if($current.length === 1){
-                var currentIndex = $tabbables.index($current);
-                if(e.shiftKey){
-                    if(currentIndex > 0)
-                        nextIndex = currentIndex - 1;
-                } else {
-                    if(currentIndex + 1 < $tabbables.length)
-                        nextIndex = currentIndex + 1;
-                }
-            }
-
-            $tabbables.eq(nextIndex).focus();
-            e.stopPropagation();
-            e.preventDefault();
         }
     }
 });
