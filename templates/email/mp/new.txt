@@ -1,9 +1,9 @@
-Bonjour {{username}},
+Bonjour {{ username }},
 
-{{author}} vous a envoyé un message privé sur ZesteDeSavoir.com
+{{ author }} vous a envoyé un message privé sur Zeste de Savoir
 
-Pour le lire, cliquez sur l'url suivante : {{url}}
+Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
 
 Cordialement,
 
-L'équipe ZesteDeSavoir
+L'équipe Zeste de Savoir

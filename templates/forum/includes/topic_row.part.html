@@ -20,7 +20,7 @@
         {% endif %}
     </div>
     {% with profile=topic.author|profile %}
-        <div class="topic-description" style="background-image: url({{ profile.get_avatar_url }})">
+        <div class="topic-description">
             <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
                 <span class="topic-title">{{ topic.title }}</span>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
