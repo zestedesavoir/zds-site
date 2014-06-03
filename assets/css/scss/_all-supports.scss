@@ -1371,9 +1371,6 @@
         }
     }
 }
-.no-cssmask .topic-list .topic-description[style]:before {
-    @include opacity(.1);
-}
 
 .forum-list {
     .group-title {
