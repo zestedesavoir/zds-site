@@ -131,6 +131,8 @@ PIPELINE_JS = {
             'js/custom/spoiler.js',
             'js/custom/karma-ajax.js',
             'js/custom/markdown-help.js',
+            'js/custom/tab-modalize.js',
+            'js/custom/zen-mode.js',
         ),
         'output_filename': 'js/main.js'
     }

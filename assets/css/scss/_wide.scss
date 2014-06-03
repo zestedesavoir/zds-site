@@ -229,6 +229,17 @@
             width: 80%;
             margin-right: 0;
 
+            &.zen-mode {
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                background: #FCFCFC;
+                padding: 100px 0;
+            }
+
             h1,
             h2 {
                 margin-left: 1px;
