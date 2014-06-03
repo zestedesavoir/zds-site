@@ -42,27 +42,41 @@ from zds.utils.tokens import generate_token
 def index(request):
     """Displays the list of registered users."""
 
-    members = User.objects.order_by("-date_joined")
+    if request.is_ajax():
+        q = request.GET.get('q', '')
+        members = User.objects.filter(username__icontains = q )[:20]
+        results = []
+        for member in members:
+            member_json = {}
+            member_json['id'] = member.pk
+            member_json['label'] = member.username
+            member_json['value'] = member.username
+            results.append(member_json)
+        data = json.dumps(results)
 
-    # Paginator
-
-    paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
-    page = request.GET.get("page")
-    try:
-        shown_members = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_members = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_members = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-    return render_template("member/index.html", {
-        "members": shown_members,
-        "count": members.count(),
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
-    })
+        return HttpResponse(data, mimetype)
+    
+    else:
+        members = User.objects.order_by("-date_joined")
+        # Paginator
+    
+        paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
+        page = request.GET.get("page")
+        try:
+            shown_members = paginator.page(page)
+            page = int(page)
+        except PageNotAnInteger:
+            shown_members = paginator.page(1)
+            page = 1
+        except EmptyPage:
+            shown_members = paginator.page(paginator.num_pages)
+            page = paginator.num_pages
+        return render_template("member/index.html", {
+            "members": shown_members,
+            "count": members.count(),
+            "pages": paginator_range(page, paginator.num_pages),
+            "nb": page,
+        })
 
 
 @can_read_now

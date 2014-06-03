@@ -95,11 +95,17 @@ class Profile(models.Model):
 
     def get_city(self):
         """return physical adress by geolocalisation."""
-        gic = pygeoip.GeoIP(
-            os.path.join(
-                settings.GEOIP_PATH,
-                'GeoLiteCity.dat'))
-        geo = gic.record_by_addr(self.last_ip_address)
+        if len(self.last_ip_address) <= 16:
+            gic = pygeoip.GeoIP(
+                os.path.join(
+                    settings.GEOIP_PATH,
+                    'GeoLiteCity.dat'))
+        else:
+            gic = pygeoip.GeoIP(
+                os.path.join(
+                    settings.GEOIP_PATH,
+                    'GeoLiteCityv6.dat'))
+        geo = gic.record_by_addr(self.last_ip_address)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
         return u'{0} ({1}) : {2}'.format(
             geo['city'], geo['postal_code'], geo['country_name'])
