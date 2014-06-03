@@ -27,10 +27,11 @@
 
     {# Webfont async loading #}
     {# Do not put this code into a distant file #}
+    <!-- TODO : optimiser ça pour ne pas voir le changement de font à chaque page
     <script>
         WebFontConfig = {
             google: {
-              families: ['Source Sans Pro', 'Droid Serif']
+              families: ['Source Sans Pro', 'Source Sans Pro', 'Droid Serif']
             }
         };
 
@@ -44,6 +45,10 @@
             s.parentNode.insertBefore(wf, s);
         })();
     </script>
+    -->
+    <!-- TEMP : load fonts from Google / Procude FOUT effect (see above) -->
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro|Source+Code+Pro|Droid+Serif' rel='stylesheet' type='text/css'>
+
 
     {# for additionnal css in some pages #}
     {% block extracss %}{% endblock %}
