@@ -46,6 +46,11 @@
                     {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
+            <li>
+                <a href="#add-author" class="open-modal ico-after more blue">
+                    Ajouter un auteur
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -123,6 +128,48 @@
 
 
 {% block sidebar_actions %}
+    <li>
+        <a href="#add-author" class="open-modal ico-after more blue">
+            Ajouter un auteur
+        </a>
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
+            {% csrf_token %}
+            <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter">
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            <button type="submit" class="button" name="add_author">
+                Confirmer
+            </button>
+        </form>
+    </li>
+    <li>
+        <a href="#manage-authors" class="open-modal ico-after gear blue">Gérer les auteurs</a>
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+            <table class="fullwidth">
+                <thead>
+                    <th>Auteur</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody>
+                    {% for member in tutorial.authors.all %}
+                        <tr>
+                            <td>{% include "misc/member_item.part.html" %}</td>
+                            <td>
+                                {% if tutorial.authors.count > 1 %}
+                                    <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                        Supprimer
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" name="remove_author" value="1">
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+            {% csrf_token %}
+        </form>
+    </li>
+
     {% if tutorial.sha_public %}
         <li><a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">Voir <span class="wide">la version</span> en ligne</a></li>
     {% endif %}

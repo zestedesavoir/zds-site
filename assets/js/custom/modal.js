@@ -16,9 +16,9 @@ $('body').append($('<div/>', { 'id': 'modals' }));
 $('.modal').each(function(){
     $('#modals').append($(this));
     $(this).append($('<a/>', {
-        'class': 'btn btn-cancel',
+        'class': 'btn btn-cancel ' + ($(this).is('[data-modal-close]') ? 'btn-modal-fullwidth' : ''),
         'href': '#close-modal',
-        'text': "Annuler"
+        'text': $(this).is('[data-modal-close]') ? $(this).attr('data-modal-close') : "Annuler"
     }).on('click', function(e){
         closeModal();
         e.preventDefault();
@@ -26,7 +26,7 @@ $('.modal').each(function(){
     }));
     var $link = $('[href=#'+$(this).attr('id')+']:first');
     $(this).prepend($('<span/>', {
-        'class': 'modal-title light ' + $link.attr('class'),
+        'class': 'modal-title light ' + $link.attr('class').replace(/btn[a-z-]*/g, ''),
         'text': $link.text()
     }));
 });

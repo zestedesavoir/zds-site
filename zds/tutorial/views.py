@@ -541,8 +541,10 @@ def modify_tutorial(request):
 
     if request.user in tutorial.authors.all():
         if "add_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.edit_tutorial") \
-                + "?tutoriel={0}".format(tutorial.pk)
+            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+                tutorial.pk,
+                tutorial.slug,
+            ])
             author_username = request.POST["author"]
             author = None
             try:
@@ -564,8 +566,10 @@ def modify_tutorial(request):
                              udu tutoriel.".format(author.username))
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.edit_tutorial") \
-                + "?tutoriel={0}".format(tutorial.pk)
+            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+                tutorial.pk,
+                tutorial.slug,
+            ])
 
             # Avoid orphan tutorials
 

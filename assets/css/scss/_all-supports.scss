@@ -1096,6 +1096,14 @@
                 padding: 0 8px;
                 @include transition;
 
+                &.ico-after {
+                    padding-left: 30px;
+
+                    &:after {
+                        margin: 10px 0 0 8px;
+                    }
+                }
+
                 &:hover,
                 &:focus {
                     background: #DDD;
@@ -1861,37 +1869,9 @@ table {
 
         .markdown-help {
             .open-markdown-help {
-                display: block;
                 position: absolute;
                 bottom: 0;
                 left: 8px;
-
-                .close-markdown-help-text {
-                    display: none;
-                }
-            }
-
-            .markdown-help-more {
-                display: none;
-                background: #EEE;
-                padding: 15px;
-                margin-bottom: 5px;
-
-                pre {
-                    margin: 0;
-                }
-
-                &.show-markdown-help {
-                    display: block;
-                }
-            }
-            .show-markdown-help + .open-markdown-help {
-                .close-markdown-help-text {
-                    display: inline;
-                }
-                .open-markdown-help-text {
-                    display: none;
-                }
             }
         }
 
@@ -2055,6 +2035,44 @@ form.topic-message {
 
 
 /* ==============
+    ALL: Markdown help
+   ============== */
+.markdown-help {
+    .open-markdown-help {
+        .close-markdown-help-text {
+            display: none;
+        }
+    }
+
+    .markdown-help-more {
+        display: none;
+        background: #EEE;
+        padding: 15px;
+        margin-bottom: 5px;
+
+        pre {
+            margin: 0;
+        }
+
+        &.show-markdown-help {
+            display: block;
+        }
+    }
+    .show-markdown-help + .open-markdown-help {
+        .close-markdown-help-text {
+            display: inline;
+        }
+        .open-markdown-help-text {
+            display: none;
+        }
+    }
+}
+
+
+
+
+
+/* ==============
     ALL: Footer
    ============== */
 .page-footer {
@@ -2120,8 +2138,6 @@ form.topic-message {
     left: 0;
     background: #EEE;
     min-height: 220px;
-    font-size: 16px;
-    font-size: 1.6rem;
 
     .modal-title {
         display: block;
@@ -2162,8 +2178,8 @@ form.topic-message {
         margin-top: 0;
     }
 
-    [type=submit],
-    .btn {
+    .btn:not(.modal-inner),
+    [type=submit]:not(.modal-inner) {
         position: absolute;
         width: 50%;
         height: 50px;
@@ -2177,8 +2193,8 @@ form.topic-message {
         border-top: 1px solid #CCC;
         color: #333;
     }
-    .btn-submit,
-    [type=submit] {
+    .btn-submit:not(.modal-inner),
+    [type=submit]:not(.modal-inner) {
         height: 51px;
         color: $blue;
         font-weight: bold;
@@ -2188,6 +2204,11 @@ form.topic-message {
         left: 0;
         border-right: 1px solid #CCC;
         color: #555;
+    }
+    .btn.btn-modal-fullwidth {
+        width: 100%;
+        border-right: none;
+        font-weight: bold;
     }
 }
 .enable-mobile-menu #modals .modal {
