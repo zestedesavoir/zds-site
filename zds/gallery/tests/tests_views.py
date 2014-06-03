@@ -160,6 +160,7 @@ class ModifyGalleryViewTest(TestCase):
     def tearDown(self):
         self.image1.delete()
         self.image2.delete()
+        self.image3.delete()
 
     def test_fail_delete_multi_read_permission(self):
         """ when user wants to delete a list of galleries just with a read permission """
@@ -354,6 +355,7 @@ class EditImageViewTest(TestCase):
 
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertNotEqual('modify with no perms', image_test.title)
+        image_test.delete()
 
     def test_success_member_edit_image(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -378,6 +380,7 @@ class EditImageViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
+        image_test.delete()
 
     def test_access_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -409,6 +412,7 @@ class ModifyImageTest(TestCase):
     def tearDown(self):
         self.image1.delete()
         self.image2.delete()
+        self.image3.delete()
 
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.modify_image'), follow=True)
@@ -451,6 +455,7 @@ class ModifyImageTest(TestCase):
         )
 
         self.assertEqual(1, Image.objects.filter(pk=image4.pk).count())
+        image4.delete()
 
     def test_success_delete_image_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -543,6 +548,7 @@ class NewImageViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(self.gallery.get_images()))
+        self.gallery.get_images()[0].delete()
 
     def test_fail_new_image_with_read_permission(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
