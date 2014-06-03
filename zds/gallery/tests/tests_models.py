@@ -5,7 +5,6 @@ import os
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from zds.gallery.models import UserGallery
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory
 from zds import settings
@@ -75,8 +74,7 @@ class ImageTest(TestCase):
         self.assertEqual(absolute_url, self.image.get_absolute_url())
 
     def test_get_extension(self):
-        extension = os.path.splitext(self.image.physical.name)[1][1:]
-        self.assertEqual(extension, self.image.get_extension())
+        self.assertEqual('jpg', self.image.get_extension())
 
     def test_save_image(self):
         test_image = ImageFactory(gallery=self.gallery)
@@ -124,4 +122,3 @@ class GalleryTest(TestCase):
 
     def test_get_last_image(self):
         self.assertEqual(self.image2, self.gallery.get_last_image())
-

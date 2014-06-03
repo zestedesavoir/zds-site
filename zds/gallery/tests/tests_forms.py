@@ -12,7 +12,7 @@ from zds import settings
 
 class GalleryFormTest(TestCase):
 
-    def test_gallery_form(self):
+    def test_valid_gallery_form(self):
         data = {
             'title': 'Test Title',
             'subtitle': 'Test Subtitle'
@@ -21,7 +21,7 @@ class GalleryFormTest(TestCase):
 
         self.assertTrue(form.is_valid())
 
-    def test_gallery_form_empty_title(self):
+    def test_invalid_gallery_form_empty_title(self):
         """ Test when title contains only whitespace """
         data = {
             'title': ' ',
@@ -31,7 +31,7 @@ class GalleryFormTest(TestCase):
 
         self.assertFalse(form.is_valid())
 
-    def test_gallery_form_no_title(self):
+    def test_invalid_gallery_form_no_title(self):
         data = {
             'subtitle': 'Test Subtitle'
         }
@@ -45,7 +45,7 @@ class UserGalleryFormTest(TestCase):
     def setUp(self):
         self.profile = ProfileFactory()
 
-    def test_user_gallery_form(self):
+    def test_valid_user_gallery_form(self):
         data = {
             'user': self.profile,
             'mode': 'R'
@@ -54,7 +54,7 @@ class UserGalleryFormTest(TestCase):
 
         self.assertTrue(form.is_valid())
 
-    def test_user_gallery_form_noexist_user(self):
+    def test_invalid_user_gallery_form_noexist_user(self):
         data = {
             'user': 'hello',
             'mode': 'W'
@@ -66,7 +66,7 @@ class UserGalleryFormTest(TestCase):
 
 class ImageFormTest(TestCase):
 
-    def test_image_form(self):
+    def test_valid_image_form(self):
         upload_file = open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r')
 
         data = {

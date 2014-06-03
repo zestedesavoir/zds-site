@@ -4,11 +4,10 @@
 import urllib
 import os
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds import settings
@@ -20,12 +19,16 @@ class GalleryListViewTest(TestCase):
         response = self.client.get(reverse('zds.gallery.views.gallery_list'), follow=True)
         self.assertRedirects(response,
                 reverse('zds.member.views.login_view')
-                +'?next='+urllib.quote(reverse('zds.gallery.views.gallery_list'), ''))
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.gallery_list'), ''))
 
-    def test_member_access(self):
-        member = ProfileFactory()
+    def test_list_galeries_belong_to_member(self):
+        profile = ProfileFactory()
+        gallery = GalleryFactory()
+        GalleryFactory()
+        UserGalleryFactory(user=profile.user, gallery=gallery)
+
         login_check = self.client.login(
-                username=member.user.username,
+                username=profile.user.username,
                 password='hostel77'
         )
         self.assertTrue(login_check)
@@ -33,57 +36,50 @@ class GalleryListViewTest(TestCase):
         response = self.client.get(reverse('zds.gallery.views.gallery_list'), follow=True)
         self.assertEqual(200, response.status_code)
 
-    def test_staff_access(self):
-        staff = StaffProfileFactory()
-        login_check = self.client.login(
-                username=staff.user.username,
-                password='hostel77'
-        )
-        self.assertTrue(login_check)
+        self.assertEqual(1, len(response.context['galleries']))
+        self.assertEqual(UserGallery.objects.filter(user=profile.user)[0], response.context['galleries'][0])
 
-        response = self.client.get(reverse('zds.gallery.views.gallery_list'), follow=True)
-        self.assertEqual(200, response.status_code)
 
 class GalleryDetailViewTest(TestCase):
+
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
 
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.gallery_details',
             args=['89', 'test-gallery']), follow=True)
         self.assertRedirects(response,
                 reverse('zds.member.views.login_view')
-                +'?next='+urllib.quote(reverse('zds.gallery.views.gallery_details',
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.gallery_details',
                     args=['89', 'test-gallery']), ''))
 
     def test_fail_gallery_no_exist(self):
-        profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password='hostel77')
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
         response = self.client.get(reverse('zds.gallery.views.gallery_details',
             args=['89', 'test-gallery']), follow=True)
 
         self.assertEqual(404, response.status_code)
 
-    def test_fail_gallery_read_permission_denied(self):
-        profile1 = ProfileFactory()
-        profile2 = ProfileFactory()
+    def test_fail_gallery_details_no_permission(self):
+        """ fail when a user has no permission at all """
         gallery = GalleryFactory()
-        user_gallery = UserGalleryFactory(gallery=gallery, user=profile1.user)
+        UserGalleryFactory(gallery=gallery, user=self.profile1.user)
 
-        login_check = self.client.login(username=profile2.user.username, password='hostel77')
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         response = self.client.get(reverse('zds.gallery.views.gallery_details',
             args=[gallery.pk, gallery.slug]))
         self.assertEqual(403, response.status_code)
 
-    def test_success_gallery_read_permission_authorized(self):
-        profile1 = ProfileFactory()
-        profile2 = ProfileFactory()
+    def test_success_gallery_details_permission_authorized(self):
         gallery = GalleryFactory()
-        user_gallery = UserGalleryFactory(gallery=gallery, user=profile1.user)
-        user_gallery = UserGalleryFactory(gallery=gallery, user=profile2.user)
+        UserGalleryFactory(gallery=gallery, user=self.profile1.user)
+        UserGalleryFactory(gallery=gallery, user=self.profile2.user)
 
-        login_check = self.client.login(username=profile2.user.username, password='hostel77')
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         response = self.client.get(reverse('zds.gallery.views.gallery_details',
@@ -93,31 +89,32 @@ class GalleryDetailViewTest(TestCase):
 
 class NewGalleryViewTest(TestCase):
 
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.new_gallery'), follow=True)
         self.assertRedirects(response,
-                reverse('zds.member.views.login_view')+
-                '?next='+
+                reverse('zds.member.views.login_view') +
+                '?next=' +
                 urllib.quote(reverse('zds.gallery.views.new_gallery'), ''))
 
         response = self.client.post(reverse('zds.gallery.views.new_gallery'), follow=True)
         self.assertRedirects(response,
-                reverse('zds.member.views.login_view')+
-                '?next='+
+                reverse('zds.member.views.login_view') +
+                '?next=' +
                 urllib.quote(reverse('zds.gallery.views.new_gallery'), ''))
 
     def test_access_member(self):
-        profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password='hostel77')
+        """ just verify with get request that everythings is ok """
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         response = self.client.get(reverse('zds.gallery.views.new_gallery'))
         self.assertEqual(200, response.status_code)
 
-
-    def test_fail_new_gallery(self):
-        profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password='hostel77')
+    def test_fail_new_gallery_with_missing_params(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
         self.assertEqual(0, Gallery.objects.count())
 
@@ -128,8 +125,7 @@ class NewGalleryViewTest(TestCase):
         self.assertEqual(0, Gallery.objects.count())
 
     def test_success_new_gallery(self):
-        profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password='hostel77')
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
         self.assertEqual(0, Gallery.objects.count())
 
@@ -139,7 +135,7 @@ class NewGalleryViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, Gallery.objects.count())
 
-        user_gallery = UserGallery.objects.filter(user=profile.user)
+        user_gallery = UserGallery.objects.filter(user=self.profile1.user)
         self.assertEqual(1, user_gallery.count())
         self.assertEqual('test title', user_gallery[0].gallery.title)
         self.assertEqual('test subtitle', user_gallery[0].gallery.subtitle)
@@ -166,6 +162,7 @@ class ModifyGalleryViewTest(TestCase):
         self.image2.delete()
 
     def test_fail_delete_multi_read_permission(self):
+        """ when user wants to delete a list of galleries just with a read permission """
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
@@ -176,7 +173,7 @@ class ModifyGalleryViewTest(TestCase):
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'delete_multi':'',
+                    'delete_multi': '',
                     'items': [self.gallery1.pk]
                 },
                 follow=True
@@ -198,7 +195,7 @@ class ModifyGalleryViewTest(TestCase):
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'delete_multi':'',
+                    'delete_multi': '',
                     'items': [self.gallery1.pk, self.gallery2.pk]
                 },
                 follow=True
@@ -208,23 +205,25 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(0, UserGallery.objects.all().count())
         self.assertEqual(0, Image.objects.all().count())
 
-    def test_fail_add_user_read_permission(self):
+    def test_fail_add_user_with_read_permission(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
+        # gallery nonexistent
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'adduser':'',
+                    'adduser': '',
                     'gallery': 89,
                 }
         )
         self.assertEqual(404, response.status_code)
 
+        # try to add an user with write permission
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'adduser':'',
+                    'adduser': '',
                     'gallery': self.gallery1.pk,
                     'user': self.profile2.user.username,
                     'mode': 'W',
@@ -240,10 +239,27 @@ class ModifyGalleryViewTest(TestCase):
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'adduser':'',
+                    'adduser': '',
                     'gallery': self.gallery1.pk,
                     'user': self.profile2.user.username,
                     'mode': 'R',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('R', permissions[0].mode)
+
+        # try to add write permission to an user
+        # who has already an read permission
+        response = self.client.post(
+                reverse('zds.gallery.views.modify_gallery'),
+                {
+                    'adduser': '',
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile2.user.username,
+                    'mode': 'W',
                 },
                 follow=True
         )
@@ -259,7 +275,7 @@ class ModifyGalleryViewTest(TestCase):
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'adduser':'',
+                    'adduser': '',
                     'gallery': self.gallery1.pk,
                     'user': self.profile3.user.username,
                     'mode': 'R',
@@ -278,7 +294,7 @@ class ModifyGalleryViewTest(TestCase):
         response = self.client.post(
                 reverse('zds.gallery.views.modify_gallery'),
                 {
-                    'adduser':'',
+                    'adduser': '',
                     'gallery': self.gallery1.pk,
                     'user': self.profile3.user.username,
                     'mode': 'W',
@@ -305,13 +321,24 @@ class EditImageViewTest(TestCase):
     def tearDown(self):
         self.image.delete()
 
-    def test_fail_member_no_permission_edit_image(self):
+    def test_denies_anonymous(self):
+        response = self.client.get(reverse(
+            'zds.gallery.views.edit_image',
+            args=[15, 156]
+            ),
+            follow=True
+        )
+        self.assertRedirects(response,
+                reverse('zds.member.views.login_view')
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.edit_image', args=[15, 156]), ''))
+
+    def test_fail_member_no_permission_can_edit_image(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
 
-            response = self.client.post(
+            self.client.post(
                     reverse(
                         'zds.gallery.views.edit_image',
                         args=[self.gallery.pk, self.image.pk]
@@ -383,7 +410,13 @@ class ModifyImageTest(TestCase):
         self.image1.delete()
         self.image2.delete()
 
-    def test_fail_modify_image_no_permission(self):
+    def test_denies_anonymous(self):
+        response = self.client.get(reverse('zds.gallery.views.modify_image'), follow=True)
+        self.assertRedirects(response,
+                reverse('zds.member.views.login_view')
+                + ' ?next=' + urllib.quote(reverse('zds.gallery.views.modify_image'), ''))
+
+    def test_fail_modify_image_with_no_permission(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
 
@@ -397,16 +430,17 @@ class ModifyImageTest(TestCase):
         self.assertTrue(403, response.status_code)
 
     def test_delete_image_from_other_user(self):
+        """ if user try to remove images from another user without permission"""
         profile4 = ProfileFactory()
         gallery4 = GalleryFactory()
         image4 = ImageFactory(gallery=gallery4)
-        user_gallery = UserGalleryFactory(user=profile4.user, gallery=gallery4)
+        UserGalleryFactory(user=profile4.user, gallery=gallery4)
         self.assertEqual(1, Image.objects.filter(pk=image4.pk).count())
 
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        response = self.client.post(
+        self.client.post(
                 reverse('zds.gallery.views.modify_image'),
                 {
                     'gallery': self.gallery1.pk,
@@ -417,8 +451,6 @@ class ModifyImageTest(TestCase):
         )
 
         self.assertEqual(1, Image.objects.filter(pk=image4.pk).count())
-
-
 
     def test_success_delete_image_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -455,7 +487,6 @@ class ModifyImageTest(TestCase):
         self.assertEqual(0, Image.objects.filter(pk=self.image1.pk).count())
         self.assertEqual(0, Image.objects.filter(pk=self.image2.pk).count())
 
-
     def test_fail_delete_image_read_permission(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
@@ -484,6 +515,98 @@ class NewImageViewTest(TestCase):
         self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery, mode='W')
         self.user_gallery2 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery, mode='R')
 
+    def test_denies_anonymous(self):
+        response = self.client.get(reverse('zds.gallery.views.new_image', args=[1]), follow=True)
+        self.assertRedirects(response,
+                reverse('zds.member.views.login_view')
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.new_image', args=[1]), ''))
+
     def test_success_new_image_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.new_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'title': 'Test title',
+                        'legend': 'Test legend',
+                        'slug': 'test-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(self.gallery.get_images()))
+
+    def test_fail_new_image_with_read_permission(self):
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.new_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'title': 'Test title',
+                        'legend': 'Test legend',
+                        'slug': 'test-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+    def test_fail_new_image_with_no_permission(self):
+        login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.new_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'title': 'Test title',
+                        'legend': 'Test legend',
+                        'slug': 'test-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+    def test_fail_gallery_not_exist(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.new_image',
+                        args=[156]
+                    ),
+                    {
+                        'title': 'Test title',
+                        'legend': 'Test legend',
+                        'slug': 'test-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+
+        self.assertEqual(404, response.status_code)

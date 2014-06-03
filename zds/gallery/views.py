@@ -154,6 +154,7 @@ def modify_gallery(request):
             })
     return redirect(gallery.get_absolute_url())
 
+
 @can_write_and_read_now
 @login_required
 def edit_image(request, gal_pk, img_pk):
