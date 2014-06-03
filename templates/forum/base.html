@@ -76,7 +76,6 @@
                                             {{ topic.last_read_post.get_absolute_url }}
                                         {% endif %}{% endspaceless %}"
                                        class="{% if not state %}unread{% endif %}
-                                        {% if topic.is_solved or topic.is_locked %}
                                             ico-after
 
                                             {% if topic.is_solved %}
@@ -86,7 +85,7 @@
                                             {% else %}
                                                 star yellow
                                             {% endif %}
-                                        {% endif %}"
+                                        "
                                        {% if topic.is_solved or topic.is_locked %}
                                         data-prefix="
                                             {% if topic.is_solved %}
