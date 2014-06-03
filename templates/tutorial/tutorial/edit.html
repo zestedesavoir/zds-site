@@ -34,56 +34,5 @@
 
 
 {% block content %}
-    {# TODO : Tout est à refaire ici :( #}
-    <div class="row">
-        <div class="large-6 columns">
-            <h2>Général</h2>
-            {% crispy form %}
-        </div>
-        <div class="large-6 columns">
-            <h2>Auteurs</h2>
-
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
-                <div class="row collapse">
-                    <div class="small-10 columns">
-                        <input type="text" name="author" placeholder="Nom de l'utilisateur à ajouter…" />
-                    </div>
-                    <div class="small-2 columns">
-                        <button type="submit" class="button" name="add_author">
-                            Ajouter
-                        </button>
-                    </div>
-                </div>
-                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                {% csrf_token %}
-            </form>
-
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post">
-                <table>
-                    <thead>
-                        <th>Auteur</th>
-                        <th>Actions</th>
-                    </thead>
-                    <tbody>
-                        {% for member in tutorial.authors.all %}
-                            <tr>
-                                <td>{% include "misc/member_item.part.html" %}</td>
-                                <td>
-                                    {% if tutorial.authors.count > 1 %}
-                                    <button type="submit" name="author" value="{{ member.pk }}">
-                                        Supprimer
-                                    </button>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <input type="hidden" name="remove_author" value="1" />
-                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-                {% csrf_token %}
-            </form>
-
-        </div>
-    </div>
+    {% crispy form %}
 {% endblock %}
