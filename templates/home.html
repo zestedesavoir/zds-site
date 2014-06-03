@@ -1,128 +1,103 @@
 {% extends "base.html" %}
 {% load emarkdown %}
+{% load date %}
 {% load interventions %}
 {% load topbar %}
-{% load humanize %}
 
-{% block menu_home %}
-class="active"
-{% endblock %}
 
-{% load staticfiles %}
-
-{# Titles #}
 
 {% block title %}
     Accueil
 {% endblock %}
 
+
+
 {% block meta %}
-    <meta name="description" content="Bienvenue sur ZesteDeSavoir, une communauté" />
+    {# TODO : Make a better description #}
+    <meta name="description" content="Bienvenue sur Zeste de Savoir, une communauté">
 {% endblock %}
 
+
+
+{% block body_class %}home content-cols{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="content-col-2 tutorial-list">
+        <h2 class="ico-after ico-articles">Derniers Articles</h2>
+
+        {% if last_articles %}
+            {% for article in last_articles %}
+                <article>
+                    {% if article.thumbnail %}
+                        <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
+                            <img src="{{ article.thumbnail.url }}" alt="" class="tutorial-img avatar">
+                        </a>
+                    {% endif %}
+                    <div class="tutorial-infos">
+                        <h3>
+                            <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}">
+                                {{ article.title }}
+                            </a>
+                        </h3>
+                        
+                        <span class="article-metadata">
+                            {{ article.pubdate|format_date|capfirst }} -
+                            <a href="{{ article.get_last_reaction.get_absolute_url }}">
+                                {% if article.get_reaction_count == 0 %}
+                                    Aucune réaction
+                                {% elif article.get_reaction_count == 1 %}
+                                    1 réaction
+                                {% else %}
+                                    {{ article.get_reaction_count }} réactions
+                                {% endif %}
+                            </a>
+                        </span>
+                    </div>
+
+                    <p class="resume">
+                        {{ article.description }}
+                    </p>
+                </article>
+            {% endfor %}
+        {% endif %}
+    </section>
+
+    <section class="content-col-2 tutorial-list">
+        <h2 class="ico-after ico-tutorials">Dernier tutoriels</h2>
+        
+        {% if last_tutorials %}
+            {% for tutorial in last_tutorials %}
+                {% include 'tutorial/includes/tutorial_item.part.html' %}
+            {% endfor %}
+        {% endif %}
+        
+    </section>
+{% endblock %}
+
+
+
 {% block sidebar %}
-    <h3>Catégories de tutoriels</h3>
-    {% with categories='.'|top_categories_tuto %}
-    <dl class="accordion" data-accordion>
-    {% for category in categories %}
-        <dd>
-            <a href="#cat{{ category.pk }}">{{ category.title }} 
-                <span class="label right secondary">{{category.get_tutos.count}}</span>
-            </a>
-            
-            <div id="cat{{ category.pk }}" class="content">
+    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+           data-title="Catégories de tutoriels"
+    >
+        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+
+        {% with categories='.'|top_categories_tuto %}
+            {% for category in categories %}
+                {# FIXME: il manque un lien ici #}
+                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
                 <ul>
                     {% for catofsubcat in category.get_subcategories %}
                         <li>
-                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}" class="left">
+                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
                                 {{ catofsubcat.subcategory }}
                             </a>
-                            <span class="label right">
-                                {{catofsubcat.subcategory.get_tutos.count}}
-                            </span>
                         </li>
                     {% endfor %}
                 </ul>
-            </div>
-        </dd>
-    {% endfor %}
-    </dl>
-    {% endwith %}
-{% endblock %}
-
-
-
-{% block body_class %}home{% endblock %}
-
-{# Content #}
-{% block content %}
-	<div class="large-12 columns">
-		<p>{{ quote }}</p>
-	</div>
-    <div class="large-6 columns">
-      
-        <h2 class="box article">Derniers Articles</h2>
-        {% if last_articles %}
-            {% for article in last_articles %}
-                <div class="row card">
-                    <div class="large-12 columns">
-                        <h3><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h3>
-                        <div class="large-8 columns">
-                        <i class="fi-clock size-21"></i>
-                        <small>
-                            {{ article.pubdate|naturaltime }}
-                        </small>
-                        </div>
-                        <div class="large-4 columns">
-                            {% if article.get_reaction_count = 0 %}
-                                <a class="fi-comment size-16" href="{{article.get_absolute_url_online}}#reactions"><small>Aucune réaction</small></a>
-                            {% elif article.get_reaction_count = 1 %}
-                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small> {{ article.get_reaction_count }} réaction</small></a>
-                            {% else %}
-                                <a class="fi-comment size-16" href="{{article.get_last_reaction.get_absolute_url}}"><small> {{ article.get_reaction_count }} réactions</small></a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    {% if article.image %}
-                    <div class="large-12 columns crop">
-                        <a href="{{ article.get_absolute_url_online }}">
-                            <img src="{{ article.image.url }}" alt="" >
-                        </a>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="large-12 columns">
-                        <p>
-                        {{ article.description }}
-                        </p>
-                    </div>
-                </div>
             {% endfor %}
-        {% endif %}
-    </div>
-
-    <div class="large-6 columns">
-
-        <h2 class="box tutoriel">Derniers tutoriels</h2>
-        {% if last_tutorials %}
-            {% for tutorial in last_tutorials %}
-                <div class="row card">
-                <div class="large-2 columns">
-                    <img src="{{ tutorial.image.thumb.url }}" alt="">
-                </div>
-                <div class="large-10 columns">
-                    <h3><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h3>
-                    {% if tutorial.subcategory %}
-                        {% for category in tutorial.subcategory.all %}
-                            <span class="label secondary radius">
-                                {{ category.title }}                                    
-                            </span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+        {% endwith %}
+    </aside>
 {% endblock %}

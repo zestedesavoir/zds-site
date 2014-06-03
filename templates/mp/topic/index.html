@@ -1,0 +1,122 @@
+{% extends "mp/base.html" %}
+{% load emarkdown %}
+{% load captureas %}
+{% load set %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="authors">
+        <span class="authors-label">Participants : </span>
+        <ul>
+            <li>
+                {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
+            </li>
+            {% for member in topic.participants.all %}
+                <li>
+                    {% include 'misc/member_item.part.html' with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    
+    <div class="content-wrapper">
+        {% for message in posts %}
+            {% captureas edit_link %}
+                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas cite_link %}
+                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% endcaptureas %}
+
+            {# TODO: permettre l'édition si aucune lecure sur le message #}
+            {% if True %}
+                {% set False as can_edit %}
+            {% endif %}
+    
+            {% include "misc/message.part.html" with can_hide=False %}
+        {% endfor %}
+    </div>
+
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+
+
+    
+    {% captureas form_action %}
+        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3>Actions</h3>
+        <ul>
+            {% if topic.author == user %}
+                <li>
+                    <a href="#add-participant" class="open-modal ico-after more blue">
+                        Ajouter un membre
+                    </a>
+                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
+                        <p>
+                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                        </p>
+                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
+
+                        {% csrf_token %}
+                        <button type="submit">Ajouter</button>
+                    </form>
+                </li>
+            {% endif %}
+
+            <li>
+                <a href="#leave-conversation" class="open-modal ico-after cross blue">
+                    Quitter la conversation
+                </a>
+                <form action="{% url "zds.mp.views.leave" %}" mathod="post" id="leave-conversation" class="modal modal-small">
+                    <p>
+                        Attention, vous vous appretez à quitter définitivement cette conversation.
+                    </p>
+                    <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+
+                    {% csrf_token %}
+                    <button type="submit">Confirmer</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+{% endblock %}

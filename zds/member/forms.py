@@ -9,11 +9,10 @@ from django.core.urlresolvers import reverse
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import HTML, Layout, \
+from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
 from zds.member.models import Profile, listing
 from zds.settings import SITE_ROOT
-
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -33,7 +32,7 @@ class OldTutoForm(forms.Form):
     def __init__(self, profile, *args, **kwargs):
         super(OldTutoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
         self.helper.form_action = reverse('zds.member.views.add_oldtuto')
 
@@ -41,10 +40,7 @@ class OldTutoForm(forms.Form):
             Field('id'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Attribuer',
-                    css_class='button tiny'),
+                StrictButton('Attribuer', type='submit'),
             ),
         )
 
@@ -75,7 +71,6 @@ class LoginForm(forms.Form):
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
         self.helper.form_action = reverse('zds.member.views.login_view')
         self.helper.form_method = 'post'
 
@@ -85,13 +80,9 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Se connecter',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Se connecter', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
 
@@ -125,7 +116,7 @@ class RegisterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -134,11 +125,8 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Valider mon inscription',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                Submit('submit', 'Valider mon inscription'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
     def clean(self):
@@ -250,7 +238,7 @@ class MiniProfileForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(MiniProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -259,11 +247,8 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton(
-                    'Editer le profil',
-                    type='submit',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Editer le profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
 # update extra information about user
@@ -286,7 +271,7 @@ class ProfileForm(MiniProfileForm):
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         # to get initial value form checkbox show email
@@ -317,11 +302,8 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton(
-                    'Editer mon profil',
-                    type='submit',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Editer mon profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
 # to update email/username
@@ -354,15 +336,15 @@ class ChangeUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ChangeUserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Changer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
 
@@ -412,7 +394,7 @@ class ChangePasswordForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(ChangePasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.user = user
@@ -422,8 +404,8 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Changer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -493,14 +475,14 @@ class ForgotPasswordForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('username'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Envoyer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -532,7 +514,7 @@ class NewPasswordForm(forms.Form):
     def __init__(self, identifier, *args, **kwargs):
         super(NewPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
         self.username = identifier
 
@@ -540,8 +522,8 @@ class NewPasswordForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Envoyer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -562,7 +544,7 @@ class NewPasswordForm(forms.Form):
 
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
-
+                
         # Check that the password is at least MIN_PASSWORD_LENGTH
         if len(password) < MIN_PASSWORD_LENGTH:
             msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)

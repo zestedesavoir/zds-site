@@ -113,7 +113,7 @@ def view(request, article_pk, article_slug):
                                     .order_by("-date_proposition")\
                                     .first()
 
-    return render_template('article/view.html', {
+    return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -196,7 +196,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
 
-    return render_template('article/view_online.html', {
+    return render_template('article/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -270,7 +270,7 @@ def new(request):
     else:
         form = ArticleForm()
 
-    return render_template('article/new.html', {
+    return render_template('article/member/new.html', {
         'form': form
     })
 
@@ -330,7 +330,7 @@ def edit(request):
             'subcategory': article.subcategory.all(),
         })
 
-    return render_template('article/edit.html', {
+    return render_template('article/member/edit.html', {
         'article': article, 'form': form
     })
 
@@ -344,9 +344,8 @@ def find_article(request, name):
         .order_by('-pubdate')\
         .all()
     # Paginator
-
-    return render_template('article/find_article.html', {
-        'articles': articles, 'usr': user,
+    return render_template('article/find.html', {
+        'articles': articles, 'usr':u,
     })
 
 
@@ -600,8 +599,10 @@ def modify(request):
 
             return redirect(article.get_absolute_url())
         elif 'add_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             author_username = request.POST['author']
             author = None
@@ -622,8 +623,10 @@ def modify(request):
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             # Avoid orphan articles
             if article.authors.all().count() <= 1:
@@ -705,8 +708,7 @@ def list_validation(request):
                         article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
-
-    return render_template('article/validation.html', {
+    return render_template('article/validation/index.html', {
         'validations': validations,
     })
 
@@ -738,7 +740,7 @@ def history_validation(request, article_pk):
             .order_by("date_proposition") \
             .all()
 
-    return render_template('article/history_validation.html', {
+    return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
     })
@@ -787,8 +789,8 @@ def history(request, article_pk, article_slug):
 
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
-
-    return render_template('article/history.html', {
+    
+    return render_template('article/member/history.html', {
         'article': article, 'logs': logs
     })
 
@@ -855,7 +857,7 @@ def answer(request):
             form = ReactionForm(article, request.user, initial={
                 'text': data['text']
             })
-            return render_template('article/answer.html', {
+            return render_template('article/reaction/new.html', {
                 'article': article,
                 'last_reaction_pk': last_reaction_pk,
                 'newreaction': newreaction,
@@ -885,7 +887,7 @@ def answer(request):
             else:
                 raise Http404
 
-    # Actions from the editor render to answer.html.
+    # Actions from the editor render to new.html.
     else:
         text = ''
 
@@ -907,7 +909,7 @@ def answer(request):
         form = ReactionForm(article, request.user, initial={
             'text': text
         })
-        return render_template('article/answer.html', {
+        return render_template('article/reaction/new.html', {
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
@@ -971,7 +973,7 @@ def edit_reaction(request):
     # must to be the user logged.
     if reaction.author != request.user \
             and not request.user.has_perm('article.change_reaction') \
-            and 'signal-reaction' not in request.POST:
+            and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user \
@@ -986,7 +988,7 @@ def edit_reaction(request):
 
     if request.method == 'POST':
 
-        if 'delete-reaction' in request.POST:
+        if 'delete_message' in request.POST:
             if reaction.author == request.user \
                     or request.user.has_perm('article.change_reaction'):
                 reaction.alerts.all().delete()
@@ -995,17 +997,17 @@ def edit_reaction(request):
                     reaction.text_hidden = request.POST['text_hidden']
                 reaction.editor = request.user
 
-        if 'show-reaction' in request.POST:
+        if 'show_message' in request.POST:
             if request.user.has_perm('article.change_reaction'):
                 reaction.is_visible = True
                 reaction.text_hidden = ''
 
-        if 'signal-reaction' in request.POST:
+        if 'signal_message' in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = reaction
             alert.scope = Alert.ARTICLE
-            alert.text = request.POST['signal-text']
+            alert.text = request.POST['signal_text']
             alert.pubdate = datetime.now()
             alert.save()
 
@@ -1018,15 +1020,15 @@ def edit_reaction(request):
                 'zds.article.views.edit_reaction') + \
                 '?message=' + \
                 str(reaction_pk)
-            return render_template('article/edit_reaction.html', {
+            return render_template('article/reaction/edit.html', {
                 'reaction': reaction,
                 'article': g_article,
                 'form': form
             })
 
-        if 'delete-reaction' not in request.POST \
-                and 'signal-reaction' not in request.POST \
-                and 'show-reaction' not in request.POST:
+        if 'delete_message' not in request.POST \
+                and 'signal_message' not in request.POST \
+                and 'show_message' not in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 reaction.text = request.POST['text']
@@ -1044,7 +1046,7 @@ def edit_reaction(request):
         })
         form.helper.form_action = reverse(
             'zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
-        return render_template('article/edit_reaction.html', {
+        return render_template('article/reaction/edit.html', {
             'reaction': reaction,
             'article': g_article,
             'form': form

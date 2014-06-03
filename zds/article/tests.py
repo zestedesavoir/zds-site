@@ -151,8 +151,8 @@ class ArticleTests(TestCase):
             '?message={0}'.format(
                 reaction.pk),
             {
-                'signal-text': 'Troll',
-                'signal-reaction': 'Confirmer',
+                'signal_text': 'Troll',
+                'signal_message': 'Confirmer',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -169,7 +169,7 @@ class ArticleTests(TestCase):
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
-                'delete-post': 'Resoudre',
+                'delete_message': 'Resoudre',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)

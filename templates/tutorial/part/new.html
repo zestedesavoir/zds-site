@@ -1,0 +1,29 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Nouvelle partie
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 class="illu">
+        Nouvelle partie
+    </h1>
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li>Nouvelle partie</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

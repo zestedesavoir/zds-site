@@ -1,9 +1,0 @@
-Bonjour {{username}},
-
-{{author}} vous a envoyé un message privé sur ZesteDeSavoir.com
-
-Pour le lire, cliquez sur l'url suivante : {{url}}
-
-Cordialement,
-
-L'équipe ZesteDeSavoir

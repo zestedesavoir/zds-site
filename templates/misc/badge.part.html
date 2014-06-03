@@ -1,0 +1,13 @@
+{% load profile %}
+
+
+
+{% with status=usr|state %}
+    {% if status == 'BAN'%}
+        <span class="badge banned">Banni</span>
+    {% elif status == 'LS'%}
+        <span class="badge readonly">LS</span>
+    {% elif status == 'STAFF' %}
+        <span class="badge staff">Staff</span>
+    {% endif %}
+{% endwith %}

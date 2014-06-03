@@ -100,9 +100,37 @@ STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
+    'modernizr' : {
+        'source_filenames': (
+            'js/vendor/custom.modernizr.js',
+        ),
+        'output_filename': 'js/modernizr.js'
+    }, 
+    'css3-mediaqueries' : {
+        'source_filenames': (
+            'js/vendor/css3-mediaqueries.js',
+        ),
+        'output_filename': 'js/css3-mediaqueries.js'
+    },
     'main-js': {
         'source_filenames': (
-            'js/app.js',
+            'js/vendor/jquery.js',
+            'js/vendor/jquery.tabbable.js',
+
+            'js/custom/editor.js',
+
+            'js/custom/mobile-menu.js',
+            'js/custom/accessibility-links.js',
+            'js/custom/dropdown-menu.js',
+            'js/custom/data-click.js',
+            'js/custom/accordeon.js',
+            'js/custom/modal.js',
+            'js/custom/close-alert-box.js',
+            'js/custom/keyboard-navigation.js',
+            'js/custom/message-hidden.js',
+            'js/custom/spoiler.js',
+            'js/custom/karma-ajax.js',
+            'js/custom/markdown-help.js',
         ),
         'output_filename': 'js/main.js'
     }
@@ -111,7 +139,7 @@ PIPELINE_JS = {
 PIPELINE_CSS = {
     'main-css': {
         'source_filenames': (
-            'css/zds.css',
+            'css/main.css',
         ),
         'output_filename': 'css/design.css'
     }
@@ -168,6 +196,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages'
 )
 
+CRISPY_TEMPLATE_PACK='bootstrap'
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -180,7 +210,6 @@ INSTALLED_APPS = (
 
     'south',
     'crispy_forms',
-    'crispy_forms_foundation',
     'email_obfuscator',
     'pipeline',
     'haystack',

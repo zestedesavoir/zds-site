@@ -8,9 +8,9 @@ from .models import Article
 
 
 class LastArticlesFeedRSS(Feed):
-    title = "Articles sur Progdupeupl"
+    title = "Articles sur Zeste de Savoir"
     link = "/articles/"
-    description = "Les derniers articles parus sur Progdupeupl."
+    description = "Les derniers articles parus sur Zeste de Savoir."
 
     def items(self):
         return Article.objects\

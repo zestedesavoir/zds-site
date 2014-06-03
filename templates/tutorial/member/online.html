@@ -1,0 +1,65 @@
+{% extends "tutorial/base_online.html" %}
+{% load date %}
+{% load profile %}
+{% load emarkdown %}
+
+
+
+{% block title %}
+    Tutoriels publiés par {{ usr.username }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.username %}">Tutoriels publiés</a></li>
+    <li>Recherche</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Tutoriels publiés par {{ usr.username }}
+{% endblock %}
+
+
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th width="15%">Tutoriels</th>
+                <th width="10%">Quand</th>
+                <th width="30%">Introduction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tuto in tutos %}
+                <tr>
+                    <td>
+                        <div>
+                            <img src="{{ tuto.thumbnail.url }}" alt="'">
+                            <a href="{{ tuto.get_absolute_url }}">{{ tuto.title }}</a>
+                            {% if tuto.description %}
+                                <p>
+                                    {{ tuto.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if tuto.pubdate %}
+                            {{ tuto.pubdate|format_date|captfirst }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ tuto.get_introduction_online|truncatechars:200|emarkdown }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

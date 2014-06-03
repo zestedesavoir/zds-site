@@ -1,0 +1,39 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Éditer une partie
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url }}?version={{version}}">{{ part.tutorial.title }}</a></li>
+    <li><a href="{{ part.get_absolute_url }}?version={{version}}">{{ part.title }}</a></li>
+    <li>Éditer une partie</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 class="illu">
+        {% if part.image %}
+            <img src="{{part.image.thumb.url }}" alt="">
+        {% endif %}
+        Éditer la partie : {{ part.title }}
+    </h1>
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ part.description }}
+{% endblock %}
+
+
+
+{% block content %}
+   {% crispy form %}
+{% endblock %}

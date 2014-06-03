@@ -1,0 +1,176 @@
+{% extends "forum/base.html" %}
+{% load emarkdown %}
+{% load captureas %}
+{% load profile %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    {% if topic.is_solved %}[Résolu]{% endif %} {{ topic.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
+    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    <ul class="taglist">
+        {% for tag in topic.tags.all %}
+            <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}">{{ tag.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    <div class="content-wrapper">
+        {% if topic.is_solved %}
+            <div class="alert-box success">
+                <strong>Ce sujet est résolu</strong>, l'auteur de ce sujet a trouvé une
+                solution satisfaisant son problème.
+            </div>
+        {% endif %}
+
+        {% for message in posts %}
+            {% captureas edit_link %}
+                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas cite_link %}
+                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas helpful_link %}
+                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas upvote_link %}
+                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas downvote_link %}
+                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas alert_solve_link %}
+                {% url "zds.forum.views.solve_alert" %}
+            {% endcaptureas %}
+            
+
+            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
+        {% endfor %}
+    </div>
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+
+
+    {% if user.is_authenticated %}
+        {% captureas form_action %}
+            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
+        {% endcaptureas %}
+        
+        {% include "misc/message_form.html" with member=user %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block new_btn %}
+    <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+        Nouveau sujet
+    </a>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {# TODO : protéger tout ça des CSRF #}
+
+    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+        <li>
+            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
+               class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}">
+                {% if topic.is_solved %}
+                    Marquer comme non résolu
+                {% else %}
+                    Marquer comme résolu
+                {% endif %}
+            </a>
+        </li>
+    {% endif %}
+
+    <li>
+        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
+           class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}">
+            {% if topic.is_followed %}
+                Ne plus suivre ce sujet
+            {% else %}
+                Suivre ce sujet
+            {% endif %}
+        </a>
+    </li>
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if perms.forum.change_topic %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
+            <h3>Modération</h3>
+            <ul>
+                <li>
+                    {% if topic.is_locked %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
+                           class="ico-after lock blue">
+                            Dévérouiller
+                        </a>
+                    {% else %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"
+                           class="ico-after lock blue">
+                            Vérouiller le sujet
+                        </a>
+                    {% endif %}
+                </li>
+
+                <li>
+                    {% if topic.is_sticky %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
+                           class="ico-after pin blue">
+                            Enlever du Post-It
+                        </a>
+                    {% else %}
+                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"
+                           class="ico-after pin blue">
+                            Marquer en Post-It
+                        </a>
+                    {% endif %}
+                </li>
+
+                <li>
+                    <a href="#move-topic" class="ico-after arrow-right blue open-modal">Déplacer le sujet</a>
+                    <div class="modal modal-small" id="move-topic">
+                        {% crispy form_move %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}

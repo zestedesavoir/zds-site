@@ -1,0 +1,30 @@
+{% load profile %}
+
+
+
+<div class="user">
+    {% with profile=member|profile %}
+        <a href="{{ member.get_absolute_url }}" class="avatar-link">
+            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+        </a>
+        {% with status=member|state %}
+            {% if status == 'BAN'%}
+                <span class="badge banned">{{ status }}</span>
+            {% elif status == 'LS'%}
+                <span class="badge banned">{{ status }}</span>
+            {% elif status == 'STAFF' %}
+                <span class="badge staff">{{ status }}</span>
+            {% endif %}
+        {% endwith %}
+
+        {# TODO : ajouter les metadatas #}
+        {% comment %}
+            {% if not hide_metadata and perms.forum.change_post %}
+                <div class="user-metadata">
+                    <a href="#" class="user-karma negative">-X</a>
+                    <a href="#">IPs</a>
+                </div>
+            {% endif %}
+        {% endcomment %}
+    {% endwith %}
+</div>

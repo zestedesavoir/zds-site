@@ -1,0 +1,35 @@
+{% extends "article/index.html" %}
+{% load date %}
+{% load profile %}
+{% load emarkdown %}
+
+
+
+{% block title %}
+    Articles rédigés par {{ usr.username }}
+{% endblock %}
+
+
+
+{% block headline %}
+    Articles rédigés par {{ usr.username }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li>
+            <a href="{{ profile.get_absolute_url }}">
+                {{ usr.username }}
+            </a>
+        </li>
+    {% endwith %}
+
+    <li>
+        <a href="{% url "zds.article.views.find_article" usr.username %}">
+            Articles rédigés
+        </a>
+    </li>
+    <li>Liste des articles rédigés par {{ usr.username }}</li>
+{% endblock %}

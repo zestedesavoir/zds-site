@@ -95,9 +95,9 @@ def assoc_subscribe(request):
 
             # Send email
             subject = "Demande d'adhésion de {}".format(user.username)
-            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
-            message_html = get_template("email/assoc_subscribe.html").render(Context(context))
-            message_txt = get_template("email/assoc_subscribe.txt") .render(Context(context))
+            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            message_html = get_template("email/assoc/subscribe.html").render(Context(context))
+            message_txt = get_template("email/assoc/subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,

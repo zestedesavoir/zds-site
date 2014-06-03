@@ -1,46 +1,48 @@
-{% extends "member/source.html" %}
+{% extends "base.html" %}
 {% load crispy_forms_tags %}
+
+
 
 {% block title %}
     Connexion
 {% endblock %}
 
-{% block head-title %}
-    Se connecter
-{% endblock %}
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}
+
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Connexion</a></li>
+    <li>Connexion</li>
 {% endblock %}
 
-{% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
+
+{% block content_out %}
+    <section class="small-content-wrapper">
+        <h2>Connexion</h2>
+
         {% if not user.is_authenticated %}
             {% if error %}
-            <div class="alert-box warning">
-                {{ error }}.
-            </div>
+                <div class="alert-box warning">
+                    {{ error }}
+                </div>
             {% endif %}
 
             <p>
                 Si vous n'avez pas de compte, vous pouvez <a href="{% url "zds.member.views.register_view" %}" >vous inscrire</a>.
             </p>
+
+            {% crispy form %}
+
+            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">Mot de passe oublié ?</a>
         {% else %}
             <p>
                 Vous êtes déjà connecté.
             </p>
         {% endif %}
-    </div>
-</div>
-
-{% if not user.is_authenticated %}
-<div class="row">
-    <div class="large-7 columns large-centered">
-        {% crispy form %}
-    </div>
-</div>
-{% endif %}
-
+    </section>
 {% endblock %}

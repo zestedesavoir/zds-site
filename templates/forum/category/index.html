@@ -1,0 +1,27 @@
+{% extends "forum/base.html" %}
+
+
+
+{% block title %}
+    {{ category.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ category.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ category.title }}
+{% endblock %}
+
+
+
+{% block content %}
+	<div class="content-wrapper topic-list forum-list navigable-list">
+	    {% include "forum/includes/forums.part.html" %}
+	</div>
+{% endblock %}

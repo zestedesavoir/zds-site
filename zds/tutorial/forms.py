@@ -5,7 +5,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Fieldset, Submit, Field, \
+from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
@@ -49,7 +49,7 @@ class TutorialForm(FormWithTitle):
     )
 
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
         required=False
     )
 
@@ -98,7 +98,7 @@ class TutorialForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -111,7 +111,7 @@ class TutorialForm(FormWithTitle):
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
-                StrictButton('Valider', type='submit', css_class='button'),
+                StrictButton('Valider', type='submit'),
             ),
         )
 
@@ -146,7 +146,7 @@ class PartForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(PartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -154,7 +154,7 @@ class PartForm(FormWithTitle):
             Field('introduction'),
             Field('conclusion'),
             ButtonHolder(
-                StrictButton('Valider', type='submit', css_class='btn-submit'),
+                StrictButton('Valider', type='submit'),
             )
         )
 
@@ -185,7 +185,7 @@ class ChapterForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(ChapterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -196,12 +196,11 @@ class ChapterForm(FormWithTitle):
             ButtonHolder(
                 StrictButton(
                     'Valider',
-                    type='submit',
-                    css_class='btn-submit'),
+                    type='submit'),
                 StrictButton(
                     'Ajouter et continuer',
-                    type='submit_continue',
-                    css_class='btn-submit'),
+                    type='submit',
+                    name='submit_continue'),
             ))
 
 
@@ -212,7 +211,7 @@ class EmbdedChapterForm(forms.Form):
     )
 
     image = forms.ImageField(
-        label='Selectionnez une image',
+        label='Sélectionnez une image',
         required=False)
 
     conclusion = forms.CharField(
@@ -222,7 +221,7 @@ class EmbdedChapterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -254,29 +253,19 @@ class ExtractForm(FormWithTitle):
     def __init__(self, *args, **kwargs):
         super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('text'),
-            ButtonHolder(
-                StrictButton(
-                    'Valider',
-                    type='submit',
-                    css_class='btn-submit'),
-                StrictButton(
-                    u'Aperçu',
-                    type='submit',
-                    css_class='btn-submit',
-                    name='preview'),
-            ))
+            CommonLayoutEditor()
+        )
 
 
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label='Selectionnez le tutoriel à importer',
+        label='Sélectionnez le tutoriel à importer',
         required=False
     )
     images = forms.FileField(
@@ -286,7 +275,7 @@ class ImportForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -359,9 +348,8 @@ class AskValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(), StrictButton(
-                'Demander la validation',
-                type='submit',
-                css_class='button tiny'),
+                'Confirmer',
+                type='submit'),
             Hidden(
                 'tutorial', '{{ tutorial.pk }}'), Hidden(
                 'version', '{{ version }}'), )
@@ -389,7 +377,7 @@ class ValidForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('is_major'),
-            StrictButton('Publier', type='submit', css_class='button success tiny'),
+            StrictButton('Publier', type='submit'),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'),
         )
@@ -418,7 +406,6 @@ class RejectForm(forms.Form):
             ButtonHolder(
                 StrictButton(
                     'Rejeter',
-                    type='submit',
-                    css_class='button alert tiny'),),
+                    type='submit'),),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'), )

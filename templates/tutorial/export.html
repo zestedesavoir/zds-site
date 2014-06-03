@@ -1,42 +1,45 @@
 {% load emarkdown %}
-{% load humanize %}
 {% load profile %}
+
+{# TODO : Comprendre comment designer l'export #}
 
 <div class="row">
     <div class="large-12 columns">
         <div class="large-1 columns hide-for-small">
             {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}"/>
+                <img src="{{ tutorial.image.thumb.url }}">
             {% endif %}
         </div>
         <div class="large-6 columns">
-        <p>
-            Tutoriel
-            {% if not tutorial.is_mini %}
-                étendu
-            {% endif %}
-            rédigé par
-            {% for member in tutorial.authors.all %}
-                {% if forloop.counter > 1 %}
-                    {% if forloop.last %}
-                        et
-                    {% else %}
-                        ,
-                    {% endif %}
+            <p>
+                Tutoriel
+                {% if not tutorial.is_mini %}
+                    étendu
                 {% endif %}
-                {% include "member/member_item_common.part.html" %}
-            {% endfor %}.
-        </p>
+                rédigé par
+                {% for member in tutorial.authors.all %}
+                    {% if forloop.counter > 1 %}
+                        {% if forloop.last %}
+                            et
+                        {% else %}
+                            ,
+                        {% endif %}
+                    {% endif %}
+                    {% include "misc/member_item.part.html" %}
+                {% endfor %}.
+            </p>
         </div>
         <div class="large-5 columns">
             <p>
-            {% for category in tutorial.subcategory.all %}
-                <span class="label">{{ category.title }}</span>
-            {% endfor %}
+                {% for category in tutorial.subcategory.all %}
+                    <span class="label">{{ category.title }}</span>
+                {% endfor %}
             </p>
         </div>
     </div>
 </div>
+
+
 
 <div class="row">
     <div class="large-12 columns">
@@ -47,14 +50,10 @@
         {% endif %}
 
         {% if tutorial.is_mini %}
-        {# Small tutorial #}
-
-            {% with authors=tutorial.authors.all %}
-                {% include "tutorial/view_chapter_online_common.part.html" %}
-            {% endwith %}
-
+            {# Small tutorial #}
+            {% include "tutorial/includes/chapter_online.part.html" with authors=tutorial.authors.all %}
         {% else %}
-        {# Large tutorial #}
+            {# Large tutorial #}
 
             <hr />
             {% if parts %}
@@ -64,7 +63,7 @@
                             Partie {{ part.position_in_tutorial }} : {{ part.title }}
                         </a>
                     </h1>
-                    {% include "tutorial/view_part_export_common.part.html" %}
+                    {% include "tutorial/includes/part_export.part.html" %}
                 {% endfor %}
             {% else %}
                 <p>

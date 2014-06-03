@@ -1,0 +1,38 @@
+{% extends "article/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Répondre à l'article
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a></li>
+    <li>Répondre à l'article</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Répondre à l'article : {{ article.title }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if newreaction %}
+        <div class="alert-box alert">
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+            pendant que vous rédigiez le votre.
+        </div>
+    {% endif %}
+
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}

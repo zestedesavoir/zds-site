@@ -1,0 +1,33 @@
+{% extends "forum/base.html" %}
+
+
+
+{% block title %}
+    Notifications du Forum
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Notifications du Forum</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Notifications du Forum
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/pagination.part.html" with position="top" %}
+
+	<div class="topic-list navigable-list">
+	    {% for topic in followed_topics %}
+	        {% include "forum/includes/topic_row.part.html" %}
+	    {% endfor %}
+    </div>
+    
+    {% include "misc/pagination.part.html" with position="bottom" %}
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "tutorial/base_online.html" %}
+{% load date %}
+
+
+
+{% block title %}
+    Validation
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Validation</li>
+{% endblock %}
+
+
+
+{% block sidebar_new %}{% endblock %}
+{% block sidebar_blocks %}
+    <h3>Filtres</h3>
+    <ul>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
+                En cours de validation
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
+                En attente de validateur
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}">
+                Annuler le filtre
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2>
+            {% block headline %}
+                Validation des tutoriels
+            {% endblock %}
+        </h2>
+
+        {% block content %}
+            {% if validations %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th width="8%">Catégorie(s)</th>
+                            <th width="8%">Auteur(s)</th>
+                            <th width="8%">Proposé</th>
+                            <th width="8%">Validateur</th>
+                            <th width="8%">Statut</th>
+                            <th width="8%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for validation in validations %}
+                            <tr>
+                                <td>
+                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
+                                </td>
+                                <td>
+                                    {% for subcategory in validation.tutorial.subcategory.all %}
+                                        <p>
+                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
+                                        </p>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for author in validation.tutorial.authors.all %}
+                                        <a href="{% url "zds.member.views.details" user.username %}">{{ author.username }}</a>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <span>{{ validation.date_proposition|format_date|capfirst }}</span>
+                                </td>
+                                <td>
+                                    {% if validation.validator %}
+                                        <a href="{% url "zds.member.views.details" validation.validator.username %}">{{ validation.validator.username }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if validation.date_reserve %}
+                                        <span>{{ validation.date_reserve|format_date|capfirst }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if validation.is_pending %}
+                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
+                                    {% elif validation.is_pending_valid %}
+                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
+                                    {% elif validation.is_accept %}
+                                        <span>Accepté</span>
+                                    {% elif validation.is_reject %}
+                                        <span>Rejeté</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>
+                    Aucun tutoriel soumis en validation.
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
+{% endblock %}

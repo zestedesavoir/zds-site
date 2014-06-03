@@ -1,0 +1,45 @@
+{% extends "tutorial/base.html" %}
+{% load profile %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Commenter le tutoriel
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
+    <li>Commenter le tutoriel</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2>Ajouter un commentaire au tutoriel : {{tutorial.title}}</h2>
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    <h3 class="subtitle">{{ tutorial.description }}</h3>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if newnote %}
+        <div class="alert-box alert">
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+            pendant que vous rédigiez le votre.
+        </div>
+    {% endif %}
+
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}

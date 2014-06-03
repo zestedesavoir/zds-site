@@ -1,21 +1,33 @@
 {% extends "base.html" %}
 
+
+
 {% block title %}
     Erreur 403
 {% endblock %}
 
+
+
 {% block headline %}
-    <h2 class="box">Erreur 403</h2>
+    Erreur 403
 {% endblock %}
+
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Erreur 403</a></li>
+    <li>Erreur 403</li>
 {% endblock %}
 
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}
+
+
+
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <p class="alert-box alert">Il semblerait que vous n'ayez pas les accès pour vous rendre à cet endroit.</p>
-    </div>
-</div>
+    <p>
+        Vous n'avez pas les droits suffisants pour accéder à cette page.
+    </p>
 {% endblock %}

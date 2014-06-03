@@ -1,39 +1,49 @@
 {% extends "forum/base.html" %}
 
+
 {% block title %}
     Liste des forums
 {% endblock %}
+
+
 
 {% block meta %}
     <meta name="description" content="Les forums vous permettent de venir poser
     vos questions aux autres membres mais aussi de s'entrainer ou tout
     simplement de discuter.  Cela fonctionne également dans l'autre sens : vous
     pouvez ici aider les autres et proposer des exercices au reste de la
-    communauté." />
+    communauté.">
 {% endblock %}
 
-{% block head-title %}
+
+
+{% block breadcrumb %}
+    <li>Liste des forums</li>
+{% endblock %}
+
+
+
+{% block headline %}
    Liste des forums
 {% endblock %}
 
-{% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
-{% endblock %}
+
 
 {% block content %}
+    <p class="content-wrapper">
+        Les forums vous permettent de venir poser vos questions aux autres 
+        membres mais aussi de s'entrainer ou <strong>tout simplement de discuter</strong>.
+        Cela fonctionne également dans l'autre sens : vous pouvez ici aider les autres et 
+        proposer des exercices au reste de la communauté.
+    </p>
 
-{% for category in categories %}
-    <div class="row">
-        <div class="large-12 columns">
-            <h3 class="forum">
+    <div class="content-wrapper topic-list forum-list navigable-list">
+        {% for category in categories %}
+            <h3 class="group-title content-wrapper">
                 {{ category.title }}
             </h3>
-            
-        </div>
-        <div class="small-block-grid-1 large-block-grid-3">
-            {% include "forum/forums_common.part.html" %}
-        </div>
-    </div>
-{% endfor %}
 
+            {% include "forum/includes/forums.part.html" %}
+        {% endfor %}
+    </div>
 {% endblock %}

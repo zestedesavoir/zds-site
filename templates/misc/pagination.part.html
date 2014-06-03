@@ -1,0 +1,44 @@
+{% if pages|length > 1 %}
+    <ul class="pagination pagination-{{ position }}">
+        {% ifnotequal nb 1 %}
+            <li class="prev">
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"-1" }}" class="ico-after arrow-left blue">
+                    Précédente
+                </a>
+            </li>
+        {% endifnotequal %}
+
+
+        {% for page in pages %}
+            {% if page %}
+                <li>
+                    <a {% ifnotequal page nb %}href="{{ topic.get_absolute_url }}?page={{ page }}"{% else %}class="current"{% endifnotequal %}>
+                        {{ page }}
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    {# TODO : Accès direct à une page donnée via JS #}
+                    <a href="#pagination-{{ topic.get_absolute_url }}-{{ position }}" class="open-modal">…</a>
+                    <form action="{{ topic.get_absolute_url }}" method="get" class="modal modal-small" id="pagination-{{ topic.get_absolute_url }}-{{ position }}">
+                        <p>
+                            Indiquez la page à laquelle vous souhaitez vous rendre.
+                        </p>
+                        <input type="number" name="page" min="1" max="{{ pages|last }}">
+                        <button type="submit">
+                            Aller à la page
+                        </button>
+                    </form>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if pages|last > 0 and pages|last != nb %}
+            <li class="next">
+                <a href="{{ topic.get_absolute_url }}?page={{ nb|add:"1" }}" class="ico-after arrow-right blue">
+                    Suivante
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+{% endif %}

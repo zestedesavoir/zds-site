@@ -1,0 +1,30 @@
+{% extends "member/base.html" %}
+
+
+
+{% block title %}
+    Nouveau mot de passe raté
+{% endblock %}
+
+
+
+{% block headline %}
+    Nouveau mot de passe raté
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Nouveau mot de passe</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Votre mot de passe n'a pas pu être modifié. A partir du moment où vous soumettez votre requête pour réinitialiser votre mot de passe, vous n'avez qu'une heure pour la confirmer.
+    </p>
+    <p>
+        <a href="{% url "zds.member.views.forgot_password" %}">Re-soumettre votre demande de réinitialisation</a>.
+    </p>
+{% endblock %}

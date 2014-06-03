@@ -1,61 +1,48 @@
 {% extends "article/base.html" %}
-{% load humanize %}
+
+
 
 {% block title %}
     Liste des articles
 {% endblock %}
 
+
+
 {% block meta %}
     <meta name="description" content="Les articles sont rédigés par la
-    communauté ; ils permettent aussi bien de se tenir informé des dernières
+    communauté. Ils permettent aussi bien de se tenir informé des dernières
     innovations du moment que de découvrir de nouvelles notions liées aux
-    différents domaines de l'informatique." />
+    différents domaines de l'informatique.">
 {% endblock %}
 
-{% block head-title %}
-    Liste des articles
-{% endblock %}
+
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">Index</a></li>
+    <li>Liste des articles</li>
 {% endblock %}
 
-{% block headline-actions %}
-    <h3>Flux</h3>
-    <ul>
-        <li><a href="{% url "article-feed-rss" %}">Nouveaux articles (RSS)</a></li>
-        <li><a href="{% url "article-feed-atom" %}">Nouveaux articles (ATOM)</a></li>
-    </ul>
-{% endblock %}
 
-{% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
-        {% if articles %}
-            <div class="small-block-grid-1 large-block-grid-3">
-            {% for article in articles %}
-            <li class="card">
-                <a href="{{ article.get_absolute_url_online }}">
-                    <div class="large-12 columns">
-                        <h3>{{ article.title }}</h3>
-                        <p class="article-metadata">
-                            publié {{article.pubdate|naturaltime}}
-                        </p>
-                    </div>
-                    {% if article.image %}
-                    <div class="large-12 columns crop">
-                    <img src="{{article.image.url }}" alt="" class="article-img avatar"/>
-                    </div>
-                    {% endif %}
-                </a>
-            </li>
-            {% endfor %}
-            </div>
-        {% else %}
-            <p>Aucun article disponible.</p>
-        {% endif %}
-    </div>
-</div>
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-articles">
+            {% block headline %}
+                Liste des articles
+            {% endblock %}
+        </h2>
 
+        {% block content %}
+            {% if articles %}
+                <div class="tutorial-list">
+                    {% for article in articles %}
+                        {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>
+                    Aucun article disponible.
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
 {% endblock %}

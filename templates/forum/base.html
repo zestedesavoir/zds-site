@@ -1,52 +1,146 @@
 {% extends "base.html" %}
 {% load interventions %}
-{% load cache %}
+{% load captureas %}
+{% load date %}
+{% load profile %}
+
+
 
 {% block title_base %}
     &#183; Forums
 {% endblock %}
 
+
+
+{% block mobile_title %}
+    Forums
+{% endblock %}
+
+
+
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.forum.views.index" %}">Forums</a></li>
 {% endblock %}
+
+
 
 {% block menu_forum %}
     current
 {% endblock %}
 
-{% block search %}
-<input type="hidden" name="models" value="forum.post" />
-<input type="hidden" name="models" value="forum.topic" />
-{% endblock %}
-
-{% block headline %}
-<h2 class="box forum">{% block head-title %}{% endblock %}</h2>
-<p class="subtitle">{% block headline-sub %}{% endblock %}</p>
-{% endblock %}
-
 
 
 {% block sidebar %}
-	
-    {% block headline-actions %}{% endblock %}
-    
-    {% if user.is_authenticated %}
-    <h3>Sujets suivis</h3>
-    <ul>
-    	{% with topics=user|followed_topics %}
-        {% for topic in topics %}
-        <li class="{% if topic|is_read %}topic_read{% else %}unread{% endif %}">
-            <span class="right" data-tooltip class="has-tip" title="Ne plus suivre ce sujet"><a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" class="fi-x"></a></span>
-            {% if topic.is_solved %}<i class="fi-check success left"> </i>{% endif %}
-            {% if topic.is_locked %}<i class="fi-lock grey left"> </i>{% endif %}
-            {% with first_unread=topic.first_unread_post %} 
-            <a href="{% if first_unread %}{{ first_unread.get_absolute_url }}{% else %}{{ topic.last_read_post.get_absolute_url }}{% endif %}" >{{ topic.title }}</a>
-            {% endwith %}
-        </li>
-        {% endfor %}
-        {% endwith %}
-    </ul>
-    {% endif %}
-    <h3>Flux</h3>
-    {% include "forum/feeds.part.html" %}
+    <aside class="sidebar mobile-menu-hide">
+        {% if user.is_authenticated %}
+            {% captureas newbtn %}
+                {% block new_btn %}{% endblock %}
+            {% endcaptureas %}
+
+            {% if newbtn %}
+                {{ newbtn|safe }}
+            {% endif %}
+
+            {% captureas sidebaractions %}
+                {% block sidebar_actions %}{% endblock %}
+            {% endcaptureas %}
+
+            {% if sidebaractions %}
+                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                    <h3>Actions</h3>
+                    <ul>
+                        {{ sidebaractions|safe }}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% block sidebar_blocks %}{% endblock %}
+
+            <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
+                <h3>Sujets suivis</h3>
+                <ul>
+                    {% with topics=user|followed_topics %}
+                        {% for topic in topics %}
+                            {% with state=topic|is_read %}
+                                <li>
+                                    <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
+                                       class="ico-after cross red stop-follow action-hover" 
+                                       data-title="Ne plus suivre">
+                                        Ne plus suivre
+                                    </a>
+                                    
+                                    <a href="{% spaceless %}
+                                        {% if first_unread %}
+                                            {{ first_unread.get_absolute_url }}
+                                        {% else %}
+                                            {{ topic.last_read_post.get_absolute_url }}
+                                        {% endif %}{% endspaceless %}"
+                                       class="{% if not state %}unread{% endif %}
+                                            ico-after
+
+                                            {% if topic.is_solved %}
+                                                tick green
+                                            {% elif topic.is_locked %}
+                                                lock
+                                            {% else %}
+                                                star yellow
+                                            {% endif %}
+                                        "
+                                       {% if topic.is_solved or topic.is_locked %}
+                                        data-prefix="
+                                            {% if topic.is_solved %}
+                                                Résolu
+                                            {% endif %}
+                                            {% if topic.is_locked %}
+                                                Fermé
+                                            {% endif %}
+                                        "
+                                       {% endif %}
+                                    >
+                                        {% if not state %}
+                                            <span class="a11y">Non-lu :</span>
+                                        {% endif %}
+                                        {{ topic.title }}
+                                    </a>
+
+                                    {# TODO: Designer ça #}
+                                    <span class="last-answer">
+                                        {% with answer=topic.get_last_answer %}
+                                            {% if answer %}
+                                                {% with profile=answer.author|profile %}
+                                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                                {% endwith %}
+                                                Dernière réponse
+                                                {{ answer.pubdate|format_date }}
+                                                par
+                                                {{ answer.author.username }}
+                                            {% else %}
+                                                <span class="topic-no-last-answer">
+                                                    Aucune réponse
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </span>
+                                </li>
+                            {% endwith %}
+                        {% endfor %}
+
+                        {% if topics|length <= 0 %}
+                            <li class="inactive"><span>Aucun sujet suivi</span></li>
+                        {% endif %}
+                    {% endwith %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+            <h3>Flux</h3>
+            <ul>
+                <li><a href="{% url "post-feed-rss" %}" class="ico-after rss blue">Nouveaux messages (RSS)</a></li>
+                <li><a href="{% url "post-feed-atom" %}" class="ico-after rss blue">Nouveaux messages (ATOM)</a></li>
+                <li><a href="{% url "topic-feed-rss" %}" class="ico-after rss blue">Nouveaux sujets (RSS)</a></li>
+                <li><a href="{% url "topic-feed-atom" %}" class="ico-after rss blue">Nouveaux sujets (ATOM)</a></li>
+            </ul>
+        </div>
+    </aside>
 {% endblock %}

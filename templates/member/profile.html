@@ -1,192 +1,123 @@
-{% extends "member/base_read.html" %}
+{% extends "member/base.html" %}
 {% load emarkdown %}
 {% load email_obfuscator %}
-{% load humanize %}
+{% load date %}
 {% load profile %}
-{% load crispy_forms_tags %}
+
+
 
 {% block title %}
     {{ usr.username }}
 {% endblock %}
 
-{% block head-image %}<img src="{{ profile.get_avatar_url }}" alt="Avatar"/>{% endblock %}
-{% block head-title %}{% endblock %}
-{% block head-tag %}
-    {% if perms.member.show_ip %}
-        <li>
-            <a href="#">{{ profile.last_ip_address }}</a>
-        </li>
-        <li>
-            <a href="#">{{ profile.get_city }}</a>
-        </li>
-    {% endif %}
-    {% if profile.site %}
-        <li><a href="{{ profile.site }}">{{ profile.site }}</a></li>
-    {% endif %}
-{% endblock %}
+
+
+{% block body_class %}content-cols{% endblock %}
+
 
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ usr.username }}</a></li>
+    <li>{{ usr.username }}</li>
 {% endblock %}
 
-{% block content %}
-    <div class="large-6 columns">      
-        <h2 class="box member">{{ usr.username }}</h2>
-        <div class="row">
-            <div class="large-2 columns">
-                <div>
-                    <img src="{{ profile.get_avatar_url }}" alt="Avatar"/>
-                </div>
-                {% with status=usr|state %}
-                    {% if status == 'BAN'%}
-                        <div class="alert-box tiny alert username">{{status}}</div>
-                    {% endif %}
-                    {% if status == 'LS'%}
-                        <div class="alert-box tiny warning username">{{status}}</div>
-                    {% endif %}
-                    {% if status == 'STAFF' %}
-                        <div class="alert-box tiny success username">{{status}}</div>
-                    {% endif %}
-                    {% if status == 'DOWN' %}
-                        <div class="alert-box tiny secondary username">{{status}}</div>
-                    {% endif %}
-                {% endwith %}
-            </div>
-            <div class="large-10 columns">
-                <p>
-                    Inscrit {{ usr.date_joined|naturaltime }}, dernière connexion {{ profile.last_visit|naturaltime }}.
-                </p>
-                {% if perms.member.show_ip %}
-                    <p>
-                        Dernière IP : {{ profile.last_ip_address }}
-                    </p>
-                    <p>
-                        Ville : {{ profile.get_city }}
-                    </p>
-                {% endif %}
-                {% if profile.site %}
-                <p>
-                    <a class="fi-web" href="{{ profile.site }}">{{ profile.site }}</a>
-                </p>
-                {% endif %}
 
-                {% if profile.show_email and user.is_authenticated %}
-                <p>
-                    <span class="fi-mail">  {{ usr.email|obfuscate_mailto }}</span>
-                </p>
-                {% endif %}
 
-                <h3>Signature</h3>
-                {{ profile.sign|emarkdown }}
-            </div>
-        </div>
-    </div>
+{% block content_out %}
+    <section class="content-col-2">
+        <h2>
+            {{ usr.username }}
+        </h2>
 
-    <div class="large-6 columns">
-        <h2 class="box tutoriel">Derniers tutoriels</h2>
-        {% if tutorials %}
-            {% for tutorial in tutorials %}
-            <div class="row">
-            <div class="large-2 columns">
-                <img src="{{ tutorial.image.thumb.url }}" alt="">
-            </div>
-            <div class="large-10 columns">
-                <h4><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></h4>
-                <h5>{{ tutorial.description }}</h5>
-            </div>
-            </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-    <div class="large-6 columns">
-        <h2 class="box article">Derniers articles</h2>
-        {% if articles %}
-            {% for article in articles %}
-            <div class="row">
-            <div class="large-12 columns">
-                <h4><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></h4>
-                <h5>{{ article.description }}</h5>
-            </div>
-            </div>
-            {% endfor %}
+        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+
+        {% include 'misc/badge.part.html' %}
+
+        <p>
+            Inscrit {{ usr.date_joined|format_date }}
+        </p>
+        <p>
+            Dernière connexion {{ usr.last_login|format_date }}
+        </p>
+        {% if perms.member.show_ip %}
+            <p>
+                Dernière IP : {{ profile.last_ip_address }}
+            </p>
+            <p>
+                Ville : {{ profile.get_city }}
+            </p>
         {% endif %}
 
-    </div>
-    <div class="large-6 columns">
-        <h2 class="box forum">Dernier sujets crées</h2>
+        {% if profile.show_email and user.is_authenticated %}
+            <p>
+                E-mail : <span class="fi-mail">{{ usr.email|obfuscate_mailto }}</span>
+            </p>
+        {% endif %}
+
+        {% if profile.sign %}
+            <h3>Signature</h3>
+            {{ profile.sign|emarkdown }}
+        {% endif %}
+
+
         {% if topics %}
+            <h2>Dernier sujets crées</h2>
             {% for topic in topics %}
-            <div class="row">
-            <div class="large-12 columns">
                 <h4><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></h4>
                 <h5>{{ topic.subtitle }}</h5>
-            </div>
-            </div>
             {% endfor %}
         {% endif %}
-    </div>
+    </section>
 
-    <div class="large-12 columns">
-        <h2 class="box forum">Biographie</h2>
-        {% if profile.biography %}
-            {{ profile.biography|emarkdown }}
+
+
+    <section class="content-col-2 tutorial-list">
+        {% if tutorials %}
+            <h2 class="ico-after ico-tutorials">Derniers tutoriels</h2>
+            {% for tutorial in tutorials %}
+                {% include 'tutorial/includes/tutorial_item.part.html' %}
+            {% endfor %}
         {% endif %}
-    </div>
 
-    {% if old_tutos and perms.member.change_profile%}
-        <div class="large-12 columns">
-            <h2 class="box tutoriel">Anciens Tutos SDZ</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Tuto</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for id, titre, tuto, image, logo in old_tutos %}
-                <tr>
-                  <td>{{titre}}</td>
-                  <td><a href="{% url "zds.member.views.remove_oldtuto" %}?id={{id}}&profile={{profile.pk}}" class="fi-x"></a></td>
-                </tr>
-              </tbody>
-              {% endfor %}
-            </table>
-        </div>
+
+        {% if articles %}
+            <h2 class="ico-after ico-articles">Derniers articles</h2>
+            {% for article in articles %}
+                {% include 'article/includes/article_item.part.html' %}
+            {% endfor %}
+        {% endif %}
+    </section>
+
+
+
+    {% if profile.biography %}
+        <section class="full-content-wrapper">
+            <h2>
+                Biographie
+            </h2>
+
+            {{ profile.biography|emarkdown }}
+        </section>
     {% endif %}
-
 {% endblock %}
 
-{% block headline-actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Admin">
-        <h3>Actions</h3>
-        <ul>
-            {% ifequal profile.user user %}
-            <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
-            {% endifequal %}
-            {% if perms.member.change_profile %}
-                <li><a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}">Modifier le profil</a></li>
-                <li>
-                <a href="#" data-dropdown="link-tuto-{{profile.pk}}">
-                    Attribuer un tuto SdZ
-                </a>
-                </li>
-                <div id="link-tuto-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
-                    <p>
-                        Choisi un tutoriel du SdZ à attribuer au membre.
-                    </p>
-                    {% crispy form %}
-                </div>
-            {% endif %}
-            {% if user.is_authenticated %}
-                {% with status=profile.user|state %}
-                    {% if status != 'DOWN' and status != 'BAN' %}
-                    <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Message privé</a></li>
-                    {% endif %}
-                {% endwith %}
-            {% endif %}
-        </ul>
-    </div>
-    
+
+
+{% block sidebar_actions %}
+    {% ifequal profile.user user %}
+        <div>
+            <h3>Mon compte</h3>
+            <ul>
+                <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
+            </ul>
+        </div>
+    {% endifequal %}
+
+    {% if user.is_authenticated %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Envoyer un message privé</a></li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

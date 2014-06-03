@@ -1,0 +1,31 @@
+{% extends "base_content_page.html" %}
+
+
+
+{% block title_base %}
+    &#183; Articles
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    Articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+{% endblock %}
+
+
+
+{% block menu_article %}
+    current
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% include "article/includes/sidebar_base.html" %}
+{% endblock %}

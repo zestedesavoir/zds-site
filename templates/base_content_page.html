@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+
+{% block content_out %}
+    <article class="content-wrapper">
+        <header>
+            {% block headline %}{% endblock %}
+        </header>
+        <section class="article-content">
+            {% block content %}{% endblock %}
+        </section>
+        {% block content_after %}{% endblock %}
+    </article>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
+{% endblock %}

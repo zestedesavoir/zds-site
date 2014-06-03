@@ -136,19 +136,22 @@ def alerts_list(user):
             total.append({'title': post.topic.title,
                           'url': post.get_absolute_url(),
                           'pubdate': post.pubdate,
-                          'author': alert.author})
+                          'author': alert.author,
+                          'text': alert.text})
         if alert.scope == Alert.ARTICLE:
             reaction = Reaction.objects.get(pk=alert.comment.pk)
             total.append({'title': reaction.article.title,
                           'url': reaction.get_absolute_url(),
                           'pubdate': reaction.pubdate,
-                          'author': alert.author})
+                          'author': alert.author,
+                          'text': alert.text})
         if alert.scope == Alert.TUTORIAL:
             note = Note.objects.get(pk=alert.comment.pk)
             total.append({'title': note.tutorial.title,
                           'url': note.get_absolute_url(),
                           'pubdate': note.pubdate,
-                          'author': alert.author})
+                          'author': alert.author,
+                          'text': alert.text})
 
     return total
 

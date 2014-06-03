@@ -1,146 +1,165 @@
-{% extends "article/base_read.html" %}
+{% extends "article/base_content.html" %}
 {% load emarkdown %}
-{% load humanize %}
+{% load captureas %}
 {% load profile %}
+{% load crispy_forms_tags %}
+
+
 
 {% block title %}
     {{ article.title }}
 {% endblock %}
 
-{% block head-image %}
-    {% if article.image %}
-        <img src="{{article.image.url }}" alt=""/>
-    {% endif %}
-{% endblock %}
 
-{% block head-title %}
-    {{ article.title }}
-{% endblock %}
-
-{% block head-tag %}
-    {% for category in tags.all %}
-        <li><a href="#">{{ category.title }}</a></li>
-    {% endfor %}
-{% endblock %}
-
-{% block head-authors %}
-    {% for member in authors.all %}
-        <li>
-            {% include "member/member_item_common.part.html" %}
-        </li>
-    {% endfor %}
-{% endblock %}
 
 {% block breadcrumb %}
-    <li class="current"><a href="#">{{ article.title }}</a></li>
+    <li>{{ article.title }}</li>
 {% endblock %}
 
-{% block headline-actions %}
-    {% if user.is_authenticated %}
-    <form action="{% url "zds.article.views.modify" %}" method="post">
 
-        {% if user in authors.all or perms.article.change_article %}
-        <div>
-            <h3>Actions</h3>
-            <ul>
-                {% if article.sha_draft = version %}
-                <li><a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}">Éditer</a></li>
-                {% endif %}
-                {% if article.sha_validation = None %}
-                <li>
-                    <a href="#" data-dropdown="ask-article" >Demander la validation</a>
-                    <div id="ask-article" class="f-dropdown small content" data-dropdown-content>
-                        <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"> </textarea>
-                        <button type="submit" class="secondary tiny" name="pending">Demander la validation</button>
-                    </div>
-                </li>
-                {% endif %}
-                {% if article.sha_public = None %}
-                <li>
-                    <a href="#" data-dropdown="delete-article" >Supprimer l'article</a>
-                    <div id="delete-article" class="f-dropdown small content" data-dropdown-content>
-                        <button type="submit" class="secondary tiny" name="delete">Confirmer la suppression</button>
-                    </div>
-                </li>
-                {% endif %}
-                <li><a href="{% url "zds.article.views.history" article.pk article.slug %}">Historique des versions</a></li>
-        </div>
+
+{% block headline %}
+    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
+        {% if article.thumbnail %}
+            <img src="{{ article.thumbnail.url }}" alt="">
         {% endif %}
+        {{ article.title }}
+    </h1>
 
-        {% if perms.article.change_article %}
-        <div>
-            <h3>Administration</h3>
+    <ul class="taglist">
+        {% for tag in tags.all %}
+            {# TODO : Mettre les liens vers les tags #}
+            <li><a href="#">{{ tag.title }}</a></li>
+        {% endfor %}
+    </ul>
+    
+    <div class="authors">
+        <span class="authors-label">Contributeurs : </span>
+        <ul>
+            {% for member in authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if perms.article.change_article %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>Validation</h3>
             <ul>
-                <li><a href="{% url "zds.article.views.history_validation" article.pk %}">Historique validation</a></li>
-                {% if not article.sha_validation = None %}
-                    {% if validation.is_pending %}
-                        <li>
-                            <a href="{% url "zds.article.views.reservation" validation.pk %}">Réserver</a>
-                        </li>
-                    {% elif validation.is_pending_valid %}
-                        {% if validation.validator = user %}
-                            <li>
-                                <a href="{% url "zds.article.views.reservation" validation.pk %}">Se retirer</a>
-                            </li>
-                            <li>
-                                <a href="#" data-dropdown="valid-article" >Publier l'article</a>
-                                <div id="valid-article" class="f-dropdown small content" data-dropdown-content>
-                                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"> </textarea>
-                                    <input id="id_is_major" name="is_major" type="checkbox">
-                                    <label for="id_is_major">Version majeure ?</label>
-                                    <button type="submit" class="secondary tiny" name="valid-article">Confirmer la publication</button>
-                                </div>
-                            </li>
-                            <li>
-                                <a href="#" data-dropdown="reject-article" >Rejeter l'article</a>
-                                <div id="reject-article" class="f-dropdown small content" data-dropdown-content>
-                                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"> </textarea>
-                                    <button type="submit" class="secondary tiny" name="reject-article">Confirmer le rejet</button>
-                                </div>
-                            </li>
-                        {% else %}
-                            <li>
-                                <a href="{% url "zds.article.views.reservation" validation.pk %}">Réservé par {{ validation.validator.username }}, le retirer</a>
-                            </li>
-                        {% endif %}
-                    {% endif %}
-                {% endif %}
+                <li>
+                    <a href="{{ article.get_absolute_url }}" class="ico-after offline blue">
+                        Version hors ligne
+                    </a>
+                </li>
+                <li>
+                    <a href="#unpublish" class="open-modal ico-after cross blue">Dépublier</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="unpublish">
+                        <p>
+                            <strong>Attention !</strong> Vous allez dépublier un article actuellement <strong>en ligne</strong>.
+                        </p>
+                        <button type="submit" name="invalid-article">
+                            Confirmer
+                        </button>
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                    </form>
+                </li>
+                <li>
+                    <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                        Historique de validation
+                    </a>
+                </li>
             </ul>
         </div>
-        {% endif %}
-
-        <input type="hidden" name="article" value="{{ article.pk }}" />
-        <input type="hidden" name="version" value="{{ version }}" />
-        {% csrf_token %}
-    </form>
+    {% elif user in authors.all %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
+            <h3>Gestion</h3>
+            <ul>
+                <li>
+                    <a href="{{ article.get_absolute_url }}" class="ico-after offline blue">
+                        Version hors ligne
+                    </a>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
         <h3>Télécharger</h3>
         <ul>
-            <li><a href="{% url "zds.article.views.download" %}?article={{ article.pk }}">Archive</a></li>
+            <li>
+                <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}"
+                   class="ico-after download blue"
+                >
+                    Archive
+                </a>
+            </li>
         </ul>
     </div>
-    
 {% endblock %}
 
+
+
 {% block content %}
+    {{ article.txt|safe }}
 
-{% if article.is_visible %}
-    {% include "article/view_pager.part.html" %}
-{% endif %}
 
-<div class="row">
-    <div class="large-12 columns read-content">
-        <div class="large-1 columns hide-for-small">
-            {% if article.thumbnail %}
-            <img src="{{article.thumbnail.url }}"/>
-            {% endif %}
-        </div>
-        <div>
-            {{ article.txt|emarkdown }}
-        </div>
-    </div>
-</div>
+    {% include "article/includes/pager.part.html" %}
+{% endblock %}
 
+
+
+{% block content_after %}
+    <h3 class="reactions-title">Réactions</h3>
+
+
+    {% include "misc/pagination.part.html" with position="top" topic=article %}
+
+
+    {% for message in reactions %}
+        {% captureas form_action %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}
+        {% endcaptureas %}
+
+        {% captureas edit_link %}
+            {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas upvote_link %}
+            {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas downvote_link %}
+            {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas alert_solve_link %}
+            {% url "zds.article.views.solve_alert" %}
+        {% endcaptureas %}
+
+
+        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
+    {% endfor %}
+
+
+    {% include "misc/pagination.part.html" with position="bottom" topic=article %}
+
+
+    
+    {% captureas form_action %}
+        {% url 'zds.article.views.answer' %}?article={{ article.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user topic=article %}
 {% endblock %}

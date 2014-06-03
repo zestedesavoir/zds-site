@@ -1,0 +1,38 @@
+{% load captureas %}
+
+
+
+<a href="{% url "zds.article.views.new" %}" class="ico-after more blue new-btn">
+    Nouvel article
+</a>
+
+{% if user.is_authenticated %}
+    {% captureas sidebarfilter %}{% spaceless %}
+        {% block sidebar_filter %}{% endblock %}
+    {% endspaceless %}{% endcaptureas %}
+
+    {% if sidebarfilter %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
+            <h3>Filtres</h3>
+            <ul>
+                {{ sidebarfilter|safe }}
+            </ul>
+        </div>
+    {% endif %}
+{% endif %}
+
+<div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+    <h3>Flux</h3>
+    <ul>
+        <li>
+            <a href="{% url "article-feed-rss" %}" class="ico-after rss blue">
+                Nouveaux articles (RSS)
+            </a>
+        </li>
+        <li>
+            <a href="{% url "article-feed-atom" %}" class="ico-after rss blue">
+                Nouveaux articles (ATOM)
+            </a>
+        </li>
+    </ul>
+</div>

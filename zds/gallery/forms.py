@@ -2,8 +2,9 @@
 
 from django.conf import settings
 
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import HTML, Layout, Submit, \
+from crispy_forms.layout import HTML, Layout, Submit, \
     Field, ButtonHolder, Hidden
 from django import forms
 from django.contrib.auth.models import User
@@ -35,7 +36,7 @@ class GalleryForm(forms.Form):
             Field('title'),
             Field('subtitle'),
             ButtonHolder(
-                Submit('submit', u'Créer', css_class='button'),
+                StrictButton(u'Créer', type='submit'),
             ),
         )
 
@@ -88,7 +89,7 @@ class UserGalleryForm(forms.Form):
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
             ButtonHolder(
-                Submit('submit', 'Ajouter', css_class='button tiny'),
+                StrictButton('Ajouter', type='submit'),
             ),
         )
 
@@ -136,11 +137,8 @@ class ImageForm(forms.Form):
             Field('legend'),
             Field('physical'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    u'Ajouter',
-                    css_class='button'),
-                HTML('<a class="button secondary" u\
+                StrictButton('Ajouter', type='submit'),
+                HTML('<a class="btn btn-cancel" u\
                 uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
@@ -158,6 +156,6 @@ class ImageAsAvatarForm(forms.Form):
         self.helper.layout = Layout(
             Hidden('avatar_url', '{{ image.physical.url }}'),
             ButtonHolder(
-                Submit('submit', "Utiliser comme avatar", css_class='button tiny'),
+                StrictButton("Utiliser comme avatar", type='submit'),
             ),
         )
