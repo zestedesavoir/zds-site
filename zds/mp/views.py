@@ -285,7 +285,7 @@ def answer(request):
 
                 # send email
                 subject = "ZDS - MP: " + g_topic.title
-                from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+                from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)

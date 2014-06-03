@@ -21,27 +21,27 @@ class AssocSubscribeForm(forms.Form):
         label='Adresse e-mail',
         required=True,
     )
-    
+
     adresse = forms.CharField(
         label=u'Adresse',
         required=True,
     )
-    
+
     adresse_complement = forms.CharField(
         label=u'Complément d\'adresse',
         required=False,
     )
-    
+
     code_postal = forms.CharField(
         label='Code Postal',
         required=True,
     )
-    
+
     ville = forms.CharField(
         label='Ville',
         required=True,
     )
-    
+
     pays = forms.CharField(
         label='Pays',
         required=True,
