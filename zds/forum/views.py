@@ -452,7 +452,7 @@ def answer(request):
                                                                          ]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
-            return render_template("forum/answer.html", {
+            return render_template("forum/post/new.html", {
                 "text": data["text"],
                 "topic": g_topic,
                 "posts": posts,
@@ -495,7 +495,7 @@ def answer(request):
                 })
     else:
 
-        # Actions from the editor render to answer.html.
+        # Actions from the editor render to new.html.
 
         text = ""
 
