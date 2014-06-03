@@ -7,6 +7,50 @@
         <h3>Gestion</h3>
         <ul>
             <li>
+                <a href="#add-author" class="open-modal ico-after more blue">
+                    Ajouter un auteur
+                </a>
+                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="add-author">
+                    {% csrf_token %}
+                    <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter">
+                    <input type="hidden" name="article" value="{{ article.pk }}" />
+                    <button type="submit" class="button" name="add_author">
+                        Confirmer
+                    </button>
+                </form>
+            </li>
+            <li>
+                <a href="#manage-authors" class="open-modal ico-after gear blue">Gérer les auteurs</a>
+                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+                    <table class="fullwidth">
+                        <thead>
+                            <th>Auteur</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                            {% for member in authors.all %}
+                                <tr>
+                                    <td>{% include "misc/member_item.part.html" %}</td>
+                                    <td>
+                                        {% if authors.count > 1 %}
+                                            <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                                Supprimer
+                                            </button>
+                                        {% else %}
+                                            Vous êtes seul !
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <input type="hidden" name="remove_author" value="1">
+                    <input type="hidden" name="article" value="{{ article.pk }}">
+                    {% csrf_token %}
+                </form>
+            </li>
+
+            <li>
                 <a href="{% url "zds.article.views.history" article.pk article.slug %}" class="ico-after history blue">
                     Historique des versions
                 </a>
