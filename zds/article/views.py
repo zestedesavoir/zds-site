@@ -599,8 +599,10 @@ def modify(request):
 
             return redirect(article.get_absolute_url())
         elif 'add_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             author_username = request.POST['author']
             author = None
@@ -621,8 +623,10 @@ def modify(request):
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             # Avoid orphan articles
             if article.authors.all().count() <= 1:
