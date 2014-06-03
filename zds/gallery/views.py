@@ -223,11 +223,14 @@ def modify_image(request):
     except:
         raise PermissionDenied
     if "delete" in request.POST:
-        img = get_object_or_404(Image, pk=request.POST["image"])
-        img.delete()
+        try:
+            img = Image.objects.get(pk=request.POST["image"], gallery=gal)
+            img.delete()
+        except:
+            pass
     elif "delete_multi" in request.POST:
         l = request.POST.getlist("items")
-        Image.objects.filter(pk__in=l).delete()
+        Image.objects.filter(pk__in=l, gallery=gal).delete()
     return redirect(gal.get_absolute_url())
 
 
