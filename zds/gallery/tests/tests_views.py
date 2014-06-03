@@ -564,7 +564,7 @@ class NewImageViewTest(TestCase):
                     follow=True
             )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
         self.assertEqual(0, len(self.gallery.get_images()))
 
     def test_fail_new_image_with_no_permission(self):
@@ -587,7 +587,7 @@ class NewImageViewTest(TestCase):
                     follow=True
             )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
         self.assertEqual(0, len(self.gallery.get_images()))
 
     def test_fail_gallery_not_exist(self):

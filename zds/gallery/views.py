@@ -240,6 +240,15 @@ def new_image(request, gal_pk):
     """Creates a new image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
+
+    # check if the user can upload new image in this gallery
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size \
