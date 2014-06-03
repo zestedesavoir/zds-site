@@ -50,7 +50,7 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if can_hide %}
+                        {% if can_hide != False %}
                             <li>
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     Signaler

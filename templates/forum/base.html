@@ -76,23 +76,20 @@
                                             {{ topic.last_read_post.get_absolute_url }}
                                         {% endif %}{% endspaceless %}"
                                        class="{% if not state %}unread{% endif %}
-                                        {% if topic.is_solved or topic.is_locked %}
                                             ico-after
 
                                             {% if topic.is_solved %}
-                                                tick active
-                                            {% endif %}
-                                            {% if topic.is_locked %}
+                                                tick green
+                                            {% elif topic.is_locked %}
                                                 lock
+                                            {% else %}
+                                                star yellow
                                             {% endif %}
-                                        {% endif %}"
+                                        "
                                        {% if topic.is_solved or topic.is_locked %}
                                         data-prefix="
                                             {% if topic.is_solved %}
                                                 Résolu
-                                            {% endif %}
-                                            {% if topic.is_solved and topic.is_locked %}
-                                            |
                                             {% endif %}
                                             {% if topic.is_locked %}
                                                 Fermé
