@@ -656,9 +656,9 @@ def forgot_password(request):
 
             subject = "ZDS - Mot de passe oublié"
             from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
-            message_html = get_template("email/confirm_forgot_password.html").render(Context(
+            message_html = get_template("email/forgot_password/confirm.html").render(Context(
                 {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
-            message_txt = get_template("email/confirm_forgot_password.txt") .render(Context(
+            message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
                 {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [usr.email])
@@ -666,7 +666,7 @@ def forgot_password(request):
             msg.send()
             return render_template("member/forgot_password/success.html")
         else:
-            return render_template("member/forgot_password.html",
+            return render_template("member/forgot_password/index.html",
                                    {"form": form})
     form = ForgotPasswordForm()
     return render_template("member/forgot_password/index.html", {"form": form})
