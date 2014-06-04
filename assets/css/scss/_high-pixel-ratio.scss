@@ -32,8 +32,8 @@
         &.ico-alerts {
             @include sprite-pos($sprite2x, 'alerts', true);
         }
-        &.ico-gear {
-            @include sprite-pos($sprite2x, 'gear', true);
+        &.ico-params {
+            @include sprite-pos($sprite2x, 'params', true);
         }
     }
 
@@ -219,6 +219,17 @@
             }
             &.light:after {
                 @include sprite-pos($sprite2x, 'beta-light', true);
+            }
+        }
+        &.gear {
+            &:after {
+                @include sprite-pos($sprite2x, 'gear', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'gear-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'gear-light', true);
             }
         }
         // TODO : faire une vraie icône offline
