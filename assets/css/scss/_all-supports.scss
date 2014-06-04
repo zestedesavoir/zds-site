@@ -737,10 +737,9 @@
                         width: 30px;
                         height: 30px;
                         text-indent: -9999px;
-                        border-left: 1px solid transparent;
 
                         background: $sidebar-hover;
-                        right: -32px;
+                        right: -30px;
 
                         &[data-title]:hover:before {
                             content: attr(data-title);
@@ -760,7 +759,7 @@
                         }
 
                         &:after {
-                            left: 5px;
+                            left: 7px;
                         }
                     }
                 }
