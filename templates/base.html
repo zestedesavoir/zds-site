@@ -285,39 +285,41 @@
                                             <ul class="dropdown-list">
                                                 {% for first_unread in unread_posts %}
                                                     <li>
-                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                        <a href="{{ first_unread.topic.last_read_post.get_absolute_url }}">
                                                             {% with p=first_unread.author|profile %}
                                                                 <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
+                                                            <span class="topic">{{ first_unread.topic.title }}</span>
                                                         </a>
                                                     </li>
                                                 {% endfor %}
 
                                                 {# TODO : restore read posts notifications #}
+                                                {% comment %}
                                                 {% for last_read in read_posts %}
                                                     <li>
                                                         {% with last_answer=topic.get_last_answer %}
-                                                        <a href="
-                                                            {% if last_answer %}
-                                                                {{ last_answer.get_absolute_url }}
-                                                            {% else %}
-                                                                {{ topic.first_post.get_absolute_url }}
-                                                            {% endif %}"
-                                                           class="read"
-                                                        >
-                                                            {% with p=last_read.author|profile %}
-                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
-                                                            {% endwith %}
-                                                            <span class="username">{{ last_read.author.username }}</span>
-                                                            <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
-                                                        </a>
+                                                            <a href="
+                                                                {% if last_answer %}
+                                                                    {{ last_answer.get_absolute_url }}
+                                                                {% else %}
+                                                                    {{ topic.first_post.get_absolute_url }}
+                                                                {% endif %}"
+                                                               class="read"
+                                                            >
+                                                                {% with p=last_read.author|profile %}
+                                                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                {% endwith %}
+                                                                <span class="username">{{ last_read.author.username }}</span>
+                                                                <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
+                                                                <span class="topic">{{ topic.title }}</span>
+                                                            </a>
                                                         {% endwith %}
                                                     </li>
                                                 {% endfor %}
+                                                {% endcomment %}
     
                                                 {# {% if read_topics|length = 0 and unread_topics|length = 0 %} #}
                                                 {% if unread_posts|length = 0 %}
