@@ -144,6 +144,7 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['thumbnail'] = article.thumbnail
     article_version['is_locked'] = article.is_locked
     article_version['get_absolute_url'] = article.get_absolute_url()
 

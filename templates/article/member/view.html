@@ -35,18 +35,17 @@
 
 
 {% block headline %}
-    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
-        {% if article.thumbnail %}
-            <img src="{{article.thumbnail.url }}" alt="">
+    <h1 {% if article.image %}class="illu"{% endif %}>
+        {% if article.image %}
+            <img src="{{article.image.url }}" alt="">
         {% endif %}
         {{ article.title }}
     </h1>
 
     <ul class="taglist">
         {% for tag in tags.all %}
-            {# TODO : Mettre les liens vers les tags #}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{tag.title}}">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
                     {{ tag.title }}
                 </a>
             </li>
