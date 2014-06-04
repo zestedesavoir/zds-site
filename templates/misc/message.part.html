@@ -115,10 +115,10 @@
             {% endif %}
 
             {% if message.is_visible != False %}
-                {{ message.text|emarkdown }}
+                {{ message.text_html|safe }}
             {% elif perms_change %}
                 <div class="message-hidden-content">
-                    {{ message.text|emarkdown }}
+                    {{ message.text_html|safe }}
                 </div>
             {% endif %}
 
