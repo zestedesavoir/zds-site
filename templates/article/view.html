@@ -28,8 +28,11 @@
 
     <ul class="taglist">
         {% for tag in tags.all %}
-            {# TODO : Mettre les liens vers les tags #}
-            <li><a href="#">{{ tag.title }}</a></li>
+            <li>
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                    {{ tag.title }}
+                </a>
+            </li>
         {% endfor %}
     </ul>
     
