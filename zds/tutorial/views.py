@@ -1814,8 +1814,7 @@ def edit_extract(request):
                     chapter_tutorial_path = os.path.join(
                         settings.REPO_PATH, str(
                             extract.chapter.tutorial.pk) + "_" + extract.chapter.tutorial.slug)
-                    chapter_part = os.path.join(chapter_tutorial_path,
-                                                extract.chapter.slug)
+                    chapter_part = os.path.join(chapter_tutorial_path)
                 else:
 
                     # Get path for big-tuto
@@ -1877,8 +1876,7 @@ def modify_extract(request):
             chapter_tutorial_path = os.path.join(
                 settings.REPO_PATH, str(
                     extract.chapter.tutorial.pk) + "_" + extract.chapter.tutorial.slug)
-            chapter_path = os.path.join(chapter_tutorial_path,
-                                        extract.chapter.slug)
+            chapter_path = os.path.join(chapter_tutorial_path)
         else:
 
             # Get path for big-tuto
@@ -1896,7 +1894,6 @@ def modify_extract(request):
         old_slug = os.path.join(chapter_path, slugify(extract.title) + ".md")
         maj_repo_extract(request, old_slug_path=old_slug, extract=extract,
                          action="del")
-        extract.delete()
         return redirect(chapter.get_absolute_url())
     elif "move" in data:
         try:
@@ -2458,8 +2455,12 @@ def maj_repo_extract(
                                  str(extract.chapter.part.tutorial.pk) + "_"
                                  + extract.chapter.part.tutorial.slug))
     index = repo.index
+    
+    chap = extract.chapter
+    
     if action == "del":
         msg = "Suppression de l'exrait "
+        extract.delete()
     else:
         if action == "maj":
             os.rename(old_slug_path, new_slug_path)
@@ -2472,14 +2473,14 @@ def maj_repo_extract(
 
     # update manifest
 
-    if extract.chapter.tutorial:
-        man_path = os.path.join(extract.chapter.tutorial.get_path(),
+    if chap.tutorial:
+        man_path = os.path.join(chap.tutorial.get_path(),
                                 "manifest.json")
-        extract.chapter.tutorial.dump_json(path=man_path)
+        chap.tutorial.dump_json(path=man_path)
     else:
-        man_path = os.path.join(extract.chapter.part.tutorial.get_path(),
+        man_path = os.path.join(chap.part.tutorial.get_path(),
                                 "manifest.json")
-        extract.chapter.part.tutorial.dump_json(path=man_path)
+        chap.part.tutorial.dump_json(path=man_path)
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
@@ -2493,13 +2494,13 @@ def maj_repo_extract(
         committer=Actor(
             aut_user,
             aut_email))
-    if extract.chapter.tutorial:
-        extract.chapter.tutorial.sha_draft = com_ex.hexsha
-        extract.chapter.tutorial.save()
+    if chap.tutorial:
+        chap.tutorial.sha_draft = com_ex.hexsha
+        chap.tutorial.save()
     else:
-        extract.chapter.part.tutorial.sha_draft = com_ex.hexsha
-        extract.chapter.part.tutorial.save()
-    extract.save()
+        chap.part.tutorial.sha_draft = com_ex.hexsha
+        chap.part.tutorial.save()
+    #extract.save()
 
 
 @can_read_now
