@@ -122,11 +122,18 @@
         width: 15px;
         border: 1px solid #BBB;
         background: #FCFCFC;
-
-        &:checked {
-            background: #555;
-        }
+        @include transition(none);
     }
+    input[type=radio] {
+        @include border-radius(50%);
+    }
+    input[type=radio]:checked {
+        @include sprite-pos($sprite, 'radio');
+    }
+    input[type=checkbox]:checked {
+        @include sprite-pos($sprite, 'check');
+    }
+
     [type=submit],
     button,
     .btn {
