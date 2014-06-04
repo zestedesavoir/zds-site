@@ -91,11 +91,40 @@
 
     {% if profile.biography %}
         <section class="full-content-wrapper">
-            <h2>
-                Biographie
-            </h2>
-
+            <h2>Biographie</h2>
             {{ profile.biography|emarkdown }}
+        </section>
+    {% endif %}
+
+
+
+    {% if old_tutos and perms.member.change_profile %}
+        <section class="full-content-wrapper">
+            <h2>Anciens Tutos SdZ</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tutoriel</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for id, titre in old_tutos %}
+                        <tr>
+                            <td>{{ titre }}</td>
+                            <td>
+                                <a href="#delete-old-tutorial-{{ id }}" class="btn btn-submit open-modal">Supprimer</a>
+                                <div class="modal modal-small" id="delete-old-tutorial-{{ id }}">
+                                    <p>
+                                        Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ titre }}</em>".
+                                    </p>
+                                    <a href="{% url "zds.member.views.remove_oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">Confirmer</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
     {% endif %}
 {% endblock %}
@@ -125,6 +154,19 @@
                         Envoyer un message privé
                     </a>
                 </li>
+                {% if perms.member.change_profile %}
+                    <li>
+                        <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
+                            Attribuer un tuto SdZ
+                        </a>
+                        <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Choisissez un tutoriel du SdZ à attribuer au membre.
+                            </p>
+                            {% crispy form %}
+                        </div>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}
