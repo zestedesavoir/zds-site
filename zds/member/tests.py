@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.forms import RegisterForm
 from zds.member.models import Profile
 
 from .models import TokenRegister, Ban
@@ -72,6 +73,80 @@ class MemberTests(TestCase):
         self.assertEquals(len(mail.outbox), 2)
 
         self.assertEquals(User.objects.get(username='firm1').is_active, True)
+
+        # From this point we have a valid user (firm1 / firm1@zestedesavoir.com)
+
+        # Now let's test all the failing cases !!
+
+        # 1. If passwords don't match
+        form_data = {
+            'username': 'TheUsername',
+            'password': 'password',
+            'password_confirm': 'flavour',
+            'email': 'email@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 2. If passwords are too shorts
+        form_data = {
+            'username': 'TheUsername',
+            'password': 'pass',
+            'password_confirm': 'pass',
+            'email': 'email@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 3. If passwords are equal to username
+        form_data = {
+            'username': 'TheUsername',
+            'password': 'TheUsername',
+            'password_confirm': 'TheUsername',
+            'email': 'email@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 4. If there is no username
+        form_data = {
+            'username': '',
+            'password': 'password',
+            'password_confirm': 'password',
+            'email': 'email@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 5. If there is no email
+        form_data = {
+            'username': 'TheUsername',
+            'password': 'password',
+            'password_confirm': 'password',
+            'email': ''
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 6. If the username is already taken
+        form_data = {
+            'username': 'firm1',
+            'password': 'password',
+            'password_confirm': 'password',
+            'email': 'email@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+        # 7. If the email is already taken
+        form_data = {
+            'username': 'TheUsername',
+            'password': 'password',
+            'password_confirm': 'password',
+            'email': 'firm1@zestedesavoir.com'
+        }
+        form = RegisterForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)
 
     def test_sanctions(self):
         """Test various sanctions."""
