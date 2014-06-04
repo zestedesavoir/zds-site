@@ -181,9 +181,11 @@
                                                         <li class="dropdown-title">
                                                             {{ category.title }}
                                                         </li>
-                                                        {% for forum in category.get_forums %}
-                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                                        {% endfor %}
+                                                        {% with forums=category.get_forums|auth_forums:user %}
+                                                            {% for forum in forums %}
+                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                            {% endfor %}
+                                                        {% endwith %}
                                                     </ul>
                                                 </li>
                                             {% endfor %}
