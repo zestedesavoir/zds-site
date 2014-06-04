@@ -1111,7 +1111,7 @@ def dislike_reaction(request):
         reaction_pk = request.GET['message']
     except KeyError:
         raise Http404
-
+    resp = {}
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
     user = request.user
 
@@ -1141,7 +1141,13 @@ def dislike_reaction(request):
             reaction.dislike = reaction.dislike - 1
             reaction.save()
 
-    return redirect(reaction.get_absolute_url())
+    resp['upvotes'] = reaction.like
+    resp['downvotes'] = reaction.dislike
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(reaction.get_absolute_url())
 
 # Deprecated URLs
 
