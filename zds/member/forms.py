@@ -102,6 +102,7 @@ class RegisterForm(forms.Form):
     password = forms.CharField(
         label='Mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
@@ -109,6 +110,7 @@ class RegisterForm(forms.Form):
     password_confirm = forms.CharField(
         label='Confirmation du mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
@@ -138,21 +140,12 @@ class RegisterForm(forms.Form):
 
         if not password_confirm == password:
             msg = u'Les mots de passe sont différents'
-            self._errors['password'] = self.error_class([''])
+            self._errors['password'] = self.error_class([msg])
             self._errors['password_confirm'] = self.error_class([msg])
 
             if 'password' in cleaned_data:
                 del cleaned_data['password']
 
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
-
-        # Check that the password is at least MIN_PASSWORD_LENGTH
-        if len(password) < MIN_PASSWORD_LENGTH:
-            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
-            self._errors['password'] = self.error_class([msg])
-            if 'password' in cleaned_data:
-                del cleaned_data['password']
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
@@ -172,14 +165,15 @@ class RegisterForm(forms.Form):
                 del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
-        # Chech if email provider is authorized
-        with open(os.path.join(SITE_ROOT,
-                               'forbidden_email_providers.txt'), 'r') as fh:
-            for provider in fh:
-                if provider.strip() in email:
-                    msg = u'Utilisez un autre fournisseur d\'adresses mail.'
-                    self._errors['email'] = self.error_class([msg])
-                    break
+        if email:
+            # Chech if email provider is authorized
+            with open(os.path.join(SITE_ROOT,
+                                   'forbidden_email_providers.txt'), 'r') as fh:
+                for provider in fh:
+                    if provider.strip() in email:
+                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                        self._errors['email'] = self.error_class([msg])
+                        break
 
         # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
