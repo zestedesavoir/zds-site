@@ -1,4 +1,4 @@
-{% extends "article/member/base.html" %}
+{% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load date %}
 {% load profile %}
@@ -29,7 +29,7 @@
         {% if article.thumbnail %}
             <img src="{{article.thumbnail.url }}" alt="">
         {% endif %}
-        Historique de : {{ article.title }}
+        Historique de l'article "{{ article.title }}"
     </h1>
     
     <div class="authors">
@@ -37,7 +37,7 @@
         <ul>
             {% for member in article.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>

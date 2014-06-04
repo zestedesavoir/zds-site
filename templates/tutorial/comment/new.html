@@ -1,4 +1,4 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_online.html" %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -29,7 +29,7 @@
 
 
 
-{% block content %}
+{% block content_after %}
     {% if newnote %}
         <div class="alert-box alert">
             <strong>Au moins un nouveau message a été posté</strong> dans la discussion
