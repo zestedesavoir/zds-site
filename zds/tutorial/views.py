@@ -3044,6 +3044,7 @@ def dislike_note(request):
         note_pk = request.GET["message"]
     except KeyError:
         raise Http404
+    resp = {}
     note = get_object_or_404(Note, pk=note_pk)
     user = request.user
     if note.author.pk != request.user.pk:
@@ -3069,4 +3070,9 @@ def dislike_note(request):
                                           comments__pk=note_pk).all().delete()
             note.dislike = note.dislike - 1
             note.save()
-    return redirect(note.get_absolute_url())
+    resp["upvotes"] = note.like
+    resp["downvotes"] = note.dislike
+    if request.is_ajax():
+        return HttpResponse(json.dumps(resp))
+    else:
+        return redirect(note.get_absolute_url())
