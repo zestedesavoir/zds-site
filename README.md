@@ -175,3 +175,7 @@ git clone https://github.com/zestedesavoir/zds-site.git --depth 1
 En savoir plus
 --------------
 - [Comment déployer ZDS sur un serveur de production ?](https://github.com/Taluu/ZesteDeSavoir/blob/dev/doc/deploy.md)
+
+
+
+Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/))
