@@ -107,7 +107,11 @@
         <div>
             <h3>Mon compte</h3>
             <ul>
-                <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
+                <li>
+                    <a href="{% url "zds.member.views.settings_profile" %}" class="ico-after gear blue">
+                        Paramètres
+                    </a>
+                </li>
             </ul>
         </div>
     {% endifequal %}
@@ -116,7 +120,11 @@
         <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
             <h3>Actions</h3>
             <ul>
-                <li><a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}">Envoyer un message privé</a></li>
+                <li>
+                    <a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="ico-after cite blue">
+                        Envoyer un message privé
+                    </a>
+                </li>
             </ul>
         </div>
     {% endif %}
