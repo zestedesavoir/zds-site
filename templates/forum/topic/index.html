@@ -94,7 +94,7 @@
 
 
 {% block new_btn %}
-    <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+    <a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         Nouveau sujet
     </a>
 {% endblock %}
@@ -140,12 +140,12 @@
                     {% if topic.is_locked %}
                         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
                            class="ico-after lock blue">
-                            Dévérouiller
+                            Ouvrir le sujet
                         </a>
                     {% else %}
                         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"
                            class="ico-after lock blue">
-                            Vérouiller le sujet
+                            Fermer le sujet
                         </a>
                     {% endif %}
                 </li>
@@ -154,12 +154,12 @@
                     {% if topic.is_sticky %}
                         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
                            class="ico-after pin blue">
-                            Enlever du Post-It
+                            Enlever du post-it
                         </a>
                     {% else %}
                         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"
                            class="ico-after pin blue">
-                            Marquer en Post-It
+                            Marquer en post-it
                         </a>
                     {% endif %}
                 </li>
