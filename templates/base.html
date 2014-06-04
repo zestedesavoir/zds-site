@@ -181,9 +181,11 @@
                                                         <li class="dropdown-title">
                                                             {{ category.title }}
                                                         </li>
-                                                        {% for forum in category.get_forums %}
-                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                                        {% endfor %}
+                                                        {% with forums=category.get_forums|auth_forums:user %}
+                                                            {% for forum in forums %}
+                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                            {% endfor %}
+                                                        {% endwith %}
                                                     </ul>
                                                 </li>
                                             {% endfor %}
@@ -285,39 +287,41 @@
                                             <ul class="dropdown-list">
                                                 {% for first_unread in unread_posts %}
                                                     <li>
-                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                        <a href="{{ first_unread.topic.last_read_post.get_absolute_url }}">
                                                             {% with p=first_unread.author|profile %}
                                                                 <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
+                                                            <span class="topic">{{ first_unread.topic.title }}</span>
                                                         </a>
                                                     </li>
                                                 {% endfor %}
 
                                                 {# TODO : restore read posts notifications #}
+                                                {% comment %}
                                                 {% for last_read in read_posts %}
                                                     <li>
                                                         {% with last_answer=topic.get_last_answer %}
-                                                        <a href="
-                                                            {% if last_answer %}
-                                                                {{ last_answer.get_absolute_url }}
-                                                            {% else %}
-                                                                {{ topic.first_post.get_absolute_url }}
-                                                            {% endif %}"
-                                                           class="read"
-                                                        >
-                                                            {% with p=last_read.author|profile %}
-                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
-                                                            {% endwith %}
-                                                            <span class="username">{{ last_read.author.username }}</span>
-                                                            <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
-                                                        </a>
+                                                            <a href="
+                                                                {% if last_answer %}
+                                                                    {{ last_answer.get_absolute_url }}
+                                                                {% else %}
+                                                                    {{ topic.first_post.get_absolute_url }}
+                                                                {% endif %}"
+                                                               class="read"
+                                                            >
+                                                                {% with p=last_read.author|profile %}
+                                                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                {% endwith %}
+                                                                <span class="username">{{ last_read.author.username }}</span>
+                                                                <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
+                                                                <span class="topic">{{ topic.title }}</span>
+                                                            </a>
                                                         {% endwith %}
                                                     </li>
                                                 {% endfor %}
+                                                {% endcomment %}
     
                                                 {# {% if read_topics|length = 0 and unread_topics|length = 0 %} #}
                                                 {% if unread_posts|length = 0 %}
@@ -373,7 +377,7 @@
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
                                     >
-                                        <span class="notif-text ico ico-gear">Mon Compte</span>
+                                        <span class="notif-text ico ico-params">Mon Compte</span>
                                     </a>
                                 {% endif %}
                             </div>
@@ -553,15 +557,18 @@
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
     
-    {# Analytics #}
+
+    {# Google Tag Manager #}
+    <noscript>
+        <iframe src="//www.googletagmanager.com/ns.html?id=GTM-WH7642"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
     <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    
-      ga('create', 'UA-27730868-1', 'zestedesavoir.com');
-      ga('send', 'pageview');
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-WH7642');
     </script>
 </body>
 </html>

@@ -273,8 +273,8 @@
                 &.ico-alerts {
                     @include sprite-pos($sprite, 'alerts');
                 }
-                &.ico-gear {
-                    @include sprite-pos($sprite, 'gear');
+                &.ico-params {
+                    @include sprite-pos($sprite, 'params');
                 }
             }
 

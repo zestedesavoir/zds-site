@@ -158,22 +158,24 @@ def modify_gallery(request):
 
 @can_write_and_read_now
 @login_required
-def del_image(request, gal_pk):
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    if request.method == "POST":
-        liste = request.POST.getlist("items")
-        Image.objects.filter(pk__in=liste).delete()
-        return redirect(gal.get_absolute_url())
-    return redirect(gal.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
 def edit_image(request, gal_pk, img_pk):
     """Creates a new image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
+
+    # check if user can edit image
+    try:
+        permission = UserGallery.objects.get(user=request.user, gallery=gal)
+        if permission.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
+    # check if the image belong to the gallery
+    if img.gallery != gal:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:
@@ -221,11 +223,14 @@ def modify_image(request):
     except:
         raise PermissionDenied
     if "delete" in request.POST:
-        img = get_object_or_404(Image, pk=request.POST["image"])
-        img.delete()
+        try:
+            img = Image.objects.get(pk=request.POST["image"], gallery=gal)
+            img.delete()
+        except:
+            pass
     elif "delete_multi" in request.POST:
         l = request.POST.getlist("items")
-        Image.objects.filter(pk__in=l).delete()
+        Image.objects.filter(pk__in=l, gallery=gal).delete()
     return redirect(gal.get_absolute_url())
 
 
@@ -235,6 +240,15 @@ def new_image(request, gal_pk):
     """Creates a new image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
+
+    # check if the user can upload new image in this gallery
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size \
