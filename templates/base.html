@@ -23,7 +23,11 @@
 
     {% block meta %}{% endblock %}
 
-    {% compressed_css "main-css" %}
+    {% if debug %}
+    <link rel="stylesheet" href="/static/css/main.css" />
+    {% else %}
+    <link rel="stylesheet" href="/static/css/main.min.css" />
+    {% endif %}
 
     {# Webfont async loading #}
     {# Do not put this code into a distant file #}
@@ -539,7 +543,13 @@
 
 
     {# Javascript stuff start #}
-    {% compressed_js "main-js" %}
+    {% if debug %}
+    <script src="/static/js/vendors.js"></script>
+    <script src="/static/js/main.js"></script>
+    {% else %}
+    <script src="/static/js/vendors.min.js"></script>
+    <script src="/static/js/main.min.js"></script>
+    {% endif %}
 
 
 
