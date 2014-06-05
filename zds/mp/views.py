@@ -22,6 +22,7 @@ from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
+from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
@@ -276,6 +277,7 @@ def answer(request):
                 post.privatetopic = g_topic
                 post.author = request.user
                 post.text = data['text']
+                post.text_html = emarkdown(data['text'])
                 post.pubdate = datetime.now()
                 post.position_in_topic = g_topic.get_post_count() + 1
                 post.save()
