@@ -105,7 +105,7 @@ class Profile(models.Model):
                 os.path.join(
                     settings.GEOIP_PATH,
                     'GeoLiteCityv6.dat'))
-        geo = gic.record_by_addr(self.last_ip_address)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+        geo = gic.record_by_addr(self.last_ip_address)
 
         return u'{0} ({1}) : {2}'.format(
             geo['city'], geo['postal_code'], geo['country_name'])

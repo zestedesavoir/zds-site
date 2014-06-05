@@ -100,13 +100,13 @@ STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
-    'modernizr' : {
+    'modernizr': {
         'source_filenames': (
             'js/vendor/custom.modernizr.js',
         ),
         'output_filename': 'js/modernizr.js'
-    }, 
-    'css3-mediaqueries' : {
+    },
+    'css3-mediaqueries': {
         'source_filenames': (
             'js/vendor/css3-mediaqueries.js',
         ),
@@ -196,7 +196,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages'
 )
 
-CRISPY_TEMPLATE_PACK='bootstrap'
+CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 INSTALLED_APPS = (
     'django.contrib.auth',

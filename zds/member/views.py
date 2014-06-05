@@ -15,11 +15,12 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+import json
 import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
@@ -44,7 +45,7 @@ def index(request):
 
     if request.is_ajax():
         q = request.GET.get('q', '')
-        members = User.objects.filter(username__icontains = q )[:20]
+        members = User.objects.filter(username__icontains=q)[:20]
         results = []
         for member in members:
             member_json = {}
@@ -55,11 +56,11 @@ def index(request):
         data = json.dumps(results)
 
         return HttpResponse(data, mimetype)
-    
+
     else:
         members = User.objects.order_by("-date_joined")
         # Paginator
-    
+
         paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
         page = request.GET.get("page")
         try:
@@ -165,8 +166,7 @@ def modify_profile(request, user_pk):
             profile.can_write = False
             ban.type = u"Lecture Seule"
             ban.text = request.POST["ls-text"]
-            detail = (\
-                u'Vous ne pouvez plus poster dans les forums, ni dans les '
+            detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
                 u'commentaires d\'articles et de tutoriels.')
         if "ls-temp" in request.POST:
             ban.type = u"Lecture Seule Temporaire"
@@ -175,8 +175,7 @@ def modify_profile(request, user_pk):
             profile.end_ban_write = datetime.now() \
                 + timedelta(days=int(request.POST["ls-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (\
-                u'Vous ne pouvez plus poster dans les forums, ni dans les '
+            detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
                 u'commentaires d\'articles et de tutoriels pendant {0} jours.'
                 .format(request.POST["ls-jrs"]))
         if "ban-temp" in request.POST:
@@ -186,8 +185,7 @@ def modify_profile(request, user_pk):
             profile.end_ban_read = datetime.now() \
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (\
-                u'Vous ne pouvez plus vous connecter sur ZesteDeSavoir '
+            detail = (u'Vous ne pouvez plus vous connecter sur ZesteDeSavoir '
                 u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
         if "ban" in request.POST:
             ban.type = u"Ban définitif"
@@ -198,8 +196,7 @@ def modify_profile(request, user_pk):
             ban.type = u"Autorisation d'écrire"
             ban.text = request.POST["unls-text"]
             profile.can_write = True
-            detail = (\
-                u'Vous pouvez désormais poster sur les forums, dans les '
+            detail = (u'Vous pouvez désormais poster sur les forums, dans les '
                 u'commentaires d\'articles et tutoriels.')
         if "un-ban" in request.POST:
             ban.type = u"Autorisation de se connecter"
@@ -721,7 +718,7 @@ def active_account(request):
     # send register message
 
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = (\
+    msg = (
         u'Bonjour **{0}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
@@ -745,7 +742,7 @@ def active_account(request):
         u'partage et désire apporter le savoir à tout le monde quelques soit ses moyens.'
         u'\n\n'
         u'En espérant que tu te plaira ici, '
-        u'je te laisse maintenant faire le tour'\
+        u'je te laisse maintenant faire le tour'
         .format(usr.username,
                 settings.SITE_URL + reverse("zds.tutorial.views.index"),
                 settings.SITE_URL + reverse("zds.article.views.index"),
@@ -801,6 +798,7 @@ def generate_token_account(request):
     except:
         msg = None
     return render_template('member/register/token_success.html', {})
+
 
 def get_client_ip(request):
     """Retrieve the real IP address of the client."""

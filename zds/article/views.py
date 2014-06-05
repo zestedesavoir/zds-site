@@ -345,7 +345,7 @@ def find_article(request, name):
         .all()
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr':u,
+        'articles': articles, 'usr': u,
     })
 
 
@@ -789,7 +789,7 @@ def history(request, article_pk, article_slug):
 
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
-    
+
     return render_template('article/member/history.html', {
         'article': article, 'logs': logs
     })

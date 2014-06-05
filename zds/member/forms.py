@@ -538,7 +538,7 @@ class NewPasswordForm(forms.Form):
 
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
-                
+
         # Check that the password is at least MIN_PASSWORD_LENGTH
         if len(password) < MIN_PASSWORD_LENGTH:
             msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)

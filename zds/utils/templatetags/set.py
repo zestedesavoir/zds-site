@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 class SetVarNode(template.Node):
     def __init__(self, var_name, var_value):
         self.var_name = var_name
@@ -14,6 +15,7 @@ class SetVarNode(template.Node):
             value = ""
         context[self.var_name] = value
         return u""
+
 
 @register.tag
 def set(parser, token):

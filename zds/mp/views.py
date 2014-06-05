@@ -306,7 +306,7 @@ def answer(request):
                                         + post.get_absolute_url(),
                                         'author': request.user.username
                                     })
-                                )
+                            )
                             message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
