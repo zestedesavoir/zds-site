@@ -109,6 +109,7 @@ class PrivatePost(models.Model):
     author = models.ForeignKey(User, verbose_name='Auteur',
                                related_name='privateposts')
     text = models.TextField('Texte')
+    text_html = models.TextField('Texte en HTML')
 
     pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)

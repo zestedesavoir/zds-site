@@ -37,6 +37,7 @@ def send_mp(
     post.privatetopic = n_topic
     post.author = author
     post.text = text
+    post.text_html = emarkdown(data['text'])
     post.pubdate = datetime.now()
     post.position_in_topic = 1
     post.save()
