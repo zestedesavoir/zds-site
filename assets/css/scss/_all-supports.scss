@@ -855,6 +855,10 @@
 
         &.illu {
             padding-left: 60px;
+
+            img {
+                background: #FFF;
+            }
         }
 
         &.ico-after {
@@ -1018,8 +1022,8 @@
             display: block;
             text-decoration: none;
             padding: 0 10px;
-            background: #FBFBFB;
-            color: #aaa9a7;
+            background: #EEE;
+            color: #777;
             margin-left: 1px;
             @include transition;
 
