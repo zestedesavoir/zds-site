@@ -62,8 +62,11 @@ class PrivateTopic(models.Model):
             .order_by('pubdate')\
             .first()
 
-    def last_read_post(self, user=get_current_user()):
+    def last_read_post(self, user=None):
         """Return the last private post the user has read."""
+        if user is None:
+            user = get_current_user()
+
         try:
             post = PrivateTopicRead.objects\
                 .select_related()\
@@ -76,8 +79,11 @@ class PrivateTopic(models.Model):
         except PrivatePost.DoesNotExist:
             return self.first_post()
 
-    def first_unread_post(self, user=get_current_user()):
+    def first_unread_post(self, user=None):
         """Return the first post the user has unread."""
+        if user is None:
+            user = get_current_user()
+
         try:
             last_post = PrivateTopicRead.objects\
                 .select_related()\
@@ -96,8 +102,11 @@ class PrivateTopic(models.Model):
         """Check if there just one participant in the conversation."""
         return self.participants.count() == 0
 
-    def never_read(self):
-        return never_privateread(self)
+    def never_read(self, user=None):
+        if user is None:
+            user = get_current_user()
+
+        return never_privateread(self, user)
 
 
 class PrivatePost(models.Model):
@@ -156,9 +165,12 @@ class PrivateTopicRead(models.Model):
                                                         self.privatepost.pk)
 
 
-def never_privateread(privatetopic, user=get_current_user()):
+def never_privateread(privatetopic, user=None):
     """Check if a private topic has been read by an user since it last post was
     added."""
+
+    if user is None:
+        user = get_current_user()
 
     return PrivateTopicRead.objects\
         .filter(privatepost=privatetopic.last_message,
@@ -166,8 +178,12 @@ def never_privateread(privatetopic, user=get_current_user()):
         .count() == 0
 
 
-def mark_read(privatetopic, user=get_current_user()):
+def mark_read(privatetopic, user=None):
     """Mark a private topic as read for the user."""
+
+    if user is None:
+        user = get_current_user()
+
     PrivateTopicRead.objects.filter(
         privatetopic=privatetopic,
         user=user).delete()
