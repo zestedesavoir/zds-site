@@ -62,12 +62,12 @@ class PrivateTopic(models.Model):
             .order_by('pubdate')\
             .first()
 
-    def last_read_post(self):
+    def last_read_post(self, user=get_current_user()):
         """Return the last private post the user has read."""
         try:
             post = PrivateTopicRead.objects\
                 .select_related()\
-                .filter(privatetopic=self, user=get_current_user())
+                .filter(privatetopic=self, user=user)
             if len(post) == 0:
                 return self.first_post()
             else:
@@ -76,12 +76,12 @@ class PrivateTopic(models.Model):
         except PrivatePost.DoesNotExist:
             return self.first_post()
 
-    def first_unread_post(self):
+    def first_unread_post(self, user=get_current_user()):
         """Return the first post the user has unread."""
         try:
             last_post = PrivateTopicRead.objects\
                 .select_related()\
-                .filter(privatetopic=self, user=get_current_user())\
+                .filter(privatetopic=self, user=user)\
                 .latest('post__pubdate').privatepost
 
             next_post = PrivatePost.objects.filter(
@@ -156,11 +156,9 @@ class PrivateTopicRead(models.Model):
                                                         self.privatepost.pk)
 
 
-def never_privateread(privatetopic, user=None):
+def never_privateread(privatetopic, user=get_current_user()):
     """Check if a private topic has been read by an user since it last post was
     added."""
-    if user is None:
-        user = get_current_user()
 
     return PrivateTopicRead.objects\
         .filter(privatepost=privatetopic.last_message,
@@ -168,15 +166,15 @@ def never_privateread(privatetopic, user=None):
         .count() == 0
 
 
-def mark_read(privatetopic):
+def mark_read(privatetopic, user=get_current_user()):
     """Mark a private topic as read for the user."""
     PrivateTopicRead.objects.filter(
         privatetopic=privatetopic,
-        user=get_current_user()).delete()
+        user=user).delete()
     t = PrivateTopicRead(
         privatepost=privatetopic.last_message,
         privatetopic=privatetopic,
-        user=get_current_user())
+        user=user)
     t.save()
 
 
