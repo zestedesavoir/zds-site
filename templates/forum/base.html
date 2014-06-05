@@ -61,68 +61,69 @@
                 <ul>
                     {% with topics=user|followed_topics %}
                         {% for topic in topics %}
-                            {% with state=topic|is_read %}
-                                <li>
-                                    <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
-                                       class="ico-after cross red stop-follow action-hover" 
-                                       data-title="Ne plus suivre">
-                                        Ne plus suivre
-                                    </a>
-                                    
-                                    <a href="{% spaceless %}
+                            <li>
+                                <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page=1&follow=1" 
+                                   class="ico-after cross red stop-follow action-hover" 
+                                   data-title="Ne plus suivre">
+                                    Ne plus suivre
+                                </a>
+                                
+                                <a href="{% spaceless %}
+                                    {% with first_unread=topic.first_unread_post %}
                                         {% if first_unread %}
                                             {{ first_unread.get_absolute_url }}
                                         {% else %}
                                             {{ topic.last_read_post.get_absolute_url }}
-                                        {% endif %}{% endspaceless %}"
-                                       class="{% if not state %}unread{% endif %}
-                                            ico-after
-
-                                            {% if topic.is_solved %}
-                                                tick green
-                                            {% elif topic.is_locked %}
-                                                lock
-                                            {% else %}
-                                                star yellow
-                                            {% endif %}
-                                        "
-                                       {% if topic.is_solved or topic.is_locked %}
-                                        data-prefix="
-                                            {% if topic.is_solved %}
-                                                Résolu
-                                            {% endif %}
-                                            {% if topic.is_locked %}
-                                                Fermé
-                                            {% endif %}
-                                        "
-                                       {% endif %}
-                                    >
-                                        {% if not state %}
-                                            <span class="a11y">Non-lu :</span>
                                         {% endif %}
-                                        {{ topic.title }}
-                                    </a>
+                                    {% endwith %}
+                                    {% endspaceless %}"
+                                   class="{% if not topic|is_read %}unread{% endif %}
+                                        ico-after
 
-                                    {# TODO: Designer ça #}
-                                    <span class="last-answer">
-                                        {% with answer=topic.get_last_answer %}
-                                            {% if answer %}
-                                                {% with profile=answer.author|profile %}
-                                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                                                {% endwith %}
-                                                Dernière réponse
-                                                {{ answer.pubdate|format_date }}
-                                                par
-                                                {{ answer.author.username }}
-                                            {% else %}
-                                                <span class="topic-no-last-answer">
-                                                    Aucune réponse
-                                                </span>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </span>
-                                </li>
-                            {% endwith %}
+                                        {% if topic.is_solved %}
+                                            tick green
+                                        {% elif topic.is_locked %}
+                                            lock
+                                        {% else %}
+                                            star yellow
+                                        {% endif %}
+                                    "
+                                   {% if topic.is_solved or topic.is_locked %}
+                                    data-prefix="
+                                        {% if topic.is_solved %}
+                                            Résolu
+                                        {% endif %}
+                                        {% if topic.is_locked %}
+                                            Fermé
+                                        {% endif %}
+                                    "
+                                   {% endif %}
+                                >
+                                    {% if not topic|is_read %}
+                                        <span class="a11y">Non-lu :</span>
+                                    {% endif %}
+                                    {{ topic.title }}
+                                </a>
+
+                                {# TODO: Designer ça #}
+                                <span class="last-answer">
+                                    {% with answer=topic.get_last_answer %}
+                                        {% if answer %}
+                                            {% with profile=answer.author|profile %}
+                                                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                            {% endwith %}
+                                            Dernière réponse
+                                            {{ answer.pubdate|format_date }}
+                                            par
+                                            {{ answer.author.username }}
+                                        {% else %}
+                                            <span class="topic-no-last-answer">
+                                                Aucune réponse
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </span>
+                            </li>
                         {% endfor %}
 
                         {% if topics|length <= 0 %}

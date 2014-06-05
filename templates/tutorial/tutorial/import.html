@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    Importer un tutoriel .tuto
+    Importer un tutoriel
 {% endblock %}
 
 
@@ -16,13 +16,46 @@
 
 
 {% block headline %}
-    <h1>
-    	Importer un tutoriel .tuto
-    </h1>
+    <h2>
+        Importer un tutoriel
+    </h2>
 {% endblock %}
 
 
 
 {% block content %}
-	{% crispy form %}
+    <h3>Envoi de fichiers .tuto</h3>
+    {% crispy form %}
+
+    <hr>
+
+    {% if old_tutos %}
+        <h3>Récupérer un tutoriel du Site du Zéro</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tutoriel</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, titre, tutorial, image, logo in old_tutos %}
+                    <tr>
+                        <td>{{ titre }}</td>
+                        <td>
+                            <form name="form-import" method="POST" action="{% url "zds.tutorial.views.local_import" %}">
+                                <input type="hidden" name="tuto" value="{{ tutorial }}">
+                                <input type="hidden" name="images" value="{{ image }}">
+                                <input type="hidden" name="logo" value="{{ logo }}">
+                                <button type="submit" name="valider" class="btn btn-submit">
+                                    Importer
+                                </button>
+                                {% csrf_token %}
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
