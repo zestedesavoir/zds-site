@@ -14,8 +14,8 @@ class NewsletterForm(forms.Form):
 
         self.helper.layout = Layout(
             Div(
-                HTML('<input type="email" name="email" placeholder="E-mail" u\
-                urequired="required" pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}">'),
+                HTML(u'<input type="email" name="email" placeholder="E-mail" '
+                u'required="required" pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}">'),
                 HTML('<button type="submit" title="Inscription newsletter"><span>OK</span></button>'),
             ))
         super(NewsletterForm, self).__init__(*args, **kwargs)

@@ -120,8 +120,8 @@ class PostForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=u'Vous ne pouvez pas encore poster u\
-                    usur ce topic (protection antispam de 15 min).',
+                    placeholder=u'Vous ne pouvez pas encore poster '
+                    u'sur ce topic (protection antispam de 15 min).',
                     disabled=True)
         elif topic.is_locked:
             self.helper['text'].wrap(

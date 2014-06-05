@@ -162,8 +162,8 @@ class PartForm(FormWithTitle):
 class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
-        label='Selectionnez le logo du tutoriel u\
-        u(max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label=u'Selectionnez le logo du tutoriel '
+              u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
         required=False
     )
 
@@ -315,8 +315,8 @@ class NoteForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=u'Vous ne pouvez pas encore poster sur ce u\
-                    ututoriel (protection antispam de 15 min).',
+                    placeholder=u'Vous ne pouvez pas encore poster sur ce '
+                    u'tutoriel (protection antispam de 15 min).',
                     disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(

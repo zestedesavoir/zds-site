@@ -15,8 +15,8 @@ class PrivateTopicForm(forms.Form):
         label='Participants',
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Les participants doivent u\
-                uêtre séparés par une virgule.',
+                'placeholder': u'Les participants doivent '
+                u'être séparés par une virgule.',
                 'required': 'required'}))
 
     title = forms.CharField(
@@ -114,8 +114,8 @@ class PrivatePostForm(forms.Form):
         if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Vous êtes seul dans cette conversation, u\
-                uvous ne pouvez plus y écrire.',
+                placeholder=u'Vous êtes seul dans cette conversation, '
+                u'vous ne pouvez plus y écrire.',
                 disabled=True)
 
     def clean(self):

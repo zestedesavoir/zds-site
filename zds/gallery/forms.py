@@ -138,8 +138,8 @@ class ImageForm(forms.Form):
             Field('physical'),
             ButtonHolder(
                 StrictButton('Ajouter', type='submit'),
-                HTML('<a class="btn btn-cancel" u\
-                uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                HTML('<a class="btn btn-cancel" '
+                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
 

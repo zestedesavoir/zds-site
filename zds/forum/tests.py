@@ -626,8 +626,8 @@ class ForumGuestTests(TestCase):
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de u\
-             ula ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de '
+             u'la ville de Paris que je voudrais vous conter '
              },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -692,8 +692,8 @@ class ForumGuestTests(TestCase):
         self.assertNotEqual(
             Post.objects.get(
                 pk=post1.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de u\
-            uParis que je voudrais vous conter ')
+            u'C\'est tout simplement l\'histoire de la ville de '
+            u'Paris que je voudrais vous conter ')
 
     def test_edit_post(self):
         """To test all aspects of the edition of simple post by guest."""
@@ -706,8 +706,8 @@ class ForumGuestTests(TestCase):
             reverse('zds.forum.views.edit_post') + '?message={0}'
             .format(post2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de u\
-                ula ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de '
+                u'la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -715,8 +715,8 @@ class ForumGuestTests(TestCase):
         self.assertNotEqual(
             Post.objects.get(
                 pk=post2.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de u\
-            uParis que je voudrais vous conter ')
+            u'C\'est tout simplement l\'histoire de la ville de '
+            u'Paris que je voudrais vous conter ')
 
     def test_quote_post(self):
         """To test when a member quote anyone post."""

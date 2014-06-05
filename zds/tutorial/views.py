@@ -275,17 +275,17 @@ def reject_tutorial(request):
         # send feedback
 
         for author in tutorial.authors.all():
-            msg = \
-                u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
-                upas passé l’étape de validation. Mais ne désespère pas, u\
-                ucertaines corrections peuvent surement être faite pour u\
-                ul’améliorer et repasser la validation plus tard. u\
-                uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
-                uN'hésite pas a lui envoyer un petit message pour discuter u\
-                ude la décision ou demander plus de détail si tout cela te u\
-                usemble injuste ou manque de clarté."""\
+            msg = (\
+                u'Désolé **{0}**, ton zeste **{1}** n\'a malheureusement '
+                u'pas passé l’étape de validation. Mais ne désespère pas, '
+                u'certaines corrections peuvent surement être faite pour '
+                u'l’améliorer et repasser la validation plus tard. '
+                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé `{4}`'
+                u'N\'hésite pas a lui envoyer un petit message pour discuter '
+                u'de la décision ou demander plus de détail si tout cela te '
+                u'semble injuste ou manque de clarté.'\
                 .format(author.username, tutorial.title, validation.validator.username,
-                        validation.validator.profile.get_absolute_url(), validation.comment_validator)
+                        validation.validator.profile.get_absolute_url(), validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -346,19 +346,19 @@ def valid_tutorial(request):
         # send feedback
 
         for author in tutorial.authors.all():
-            msg = \
-                u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
-                ua été publié par [{3}]({4}) ! Les lecteurs du monde entier u\
-                upeuvent venir l'éplucher et réagir a son sujet. u\
-                uJe te conseille de rester a leur écoute afin u\
-                ud'apporter des corrections/compléments.u\
-                uUn Tutoriel vivant et a jour est bien plus lu u\
-                uqu'un sujet abandonné !"""\
+            msg = (\
+                u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
+                u'a été publié par [{3}]({4}) ! Les lecteurs du monde entier '
+                u'peuvent venir l\'éplucher et réagir a son sujet. '
+                u'Je te conseille de rester a leur écoute afin '
+                u'd\'apporter des corrections/compléments.'
+                u'Un Tutoriel vivant et a jour est bien plus lu '
+                u'qu\'un sujet abandonné !'\
                 .format(author.username,
                         tutorial.title,
                         tutorial.get_absolute_url_online(),
                         validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator)
+                        validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -508,8 +508,8 @@ def delete_tutorial(request, tutorial_pk):
         maj_repo_tuto(request, old_slug_path=old_slug, tuto=tutorial,
                       action="del")
         messages.success(request,
-                         u"Le tutoriel {0} a bien u\
-                         uété supprimé.".format(tutorial.title))
+                         u'Le tutoriel {0} a bien '
+                         u'été supprimé.'.format(tutorial.title))
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)
@@ -525,8 +525,8 @@ def delete_tutorial(request, tutorial_pk):
             ug = None
         tutorial.save()
         messages.success(request,
-                         u"Vous ne faites plus partie des rédacteurs de ce u\
-                         ututoriel")
+                         u'Vous ne faites plus partie des rédacteurs de ce '
+                         u'tutoriel')
     return redirect(reverse("zds.tutorial.views.index"))
 
 
@@ -562,8 +562,8 @@ def modify_tutorial(request):
             ug.mode = "W"
             ug.save()
             messages.success(request,
-                             u"L'auteur {0} a bien été ajouté à la rédaction u\
-                             udu tutoriel.".format(author.username))
+                             u'L\'auteur {0} a bien été ajouté à la rédaction '
+                             u'du tutoriel.'.format(author.username))
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
             redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
@@ -1014,6 +1014,7 @@ def edit_tutorial(request):
                            {"tutorial": tutorial, "form": form})
 
 # Parts.
+
 
 @can_read_now
 @login_required
@@ -1553,14 +1554,14 @@ def add_chapter(request):
                 if "submit_continue" in request.POST:
                     form = ChapterForm()
                     messages.success(request,
-                                     u"Chapitre « {0} » ajouté u\
-                                     uavec succès.".format(chapter.title))
+                                     u'Chapitre « {0} » ajouté '
+                                     u'avec succès.'.format(chapter.title))
                 else:
                     return redirect(chapter.get_absolute_url())
             else:
                 messages.error(request,
-                               u"Un chapitre portant le même nom existe u\
-                               uexiste dans cette partie.")
+                               u'Un chapitre portant le même nom existe '
+                               u'déjà dans cette partie.')
     else:
         form = ChapterForm()
 
@@ -2230,6 +2231,7 @@ def local_import(request):
                    request.POST["logo"])
     return redirect(reverse("zds.member.views.tutorials"))
 
+
 @can_write_and_read_now
 @login_required
 def import_tuto(request):
@@ -2872,6 +2874,7 @@ def answer(request):
             "form": form,
         })
 
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -2886,18 +2889,17 @@ def solve_alert(request):
     note = Note.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = \
-        u"""Bonjour {0},u\
-        uVous recevez ce message car vous avez signalé le message de *{1}*, u\
-        udans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** u\
-        uet il vous a laissé le message suivant :u\
-        u\n\n`{5}`\n\nToute l'équipe de la modération vous remercie""".format(
+        (u'Bonjour {0},'
+        u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+        u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
+        u'et il vous a laissé le message suivant :'
+        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
             alert.author.username,
             note.author.username,
             note.tutorial.title,
             settings.SITE_URL + note.get_absolute_url(),
             request.user.username,
-            request.POST["text"],
-    )
+            request.POST["text"],))
     send_mp(
         bot,
         [alert.author],
@@ -2935,10 +2937,10 @@ def edit_note(request):
     if note.author != request.user and request.method == "GET" \
             and request.user.has_perm("tutorial.change_note"):
         messages.add_message(request, messages.WARNING,
-                             u"Vous \xe9ditez ce message en tant que u\
-                             umod\xe9rateur (auteur : {}). Soyez encore plus u\
-                             uprudent lors de l'\xe9dition de u\
-                             ucelui-ci !".format(note.author.username))
+                             u'Vous \xe9ditez ce message en tant que '
+                             u'mod\xe9rateur (auteur : {}). Soyez encore plus '
+                             u'prudent lors de l\'\xe9dition de '
+                             u'celui-ci !'.format(note.author.username))
         note.alerts.all().delete()
     if request.method == "POST":
         if "delete_message" in request.POST:

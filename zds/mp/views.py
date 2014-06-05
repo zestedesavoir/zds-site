@@ -466,8 +466,8 @@ def add_participant(request):
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
-                'Le membre que vous essayez d\'ajouter u\
-                uà la conversation y est déjà')
+                'Le membre que vous essayez d\'ajouter '
+                u'à la conversation y est déjà')
         else:
             ptopic.participants.add(part)
             ptopic.save()
