@@ -16,6 +16,13 @@ base.db
 
 /apache-solr
 
+/node_modules
+/dist
+/.tmp
+# Générés par Compass
+/assets/images/sprite*.png
+/assets/css/main.css
+/assets/bower_components
 
 #############
 ## Python
