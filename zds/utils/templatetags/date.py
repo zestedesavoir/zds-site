@@ -35,9 +35,9 @@ def date_formatter(value, tooltip, small):
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
         elif small:
-            return date(value, 'd/m/y à G\hi')
+            return date(value, 'd/m/y à H\hi')
         else:
-            return date(value, 'l d F Y à G\hi')
+            return date(value, 'l d F Y à H\hi')
 
 
 @register.filter

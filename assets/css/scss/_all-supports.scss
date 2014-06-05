@@ -99,7 +99,6 @@
     z-index: 50;
 
     .dropdown-title {
-        text-transform: uppercase;
         color: #FFF;
     }
     
@@ -625,7 +624,6 @@
         color: $blue;
         border-bottom: 1px solid $orange;
         margin-top: 30px;
-        text-transform: uppercase;
     }
     h4 {
         padding-top: 20px;
@@ -857,6 +855,10 @@
 
         &.illu {
             padding-left: 60px;
+
+            img {
+                background: #FFF;
+            }
         }
 
         &.ico-after {
@@ -1020,8 +1022,8 @@
             display: block;
             text-decoration: none;
             padding: 0 10px;
-            background: #FBFBFB;
-            color: #aaa9a7;
+            background: #EEE;
+            color: #777;
             margin-left: 1px;
             @include transition;
 
@@ -1490,7 +1492,6 @@
                 height: 30px;
                 line-height: 30px;
                 margin-left: 3px;
-                text-transform: uppercase;
                 @include opacity(.7);
 
                 &.ico-after:after {
@@ -1613,7 +1614,6 @@
         margin: 50px 0 20px;
         color: $blue;
         border-bottom: 1px solid $orange;
-        text-transform: uppercase;
         font-weight: normal;
         font-size: 22px;
         font-size: 2.2rem;
@@ -2090,7 +2090,6 @@ form.topic-message {
     p {
         float: left;
         color: #EEE;
-        text-transform: uppercase;
         margin: 0;
     }
 
@@ -2107,7 +2106,6 @@ form.topic-message {
             a {
                 text-decoration: none;
                 color: #EEE;
-                text-transform: uppercase;
                 border-bottom: 1px solid transparent;
 
                 &:hover,
