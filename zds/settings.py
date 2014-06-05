@@ -340,7 +340,7 @@ MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 MAIL_NOREPLY = 'noreply@zestedesavoir.com'
 
 # LOG PATH FOR PANDOC LOGGING
-PANDOC_LOG = '/opt/zdsenv/logs/pandoc.log'
+PANDOC_LOG = './pandoc.log'
 
 # Load the production settings, overwrite the existing ones if needed
 try:
