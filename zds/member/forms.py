@@ -200,8 +200,8 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers votre site internet u\
-                upersonnel (ne pas oublier le http:// ou https:// devant).'
+                'placeholder': u'Lien vers votre site internet '
+                u'personnel (ne pas oublier le http:// ou https:// devant).'
             }
         )
     )
@@ -212,8 +212,8 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers un avatar externe u\
-                u(laisser vide pour utiliser Gravatar).'
+                'placeholder': u'Lien vers un avatar externe '
+                u'(laisser vide pour utiliser Gravatar).'
             }
         )
     )
@@ -256,8 +256,8 @@ class ProfileForm(MiniProfileForm):
             ('show_email', "Afficher mon adresse e-mail publiquement"),
             ('show_sign', "Afficher les signatures"),
             ('hover_or_click', "Cochez pour dérouler les menus au survol"),
-            ('email_for_answer', "Recevez un email lorsque vous u\
-            urecevez une réponse à un message privé"),
+            ('email_for_answer', u'Recevez un email lorsque vous '
+            u'recevez une réponse à un message privé'),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -538,7 +538,7 @@ class NewPasswordForm(forms.Form):
 
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
-                
+
         # Check that the password is at least MIN_PASSWORD_LENGTH
         if len(password) < MIN_PASSWORD_LENGTH:
             msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)

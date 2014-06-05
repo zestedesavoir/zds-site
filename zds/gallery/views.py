@@ -200,6 +200,7 @@ def edit_image(request, gal_pk, img_pk):
             "image": img
         })
 
+
 @can_write_and_read_now
 @login_required
 def modify_image(request):

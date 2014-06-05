@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.tag(name='captureas')
 def do_captureas(parser, token):
     try:
@@ -11,6 +12,7 @@ def do_captureas(parser, token):
     nodelist = parser.parse(('endcaptureas',))
     parser.delete_first_token()
     return CaptureasNode(nodelist, args)
+
 
 class CaptureasNode(template.Node):
     def __init__(self, nodelist, varname):

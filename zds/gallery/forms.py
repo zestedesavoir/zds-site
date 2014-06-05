@@ -4,7 +4,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, \
+from crispy_forms.layout import HTML, Layout, \
     Field, ButtonHolder, Hidden
 from django import forms
 from django.contrib.auth.models import User
@@ -138,8 +138,8 @@ class ImageForm(forms.Form):
             Field('physical'),
             ButtonHolder(
                 StrictButton('Ajouter', type='submit'),
-                HTML('<a class="btn btn-cancel" u\
-                uhref="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                HTML('<a class="btn btn-cancel" '
+                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
 

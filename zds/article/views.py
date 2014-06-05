@@ -346,7 +346,7 @@ def find_article(request, name):
         .all()
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr':u,
+        'articles': articles, 'usr': u,
     })
 
 
@@ -454,15 +454,15 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u"Désolé **{0}**, ton zeste **{1}** u\
-                    un'a malheureusement pas passé l’étape de validation. u\
-                    uMais ne désespère pas, certaines corrections peuvent u\
-                    usurement être faite pour l’améliorer et repasser la u\
-                    uvalidation plus tard. Voici le message que [{2}]({3}), u\
-                    uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
-                    ului envoyer un petit message pour discuter de la décision u\
-                    uou demander plus de détail si tout cela te semble u\
-                    uinjuste ou manque de clarté.".format(
+                    msg = u'Désolé **{0}**, ton zeste **{1}** '
+                    u'n\'a malheureusement pas passé l’étape de validation. '
+                    u'Mais ne désespère pas, certaines corrections peuvent '
+                    u'surement être faite pour l’améliorer et repasser la '
+                    u'validation plus tard. Voici le message que [{2}]({3}), '
+                    u'ton validateur t\'a laissé\n\n`{4}`\n\nN\'hésite pas a '
+                    u'lui envoyer un petit message pour discuter de la décision '
+                    u'ou demander plus de détail si tout cela te semble '
+                    u'injuste ou manque de clarté.'.format(
                         author.username,
                         article.title,
                         validation.validator.username,
@@ -540,12 +540,12 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
-                    u est maintenant publié ! Les lecteurs du monde entier u\
-                    upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
-                    u de rester a leur écoute afin d'apporter des u\
-                    ucorrections/compléments. Un Article vivant et a jour u\
-                    uest bien plus lu qu'un sujet abandonné !".format(
+                    msg = u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
+                    u'est maintenant publié ! Les lecteurs du monde entier '
+                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
+                    u'de rester a leur écoute afin d\'apporter des '
+                    u'corrections/compléments. Un Article vivant et a jour '
+                    u'est bien plus lu qu\'un sujet abandonné !'.format(
                         author.username,
                         article.title,
                         article.get_absolute_url_online())
@@ -617,8 +617,8 @@ def modify(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été ajouté à u\
-                ula rédaction de l\'article.'.format(
+                u'L\'auteur {0} a bien été ajouté à '
+                u'la rédaction de l\'article.'.format(
                     author.username))
 
             return redirect(redirect_url)
@@ -790,7 +790,7 @@ def history(request, article_pk, article_slug):
 
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
-    
+
     return render_template('article/member/history.html', {
         'article': article, 'logs': logs
     })
@@ -930,11 +930,11 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u"Bonjour {0},\n\nVous recevez ce message car vous avez u\
-    usignalé le message de *{1}*, dans l'article [{2}]({3}). u\
-    uVotre alerte a été traitée par **{4}** et il vous a laissé u\
-    ule message suivant :\n\n`{5}`\n\n\nToute l'équipe de u\
-    ula modération vous remercie".format(
+    msg = u'Bonjour {0},\n\nVous recevez ce message car vous avez '
+    u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
+    u'Votre alerte a été traitée par **{4}** et il vous a laissé '
+    u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
+    u'la modération vous remercie'.format(
         alert.author.username,
         reaction.author.username,
         reaction.article.title,

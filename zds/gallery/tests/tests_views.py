@@ -323,9 +323,10 @@ class EditImageViewTest(TestCase):
         self.image.delete()
 
     def test_denies_anonymous(self):
-        response = self.client.get(reverse(
-            'zds.gallery.views.edit_image',
-            args=[15, 156]
+        response = self.client.get(
+            reverse(
+                'zds.gallery.views.edit_image',
+                args=[15, 156]
             ),
             follow=True
         )

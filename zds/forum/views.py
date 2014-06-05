@@ -283,24 +283,17 @@ def solve_alert(request):
     post = Post.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = \
-        u"""Bonjour {0},
-
-Vous recevez ce message car vous avez signalé u\
-ule message de *{1}*, dans le sujet [{2}]({3}). u\
-uVotre alerte a été traitée par **{4}** u\
-uet il vous a laissé le message suivant :
-
-`{5}`
-
-
-Toute l'équipe de la modération vous remercie""".format(
+        (u'Bonjour {0},'
+        u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+        u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
+        u'et il vous a laissé le message suivant :'
+        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
             alert.author.username,
             post.author.username,
             post.topic.title,
             settings.SITE_URL + post.get_absolute_url(),
             request.user.username,
-            request.POST["text"],
-    )
+            request.POST["text"],))
     send_mp(
         bot,
         [alert.author],
@@ -513,7 +506,7 @@ def answer(request):
                 post_cite.author.username,
                 settings.SITE_URL,
                 post_cite.get_absolute_url())
-        
+
         form = PostForm(g_topic, request.user, initial={"text": text})
         form.helper.form_action = reverse("zds.forum.views.answer") \
             + "?sujet=" + str(g_topic.pk)
@@ -552,9 +545,9 @@ def edit_post(request):
     if post.author != request.user and request.method == "GET" \
             and request.user.has_perm("forum.change_post"):
         messages.warning(request,
-                         u"Vous \xe9ditez ce message en tant que u\
-                         umod\xe9rateur (auteur : {}). Soyez encore plus u\
-                         uprudent lors de l'\xe9dition de celui-ci !"
+                         u'Vous \xe9ditez ce message en tant que '
+                         u'mod\xe9rateur (auteur : {}). Soyez encore plus '
+                         u'prudent lors de l\'\xe9dition de celui-ci !'
                          .format(post.author.username))
     if request.method == "POST":
         if "delete_message" in request.POST:
@@ -579,9 +572,9 @@ def edit_post(request):
             alert.pubdate = datetime.now()
             alert.save()
             messages.success(request,
-                             u"Une alerte a été envoyée u\
-                             uà l'équipe concernant u\
-                             uce message")
+                             u'Une alerte a été envoyée '
+                             u'à l\'équipe concernant '
+                             u'ce message')
 
         # Using the preview button
 
@@ -963,6 +956,7 @@ def followed_topics(request):
                             "pages": paginator_range(page,
                                                      paginator.num_pages),
                             "nb": page})
+
 
 def complete_topic(request):
     sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
