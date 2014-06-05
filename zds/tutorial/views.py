@@ -2747,7 +2747,7 @@ def MEP(tutorial, sha):
               + "pandoc --latex-engine=xelatex -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".html")
+                                         tutorial.slug) + ".html 2>&1 | tee -a "+settings.PANDOC_LOG)
     os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
               + "--template=../../assets/tex/template.tex " + "-s " + "-S "
               + "-N " + "--toc " + "-V documentclass=scrbook "
@@ -2756,11 +2756,11 @@ def MEP(tutorial, sha):
               + "-V geometry:margin=1in "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug) + ".md "
               + "-o " + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".pdf")
+              + ".pdf 2>&1 | tee -a "+settings.PANDOC_LOG)
     os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".epub")
+                                         tutorial.slug) + ".epub 2>&1 | tee -a "+settings.PANDOC_LOG)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 

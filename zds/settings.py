@@ -339,6 +339,9 @@ MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 # WITHOUT THE APPROVAL OF THE ASSOCIATION COMMITEE
 MAIL_NOREPLY = 'noreply@zestedesavoir.com'
 
+# LOG PATH FOR PANDOC LOGGING
+PANDOC_LOG = './pandoc.log'
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
