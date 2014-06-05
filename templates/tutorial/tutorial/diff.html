@@ -41,7 +41,7 @@
         <ul>
             {% for member in tutorial.authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" %}
+                    {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
