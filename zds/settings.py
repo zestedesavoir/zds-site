@@ -308,6 +308,9 @@ FOLLOWED_TOPICS_PER_PAGE = 21
 BOT_ACCOUNT = 'admin'
 
 PANDOC_LOC = ''
+# LOG PATH FOR PANDOC LOGGING
+PANDOC_LOG = './pandoc.log'
+PANDOC_LOG_STATE = False
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -338,9 +341,6 @@ MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
 # CAREFUL! THIS EMAIL ADRESS SHOULD NOT BE CHANGED
 # WITHOUT THE APPROVAL OF THE ASSOCIATION COMMITEE
 MAIL_NOREPLY = 'noreply@zestedesavoir.com'
-
-# LOG PATH FOR PANDOC LOGGING
-PANDOC_LOG = './pandoc.log'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

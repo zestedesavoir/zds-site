@@ -2740,6 +2740,12 @@ def MEP(tutorial, sha):
     out_file.write(smart_str(contenu))
     out_file.close()
 
+    # define whether to log pandoc's errors
+    
+    pandoc_debug_str = ""
+    if settings.PANDOC_LOG_STATE:
+        pandoc_debug_str = " 2>&1 | tee -a "+settings.PANDOC_LOG
+    
     # load pandoc
 
     os.chdir(tutorial.get_prod_path())
@@ -2747,7 +2753,7 @@ def MEP(tutorial, sha):
               + "pandoc --latex-engine=xelatex -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".html 2>&1 | tee -a "+settings.PANDOC_LOG)
+                                         tutorial.slug) + ".html"+pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
               + "--template=../../assets/tex/template.tex " + "-s " + "-S "
               + "-N " + "--toc " + "-V documentclass=scrbook "
@@ -2756,11 +2762,11 @@ def MEP(tutorial, sha):
               + "-V geometry:margin=1in "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug) + ".md "
               + "-o " + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".pdf 2>&1 | tee -a "+settings.PANDOC_LOG)
+              + ".pdf"+pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".epub 2>&1 | tee -a "+settings.PANDOC_LOG)
+                                         tutorial.slug) + ".epub"+pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 
