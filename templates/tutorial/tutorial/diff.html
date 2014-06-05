@@ -29,23 +29,7 @@
         {{ tutorial.title }}
     </h1>
 
-    <ul class="taglist">
-        {% for category in tutorial.subcategory.all %}
-            {# TODO : mettre les liens vers les tags #}
-            <li><a href="#">{{ category.title }}</a></li>
-        {% endfor %}
-    </ul>
-    
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
 
 

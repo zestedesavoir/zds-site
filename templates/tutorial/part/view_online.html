@@ -1,4 +1,4 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorial/base_online.html" %}
 
 
 
@@ -20,23 +20,7 @@
         {{ part.title }}
     </h1>
 
-    <ul class="taglist">
-        {% for category in part.tutorial.subcategory.all %}
-            {# TODO : mettre le lien des tags #}
-            <li><a href="#">{{ category.title }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in part.tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 {% endblock %}
 
 
@@ -57,9 +41,5 @@
         </div>
     {% endif %}
 
-    {% with tutorial=part.tutorial %}
-        {% with parts=part.tutorial.get_parts %}
-            {% include "tutorial/includes/summary.part.html" with online=True %}
-        {% endwith %}
-    {% endwith %}
+    {% include "tutorial/includes/summary.part.html" with online=True tutorial=part.tutorial parts=part.tutorial.get_parts %}
 {% endblock %}

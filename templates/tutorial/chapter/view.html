@@ -27,23 +27,7 @@
                 {{ chapter.title }}
             </h1>
 
-            <ul class="taglist">
-                {% for category in tutorial.subcategory.all %}
-                    {# TODO : Mettre le lien des tags #}
-                    <li><a href="#">{{ category.title }}</a></li>
-                {% endfor %}
-            </ul>
-
-            <div class="authors">
-                <span class="authors-label">Auteurs : </span>
-                <ul>
-                    {% for member in authors %}
-                        <li>
-                            {% include "misc/member_item.part.html" with avatar=True %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+            {% include 'tutorial/includes/tags_authors.part.html' %}
 
             {% if tutorial.in_beta and tutorial.sha_beta == version %}
                 <div class="content-wrapper">

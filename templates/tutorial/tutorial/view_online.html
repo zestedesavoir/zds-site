@@ -29,22 +29,7 @@
         {{ tutorial.description }}
     </h3>
 
-    <ul class="taglist">
-        {% for catofsubcat in tutorial.subcategory.all %}
-            <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.title }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
 {% endblock %}
 
 
