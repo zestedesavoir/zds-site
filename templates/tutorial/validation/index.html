@@ -96,7 +96,7 @@
                                     {% if validation.is_pending %}
                                         <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
                                     {% elif validation.is_pending_valid %}
-                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Se retirer</a>
+                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Annuler la réservation</a>
                                     {% elif validation.is_accept %}
                                         <span>Accepté</span>
                                     {% elif validation.is_reject %}
