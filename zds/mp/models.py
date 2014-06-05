@@ -88,7 +88,7 @@ class PrivateTopic(models.Model):
             last_post = PrivateTopicRead.objects\
                 .select_related()\
                 .filter(privatetopic=self, user=user)\
-                .latest('post__pubdate').privatepost
+                .latest('privatepost__pubdate').privatepost
 
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
