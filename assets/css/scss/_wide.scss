@@ -241,8 +241,11 @@
                 padding: 100px 0;
                 margin-bottom: 0;
 
-                .open-zen-mode:before {
-                    content: "Quitter le ";
+                .open-zen-mode {
+                    display: block;
+                    &:before {
+                        content: "Quitter le ";
+                    }
                 }
 
                 .reactions-title,
