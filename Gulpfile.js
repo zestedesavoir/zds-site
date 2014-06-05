@@ -3,7 +3,7 @@ var gulp = require("gulp"),
     path = require("path");
 
 var paths = {
-  scripts: "assets/js/custom/**/*.js",
+  scripts: "assets/js/main/**/*.js",
   images: "assets/images/**/*.{png,ico}",
   smileys: "assets/smileys/*",
   copy: ["assets/{css,js}/newsletter.{css,js}"],
