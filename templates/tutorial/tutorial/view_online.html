@@ -55,7 +55,7 @@
         {{ tutorial.get_introduction_online|safe }}
     {% endif %}
 
-    {% if tutorial.is_mini %}
+    {% if tutorial.type == 'MINI' %}
         {# Small tutorial #}
         {% include "tutorial/includes/chapter_online.part.html" %}
     {% else %}
