@@ -29,6 +29,8 @@ Comment démarrer une instance de ZdS ?
 - Python 2.7 (avec les fichiers de developpement, les paquets `python-dev` et `python-lxml` sous Debian/Ubuntu)
 - Pip
 - git
+- [NodeJS](http://nodejs.org) (>=0.10.0; installable depuis les répos sous Ubuntu)
+- [Bower](http://bower.io) et [Gulp](http://gulpjs.com) (installable via `[sudo] npm install -g bower gulp`)
 
 ### Installation d'une version locale de ZDS
 
@@ -55,7 +57,11 @@ Comment démarrer une instance de ZdS ?
 - Cloner le dépot git *via la console git* (et pas via powershell) windows: `git clone https://github.com/Taluu/ZesteDeSavoir.git`
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - `easy_install lxml`
+    - `npm install -g bower gulp`
     - `pip install -r requirements.txt`
+    - `npm install`
+    - `bower install`
+    - `gulp build`
     - `python manage.py syncdb`
     - `python manage.py migrate`
     - `python manage.py runserver`
@@ -86,7 +92,11 @@ export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 
 # Installation de toutes les dépendances.
+sudo npm install -g bower gulp
 pip install --upgrade -r requirements.txt
+npm install
+bower install
+gulp build
 ```
 
 Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
@@ -105,13 +115,18 @@ Assurez vous que les dépendances suivantes soient résolues :
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+- nodejs
 
 Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
 
 
 ```console
+sudo npm install -g bower gulp
 sudo pip install -I pillow
 pip install --user --upgrade -r requirements.txt
+npm install
+bower install
+gulp build
 python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
