@@ -8,7 +8,7 @@ var paths = {
   scripts: "assets/js/**/*.js",
   images: "assets/images/**/*.{png,ico}",
   smileys: "assets/smileys/*",
-  copy: ["assets/misc/{css,js}/newsletter.{css,js}"],
+  copy: ["assets/misc/**/*"],
   stylesheet: "assets/scss/main.scss",
   compass: {
     sass: "scss",
