@@ -21,7 +21,7 @@ base.db
 /.tmp
 # Générés par Compass
 /assets/images/sprite*.png
-/assets/css/main.css
+/assets/.sass-css
 /assets/bower_components
 
 #############

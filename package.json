@@ -20,17 +20,20 @@
   "dependencies": {
     "gulp": "^3.7.0",
     "gulp-bower-files": "^0.2.4",
+    "gulp-cache": "^0.1.11",
     "gulp-clean": "^0.3.0",
     "gulp-compass": "^1.1.9",
     "gulp-concat": "^2.2.0",
     "gulp-flatten": "0.0.2",
     "gulp-imagemin": "^0.5.1",
     "gulp-jshint": "^1.6.2",
+    "gulp-livereload": "^2.0.0",
     "gulp-load-plugins": "^0.5.1",
     "gulp-minify-css": "^0.3.4",
     "gulp-rename": "^1.2.0",
     "gulp-size": "^0.3.1",
     "gulp-uglify": "^0.3.0",
-    "jshint-stylish": "^0.2.0"
+    "jshint-stylish": "^0.2.0",
+    "tiny-lr": "0.0.7"
   }
 }
