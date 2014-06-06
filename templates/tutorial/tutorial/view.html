@@ -20,7 +20,7 @@
 {% block headline %}
     <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt="">
+            <img src="{{ tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
@@ -31,27 +31,7 @@
         </h3>
     {% endif %}
 
-    <ul class="taglist">
-        {% for catofsubcat in tutorial.subcategory.all %}
-            <li><a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">{{ catofsubcat.title }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-            <li>
-                <a href="#add-author" class="open-modal ico-after more blue">
-                    Ajouter un auteur
-                </a>
-            </li>
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial add_author=True %}
 
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">

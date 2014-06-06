@@ -21,29 +21,7 @@
         {{ part.title }}
     </h2>
 
-    {% if part.tutorial.description %}
-        <h3 class="subtitle">
-            {{ part.tutorial.description }}
-        </h3>
-    {% endif %}
-
-    <ul class="taglist">
-        {% for category in part.tutorial.subcategory.all %}
-            {# TODO : mettre les liens des tags #}
-            <li><a href="#">{{ category.title }}</a></li>
-        {% endfor %}
-    </ul>
-    
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in part.tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
     {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
         <div class="content-wrapper">
@@ -60,7 +38,9 @@
     {% if part.intro %}
         {{ part.intro|emarkdown }}
     {% else %}
-        <p class="warning ico-after">Il n'y a pas d'introduction.</p>
+        <p class="warning ico-after">
+            Il n'y a pas d'introduction.
+        </p>
     {% endif %}
 
     {% if part.chapters %}
@@ -100,9 +80,5 @@
 
 
 {% block sidebar_blocks %}
-    {% with tutorial=part.tutorial %}
-        {% with parts=part.tutorial.get_parts %}
-            {% include "tutorial/includes/summary.part.html" %}
-        {% endwith %}
-    {% endwith %}
+    {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}
 {% endblock %}

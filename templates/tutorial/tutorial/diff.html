@@ -17,35 +17,21 @@
 
 
 
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
 {% block sidebar %}{% endblock %}
 
 
 
 {% block headline %}
-    <h1 class="illu">
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
             <img src="{{tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
 
-    <ul class="taglist">
-        {% for category in tutorial.subcategory.all %}
-            {# TODO : mettre les liens vers les tags #}
-            <li><a href="#">{{ category.title }}</a></li>
-        {% endfor %}
-    </ul>
-    
-    <div class="authors">
-        <span class="authors-label">Auteurs : </span>
-        <ul>
-            {% for member in tutorial.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
 
 

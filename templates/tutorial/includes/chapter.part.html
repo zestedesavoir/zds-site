@@ -53,28 +53,43 @@
                     </button>
                 </form>
 
-                <a href="#move-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
-                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-{{ extract.pk }}">
+                <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
+                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
                     <select name="move_target">
                         <option>Déplacer</option>
                         {% if extract.position_in_chapter > 1 %}
-                            <option value="{{ extract.position_in_chapter|add:"-1" }}">Monter</option>
+                            <option value="{{ extract.position_in_chapter|add:-1 }}">Monter</option>
                         {% endif %}
-                        {% if extract.position_in_chapter < chapter.get_extracts.count %}
-                            <option value="{{ extract.position_in_chapter|add:"1" }}">Descendre</option>
+
+                        {% if extract.position_in_chapter < extracts.count %}
+                            <option value="{{ extract.position_in_chapter|add:1 }}">Descendre</option>
                         {% endif %}
-                            <option disabled>&mdash; Déplacer avant</option>
-                        {% for extract_mv in chapter.get_extracts %}
-                            {% if extract != extract_mv and extract_mv.position_in_chapter|add:"-1" != extract.position_in_chapter %}
-                            <option value="{% if extract_mv.position_chapter < extract.position_in_chapter %}{{ extract_mv.position_in_chapter }}{% else %}{{ extract_mv.position_in_chapter|add:"-1" }}{% endif %}">
+
+                        <option disabled>&mdash; Déplacer avant</option>
+                        {% for extract_mv in extracts %}
+                            {% if extract != extract_mv and extract_mv.position_in_chapter|add:-1 != extract.position_in_chapter %}
+                            <option value="
+                                {% if extract_mv.position_chapter < extract.position_in_chapter %}
+                                    {{ extract_mv.position_in_chapter }}
+                                {% else %}
+                                    {{ extract_mv.position_in_chapter|add:-1 }}
+                                {% endif %}
+                            ">
                                 Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                             </option>
                             {% endif %}
                         {% endfor %}
+
                         <option disabled>&mdash; Déplacer après</option>
-                        {% for extract_mv in chapter.get_extracts %}
-                            {% if extract != extract_mv and extract_mv.position_in_chapter|add:"1" != extract.position_in_chapter %}
-                            <option value="{% if extract_mv.position_chapter < extract.position_in_chapter %}{{ extract_mv.position_in_chapter|add:"1" }}{% else %}{{ extract_mv.position_in_chapter }}{% endif %}">
+                        {% for extract_mv in extracts %}
+                            {% if extract != extract_mv and extract_mv.position_in_chapter|add:1 != extract.position_in_chapter %}
+                            <option value="
+                                {% if extract_mv.position_chapter < extract.position_in_chapter %}
+                                    {{ extract_mv.position_in_chapter|add:1 }}
+                                {% else %}
+                                    {{ extract_mv.position_in_chapter }}
+                                {% endif %}
+                            ">
                                 Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                             </option>
                             {% endif %}

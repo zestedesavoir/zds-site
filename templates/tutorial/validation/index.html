@@ -15,30 +15,6 @@
 
 
 
-{% block sidebar_new %}{% endblock %}
-{% block sidebar_blocks %}
-    <h3>Filtres</h3>
-    <ul>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
-                En cours de validation
-            </a>
-        </li>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
-                En attente de validateur
-            </a>
-        </li>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}">
-                Annuler le filtre
-            </a>
-        </li>
-    </ul>
-{% endblock %}
-
-
-
 {% block content_out %}
     <section class="full-content-wrapper">
         <h2>
@@ -114,4 +90,28 @@
             {% endif %}
         {% endblock %}
     </section>
+{% endblock %}
+
+
+
+{% block sidebar_new %}{% endblock %}
+{% block sidebar_blocks %}
+    <h3>Filtres</h3>
+    <ul>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
+                En cours de validation
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
+                En attente de validateur
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}">
+                Annuler le filtre
+            </a>
+        </li>
+    </ul>
 {% endblock %}
