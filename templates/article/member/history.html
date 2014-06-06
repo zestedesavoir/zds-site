@@ -72,7 +72,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    {{ log.time.0|format_date|capfirst }}
+                    {{ log.time.0|format_date:True|capfirst }}
                 </td>
                 <td>
                     <a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}">
@@ -80,7 +80,10 @@
                     </a>
                 </td>
                 <td>
-                    {{ log.newhexsha|truncatechars:8 }}
+                    {# TODO : proposer les diffs sur les articles #}
+                    {# <a href="{% url "zds.article.views.diff" article.pk article.slug %}?sha={{ log.newhexsha }}" > #}
+                        {{ log.newhexsha|truncatechars:8 }}
+                    {# </a> #}
                 </td>
                 <td>
                     {% with u=log.actor.name|user %}
