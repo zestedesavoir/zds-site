@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    {{ chapter.title }} - {{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}
+    {{ chapter.title }} - {{ chapter.part.tutorial.title }}
 {% endblock %}
 
 
@@ -55,25 +55,24 @@
 
 
 {% block sidebar_new %}
-    <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}"
-       class="ico-after more blue new-btn"
-    >
-        Ajouter un extrait
-    </a>
-    <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
-       class="ico-after edit blue new-btn"
-    >
-        Éditer le chapitre
-    </a>
+    {% if user in chapter.part.tutorial.authors.all %}
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}"
+           class="ico-after more blue new-btn"
+        >
+            Ajouter un extrait
+        </a>
+        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{version}}"
+           class="ico-after edit blue new-btn"
+        >
+            Éditer le chapitre
+        </a>
+    {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
-    {% if user in chapter.part.tutorial.authors.all or chapter.tutorial.authors.all %}
-        <li>
-        </li>
-
+    {% if user in chapter.part.tutorial.authors.all %}
         {% if chapter.part %}
             <li>
                 <a href="#move-chapter" class="open-modal ico-after move blue">

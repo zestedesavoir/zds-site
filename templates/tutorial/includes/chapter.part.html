@@ -53,8 +53,8 @@
                     </button>
                 </form>
 
-                <a href="#move-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
-                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-{{ extract.pk }}">
+                <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
+                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
                     <select name="move_target">
                         <option>Déplacer</option>
                         {% if extract.position_in_chapter > 1 %}
