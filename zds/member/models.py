@@ -61,9 +61,8 @@ class Profile(models.Model):
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
                                            default=False)
 
-    sdz_tutorial = models.CharField(
+    sdz_tutorial = models.TextField(
         'Identifiant des tutos SdZ',
-        max_length=30,
         blank=True,
         null=True)
 
