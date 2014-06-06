@@ -6,7 +6,9 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "postinstall": "bower install",
+    "travis": "gulp travis"
   },
   "repository": {
     "type": "git",

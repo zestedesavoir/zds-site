@@ -107,6 +107,11 @@ gulp.task("copy", function() {
     .pipe(gulp.dest("dist/"));
 });
 
+gulp.task("travis", function() {
+  // @TODO: Configure travis tests
+  return true;
+});
+
 
 gulp.task("build", ["smileys", "images", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
 
