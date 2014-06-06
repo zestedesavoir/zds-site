@@ -20,7 +20,7 @@
 {% block headline %}
     <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt="">
+            <img src="{{ tutorial.image.thumb.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>
