@@ -1,8 +1,6 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
     path = require("path");
-    lr = require("tiny-lr"),
-    server = lr();
 
 var paths = {
   scripts: "assets/js/**/*.js",
@@ -94,6 +92,13 @@ gulp.task("watch", function() {
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.imafes, ["images"]);
   gulp.watch(paths.stylesheet, ["stylesheet"]);
+
+  gulp.watch("dist/*/**", function(file) {
+    filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
+    $.livereload.changed(filePath);
+  });
+
+  $.livereload.listen();
 });
 
 gulp.task("test", function() {
