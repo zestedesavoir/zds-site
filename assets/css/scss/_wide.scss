@@ -229,6 +229,9 @@
             width: 80%;
             margin-right: 0;
 
+            .open-zen-mode {
+                display: block;
+            }
             &.zen-mode {
                 width: 100%;
                 min-height: calc(100% - 200px);
@@ -241,11 +244,8 @@
                 padding: 100px 0;
                 margin-bottom: 0;
 
-                .open-zen-mode {
-                    display: block;
-                    &:before {
-                        content: "Quitter le ";
-                    }
+                .open-zen-mode:before {
+                    content: "Quitter le ";
                 }
 
                 .reactions-title,
