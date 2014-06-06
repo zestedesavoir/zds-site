@@ -25,8 +25,8 @@
         {% endif %}
     {% else %}
         {# Large tutorial #}
-        {% if parts %}
-            {% for part in parts %}
+        {% if tutorial.get_parts %}
+            {% for part in tutorial.get_parts %}
                 <h4 data-num="{{ part.position_in_tutorial|roman }}">
                     <a class="mobile-menu-link"
                        {% if online %}
@@ -40,7 +40,7 @@
                 </h4>
                 
                 <ul>
-                    {% for chapter in part.chapters %}
+                    {% for chapter in part.get_chapters %}
                         <li {% if chapter_current.pk == chapter.pk %}class="current"{% endif %}>
                             <a data-num="{{ chapter.position_in_part }}"
                                {% if online %}
