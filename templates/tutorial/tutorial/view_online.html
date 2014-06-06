@@ -25,9 +25,11 @@
         {{ tutorial.title }}
     </h1>
 
-    <h3 class="subtitle">
-        {{ tutorial.description }}
-    </h3>
+    {% if tutorial.description %}
+        <h3 class="subtitle">
+            {{ tutorial.description }}
+        </h3>
+    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
 {% endblock %}

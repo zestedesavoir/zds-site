@@ -18,9 +18,9 @@
 
 
 {% block headline %}
-    <h1 class="illu">
+    <h1 {% if part.image %}class="illu"{% endif %}>
         {% if part.image %}
-            <img src="{{part.image.thumb.url }}" alt="">
+            <img src="{{ part.image.thumb.url }}" alt="">
         {% endif %}
         Éditer la partie : {{ part.title }}
     </h1>

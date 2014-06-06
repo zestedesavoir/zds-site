@@ -21,12 +21,6 @@
         {{ part.title }}
     </h2>
 
-    {% if part.tutorial.description %}
-        <h3 class="subtitle">
-            {{ part.tutorial.description }}
-        </h3>
-    {% endif %}
-
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
     {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
