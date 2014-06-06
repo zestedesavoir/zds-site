@@ -1444,7 +1444,8 @@
 
     .article-content {
         p,
-        ul:not(.pagination) {
+        ul:not(.pagination),
+        ol {
             font-family: $font-serif;
         }
     }
@@ -1631,7 +1632,8 @@
 .wf-active .main .content-container {
     .article-content {
         p,
-        ul:not(.pagination) {
+        ul:not(.pagination),
+        ol {
             font-family: $font-serif-active;
         }
     }
