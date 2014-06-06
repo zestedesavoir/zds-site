@@ -1612,6 +1612,10 @@
                 padding-top: 10px;
             }
         }
+
+        code, kbd, pre, samp {
+            font-family: $font-monospace;
+        }
     }
 
     .reactions-title {
@@ -1624,10 +1628,18 @@
         line-height: 30px;
     }
 }
-.wf-active .main .content-container .article-content {
-    p,
-    ul:not(.pagination) {
-        font-family: $font-serif-active;
+.wf-active .main .content-container {
+    .article-content {
+        p,
+        ul:not(.pagination) {
+            font-family: $font-serif-active;
+        }
+    }
+    .article-content,
+    .message-content {
+        code, kbd, pre, samp {
+            font-family: $font-monospace-active;
+        }
     }
 }
 .js .spoiler {
