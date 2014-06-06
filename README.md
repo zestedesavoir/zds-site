@@ -29,8 +29,12 @@ Comment démarrer une instance de ZdS ?
 - Python 2.7 (avec les fichiers de developpement, les paquets `python-dev` et `python-lxml` sous Debian/Ubuntu)
 - Pip
 - git
+- Ruby
+- Compass
 - [NodeJS](http://nodejs.org) (>=0.10.0; installable depuis les répos sous Ubuntu)
 - [Bower](http://bower.io) et [Gulp](http://gulpjs.com) (installable via `[sudo] npm install -g bower gulp`)
+
+**Pour l'installation de NodeJS, Ruby, Compass, Bower et Gulp, référez vous à [doc/gulp.md](doc/gulp.md). Les instructions _rapides_ figurent tout de même ci-dessous pour Windows et OS X**
 
 ### Installation d'une version locale de ZDS
 
@@ -60,7 +64,6 @@ Comment démarrer une instance de ZdS ?
     - `npm install -g bower gulp`
     - `pip install -r requirements.txt`
     - `npm install`
-    - `bower install`
     - `gulp build`
     - `python manage.py syncdb`
     - `python manage.py migrate`
@@ -87,15 +90,19 @@ mkvirtualenv zdsenv
 # Récupération de la librairie lxml pour python 2.7 via MacPorts.
 sudo port install py27-lxml
 
+# Installation de NodeJS et de NPM via MacPorts
+sudo port install nodejs npm
+
+# Installation de Bower et Gulp
+sudo npm install -g bower gulp
+
 # Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml.
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 
 # Installation de toutes les dépendances.
-sudo npm install -g bower gulp
 pip install --upgrade -r requirements.txt
 npm install
-bower install
 gulp build
 ```
 
@@ -173,6 +180,7 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 ```console
 python manage.py test
 flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
+gulp test
 ```
 
 Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
