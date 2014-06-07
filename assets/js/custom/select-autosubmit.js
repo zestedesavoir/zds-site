@@ -4,6 +4,8 @@
    Auto submit forms
    ========================================================================== */
 
-$(".select-autosubmit").change(function() {
-    $(this).parents('form:first').submit();
-});
+(function($){
+    $(".select-autosubmit").change(function() {
+        $(this).parents('form:first').submit();
+    });
+})(jQuery);
