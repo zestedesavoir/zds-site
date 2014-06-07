@@ -6,16 +6,19 @@
 
 var AutoComplete = (function($) {
   function AutoComplete(input, options) {
-    this.$wrapper = buildDom(input);
+    this.$wrapper = buildDom($(input));
     this.$input = this.$wrapper.find(".autocomplete-input");
     this.$dropdown = this.$wrapper.find(".autocomplete-dropdown");
 
     this.$input.on("keyup", this.handleInput.bind(this));
     this.$input.on("keydown", this.handleKeydown.bind(this));
+    this.$input.on("blur", this.hideDropdown.bind(this));
 
     this.selected = -1;
 
-    this._pastInput = "";
+    this._lastInput = "";
+
+    this.options = options;
   }
 
   AutoComplete.prototype = {
@@ -56,21 +59,21 @@ var AutoComplete = (function($) {
     },
 
     handleInput: function(e) {
-      if(e.which === 38 || e.which === 40 || e.which === 13) { 
+      if(e && (e.which === 38 || e.which === 40 || e.which === 13)) { 
         e.preventDefault();
         e.stopPropagation();
       }
 
       var input = this.$input.val();
 
-      if(this._pastInput === input) return;
+      if(this._lastInput === input) return;
 
-      this._pastInput = input;
+      this._lastInput = input;
 
       var search = this.parseInput(input),
           self = this;
       if(!search) {
-        this.$dropdown.hide();
+        this.hideDropdown();
       }
       else {
         this.fetchUsers(search)
@@ -82,8 +85,16 @@ var AutoComplete = (function($) {
             console.log("something went wrong...");
           });
         this.updateDropdown(this.searchCache(search));
-        this.$dropdown.show();
+        this.showDropdown();
       }
+    },
+
+    showDropdown: function() {
+      this.$dropdown.show();
+    },
+
+    hideDropdown: function() {
+      this.$dropdown.hide();
     },
 
     select: function(id) {
@@ -92,12 +103,13 @@ var AutoComplete = (function($) {
       this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").addClass("active");
     },
 
-    enter: function() {
+    enter: function(selected) {
+      selected = selected || this.selected;
       var input = this.$input.val()
       var lastChar = input.substr(-1);
-      if(lastChar === "," || lastChar === " " || this.selected === -1) return false; // on est passé au pseudo suivant
+      if(lastChar === "," || lastChar === " " || selected === -1) return false; // on est passé au pseudo suivant
 
-      var completion = this.getFromCache(this.selected);
+      var completion = this.getFromCache(selected);
       if(!completion) return false;
       var lastSpace = input.replace(",", " ").lastIndexOf(" ");
       if(lastSpace) {
@@ -148,7 +160,16 @@ var AutoComplete = (function($) {
     },
 
     updateDropdown: function(list) {
-      var $list = $("<ul>"), $el, selected = false;
+      var self = this;
+      var onClick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        self.enter($(this).attr("data-autocompletion-id"));
+        self.$input.focus();
+        self.handleInput();
+      };
+
+      var $list = $("<ul>"), $el, selected = false, self = this;
       for(var i in list) {
         $el = $("<li>").text(list[i].value);
         $el.attr("data-autocompletion-id", list[i].id);
@@ -156,6 +177,8 @@ var AutoComplete = (function($) {
           $el.addClass("active");
           selected = true;
         }
+
+        $el.mousedown(onClick);
         $list.append($el);
       }
       this.$dropdown.children().remove();
@@ -165,7 +188,7 @@ var AutoComplete = (function($) {
     },
 
     fetchUsers: function(input) {
-      return $.getJSON("/membres/?q=" + input);
+      return $.getJSON(this.options.url.replace("%s", input));
     }
   };
 
