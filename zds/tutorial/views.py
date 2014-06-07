@@ -782,7 +782,10 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                     ext["path"] = tutorial.get_path()
                     cpt_e += 1
                 cpt_c += 1
+            part["get_chapters"] = part["chapters"]
             cpt_p += 1
+
+        mandata['get_parts'] = parts
 
     # If the user is authenticated
 
@@ -1097,6 +1100,7 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
     for part in parts:
@@ -1128,6 +1132,7 @@ def view_part_online(
                     ext["path"] = tutorial.get_prod_path()
                     cpt_e += 1
                 cpt_c += 1
+            part["get_chapters"] = part["chapters"]
             break
         cpt_p += 1
 
@@ -1395,6 +1400,7 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -1410,6 +1416,8 @@ def view_chapter_online(
                 tutorial.slug,
                 part["slug"]])
         part["tutorial"] = mandata
+        part["position_in_tutorial"] = cpt_p
+        part["get_chapters"] = part["chapters"]
         for chapter in part["chapters"]:
             chapter["part"] = part
             chapter["path"] = tutorial.get_prod_path()
