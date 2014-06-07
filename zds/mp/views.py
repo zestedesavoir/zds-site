@@ -18,7 +18,6 @@ from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 
-from zds.member.decorator import can_read_now
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -28,7 +27,7 @@ from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
 
-@can_read_now
+
 @login_required
 def index(request):
     """Display the all private topics."""
@@ -73,7 +72,7 @@ def index(request):
     })
 
 
-@can_read_now
+
 @login_required
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
@@ -137,7 +136,7 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-@can_read_now
+
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -203,7 +202,7 @@ def new(request):
         })
 
 
-@can_read_now
+
 @login_required
 @require_POST
 def edit(request):
@@ -231,7 +230,7 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-@can_read_now
+
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -358,7 +357,7 @@ def answer(request):
         })
 
 
-@can_read_now
+
 @login_required
 def edit_post(request):
     """Edit the given user's post."""
@@ -431,7 +430,7 @@ def edit_post(request):
         })
 
 
-@can_read_now
+
 @login_required
 @require_POST
 @transaction.atomic
@@ -455,7 +454,7 @@ def leave(request):
     return redirect(reverse('zds.mp.views.index'))
 
 
-@can_read_now
+
 @login_required
 @require_POST
 @transaction.atomic

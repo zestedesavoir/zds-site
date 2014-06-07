@@ -21,7 +21,7 @@ from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import *
 
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template
 from zds.utils import slugify
@@ -37,7 +37,7 @@ from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read
 
 
-@can_read_now
+
 def index(request):
     """Display all public articles of the website."""
     # The tag indicate what the category article the user would
@@ -65,7 +65,7 @@ def index(request):
     })
 
 
-@can_read_now
+
 @login_required
 def view(request, article_pk, article_slug):
     """Show the given offline article if exists."""
@@ -122,7 +122,7 @@ def view(request, article_pk, article_slug):
     })
 
 
-@can_read_now
+
 def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
@@ -335,7 +335,7 @@ def edit(request):
     })
 
 
-@can_read_now
+
 def find_article(request, name):
     """Find an article from his author."""
     user = get_object_or_404(User, pk=name)
@@ -393,7 +393,7 @@ def maj_repo_article(
         article.save()
 
 
-@can_read_now
+
 def download(request):
     """Download an article."""
 
@@ -648,7 +648,7 @@ def modify(request):
     return redirect(article.get_absolute_url())
 
 
-@can_read_now
+
 @permission_required('article.change_article', raise_exception=True)
 @login_required
 def list_validation(request):
@@ -713,7 +713,7 @@ def list_validation(request):
     })
 
 
-@can_read_now
+
 @login_required
 @permission_required('article.change_article', raise_exception=True)
 def history_validation(request, article_pk):
@@ -746,7 +746,7 @@ def history_validation(request, article_pk):
     })
 
 
-@can_read_now
+
 @permission_required('article.change_article', raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
@@ -770,7 +770,7 @@ def reservation(request, validation_pk):
         return redirect(validation.article.get_absolute_url())
 
 
-@can_read_now
+
 @login_required
 def history(request, article_pk, article_slug):
     """Display an article."""
