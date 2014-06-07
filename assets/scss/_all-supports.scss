@@ -1617,6 +1617,16 @@
         code, kbd, pre, samp {
             font-family: $font-monospace;
         }
+
+        kbd {
+            $kbd-color: #F1F0D3;
+            background-color: $kbd-color;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border-bottom: solid 2px desaturate(darken($kbd-color, 20%), 10%);
+            text-shadow: 0 1px 0 #FFF;
+            color: darken($kbd-color, 70%);
+        }
     }
 
     .reactions-title {
