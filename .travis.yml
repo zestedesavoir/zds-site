@@ -3,6 +3,8 @@ git:
 language: python
 python:
   - "2.7"
+cache:
+  - apt
 install:
   - "sudo apt-get update"
   - "sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections"
@@ -24,8 +26,15 @@ install:
   - "sudo apt-get --reinstall install -qq language-pack-fr"
   - "pip install -r requirements.txt"
   - "pip install coveralls"
+  # NodeJS + NPM stuff
+  - "sudo add-apt-repository -y ppa:chris-lea/node.js"
+  - "sudo apt-get -y update"
+  - "sudo apt-get -y install nodejs"
+  - "npm install -g bower gulp"
+  - "npm install"
 script: 
   - python manage.py test
+  - npm run-script travis
   - coverage run --source='.' manage.py test
 after_success:
   - coveralls
