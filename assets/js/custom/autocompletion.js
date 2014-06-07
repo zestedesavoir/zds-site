@@ -14,16 +14,31 @@ var AutoComplete = (function($) {
   }
 
   AutoComplete.prototype = {
-    data: ["Admin1", "Admin2", "Admin3"],
+    cache: {},
 
     handleInput: function() {
-      var search = this.parseInput(this.$input.val());
+      var search = this.parseInput(this.$input.val()),
+          self = this;
       if(!search) {
         this.$dropdown.hide();
       }
       else {
-        this.updateDropdown(this.search(search));
+        this.fetchUsers(search)
+          .done(function(data) {
+            self.updateCache(data);
+            self.updateDropdown(data);
+          })
+          .fail(function() {
+            console.log("something went wrong...");
+          });
+        this.updateDropdown(this.searchCache(search));
         this.$dropdown.show();
+      }
+    },
+
+    updateCache: function(data) {
+      for(var i = 0; i < data.length; i++) {
+        this.cache[data[i].value] = data[i];
       }
     },
 
@@ -40,22 +55,25 @@ var AutoComplete = (function($) {
       return words[words.length - 1]; // last word in list
     },
 
-    search: function(input) {
+    searchCache: function(input) {
       var regexp = new RegExp(input, "ig")
-      return $.grep(this.data, function(e) {
-        return e.match(regexp);
+      return $.grep(this.cache, function(e) {
+        return e.value.match(regexp);
       });
     },
 
     updateDropdown: function(list) {
-      console.log(list);
       var $list = $("<ul>"), el;
       for(var i in list) {
-        el = $("<li>").text(list[i]);
+        el = $("<li>").text(list[i].value);
         $list.append(el);
       }
       this.$dropdown.children().remove();
       this.$dropdown.append($list);
+    },
+
+    fetchUsers: function(input) {
+      return $.getJSON("/membres/?q=" + input);
     }
   };
 
@@ -88,4 +106,4 @@ var AutoComplete = (function($) {
 
 $(document).ready(function() {
   $("#id_participants").autocomplete();
-})
+});
