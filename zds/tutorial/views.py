@@ -782,7 +782,10 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                     ext["path"] = tutorial.get_path()
                     cpt_e += 1
                 cpt_c += 1
+            part["get_chapters"] = part["chapters"]
             cpt_p += 1
+
+        mandata['get_parts'] = parts
 
     # If the user is authenticated
 
@@ -1097,14 +1100,15 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
     for part in parts:
+        part["tutorial"] = mandata
+        part["path"] = tutorial.get_path()
+        part["slug"] = slugify(part["title"])
+        part["position_in_tutorial"] = cpt_p
         if part_slug == slugify(part["title"]):
-            part["tutorial"] = mandata
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
             intro = open(os.path.join(tutorial.get_prod_path(),
                                       part["introduction"] + ".html"), "r")
             part["intro"] = intro.read()
@@ -1113,22 +1117,23 @@ def view_part_online(
                                        part["conclusion"] + ".html"), "r")
             part["conclu"] = conclu.read()
             conclu.close()
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
+        cpt_c = 1
+        for chapter in part["chapters"]:
+            chapter["part"] = part
+            chapter["path"] = tutorial.get_path()
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["type"] = "BIG"
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            if part_slug == slugify(part["title"]):
                 cpt_e = 1
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
                     ext["path"] = tutorial.get_prod_path()
                     cpt_e += 1
-                cpt_c += 1
-            break
+            cpt_c += 1
+        part["get_chapters"] = part["chapters"]
         cpt_p += 1
 
     return render_template("tutorial/part/view_online.html", {"part": part})
@@ -1395,6 +1400,7 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -1410,6 +1416,8 @@ def view_chapter_online(
                 tutorial.slug,
                 part["slug"]])
         part["tutorial"] = mandata
+        part["position_in_tutorial"] = cpt_p
+        part["get_chapters"] = part["chapters"]
         for chapter in part["chapters"]:
             chapter["part"] = part
             chapter["path"] = tutorial.get_prod_path()
