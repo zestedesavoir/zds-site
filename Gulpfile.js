@@ -103,8 +103,8 @@ gulp.task("watch", function() {
 
 gulp.task("test", function() {
   return gulp.src(paths.scripts)
-    .pipe($.jshint());
-    //.pipe($.jshint.reporter("jshint-stylish")); <- quiet, since there is many errors
+    .pipe($.jshint())
+    .pipe($.jshint.reporter("jshint-stylish"));
 });
 
 gulp.task("copy", function() {

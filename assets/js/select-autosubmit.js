@@ -5,7 +5,8 @@
    ========================================================================== */
 
 (function($){
+    "use strict";
     $(".select-autosubmit").change(function() {
-        $(this).parents('form:first').submit();
+        $(this).parents("form:first").submit();
     });
 })(jQuery);
