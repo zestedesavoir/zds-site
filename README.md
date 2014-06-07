@@ -31,7 +31,7 @@ Comment démarrer une instance de ZdS ?
 - git
 - Ruby
 - Compass
-- [NodeJS](http://nodejs.org) (>=0.10.0; installable depuis les répos sous Ubuntu)
+- [NodeJS](http://nodejs.org) (>=0.10.0) et [NPM](http://npmjs.org) (tout deux installable depuis les répos sous Ubuntu)
 - [Bower](http://bower.io) et [Gulp](http://gulpjs.com) (installable via `[sudo] npm install -g bower gulp`)
 
 **Pour l'installation de NodeJS, Ruby, Compass, Bower et Gulp, référez vous à [doc/gulp.md](doc/gulp.md). Les instructions _rapides_ figurent tout de même ci-dessous pour Windows et OS X**
