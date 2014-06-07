@@ -4,6 +4,9 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from hashlib import md5
+from django.http import HttpRequest
+from django.contrib.sessions.models import Session
+from django.contrib.auth import logout
 import os
 
 from django.contrib.auth.models import User
@@ -61,9 +64,8 @@ class Profile(models.Model):
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
                                            default=False)
 
-    sdz_tutorial = models.CharField(
+    sdz_tutorial = models.TextField(
         'Identifiant des tutos SdZ',
-        max_length=30,
         blank=True,
         null=True)
 
@@ -274,6 +276,19 @@ class Ban(models.Model):
         blank=True,
         null=True)
 
+
+def logout_user(username):
+    now = datetime.now()
+    request = HttpRequest()
+
+    sessions = Session.objects.filter(expire_date__gt=now)
+
+    for session in sessions:
+        user_id = session.get_decoded().get('_auth_user_id')
+        if username == user_id:
+            request.session = init_session(session.session_key)
+            logout(request)
+            break
 
 def listing():
 

@@ -34,7 +34,7 @@ from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
 from zds.utils import render_template
@@ -48,7 +48,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
 
 
-@can_read_now
+
 def index(request):
     """Display all public tutorials of the website."""
 
@@ -77,7 +77,7 @@ def index(request):
 
 # Staff actions.
 
-@can_read_now
+
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
 def list_validation(request):
@@ -143,7 +143,7 @@ def list_validation(request):
                            {"validations": validations})
 
 
-@can_read_now
+
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
@@ -168,7 +168,7 @@ def reservation(request, validation_pk):
         return redirect(validation.tutorial.get_absolute_url())
 
 
-@can_read_now
+
 @login_required
 def diff(request, tutorial_pk, tutorial_slug):
     try:
@@ -191,7 +191,7 @@ def diff(request, tutorial_pk, tutorial_slug):
     })
 
 
-@can_read_now
+
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
     """History of the tutorial."""
@@ -212,7 +212,7 @@ def history(request, tutorial_pk, tutorial_slug):
                            {"tutorial": tutorial, "logs": logs})
 
 
-@can_read_now
+
 @login_required
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 def history_validation(request, tutorial_pk):
@@ -600,7 +600,7 @@ def modify_tutorial(request):
 
 # Tutorials.
 
-@can_read_now
+
 @login_required
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     """Show the given offline tutorial if exists."""
@@ -706,7 +706,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     })
 
 
-@can_read_now
+
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     """Display a tutorial."""
 
@@ -1016,7 +1016,7 @@ def edit_tutorial(request):
 # Parts.
 
 
-@can_read_now
+
 @login_required
 def view_part(
     request,
@@ -1079,7 +1079,7 @@ def view_part(
                             "version": sha})
 
 
-@can_read_now
+
 def view_part_online(
     request,
     tutorial_pk,
@@ -1286,7 +1286,7 @@ def edit_part(request):
 
 # Chapters.
 
-@can_read_now
+
 @login_required
 def view_chapter(
     request,
@@ -1374,7 +1374,7 @@ def view_chapter(
     })
 
 
-@can_read_now
+
 def view_chapter_online(
     request,
     tutorial_pk,
@@ -1707,7 +1707,7 @@ def edit_chapter(request):
                                                           "form": form})
 
 
-@can_read_now
+
 @login_required
 def add_extract(request):
     """Add extract."""
@@ -1911,7 +1911,7 @@ def modify_extract(request):
     raise Http404
 
 
-@can_read_now
+
 def find_tuto(request, pk_user):
     try:
         type = request.GET["type"]
@@ -2505,7 +2505,7 @@ def maj_repo_extract(
     #extract.save()
 
 
-@can_read_now
+
 def download(request):
     """Download a tutorial."""
 
@@ -2521,7 +2521,7 @@ def download(request):
     return response
 
 
-@can_read_now
+
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 def download_markdown(request):
     """Download a markdown tutorial."""
@@ -2540,7 +2540,7 @@ def download_markdown(request):
     return response
 
 
-@can_read_now
+
 def download_html(request):
     """Download a pdf tutorial."""
 
@@ -2558,7 +2558,7 @@ def download_html(request):
     return response
 
 
-@can_read_now
+
 def download_pdf(request):
     """Download a pdf tutorial."""
 
@@ -2576,7 +2576,7 @@ def download_pdf(request):
     return response
 
 
-@can_read_now
+
 def download_epub(request):
     """Download an epub tutorial."""
 

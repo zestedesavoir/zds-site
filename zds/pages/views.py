@@ -15,7 +15,7 @@ from zds import settings
 
 from zds.article.models import get_last_articles
 from zds.forum.models import get_last_topics
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
@@ -23,7 +23,7 @@ from zds.utils import render_template, slugify
 from zds.utils.models import Alert
 
 
-@can_read_now
+
 def home(request):
     """Display the home page with last topics added."""
 
@@ -59,12 +59,12 @@ def home(request):
     })
 
 
-@can_read_now
+
 def index(request):
     return render_template('pages/index.html')
 
 
-@can_read_now
+
 def about(request):
     """Display many informations about the website."""
     return render_template('pages/about.html')
@@ -116,13 +116,13 @@ def assoc_subscribe(request):
     return render_template("pages/assoc_subscribe.html", {"form": form})
 
 
-@can_read_now
+
 def association(request):
     """Display association's presentation."""
     return render_template('pages/association.html')
 
 
-@can_read_now
+
 def contact(request):
     """Display contact page."""
     staffs = User.objects.filter(
@@ -137,7 +137,7 @@ def contact(request):
     })
 
 
-@can_read_now
+
 def eula(request):
     """End-User Licence Agreement."""
     return render_template('pages/eula.html')

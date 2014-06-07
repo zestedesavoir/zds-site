@@ -27,11 +27,11 @@ from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
     OldTutoForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
-    get_info_old_tuto
+    get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.mps import send_mp
@@ -39,7 +39,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 
 
-@can_read_now
+
 def index(request):
     """Displays the list of registered users."""
 
@@ -80,7 +80,7 @@ def index(request):
         })
 
 
-@can_read_now
+
 def details(request, user_name):
     """Displays details about a profile."""
 
@@ -187,11 +187,14 @@ def modify_profile(request, user_pk):
                             minutes=0, seconds=0)
             detail = (u'Vous ne pouvez plus vous connecter sur ZesteDeSavoir '
                 u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
+            logout_user(profile.user.username)
+
         if "ban" in request.POST:
             ban.type = u"Ban définitif"
             ban.text = request.POST["ban-text"]
             profile.can_read = False
             detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir."
+            logout_user(profile.user.username)
         if "un-ls" in request.POST:
             ban.type = u"Autorisation d'écrire"
             ban.text = request.POST["unls-text"]
@@ -253,7 +256,7 @@ Cordialement, L'équipe ZesteDeSavoir.
     return redirect(profile.get_absolute_url())
 
 
-@can_read_now
+
 @login_required
 def tutorials(request):
     """Returns all tutorials of the authenticated user."""
@@ -280,7 +283,7 @@ def tutorials(request):
                            {"tutorials": user_tutorials, "type": type})
 
 
-@can_read_now
+
 @login_required
 def articles(request):
     """Returns all articles of the authenticated user."""
@@ -307,7 +310,7 @@ def articles(request):
                            {"articles": user_articles, "type": type})
 
 
-@can_read_now
+
 @login_required
 def actions(request):
     """Show avaible actions for current user, like a customized homepage.
@@ -511,7 +514,7 @@ def settings_user(request):
                                   RequestContext(request))
 
 
-@can_read_now
+
 def login_view(request):
     """Log in user."""
 
@@ -629,7 +632,7 @@ def register_view(request):
     return render_template("member/register/index.html", {"form": form})
 
 
-@can_read_now
+
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -669,7 +672,7 @@ def forgot_password(request):
     return render_template("member/forgot_password/index.html", {"form": form})
 
 
-@can_read_now
+
 def new_password(request):
     """Create a new password for a user."""
 
@@ -824,7 +827,7 @@ def date_to_chart(posts):
     return lst
 
 
-@can_read_now
+
 @login_required
 @require_POST
 def add_oldtuto(request):
@@ -847,7 +850,7 @@ def add_oldtuto(request):
                             args=[profile.user.username]))
 
 
-@can_read_now
+
 @login_required
 def remove_oldtuto(request):
     if "id" in request.GET:

@@ -20,7 +20,7 @@ from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, never_read, \
     mark_read, TopicFollowed, sub_tag
 from zds.forum.models import TopicRead
-from zds.member.decorator import can_read_now, can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template, slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
@@ -31,7 +31,7 @@ from haystack.query import SearchQuerySet
 from haystack.inputs import AutoQuery
 
 
-@can_read_now
+
 def index(request):
     """Display the category list with all their forums."""
 
@@ -40,7 +40,7 @@ def index(request):
                                                 "user": request.user})
 
 
-@can_read_now
+
 def details(request, cat_slug, forum_slug):
     """Display the given forum and all its topics."""
 
@@ -96,7 +96,7 @@ def details(request, cat_slug, forum_slug):
     })
 
 
-@can_read_now
+
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
 
@@ -107,7 +107,7 @@ def cat_details(request, cat_slug):
                                                          "forums": forums})
 
 
-@can_read_now
+
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
 
@@ -800,7 +800,7 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
-@can_read_now
+
 def find_topic_by_tag(request, tag_slug):
     """Finds all topics byg tag."""
 
@@ -858,7 +858,7 @@ def find_topic_by_tag(request, tag_slug):
     })
 
 
-@can_read_now
+
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
 
@@ -895,7 +895,7 @@ def find_topic(request, user_pk):
     })
 
 
-@can_read_now
+
 def find_post(request, user_pk):
     """Finds all posts of a user."""
 
@@ -934,7 +934,7 @@ def find_post(request, user_pk):
 
 
 @login_required
-@can_read_now
+
 def followed_topics(request):
     followed_topics = request.user.get_profile().get_followed_topics()
 
