@@ -26,7 +26,7 @@ def get_git_version():
     try :
         repo = Repo(settings.SITE_ROOT)
         branch = repo.active_branch
-        commit = repo.head.commit.tree.hexsha
+        commit = repo.head.commit.hexsha
         v = u"{0}/{1}".format(branch, commit[:7])
         return {'name':v, 'url':u'https://github.com/zestedesavoir/zds-site/tree/{0}'.format(commit)}
     except:
