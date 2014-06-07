@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load compressed %}
 {% load profile %}
 {% load interventions %}
 {% load topbar %}
@@ -70,13 +69,6 @@
     <link rel="alternate" type="application/rss+xml"
           title="Forum" href="{% url "post-feed-rss" %}"/>
 
-    {# Modernizr #}
-    {% compressed_js "modernizr" %}
-
-    {# CSS3 Mediaqueries for IE8- #}
-    <!--[if lte IE 8]>
-    {% compressed_js "css3-mediaqueries" %}
-    <![endif]-->
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <!--[if lt IE 7]>
