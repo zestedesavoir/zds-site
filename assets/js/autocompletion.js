@@ -4,7 +4,8 @@
    Add autocompletion for members names
    ========================================================================== */
 
-var AutoComplete = (function($) {
+(function($) {
+  "use strict";
   function AutoComplete(input, options) {
     this.$wrapper = buildDom($(input));
     this.$input = this.$wrapper.find(".autocomplete-input");
@@ -25,6 +26,7 @@ var AutoComplete = (function($) {
     cache: {},
 
     handleKeydown: function(e) {
+      var $tmp;
       switch(e.which) {
         case 38: // ↑ - up
           e.preventDefault();
@@ -34,8 +36,8 @@ var AutoComplete = (function($) {
             this.select(this.$dropdown.find("ul li").last().attr("data-autocompletion-id"));
           }
           else {
-            var $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").prev("li");
-            this.select($tmp.length == 1 ? $tmp.attr("data-autocompletion-id") : -1);
+            $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").prev("li");
+            this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
           }
           break;
         case 40: // ↓ - down
@@ -46,8 +48,8 @@ var AutoComplete = (function($) {
             this.select(this.$dropdown.find("ul li").first().attr("data-autocompletion-id"));
           }
           else {
-            var $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").next("li");
-            this.select($tmp.length == 1 ? $tmp.attr("data-autocompletion-id") : -1);
+            $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").next("li");
+            this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
           }
           break;
         case 13: // ↲ - enter
@@ -105,7 +107,7 @@ var AutoComplete = (function($) {
 
     enter: function(selected) {
       selected = selected || this.selected;
-      var input = this.$input.val()
+      var input = this.$input.val();
       var lastChar = input.substr(-1);
       if(lastChar === "," || lastChar === " " || selected === -1) return false; // on est passé au pseudo suivant
 
@@ -146,7 +148,7 @@ var AutoComplete = (function($) {
     },
 
     searchCache: function(input) {
-      var regexp = new RegExp(input, "ig")
+      var regexp = new RegExp(input, "ig");
       return $.grep(this.cache, function(e) {
         return e.value.match(regexp);
       });
@@ -154,7 +156,7 @@ var AutoComplete = (function($) {
 
     getFromCache: function(id) {
       for(var i in this.cache) {
-        if(this.cache[i].id == id) return this.cache[i];
+        if(parseInt(this.cache[i].id) === parseInt(id)) return this.cache[i];
       }
       return false;
     },
@@ -169,11 +171,11 @@ var AutoComplete = (function($) {
         self.handleInput();
       };
 
-      var $list = $("<ul>"), $el, selected = false, self = this;
+      var $list = $("<ul>"), $el, selected = false;
       for(var i in list) {
         $el = $("<li>").text(list[i].value);
         $el.attr("data-autocompletion-id", list[i].id);
-        if(list[i].id == this.selected) {
+        if(list[i].id === this.selected) {
           $el.addClass("active");
           selected = true;
         }
@@ -203,10 +205,6 @@ var AutoComplete = (function($) {
       .append($dropdown);
   }
 
-  return AutoComplete;
-})(jQuery);
-
-(function($) {
   $.fn.autocomplete = function(options) {
     var defaults = {
       type: "mp", // mp || mentions
@@ -216,9 +214,9 @@ var AutoComplete = (function($) {
     options = $.extend(defaults, options);
 
     return new AutoComplete(this, options);
-  }
-})(jQuery);
+  };
 
-$(document).ready(function() {
-  $("#id_participants").autocomplete();
-});
+  $(document).ready(function() {
+    $("#id_participants").autocomplete();
+  });
+})(jQuery);
