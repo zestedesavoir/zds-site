@@ -23,12 +23,14 @@ def get_current_request():
     return getattr(_thread_locals, 'request', None)
 
 def get_git_version():
-    repo = Repo(settings.SITE_ROOT)
-    branch = repo.active_branch
-    commit = repo.head.commit.tree.hexsha
-    v = u"{0}/{1}".format(branch, commit[:5])
-        
-    return {'name':v, 'url':u'https://github.com/zestedesavoir/zds-site/tree/{0}'.format(commit)}
+    try :
+        repo = Repo(settings.SITE_ROOT)
+        branch = repo.active_branch
+        commit = repo.head.commit.tree.hexsha
+        v = u"{0}/{1}".format(branch, commit[:5])
+        return {'name':v, 'url':u'https://github.com/zestedesavoir/zds-site/tree/{0}'.format(commit)}
+    except:
+        return {'name':'', 'url':''}
 
 class ThreadLocals(object):
 
