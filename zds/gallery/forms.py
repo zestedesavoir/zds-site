@@ -28,7 +28,7 @@ class GalleryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(GalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'clearfix'
         self.helper.form_action = reverse('zds.gallery.views.new_gallery')
         self.helper.form_method = 'post'
 
@@ -79,7 +79,7 @@ class UserGalleryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(UserGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'clearfix'
         self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
         self.helper.form_method = 'post'
 
@@ -129,7 +129,7 @@ class ImageForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'clearfix'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -149,7 +149,7 @@ class ImageAsAvatarForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'clearfix'
         self.helper.form_action = reverse('zds.member.views.update_avatar')
         self.helper.form_method = 'post'
 
