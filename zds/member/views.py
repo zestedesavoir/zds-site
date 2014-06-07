@@ -55,6 +55,8 @@ def index(request):
             results.append(member_json)
         data = json.dumps(results)
 
+        mimetype = "application/json"
+
         return HttpResponse(data, mimetype)
 
     else:
