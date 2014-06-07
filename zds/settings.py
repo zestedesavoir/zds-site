@@ -214,7 +214,6 @@ INSTALLED_APPS = (
     'pipeline',
     'haystack',
     'munin',
-    'django_extensions',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
