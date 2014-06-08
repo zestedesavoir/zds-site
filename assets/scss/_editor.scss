@@ -213,20 +213,30 @@ div.zform-popup {
 
     & > div {
         display: inline-block;
+        text-align: left;
         background: #f4f6f6;
         border: 1px solid #555;
         border-radius: 2px;
         box-shadow: 0 2px 26px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+        min-height: 220px;
+        min-width: 400px;
 
         & > header {
-            background: #084561;
             color: #fff;
-            font-weight: bold;
-            line-height: 27px;
-            text-align: left;
             padding-left: 6px;
             padding-right: 6px;
             white-space: nowrap;
+
+            border-bottom: 3px solid #f8ad32;
+            line-height: 53px;
+            height: 50px;
+            text-indent: 15px;
+            margin-bottom: 20px;
+            background: #084561;
+            font-size: 1.6rem;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-shadow: rgba(0,0,0,.75)0 0 3px;
         }
         & > footer {
             background: #e7ebec;
@@ -246,6 +256,12 @@ div.zform-popup {
         margin: 8px;
         min-width: 200px;
         min-height: 50px;
+        div {
+            input {
+                min-width: 260px;
+                margin: 15px;
+            }
+        }
     }
 }
 
