@@ -35,12 +35,10 @@
     .header-container {
         z-index: 1;
         position: relative;
-        @include box-shadow(0 0 4px rgba(0, 0, 0, .3));
+        box-shadow: 0 0 4px rgba(0, 0, 0, .3);
 
         header {
-            @include background-image(
-                linear-gradient(left, transparent 20%, rgba(255, 255, 255, .07) 40%, rgba(255, 255, 255, .07) 60%, transparent 80%)
-            );
+            background-image: linear-gradient(left, transparent 20%, rgba(255, 255, 255, .07) 40%, rgba(255, 255, 255, .07) 60%, transparent 80%);
         }
     }
 
@@ -126,7 +124,7 @@
             right: 0;
             width: 50px;
             height: 100%;
-            @include background-image(linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75)));
+            background-image:linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75));
         }
 
         ul {
@@ -165,7 +163,7 @@
                     background-image: $sprite;
                     background-repeat: no-repeat;
                     @include sprite-pos($sprite, 'ariane');
-                    @include opacity(.2);
+                    opacity: .2;
                 }
             }
         }
@@ -179,7 +177,7 @@
             left: -20px;
             height: 30px;
             width: 20px;
-            @include background(linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0)));
+            background: linear-gradient(right, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0));
         }
         form {
             input {
@@ -303,9 +301,7 @@
                 ul {
                     margin-left: calc(-11% - 10px);
                     width: calc(111% + 10px);
-                    @include background(
-                        linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px)
-                    );
+                    background: linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px);
 
                     a {
                         padding-left: calc(11% + 30px);
@@ -416,7 +412,7 @@
         Modals boxes
        ============== */
     .enable-mobile-menu #modals .modal {
-        @include box-shadow(0 2px 7px rgba(0, 0, 0, .7));
+        box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
         
         .modal-title {
             line-height: 50px;

@@ -70,7 +70,7 @@ textarea {
 
 a {
     color: lighten($blue, 20%);
-    @include transition;
+    transition: all $default-transition-duration ease;
 
     &:hover {
         color: darken($orange, 15%);

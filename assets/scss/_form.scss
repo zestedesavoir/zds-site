@@ -79,7 +79,7 @@
     button,
     .btn {
         -webkit-appearance: none;
-        @include transition;
+        transition: all $default-transition-duration ease;
     }
 
     input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
@@ -122,10 +122,10 @@
         width: 15px;
         border: 1px solid #BBB;
         background: #FCFCFC;
-        @include transition(none);
+        transition: none;
     }
     input[type=radio] {
-        @include border-radius(50%);
+        border-radius: 50%;
     }
     input[type=radio]:checked {
         @include sprite-pos($sprite, 'radio');

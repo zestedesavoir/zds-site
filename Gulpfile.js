@@ -8,11 +8,11 @@ var paths = {
   smileys: "assets/smileys/**",
   copy: "assets/misc/**",
   stylesheet: "assets/scss/main.scss",
-  scss: "assets/scss/**",
-  compass: {
-    sass: "scss",
-    images: "images",
-    css: ".sass-css",
+  sass: {
+    sass: "assets/scss",
+    images: "assets/images",
+    css: "assets/.sass-css",
+    includePaths: ["assets/scss"],
     project: path.join(__dirname, "assets/")
   }
 };
@@ -40,14 +40,14 @@ gulp.task("script", ["test"], function() {
 });
 
 gulp.task("stylesheet", function() {
-  return gulp.src(paths.scss)
+  return gulp.src(paths.stylesheet)
     .pipe($.newer("dist/css/main.css"))
-    .pipe($.filter("main.scss")) // Pour que tous les fichiers soient pris en compte par gulp-newer
-    .pipe($.compass({
-      project: paths.compass.project,
-      css: paths.compass.css,
-      sass: paths.compass.sass,
-      image: paths.compass.images
+    .pipe($.sass({
+      project: paths.sass.project,
+      css: paths.sass.css,
+      sass: paths.sass.sass,
+      imagePath: paths.sass.images,
+      includePaths: paths.sass.includePaths
     }))
     .pipe(gulp.dest("dist/css"))
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié

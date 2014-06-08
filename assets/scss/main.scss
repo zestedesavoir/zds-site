@@ -6,8 +6,8 @@
 
 
 
-@import "compass";
-@import "compass/css3/user-interface";
+//@import "compass";
+//@import "compass/css3/user-interface";
 
 
 
@@ -89,7 +89,7 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
 @import "extra-wide";
 
 // Retina-like support
-@import "high-pixel-ratio";
+//@import "high-pixel-ratio";
 
 // Dependencies
 @import "pygments";
