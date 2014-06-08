@@ -532,7 +532,11 @@
 
                 case "abbr":
                     if (isFromPopup) {
-                        selection.after += "\n\n*[" + document.getElementById("zform-modal-abbr-abbr").value + "]: " + document.getElementById("zform-modal-abbr-text").value;
+                        var valtext = document.getElementById("zform-modal-abbr-text").value;
+                        if (valtext.trim() === "") {
+                            valtext = document.getElementById("zform-modal-abbr-abbr").value;
+                        }
+                        selection.after += "\n\n*[" + document.getElementById("zform-modal-abbr-abbr").value + "]: "+ valtext;
                     } else {
                         if (selection.current.length < 10) {
                             document.getElementById("zform-modal-abbr-abbr").value = selection.current;
