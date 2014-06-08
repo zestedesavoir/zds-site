@@ -1583,10 +1583,6 @@
         }
 
         figure {
-            margin: 25px 0;
-            max-width: 100%;
-            padding: 10px;
-            background: #DDD;
             text-align: center;
 
             img,
@@ -1610,8 +1606,24 @@
 
             figcaption {
                 display: block;
-                padding-top: 10px;
             }
+            
+            blockquote ~ figcaption {
+                font-style: italic;
+                text-align: left;
+                a {
+                    color : #f8ad32;
+                }
+                p:before {
+                    content: "– ";
+                }
+            }
+        }
+
+        blockquote {
+            color : #999;
+            padding-left: 20px;
+            border-left: 2px solid #999;
         }
 
         code, kbd, pre, samp {
