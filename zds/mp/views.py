@@ -164,6 +164,9 @@ def new(request):
             ctrl = []
             list_part = data['participants'].replace(',', ' ').split()
             for part in list_part:
+                part = part.strip()
+                if part == '':
+                    continue
                 p = get_object_or_404(User, username=part)
                 # We don't the author of the MP.
                 if request.user == p:
