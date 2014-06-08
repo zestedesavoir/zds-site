@@ -9,11 +9,13 @@ from django import forms
 class AssocSubscribeForm(forms.Form):
     first_name = forms.CharField(
         label=u'Prénom',
+        max_length= 30,
         required=True,
     )
 
     surname = forms.CharField(
         label='Nom de famille',
+        max_length= 30,
         required=True,
     )
 
@@ -24,26 +26,31 @@ class AssocSubscribeForm(forms.Form):
 
     adresse = forms.CharField(
         label=u'Adresse',
+        max_length= 38,
         required=True,
     )
 
     adresse_complement = forms.CharField(
         label=u'Complément d\'adresse',
+        max_length= 38,
         required=False,
     )
 
     code_postal = forms.CharField(
         label='Code Postal',
+        max_length= 5,
         required=True,
     )
 
     ville = forms.CharField(
         label='Ville',
+        max_length= 38,
         required=True,
     )
 
     pays = forms.CharField(
         label='Pays',
+        max_length= 38,
         required=True,
     )
 
@@ -77,3 +84,11 @@ class AssocSubscribeForm(forms.Form):
                 StrictButton('Valider', type='submit'),
             )
         )
+
+    def clean(self):
+        cleaned_data = super(AssocSubscribeForm, self).clean()
+        justification = cleaned_data.get('justification')
+        
+        if justification is not None and len(justification) > 3000:
+            self._errors['justification'] = self.error_class(
+                [(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])
