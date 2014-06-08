@@ -76,7 +76,34 @@ class PagesMemberTests(TestCase):
 
     def test_subscribe_association(self):
         """To test the "subscription to the association" form."""
+        
+        long_str = u""
+        for i in range(3100):
+            long_str += u"A"
 
+        result = self.client.post(
+            reverse('zds.pages.views.assoc_subscribe'),
+            {
+                'first_name': 'Anne',
+                'surname': 'Onyme',
+                'email': 'anneonyme@test.com',
+                'adresse': '42 rue du savoir',
+                'adresse_complement': 'appartement 42',
+                'code_postal': '75000',
+                'ville': 'Paris',
+                'pays': 'France',
+                'justification': long_str,
+                'username': self.user1.username,
+                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
+                                                           kwargs={'user_name': self.user1.username})
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 0)
+        
         result = self.client.post(
             reverse('zds.pages.views.assoc_subscribe'),
             {
