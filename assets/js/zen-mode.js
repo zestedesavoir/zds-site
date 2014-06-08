@@ -5,23 +5,24 @@
    ========================================================================== */
 
 (function($){
-    if($('.article-content').length > 0){
-        $('.content-container .authors').before($('<button/>', {
-            'class': 'btn btn-grey ico-after view open-zen-mode',
-            'text': 'Zen mode',
-            'click': function(e){
-                $('.content-container').toggleClass('zen-mode tab-modalize');
+    "use strict";
+    if($(".article-content").length > 0){
+        $(".content-container .authors").before($("<button/>", {
+            "class": "btn btn-grey ico-after view open-zen-mode",
+            "text": "Zen mode",
+            "click": function(e){
+                $(".content-container").toggleClass("zen-mode tab-modalize");
                 $(this).blur();
                 e.preventDefault();
                 e.stopPropagation();
             }
         }));
 
-        $('body').on('keydown', function(e){
-            if($('.zen-mode').length > 0){
+        $("body").on("keydown", function(e){
+            if($(".zen-mode").length > 0){
                 // Espace close modal
                 if(e.keyCode === 27){
-                    $('.content-container').toggleClass('zen-mode tab-modalize');
+                    $(".content-container").toggleClass("zen-mode tab-modalize");
                     $(this).blur();
                     e.stopPropagation();
                 }

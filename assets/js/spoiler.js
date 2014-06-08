@@ -5,13 +5,15 @@
    ========================================================================== */
 
 (function($){
-    $('.spoiler').each(function(){
-        $(this).before($('<a/>', {
-            'text': "Afficher/Masquer le contenu masqué",
-            'class': 'spoiler-title ico-after view',
-            'href': 'javascript:void(null);',
-            'click': function(){
-                $(this).next('.spoiler').toggle();
+    "use strict";
+    $(".spoiler").each(function(){
+        $(this).before($("<a/>", {
+            "text": "Afficher/Masquer le contenu masqué",
+            "class": "spoiler-title ico-after view",
+            "href": "#",
+            "click": function(e){
+                $(this).next(".spoiler").toggle();
+                e.preventDefault();
             }
         }));
     });

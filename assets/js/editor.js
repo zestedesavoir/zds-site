@@ -112,67 +112,67 @@
                 wrapper.id = "zform-modal-wrapper";         
             
             wrapper.innerHTML = 
-            '<div>' + 
-                '<header id="zform-modal-header"></header>' +
+            "<div>" + 
+                "<header id=\"zform-modal-header\"></header>" +
 
-                '<section class="zform-modal" id="zform-modal-link">' +
-                    '<div>' + 
-                        '<label for="zform-modal-link-href">Lien :</label>' +
-                        '<input type="text" id="zform-modal-link-href" />' +
-                    '</div>' +
+                "<section class=\"zform-modal\" id=\"zform-modal-link\">" +
+                    "<div>" + 
+                        "<label for=\"zform-modal-link-href\">Lien :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-link-href\" />" +
+                    "</div>" +
                     
-                    '<div>' +
-                        '<label for="zform-modal-link-text">Texte :</label>' +
-                        '<input type="text" id="zform-modal-link-text" />' +
-                    '</div>' +
-                '</section>' +
+                    "<div>" +
+                        "<label for=\"zform-modal-link-text\">Texte :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-link-text\" />" +
+                    "</div>" +
+                "</section>" +
         
-                '<section class="zform-modal" id="zform-modal-image">' +
-                    '<div>' +
-                        '<label for="zform-modal-image-src">Url :</label>' +
-                        '<input type="text" id="zform-modal-image-src" />' +
-                    '</div>' +
+                "<section class=\"zform-modal\" id=\"zform-modal-image\">" +
+                    "<div>" +
+                        "<label for=\"zform-modal-image-src\">Url :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-image-src\" />" +
+                    "</div>" +
                     
-                    '<div>' +
-                        '<label for="zform-modal-image-text">Texte :</label>' +
-                        '<input type="text" id="zform-modal-image-text" />' +
-                    '</div>' +
+                    "<div>" +
+                        "<label for=\"zform-modal-image-text\">Texte :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-image-text\" />" +
+                    "</div>" +
                     
-                    '<br /><div>' +
-                        '<label for="zform-modal-image-href">Lien :</label>' +
-                        '<input type="text" id="zform-modal-image-href" />' +
-                    '</div>' +              
-                '</section>' +
+                    "<br /><div>" +
+                        "<label for=\"zform-modal-image-href\">Lien :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-image-href\" />" +
+                    "</div>" +              
+                "</section>" +
         
-                '<section class="zform-modal" id="zform-modal-abbr">' +
-                    '<div>' +
-                        '<label for="zform-modal-abbr-abbr">Abré. :</label>' +
-                        '<input type="text" id="zform-modal-abbr-abbr" />' +
-                    '</div>' +
+                "<section class=\"zform-modal\" id=\"zform-modal-abbr\">" +
+                    "<div>" +
+                        "<label for=\"zform-modal-abbr-abbr\">Abré. :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-abbr-abbr\" />" +
+                    "</div>" +
                     
-                    '<div>' +
-                        '<label for="zform-modal-abbr-text">Texte :</label>' +
-                        '<input type="text" id="zform-modal-abbr-text" />' +
-                    '</div>' + 
-                '</section>' +
+                    "<div>" +
+                        "<label for=\"zform-modal-abbr-text\">Texte :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-abbr-text\" />" +
+                    "</div>" + 
+                "</section>" +
         
-                '<section class="zform-modal" id="zform-modal-footnote">' +
-                    '<div>' +
-                        '<label for="zform-modal-footnote-guid">Id :</label>' +
-                        '<input type="text" id="zform-modal-footnote-guid" />' +
-                    '</div>' +
+                "<section class=\"zform-modal\" id=\"zform-modal-footnote\">" +
+                    "<div>" +
+                        "<label for=\"zform-modal-footnote-guid\">Id :</label>" +
+                        "<input type=\"text\" id=\"zform-modal-footnote-guid\" />" +
+                    "</div>" +
                     
-                    '<div>' +
-                        '<label for="zform-modal-footnote-text">Texte :</label>' +
-                    '</div>' +
+                    "<div>" +
+                        "<label for=\"zform-modal-footnote-text\">Texte :</label>" +
+                    "</div>" +
                     
-                    '<div>' +
-                        '<textarea id="zform-modal-footnote-text"></textarea>' +
-                    '</div>' +  
-                '</section>' +
+                    "<div>" +
+                        "<textarea id=\"zform-modal-footnote-text\"></textarea>" +
+                    "</div>" +  
+                "</section>" +
         
-                '<footer><a id="zform-modal-validate" class="button tiny">Valider</a> <a id="zform-modal-cancel" class="button secondary tiny">Annuler</a></footer>' +
-            '</div>';
+                "<footer><a id=\"zform-modal-validate\" class=\"button tiny\">Valider</a> <a id=\"zform-modal-cancel\" class=\"button secondary tiny\">Annuler</a></footer>" +
+            "</div>";
             
             this.addEvent(document.getElementById("zform-modal-validate"), "click", (function(_this) {
                 return function() {
@@ -196,16 +196,14 @@
             
             if (!this.isExecuted) {
                 this.addEvent(document, "click", function(event) {
-                    if (~event.target.className.indexOf("zform-button")
-                       && !(~event.target.className.indexOf("zform-subbutton"))) {
+                    if (~event.target.className.indexOf("zform-button") && !(~event.target.className.indexOf("zform-subbutton"))) {
                         return event.stopPropagation();
                     }
                     
                     var menus = document.getElementsByClassName("zform-popup"), i = 0;
                     
                     while (menus[i]) {
-                        if (menus[i].getAttribute("data-zform-info") != "dontclose"
-                           || event.target.nodeName.toLowerCase() === "textarea") {
+                        if (menus[i].getAttribute("data-zform-info") !== "dontclose" || event.target.nodeName.toLowerCase() === "textarea") {
                             menus[i].style.display = "none";
                         }
                         i++;
@@ -242,22 +240,22 @@
                     if (currentButton.action) {
                         elemButton.href = "#";
                         this.addEvent(elemButton, "click", function(event, elemPopup) {
-                            event.preventDefault()
+                            event.preventDefault();
                         
                             if (elemPopup = this.getElementsByTagName("div")[0]) {
                                 elemPopup.style.display = "block";  
                             }                       
                         });
                         
-                        var elemPopup = elemButton.appendChild(document.createElement("div"));
-                            elemPopup.className = "zform-popup";
-                            elemPopup.style.position = "absolute";
-                            elemPopup.style.display = "none";
-                            elemPopup.style.left = "0";
-                            elemPopup.style.width = "auto";
-                            elemPopup.style.whiteSpace = "nowrap";
-                            elemPopup.style.textAlign = "left";
-                        
+                        elemPopup = elemButton.appendChild(document.createElement("div"));
+                        elemPopup.className = "zform-popup";
+                        elemPopup.style.position = "absolute";
+                        elemPopup.style.display = "none";
+                        elemPopup.style.left = "0";
+                        elemPopup.style.width = "auto";
+                        elemPopup.style.whiteSpace = "nowrap";
+                        elemPopup.style.textAlign = "left";
+                    
                             elemPopup = this[currentButton.action](elemPopup, currentButton, textareaId);
                     } else {
                         elemButton.addEventListener("click", (function(_button, _textareaId, _this, _tagtype) {
@@ -300,7 +298,7 @@
         },
         
         validatePopup: function() {
-            var wrapper = document.getElementById("zform-modal-wrapper");
+            //var wrapper = document.getElementById("zform-modal-wrapper");
             
             if (this.selection && this.selection.type) {
                 this.wrap("___", "+++", this.selection.textareaId, this.selection.type, null, true);
@@ -411,8 +409,8 @@
                 
                 if (selection = this.tagType(selection, selection.type, selection.options, isFromPopup)) {
                     selection.range.text = selection.startTag + selection.current + selection.endTag;
-                    selection.range.moveStart('character',  -selection.endTag.length - selection.current.length);
-                    selection.range.moveEnd('character',    -selection.endTag.length);
+                    selection.range.moveStart("character",  -selection.endTag.length - selection.current.length);
+                    selection.range.moveEnd("character",    -selection.endTag.length);
                     selection.range.select();
                 }
             }
@@ -426,7 +424,7 @@
 
             this.selection = selection;
             
-            var input = "";
+            var input = "", href, text, regex;
             
             function iterateRows(txt, char) {
                 var spltd = txt.split("\n");
@@ -442,12 +440,12 @@
             switch (type) {
                 case "link":
                     if (isFromPopup) {
-                        var href = document.getElementById("zform-modal-link-href").value;
-                        var text = document.getElementById("zform-modal-link-text").value;
+                        href = document.getElementById("zform-modal-link-href").value;
+                        text = document.getElementById("zform-modal-link-text").value;
                         
                         selection.current = "[" + text + "](" + href + ")";
                     } else {
-                        var regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
+                        regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
                         
                         if (regex.test(selection.current)){
                             
@@ -467,8 +465,8 @@
                 case "image":
                     if (isFromPopup) {
                         var src   = document.getElementById("zform-modal-image-src").value;
-                        var text  = document.getElementById("zform-modal-image-text").value || "Image utilisateur";
-                        var href  = document.getElementById("zform-modal-image-href").value;
+                        text  = document.getElementById("zform-modal-image-text").value || "Image utilisateur";
+                        href  = document.getElementById("zform-modal-image-href").value;
                         
                         if (href) {
                             selection.current = "[![" + text + "](" + src + ")](" + href + ")";
@@ -476,7 +474,7 @@
                             selection.current = "![" + text + "](" + src + ")";
                         }
                     } else {
-                        var regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
+                        regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
                         
                         if (regex.test(selection.current)){
                             document.getElementById("zform-modal-image-src").value = selection.current;
@@ -491,22 +489,22 @@
                     break; 
 
                 case "quote":
-                    selection.current = iterateRows(selection.current, '>');
+                    selection.current = iterateRows(selection.current, ">");
                     break;
 
                 case "information":
                 case "attention":
                 case "question":
                 case "secret":          
-                    selection.current = "[[" + type + "]]\n" + iterateRows(selection.current, '|');
+                    selection.current = "[[" + type + "]]\n" + iterateRows(selection.current, "|");
                     break;
 
                 case "error":
-                    selection.current = "[[erreur]]\n" + iterateRows(selection.current, '|');
+                    selection.current = "[[erreur]]\n" + iterateRows(selection.current, "|");
                     break;
 
                 case "ul":
-                    selection.current = iterateRows(selection.current, '-');
+                    selection.current = iterateRows(selection.current, "-");
                     break;
 
                 case "ol":
@@ -534,8 +532,7 @@
 
                 case "abbr":
                     if (isFromPopup) {
-                        selection.after += "\n\n*[" + document.getElementById("zform-modal-abbr-abbr").value + "]: "
-                                         + document.getElementById("zform-modal-abbr-text").value;
+                        selection.after += "\n\n*[" + document.getElementById("zform-modal-abbr-abbr").value + "]: " + document.getElementById("zform-modal-abbr-text").value;
                     } else {
                         if (selection.current.length < 10) {
                             document.getElementById("zform-modal-abbr-abbr").value = selection.current;
