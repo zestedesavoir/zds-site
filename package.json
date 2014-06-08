@@ -8,6 +8,7 @@
   "scripts": {
     "test": "gulp test",
     "postinstall": "bower install",
+    "postupdate": "bower install",
     "travis": "gulp travis"
   },
   "repository": {
