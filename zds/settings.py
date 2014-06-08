@@ -95,57 +95,7 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
-
 FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
-# You will need yuglify to be installed
-PIPELINE_JS = {
-    'modernizr': {
-        'source_filenames': (
-            'js/vendor/custom.modernizr.js',
-        ),
-        'output_filename': 'js/modernizr.js'
-    },
-    'css3-mediaqueries': {
-        'source_filenames': (
-            'js/vendor/css3-mediaqueries.js',
-        ),
-        'output_filename': 'js/css3-mediaqueries.js'
-    },
-    'main-js': {
-        'source_filenames': (
-            'js/vendor/jquery.js',
-            'js/vendor/jquery.tabbable.js',
-
-            'js/custom/editor.js',
-
-            'js/custom/mobile-menu.js',
-            'js/custom/accessibility-links.js',
-            'js/custom/dropdown-menu.js',
-            'js/custom/data-click.js',
-            'js/custom/accordeon.js',
-            'js/custom/modal.js',
-            'js/custom/close-alert-box.js',
-            'js/custom/keyboard-navigation.js',
-            'js/custom/message-hidden.js',
-            'js/custom/spoiler.js',
-            'js/custom/karma-ajax.js',
-            'js/custom/markdown-help.js',
-            'js/custom/tab-modalize.js',
-            'js/custom/zen-mode.js',
-        ),
-        'output_filename': 'js/main.js'
-    }
-}
-
-PIPELINE_CSS = {
-    'main-css': {
-        'source_filenames': (
-            'css/main.css',
-        ),
-        'output_filename': 'css/design.css'
-    }
-}
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
@@ -213,7 +163,6 @@ INSTALLED_APPS = (
     'south',
     'crispy_forms',
     'email_obfuscator',
-    'pipeline',
     'haystack',
     'munin',
 
