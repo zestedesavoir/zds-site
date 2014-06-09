@@ -721,35 +721,32 @@ def active_account(request):
     # send register message
 
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = \
-        u"""Bonjour **{0}**,
-
-Ton compte a été activé, et tu es donc officiellement u\
-umembre de la communauté de ZesteDeSavoir.
-
-ZesteDeSavoir est une communauté dont le but est de diffuser des u\
-uconnaissances au plus grand nombre.
-
-Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans u\
-uplusieurs domaines et plus particulièrement autour de l'informatique u\
-uet des sciences. Tu y retrouveras aussi des [articles]({2}) u\
-utraitant de sujets d'actualités ou non, qui, tout comme les tutoriels, su\
-uont écrits par des [membres]({3}) de la communauté. u\
-uPendant tes lectures et ton apprentissage, si jamais tu as des u\
-uquestions à poser, tu retrouveras sur les [forums]({4}) des personnes u\
-uprêtes à te filer un coup de main et ainsi t'éviter de passer u\
-uplusieurs heures sur un problème.
-
-L'ensemble du contenu disponible sur le site est et sera toujours gratuit, u\
-ucar la communauté de ZesteDeSavoir est attachée aux valeurs du libre u\
-upartage et désire apporter le savoir à tout le monde quelques soit ses moyens.
-
-En espérant que tu t'y plaira ici, u\
-uje te laisse maintenant faire le tour""".format(usr.username,
-                                                 settings.SITE_URL + reverse("zds.tutorial.views.index"),
-                                                 settings.SITE_URL + reverse("zds.article.views.index"),
-                                                 settings.SITE_URL + reverse("zds.member.views.index"),
-                                                 settings.SITE_URL + reverse("zds.forum.views.index"))
+    msg = (
+        u'Bonjour **{0}**,\n\n'
+        u'Ton compte a été activé, et tu es donc officiellement '
+        u'membre de la communauté de ZesteDeSavoir.\n\n'
+        u'ZesteDeSavoir est une communauté dont le but est de diffuser des '
+        u'connaissances au plus grand nombre.\n\n'
+        u'Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans '
+        u'plusieurs domaines et plus particulièrement autour de l\'informatique '
+        u'et des sciences. Tu y retrouveras aussi des [articles]({2}) '
+        u'traitant de sujets d\'actualités ou non, qui, tout comme les tutoriels, '
+        u'sont écrits par des [membres]({3}) de la communauté. '
+        u'Pendant tes lectures et ton apprentissage, si jamais tu as des '
+        u'questions à poser, tu retrouveras sur les [forums]({4}) des personnes '
+        u'prêtes à te filer un coup de main et ainsi t\'éviter de passer '
+        u'plusieurs heures sur un problème.\n\n'
+        u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
+        u'car la communauté de ZesteDeSavoir est attachée aux valeurs du libre '
+        u'partage et désire apporter le savoir à tout le monde quelques soit ses moyens.'
+        u'\n\nEn espérant que tu t\'y plaira ici, '
+        u'je te laisse maintenant faire le tour'
+        .format(usr.username,
+                settings.SITE_URL + reverse("zds.tutorial.views.index"),
+                settings.SITE_URL + reverse("zds.article.views.index"),
+                settings.SITE_URL + reverse("zds.member.views.index"),
+                settings.SITE_URL + reverse("zds.forum.views.index"))
+        ))
     send_mp(
         bot,
         [usr],

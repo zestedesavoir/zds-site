@@ -282,25 +282,22 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     post = Post.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = \
-        u"""Bonjour {0},
-
-Vous recevez ce message car vous avez signalé u\
-ule message de *{1}*, dans le sujet [{2}]({3}). u\
-uVotre alerte a été traitée par **{4}** u\
-uet il vous a laissé le message suivant :
-
-`{5}`
-
-
-Toute l'équipe de la modération vous remercie""".format(
+    msg = (
+        u'Bonjour {0},\n\n'
+        u'Vous recevez ce message car vous avez signalé '
+        u'le message de *{1}*, dans le sujet [{2}]({3}). '
+        u'Votre alerte a été traitée par **{4}** '
+        u'et il vous a laissé le message suivant :'
+        u'\n\n`{5}`\n\n\n'
+        u'Toute l\'équipe de la modération vous remercie'
+        .format(
             alert.author.username,
             post.author.username,
             post.topic.title,
             settings.SITE_URL + post.get_absolute_url(),
             request.user.username,
             request.POST["text"],
-    )
+        ))
     send_mp(
         bot,
         [alert.author],
