@@ -44,8 +44,8 @@
     button {
         text-decoration: none;
         color: #FFF;
-        @include transition-property(background);
-        @include transition-duration;
+        transition-property: background;
+        transition-duration: $default-transition-duration;
 
         &:focus {
             outline: none;
@@ -75,7 +75,7 @@
     }
     &:hover,
     &:focus {
-        @include opacity(.7);
+        opacity: .7;
     }
 }
 
@@ -130,7 +130,7 @@
                     height: 25px;
                     line-height: 25px;
                     color: #95d7f5;
-                    @include transition;
+                    transition: all $default-transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -150,7 +150,7 @@
         line-height: 30px;
         border-top: 1px solid #274a5a;
         background-color: $header-hover;
-        @include transition-property(color, background-color);
+        transition-property: color, background-color;
 
         &:first-child {
             border-top: 0 !important;
@@ -195,7 +195,7 @@
                 text-transform: uppercase;
                 font-size: 1.5px;
                 font-size: 1.5rem;
-                @include text-shadow(rgba(0, 0, 0, 0.75) 0 0 3px);
+                text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
 
                 &:hover,
                 &:focus,
@@ -212,8 +212,8 @@
                         left: 0;
                         right: 0;
                         height: 2px;
-                        @include transition;
-                        @include border-radius(2px 2px 0 0);
+                        transition: all $default-transition-duration ease;
+                        border-radius: 2px 2px 0 0;
                         background-color: $orange;
                     }
                     &.active:before {
@@ -251,7 +251,7 @@
                 height: 16px;
                 line-height: 14px;
                 background: #c0392b;
-                @include border-radius(16px);
+                border-radius: 16px;
             }
             .notif-text {
                 display: block;
@@ -264,16 +264,16 @@
                 margin: -11px 0 0 -11px;                
 
                 &.ico-messages {
-                    @include sprite-pos($sprite, 'messages');
+                    @include sprite-pos($messages);
                 }
                 &.ico-notifs {
-                    @include sprite-pos($sprite, 'notifications');
+                    @include sprite-pos($notifications);
                 }
                 &.ico-alerts {
-                    @include sprite-pos($sprite, 'alerts');
+                    @include sprite-pos($alerts);
                 }
                 &.ico-params {
-                    @include sprite-pos($sprite, 'params');
+                    @include sprite-pos($params);
                 }
             }
 
@@ -322,15 +322,15 @@
                     &:focus,
                     &.read:hover,
                     &.read:focus {
-                        @include opacity(1);
-                        @include transition-property(opacity, background-color);
+                        opacity: 1;
+                        transition-property: opacity, background-color;
                     }
                     &:hover,
                     &:focus {
                         background-color: $header-hover;
                         
                         .username {
-                            @include text-shadow(rgba(0, 0, 0, .5) 0 0 5px);
+                            text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
                         }
 
                         .date {
@@ -339,7 +339,7 @@
                     }
 
                     &.read {
-                        @include opacity(.5);
+                        opacity: .5;
                     }
                 }
 
@@ -362,7 +362,7 @@
                     color: #5196b6;
                     float: right;
                     padding: 4px 10px 0 0;
-                    @include transition-property(color);
+                    transition-property: color;
                 }
                 .topic {
                     display: block;
@@ -466,8 +466,8 @@
             border: none;
             background: rgba(255, 255, 255, .25);
             height: 40px;
-            @include transition-property(background);
-            @include transition-duration;
+            transition-property: background;
+            transition-duration: $default-transition-duration;
 
             &:hover,
             &:focus {
@@ -493,7 +493,7 @@
                 margin-left: -8px;
                 height: 16px;
                 width: 16px;
-                @include sprite-pos($sprite, 'search');
+                @include sprite-pos($search);
             }
         }
     }
@@ -511,7 +511,7 @@
         font-size: 24px;
         background: rgba(255, 255, 255, 1);
         color: #084561;
-        @include single-transition(background);
+        transition: background $default-transition-duration ease;
 
         &:hover,
         &:focus {
@@ -593,7 +593,7 @@
         font-size: 1.6rem;
         position: relative;
         color: lighten($blue, 20%);
-        @include transition;
+        transition: all $default-transition-duration ease;
 
         &:first-child {
             margin-top: 31px;
@@ -661,7 +661,7 @@
         li {
             position: relative;
             padding: 0 0 0 2.5%;
-            @include single-transition(background);
+            transition: background $default-transition-duration ease;
 
             &:not(.inactive):hover,
             a:focus {
@@ -716,12 +716,12 @@
                     &:after {
                         top: 7px;
                         left: 0;
-                        @include opacity(.7);
+                        opacity: .7;
                     }
                     &:hover,
                     &:focus {
                         &:after {
-                            @include opacity(1);
+                            opacity: 1;
                         }
                     }
 
@@ -753,7 +753,7 @@
                             text-indent: 0;
                             padding: 0 15px;
                             border: 1px solid #EEE;
-                            @include box-shadow(rgba(0, 0, 0, .5) 0 0 3px);
+                            box-shadow: rgba(0, 0, 0, .5) 0 0 3px;
                         }
 
                         &:after {
@@ -785,7 +785,7 @@
                 a {
                     position: relative;
                     color: #084561;
-                    @include transition;
+                    transition: all $default-transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -828,9 +828,7 @@
                 padding-bottom: 5px;
                 margin-left: -25px;
                 width: calc(105% + 25px);
-                @include background(
-                    linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px)
-                );
+                background: linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px);
 
                 a {
                     padding-left: 50px;
@@ -871,10 +869,10 @@
             }
         }
         &.ico-articles:after {
-            @include sprite-pos($sprite, 'articles');
+            @include sprite-pos($articles);
         }
         &.ico-tutorials:after {
-            @include sprite-pos($sprite, 'tutorials');
+            @include sprite-pos($tutorials);
         }
 
         &.illu img {
@@ -986,12 +984,12 @@
         overflow: hidden;
         background-repeat: no-repeat;
         background-position: center center;        
-        @include background-size(cover);
+        background-size: cover;
 
         img {
             width: 100%;
             height: 100%;
-            @include opacity(0);
+            opacity: 0;
         }
     }
     .resume {
@@ -1029,7 +1027,7 @@
             background: #EEE;
             color: #777;
             margin-left: 1px;
-            @include transition;
+            transition: all $default-transition-duration ease;
 
             &:before {
                 content: "#";
@@ -1099,7 +1097,7 @@
                 height: 36px;
                 line-height: 36px;
                 padding: 0 8px;
-                @include transition;
+                transition: all $default-transition-duration ease;
 
                 &.ico-after {
                     padding-left: 30px;
@@ -1149,7 +1147,7 @@
             min-width: 45px;
             height: 40px;
             line-height: 40px;
-            @include transition;
+            transition: all $default-transition-duration ease;
             
             &.current {
                 height: 38px;
@@ -1372,7 +1370,7 @@
             display: block;
             margin-top: 24px;
             color: $blue;
-            @include opacity(.5);
+            opacity: .5;
         }
     }
 }
@@ -1497,7 +1495,7 @@
                 height: 30px;
                 line-height: 30px;
                 margin-left: 3px;
-                @include opacity(.7);
+                opacity: .7;
 
                 &.ico-after:after {
                     margin-top: 7px;
@@ -1505,7 +1503,7 @@
 
                 &:hover,
                 &:focus {
-                    @include opacity(1);
+                    opacity: 1;
                 }
             }
         }
@@ -1531,28 +1529,28 @@
             background: #daeaee;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'information');
+                @include sprite-pos($information);
             }
         }
         .question {
             background: #e2daee;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'question');
+                @include sprite-pos($question);
             }
         }
         .error {
             background: #eedada;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'error');
+                @include sprite-pos($error);
             }
         }
         .warning {
             background: #eee7da;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'warning');
+                @include sprite-pos($warning);
             }
         }
         .spoiler-title {
@@ -1736,7 +1734,7 @@ table {
             &[href]:focus {
                 border-color: #FFF;
                 overflow: hidden;
-                @include box-shadow(rgba(0, 0, 0, .3) 0 1px 7px);
+                box-shadow: rgba(0, 0, 0, .3) 0 1px 7px;
             }
 
             img {
@@ -1752,7 +1750,7 @@ table {
             text-align: center;
             text-transform: uppercase;
             color: #EEE;
-            @include text-shadow(rgba(0, 0, 0, .25) 0 0 3px);
+            text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
             background: #777;
 
             &.staff {
@@ -1776,7 +1774,7 @@ table {
                 line-height: 26px;
                 width: 28px;
                 color: #777;
-                @include transition;
+                transition: all $default-transition-duration ease;
 
                 &:first-child {
                     border-right: 0;
@@ -1823,7 +1821,7 @@ table {
                 line-height: 30px;
                 padding: 0 5px;
                 border-bottom: 1px solid #D2D5D6;
-                @include transition;
+                transition: all $default-transition-duration ease;
 
                 &:hover,
                 &:focus {
@@ -1888,7 +1886,7 @@ table {
                 color: #999;
 
                 &:after {
-                    @include opacity(.5);
+                    opacity: .5;
                 }
             }
             .message-hidden {
@@ -1935,7 +1933,7 @@ table {
 
                 a {
                     color: #999;
-                    @include transition;
+                    transition: all $default-transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -1966,7 +1964,7 @@ table {
                         color: #48a200;
 
                         &:after {
-                            @include opacity(1);
+                            opacity: 1;
                         }
                     }
                 }
@@ -1980,7 +1978,7 @@ table {
                     font-weight: bold;
 
                     &:after {
-                        @include opacity(1);
+                        opacity: 1;
                     }
                 }
             }
@@ -2019,7 +2017,7 @@ table {
                 display: block;
                 float: left;
                 margin-left: 3px;
-                @include transition;
+                transition: all $default-transition-duration ease;
 
                 &.ico-after {
                     padding-left: 30px;
@@ -2028,8 +2026,8 @@ table {
                 &:after {
                     top: 7px;
                     left: 7px;
-                    @include transition;
-                    @include opacity(.5);
+                    transition: all $default-transition-duration ease;
+                    opacity: .5;
                 }
             }
             a,
@@ -2050,7 +2048,7 @@ table {
                     outline: none;
 
                     &:after {
-                        @include opacity(1);
+                        opacity: 1;
                     }
                 }
             }
@@ -2253,7 +2251,7 @@ form.topic-message {
     right: $modal-margin;
     bottom: $modal-margin;
     left: $modal-margin;
-    @include box-shadow(0 0 5px #000);
+    box-shadow: 0 0 5px #000;
 
     &.modal-small {
         top: 50%;
@@ -2296,95 +2294,95 @@ form.topic-message {
 .ico-after {
     &.view {
         &:after {
-            @include sprite-pos($sprite, 'view');
+            @include sprite-pos($view);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'view-blue');
+            @include sprite-pos($view-blue);
         }
     }
     &.edit:after {
-        @include sprite-pos($sprite, 'edit');
+        @include sprite-pos($edit);
     }
     &.alert:after {
-        @include sprite-pos($sprite, 'alert');
+        @include sprite-pos($alert);
     }
     &.cite:after {
-        @include sprite-pos($sprite, 'cite');
+        @include sprite-pos($cite);
     }
 
     &.tick {
         &:after {
-            @include sprite-pos($sprite, 'tick');
+            @include sprite-pos($tick);
         }
         &.green:after {
-            @include sprite-pos($sprite, 'tick-green');
+            @include sprite-pos($tick-green);
         }
     }
 
     &.upvote {
         &:after {
-            @include sprite-pos($sprite, 'thumb-up');
+            @include sprite-pos($thumb-up);
         }
         &.voted:after {
-            @include sprite-pos($sprite, 'thumb-up-voted');
+            @include sprite-pos($thumb-up-voted);
         }
     }
     &.downvote {
         &:after {
-            @include sprite-pos($sprite, 'thumb-down');
+            @include sprite-pos($thumb-down);
         }
         &.voted:after {
-            @include sprite-pos($sprite, 'thumb-down-voted');
+            @include sprite-pos($thumb-down-voted);
         }
     }
 
     &.lock {
         &:after {
-            @include sprite-pos($sprite, 'lock');
+            @include sprite-pos($lock);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'lock-blue');
+            @include sprite-pos($lock-blue);
         }
     }
     &.cross {
         &:after {
-            @include sprite-pos($sprite, 'cross');
+            @include sprite-pos($cross);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'cross-blue');
+            @include sprite-pos($cross-blue);
         }
         &.red:after {
-            @include sprite-pos($sprite, 'cross-red');
+            @include sprite-pos($cross-red);
         }
         &.white:after {
-            @include sprite-pos($sprite, 'cross-white');
+            @include sprite-pos($cross-white);
         }
     }
     &.pin {
         &:after {
-            @include sprite-pos($sprite, 'pin');
+            @include sprite-pos($pin);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'pin-blue');
+            @include sprite-pos($pin-blue);
         }
     }
     &.arrow-right {
         &:after {
-            @include sprite-pos($sprite, 'arrow-right');
+            @include sprite-pos($arrow-right);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'arrow-right-blue');
+            @include sprite-pos($arrow-right-blue);
         }
     }
     &.star {
         &:after {
-            @include sprite-pos($sprite, 'star');
+            @include sprite-pos($star);
         }
         &.yellow:after {
-            @include sprite-pos($sprite, 'star-yellow');
+            @include sprite-pos($star-yellow);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'star-blue');
+            @include sprite-pos($star-blue);
         }
     }
 }

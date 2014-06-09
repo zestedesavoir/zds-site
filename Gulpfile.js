@@ -1,6 +1,7 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
-    path = require("path");
+    path = require("path"),
+    spritesmith = require("gulp.spritesmith");
 
 var paths = {
   scripts: "assets/js/**",
@@ -8,21 +9,15 @@ var paths = {
   smileys: "assets/smileys/**",
   copy: "assets/misc/**",
   stylesheet: "assets/scss/main.scss",
-  scss: "assets/scss/**",
-  compass: {
-    sass: "scss",
-    images: "images",
-    css: ".sass-css",
-    project: path.join(__dirname, "assets/")
-  }
+  sass: {
+    sass: "assets/scss",
+    images: "assets/images",
+    includePaths: ["assets/scss"],
+  },
+  sprite: "assets/images/sprite@2x/*.png"
 };
 
-gulp.task("clean-compass", function() {
-  return gulp.src(["assets/.sass-css", "assets/images/sprite{,@2x}-*.png"])
-    .pipe($.clean());
-});
-
-gulp.task("clean", ["clean-compass"], function() {
+gulp.task("clean", function() {
   return gulp.src(["dist/*"])
     .pipe($.clean());
 });
@@ -39,20 +34,44 @@ gulp.task("script", ["test"], function() {
     .pipe($.size({ title: "main.min.js" }));
 });
 
-gulp.task("stylesheet", function() {
-  return gulp.src(paths.scss)
+gulp.task("stylesheet", ["sprite"], function() {
+  return gulp.src(paths.stylesheet)
     .pipe($.newer("dist/css/main.css"))
-    .pipe($.filter("main.scss")) // Pour que tous les fichiers soient pris en compte par gulp-newer
-    .pipe($.compass({
-      project: paths.compass.project,
-      css: paths.compass.css,
-      sass: paths.compass.sass,
-      image: paths.compass.images
+    .pipe($.sass({
+      sass: paths.sass.sass,
+      imagePath: paths.sass.images,
+      includePaths: paths.sass.includePaths
     }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
     .pipe(gulp.dest("dist/css"))
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
     .pipe(gulp.dest("dist/css"));
+});
+
+gulp.task("sprite", function() {
+  var sprite = gulp.src(paths.sprite)
+    .pipe(spritesmith({
+      imgName: "sprite@2x.png",
+      cssName: "_sprite.scss",
+      cssTemplate: function(params) {
+        var output = "", e;
+        for(var i in params.items) {
+          e = params.items[i];
+          output += "$" + e.name + ": " + e.px.offset_x + " " + e.px.offset_y + ";\n";
+        }
+        if(params.items.length > 0) {
+          output += "\n\n";
+          output += "$sprite_height: " + params.items[0].px.total_height + ";\n";
+          output += "$sprite_width: " + params.items[0].px.total_width + ";";
+        }
+
+        return output;
+      }
+    }));
+  sprite.img.pipe(gulp.dest("dist/images"));
+  sprite.css.pipe(gulp.dest(paths.sass.sass));
+  return sprite.css;
 });
 
 gulp.task("images", ["stylesheet"], function() {
@@ -125,6 +144,6 @@ gulp.task("travis", function() {
 });
 
 
-gulp.task("build", ["smileys", "images", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
+gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
 
 gulp.task("default", ["build", "watch"]);
