@@ -745,8 +745,9 @@ def active_account(request):
                 settings.SITE_URL + reverse("zds.tutorial.views.index"),
                 settings.SITE_URL + reverse("zds.article.views.index"),
                 settings.SITE_URL + reverse("zds.member.views.index"),
-                settings.SITE_URL + reverse("zds.forum.views.index"))
-        ))
+                settings.SITE_URL + reverse("zds.forum.views.index")
+            )
+        )
     send_mp(
         bot,
         [usr],
