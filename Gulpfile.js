@@ -42,7 +42,7 @@ gulp.task("stylesheet", ["sprite"], function() {
       imagePath: paths.sass.images,
       includePaths: paths.sass.includePaths
     }))
-    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android 4"], { cascade: true }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
     .pipe(gulp.dest("dist/css"))
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
