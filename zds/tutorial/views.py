@@ -285,7 +285,7 @@ def reject_tutorial(request):
                 u'de la décision ou demander plus de détail si tout cela te '
                 u'semble injuste ou manque de clarté.'
                 .format(author.username, tutorial.title, validation.validator.username,
-                        validation.validator.profile.get_absolute_url(), validation.comment_validator))
+                        settings.SITE_URL + validation.validator.profile.get_absolute_url(), validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -357,8 +357,8 @@ def valid_tutorial(request):
                 .format(author.username,
                         tutorial.title,
                         tutorial.get_absolute_url_online(),
-                        validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator))
+                        validation.validator.username,
+                        settings.SITE_URL + validation.validator.profile.get_absolute_url()))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,

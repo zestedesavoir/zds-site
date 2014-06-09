@@ -1,0 +1,9 @@
+Bonjour {{ username }},
+
+{{ author }} a répondu au sujet "{{title}}" que vous suivez sur Zeste de Savoir
+
+Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
+
+Cordialement,
+
+L'équipe Zeste de Savoir
