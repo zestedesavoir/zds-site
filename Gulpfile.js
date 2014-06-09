@@ -1,6 +1,7 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
-    path = require("path");
+    path = require("path"),
+    spritesmith = require("gulp.spritesmith");
 
 var paths = {
   scripts: "assets/js/**",
@@ -14,7 +15,8 @@ var paths = {
     css: "assets/.sass-css",
     includePaths: ["assets/scss"],
     project: path.join(__dirname, "assets/")
-  }
+  },
+  sprite: "assets/images/sprite@2x/*.png"
 };
 
 gulp.task("clean-compass", function() {
@@ -53,6 +55,31 @@ gulp.task("stylesheet", function() {
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
     .pipe(gulp.dest("dist/css"));
+});
+
+gulp.task("sprite", function() {
+  var sprite = gulp.src(paths.sprite)
+    .pipe(spritesmith({
+      imgName: "sprite@2x.png",
+      cssName: "_sprite.scss",
+      cssTemplate: function(params) {
+        var output = "", e;
+        for(var i in params.items) {
+          e = params.items[i];
+          output += "$" + e.name + ": " + e.px.offset_x + " " + e.px.offset_y + ";\n";
+        }
+        if(params.items.length > 0) {
+          output += "\n\n";
+          output += "$sprite_height: " + params.items[0].px.total_height + ";\n";
+          output += "$sprite_width: " + params.items[0].px.total_width + ";";
+        }
+
+        return output;
+      }
+    }));
+  sprite.img.pipe(gulp.dest("dist/images"));
+  sprite.css.pipe(gulp.dest(paths.sass.sass));
+  return sprite;
 });
 
 gulp.task("images", ["stylesheet"], function() {

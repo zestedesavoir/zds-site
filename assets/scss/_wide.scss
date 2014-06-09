@@ -162,7 +162,7 @@
                     width: 15px;
                     background-image: $sprite;
                     background-repeat: no-repeat;
-                    @include sprite-pos($sprite, 'ariane');
+                    @include sprite-pos($ariane);
                     opacity: .2;
                 }
             }

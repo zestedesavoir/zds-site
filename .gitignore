@@ -23,6 +23,7 @@ base.db
 /assets/images/sprite*.png
 /assets/.sass-css
 /assets/bower_components
+/assets/scss/_sprite.scss
 
 #############
 ## Python

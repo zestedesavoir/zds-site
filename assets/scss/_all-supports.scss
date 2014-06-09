@@ -264,16 +264,16 @@
                 margin: -11px 0 0 -11px;                
 
                 &.ico-messages {
-                    @include sprite-pos($sprite, 'messages');
+                    @include sprite-pos($messages);
                 }
                 &.ico-notifs {
-                    @include sprite-pos($sprite, 'notifications');
+                    @include sprite-pos($notifications);
                 }
                 &.ico-alerts {
-                    @include sprite-pos($sprite, 'alerts');
+                    @include sprite-pos($alerts);
                 }
                 &.ico-params {
-                    @include sprite-pos($sprite, 'params');
+                    @include sprite-pos($params);
                 }
             }
 
@@ -493,7 +493,7 @@
                 margin-left: -8px;
                 height: 16px;
                 width: 16px;
-                @include sprite-pos($sprite, 'search');
+                @include sprite-pos($search);
             }
         }
     }
@@ -869,10 +869,10 @@
             }
         }
         &.ico-articles:after {
-            @include sprite-pos($sprite, 'articles');
+            @include sprite-pos($articles);
         }
         &.ico-tutorials:after {
-            @include sprite-pos($sprite, 'tutorials');
+            @include sprite-pos($tutorials);
         }
 
         &.illu img {
@@ -1529,28 +1529,28 @@
             background: #daeaee;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'information');
+                @include sprite-pos($information);
             }
         }
         .question {
             background: #e2daee;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'question');
+                @include sprite-pos($question);
             }
         }
         .error {
             background: #eedada;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'error');
+                @include sprite-pos($error);
             }
         }
         .warning {
             background: #eee7da;
 
             &.ico-after:after {
-                @include sprite-pos($sprite, 'warning');
+                @include sprite-pos($warning);
             }
         }
         .spoiler-title {
@@ -2294,95 +2294,95 @@ form.topic-message {
 .ico-after {
     &.view {
         &:after {
-            @include sprite-pos($sprite, 'view');
+            @include sprite-pos($view);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'view-blue');
+            @include sprite-pos($view-blue);
         }
     }
     &.edit:after {
-        @include sprite-pos($sprite, 'edit');
+        @include sprite-pos($edit);
     }
     &.alert:after {
-        @include sprite-pos($sprite, 'alert');
+        @include sprite-pos($alert);
     }
     &.cite:after {
-        @include sprite-pos($sprite, 'cite');
+        @include sprite-pos($cite);
     }
 
     &.tick {
         &:after {
-            @include sprite-pos($sprite, 'tick');
+            @include sprite-pos($tick);
         }
         &.green:after {
-            @include sprite-pos($sprite, 'tick-green');
+            @include sprite-pos($tick-green);
         }
     }
 
     &.upvote {
         &:after {
-            @include sprite-pos($sprite, 'thumb-up');
+            @include sprite-pos($thumb-up);
         }
         &.voted:after {
-            @include sprite-pos($sprite, 'thumb-up-voted');
+            @include sprite-pos($thumb-up-voted);
         }
     }
     &.downvote {
         &:after {
-            @include sprite-pos($sprite, 'thumb-down');
+            @include sprite-pos($thumb-down);
         }
         &.voted:after {
-            @include sprite-pos($sprite, 'thumb-down-voted');
+            @include sprite-pos($thumb-down-voted);
         }
     }
 
     &.lock {
         &:after {
-            @include sprite-pos($sprite, 'lock');
+            @include sprite-pos($lock);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'lock-blue');
+            @include sprite-pos($lock-blue);
         }
     }
     &.cross {
         &:after {
-            @include sprite-pos($sprite, 'cross');
+            @include sprite-pos($cross);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'cross-blue');
+            @include sprite-pos($cross-blue);
         }
         &.red:after {
-            @include sprite-pos($sprite, 'cross-red');
+            @include sprite-pos($cross-red);
         }
         &.white:after {
-            @include sprite-pos($sprite, 'cross-white');
+            @include sprite-pos($cross-white);
         }
     }
     &.pin {
         &:after {
-            @include sprite-pos($sprite, 'pin');
+            @include sprite-pos($pin);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'pin-blue');
+            @include sprite-pos($pin-blue);
         }
     }
     &.arrow-right {
         &:after {
-            @include sprite-pos($sprite, 'arrow-right');
+            @include sprite-pos($arrow-right);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'arrow-right-blue');
+            @include sprite-pos($arrow-right-blue);
         }
     }
     &.star {
         &:after {
-            @include sprite-pos($sprite, 'star');
+            @include sprite-pos($star);
         }
         &.yellow:after {
-            @include sprite-pos($sprite, 'star-yellow');
+            @include sprite-pos($star-yellow);
         }
         &.blue:after {
-            @include sprite-pos($sprite, 'star-blue');
+            @include sprite-pos($star-blue);
         }
     }
 }

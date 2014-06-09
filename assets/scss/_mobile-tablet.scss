@@ -233,7 +233,7 @@
                     width: 22px;
                     background-image: $sprite;
                     background-repeat: no-repeat;
-                    @include sprite-pos($sprite, 'menu');
+                    @include sprite-pos($menu);
                 }
             }
         }

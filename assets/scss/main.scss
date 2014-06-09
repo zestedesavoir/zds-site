@@ -17,7 +17,7 @@
 $default-transition-duration: .15s;
 
 //$sprite: sprite-map("sprite/*.png");
-$sprite2x: sprite-map("sprite@2x/*.png");
+$sprite2x: url("../images/sprite@2x.png");
 $sprite: $sprite2x;
 
 
@@ -49,11 +49,11 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
 /**
  * Custom mixins
  */
-@mixin sprite-pos($map, $_item, $retina: false){
+@mixin sprite-pos($_item, $retina: false){
     @if($retina == false){
-        background-position: sprite-position($map, $_item);
+        background-position: nth($_item, 1) nth($_item, 2);
     } @else {
-        background-position: round(nth(sprite-position($map, $_item), 1)/ 2) round(nth(sprite-position($map, $_item), 2)/ 2);
+        background-position: round(nth($_item, 1)/ 2) round(nth($_item, 2)/ 2);
     }
 }
 
@@ -69,7 +69,10 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
  */
 @import "mixins/display-flex";
 
-
+/**
+ * Import sprite
+ */
+@import "sprite";
 
 /**
  * Import custom styles
@@ -89,7 +92,7 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
 @import "extra-wide";
 
 // Retina-like support
-//@import "high-pixel-ratio";
+@import "high-pixel-ratio";
 
 // Dependencies
 @import "pygments";
