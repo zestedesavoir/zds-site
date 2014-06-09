@@ -37,6 +37,7 @@ Après avoir mis à jour votre dépot, vous devez executer les commandes suivant
 ```
 python manage.py migrate
 pip install --upgrade -r requirements.txt
+npm update
 gulp build
 ```
 

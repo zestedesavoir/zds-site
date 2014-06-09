@@ -27,7 +27,6 @@ Une fois dans votre environnement python (`source ../bin/activate` si vous utili
 sudo npm install -g bower gulp
 pip install --upgrade -r requirements.txt
 npm install
-bower install
 gulp build
 python manage.py syncdb
 python manage.py migrate

@@ -3,11 +3,12 @@ var gulp = require("gulp"),
     path = require("path");
 
 var paths = {
-  scripts: "assets/js/**/*.js",
-  images: "assets/images/**/*.{png,ico}",
-  smileys: "assets/smileys/*",
-  copy: ["assets/misc/**/*"],
+  scripts: "assets/js/**",
+  images: "assets/images/**",
+  smileys: "assets/smileys/**",
+  copy: "assets/misc/**",
   stylesheet: "assets/scss/main.scss",
+  scss: "assets/scss/**",
   compass: {
     sass: "scss",
     images: "images",
@@ -28,6 +29,7 @@ gulp.task("clean", ["clean-compass"], function() {
 
 gulp.task("script", ["test"], function() {
   return gulp.src(paths.scripts)
+    .pipe($.newer("dist/js/main.js"))
     .pipe($.concat("main.js", { newLine: "\r\n\r\n" }))
     .pipe(gulp.dest("dist/js"))
     .pipe($.size({ title: "main.js" }))
@@ -38,7 +40,9 @@ gulp.task("script", ["test"], function() {
 });
 
 gulp.task("stylesheet", function() {
-  return gulp.src(paths.stylesheet)
+  return gulp.src(paths.scss)
+    .pipe($.newer("dist/css/main.css"))
+    .pipe($.filter("main.scss")) // Pour que tous les fichiers soient pris en compte par gulp-newer
     .pipe($.compass({
       project: paths.compass.project,
       css: paths.compass.css,
@@ -53,6 +57,7 @@ gulp.task("stylesheet", function() {
 
 gulp.task("images", ["stylesheet"], function() {
   return gulp.src(paths.images)
+    .pipe($.newer("dist/images"))
     .pipe($.cache($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
     .pipe($.size())
     .pipe(gulp.dest("dist/images"));
@@ -60,6 +65,7 @@ gulp.task("images", ["stylesheet"], function() {
 
 gulp.task("smileys", function() {
   return gulp.src(paths.smileys)
+    .pipe($.newer("dist/smileys"))
     .pipe($.cache($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
     .pipe($.size())
     .pipe(gulp.dest("dist/smileys"));
@@ -67,6 +73,7 @@ gulp.task("smileys", function() {
 
 gulp.task("vendors", function() {
   return $.bowerFiles()
+    .pipe($.newer("dist/js/vendors.js"))
     .pipe($.flatten()) // remove folder structure
     .pipe($.size({ title: "vendors", showFiles: true }))
     .pipe(gulp.dest("dist/js/vendors"))
@@ -86,11 +93,11 @@ gulp.task("merge-scripts", ["script", "vendors"], function() {
     .pipe(gulp.dest("dist/js/"));
 });
 
-gulp.task("watch", function() {
+gulp.task("watch", function(cb) {
   gulp.watch(paths.script, ["script"]);
   gulp.watch(paths.copy, ["copy"]);
   gulp.watch(paths.smiley, ["smileys"]);
-  gulp.watch(paths.imafes, ["images"]);
+  gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.stylesheet, ["stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
@@ -120,4 +127,4 @@ gulp.task("travis", function() {
 
 gulp.task("build", ["smileys", "images", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
 
-gulp.task("default", ["build"]);
+gulp.task("default", ["build", "watch"]);

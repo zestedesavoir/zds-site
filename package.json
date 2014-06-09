@@ -8,6 +8,7 @@
   "scripts": {
     "test": "gulp test",
     "postinstall": "bower install",
+    "postupdate": "bower install",
     "travis": "gulp travis"
   },
   "repository": {
@@ -26,12 +27,14 @@
     "gulp-clean": "^0.3.0",
     "gulp-compass": "^1.1.9",
     "gulp-concat": "^2.2.0",
+    "gulp-filter": "^0.4.1",
     "gulp-flatten": "0.0.2",
     "gulp-imagemin": "^0.5.1",
     "gulp-jshint": "^1.6.2",
     "gulp-livereload": "^2.0.0",
     "gulp-load-plugins": "^0.5.1",
     "gulp-minify-css": "^0.3.4",
+    "gulp-newer": "^0.3.0",
     "gulp-rename": "^1.2.0",
     "gulp-size": "^0.3.1",
     "gulp-uglify": "^0.3.0",
