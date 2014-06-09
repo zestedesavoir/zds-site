@@ -194,6 +194,10 @@ class Topic(models.Model):
             .select_related("author")\
             .order_by('pubdate')\
             .first()
+    
+    def get_followers_by_email(self):
+        """Return set on followers by mail"""
+        return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")
 
     def last_read_post(self):
         """Return the last post the user has read."""
@@ -232,6 +236,21 @@ class Topic(models.Model):
 
         try:
             TopicFollowed.objects.get(topic=self, user=user)
+        except TopicFollowed.DoesNotExist:
+            return False
+        return True
+    
+    def is_email_followed(self, user=None):
+        """Check if the topic is currently email followed by the user.
+
+        This method uses the TopicFollowed objects.
+
+        """
+        if user is None:
+            user = get_current_user()
+
+        try:
+            TopicFollowed.objects.get(topic=self, user=user, email=True)
         except TopicFollowed.DoesNotExist:
             return False
         return True
@@ -323,6 +342,7 @@ class TopicFollowed(models.Model):
 
     topic = models.ForeignKey(Topic)
     user = models.ForeignKey(User, related_name='topics_followed')
+    email = models.BooleanField('Notification par mail', default=False)
 
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
@@ -351,12 +371,14 @@ def mark_read(topic):
     t.save()
 
 
-def follow(topic):
+def follow(topic, user=None):
     """Toggle following of a topic for an user."""
     ret = None
+    if user is None:
+        user=get_current_user()
     try:
         existing = TopicFollowed.objects.get(
-            topic=topic, user=get_current_user()
+            topic=topic, user=user
         )
     except TopicFollowed.DoesNotExist:
         existing = None
@@ -365,7 +387,7 @@ def follow(topic):
         # Make the user follow the topic
         t = TopicFollowed(
             topic=topic,
-            user=get_current_user()
+            user=user
         )
         t.save()
         ret = True
@@ -373,6 +395,34 @@ def follow(topic):
         # If user is already following the topic, we make him don't anymore
         existing.delete()
         ret = False
+    return ret
+
+def follow_by_email(topic, user=None):
+    """Toggle following of a topic for an user."""
+    ret = None
+    if user is None:
+        user=get_current_user()
+    try:
+        existing = TopicFollowed.objects.get(
+            topic=topic, \
+            user=user
+        )
+    except TopicFollowed.DoesNotExist:
+        existing = None
+
+    if not existing:
+        # Make the user follow the topic
+        t = TopicFollowed(
+            topic=topic,
+            user=user,
+            email = True
+        )
+        t.save()
+        ret = True
+    else:
+        existing.email = not existing.email
+        existing.save()
+        ret = existing.email
     return ret
 
 

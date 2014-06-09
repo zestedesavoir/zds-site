@@ -9,15 +9,20 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.template import Context
+from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from haystack.inputs import AutoQuery
+from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, follow, never_read, \
+from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
     mark_read, TopicFollowed, sub_tag
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
@@ -27,9 +32,6 @@ from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from haystack.query import SearchQuerySet
-from haystack.inputs import AutoQuery
-
 
 
 def index(request):
@@ -359,6 +361,8 @@ def edit(request):
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     if "follow" in data:
         resp["follow"] = follow(g_topic)
+    if "email" in data:
+        resp["email"] = follow_by_email(g_topic)
     if request.user == g_topic.author \
             or request.user.has_perm("forum.change_topic"):
         if "solved" in data:
@@ -424,7 +428,7 @@ def answer(request):
         raise PermissionDenied
     last_post_pk = g_topic.last_message.pk
 
-    # Retrieve 10 last posts of the currenta topic.
+    # Retrieve 10 last posts of the current topic.
 
     posts = \
         Post.objects.filter(topic=g_topic) \
@@ -471,10 +475,43 @@ def answer(request):
                 post.save()
                 g_topic.last_message = post
                 g_topic.save()
+                #Send mail
+                subject = "ZDS - Notification: " + g_topic.title
+                from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
+                followers = g_topic.get_followers_by_email()
+                for follower in followers:
+                    receiver = follower.user
+                    if receiver == request.user:
+                        continue
+                    pos = post.position - 1
+                    last_read = TopicRead.objects.filter(
+                        topic=g_topic,
+                        post__position=pos,
+                        user=receiver).count()
+                    if last_read > 0:
+                        message_html = get_template('email/notification/new.html') \
+                            .render(
+                                Context({
+                                    'username': receiver.username,
+                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                        )
+                        message_txt = get_template('email/notification/new.txt').render(
+                            Context({
+                                'username': receiver.username,
+                                'url': settings.SITE_URL + post.get_absolute_url(),
+                                'author': request.user.username
+                            })
+                        )
+                        msg = EmailMultiAlternatives(
+                            subject, message_txt, from_email, [
+                                receiver.email])
+                        msg.attach_alternative(message_html, "text/html")
+                        msg.send()
 
                 # Follow topic on answering
-
-                if not g_topic.is_followed():
+                if not g_topic.is_followed(user=request.user):
                     follow(g_topic)
                 return redirect(post.get_absolute_url())
             else:

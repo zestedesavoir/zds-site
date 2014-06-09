@@ -10,8 +10,9 @@ from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentLike, CommentDislike, Alert
+from django.core import mail
 
-from .models import Post, Topic
+from .models import Post, Topic, TopicFollowed, TopicRead
 
 
 class ForumMemberTests(TestCase):
@@ -115,10 +116,17 @@ class ForumMemberTests(TestCase):
     def test_answer(self):
         """To test all aspects of answer."""
         user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=self.user, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
+        TopicRead(topic=topic1, user=user1, post=post3).save()
+        TopicRead(topic=topic1, user=user2, post=post3).save()
+        TopicRead(topic=topic1, user=self.user, post=post3).save()
+        TopicFollowed(topic=topic1, user=user1, email=True).save()
+        TopicFollowed(topic=topic1, user=user2, email=True).save()
+        TopicFollowed(topic=topic1, user=self.user, email=True).save()
 
         result = self.client.post(
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
@@ -129,6 +137,7 @@ class ForumMemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
+        self.assertEquals(len(mail.outbox), 2)
 
         # check topic's number
         self.assertEqual(Topic.objects.all().count(), 1)
@@ -149,6 +158,8 @@ class ForumMemberTests(TestCase):
             Post.objects.get(
                 pk=4).text,
             u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
+        
+        
 
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by member."""

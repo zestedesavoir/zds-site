@@ -127,6 +127,16 @@
             {% endif %}
         </a>
     </li>
+    <li>
+        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&email=1"
+           class="ico-after arrow-left {% if topic.is_followed %}blue{% endif %}">
+            {% if topic.is_email_followed %}
+                Ne plus être alerté par mail
+            {% else %}
+                Être alerté par mail
+            {% endif %}
+        </a>
+    </li>
 {% endblock %}
 
 
