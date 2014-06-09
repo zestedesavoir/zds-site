@@ -1,6 +1,6 @@
 Bonjour {{ username }},
 
-{{ author }} a répondu a un topic que vous suivez sur Zeste de Savoir
+{{ author }} a répondu au sujet "{{title}}" que vous suivez sur Zeste de Savoir
 
 Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
 

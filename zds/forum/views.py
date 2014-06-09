@@ -493,6 +493,7 @@ def answer(request):
                             .render(
                                 Context({
                                     'username': receiver.username,
+                                    'title':g_topic.title,
                                     'url': settings.SITE_URL + post.get_absolute_url(),
                                     'author': request.user.username
                                 })
@@ -500,6 +501,7 @@ def answer(request):
                         message_txt = get_template('email/notification/new.txt').render(
                             Context({
                                 'username': receiver.username,
+                                'title':g_topic.title,
                                 'url': settings.SITE_URL + post.get_absolute_url(),
                                 'author': request.user.username
                             })
