@@ -22,6 +22,7 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "gulp": "^3.7.0",
+    "gulp-autoprefixer": "0.0.7",
     "gulp-bower-files": "^0.2.4",
     "gulp-cache": "^0.1.11",
     "gulp-clean": "^0.3.0",

@@ -12,19 +12,12 @@ var paths = {
   sass: {
     sass: "assets/scss",
     images: "assets/images",
-    css: "assets/.sass-css",
     includePaths: ["assets/scss"],
-    project: path.join(__dirname, "assets/")
   },
   sprite: "assets/images/sprite@2x/*.png"
 };
 
-gulp.task("clean-compass", function() {
-  return gulp.src(["assets/.sass-css", "assets/images/sprite{,@2x}-*.png"])
-    .pipe($.clean());
-});
-
-gulp.task("clean", ["clean-compass"], function() {
+gulp.task("clean", function() {
   return gulp.src(["dist/*"])
     .pipe($.clean());
 });
@@ -41,16 +34,15 @@ gulp.task("script", ["test"], function() {
     .pipe($.size({ title: "main.min.js" }));
 });
 
-gulp.task("stylesheet", function() {
+gulp.task("stylesheet", ["sprite"], function() {
   return gulp.src(paths.stylesheet)
     .pipe($.newer("dist/css/main.css"))
     .pipe($.sass({
-      project: paths.sass.project,
-      css: paths.sass.css,
       sass: paths.sass.sass,
       imagePath: paths.sass.images,
       includePaths: paths.sass.includePaths
     }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ie 8", "ie 7"], { cascade: true }))
     .pipe(gulp.dest("dist/css"))
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
@@ -79,7 +71,7 @@ gulp.task("sprite", function() {
     }));
   sprite.img.pipe(gulp.dest("dist/images"));
   sprite.css.pipe(gulp.dest(paths.sass.sass));
-  return sprite;
+  return sprite.css;
 });
 
 gulp.task("images", ["stylesheet"], function() {
@@ -152,6 +144,6 @@ gulp.task("travis", function() {
 });
 
 
-gulp.task("build", ["smileys", "images", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
+gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
 
 gulp.task("default", ["build", "watch"]);
