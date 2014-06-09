@@ -36,7 +36,6 @@ gulp.task("script", ["test"], function() {
 
 gulp.task("stylesheet", ["sprite"], function() {
   return gulp.src(paths.stylesheet)
-    .pipe($.newer("dist/css/main.css"))
     .pipe($.sass({
       sass: paths.sass.sass,
       imagePath: paths.sass.images,
@@ -118,6 +117,7 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.stylesheet, ["stylesheet"]);
+  gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
     filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
