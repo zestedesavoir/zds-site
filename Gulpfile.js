@@ -9,6 +9,7 @@ var paths = {
   smileys: "assets/smileys/**",
   copy: "assets/misc/**",
   stylesheet: "assets/scss/main.scss",
+  scss: ["assets/scss/**", "!assets/scss/_sprite.scss"],
   sass: {
     sass: "assets/scss",
     images: "assets/images",
@@ -116,7 +117,7 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.copy, ["copy"]);
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
-  gulp.watch(paths.stylesheet, ["stylesheet"]);
+  gulp.watch(paths.scss, ["stylesheet"]);
   gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
