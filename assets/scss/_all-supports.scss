@@ -1586,7 +1586,7 @@
             img,
             video,
             pre,
-            code,
+            code:first-child,
             table,
             blockquote,
             embed,
@@ -1598,7 +1598,7 @@
             img,
             video,
             pre,
-            code {
+            code:first-child {
                 display: block;
             }
 
@@ -1609,6 +1609,7 @@
             blockquote ~ figcaption {
                 font-style: italic;
                 text-align: left;
+
                 a {
                     color : #f8ad32;
                 }
@@ -1619,9 +1620,9 @@
         }
 
         blockquote {
-            color : #999;
-            padding-left: 20px;
-            border-left: 2px solid #999;
+            color : #777;
+            padding: 15px;
+            border-left: 3px solid #999;
         }
 
         code, kbd, pre, samp {
@@ -2112,6 +2113,10 @@ form.topic-message {
 /* ==============
     ALL: Footer
    ============== */
+.footer-container footer {
+    color: #424242;
+    padding: 20px 0;
+}
 .page-footer {
     background: darken($blue, 10%);
     height: 50px;
@@ -2140,18 +2145,23 @@ form.topic-message {
         li {
             display: inline-block;
             margin-left: 25px;
-
-            a {
-                text-decoration: none;
-                color: #EEE;
-                border-bottom: 1px solid transparent;
-
-                &:hover,
-                &:focus {
-                    border-bottom-color: $orange;
-                }
-            }
         }
+    }
+
+    a {
+        text-decoration: none;
+        color: #EEE;
+        border-bottom: 1px solid transparent;
+
+        &:hover,
+        &:focus {
+            border-bottom-color: $orange;
+        }
+    }
+
+    .version,
+    .version a {
+        color: rgba(255, 255, 255, .5);
     }
 }
 
@@ -2202,6 +2212,7 @@ form.topic-message {
     select,
     textarea {
         margin: 10px 15px;
+
         &:not([type=checkbox]):not([type=radio]) {
             width: calc(98% - 32px) !important;
         }
@@ -2418,16 +2429,6 @@ form.topic-message {
             }
         }
     }
-}
-
-
-/* ==============
-    ALL: Footer
-   ============== */
-
-.footer-container footer {
-    color: #424242;
-    padding: 20px 0;
 }
 
 
