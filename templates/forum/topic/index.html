@@ -129,11 +129,11 @@
     </li>
     <li>
         <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&email=1"
-           class="ico-after arrow-left {% if topic.is_followed %}blue{% endif %}">
+           class="ico-after cite {% if topic.is_followed %}blue{% endif %}">
             {% if topic.is_email_followed %}
-                Ne plus être alerté par mail
+                Ne plus être notifié par courriel
             {% else %}
-                Être alerté par mail
+                Être notifié par courriel
             {% endif %}
         </a>
     </li>
