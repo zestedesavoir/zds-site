@@ -63,8 +63,7 @@
                 {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
-            {# TODO: permettre l'édition si aucune lecure sur le message #}
-            {% if True %}
+            {% if last_message.author == user %}
                 {% set False as can_edit %}
             {% endif %}
     
