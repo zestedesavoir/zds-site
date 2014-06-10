@@ -16,7 +16,7 @@
  */
 $default-transition-duration: .15s;
 
-//$sprite: sprite-map("sprite/*.png");
+//$sprite: sprite-map("../images/sprite.png");
 $sprite2x: url("../images/sprite@2x.png");
 $sprite: $sprite2x;
 
@@ -55,13 +55,6 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
     } @else {
         background-position: round(nth($_item, 1)/ 2) round(nth($_item, 2)/ 2);
     }
-}
-
-@mixin pointer-events($type: none) {
-    $type: unquote($type);
-    @include experimental(pointer-events, $type,
-        -moz, -webkit, not -o, not -ms, -khtml, official
-    );
 }
 
 /**

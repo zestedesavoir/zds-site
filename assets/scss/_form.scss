@@ -193,8 +193,10 @@
 
     // TEMP STYLES TO PATCH TEMP TEMPLATE PACK MIX
 
-    .checkbox {
+    .checkbox,
+    .radio {
         padding: 10px 0;
+
         input {
             margin-top: 8px;
         }
