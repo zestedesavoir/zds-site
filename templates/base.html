@@ -431,7 +431,7 @@
                                         <li>
                                             <form 
                                                 method="post"
-                                                action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}"
+                                                action="{% url "zds.member.views.logout_view" %}"
                                             >
                                                 {% csrf_token %}
                                                 <button type="submit">Déconnexion</button>
@@ -442,7 +442,7 @@
                             </div>
 
                         {% else %} {# Not logged #}
-                            <a href="{% url "zds.member.views.login_view" %}?next={{ request.build_absolute_uri }}">Connexion</a>
+                            <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">Connexion</a>
                             <a href="{% url "zds.member.views.register_view" %}">Inscription</a>
                         {% endif %}
                     </div>
