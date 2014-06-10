@@ -32,7 +32,17 @@
 
 
 {% block content %}
-    <img src="{{ image.physical.url }}" alt="">
+    <figure>
+        <img src="{{ image.physical.url }}" alt="{{ image.legend }}">
+        <figcaption>{{ image.legend }}</figcaption>
+    </figure>
 
     {% crispy form %}
+
+    <hr class="clearfix">
+
+    <p>
+        Code markdown pour insérer cette image : <br>
+        <input type="text" value="![{{ image.legend }}]({{ image.physical.url }})" readonly onclick="this.select()">
+    </p>
 {% endblock %}
