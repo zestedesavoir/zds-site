@@ -46,11 +46,50 @@
         </div>
     {% endif %}
 
-    <div class="topic-list navigable-list">
-        {% for topic in topics %}
-            {% include "forum/includes/topic_row.part.html" %}
-        {% endfor %}
-    </div>
+    {% if topics %}
+        <div class="topic-list navigable-list">
+            {% for topic in topics %}
+                {% include "forum/includes/topic_row.part.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not sticky_topics and not topics %}
+        <p>
+            Aucun sujet trouvé.
+        </p>
+    {% endif %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>Filtres</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve"
+                   class="ico-after tick green"
+                >
+                    Sujets résolus
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=unsolve"
+                   class="ico-after tick blue"
+                >
+                    Sujets non résolus
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}"
+                   class="ico-after cross blue"
+                >
+                    Annuler le filtre
+                </a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
