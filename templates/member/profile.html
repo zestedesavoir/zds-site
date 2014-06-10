@@ -157,6 +157,11 @@
                 </li>
                 {% if perms.member.change_profile %}
                     <li>
+                        <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="ico-after edit blue">
+                            Modifier le profil
+                        </a>
+                    </li>
+                    <li>
                         <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
                             Attribuer un tuto SdZ
                         </a>
