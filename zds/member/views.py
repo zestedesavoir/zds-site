@@ -543,9 +543,9 @@ def login_view(request):
                     request.session["get_token"] = generate_token()
                     if "remember" not in request.POST:
                         request.session.set_expiry(0)
-
+                    profile.last_ip_address = get_client_ip(request)
+                    profile.save()
                     # redirect the user if needed
-
                     try:
                         return redirect(next_page)
                     except:
