@@ -133,20 +133,21 @@
 
 
 {% block sidebar_actions %}
-    {% ifequal profile.user user %}
-        <div>
-            <h3>Mon compte</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.member.views.settings_profile" %}" class="ico-after gear blue">
-                        Paramètres
-                    </a>
-                </li>
-            </ul>
-        </div>
-    {% endifequal %}
-
     {% if user.is_authenticated %}
+        {% if profile.user == user or perms.member.change_profile %}
+            <div>
+                {% if profile.user == user %}
+                    <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
+                        Paramètres <span class="wide">de mon compte</span>
+                    </a>
+                {% else %}
+                    <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="new-btn ico-after edit blue">
+                        Modifier le profil
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
         <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
             <h3>Actions</h3>
             <ul>
@@ -166,6 +167,201 @@
                             </p>
                             {% crispy form %}
                         </div>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
+        <h3>Activité</h3>
+
+        <h4>Tutoriels</h4>
+        <ul>
+            <li class="inactive">
+                <span>
+                    En cours de rédaction
+                    <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                </span>
+            </li>
+            <li class="inactive">
+                <span>
+                    En cours de validation
+                    <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                </span>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                    En version bêta
+                    <span class="count">{{ profile.get_beta_tutos.count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                    En ligne
+                    <span class="count">{{ profile.get_public_tutos.count }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <h4>Articles</h4>
+        <ul>
+            <li class="inactive">
+                <span>
+                    En cours de rédaction
+                    <span class="count">{{ profile.get_draft_articles.count }}</span>
+                </span>
+            </li>
+            <li class="inactive">
+                <span>
+                    En attente de validation
+                    <span class="count">{{ profile.get_validate_articles.count }}</span>
+                </span>
+            </li>
+            <li>
+                <a href="{% url "zds.article.views.find_article" usr.pk %}">
+                    En ligne
+                    <span class="count">{{ profile.get_public_articles.count }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <h4>Forums</h4>
+        <ul>
+            <li>
+                <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
+                    Sujets créés
+                    <span class="count">{{ profile.get_topic_count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.find_post" usr.pk %}">
+                    Messages postés
+                    <span class="count">{{ profile.get_post_count }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% if perms.member.change_profile %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Modération">
+            <h3>Modération</h3>
+
+            <h4>Statistiques</h4>
+            <ul>
+                <li class="inactive">
+                    <span>
+                        Nombre de messages modérés
+                        <span class="count">{{ profile.get_invisible_posts_count }}</span>
+                    </span>
+                </li>
+                <li class="inactive">
+                    <span>
+                        Nombre d'alertes actives
+                        <span class="count">{{ profile.get_alerts_posts_count }}</span>
+                    </span>
+                </li>
+            </ul>
+
+            <h4>Sanctions</h4>
+            <ul>
+                {% if profile.can_write_now %}
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
+                            Lecture seule temporaire
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-big">
+                            <p>
+                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
+                            </p>
+                            <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="number" name="ls-jrs" class="expand" placeholder="Durée de la lecture seule, en jours" min="1">
+                            {% csrf_token %}
+                            <button type="submit" name="ls-temp">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ls-{{ profile.pk }}" class="open-modal">
+                            Lecture seule
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-medium">
+                            <p>
+                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule ?
+                            </p>
+                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
+                            <button type="submit" name="ls">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
+                            Ôter la lecture seule
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-medium">
+                            <p>
+                                Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
+                            </p>
+                            <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?">
+                            {% csrf_token %}
+                            <button type="submit" name="un-ls">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+
+                {% if profile.can_read_now %}
+                    <li>
+                        <a href="#ban-temp-{{ profile.pk }}" class="open-modal">
+                            Bannir temporairement
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ban-temp-{{ profile.pk }}" class="modal modal-big">
+                            <p>
+                                Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
+                            </p>
+                            <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="number" name="ban-jrs" class="expand" placeholder="Durée du bannissement, en jours" min="1">
+                            {% csrf_token %}
+                            <button type="submit" name="ban-temp">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ban-{{ profile.pk }}" class="open-modal">
+                            Bannir définitivement
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ban-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Pour quelle raison souhaitez-vous bannir ce membre ?
+                            </p>
+                            <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
+                            <button type="submit" name="ban">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#unban-{{ profile.pk }}" class="open-modal">
+                            Ôter le bannissement
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="unban-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Pour quelle raison souhaitez vous lever la sanction de ce membre ?
+                            </p>
+                            <input type="text" name="unban-text" class="expand" placeholder="Bonne action ?">
+                            {% csrf_token %}
+                            <button type="submit" name="un-ban">
+                                Confirmer
+                            </button>
+                        </form>
                     </li>
                 {% endif %}
             </ul>
