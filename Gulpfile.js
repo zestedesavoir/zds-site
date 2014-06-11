@@ -113,7 +113,7 @@ gulp.task("merge-scripts", ["script", "vendors"], function() {
 });
 
 gulp.task("watch", function(cb) {
-  gulp.watch(paths.script, ["script"]);
+  gulp.watch(paths.scripts, ["script"]);
   gulp.watch(paths.copy, ["copy"]);
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);

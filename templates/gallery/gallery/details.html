@@ -56,12 +56,13 @@
         </ul>
     </div>
     
-    <!-- Beurk, pas beau! 
+    <!-- Beurk, pas beau!  -->
     {% if gallery_mode.is_write %}
         {% crispy form %}
     {% endif %}
-    -->
-
+    
+    
+    <button class="toggle-gallery-view btn btn-grey"></button>
 
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
