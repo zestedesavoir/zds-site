@@ -135,14 +135,9 @@
 {% block sidebar_actions %}
     {% ifequal profile.user user %}
         <div>
-            <h3>Mon compte</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.member.views.settings_profile" %}" class="ico-after gear blue">
-                        Paramètres
-                    </a>
-                </li>
-            </ul>
+            <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
+                Paramètres <span class="wide">de mon compte</span>
+            </a>
         </div>
     {% endifequal %}
 
@@ -155,6 +150,19 @@
                         Envoyer un message privé
                     </a>
                 </li>
+                {% if perms.member.change_profile %}
+                    <li>
+                        <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
+                            Attribuer un tuto SdZ
+                        </a>
+                        <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Choisissez un tutoriel du SdZ à attribuer au membre.
+                            </p>
+                            {% crispy form %}
+                        </div>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}
@@ -163,6 +171,34 @@
         <h3>Activité</h3>
 
         <h4>Tutoriels</h4>
+        <ul>
+            <li class="inactive">
+                <span>
+                    En cours de rédaction
+                    <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                </span>
+            </li>
+            <li class="inactive">
+                <span>
+                    En cours de validation
+                    <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                </span>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                    En version bêta
+                    <span class="count">{{ profile.get_beta_tutos.count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                    En ligne
+                    <span class="count">{{ profile.get_public_tutos.count }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <h4>Articles</h4>
         <ul>
             <li class="inactive">
                 <span>
@@ -183,6 +219,22 @@
                 </a>
             </li>
         </ul>
+
+        <h4>Forums</h4>
+        <ul>
+            <li>
+                <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
+                    Sujets créés
+                    <span class="count">{{ profile.get_topic_count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.find_post" usr.pk %}">
+                    Messages postés
+                    <span class="count">{{ profile.get_post_count }}</span>
+                </a>
+            </li>
+        </ul>
     </div>
 
     {% if user.is_authenticated and perms.member.change_profile %}
@@ -194,16 +246,21 @@
                         Modifier le profil
                     </a>
                 </li>
-                <li>
-                    <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
-                        Attribuer un tuto SdZ
-                    </a>
-                    <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
-                        <p>
-                            Choisissez un tutoriel du SdZ à attribuer au membre.
-                        </p>
-                        {% crispy form %}
-                    </div>
+            </ul>
+
+            <h4>Statistiques</h4>
+            <ul>
+                <li class="inactive">
+                    <span>
+                        Nombre de messages modérés
+                        <span class="count">{{ profile.get_invisible_posts_count }}</span>
+                    </span>
+                </li>
+                <li class="inactive">
+                    <span>
+                        Nombre d'alertes actives
+                        <span class="count">{{ profile.get_alerts_posts_count }}</span>
+                    </span>
                 </li>
             </ul>
         </div>
