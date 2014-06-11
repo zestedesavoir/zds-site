@@ -42,7 +42,7 @@
         <span class="authors-label">Galerie partagée avec : </span>
         <ul>
             {% for u in gallery.get_users %}
-                {% captureas mode %}
+                {% captureas info %}
                     {% if u.mode == 'R' %}
                         Lecture
                     {% elif u.mode == 'W' %}
@@ -50,16 +50,17 @@
                     {% endif %}
                 {% endcaptureas %}
                 <li>
-                    {% include "misc/member_item.part.html" with member=u.user info=mode avatar=True %}
+                    {% include "misc/member_item.part.html" with member=u.user avatar=True %}
                 </li>
             {% endfor %}
+
             {% if gallery_mode.is_write %}
                 <li>
-                    <a href="#add-user-modal" class="open-modal">Ajouter un utilisateur</a>
+                    <a href="#add-user-modal" class="open-modal ico-after more blue">Ajouter un utilisateur</a>
+                    <div id="add-user-modal" class="modal modal-big">
+                        {% crispy form %}
+                    </div>
                 </li>
-                <div id="add-user-modal" class="modal modal-medium">
-                    {% crispy form %}
-                </div>
             {% endif %}
         </ul>
     </div>

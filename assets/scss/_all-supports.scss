@@ -1397,16 +1397,27 @@
         border-bottom: 1px solid #CCC;
         color: $orange;
     }
+}
 
+.topic-list-small {
     .topic {
         height: 60px;
+    }
+    .topic-infos {
+        input[type=checkbox] {
+            margin-top: 18px;
+        }
     }
     .topic-description {
         padding-left: 1.5%;
 
         .topic-title {
             font-weight: normal;
+            margin-top: 2px;
         }
+    }
+    .topic-infos + .topic-description {
+        padding-left: 0;
     }
     .topic-answers {
         padding-top: 17px;

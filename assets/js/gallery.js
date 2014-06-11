@@ -4,7 +4,7 @@
    Gallery list and grid views management
    ========================================================================== */
 
-(function($) {
+(function($){
     "use strict";
 
     var $btn = $(".toggle-gallery-view"),
