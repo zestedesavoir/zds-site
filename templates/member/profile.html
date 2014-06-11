@@ -273,9 +273,10 @@
                         </a>
                         <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-small">
                             <p>
-                                Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule ?
                             </p>
                             <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
                             <button type="submit" name="ls">
                                 Confirmer
                             </button>
@@ -287,10 +288,11 @@
                         </a>
                         <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-small">
                             <p>
-                                Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
                             </p>
                             <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc.">
                             <input type="text" name="ls-jrs" class="expand" placeholder="Nombre de jours de la sanction">
+                            {% csrf_token %}
                             <button type="submit" name="ls-temp">
                                 Confirmer
                             </button>
@@ -299,20 +301,21 @@
                 {% else %}
                     <li>
                         <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
-                            Oter la LS
+                            Ôter la LS
                         </a>
                         <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-small">
                             <p>
                                 Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
                             </p>
                             <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?">
+                            {% csrf_token %}
                             <button type="submit" name="un-ls">
                                 Confirmer
                             </button>
                         </form>
                     </li>
                 {% endif %}
-                
+
                 {% if profile.can_read_now %}
                     <li>
                     <a href="#" data-dropdown="ban-temp-drop-{{profile.pk}}">
