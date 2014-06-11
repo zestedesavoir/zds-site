@@ -22,10 +22,10 @@
 
 {% block content %}
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_gallery" %}">
-        <div class="gallery list-view">
+        <div class="gallery list-view navigable-list">
             {% for gallery in galleries %}
-            <div class="gallery-item">
-                <a href="{{ gallery.gallery.get_absolute_url }}">
+            <div class="gallery-item navigable-elem">
+                <a href="{{ gallery.gallery.get_absolute_url }}" class="navigable-link">
                     <div class="gallery-checkbox">
                         <input name="items" type="checkbox" {% if not gallery.is_write %}disabled="true"{% endif %} value="{{ gallery.gallery.pk }}" />
                     </div>

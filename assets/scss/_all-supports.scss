@@ -2495,9 +2495,9 @@ form.topic-message {
             }
 
             &.selected {
-                border-color: $helpful;
+                border-color: lighten($blue, 75%);
                 .gallery-caption {
-                    background-color: $helpful;
+                    background-color: lighten($blue, 75%);
                 }
             }
 
@@ -2552,7 +2552,7 @@ form.topic-message {
             .gallery-checkbox {
                 float: left;
                 line-height: 100%;
-                margin: (($gallery-image-size - 15px) / 2) 0;
+                padding: (($gallery-image-size - 15px) / 2) 0;
             }
 
             .gallery-image {
@@ -2560,8 +2560,6 @@ form.topic-message {
                 width: $gallery-image-size;
                 height: $gallery-image-size;
                 overflow: hidden;
-
-                margin: 0 10px;
 
                 img {
                     min-height: 100%;
@@ -2572,7 +2570,7 @@ form.topic-message {
             .gallery-caption {
                 float: left;
                 height: 40px;
-                margin: (($gallery-image-size - 40px) / 2) 0;
+                padding: (($gallery-image-size - 40px) / 2) 0;
 
                 .title {
                     height: 20px;
@@ -2588,22 +2586,47 @@ form.topic-message {
                 }
             }
 
+            a > * {
+                margin: 10px 0 10px 10px; 
+            }
+
             &.selected {
-                background-color: $helpful;
+                background-color: lighten($blue, 75%);
             }
             
             &.add-image {
                 display: none;
             }
 
-            height: $gallery-image-size;
-            padding: 10px;
+            &:before {
+                content: " ";
+                display: block;
+                position: absolute;
+                background: transparent;
+                height: 100%;
+                width: 2px;
+            }
+
+            &:hover,
+            &.active {
+                &:before {
+                    width: 5px;
+                    background: lighten($blue, 20%);
+                }
+            }
+
+            height: $gallery-image-size + 20px;
             border-top: 1px solid #FFF;
             border-bottom: 1px solid #CCC;
             overflow: hidden;
             clear: both;
+            position: relative;
         }
     }
+}
+
+.toggle-gallery-view {
+    float: left!important;
 }
 
 

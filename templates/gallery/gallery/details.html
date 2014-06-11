@@ -66,14 +66,13 @@
     
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
-        <button class="btn btn-cancel" name="delete_multi">Supprimer la séléction</button>
-        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="btn btn-submit">Ajouter une image</a>
+        <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
         <button class="toggle-gallery-view btn btn-grey" type="button"></button>
 
-        <div class="gallery list-view">
+        <div class="gallery list-view navigable-list">
             {% for img in gallery.get_images %}
-            <div class="gallery-item">
-                <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">
+            <div class="gallery-item navigable-elem">
+                <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="navigable-link">
                     <div class="gallery-checkbox">
                         <input name="items" type="checkbox" value="{{ img.pk }}" />
                     </div>
@@ -92,7 +91,7 @@
             <div class="gallery-item no-images">
                 <div class="gallery-caption">
                     <div class="title">Aucune images</div>
-                    <div class="legend">Cliquez sur "ajouter une image" pour en ajouter</div>
+                    <div class="legend">Cliquez sur "Ajouter une image" pour en ajouter</div>
                 </div>
             </div>
             {% endfor %}
@@ -102,8 +101,7 @@
             </div>
         </div>
         
-        <button class="btn btn-cancel" name="delete_multi">Supprimer la séléction</button>
-        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="btn btn-submit">Ajouter une image</a>
+        <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
         <button class="toggle-gallery-view btn btn-grey" type="button"></button>
 
         {% csrf_token %}
