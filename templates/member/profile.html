@@ -268,21 +268,6 @@
             <ul>
                 {% if profile.can_write_now %}
                     <li>
-                        <a href="#ls-{{ profile.pk }}" class="open-modal">
-                            Lecture seule
-                        </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-medium">
-                            <p>
-                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule ?
-                            </p>
-                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
-                            {% csrf_token %}
-                            <button type="submit" name="ls">
-                                Confirmer
-                            </button>
-                        </form>
-                    </li>
-                    <li>
                         <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
                             Lecture seule temporaire
                         </a>
@@ -294,6 +279,21 @@
                             <input type="number" name="ls-jrs" class="expand" placeholder="Durée de la lecture seule, en jours" min="1">
                             {% csrf_token %}
                             <button type="submit" name="ls-temp">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ls-{{ profile.pk }}" class="open-modal">
+                            Lecture seule
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-medium">
+                            <p>
+                                Pour quelle raison souhaitez-vous mettre ce membre en lecture seule ?
+                            </p>
+                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
+                            {% csrf_token %}
+                            <button type="submit" name="ls">
                                 Confirmer
                             </button>
                         </form>
