@@ -140,7 +140,7 @@
                     <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
                         Paramètres <span class="wide">de mon compte</span>
                     </a>
-                {% elif perms.member.change_profile %}
+                {% else %}
                     <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="new-btn ico-after edit blue">
                         Modifier le profil
                     </a>
