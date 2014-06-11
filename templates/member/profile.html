@@ -263,6 +263,103 @@
                     </span>
                 </li>
             </ul>
+
+            <h4>Sanctions</h4>
+            <ul>
+                {% if profile.can_write_now %}
+                    <li>
+                        <a href="#ls-{{ profile.pk }}" class="open-modal">
+                            Lecture seule
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                            </p>
+                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <button type="submit" name="ls">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }} class="open-modal"">
+                            LS Temporaire
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Pour quelle raison souhaitez vous mettre ce membre en lecture seule ?
+                            </p>
+                            <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="text" name="ls-jrs" class="expand" placeholder="Nombre de jours de la sanction">
+                            <button type="submit" name="ls-temp">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
+                            Oter la LS
+                        </a>
+                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-small">
+                            <p>
+                                Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
+                            </p>
+                            <input type="text" name="unls-text" class="expand" placeholder="Bonne actions ?">
+                            <button type="submit" name="un-ls">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+                
+                {% if profile.can_read_now %}
+                    <li>
+                    <a href="#" data-dropdown="ban-temp-drop-{{profile.pk}}">
+                        Ban Temporaire
+                    </a>
+                    </li>
+                    <div id="ban-temp-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
+                        <p>
+                            Pour quelle raison souhaitez vous bannir ce membre ?
+                        </p>
+                        <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc." />
+                        <input type="text" name="ban-jrs" class="expand" placeholder="Nombre de jours de la sanction" />
+                        <button type="submit" name="ban-temp" class="button expand alert tiny">
+                            Confirmer la sanction
+                        </button>
+                    </div>
+                    <li>
+                    <a href="#" data-dropdown="ban-drop-{{profile.pk}}">
+                        Ban Définitif
+                    </a>
+                    </li>
+                    <div id="ban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
+                        <p>
+                            Pour quelle raison souhaitez vous bannir ce membre ?
+                        </p>
+                        <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc." />
+                        <button type="submit" name="ban" class="button expand alert tiny">
+                            Confirmer la sanction
+                        </button>
+                    </div>
+                {% else %}
+                    <li>
+                    <a href="#" data-dropdown="unban-drop-{{profile.pk}}">
+                        Oter le ban
+                    </a>
+                    </li>
+                    <div id="unban-drop-{{profile.pk}}" class="f-dropdown tiny content" data-dropdown-content>
+                        <p>
+                            Pour quelle raison souhaitez vous lever la sanction de ce membre ?
+                        </p>
+                        <input type="text" name="unban-text" class="expand" placeholder="Bonne action ?" />
+                        <button type="submit" name="un-ban" class="button expand alert tiny">
+                            Confirmer la libération
+                        </button>
+                    </div>
+                {% endif %}
+            </ul>
         </div>
     {% endif %}
 {% endblock %}
