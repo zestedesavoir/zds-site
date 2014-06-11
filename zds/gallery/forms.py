@@ -10,6 +10,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from zds.utils.forms import CommonLayoutModalText
 from zds.gallery.models import Gallery, Image
 
 
@@ -56,7 +57,7 @@ class GalleryForm(forms.Form):
 
 class UserGalleryForm(forms.Form):
     user = forms.CharField(
-        label='Membre',
+        label='',
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -84,13 +85,12 @@ class UserGalleryForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
+            CommonLayoutModalText(),
             Field('user', autocomplete='off'),
             Field('mode'),
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
-            ButtonHolder(
-                StrictButton('Ajouter', type='submit'),
-            ),
+            StrictButton('Ajouter', type='submit'),
         )
 
     def clean(self):

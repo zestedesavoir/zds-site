@@ -2446,6 +2446,202 @@ form.topic-message {
     }
 }
 
+/* ==============
+    ALL: Gallery
+   ============== */
+
+.gallery {
+    &.grid-view {
+        .gallery-item {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            float: left;
+            border: 10px solid white;
+            overflow: hidden;
+
+            margin: 10px;
+
+            box-shadow: 1px 2px 2px rgba(0,0,0,0.1);
+
+            .gallery-checkbox {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                margin: 0;
+                opacity: 0;
+                transition: opacity $default-transition-duration ease;
+            }
+
+            .gallery-image {
+                overflow: hidden;
+                img {
+                    min-height: 100%;
+                    width: 100%;
+                }
+            }
+
+            .gallery-caption {
+                height: 15px;
+                background-color: rgba(255, 255, 255, 1);
+                position: absolute;
+                bottom: -35px;
+                left: 0;
+                right: 0;
+                padding: 10px 20px 0px 20px;
+                font-size: 1.5rem;
+                line-height: 15px;
+                color: #444;
+
+                transition: bottom $default-transition-duration ease;
+
+                .legend { display: none; }
+            }
+            
+            &:hover, &:focus, &.selected {
+                .gallery-checkbox {
+                    opacity: 1;
+                }
+                .gallery-caption {
+                    bottom: 0;
+                    color: #444;
+                }
+            }
+
+            &.selected {
+                border-color: lighten($blue, 75%);
+                .gallery-caption {
+                    background-color: lighten($blue, 75%);
+                }
+            }
+
+            &.add-image {
+                font-size: 120px;
+                font-weight: bold;
+                line-height: 200px;
+                text-align: center;
+                background-color: #DDD;
+                border-color: #DDD;
+                box-shadow: none;
+
+                &:hover {
+                    background-color: #CCC;
+                }
+
+                a, a:hover, a:focus {
+                    transition: none;
+                    color: #AAA;
+                    display: block;
+                    text-decoration: none;
+                }
+            }
+
+            &.no-images {
+                .gallery-caption {
+                    position: static;
+                    text-align: center;
+                    font-size: 2rem;
+                    line-height: 185px;
+                    height: 190px;
+                }
+            }
+        }
+        clear: both;
+
+        &:after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+    }
+
+    &.list-view {
+        $gallery-image-size: 60px;
+        clear: both;
+
+        border-bottom: 1px solid #FFF;
+        border-top: 1px solid #CCC;
+
+        .gallery-item {
+            .gallery-checkbox {
+                float: left;
+                line-height: 100%;
+                padding: (($gallery-image-size - 15px) / 2) 0;
+            }
+
+            .gallery-image {
+                float: left;
+                width: $gallery-image-size;
+                height: $gallery-image-size;
+                overflow: hidden;
+
+                img {
+                    min-height: 100%;
+                    width: 100%;
+                }
+            }
+
+            .gallery-caption {
+                float: left;
+                height: 40px;
+                padding: (($gallery-image-size - 40px) / 2) 0;
+
+                .title {
+                    height: 20px;
+                    font-size: 16px;
+                    font-size: 1.6rem;
+                    line-height: 20px;
+                    color: #333;
+                }
+                .legend {
+                    height: 20px;
+                    line-height: 20px;
+                    color: #777;
+                }
+            }
+
+            a > * {
+                margin: 10px 0 10px 10px; 
+            }
+
+            &.selected {
+                background-color: lighten($blue, 75%);
+            }
+            
+            &.add-image {
+                display: none;
+            }
+
+            &:before {
+                content: " ";
+                display: block;
+                position: absolute;
+                background: transparent;
+                height: 100%;
+                width: 2px;
+            }
+
+            &:hover,
+            &.active {
+                &:before {
+                    width: 5px;
+                    background: lighten($blue, 20%);
+                }
+            }
+
+            height: $gallery-image-size + 20px;
+            border-top: 1px solid #FFF;
+            border-bottom: 1px solid #CCC;
+            overflow: hidden;
+            clear: both;
+            position: relative;
+        }
+    }
+}
+
+.toggle-gallery-view {
+    float: left!important;
+}
 
 
 /* ===================
