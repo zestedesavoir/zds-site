@@ -50,6 +50,11 @@
     }
     .message-actions a {
         width: 0px;
+        text-indent: -9999px;
+
+        &:after {
+            left: 12px !important;
+        }
     }
     .message-bottom .message-karma a {
         border-bottom-width: 1px !important;
