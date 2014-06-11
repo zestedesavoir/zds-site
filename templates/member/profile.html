@@ -133,15 +133,22 @@
 
 
 {% block sidebar_actions %}
-    {% ifequal profile.user user %}
-        <div>
-            <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
-                Paramètres <span class="wide">de mon compte</span>
-            </a>
-        </div>
-    {% endifequal %}
-
     {% if user.is_authenticated %}
+        {% if profile.user == user or perms.member.change_profile %}
+            <div>
+                {% if profile.user == user %}
+                    <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
+                        Paramètres <span class="wide">de mon compte</span>
+                    </a>
+                {% endif %}
+                {% if perms.member.change_profile %}
+                    <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="new-btn ico-after edit blue">
+                        Modifier le profil
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
         <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
             <h3>Actions</h3>
             <ul>
@@ -240,13 +247,6 @@
     {% if user.is_authenticated and perms.member.change_profile %}
         <div class="mobile-menu-bloc mobile-all-links" data-title="Modération">
             <h3>Modération</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="ico-after edit blue">
-                        Modifier le profil
-                    </a>
-                </li>
-            </ul>
 
             <h4>Statistiques</h4>
             <ul>
