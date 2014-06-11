@@ -1906,14 +1906,6 @@ table {
             }
         }
 
-        .markdown-help {
-            .open-markdown-help {
-                position: absolute;
-                bottom: 0;
-                left: 8px;
-            }
-        }
-
         .message-bottom {
             @include display(flex);
             @include align-items(flex-start);
@@ -2078,6 +2070,10 @@ form.topic-message {
    ============== */
 .markdown-help {
     .open-markdown-help {
+        position: absolute;
+        bottom: 0;
+        left: 8px;
+        
         .close-markdown-help-text {
             display: none;
         }

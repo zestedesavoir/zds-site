@@ -50,6 +50,11 @@
     }
     .message-actions a {
         width: 0px;
+        text-indent: -9999px;
+
+        &:after {
+            left: 12px !important;
+        }
     }
     .message-bottom .message-karma a {
         border-bottom-width: 1px !important;
@@ -60,13 +65,26 @@
         margin: 0 8px !important;
 
         button {
-            float: left;
+            float: right;
             display: block;
-            width: 49.5%;
+            width: calc(50% - 2px);
+            margin-left: 1px !important;
 
-            &[type=submit] {
-                float: right;
+            &.btn-grey {
+                float: left;
             }
+        }
+    }
+
+
+    .markdown-help {
+        .open-markdown-help {
+            position: relative;
+            left: 0;
+            bottom: 0;
+            float: none;
+            margin-bottom: 5px;
+            margin-left: 0 !important;
         }
     }
 }
