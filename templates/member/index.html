@@ -8,27 +8,35 @@
 
 
 
-{% block headline %}
-    Liste des membres
-{% endblock %}
-
-
-
 {% block breadcrumb %}
     <li>Liste des membres</li>
 {% endblock %}
 
 
 
-{# TODO : A mon avis, ça ne doit pas être top comme affichage #}
+{% block headline %}
+    Liste des membres
+{% endblock %}
+
+
+
 {% block content %}
     <p>
-        Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ members.count }} membres).
+        Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ count }} membres).
     </p>
 
-    <p>
-        {% for member in members %}
-            {% include "misc/member_item.part.html" %}
-        {% endfor %}
-    </p>
+
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    <div class="authors">
+        <ul>
+            {% for member in members %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
 {% endblock %}
