@@ -27,8 +27,9 @@
             e.stopPropagation();
         }));
         var $link = $("[href=#"+$(this).attr("id")+"]:first");
+        var linkIco = $link.hasClass("ico-after") ? " light " + $link.attr("class").replace(/btn[a-z-]*/g, "") : "";
         $(this).prepend($("<span/>", {
-            "class": "modal-title light " + $link.attr("class").replace(/btn[a-z-]*/g, ""),
+            "class": "modal-title" + linkIco,
             "text": $link.text()
         }));
     });

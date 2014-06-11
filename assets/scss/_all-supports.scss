@@ -2277,24 +2277,29 @@ form.topic-message {
     left: $modal-margin;
     box-shadow: 0 0 5px #000;
 
-    &.modal-small {
+    &.modal-small,
+    &.modal-medium,
+    &.modal-big {
         top: 50%;
         bottom: auto;
-        height: 220px;
-        margin: -110px auto 0;
         max-width: 400px;
     }
 
+    &.modal-small {
+        height: 220px;
+        margin: -110px auto 0;
+    }
     &.modal-medium {
-        top: 50%;
-        bottom: auto;
         height: 250px;
         margin: -125px auto 0;
-        max-width: 400px;
 
         textarea {
             height: 80px;
         }
+    }
+    &.modal-big {
+        height: 300px;
+        margin: -150px auto 0;
     }
 }
 .enable-mobile-menu #modals-overlay {
