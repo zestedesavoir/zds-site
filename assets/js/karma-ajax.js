@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     $(".upvote, .downvote").click(function(e){
         var $thumb = $(this),
             $karma = $thumb.parents(".message-karma:first"),

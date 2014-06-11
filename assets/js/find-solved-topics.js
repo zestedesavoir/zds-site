@@ -6,9 +6,10 @@
 
 (function($){
     "use strict";
+
     var $solvedTopicsElem = $("main [data-solved-topics-url]");
     if($solvedTopicsElem.length > 0){
         //var solvedTopicsUrl = $solvedTopicsElem.attr("data-solved-topics-url");
-        // TODO : back-end HS, impossible de dev ça pour l'instant
+        // TODO : le back fonctionne désormais
     }
 })(jQuery);

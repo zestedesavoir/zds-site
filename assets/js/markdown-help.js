@@ -7,6 +7,7 @@
 
 (function($){
     "use strict";
+    
     $(".md-editor").each(function(){
         var $help = $("<div/>", {
             "class": "markdown-help",

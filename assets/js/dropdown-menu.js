@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     var dropdownMouseDown = false;
 
     $(".dropdown").each(function(){

@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     var $list = $(".navigable-list");
 
     if($list.length === 1){
