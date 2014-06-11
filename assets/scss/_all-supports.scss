@@ -675,7 +675,8 @@
 
             a,
             button,
-            &.inactive span {
+            &.inactive > span,
+            &.inactive > em {
                 display: block;
                 padding-left: 25px;
                 padding-right: 10px;
@@ -763,9 +764,21 @@
                 }
             }
 
-            &.inactive span {
+            &.inactive > span,
+            &.inactive > em {
                 color: #555;
-                font-style: italic;
+            }
+
+            .count {
+                display: block;
+                float: right;
+                margin: 7px 10px 0 0;
+                padding: 1px 10px;
+                height: 16px;
+                line-height: 16px;
+                font-style: normal;
+                background: #AAA;
+                color: #FFF;
             }
 
             .last-answer {

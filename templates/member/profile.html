@@ -155,24 +155,56 @@
                         Envoyer un message privé
                     </a>
                 </li>
-                {% if perms.member.change_profile %}
-                    <li>
-                        <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="ico-after edit blue">
-                            Modifier le profil
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
-                            Attribuer un tuto SdZ
-                        </a>
-                        <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
-                            <p>
-                                Choisissez un tutoriel du SdZ à attribuer au membre.
-                            </p>
-                            {% crispy form %}
-                        </div>
-                    </li>
-                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
+        <h3>Activité</h3>
+
+        <h4>Tutoriels</h4>
+        <ul>
+            <li class="inactive">
+                <span>
+                    En cours de rédaction
+                    <span class="count">{{ profile.get_draft_articles.count }}</span>
+                </span>
+            </li>
+            <li class="inactive">
+                <span>
+                    En attente de validation
+                    <span class="count">{{ profile.get_validate_articles.count }}</span>
+                </span>
+            </li>
+            <li>
+                <a href="{% url "zds.article.views.find_article" usr.pk %}">
+                    En ligne
+                    <span class="count">{{ profile.get_public_articles.count }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% if user.is_authenticated and perms.member.change_profile %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Modération">
+            <h3>Modération</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="ico-after edit blue">
+                        Modifier le profil
+                    </a>
+                </li>
+                <li>
+                    <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
+                        Attribuer un tuto SdZ
+                    </a>
+                    <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
+                        <p>
+                            Choisissez un tutoriel du SdZ à attribuer au membre.
+                        </p>
+                        {% crispy form %}
+                    </div>
+                </li>
             </ul>
         </div>
     {% endif %}
