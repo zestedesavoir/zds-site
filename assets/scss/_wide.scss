@@ -402,7 +402,25 @@
         margin: 0 0 0 2%;
     }
 
+    /* ==============
+        Gallery
+       ============== */
+    .gallery-col-image {
+        width: 50%;
+        float: left;
 
+        img {
+            width: 100%;
+        }
+    }
+
+    .gallery-col-edit {
+        width: 50%;
+        float: right;
+
+        box-sizing: border-box;
+        padding-left: 20px;
+    }
 
 
 

@@ -22,22 +22,30 @@
 
 {% block content %}
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_gallery" %}">
-        {% for gallery in galleries %}
-            <dl>
-                <dd>
-                    {% if gallery.is_write %}
-                        <input name="items" type="checkbox" value="{{ gallery.gallery.pk }}">
-                    {% endif %}
-                    <a href="{{ gallery.gallery.get_absolute_url }}">
-                        {{ gallery.gallery.title }}
-                        ({{ gallery.gallery.get_images.count }})
-                    </a>
-                    <br />
-                    {{ gallery.gallery.subtitle }}
-                </dd>
-            </dl>
-        {% endfor %}
-        <button type="submit" name="delete_multi">Supprimer</button>
+        <div class="gallery list-view">
+            {% for gallery in galleries %}
+            <div class="gallery-item">
+                <a href="{{ gallery.gallery.get_absolute_url }}">
+                    <div class="gallery-checkbox">
+                        <input name="items" type="checkbox" {% if not gallery.is_write %}disabled="true"{% endif %} value="{{ gallery.gallery.pk }}" />
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="title">{{ gallery.gallery.title }} <small>
+                            {% with img_count=gallery.gallery.get_images.count %}
+                                {% if img_count == 0 %}(Aucune image)
+                                {% elif img_count == 1 %}(1 image)
+                                {% else %}({{ img_count }} images)
+                                {% endif %}
+                            {% endwith %}
+                        </small></div>
+                        <div class="legend">{{ gallery.gallery.subtitle|default:"<i>Pas de description</i>" }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" name="delete_multi">Supprimer la séléction</button>
 
         {% csrf_token %}
     </form>

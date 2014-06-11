@@ -12,10 +12,10 @@
 
   var updateBtn = function() {
     if($galleryView.hasClass("list-view")) {
-      $btn.text("Vue liste");
+      $btn.text("Vue grille");
     }
     else {
-      $btn.text("Vue grille");
+      $btn.text("Vue liste");
     }
   };
 
@@ -37,6 +37,6 @@
   };
 
   if($galleryView.length > 0) {
-    $(".gallery-image-checkbox input[type=checkbox]").on("change", updateCheckbox).each(updateCheckbox);
+    $(".gallery-checkbox input[type=checkbox]").on("change", updateCheckbox).each(updateCheckbox);
   }
 })(jQuery);

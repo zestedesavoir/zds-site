@@ -53,25 +53,28 @@
                     {% include "misc/member_item.part.html" with member=u.user info=mode avatar=True %}
                 </li>
             {% endfor %}
+            {% if gallery_mode.is_write %}
+                <li>
+                    <a href="#add-user-modal" class="open-modal">Ajouter un utilisateur</a>
+                </li>
+                <div id="add-user-modal" class="modal modal-medium">
+                    {% crispy form %}
+                </div>
+            {% endif %}
         </ul>
     </div>
     
-    <!-- Beurk, pas beau!  -->
-    {% if gallery_mode.is_write %}
-        {% crispy form %}
-    {% endif %}
-    
-    
-    <button class="toggle-gallery-view btn btn-grey"></button>
-
     <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
+        <button class="btn btn-cancel" name="delete_multi">Supprimer la séléction</button>
+        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="btn btn-submit">Ajouter une image</a>
+        <button class="toggle-gallery-view btn btn-grey" type="button"></button>
 
         <div class="gallery list-view">
             {% for img in gallery.get_images %}
             <div class="gallery-item">
                 <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}">
-                    <div class="gallery-image-checkbox">
+                    <div class="gallery-checkbox">
                         <input name="items" type="checkbox" value="{{ img.pk }}" />
                     </div>
                     <div class="gallery-image">
@@ -79,11 +82,18 @@
                              data-caption="{{ img.title }}"
                              alt="{{ img.title }}">
                     </div>
-                    <div class="gallery-image-caption">
+                    <div class="gallery-caption">
                         <div class="title">{{ img.title }}</div>
                         <div class="legend">{{ img.legend }}</div>
                     </div>
                 </a>
+            </div>
+            {% empty %}
+            <div class="gallery-item no-images">
+                <div class="gallery-caption">
+                    <div class="title">Aucune images</div>
+                    <div class="legend">Cliquez sur "ajouter une image" pour en ajouter</div>
+                </div>
             </div>
             {% endfor %}
 
@@ -92,7 +102,9 @@
             </div>
         </div>
         
-        <button class="btn btn-grey" name="delete_multi">Supprimer</button>
+        <button class="btn btn-cancel" name="delete_multi">Supprimer la séléction</button>
+        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="btn btn-submit">Ajouter une image</a>
+        <button class="toggle-gallery-view btn btn-grey" type="button"></button>
 
         {% csrf_token %}
     </form>

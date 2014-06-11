@@ -2450,7 +2450,7 @@ form.topic-message {
 
             box-shadow: 1px 2px 2px rgba(0,0,0,0.1);
 
-            .gallery-image-checkbox {
+            .gallery-checkbox {
                 position: absolute;
                 top: 5px;
                 left: 5px;
@@ -2467,17 +2467,16 @@ form.topic-message {
                 }
             }
 
-            .gallery-image-caption {
+            .gallery-caption {
                 height: 15px;
                 background-color: rgba(255, 255, 255, 1);
                 position: absolute;
                 bottom: -35px;
                 left: 0;
                 right: 0;
-                padding: 5px 20px;
+                padding: 10px 20px 0px 20px;
                 font-size: 1.5rem;
                 line-height: 15px;
-                padding-top: 10px;
                 color: #444;
 
                 transition: bottom $default-transition-duration ease;
@@ -2486,10 +2485,10 @@ form.topic-message {
             }
             
             &:hover, &:focus, &.selected {
-                .gallery-image-checkbox {
+                .gallery-checkbox {
                     opacity: 1;
                 }
-                .gallery-image-caption {
+                .gallery-caption {
                     bottom: 0;
                     color: #444;
                 }
@@ -2497,7 +2496,7 @@ form.topic-message {
 
             &.selected {
                 border-color: $helpful;
-                .gallery-image-caption {
+                .gallery-caption {
                     background-color: $helpful;
                 }
             }
@@ -2522,6 +2521,16 @@ form.topic-message {
                     text-decoration: none;
                 }
             }
+
+            &.no-images {
+                .gallery-caption {
+                    position: static;
+                    text-align: center;
+                    font-size: 2rem;
+                    line-height: 180px;
+                    height: 185px;
+                }
+            }
         }
         clear: both;
 
@@ -2540,7 +2549,7 @@ form.topic-message {
         border-top: 1px solid #CCC;
 
         .gallery-item {
-            .gallery-image-checkbox {
+            .gallery-checkbox {
                 float: left;
                 line-height: 100%;
                 margin: (($gallery-image-size - 15px) / 2) 0;
@@ -2560,7 +2569,7 @@ form.topic-message {
                 }
             }
 
-            .gallery-image-caption {
+            .gallery-caption {
                 float: left;
                 height: 40px;
                 margin: (($gallery-image-size - 40px) / 2) 0;
