@@ -48,30 +48,46 @@
     form.forum-message .message {
         padding-top: 0 !important;
     }
-    .message-actions a {
-        width: 0px;
-        text-indent: -9999px;
 
-        &:after {
-            left: 12px !important;
+    .topic-message .message {
+        .message-actions a {
+            width: 0px;
+            text-indent: -9999px;
         }
-    }
-    .message-bottom .message-karma a {
-        border-bottom-width: 1px !important;
-    }
-    .message-submit {
-        display: block !important;
-        width: calc(100% - 16px);
-        margin: 0 8px !important;
+        .message-actions a,
+        .message-karma a {
+            &:after {
+                left: 12px !important;
+            }
+        }
+        .message-karma a {
+            border-bottom-width: 1px !important;
 
-        button {
-            float: right;
-            display: block;
-            width: calc(50% - 2px);
-            margin-left: 1px !important;
+            &.has-vote {
+                text-indent: 15px;
+                line-height: 14px;
+                font-size: 12px;
+                text-align: right;
 
-            &.btn-grey {
-                float: left;
+                &.downvote {
+                    line-height: 40px;
+                }
+            }
+        }
+        .message-submit {
+            display: block !important;
+            width: calc(100% - 16px);
+            margin: 0 8px !important;
+
+            button {
+                float: right;
+                display: block;
+                width: calc(50% - 2px);
+                margin-left: 1px !important;
+
+                &.btn-grey {
+                    float: left;
+                }
             }
         }
     }

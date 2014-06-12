@@ -190,28 +190,40 @@
 
                                 {% if user != message.author %}
                                     <a href="{{ upvote_link }}"
+                                       title="Ce message est utile"
                                        class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after
+                                              {% if message.like > 0 %}has-vote{% endif %}
                                               {% if profile_user|liked:message.pk %}voted{% endif %}"
                                     >
-                                        +{{ message.like }}
+                                        {% if message.like > 0 %}
+                                            +{{ message.like }}
+                                        {% endif %}
                                     </a>
                                     <a href="{{ downvote_link }}" 
+                                       title="Ce message n'est pas utile"
                                        class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after
+                                              {% if message.like > 0 %}has-vote{% endif %}
                                               {% if profile_user|disliked:message.pk %}voted{% endif %}"
                                     >
-                                        -{{ message.dislike }}
+                                        {% if message.dislike > 0 %}
+                                            -{{ message.dislike }}
+                                        {% endif %}
                                     </a>
                                 {% else %}
-                                    <span
-                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
-                                    >
-                                        +{{ message.like }}
-                                    </span>
-                                    <span 
-                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
-                                    >
-                                        -{{ message.dislike }}
-                                    </span>
+                                    {% if message.like > 0 %}
+                                        <span
+                                           class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
+                                        >
+                                            +{{ message.like }}
+                                        </span>
+                                    {% endif %}
+                                    {% if message.dislike > 0 %}
+                                        <span 
+                                           class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
+                                        >
+                                            -{{ message.dislike }}
+                                        </span>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         {% endif %}
