@@ -63,7 +63,9 @@
                 {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
-            {% if last_message.author == user %}
+            {% if topic.last_message.pk = message.pk %}
+                {% set True as can_edit %}
+            {% else %}
                 {% set False as can_edit %}
             {% endif %}
     
