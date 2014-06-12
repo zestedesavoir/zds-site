@@ -2,7 +2,15 @@
 
 from datetime import datetime
 from git.repo import Repo
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 
 import factory
@@ -35,7 +43,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")
-        f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.introduction), "w")
         f.write(u'Test')
@@ -74,7 +82,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         file = open(os.path.join(path, 'manifest.json'), "w")
         file.write(
-            json.dumps(
+            json_writer.dumps(
                 man,
                 indent=4,
                 ensure_ascii=False).encode('utf-8'))
@@ -128,7 +136,7 @@ class PartFactory(factory.DjangoModelFactory):
             man = export_tutorial(tutorial)
             f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))
@@ -170,7 +178,7 @@ class ChapterFactory(factory.DjangoModelFactory):
             man = export_tutorial(tutorial)
             f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))
@@ -211,7 +219,7 @@ class ChapterFactory(factory.DjangoModelFactory):
                     'manifest.json'),
                 "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))

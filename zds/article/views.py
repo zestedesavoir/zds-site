@@ -2,7 +2,15 @@
 
 from datetime import datetime
 from operator import attrgetter
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 import shutil
 
@@ -97,7 +105,7 @@ def view(request, article_pk, article_slug):
         sha = article.sha_draft
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
-    article_version = json.loads(manifest)
+    article_version = json_reader.loads(manifest)
     article_version['txt'] = get_blob(
         repo.commit(sha).tree,
         article_version['text'])
@@ -804,7 +812,7 @@ def MEP(article, sha):
     repo = Repo(article.get_path())
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
-    article_version = json.loads(manifest)
+    article_version = json_reader.loads(manifest)
     md_file_contenu = get_blob(repo.commit(sha).tree, article_version['text'])
 
     html_file = open(
@@ -1098,7 +1106,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1146,7 +1154,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
