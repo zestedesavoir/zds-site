@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     $(".spoiler").each(function(){
         $(this).before($("<a/>", {
             "text": "Afficher/Masquer le contenu masqué",

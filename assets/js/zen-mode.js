@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+
     if($(".article-content").length > 0){
         $(".content-container .taglist + .authors").before($("<button/>", {
             "class": "btn btn-grey ico-after view open-zen-mode",
@@ -20,7 +21,7 @@
 
         $("body").on("keydown", function(e){
             if($(".zen-mode").length > 0){
-                // Espace close modal
+                // Escape close modal
                 if(e.keyCode === 27){
                     $(".content-container").toggleClass("zen-mode tab-modalize");
                     $(this).blur();

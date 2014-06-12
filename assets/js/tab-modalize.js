@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     $("body").on("keydown", function(e){
         var $modal = $(".tab-modalize:visible");
         if($modal.length > 0){

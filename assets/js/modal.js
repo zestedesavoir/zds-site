@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     var $overlay = $("<div/>", {
         "id": "modals-overlay"
     }).on("click", function(e){

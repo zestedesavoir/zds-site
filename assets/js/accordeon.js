@@ -6,6 +6,7 @@
 
 (function($){
     "use strict";
+    
     $(".main .sidebar.accordeon, .main .sidebar .accordeon").each(function(){
         var $that = this;
 
