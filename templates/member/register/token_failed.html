@@ -23,6 +23,6 @@
 
 {% block content %}
     <p>
-        Désolé, votre de jeton de confirmation a expiré, vous devez vous <a href="{% url "zds.member.views.register_view" %}">réinscrire</a>.
+        Désolé, votre de jeton de confirmation a expiré. Vous pouvez cependant le regénerer, pour cela, cliquer sur ce lien suivant: <a href="{% url "zds.member.views.generate_token_account" %}?token={{token.token}}">envoi de jeton</a>.
     </p>
 {% endblock %}
