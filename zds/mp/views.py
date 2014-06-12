@@ -416,6 +416,7 @@ def edit_post(request):
 
         # The user just sent data, handle them
         post.text = request.POST['text']
+        post.text_html = emarkdown(request.POST['text'])
         post.update = datetime.now()
         post.save()
 
