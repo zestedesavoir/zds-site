@@ -119,7 +119,7 @@
                     {# Menu #}
                     <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
                         {% if user.is_authenticated %}
-                            {% with profile=user|profile %}
+                            {% with profile=user.profile %}
                                 data-is-hover="{{ profile.hover_or_click }}"
                             {% endwith %}
                         {% endif %}
@@ -220,7 +220,7 @@
                                                             {% set topic.last_read_post as last_answer %}
                                                         {% endif %}
                                                         <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                            {% with p=last_answer.author|profile %}
+                                                            {% with p=last_answer.author.profile %}
                                                                 <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ last_answer.author.username }}</span>
@@ -261,13 +261,13 @@
                                             <ul class="dropdown-list">
                                                 {% for first_unread in unread_posts %}
                                                     <li>
-                                                        <a href="{{ first_unread.topic.last_read_post.get_absolute_url }}">
-                                                            {% with p=first_unread.author|profile %}
+                                                        <a href="{{ first_unread.url }}">
+                                                            {% with p=first_unread.author.profile %}
                                                                 <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ first_unread.topic.title }}</span>
+                                                            <span class="topic">{{ first_unread.title }}</span>
                                                         </a>
                                                     </li>
                                                 {% endfor %}
@@ -331,7 +331,7 @@
                             </div>
 
                             <div>
-                                {% with profile=user|profile %}
+                                {% with profile=user.profile %}
                                     <a href="{% url "zds.member.views.settings_profile" %}" 
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 

@@ -2,12 +2,12 @@
 
 from django import template
 
-from zds.article.models import never_read as never_read_article, Validation as ArticleValidation, Reaction
+from zds.article.models import never_read as never_read_article, Validation as ArticleValidation, Reaction, Article
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic, never_privateread
 from zds.utils.models import Alert
-from zds.tutorial.models import never_read as never_read_tutorial, Validation as TutoValidation, Note
-
+from zds.tutorial.models import never_read as never_read_tutorial, Validation as TutoValidation, Note, Tutorial
+import time
 
 register = template.Library()
 
@@ -29,17 +29,51 @@ def followed_topics(user):
         topics.append(tf.topic)
     return topics
 
+def comp(d1, d2):
+    v1 = int(time.mktime(d1['pubdate'].timetuple()))
+    v2 = int(time.mktime(d2['pubdate'].timetuple()))
+    if v1 > v2:
+        return -1
+    elif v1 < v2:
+        return 1
+    else:
+        return 0
 
 @register.filter('interventions_topics')
 def interventions_topics(user):
     topicsfollowed = TopicFollowed.objects.filter(user=user)\
         .order_by('-topic__last_message__pubdate')
-
+    
+    articlesfollowed = Reaction.objects\
+    .filter(author=user)\
+    .values('article')\
+    .distinct()
+    
+    tutorialsfollowed = Note.objects\
+    .filter(author=user)\
+    .values('tutorial')\
+    .distinct()
+    
     posts_unread = []
+    
+    for articlefollowed in articlesfollowed:
+        art = Article.objects.get(pk=articlefollowed['article'])
+        if never_read_article(art):
+            content = art.first_unread_reaction()
+            posts_unread.append({'pubdate':content.pubdate, 'author':content.author, 'title':art.title, 'url':content.get_absolute_url()})
+    
+    for tutorialfollowed in tutorialsfollowed:
+        tuto = Tutorial.objects.get(pk=tutorialfollowed['tutorial'])
+        if never_read_tutorial(tuto):
+            content = tuto.first_unread_note()
+            posts_unread.append({'pubdate':content.pubdate, 'author':content.author, 'title':tuto.title, 'url':content.get_absolute_url()})
 
     for topicfollowed in topicsfollowed:
         if never_read_topic(topicfollowed.topic):
-            posts_unread.append((topicfollowed.topic.first_unread_post()))
+            content = topicfollowed.topic.first_unread_post()
+            posts_unread.append({'pubdate':content.pubdate, 'author':content.author, 'title':topicfollowed.topic.title, 'url':content.get_absolute_url()})
+    
+    posts_unread.sort(cmp = comp)    
 
     return posts_unread
 

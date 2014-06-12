@@ -48,8 +48,6 @@ class Category(models.Model):
             subcategory__in=msct).exclude(
             sha_public=None).exclude(
             sha_public__isnull=True).all()
-    
-    
 
     def get_all_subcategories(self):
         """Get all subcategories of a category (not main include)"""

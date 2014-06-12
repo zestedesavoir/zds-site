@@ -46,9 +46,12 @@ def humane_time(t, conf={}):
 
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
-    return mark_safe(
-        get_markdown_instance(
-            Inline=False).convert(text).encode('utf-8'))
+    try:
+        return mark_safe(
+            get_markdown_instance(
+                Inline=False).convert(text).encode('utf-8'))
+    except:
+        return mark_safe(u'<div class="error ico-after"><p>Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
 
 
 @register.filter(needs_autoescape=False)

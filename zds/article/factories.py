@@ -3,7 +3,15 @@
 from datetime import datetime
 import factory
 from git.repo import Repo
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 from zds.article.models import Article, Reaction, \
     Validation
@@ -32,7 +40,7 @@ class ArticleFactory(factory.DjangoModelFactory):
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")
-        f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, article.text), "w")
         f.write(u'Test')

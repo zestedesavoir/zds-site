@@ -4,11 +4,20 @@ from cStringIO import StringIO
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
-import json
 from math import ceil
 import os
 import string
 import uuid
+
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -118,7 +127,7 @@ class Article(models.Model):
             man_path = path
         if os.path.isfile(man_path):
             json_data = open(man_path)
-            data = json.load(json_data)
+            data = json_reader.load(json_data)
             json_data.close()
 
             return data
@@ -132,7 +141,7 @@ class Article(models.Model):
             man_path = path
 
         dct = export_article(self)
-        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
         json_data.write(data.encode('utf-8'))
         json_data.close()
@@ -220,6 +229,22 @@ class Article(models.Model):
                 .latest('reaction__pubdate').reaction
         except Reaction.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_reaction(self):
+        """Return the first reaction the user has unread."""
+        try:
+            last_reaction = ArticleRead.objects\
+                .filter(article=self, user=get_current_user())\
+                .latest('reaction__pubdate').reaction
+
+            next_reaction = Reaction.objects.filter(
+                article__pk=self.pk,
+                pubdate__gt=last_reaction.pubdate)\
+                .select_related("author").first()
+
+            return next_reaction
+        except:
+            return self.first_reaction()
 
     def antispam(self, user=None):
         """Check if the user is allowed to post in an article according to the

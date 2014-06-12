@@ -5,7 +5,15 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os.path
 import re
 import shutil
@@ -638,7 +646,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     # Load the tutorial.
 
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    mandata = json.loads(manifest)
+    mandata = json_reader.loads(manifest)
 
     # If it's a small tutorial, fetch its chapter
 
@@ -1044,7 +1052,7 @@ def view_part(
 
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    mandata = json.loads(manifest)
+    mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
     cpt_p = 1
     for part in parts:
@@ -1323,7 +1331,7 @@ def view_chapter(
 
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    mandata = json.loads(manifest)
+    mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -2683,7 +2691,7 @@ def MEP(tutorial, sha):
     (output, err) = (None, None)
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    tutorial_version = json.loads(manifest)
+    tutorial_version = json_reader.loads(manifest)
     if os.path.isdir(tutorial.get_prod_path()):
         try:
             shutil.rmtree(tutorial.get_prod_path())
@@ -3046,7 +3054,7 @@ def like_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
 
@@ -3089,6 +3097,6 @@ def dislike_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())

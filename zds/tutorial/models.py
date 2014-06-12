@@ -1,7 +1,15 @@
 # coding: utf-8
 
 from math import ceil
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 
 from django.conf import settings
@@ -187,7 +195,7 @@ class Tutorial(models.Model):
     def load_json_for_public(self):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
-        data = json.loads(mantuto)
+        data = json_reader.loads(mantuto)
 
         return data
 
@@ -203,7 +211,7 @@ class Tutorial(models.Model):
 
         if os.path.isfile(man_path):
             json_data = open(man_path)
-            data = json.load(json_data)
+            data = json_reader.load(json_data)
             json_data.close()
 
             return data
@@ -217,7 +225,7 @@ class Tutorial(models.Model):
             man_path = path
 
         dct = export_tutorial(self)
-        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
         json_data.write(data.encode('utf-8'))
         json_data.close()
@@ -293,6 +301,22 @@ class Tutorial(models.Model):
                 .latest('note__pubdate').note
         except Note.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_note(self):
+        """Return the first note the user has unread."""
+        try:
+            last_note = TutorialRead.objects\
+                .filter(tutorial=self, user=get_current_user())\
+                .latest('note__pubdate').note
+
+            next_note = Note.objects.filter(
+                tutorial__pk=self.pk,
+                pubdate__gt=last_note.pubdate)\
+                .select_related("author").first()
+
+            return next_note
+        except:
+            return self.first_note()
 
     def antispam(self, user=None):
         """Check if the user is allowed to post in an tutorial according to the
