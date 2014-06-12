@@ -37,11 +37,7 @@
                         this.select(this.$dropdown.find("ul li").last().attr("data-autocompletion-id"));
                     } else {
                         $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").prev("li");
-                        this.select(
-                            $tmp.length === 1 
-                                ? $tmp.attr("data-autocompletion-id") 
-                                : -1
-                        );
+                        this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
                     }
                     break;
                 case 40: // Down
@@ -52,11 +48,7 @@
                         this.select(this.$dropdown.find("ul li").first().attr("data-autocompletion-id"));
                     } else {
                         $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").next("li");
-                        this.select(
-                            $tmp.length === 1
-                                ? $tmp.attr("data-autocompletion-id")
-                                : -1
-                        );
+                        this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
                     }
                     break;
                 case 13: // Enter

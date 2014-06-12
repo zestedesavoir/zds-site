@@ -11,11 +11,7 @@
         $galleryView = $(".gallery");
 
     var updateBtn = function(){
-        $btn.text(
-            $galleryView.hasClass("list-view") 
-                ? "Vue grille"
-                : "Vue liste"
-        );
+        $btn.text($galleryView.hasClass("list-view") ? "Vue grille" : "Vue liste");
     };
 
     if($btn.length > 0){
@@ -36,7 +32,7 @@
     };
 
     if($galleryView.length > 0){
-        $(".gallery-checkbox input[type=checkbox]")
+        $(".gallery-item input[type=checkbox]")
             .on("change", updateCheckbox)
             .each(updateCheckbox)
         ;

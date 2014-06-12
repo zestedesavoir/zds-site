@@ -72,36 +72,32 @@
             Vue grille
         </button>
 
-        <div class="gallery list-view navigable-list">
+        <div class="gallery topic-list list-view clearfix navigable-list">
             {% for img in gallery.get_images %}
-                <div class="gallery-item navigable-elem">
-                    <div class="gallery-checkbox">
+                <div class="topic gallery-item navigable-elem">
+                    <div class="topic-infos">
                         <input name="items" type="checkbox" value="{{ img.pk }}">
                     </div>
-                    <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="navigable-link">
-                        <div class="gallery-image">
+                    <div class="topic-description">
+                        <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
                             <img src="{{ img.physical.url }}"
                                  data-caption="{{ img.title }}"
-                                 alt="{{ img.title }}">
-                        </div>
-                        <div class="gallery-caption">
-                            <div class="title">{{ img.title }}</div>
-                            <div class="legend">{{ img.legend }}</div>
-                        </div>
-                    </a>
-                </div>
-                {% empty %}
-                <div class="gallery-item no-images">
-                    <div class="gallery-caption">
-                        <div class="title">Aucune images</div>
-                        <div class="legend">Cliquez sur "Ajouter une image" pour en ajouter</div>
+                                 alt="{{ img.title }}"
+                                 class="topic-image"
+                            >
+                            <span class="topic-title">{{ img.title }}</span>
+                            <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                        </a>
                     </div>
                 </div>
+            {% empty %}
+                <p>
+                    Aucune image. <br>
+                    Cliquez sur <em>Ajouter une image</em> pour en ajouter !
+                </p>
             {% endfor %}
 
-            <div class="gallery-item add-image">
-                <a href="{% url "zds.gallery.views.new_image" gallery.pk %}">+</a>
-            </div>
+            <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
         </div>
         
         <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
