@@ -1,6 +1,7 @@
 {% extends "forum/base.html" %}
 {% load emarkdown %}
 {% load captureas %}
+{% load set %}
 {% load profile %}
 {% load crispy_forms_tags %}
 
@@ -72,7 +73,12 @@
             {% captureas alert_solve_link %}
                 {% url "zds.forum.views.solve_alert" %}
             {% endcaptureas %}
-            
+
+            {% if forloop.first and nb > 1 %}
+                {% set True as is_repeated_message %}
+            {% else %}
+                {% set False as is_repeated_message %}
+            {% endif %}
 
             {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
         {% endfor %}

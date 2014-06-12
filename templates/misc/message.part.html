@@ -4,7 +4,7 @@
 
 
 
-<article class="topic-message {% if message.is_useful %}helpful{% endif %}">
+<article class="topic-message {% if message.is_useful %}helpful{% endif %} {% if is_repeated_message %}repeated{% endif %}">
     {% include "misc/message_user.html" with member=message.author %}
 
 
@@ -108,6 +108,11 @@
         </div>
 
         <div class="message-content">
+            {% if is_repeated_message %}
+                <p class="message-repeated">
+                    Reprise du dernier message de la page précédente
+                </p>
+            {% endif %}
             {% if message.is_useful and not is_creator %}
                 <p class="message-helpful tick ico-after green">
                     Cette réponse a aidé l'auteur du sujet
