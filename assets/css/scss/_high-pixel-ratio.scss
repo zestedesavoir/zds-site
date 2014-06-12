@@ -1,0 +1,336 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Override for high pixel ratio screens : HD icons
+   ========================================================================== */
+
+
+// Temporary active @2x on all screens
+//@media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 4/3), only screen and (min-device-pixel-ratio: 1.3), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx){ 
+    .header-logo-link {
+        background-size: 100%;
+        background-image: url('../images/logo@2x.png');
+    }
+    .ico,
+    .ico-after:after,
+    .breadcrumb ul li:not(:last-child):after {
+        background-size: round(image-width(sprite-path($sprite2x)) / 2) round(image-height(sprite-path($sprite2x)) / 2) !important;
+        background-image: $sprite2x !important;
+    }
+
+    .js.enable-mobile-menu .page-container .mobile-menu-btn:after {
+        @include sprite-pos($sprite2x, 'menu', true);
+    }
+
+    .logbox .notifs-links .ico-link .notif-text {
+        &.ico-messages {
+            @include sprite-pos($sprite2x, 'messages', true);
+        }
+        &.ico-notifs {
+            @include sprite-pos($sprite2x, 'notifications', true);
+        }
+        &.ico-alerts {
+            @include sprite-pos($sprite2x, 'alerts', true);
+        }
+        &.ico-params {
+            @include sprite-pos($sprite2x, 'params', true);
+        }
+    }
+
+    .breadcrumb ul li:not(:last-child):after {
+        @include sprite-pos($sprite2x, 'ariane', true);
+    }
+
+    .search form button:after {
+        @include sprite-pos($sprite2x, 'search', true);
+    }
+
+    .main .content-container h2 {
+        &.ico-articles:after {
+            @include sprite-pos($sprite2x, 'articles', true);
+        }
+        &.ico-tutorials:after {
+            @include sprite-pos($sprite2x, 'tutorials', true);
+        }
+    }
+
+
+
+    /* ==============
+        Markdown icons
+       ============== */
+    .main .content-container {
+        .article-content,
+        .message-content {
+            .information.ico-after:after {
+                @include sprite-pos($sprite2x, 'information', true);
+            }
+            .question.ico-after:after {
+                @include sprite-pos($sprite2x, 'question', true);
+            }
+            .error.ico-after:after {
+                @include sprite-pos($sprite2x, 'error', true);
+            }
+            .warning.ico-after:after {
+                @include sprite-pos($sprite2x, 'warning', true);
+            }
+        }
+    }
+
+
+
+    /* ==============
+        ALL: Icons
+       ============== */
+    .ico-after {
+        // TODO : faire une vraie icône online
+        &.online,
+        &.view {
+            &:after {
+                @include sprite-pos($sprite2x, 'view', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'view-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'view-light', true);
+            }
+        }
+        &.edit {
+            &:after {
+                @include sprite-pos($sprite2x, 'edit', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'edit-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'edit-light', true);
+            }
+        }
+        &.alert {
+            &:after {
+                @include sprite-pos($sprite2x, 'alert', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'alert-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'alert-light', true);
+            }
+        }
+        &.cite {
+            &:after {
+                @include sprite-pos($sprite2x, 'cite', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'cite-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'cite-light', true);
+            }
+        }
+
+        &.tick {
+            &:after {
+                @include sprite-pos($sprite2x, 'tick', true);
+            }
+            &.green:after {
+                @include sprite-pos($sprite2x, 'tick-green', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'tick-light', true);
+            }
+        }
+
+        &.upvote {
+            &:after {
+                @include sprite-pos($sprite2x, 'thumb-up', true);
+            }
+            &.voted:after {
+                @include sprite-pos($sprite2x, 'thumb-up-voted', true);
+            }
+        }
+        &.downvote {
+            &:after {
+                @include sprite-pos($sprite2x, 'thumb-down', true);
+            }
+            &.voted:after {
+                @include sprite-pos($sprite2x, 'thumb-down-voted', true);
+            }
+        }
+
+        &.lock {
+            &:after {
+                @include sprite-pos($sprite2x, 'lock', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'lock-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'lock-light', true);
+            }
+        }
+
+        &.more {
+            &:after {
+                @include sprite-pos($sprite2x, 'more', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'more-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'more-light', true);
+            }
+        }
+        &.cross {
+            &:after {
+                @include sprite-pos($sprite2x, 'cross', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'cross-blue', true);
+            }
+            &.red:after {
+                @include sprite-pos($sprite2x, 'cross-red', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'cross-light', true);
+            }
+            &.white:after {
+                @include sprite-pos($sprite2x, 'cross-white', true);
+            }
+        }
+        &.pin {
+            &:after {
+                @include sprite-pos($sprite2x, 'pin', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'pin-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'pin-light', true);
+            }
+        }
+        &.beta {
+            &:after {
+                @include sprite-pos($sprite2x, 'beta', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'beta-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'beta-light', true);
+            }
+        }
+        &.gear {
+            &:after {
+                @include sprite-pos($sprite2x, 'gear', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'gear-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'gear-light', true);
+            }
+        }
+        // TODO : faire une vraie icône offline
+        &.offline,
+        &.arrow-right {
+            &:after {
+                @include sprite-pos($sprite2x, 'arrow-right', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'arrow-right-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'arrow-right-light', true);
+            }
+        }
+        &.arrow-left {
+            &:after {
+                @include sprite-pos($sprite2x, 'arrow-left', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'arrow-left-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'arrow-left-light', true);
+            }
+        }
+        &.move {
+            &:after {
+                @include sprite-pos($sprite2x, 'move', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'move-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'move-light', true);
+            }
+        }
+        &.star {
+            &:after {
+                @include sprite-pos($sprite2x, 'star', true);
+            }
+            &.yellow:after {
+                @include sprite-pos($sprite2x, 'star-yellow', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'star-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'star-light', true);
+            }
+        }
+
+        &.download {
+            &:after {
+                @include sprite-pos($sprite2x, 'download', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'download-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'download-light', true);
+            }
+        }
+
+        &.import {
+            &:after {
+                @include sprite-pos($sprite2x, 'import', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'import-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'import-light', true);
+            }
+        }
+
+        &.history {
+            &:after {
+                @include sprite-pos($sprite2x, 'history', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'history-blue', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'history-light', true);
+            }
+        }
+
+        &.rss {
+            &:after {
+                @include sprite-pos($sprite2x, 'rss', true);
+            }
+            &.blue:after {
+                @include sprite-pos($sprite2x, 'rss-blue', true);
+            }
+            &.orange:after {
+                @include sprite-pos($sprite2x, 'rss-orange', true);
+            }
+            &.light:after {
+                @include sprite-pos($sprite2x, 'rss-light', true);
+            }
+        }
+    }
+//}

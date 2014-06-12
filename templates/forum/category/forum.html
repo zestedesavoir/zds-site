@@ -1,0 +1,56 @@
+{% extends "forum/base.html" %}
+
+
+
+{% block title %}
+    {{ forum.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
+    <li>{{ forum.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ forum.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ forum.subtitle }}
+{% endblock %}
+
+
+
+{% block new_btn %}
+    <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+        Nouveau sujet
+    </a>
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    {% if sticky_topics %}
+        <div class="topic-list">
+            {% for topic in sticky_topics %}
+                {% include "forum/includes/topic_row.part.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="topic-list navigable-list">
+        {% for topic in topics %}
+            {% include "forum/includes/topic_row.part.html" %}
+        {% endfor %}
+    </div>
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+{% endblock %}

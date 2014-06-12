@@ -139,7 +139,7 @@ def list_validation(request):
                                                         )).filter(tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition"
                           ).all()
-    return render_template("tutorial/validation.html",
+    return render_template("tutorial/validation/index.html",
                            {"validations": validations})
 
 
@@ -163,8 +163,8 @@ def reservation(request, validation_pk):
         validation.status = "PENDING_V"
         validation.save()
         messages.info(request,
-                      u"Le tutoriel a bien été u\
-                      uréservé par {0}.".format(request.user.username))
+                      u"Le tutoriel a bien été \
+                      réservé par {0}.".format(request.user.username))
         return redirect(validation.tutorial.get_absolute_url())
 
 
@@ -182,7 +182,7 @@ def diff(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
     tdiff = hcommit.diff("HEAD~1")
-    return render_template("tutorial/diff_tutorial.html", {
+    return render_template("tutorial/tutorial/diff.html", {
         "tutorial": tutorial,
         "path_add": tdiff.iter_change_type("A"),
         "path_ren": tdiff.iter_change_type("R"),
@@ -208,7 +208,7 @@ def history(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
-    return render_template("tutorial/history_tutorial.html",
+    return render_template("tutorial/tutorial/history.html",
                            {"tutorial": tutorial, "logs": logs})
 
 
@@ -237,7 +237,7 @@ def history_validation(request, tutorial_pk):
                                                 tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition"
                       ).all()
-    return render_template("tutorial/history_validation.html",
+    return render_template("tutorial/tutorial/history.html",
                            {"validations": validations, "tutorial": tutorial})
 
 
@@ -258,44 +258,52 @@ def reject_tutorial(request):
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    validation.comment_validator = request.POST["text"]
-    validation.status = "REJECT"
-    validation.date_validation = datetime.now()
-    validation.save()
 
-    # Remove sha_validation because we rejected this version of the tutorial.
+    if request.user == validation.validator:
+        validation.comment_validator = request.POST["text"]
+        validation.status = "REJECT"
+        validation.date_validation = datetime.now()
+        validation.save()
 
-    tutorial.sha_validation = None
-    tutorial.pubdate = None
-    tutorial.save()
-    messages.info(request, u"Le tutoriel a bien été refusé.")
+        # Remove sha_validation because we rejected this version of the tutorial.
 
-    # send feedback
+        tutorial.sha_validation = None
+        tutorial.pubdate = None
+        tutorial.save()
+        messages.info(request, u"Le tutoriel a bien été refusé.")
 
-    for author in tutorial.authors.all():
-        msg = \
-            u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
-            upas passé l’étape de validation. Mais ne désespère pas, u\
-            ucertaines corrections peuvent surement être faite pour u\
-            ul’améliorer et repasser la validation plus tard. u\
-            uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
-            uN'hésite pas a lui envoyer un petit message pour discuter u\
-            ude la décision ou demander plus de détail si tout cela te u\
-            usemble injuste ou manque de clarté."""\
-            .format(author.username, tutorial.title, validation.validator.username,
-                    validation.validator.profile.get_absolute_url(), validation.comment_validator)
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(
-            bot,
-            [author],
-            u"Refus de Validation : {0}".format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+        # send feedback
+
+        for author in tutorial.authors.all():
+            msg = \
+                u"""Désolé **{0}**, ton zeste **{1}** n'a malheureusement u\
+                upas passé l’étape de validation. Mais ne désespère pas, u\
+                ucertaines corrections peuvent surement être faite pour u\
+                ul’améliorer et repasser la validation plus tard. u\
+                uVoici le message que [{2}]({3}), ton validateur t'a laissé `{4}`u\
+                uN'hésite pas a lui envoyer un petit message pour discuter u\
+                ude la décision ou demander plus de détail si tout cela te u\
+                usemble injuste ou manque de clarté."""\
+                .format(author.username, tutorial.title, validation.validator.username,
+                        validation.validator.profile.get_absolute_url(), validation.comment_validator)
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Refus de Validation : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
+    else:
+        messages.error(request,
+                    "Vous devez avoir réservé ce tutoriel "
+                    "pour pouvoir le refuser.")
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
 
 
 @can_write_and_read_now
@@ -312,51 +320,63 @@ def valid_tutorial(request):
     except KeyError:
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    (output, err) = MEP(tutorial, tutorial.sha_validation)
-    messages.info(request, output)
-    messages.error(request, err)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
-    validation.comment_validator = request.POST["text"]
-    validation.status = "ACCEPT"
-    validation.date_validation = datetime.now()
-    validation.save()
 
-    # Update sha_public with the sha of validation. We don't update sha_draft.
-    # So, the user can continue to edit his tutorial in offline.
+    if request.user == validation.validator:
+        (output, err) = MEP(tutorial, tutorial.sha_validation)
+        messages.info(request, output)
+        messages.error(request, err)
+        validation.comment_validator = request.POST["text"]
+        validation.status = "ACCEPT"
+        validation.date_validation = datetime.now()
+        validation.save()
 
-    if request.POST.get('is_major', False) or tutorial.sha_public is None:
-        tutorial.pubdate = datetime.now()
-    tutorial.sha_public = validation.version
-    tutorial.sha_validation = None
-    tutorial.save()
-    messages.success(request, u"Le tutoriel a bien été validé.")
+        # Update sha_public with the sha of validation. We don't update sha_draft.
+        # So, the user can continue to edit his tutorial in offline.
 
-    # send feedback
+        if request.POST.get('is_major', False) or tutorial.sha_public is None:
+            tutorial.pubdate = datetime.now()
+        tutorial.sha_public = validation.version
+        tutorial.sha_validation = None
+        tutorial.save()
+        messages.success(request, u"Le tutoriel a bien été validé.")
 
-    for author in tutorial.authors.all():
-        msg = \
-            u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
-            uest maintenant publié ! Les lecteurs du monde entier u\
-            upeuvent venir l'éplucher et réagir a son sujet. u\
-            uJe te conseille de rester a leur écoute afin u\
-            ud'apporter des corrections/compléments.u\
-            uUn Tutoriel vivant et a jour est bien plus lu u\
-            uqu'un sujet abandonné !"""\
-            .format(author.username, tutorial.title, tutorial.get_absolute_url_online())
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-        send_mp(
-            bot,
-            [author],
-            u"Publication : {0}".format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+        # send feedback
+
+        for author in tutorial.authors.all():
+            msg = \
+                u"""Félicitations **{0}** ! Ton zeste [{1}]({2}) u\
+                ua été publié par [{3}]({4}) ! Les lecteurs du monde entier u\
+                upeuvent venir l'éplucher et réagir a son sujet. u\
+                uJe te conseille de rester a leur écoute afin u\
+                ud'apporter des corrections/compléments.u\
+                uUn Tutoriel vivant et a jour est bien plus lu u\
+                uqu'un sujet abandonné !"""\
+                .format(author.username,
+                        tutorial.title,
+                        tutorial.get_absolute_url_online(),
+                        validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator)
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Publication : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
+    else:
+        messages.error(request,
+                    "Vous devez avoir réservé ce tutoriel "
+                    "pour pouvoir le valider.")
+        return redirect(tutorial.get_absolute_url() + "?version="
+                        + validation.version)
 
 
 @can_write_and_read_now
@@ -521,8 +541,10 @@ def modify_tutorial(request):
 
     if request.user in tutorial.authors.all():
         if "add_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.edit_tutorial") \
-                + "?tutoriel={0}".format(tutorial.pk)
+            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+                tutorial.pk,
+                tutorial.slug,
+            ])
             author_username = request.POST["author"]
             author = None
             try:
@@ -544,8 +566,10 @@ def modify_tutorial(request):
                              udu tutoriel.".format(author.username))
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.edit_tutorial") \
-                + "?tutoriel={0}".format(tutorial.pk)
+            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+                tutorial.pk,
+                tutorial.slug,
+            ])
 
             # Avoid orphan tutorials
 
@@ -664,11 +688,13 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk,
-                                           version=sha)
+                                           version=sha)\
+                                    .order_by("-date_proposition")\
+                                    .first()
     formAskValidation = AskValidationForm()
     formValid = ValidForm()
     formReject = RejectForm()
-    return render_template("tutorial/view_tutorial.html", {
+    return render_template("tutorial/tutorial/view.html", {
         "tutorial": tutorial,
         "chapter": chapter,
         "parts": parts,
@@ -806,7 +832,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # Build form to send a note for the current tutorial.
 
     form = NoteForm(tutorial, request.user)
-    return render_template("tutorial/view_tutorial_online.html", {
+    return render_template("tutorial/tutorial/view_online.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
@@ -904,7 +930,7 @@ def add_tutorial(request):
             return redirect(tutorial.get_absolute_url())
     else:
         form = TutorialForm()
-    return render_template("tutorial/new_tutorial.html", {"form": form})
+    return render_template("tutorial/tutorial/new.html", {"form": form})
 
 
 @can_write_and_read_now
@@ -984,9 +1010,8 @@ def edit_tutorial(request):
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
         })
-    return render_template("tutorial/edit_tutorial.html",
+    return render_template("tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form})
-
 
 # Parts.
 
@@ -1046,7 +1071,8 @@ def view_part(
             final_part = part
             break
         cpt_p += 1
-    return render_template("tutorial/view_part.html",
+
+    return render_template("tutorial/part/view.html",
                            {"tutorial": tutorial,
                             "part": final_part,
                             "version": sha})
@@ -1103,7 +1129,8 @@ def view_part_online(
                 cpt_c += 1
             break
         cpt_p += 1
-    return render_template("tutorial/view_part_online.html", {"part": part})
+
+    return render_template("tutorial/part/view_online.html", {"part": part})
 
 
 @can_write_and_read_now
@@ -1152,7 +1179,7 @@ def add_part(request):
             return redirect(part.get_absolute_url())
     else:
         form = PartForm()
-    return render_template("tutorial/new_part.html", {"tutorial": tutorial,
+    return render_template("tutorial/part/new.html", {"tutorial": tutorial,
                                                       "form": form})
 
 
@@ -1252,9 +1279,11 @@ def edit_part(request):
         form = PartForm({"title": part.title,
                          "introduction": part.get_introduction(),
                          "conclusion": part.get_conclusion()})
-    return render_template("tutorial/edit_part.html", {"part": part,
+    return render_template("tutorial/part/edit.html", {"part": part,
                                                        "form": form})
 
+
+# Chapters.
 
 @can_read_now
 @login_required
@@ -1331,11 +1360,12 @@ def view_chapter(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
+
     prev_chapter = (chapter_tab[final_position - 1] if final_position
                     > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
-    return render_template("tutorial/view_chapter.html", {
+    return render_template("tutorial/chapter/view.html", {
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
@@ -1424,11 +1454,12 @@ def view_chapter_online(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
+
     prev_chapter = (chapter_tab[final_position - 1] if final_position
                     > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
-    return render_template("tutorial/view_chapter_online.html", {
+    return render_template("tutorial/chapter/view_online.html", {
         "chapter": final_chapter,
         "parts": parts,
         "prev": prev_chapter,
@@ -1532,7 +1563,8 @@ def add_chapter(request):
                                uexiste dans cette partie.")
     else:
         form = ChapterForm()
-    return render_template("tutorial/new_chapter.html", {"part": part,
+
+    return render_template("tutorial/chapter/new.html", {"part": part,
                                                          "form": form})
 
 
@@ -1666,10 +1698,11 @@ def edit_chapter(request):
                                 "introduction": chapter.get_introduction(),
                                 "conclusion": chapter.get_conclusion()})
         else:
+
             form = \
                 EmbdedChapterForm({"introduction": chapter.get_introduction(),
                                    "conclusion": chapter.get_conclusion()})
-    return render_template("tutorial/edit_chapter.html", {"chapter": chapter,
+    return render_template("tutorial/chapter/edit.html", {"chapter": chapter,
                                                           "form": form})
 
 
@@ -1704,7 +1737,7 @@ def add_extract(request):
         if "preview" in data:
             form = ExtractForm(initial={"title": data["title"],
                                         "text": data["text"]})
-            return render_template("tutorial/new_extract.html",
+            return render_template("tutorial/extract/new.html",
                                    {"chapter": chapter, "form": form})
         else:
 
@@ -1725,7 +1758,8 @@ def add_extract(request):
                 return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm()
-    return render_template("tutorial/new_extract.html", {"chapter": chapter,
+
+    return render_template("tutorial/extract/new.html", {"chapter": chapter,
                                                          "form": form})
 
 
@@ -1761,7 +1795,7 @@ def edit_extract(request):
         if "preview" in data:
             form = ExtractForm(initial={"title": data["title"],
                                         "text": data["text"]})
-            return render_template("tutorial/edit_extract.html",
+            return render_template("tutorial/extract/edit.html",
                                    {"extract": extract, "form": form})
         else:
 
@@ -1813,7 +1847,7 @@ def edit_extract(request):
     else:
         form = ExtractForm({"title": extract.title,
                             "text": extract.get_text()})
-    return render_template("tutorial/edit_extract.html", {"extract": extract,
+    return render_template("tutorial/extract/edit.html", {"extract": extract,
                                                           "form": form})
 
 
@@ -1889,13 +1923,13 @@ def find_tuto(request, pk_user):
         tutos = Tutorial.objects.all().filter(
             authors__in=[u],
             sha_beta__isnull=False).order_by("-pubdate")
-        return render_template("tutorial/find_betatutorial.html",
+        return render_template("tutorial/member/beta.html",
                                {"tutos": tutos, "usr": u})
     else:
         tutos = Tutorial.objects.all().filter(
             authors__in=[u],
             sha_public__isnull=False).order_by("-pubdate")
-        return render_template("tutorial/find_tutorial.html", {"tutos": tutos,
+        return render_template("tutorial/member/index.html", {"tutos": tutos,
                                                                "usr": u})
 
 
@@ -2195,7 +2229,6 @@ def local_import(request):
                    request.POST["logo"])
     return redirect(reverse("zds.member.views.tutorials"))
 
-
 @can_write_and_read_now
 @login_required
 def import_tuto(request):
@@ -2224,8 +2257,10 @@ def import_tuto(request):
         for old in olds:
             oldtutos.append(get_info_old_tuto(old))
     return render_template(
-        "tutorial/import_tutorial.html", {"form": form, "old_tutos": oldtutos})
+        "tutorial/tutorial/import.html", {"form": form, "old_tutos": oldtutos})
 
+
+# Handling repo
 
 def maj_repo_tuto(
     request,
@@ -2782,7 +2817,7 @@ def answer(request):
         if "preview" in data or newnote:
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
-            return render_template("tutorial/answer.html", {
+            return render_template("tutorial/comment/new.html", {
                 "tutorial": tutorial,
                 "last_note_pk": last_note_pk,
                 "newnote": newnote,
@@ -2829,13 +2864,12 @@ def answer(request):
                 note_cite.author.username,
                 note_cite.get_absolute_url())
         form = NoteForm(tutorial, request.user, initial={"text": text})
-        return render_template("tutorial/answer.html", {
+        return render_template("tutorial/comment/new.html", {
             "tutorial": tutorial,
             "notes": notes,
             "last_note_pk": last_note_pk,
             "form": form,
         })
-
 
 @can_write_and_read_now
 @login_required
@@ -2895,7 +2929,7 @@ def edit_note(request):
 
     if note.author != request.user \
             and not request.user.has_perm("tutorial.change_note") \
-            and "signal-note" not in request.POST:
+            and "signal_message" not in request.POST:
         raise PermissionDenied
     if note.author != request.user and request.method == "GET" \
             and request.user.has_perm("tutorial.change_note"):
@@ -2906,7 +2940,7 @@ def edit_note(request):
                              ucelui-ci !".format(note.author.username))
         note.alerts.all().delete()
     if request.method == "POST":
-        if "delete-note" in request.POST:
+        if "delete_message" in request.POST:
             if note.author == request.user \
                     or request.user.has_perm("tutorial.change_note"):
                 note.alerts.all().delete()
@@ -2914,30 +2948,29 @@ def edit_note(request):
                 if request.user.has_perm("tutorial.change_note"):
                     note.text_hidden = request.POST["text_hidden"]
                 note.editor = request.user
-        if "show-note" in request.POST:
+        if "show_message" in request.POST:
             if request.user.has_perm("tutorial.change_note"):
                 note.is_visible = True
                 note.text_hidden = ""
-        if "signal-note" in request.POST:
+        if "signal_message" in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = note
             alert.scope = Alert.TUTORIAL
-            alert.text = request.POST["signal-text"]
+            alert.text = request.POST["signal_text"]
             alert.pubdate = datetime.now()
             alert.save()
 
         # Using the preview button
-
         if "preview" in request.POST:
             form = NoteForm(g_tutorial, request.user,
                             initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
             return render_template(
-                "tutorial/edit_note.html", {"note": note, "tutorial": g_tutorial, "form": form})
-        if "delete-note" not in request.POST and "signal-note" \
-                not in request.POST and "show-note" not in request.POST:
+                "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+        if "delete_message" not in request.POST and "signal_message" \
+                not in request.POST and "show_message" not in request.POST:
 
             # The user just sent data, handle them
 
@@ -2953,7 +2986,7 @@ def edit_note(request):
         form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
             + "?message=" + str(note_pk)
         return render_template(
-            "tutorial/edit_note.html", {"note": note, "tutorial": g_tutorial, "form": form})
+            "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
 @can_write_and_read_now

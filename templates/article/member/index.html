@@ -1,0 +1,49 @@
+{% extends "article/index.html" %}
+
+
+
+{% block title_base %}
+    &#183; Mes articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+{% endblock %}
+
+
+
+{% block title %}
+    Mes Articles
+{% endblock %}
+
+
+
+{% block headline %}
+    Mes Articles
+{% endblock %}
+
+
+
+{% block sidebar_filter %}
+    <li><a href="{% url "zds.member.views.articles" %}">Tous</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}?type=public">Publiés</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}?type=draft">Brouillons</a><li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if articles %}
+        <div class="tutorial-list">
+            {% for article in articles %}
+                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            Aucun article disponible.
+        </p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "tutorial/base.html" %}
+{% load emarkdown %}
+{% load repo_reader %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    {{ tutorial.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ tutorial.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.thumb.url }}" alt="">
+        {% endif %}
+        {{ tutorial.title }}
+    </h1>
+
+    {% if tutorial.description %}
+        <h3 class="subtitle">
+            {{ tutorial.description }}
+        </h3>
+    {% endif %}
+
+    <ul class="taglist">
+        {% for category in tutorial.subcategory.all %}
+            {# TODO : ajouter les liens des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div class="authors">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+            {% for member in tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+            <li>
+                <a href="#add-author" class="open-modal ico-after more blue">
+                    Ajouter un auteur
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                Attention, cette version du tutoriel est en BETA !
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% with tuto_version=tutorial|repo_tuto:version %}
+        {% if tuto_version.introduction %}
+            {{ tuto_version.introduction|emarkdown }}
+        {% else %}
+            <p class="warning ico-after">
+                Il n'y a pas d'introduction.
+            </p>
+        {% endif %}
+
+        {% if tutorial.is_mini %}
+            {# Small tutorial #}
+
+            {% include "tutorial/includes/chapter.part.html" with authors=tutorial.authors.all %}
+        {% else %}
+            {# Large tutorial #}
+
+            <hr />
+            {% if parts %}
+                {% for part in parts %}
+                    <h2>
+                        <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
+                            Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                        </a>
+                    </h2>
+                {% endfor %}
+            {% else %}
+                <p class="warning ico-after">
+                    Il n'y a actuellement aucune partie dans ce tutoriel.
+                </p>
+            {% endif %}
+            <hr />
+
+        {% endif %}
+
+        {% if tuto_version.conclusion %}
+            {{ tuto_version.conclusion|emarkdown }}
+        {% else %}
+            <p class="warning ico-after">
+                Il n'y a pas de conclusion.
+            </p>
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+
+
+
+{% block sidebar_new %}
+    {# TODO : passer tout ça en POST, CSRF toussa #}
+    {% if not tutorial.is_mini %}
+        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">Ajouter une partie</a>
+    {% else %}
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">Ajouter un extrait</a>
+    {% endif %}
+
+    {% if tutorial.sha_draft = version %}
+        <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">Éditer</a>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <li>
+        <a href="#add-author" class="open-modal ico-after more blue">
+            Ajouter un auteur
+        </a>
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
+            {% csrf_token %}
+            <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter">
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
+            <button type="submit" class="button" name="add_author">
+                Confirmer
+            </button>
+        </form>
+    </li>
+    <li>
+        <a href="#manage-authors" class="open-modal ico-after gear blue">Gérer les auteurs</a>
+        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+            <table class="fullwidth">
+                <thead>
+                    <th>Auteur</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody>
+                    {% for member in tutorial.authors.all %}
+                        <tr>
+                            <td>{% include "misc/member_item.part.html" %}</td>
+                            <td>
+                                {% if tutorial.authors.count > 1 %}
+                                    <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                        Supprimer
+                                    </button>
+                                {% else %}
+                                    Vous êtes seul !
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" name="remove_author" value="1">
+            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+            {% csrf_token %}
+        </form>
+    </li>
+
+    {% if tutorial.sha_public %}
+        <li><a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">Voir <span class="wide">la version</span> en ligne</a></li>
+    {% endif %}
+    {# TODO : passer tout ça en POST, CSRF toussa #}
+    {% if not tutorial.in_beta %}
+        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after beta blue">Activer la bêta</a></li>
+    {% else %}
+        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" class="ico-after cross blue">Désactiver la bêta</a></li>
+    {% endif %}
+
+    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">Historique des versions</a>
+
+    {% if not tutorial.in_validation %}
+        <li>
+            <a href="#ask-validation" class="open-modal ico-after tick green">
+                Demander la validation
+            </a>
+            <div id="ask-validation" class="modal modal-small">
+                {% crispy formAskValidation %}
+            </div>
+        </li>
+    {% else %}
+        <li class="inactive">
+            <span>En attente de validation</span>
+        </li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if perms.tutorial.change_tutorial %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>Validation</h3>
+            <ul>
+                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
+
+                {% if tutorial.on_line %}
+                    <li>
+                        <a href="#unpublish" class="ico-after open-modal cross blue">Dépublier</a>
+                        <div class="modal modal-small" id="unpublish">
+                            <p>
+                                Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>"
+                            </p>
+                            <a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="btn btn-submit">Confirmer</a>
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if tutorial.in_validation %}
+                    {% if validation.is_pending %}
+                        <li>
+                            <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="ico-after lock blue">Réserver</a>
+                        </li>
+                    {% elif validation.is_pending_valid %}
+                        {% if validation.validator = user %}
+                            <li>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
+                                    Se retirer
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
+                                <div class="modal modal-small" id="valid-publish">
+                                    {% crispy formValid %}
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
+                                <div class="modal modal-small" id="reject">
+                                    {% crispy formReject %}
+                                </div>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
+                                    Réservé par {{ validation.validator.username }}, le retirer
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% include "tutorial/includes/summary.part.html" %}
+
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+        <h3>Suppression</h3>
+        <ul>
+            {% if not tutorial.on_line %}
+                <li>
+                    <a href="#delete-tutorial" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
+                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-tutorial" class="modal modal-medium" method="get">
+                        <p>
+                            Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
+                        </p>
+                        <button type="submit">Confirmer</button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span>Impossible car publié</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

@@ -1,0 +1,195 @@
+/* ===== Zeste de Savoir ====================================================
+   Author: Alex-D / Alexandre Demode
+   ---------------------------------
+   Form style
+   ========================================================================== */
+
+
+
+.content-container,
+#modals {
+
+    form {
+        width: 100%;
+
+        p {
+            position: relative;
+        }
+    }
+
+
+
+    fieldset {
+        border-top: 1px solid #DDD;
+        border-bottom: 3px solid #DDD;
+        background: #EFEFEF;
+        padding: 0 4%;
+
+        legend {
+            padding: 0 10px;
+            border-top: 1px solid #DDD;
+            border-bottom: 3px solid #DDD;
+            background: #EFEFEF;
+        }
+    }
+
+
+
+    label {
+        display: block;
+        color: #555;
+        height: 30px;
+        line-height: 30px;
+
+        .asteriskField {
+            color: #C0392B;
+            margin-left: 4px;
+        }
+    }
+    .form-error {
+        display: block;
+        font-size: 13px;
+        color: #C0392B;
+    }
+
+    input,
+    textarea {
+        border: 1px solid #D2D5D6;
+
+        &:focus {
+            outline-color: #999;
+        }
+
+        &.field-error,
+        &:invalid {
+            border-color: #C0392B;
+
+            &:focus {
+                outline-color: #C0392B;
+            }
+        }
+
+        &[disabled] {
+            background: #DDD !important;
+            color: #555;
+        }
+    }
+    input,
+    textarea,
+    button,
+    .btn {
+        -webkit-appearance: none;
+        @include transition;
+    }
+
+    input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
+        width: calc(98% - 2px);
+        padding: 0 1%;
+    }
+    textarea {
+        width: calc(98% - 2px);
+        padding: 10px 1%;
+        font-family: Courier, "Lucida Sans Typewriter", "Lucida Typewriter", "DejaVu Sans Mono", monospace;
+    }
+
+    input,
+    button,
+    .btn {
+        display: block;
+        height: 30px;
+
+        &.ico-after {
+            padding-left: 30px;
+
+            &:after {
+                margin: 12px 0 0 7px;
+            }
+        }
+    }
+    input[type=submit],
+    button,
+    .btn {
+        height: 40px;
+        line-height: 40px;
+        cursor: pointer;
+    }
+
+    input[type=radio],
+    input[type=checkbox] {
+        float: left;
+        margin-right: 5px;
+        height: 15px;
+        width: 15px;
+        border: 1px solid #BBB;
+        background: #FCFCFC;
+
+        &:checked {
+            background: #555;
+        }
+    }
+    [type=submit],
+    button,
+    .btn {
+        color: #DDD;
+        padding: 0 15px;
+        border: none;
+        float: right;
+        text-decoration: none;
+        margin-left: 1px;
+        outline: none;
+    }
+    [type=submit],
+    .btn-submit {
+        color: #FFF;
+        background: #084561;
+
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
+            background: #396A81;
+        }
+    }
+    .btn-cancel {
+        background: #c0392b;
+
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
+            background: #e74c3c;
+        }
+    }
+    .btn-grey {
+        background: #EEE;
+        color: #555;
+
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
+            background: #CCC;
+            color: #333;
+        }
+    }
+    [disabled] {
+        cursor: default;
+        background: #F7F7F7;
+        color: #CCC;
+    }
+
+    .form-sub-link {
+        display: block;
+        display: inline-block;
+        margin-top: 8px;
+    }
+
+
+
+ 
+
+
+
+    // TEMP STYLES TO PATCH TEMP TEMPLATE PACK MIX
+
+    .checkbox {
+        padding: 10px 0;
+        input {
+            margin-top: 8px;
+        }
+    }
+}

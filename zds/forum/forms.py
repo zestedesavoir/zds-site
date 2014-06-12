@@ -6,10 +6,9 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML
-from crispy_forms_foundation.layout import Layout, Field, Hidden
+from crispy_forms.layout import HTML, Layout, Field, Hidden
+from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic, sub_tag, Tag
 from zds.utils.forms import CommonLayoutEditor
 
@@ -44,7 +43,7 @@ class TopicForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(TopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -163,10 +162,10 @@ class MoveTopicForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse(
             'zds.forum.views.move_topic') + '?sujet=' + str(topic.pk)
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('forum'),
-            StrictButton('Valider', type='submit', css_class='button tiny'),
+            StrictButton('Valider', type='submit'),
         )

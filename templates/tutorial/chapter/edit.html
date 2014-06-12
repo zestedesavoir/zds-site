@@ -1,0 +1,44 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Éditer le chapitre
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% if chapter.tutorial %}
+        <li><a href="{{ chapter.tutorial.get_absolute_url }}">{{ chapter.tutorial.title }}</a></li>
+    {% else %}
+        <li><a href="{{ chapter.part.tutorial.get_absolute_url }}">{{ chapter.part.tutorial.title }}</a></li>
+        <li><a href="{{ chapter.part.get_absolute_url }}">{{ chapter.part.title }}</a></li>
+        <li><a href="{{ chapter.get_absolute_url }}">{{ chapter.title }}</a></li>
+    {% endif %}
+    <li>Éditer le chapitre</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
+        {% if chapter.image %}
+            <img src="{{ chapter.image.thumb.url }}" alt="">
+        {% endif %}
+        Éditer le chapitre : {{ part.title }}
+    </h1>
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ chapter.description }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

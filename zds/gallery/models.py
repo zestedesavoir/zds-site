@@ -114,7 +114,7 @@ class Image(models.Model):
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
     def get_extension(self):
-        return os.path.splitext(self.nom_physique)[1]
+        return os.path.splitext(self.physical.name)[1][1:]
 
     def save(
         self,
@@ -186,6 +186,12 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.physical:
         if os.path.isfile(instance.physical.path):
             os.remove(instance.physical.path)
+    if instance.medium:
+        if os.path.isfile(instance.medium.path):
+            os.remove(instance.medium.path)
+    if instance.thumb:
+        if os.path.isfile(instance.thumb.path):
+            os.remove(instance.thumb.path)
 
 
 class Gallery(models.Model):
@@ -209,6 +215,7 @@ class Gallery(models.Model):
         return reverse('zds.gallery.views.gallery_details',
                        args=[self.pk, self.slug])
 
+    # TODO rename function to get_users_galleries
     def get_users(self):
         return UserGallery.objects.all()\
             .filter(gallery=self)

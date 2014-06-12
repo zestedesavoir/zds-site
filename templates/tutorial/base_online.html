@@ -1,0 +1,14 @@
+{% extends "tutorial/base.html" %}
+{% load captureas %}
+
+
+
+{% block title_base %}
+    &#183; Tutoriels
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+{% endblock %}

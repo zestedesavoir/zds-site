@@ -1,0 +1,35 @@
+{% extends "forum/base.html" %}
+{% load profile %}
+{% load emarkdown %}
+
+
+
+{% block title %}
+    Tag : {{tag.title}}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Tag : {{tag.title}}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Tag : {{tag.title}}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/pagination.part.html" with position="top" %}
+
+    <div class="topic-list">
+        {% for topic in topics %}
+            {% include "forum/includes/topic_row.part.html" %}
+        {% endfor %}
+    </div>
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+{% endblock %}

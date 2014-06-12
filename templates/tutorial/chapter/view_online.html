@@ -1,0 +1,90 @@
+{% extends "tutorial/base.html" %}
+{% load set %}
+
+
+
+{% block title %}
+    {{ chapter.title }} - {{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url_online }}">{{ chapter.part.tutorial.title }}</a></li>
+    <li><a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}">
+        {{ chapter.part.title }}
+    </a></li>
+    <li>{{ chapter.title }}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% with tutorial=chapter.get_tutorial %}
+        {% with authors=tutorial.authors.all %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
+            {% include "tutorial/includes/chapter_online.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if chapter.tutorial %}
+        {% set chapter.tutorial as tutorial %}
+    {% else %}
+        {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
+        {% if chapter.image %}
+            <img src="{{ chapter.image.thumb.url }}" alt="">
+        {% endif %}
+        {{ chapter.title }}
+    </h1>
+
+    <ul class="taglist">
+        {% for category in tutorial.subcategory.all %}
+            {# TODO : Mettre le lien des tags #}
+            <li><a href="#">{{ category.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div class="authors">
+        <span class="authors-label">Auteurs : </span>
+        <ul>
+            {% for member in tutorial.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if chapter.tutorial %}
+        {% set chapter.tutorial as tutorial %}
+    {% else %}
+        {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
+    {% if perms.tutorial.change_tutorial %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after offline blue">Version hors-ligne</a></li>
+            </ul>
+        </div>
+    {% endif %}
+
+    {% with parts=tutorial.get_parts %}
+        {% with chapter_current=chapter %}
+            {% include "tutorial/includes/summary.part.html" with online=True %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "member/base.html" %}
+
+
+
+{% block title %}
+    Création du compte réussie
+{% endblock %}
+
+
+
+{% block headline %}
+    Création du compte réussie
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Création du compte réussie</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Votre compte a été créé avec succès, vous pouvez maintenant <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
+    </p>
+{% endblock %}

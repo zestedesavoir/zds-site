@@ -48,14 +48,14 @@ def send_mp(
     if send_by_mail:
         if direct:
             subject = "ZDS : " + n_topic.title
-            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
             for part in users:
-                message_html = get_template('email/mp_direct.html').render(
+                message_html = get_template('email/mp/direct.html').render(
                     Context({
                         'msg': emarkdown(text)
                     })
                 )
-                message_txt = get_template('email/mp_direct.txt').render(
+                message_txt = get_template('email/mp/direct.txt').render(
                     Context({
                         'msg': text
                     })
@@ -71,16 +71,16 @@ def send_mp(
                     msg = None
         else:
             subject = "ZDS - MP: " + n_topic.title
-            from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
             for part in users:
-                message_html = get_template('email/mp.html').render(
+                message_html = get_template('email/mp/new.html').render(
                     Context({
                         'username': part.username,
                         'url': settings.SITE_URL + n_topic.get_absolute_url(),
                         'author': author.username
                     })
                 )
-                message_txt = get_template('email/mp.txt').render(
+                message_txt = get_template('email/mp/new.txt').render(
                     Context({
                         'username': part.username,
                         'url': settings.SITE_URL + n_topic.get_absolute_url(),

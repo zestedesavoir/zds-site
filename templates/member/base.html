@@ -1,17 +1,27 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
     &#183; Membres
 {% endblock %}
 
-{% block headline %}
-	<h2 class="box member">{% block head-title %}{% endblock %}</h2>
+
+
+{% block mobile_title %}
+    Membres
 {% endblock %}
+
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.member.views.index" %}">Membres</a></li>
 {% endblock %}
 
+
+
 {% block sidebar %}
-	{% block headline-actions %}{% endblock %}
+    <aside class="sidebar mobile-menu-hide">
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
 {% endblock %}

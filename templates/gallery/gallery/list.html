@@ -1,0 +1,44 @@
+{% extends "gallery/base.html" %}
+
+
+
+{% block title %}
+   Liste des galeries
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Liste des galeries</li>
+{% endblock %}
+
+
+
+{% block headline %}
+   Liste des galeries
+{% endblock %}
+
+
+
+{% block content %}
+    <form id="form" name="form" method="POST" action="{% url "zds.gallery.views.modify_gallery" %}">
+        {% for gallery in galleries %}
+            <dl>
+                <dd>
+                    {% if gallery.is_write %}
+                        <input name="items" type="checkbox" value="{{ gallery.gallery.pk }}">
+                    {% endif %}
+                    <a href="{{ gallery.gallery.get_absolute_url }}">
+                        {{ gallery.gallery.title }}
+                        ({{ gallery.gallery.get_images.count }})
+                    </a>
+                    <br />
+                    {{ gallery.gallery.subtitle }}
+                </dd>
+            </dl>
+        {% endfor %}
+        <button type="submit" name="delete_multi">Supprimer</button>
+
+        {% csrf_token %}
+    </form>
+{% endblock %}

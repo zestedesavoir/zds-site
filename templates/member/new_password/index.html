@@ -1,0 +1,36 @@
+{% extends "member/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Nouveau mot de passe
+{% endblock %}
+
+
+
+{% block headline %}
+    Nouveau mot de passe
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Nouveau mot de passe</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if not user.is_authenticated %}
+        {% if error %}
+            {{ error }}
+        {% endif %}
+        <p>
+            Renseignez votre nouveau mot de passe.
+        </p>
+        {% crispy form %}
+    {% else %}
+        <p>Vous êtes connecté</p>
+    {% endif %}
+{% endblock %}

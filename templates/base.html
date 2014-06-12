@@ -1,17 +1,574 @@
-{% extends "source.html" %}
+{% load staticfiles %}
+{% load compressed %}
+{% load profile %}
+{% load interventions %}
+{% load topbar %}
+{% load captureas %}
+{% load date %}
 
-{% block content-out %}
-  <div class="large-9 push-3 columns">
+
+
+<!DOCTYPE html>
+<html class="no-js enable-mobile-menu wf-active">
+<head>
+    <meta charset="utf-8">
+
+    <title>
+        {% block title %}{% endblock %}
+        {% block title_base %}{% endblock %}
+        &bull; Zeste de Savoir
+    </title>
+
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
+
+    {% block meta %}{% endblock %}
+
+    {% compressed_css "main-css" %}
+
+    {# Webfont async loading #}
+    {# Do not put this code into a distant file #}
+    <!-- TODO : optimiser ça pour ne pas voir le changement de font à chaque page
+    <script>
+        WebFontConfig = {
+            google: {
+              families: ['Source Sans Pro', 'Source Sans Pro', 'Droid Serif']
+            }
+        };
+
+        (function() {
+            var wf = document.createElement('script');
+            wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+                      '://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js';
+            wf.type = 'text/javascript';
+            wf.async = 'true';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(wf, s);
+        })();
+    </script>
+    -->
+    <!-- TEMP : load fonts from Google / Procude FOUT effect (see above) -->
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro|Source+Code+Pro|Droid+Serif' rel='stylesheet' type='text/css'>
+
+
+    {# for additionnal css in some pages #}
+    {% block extracss %}{% endblock %}
+
+    {# favicons #}
+    <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static "images/apple-touch-icon-144x144-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static "images/apple-touch-icon-114x114-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static "images/apple-touch-icon-72x72-precomposed.png" %}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static "images/apple-touch-icon-57x57-precomposed.png" %}">
+    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
+    <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
+
+    {# RSS links #}
+    <link rel="alternate" type="application/rss+xml"
+          title="Forum" href="{% url "post-feed-rss" %}"/>
+
+    {# Modernizr #}
+    {% compressed_js "modernizr" %}
+
+    {# CSS3 Mediaqueries for IE8- #}
+    <!--[if lte IE 8]>
+    {% compressed_js "css3-mediaqueries" %}
+    <![endif]-->
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!--[if lt IE 7]>
+        <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> ou <a href="http://www.google.com/chromeframe/?redirect=true">activer Google Chrome Frame</a> pour améliorer votre expérience.</p>
+    <![endif]-->
+
+    <div class="mobile-menu" id="mobile-menu"></div>
+
+
+    <div class="page-container">
+        <div class="header-container">
+            <header class="clearfix">
+                <ul class="accessibility">
+                    <li>
+                        <a href="#menu">Aller au menu</a>
+                    </li>
+                    <li>
+                        <a href="#content" accesskey="s">Aller au contenu</a>
+                    </li>
+                    <li>
+                        <a href="#search" accesskey="4">Aller à la recherche</a>
+                    </li>
+                </ul>
+
+
+
+                <div class="wrapper">
+                    <div class="mobile-menu-btn ico-after"></div>
+
+                    {% captureas mobiletitle %}
+                        {% block mobile_title %}
+                            Zeste de Savoir
+                        {% endblock %}
+                    {% endcaptureas %}
+
+                    {# Logo #}
+                    <h1 class="header-logo">
+                        <a href="{% url "zds.pages.views.home" %}"
+                           class="header-logo-link"
+                           data-title="{{ mobiletitle }}"
+                        >
+                            Zeste de Savoir
+                        </a>
+                    </h1>
+
+
+                    {# Menu #}
+                    <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
+                        {% if user.is_authenticated %}
+                            {% with profile=user|profile %}
+                                data-is-hover="{{ profile.hover_or_click }}"
+                            {% endwith %}
+                        {% endif %}
+                    >
+                        <ul class="header-menu-list">
+                            <li>
+                                <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                    Tutoriels
+                                </a>
+                                <div class="dropdown header-menu-dropdown">
+                                    <a href="{% url "zds.tutorial.views.index" %}" class="dropdown-link-all">
+                                        Tous les tutoriels
+                                    </a>
+
+                                    <ul class="dropdown-list">
+                                        {% with categories='.'|top_categories_tuto %}
+                                            {% for category in categories %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {{ category.title }}
+                                                        </li>
+                                                        {% for catofsubcat in category.get_subcategories %}
+                                                            <li>
+                                                                <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
+                                                                    {{ catofsubcat.subcategory }}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </li>
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="{% url "zds.article.views.index" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
+                                    Articles
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                                    Forums
+                                </a>
+                                <div class="dropdown header-menu-dropdown">
+                                    <a href="{% url "zds.forum.views.index" %}" class="dropdown-link-all">
+                                        Tous les forums
+                                    </a>
+
+                                    <ul class="dropdown-list">
+                                        {% with categories='.'|top_categories %}
+                                            {% for category in categories %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {{ category.title }}
+                                                        </li>
+                                                        {% with forums=category.get_forums|auth_forums:user %}
+                                                            {% for forum in forums %}
+                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                            {% endfor %}
+                                                        {% endwith %}
+                                                    </ul>
+                                                </li>
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+
     
-    {% block headline %}{% endblock %}
-    {% block content %}{% endblock %}
-  </div>
+                    {# Logbox #}
+                    <div class="logbox header-right {% if not user.is_authenticated %}unlogged{% endif %}">
+                        {% if user.is_authenticated %}
+                        
+                            <div class="notifs-links">
+                                {# MESSAGERIE PRIVEE #}
+                                <div>
+                                    {% with topics=user|interventions_privatetopics %}
+                                    {% with unread_topics=topics.unread %}
+                                    {% with read_topics=topics.read %}
+                                        <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                            {% if unread_topics|length > 0 %}
+                                                <span class="notif-count">{{ unread_topics|length }}</span>
+                                            {% endif %}
+                                            <span class="notif-text ico ico-messages">Messagerie privée</span>
+                                        </a>
 
-  <!-- Nav Sidebar -->
-  <!-- This is source ordered to be pulled to the left on larger screens -->
-  <div class="large-3 pull-9 columns">
-    <ul class="side-nav">
-      {% block sidebar %}{% endblock %}
-    </ul>        
-  </div>
-{% endblock %}
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">Messagerie privée</span>
+                                            <ul class="dropdown-list">
+                                                {% for topic in unread_topics %}
+                                                    {% with first_unread=topic.first_unread_post %}
+                                                    <li>
+                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                            {% with p=first_unread.author|profile %}
+                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ first_unread.author.username }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% for topic in read_topics %}
+                                                    {% with last_read=topic.last_read_post %}
+                                                    <li>
+                                                        {% with last_answer=topic.get_last_answer %}
+                                                        <a href="
+                                                            {% if last_answer %}
+                                                                {{ last_answer.get_absolute_url }}
+                                                            {% else %}
+                                                                {{ topic.first_post.get_absolute_url }}
+                                                            {% endif %}"
+                                                           class="read"
+                                                        >
+                                                            {% with p=last_read.author|profile %}
+                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ last_read.author.username }}</span>
+                                                            <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                        </a>
+                                                        {% endwith %}
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
+
+                                                {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                    <li class="dropdown-empty-message">
+                                                        Aucun message
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
+                                                Tous les messages
+                                            </a>
+                                        </div>
+                                    {% endwith %}
+                                    {% endwith %}
+                                    {% endwith %}
+                                </div>
+
+                                {# NOTIFICATIONS #}
+                                <div>
+                                    {% with unread_posts=user|interventions_topics %}
+                                        <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
+                                            {% if unread_posts|length > 0 %}
+                                                <span class="notif-count">{{ unread_posts|length }}</span>
+                                            {% endif %}
+                                            <span class="notif-text ico ico-notifs">Notifications</span>
+                                        </a>
+
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">Notifications</span>
+
+                                            <ul class="dropdown-list">
+                                                {% for first_unread in unread_posts %}
+                                                    <li>
+                                                        <a href="{{ first_unread.topic.last_read_post.get_absolute_url }}">
+                                                            {% with p=first_unread.author|profile %}
+                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ first_unread.author.username }}</span>
+                                                            <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
+                                                            <span class="topic">{{ first_unread.topic.title }}</span>
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+
+                                                {# TODO : restore read posts notifications #}
+                                                {% comment %}
+                                                {% for last_read in read_posts %}
+                                                    <li>
+                                                        {% with last_answer=topic.get_last_answer %}
+                                                            <a href="
+                                                                {% if last_answer %}
+                                                                    {{ last_answer.get_absolute_url }}
+                                                                {% else %}
+                                                                    {{ topic.first_post.get_absolute_url }}
+                                                                {% endif %}"
+                                                               class="read"
+                                                            >
+                                                                {% with p=last_read.author|profile %}
+                                                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                {% endwith %}
+                                                                <span class="username">{{ last_read.author.username }}</span>
+                                                                <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
+                                                                <span class="topic">{{ topic.title }}</span>
+                                                            </a>
+                                                        {% endwith %}
+                                                    </li>
+                                                {% endfor %}
+                                                {% endcomment %}
+    
+                                                {# {% if read_topics|length = 0 and unread_topics|length = 0 %} #}
+                                                {% if unread_posts|length = 0 %}
+                                                    <li class="dropdown-empty-message">
+                                                        Aucune notification
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "zds.forum.views.followed_topics" %}" class="dropdown-link-all">
+                                                Toutes les notifications
+                                            </a>
+                                        </div>
+                                    {% endwith %}
+                                </div>
+
+                                {# ALERTES MODERATION #}
+                                {% if perms.forum.change_post %}
+                                    {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
+                                        <div>
+                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
+                                                <span class="notif-text ico ico-alerts">Alertes</span>
+                                                {% if nb_alerts > 0 %}
+                                                    <span class="notif-count">{{ nb_alerts }}</span>
+                                                {% endif %}
+                                            </a>
+
+                                            <div class="dropdown">
+                                                <span class="dropdown-title">Alertes Modération</span>
+                                                <ul class="dropdown-list">
+                                                    {% for alert in alerts %}
+                                                        <li>
+                                                            <a href="{{ alert.url }}">
+                                                                <span class="username">{{ alert.title }}</span>
+                                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                                                <span class="topic">{{ alert.text }}</span>
+                                                            </a>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="dropdown-empty-message">
+                                                            Aucune alerte
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
+                                                    Toutes les alertes
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endwith %}
+                                {% else %}
+                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                       id="open-my-account"
+                                       class="ico-link dont-click-if-sidebar"
+                                       data-click="my-account"
+                                    >
+                                        <span class="notif-text ico ico-params">Mon Compte</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                {% with profile=user|profile %}
+                                    <a href="{% url "zds.member.views.settings_profile" %}" 
+                                       id="my-account"
+                                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
+                                       title="Mon compte" 
+                                       data-title="Mon compte"
+
+                                       {% if not perms.forum.change_post %}
+                                           tabindex="-1"
+                                           data-active="open-my-account"
+                                       {% endif %}
+                                    >
+                                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                        <span class="username label">{{ user.username }}</span>
+                                    </a>
+                                {% endwith %}
+
+                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
+                                    <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
+
+                                    <ul class="dropdown-list">
+                                        <li>
+                                            <a href="{% url "zds.member.views.details" user.username %}">Mon profil</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.tutorials" %}">Mes tutoriels</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.articles" %}">Mes articles</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.gallery.views.gallery_list" %}">Galeries d'images</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a>
+                                        </li>
+
+                                        {% if perms.tutorial.change_tutorial %}
+                                            <li>
+                                                <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
+                                            </li>
+                                        {% endif %}
+
+                                        {% if perms.article.change_article %}
+                                            <li>
+                                                <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
+                                            </li>
+                                        {% endif %}
+
+                                        <li>
+                                            <form 
+                                                method="post"
+                                                action="{% url "zds.member.views.logout_view" %}?next={{ request.build_absolute_uri }}"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit">Déconnexion</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        {% else %} {# Not logged #}
+                            <a href="{% url "zds.member.views.login_view" %}">Connexion</a>
+                            <a href="{% url "zds.member.views.register_view" %}">Inscription</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+        
+            <div class="clearfix sub-header">
+                <div class="wrapper">
+                    <div class="breadcrumb">
+                        <ul>
+                            <li>
+                                <a href="{% url "zds.pages.views.home" %}">Accueil</a>
+                            </li>
+                            {% block breadcrumb_base %}{% endblock %}
+                            {% block breadcrumb %}{% endblock %}
+                        </ul>
+                    </div>
+                    <div class="search header-right" id="search">
+                        <form action="/rechercher">
+                            <input type="text" name="q" placeholder="Rechercher">
+                            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">OK</button>
+                        </form>
+                        <a href="/rechercher" title="Recherche avancée" class="search-more">+</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+                
+                <main class="content-container" role="main" id="content">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert-box {{ message.tags }}">
+                                <span>{{ message }}</span>
+                                <a href="#close-alert-box" class="close-alert-box ico-after cross white">Masquer l'alerte</a>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% block content_out %}
+                        <section class="content-wrapper">
+                            <h2>{% block headline %}{% endblock %}</h2>
+
+                            {% captureas headlinesub %}
+                                {% block headline_sub %}{% endblock %}
+                            {% endcaptureas %}
+
+                            {% if headlinesub %}
+                                <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+                            {% endif %}
+
+                            {% block content %}{% endblock %}
+                        </section>
+                    {% endblock %}
+                </main>
+                
+                {% block sidebar %}
+                {% endblock %}
+
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->
+
+
+
+        <footer class="page-footer">
+            <div class="wrapper">
+                <p>
+                    Zeste de Savoir &bull; 2014
+                </p>
+                <ul>
+                    <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
+                    <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+                    <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
+                    {% endif %}
+                    <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+
+
+
+
+    {# Javascript stuff start #}
+    {% compressed_js "main-js" %}
+
+
+
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                processEscapes: true,
+            },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            messageStyle: "none",
+        });
+    </script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+    {# Google Tag Manager #}
+    <noscript>
+        <iframe src="//www.googletagmanager.com/ns.html?id=GTM-WH7642"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-WH7642');
+    </script>
+</body>
+</html>

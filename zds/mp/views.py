@@ -127,7 +127,7 @@ def topic(request, topic_pk, topic_slug):
     # Build form to add an answer for the current topid.
     form = PrivatePostForm(g_topic, request.user)
 
-    return render_template('mp/topic.html', {
+    return render_template('mp/topic/index.html', {
         'topic': g_topic,
         'posts': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
@@ -151,7 +151,7 @@ def new(request):
                 'subtitle': request.POST['subtitle'],
                 'text': request.POST['text'],
             })
-            return render_template('mp/new.html', {
+            return render_template('mp/topic/new.html', {
                 'form': form,
             })
 
@@ -181,7 +181,7 @@ def new(request):
             return redirect(p_topic.get_absolute_url())
 
         else:
-            return render_template('mp/new.html', {
+            return render_template('mp/topic/new.html', {
                 'form': form,
             })
     else:
@@ -198,7 +198,7 @@ def new(request):
         form = PrivateTopicForm(initial={
             'participants': dest
         })
-        return render_template('mp/new.html', {
+        return render_template('mp/topic/new.html', {
             'form': form,
         })
 
@@ -259,7 +259,7 @@ def answer(request):
             form = PrivatePostForm(g_topic, request.user, initial={
                 'text': data['text']
             })
-            return render_template('mp/answer.html', {
+            return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
                 'newpost': newpost,
@@ -285,7 +285,7 @@ def answer(request):
 
                 # send email
                 subject = "ZDS - MP: " + g_topic.title
-                from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+                from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)
@@ -298,7 +298,7 @@ def answer(request):
                             privatepost__position_in_topic=pos,
                             user=part).count()
                         if last_read > 0:
-                            message_html = get_template('email/mp.html') \
+                            message_html = get_template('email/mp/new.html') \
                                 .render(
                                     Context({
                                         'username': part.username,
@@ -307,7 +307,7 @@ def answer(request):
                                         'author': request.user.username
                                     })
                                 )
-                            message_txt = get_template('email/mp.txt').render(
+                            message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
                                     'url': settings.SITE_URL
@@ -324,7 +324,7 @@ def answer(request):
 
                 return redirect(post.get_absolute_url())
             else:
-                return render_template('mp/answer.html', {
+                return render_template('mp/post/new.html', {
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
@@ -350,7 +350,7 @@ def answer(request):
         form = PrivatePostForm(g_topic, request.user, initial={
             'text': text
         })
-        return render_template('mp/answer.html', {
+        return render_template('mp/post/new.html', {
             'topic': g_topic,
             'posts': posts,
             'last_post_pk': last_post_pk,
@@ -403,7 +403,8 @@ def edit_post(request):
             })
             form.helper.form_action = reverse(
                 'zds.mp.views.edit_post') + '?message=' + str(post_pk)
-            return render_template('mp/edit_post.html', {
+
+            return render_template('mp/post/edit.html', {
                 'post': post,
                 'topic': g_topic,
                 'form': form,
@@ -422,7 +423,7 @@ def edit_post(request):
         })
         form.helper.form_action = reverse(
             'zds.mp.views.edit_post') + '?message=' + str(post_pk)
-        return render_template('mp/edit_post.html', {
+        return render_template('mp/post/edit.html', {
             'post': post,
             'topic': g_topic,
             'text': post.text,

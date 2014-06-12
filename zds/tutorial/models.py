@@ -19,7 +19,7 @@ from zds.utils.tutorials import get_blob, export_tutorial
 
 TYPE_CHOICES = (
     ('MINI', 'Mini-tuto'),
-    ('BIG', 'Big tuto'),
+    ('BIG', 'Big-tuto'),
 )
 
 STATUS_CHOICES = (

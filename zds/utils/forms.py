@@ -18,13 +18,12 @@ class CommonLayoutEditor(Layout):
                     StrictButton(
                         'Envoyer',
                         type='submit',
-                        css_class='submit tiny',
                         name='answer'),
                     StrictButton(
                         u'Aperçu',
                         type='submit',
-                        css_class='submit tiny',
-                        name='preview'),
+                        name='preview',
+                        css_class='btn-grey'),
                 ),
             ),
         )

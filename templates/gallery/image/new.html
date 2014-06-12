@@ -1,0 +1,35 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Nouvelle image
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li>Nouvelle image</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Nouvelle image
+{% endblock %}
+
+
+
+{% block new_btn %}
+    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
+        Ajouter une image
+    </a>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

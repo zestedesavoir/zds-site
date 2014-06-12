@@ -77,8 +77,4 @@ Si par hasard ceci ne fonctionne pas, il faut prendre les grands moyens et le bu
 
 - `cd /opt/zdsenv/ZesteDeSavoir`
 - `source ../bin/activate `
-- `gunicorn_django --workers=4 --bind 178.32.53.245:8001`
-
-Pour passer le process en arrire plan, faites Ctrl+Z et taper la commande suivante :
-
-- `bg`
+- `gunicorn_django --workers=4 --bind 178.32.53.245:8001 &`

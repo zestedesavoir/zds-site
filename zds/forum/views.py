@@ -85,7 +85,8 @@ def details(request, cat_slug, forum_slug):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/details.html", {
+
+    return render_template("forum/category/forum.html", {
         "forum": forum,
         "sticky_topics": sticky_topics,
         "topics": shown_topics,
@@ -102,8 +103,8 @@ def cat_details(request, cat_slug):
     category = get_object_or_404(Category, slug=cat_slug)
     forums = \
         Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
-    return render_template("forum/cat_details.html", {"category": category,
-                                                      "forums": forums})
+    return render_template("forum/category/index.html", {"category": category,
+                                                         "forums": forums})
 
 
 @can_read_now
@@ -171,7 +172,8 @@ def topic(request, topic_pk, topic_slug):
     form.helper.form_action = reverse("zds.forum.views.answer") + "?sujet=" \
         + str(topic.pk)
     form_move = MoveTopicForm(topic=topic)
-    return render_template("forum/topic.html", {
+
+    return render_template("forum/topic/index.html", {
         "topic": topic,
         "posts": res,
         "categories": categories,
@@ -211,7 +213,7 @@ def new(request):
             form = TopicForm(initial={"title": request.POST["title"],
                                       "subtitle": request.POST["subtitle"],
                                       "text": request.POST["text"]})
-            return render_template("forum/new.html",
+            return render_template("forum/topic/new.html",
                                    {"forum": forum,
                                     "form": form,
                                     "text": request.POST["text"]})
@@ -263,7 +265,8 @@ def new(request):
             return redirect(n_topic.get_absolute_url())
     else:
         form = TopicForm()
-    return render_template("forum/new.html", {"forum": forum, "form": form})
+
+    return render_template("forum/topic/new.html", {"forum": forum, "form": form})
 
 
 @can_write_and_read_now
@@ -449,7 +452,7 @@ def answer(request):
                                                                          ]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
-            return render_template("forum/answer.html", {
+            return render_template("forum/post/new.html", {
                 "text": data["text"],
                 "topic": g_topic,
                 "posts": posts,
@@ -482,7 +485,7 @@ def answer(request):
                     follow(g_topic)
                 return redirect(post.get_absolute_url())
             else:
-                return render_template("forum/answer.html", {
+                return render_template("forum/post/new.html", {
                     "text": data["text"],
                     "topic": g_topic,
                     "posts": posts,
@@ -492,7 +495,7 @@ def answer(request):
                 })
     else:
 
-        # Actions from the editor render to answer.html.
+        # Actions from the editor render to new.html.
 
         text = ""
 
@@ -510,10 +513,11 @@ def answer(request):
                 post_cite.author.username,
                 settings.SITE_URL,
                 post_cite.get_absolute_url())
+        
         form = PostForm(g_topic, request.user, initial={"text": text})
         form.helper.form_action = reverse("zds.forum.views.answer") \
             + "?sujet=" + str(g_topic.pk)
-        return render_template("forum/answer.html", {
+        return render_template("forum/post/new.html", {
             "topic": g_topic,
             "posts": posts,
             "last_post_pk": last_post_pk,
@@ -542,7 +546,7 @@ def edit_post(request):
     # the user logged.
 
     if post.author != request.user \
-            and not request.user.has_perm("forum.change_post") and "signal-post" \
+            and not request.user.has_perm("forum.change_post") and "signal_message" \
             not in request.POST:
         raise PermissionDenied
     if post.author != request.user and request.method == "GET" \
@@ -553,7 +557,7 @@ def edit_post(request):
                          uprudent lors de l'\xe9dition de celui-ci !"
                          .format(post.author.username))
     if request.method == "POST":
-        if "delete-post" in request.POST:
+        if "delete_message" in request.POST:
             if post.author == request.user \
                     or request.user.has_perm("forum.change_post"):
                 post.alerts.all().delete()
@@ -562,16 +566,16 @@ def edit_post(request):
                     post.text_hidden = request.POST["text_hidden"]
                 post.editor = request.user
                 messages.success(request, u"Le message est désormais masqué")
-        if "show-post" in request.POST:
+        if "show_message" in request.POST:
             if request.user.has_perm("forum.change_post"):
                 post.is_visible = True
                 post.text_hidden = ""
-        if "signal-post" in request.POST:
+        if "signal_message" in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = post
             alert.scope = Alert.FORUM
-            alert.text = request.POST["signal-text"]
+            alert.text = request.POST['signal_text']
             alert.pubdate = datetime.now()
             alert.save()
             messages.success(request,
@@ -591,15 +595,15 @@ def edit_post(request):
                                 initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.forum.views.edit_post") \
                 + "?message=" + str(post_pk)
-            return render_template("forum/edit_post.html", {
+            return render_template("forum/post/edit.html", {
                 "post": post,
                 "topic": post.topic,
                 "text": request.POST["text"],
                 "form": form,
             })
-        if "delete-post" not in request.POST and "signal-post" \
-                not in request.POST and "show-post" not in request.POST:
 
+        if "delete_message" not in request.POST and "signal_message" \
+                not in request.POST and "show_message" not in request.POST:
             # The user just sent data, handle them
 
             if request.POST["text"].strip() != "":
@@ -645,7 +649,7 @@ def edit_post(request):
                             initial={"text": post.text})
         form.helper.form_action = reverse("zds.forum.views.edit_post") \
             + "?message=" + str(post_pk)
-        return render_template("forum/edit_post.html", {
+        return render_template("forum/post/edit.html", {
             "post": post,
             "topic": post.topic,
             "text": post.text,
@@ -852,7 +856,7 @@ def find_topic_by_tag(request, tag_slug):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/find_topic_by_tag.html", {
+    return render_template("forum/find/topic_by_tag.html", {
         "topics": shown_topics,
         "tag": tag,
         "pages": paginator_range(page, paginator.num_pages),
@@ -889,7 +893,8 @@ def find_topic(request, user_pk):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/find_topic.html", {
+
+    return render_template("forum/find/topic.html", {
         "topics": shown_topics,
         "usr": u,
         "pages": paginator_range(page, paginator.num_pages),
@@ -906,6 +911,7 @@ def find_post(request, user_pk):
         Post.objects.filter(author=u).prefetch_related().order_by("-pubdate"
                                                                   ).all()
     pts = []
+
     for post in posts:
         if not post.topic.forum.can_read(request.user):
             continue
@@ -925,7 +931,8 @@ def find_post(request, user_pk):
     except EmptyPage:
         shown_posts = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/find_post.html", {
+
+    return render_template("forum/find/post.html", {
         "posts": shown_posts,
         "usr": u,
         "pages": paginator_range(page, paginator.num_pages),
@@ -951,12 +958,11 @@ def followed_topics(request):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/followed_topics.html",
+    return render_template("forum/topic/followed.html",
                            {"followed_topics": shown_topics,
                             "pages": paginator_range(page,
                                                      paginator.num_pages),
                             "nb": page})
-
 
 def complete_topic(request):
     sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()

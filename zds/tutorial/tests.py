@@ -14,7 +14,7 @@ from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
-from zds.tutorial.models import Note, Tutorial, Extract
+from zds.tutorial.models import Note, Tutorial, Validation, Extract
 from zds.utils.models import Alert
 
 
@@ -87,6 +87,14 @@ class BigTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'version': self.bigtuto.sha_draft
             },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=self.bigtuto.pk)
+        pub = self.client.get(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
@@ -663,8 +671,8 @@ class BigTutorialTests(TestCase):
             '?message={0}'.format(
                 note.pk),
             {
-                'signal-text': 'Troll',
-                'signal-note': 'Confirmer',
+                'signal_text': 'Troll',
+                'signal_message': 'Confirmer',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -681,7 +689,7 @@ class BigTutorialTests(TestCase):
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
-                'delete-post': 'Resoudre',
+                'delete_message': 'Resoudre',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -703,6 +711,16 @@ class BigTutorialTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
 
 
+@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
+@override_settings(
+    REPO_PATH_PROD=os.path.join(
+        SITE_ROOT,
+        'tutoriels-public-test'))
+@override_settings(
+    REPO_ARTICLE_PATH=os.path.join(
+        SITE_ROOT,
+        'articles-data-test'))
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -739,6 +757,14 @@ class MiniTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'version': self.minituto.sha_draft
             },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=self.minituto.pk)
+        pub = self.client.get(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
@@ -1185,8 +1211,8 @@ class MiniTutorialTests(TestCase):
             '?message={0}'.format(
                 note.pk),
             {
-                'signal-text': 'Troll',
-                'signal-note': 'Confirmer',
+                'signal_text': 'Troll',
+                'signal_message': 'Confirmer',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1203,7 +1229,7 @@ class MiniTutorialTests(TestCase):
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
-                'delete-post': 'Resoudre',
+                'delete_message': 'Resoudre',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)

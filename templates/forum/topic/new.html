@@ -1,0 +1,35 @@
+{% extends "forum/base.html" %}
+{% load emarkdown %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Nouveau sujet
+{% endblock %}
+
+
+
+{% block headline %}
+    Nouveau sujet
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
+    <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+    <li>Nouveau sujet</li>
+{% endblock %}
+
+
+
+{% block content %}
+	<div data-solved-topics-url="{% url "zds.forum.views.complete_topic" %}">
+   		{% crispy form %}
+    </div>
+
+    {% if text %}
+        {% include "misc/previsualization.part.html" %}
+    {% endif %}
+{% endblock %}

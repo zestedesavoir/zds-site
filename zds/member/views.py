@@ -42,27 +42,41 @@ from zds.utils.tokens import generate_token
 def index(request):
     """Displays the list of registered users."""
 
-    members = User.objects.order_by("-date_joined")
+    if request.is_ajax():
+        q = request.GET.get('q', '')
+        members = User.objects.filter(username__icontains = q )[:20]
+        results = []
+        for member in members:
+            member_json = {}
+            member_json['id'] = member.pk
+            member_json['label'] = member.username
+            member_json['value'] = member.username
+            results.append(member_json)
+        data = json.dumps(results)
 
-    # Paginator
-
-    paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
-    page = request.GET.get("page")
-    try:
-        shown_members = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_members = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_members = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-    return render_template("member/index.html", {
-        "members": shown_members,
-        "count": members.count(),
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
-    })
+        return HttpResponse(data, mimetype)
+    
+    else:
+        members = User.objects.order_by("-date_joined")
+        # Paginator
+    
+        paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
+        page = request.GET.get("page")
+        try:
+            shown_members = paginator.page(page)
+            page = int(page)
+        except PageNotAnInteger:
+            shown_members = paginator.page(1)
+            page = 1
+        except EmptyPage:
+            shown_members = paginator.page(paginator.num_pages)
+            page = paginator.num_pages
+        return render_template("member/index.html", {
+            "members": shown_members,
+            "count": members.count(),
+            "pages": paginator_range(page, paginator.num_pages),
+            "nb": page,
+        })
 
 
 @can_read_now
@@ -264,7 +278,8 @@ def tutorials(request):
         user_tutorials = profile.get_public_tutos()
     else:
         user_tutorials = profile.get_tutos()
-    return render_template("tutorial/index_member.html",
+
+    return render_template("tutorial/member/index.html",
                            {"tutorials": user_tutorials, "type": type})
 
 
@@ -290,7 +305,8 @@ def articles(request):
         user_articles = profile.get_public_articles()
     else:
         user_articles = profile.get_articles()
-    return render_template("article/index_member.html",
+
+    return render_template("article/member/index.html",
                            {"articles": user_articles, "type": type})
 
 
@@ -343,7 +359,7 @@ def settings_mini_profile(request, user_name):
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
-            return render_to_response("member/settings_mini_profile.html", c,
+            return render_to_response("member/settings/profile.html", c,
                                       RequestContext(request))
     else:
         form = MiniProfileForm(initial={
@@ -353,7 +369,7 @@ def settings_mini_profile(request, user_name):
             "sign": profile.sign,
         })
         c = {"form": form, "profile": profile}
-        return render_to_response("member/settings_mini_profile.html", c,
+        return render_to_response("member/settings/profile.html", c,
                                   RequestContext(request))
 
 
@@ -393,7 +409,7 @@ def settings_profile(request):
                              "Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
-            return render_to_response("member/settings_profile.html", c,
+            return render_to_response("member/settings/profile.html", c,
                                       RequestContext(request))
     else:
         form = ProfileForm(initial={
@@ -407,7 +423,7 @@ def settings_profile(request):
             "sign": profile.sign,
         })
         c = {"form": form}
-        return render_to_response("member/settings_profile.html", c,
+        return render_to_response("member/settings/profile.html", c,
                                   RequestContext(request))
 
 
@@ -452,12 +468,12 @@ def settings_account(request):
                 messages.error(request, "Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
-            return render_to_response("member/settings_account.html", c,
+            return render_to_response("member/settings/account.html", c,
                                       RequestContext(request))
     else:
         form = ChangePasswordForm(request.user)
         c = {"form": form}
-        return render_to_response("member/settings_account.html", c,
+        return render_to_response("member/settings/account.html", c,
                                   RequestContext(request))
 
 
@@ -489,12 +505,12 @@ def settings_user(request):
             old.save()
             return redirect(profile.get_absolute_url())
         else:
-            return render_to_response("member/settings_user.html", c,
+            return render_to_response("member/settings/user.html", c,
                                       RequestContext(request))
     else:
         form = ChangeUserForm()
         c = {"form": form}
-        return render_to_response("member/settings_user.html", c,
+        return render_to_response("member/settings/user.html", c,
                                   RequestContext(request))
 
 
@@ -597,10 +613,10 @@ def register_view(request):
             # send email
 
             subject = "ZDS - Confirmation d'inscription"
-            from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
-            message_html = get_template("email/confirm_register.html").render(Context(
+            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            message_html = get_template("email/register/confirm.html").render(Context(
                 {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
-            message_txt = get_template("email/confirm_register.txt") .render(Context(
+            message_txt = get_template("email/register/confirm.txt") .render(Context(
                 {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [user.email])
@@ -609,11 +625,11 @@ def register_view(request):
                 msg.send()
             except:
                 msg = None
-            return render_template("member/register_success.html", {})
+            return render_template("member/register/success.html", {})
         else:
-            return render_template("member/register.html", {"form": form})
+            return render_template("member/register/index.html", {"form": form})
     form = RegisterForm()
-    return render_template("member/register.html", {"form": form})
+    return render_template("member/register/index.html", {"form": form})
 
 
 @can_read_now
@@ -639,7 +655,7 @@ def forgot_password(request):
             # send email
 
             subject = "ZDS - Mot de passe oublié"
-            from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
+            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
             message_html = get_template("email/confirm_forgot_password.html").render(Context(
                 {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
             message_txt = get_template("email/confirm_forgot_password.txt") .render(Context(
@@ -648,12 +664,12 @@ def forgot_password(request):
                                          [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
-            return render_template("member/forgot_password_success.html")
+            return render_template("member/forgot_password/success.html")
         else:
             return render_template("member/forgot_password.html",
                                    {"form": form})
     form = ForgotPasswordForm()
-    return render_template("member/forgot_password.html", {"form": form})
+    return render_template("member/forgot_password/index.html", {"form": form})
 
 
 @can_read_now
@@ -673,15 +689,15 @@ def new_password(request):
             # User can't confirm his request if it is too late.
 
             if datetime.now() > token.date_end:
-                return render_template("member/new_password_failed.html")
+                return render_template("member/new_password/failed.html")
             token.user.set_password(password)
             token.user.save()
             token.delete()
-            return render_template("member/new_password_success.html")
+            return render_template("member/new_password/success.html")
         else:
             return render_template("member/new_password.html", {"form": form})
     form = NewPasswordForm(identifier=token.user.username)
-    return render_template("member/new_password.html", {"form": form})
+    return render_template("member/new_password/index.html", {"form": form})
 
 
 def active_account(request):
@@ -697,7 +713,7 @@ def active_account(request):
     # User can't confirm his request if it is too late.
 
     if datetime.now() > token.date_end:
-        return render_template("member/token_account_failed.html",
+        return render_template("member/register/token_failed.html",
                                {"token": token})
     usr.is_active = True
     usr.save()
@@ -744,7 +760,7 @@ uje te laisse maintenant faire le tour""".format(usr.username,
         True,
         False,
     )
-    return render_template("member/token_account_success.html", {"usr": usr})
+    return render_template("member/register/token_success.html", {"usr": usr})
     token.delete()
 
 
@@ -767,7 +783,7 @@ def generate_token_account(request):
     # send email
 
     subject = "ZDS - Confirmation d'inscription"
-    from_email = "ZesteDeSavoir <noreply@zestedesavoir.com>"
+    from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
     message_html = get_template("email/confirm_register.html"
                                 ) \
         .render(Context({"username": token.user.username,
@@ -783,8 +799,7 @@ def generate_token_account(request):
         msg.send()
     except:
         msg = None
-    return render_template("member/register_success.html", {})
-
+    return render_template('member/register/token_success.html', {})
 
 def get_client_ip(request):
     """Retrieve the real IP address of the client."""
@@ -858,6 +873,7 @@ def remove_oldtuto(request):
         last += "{0}".format(str(olds[i]))
     profile.sdz_tutorial = last
     profile.save()
+
     messages.success(request,
                      "Le tutoriel a bien été retiré u\
                      uau membre {0}".format(profile.user.username))

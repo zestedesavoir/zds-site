@@ -1,0 +1,53 @@
+{% extends "article/base_content.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title_base %}
+    &#183; Mes articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+{% endblock %}
+
+
+
+{% block title %}
+    Éditer
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ article.get_absolute_online_url }}">{{ article.title }}</a></li>
+    <li>Éditer</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2>Éditer l'article : {{ article.title }}</h2>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% include 'article/includes/sidebar_actions.part.html' %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if article.is_visible %}
+        <div class="alert-box warning">
+            <strong>Cet article est actuellement en ligne !</strong> Veuillez être particulièrement prudent au niveau des changements que vous apportez à celui-ci.
+            Vous pouvez modifier la forme de celui-ci, mais évitez d'en modifier le fond !
+        </div>
+    {% endif %}
+
+    {% crispy form %}
+{% endblock %}

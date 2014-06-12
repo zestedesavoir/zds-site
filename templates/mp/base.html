@@ -1,26 +1,36 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
-    &#183; Messages Privés
+    &#183; Messagerie Privée
 {% endblock %}
 
-{% block breadcrumb_base %}
-    <li><a href="{% url "zds.mp.views.index" %}">Messages Privés</a></li>
+
+
+{% block mobile_title %}
+    Messagerie
 {% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.mp.views.index" %}">Messagerie Privée</a></li>
+{% endblock %}
+
+
 
 {% block menu_mp %}
     active
 {% endblock %}
 
-{% block headline %}
-<h2 class="box forum">{% block head-title %}{% endblock %}</h2>
-{% endblock %}
+
 
 {% block sidebar %}
-	{% if user.is_authenticated %}
-    <h3>Actions</h3>
-    <ul>
-    	{% block headline-actions %}{% endblock %}
-    </ul>
-    {% endif %}
+    <aside class="sidebar mobile-menu-hide">
+        <a href="{% url "zds.mp.views.new" %}" class="new-btn ico-after more blue">
+            Nouvelle conversation
+        </a>
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
 {% endblock %}

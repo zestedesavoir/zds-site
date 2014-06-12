@@ -1,0 +1,25 @@
+{% load date %}
+{% load captureas %}
+
+
+<article>
+    {% if not link %}
+        {# Public link by default #}
+        {% captureas link %}
+            {{ article.get_absolute_url_online }}
+        {% endcaptureas %}
+    {% endif %}
+
+    <a href="{{ link }}">
+        {% if article.thumbnail %}
+            <img src="{{ article.thumbnail.url }}" alt="" class="tutorial-img avatar">
+        {% endif %}
+
+        <div class="tutorial-infos">
+            <h3>{{ article.title }}</h3>
+            <p class="article-metadata">
+                Créé {{ article.pubdate|format_date }}
+            </p>
+        </div>
+    </a>
+</article>

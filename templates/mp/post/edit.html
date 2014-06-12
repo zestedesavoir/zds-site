@@ -1,0 +1,87 @@
+{% extends "mp/base.html" %}
+{% load crispy_forms_tags %}
+{% load captureas %}
+
+
+
+{% block title %}
+    Éditer un message
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ post.topic.get_absolute_url }}">{{ post.privatetopic.title }}</a></li>
+    <li>Éditer un message</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Éditer un message : {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% captureas form_action %}
+        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" text=form.text.value %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
+        <h3>Actions</h3>
+        <ul>
+            {% if user.is_authenticated %}
+                <li><a href="{% url "zds.mp.views.new" %}">Nouvelle conversation</a></li>
+            {% endif %}
+            {% if topic.author == user %}
+                <li>
+                    <a href="#add-participant" class="open-modal">Ajouter un membre</a>
+                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
+                        <p>
+                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                        </p>
+                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
+                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
+
+                        {% csrf_token %}
+                        <button type="submit">Ajouter</button>
+                    </form>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Participants">
+        <h3>Participants</h3>
+        <ul>
+            <li>
+                <a href="{{ topic.author.get_absolute_url }}">
+                    {{ topic.author.username }}
+                </a>
+            </li>
+            {% for member in topic.participants.all %}
+                <li>
+                    <a href="{{ member.get_absolute_url }}">
+                        {{ member.username }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

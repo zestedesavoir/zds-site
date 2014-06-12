@@ -1,14 +1,13 @@
-{% extends "source.html" %}
+{% extends "base_content_page.html" %}
+
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.pages.views.index" %}">Pages</a></li>
 {% endblock %}
 
-{% block content-out %}
-	<div class="row">
-	<div class="large-12 columns">
-	    <h2 class="box">{% block head-title %}{% endblock %}</h2>
-	    {% block content %}{% endblock %}
-	</div>
-	</div>
-{% endblock %}
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}

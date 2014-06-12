@@ -1,0 +1,84 @@
+{% extends "article/base_content.html" %}
+{% load emarkdown %}
+{% load profile %}
+
+
+
+{% block title_base %}
+    &#183; Mes articles
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+{% endblock %}
+
+
+
+{% block title %}
+    {{ article.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ article.title }}</li>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% include 'article/includes/sidebar_actions.part.html' %}
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
+        {% if article.thumbnail %}
+            <img src="{{article.thumbnail.url }}" alt="">
+        {% endif %}
+        {{ article.title }}
+    </h1>
+
+    <ul class="taglist">
+        {% for tag in tags.all %}
+            {# TODO : Mettre les liens vers les tags #}
+            <li>
+                <a href="{% url "zds.article.views.index" %}?tag={{tag.title}}">
+                    {{ tag.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="authors">
+        <span class="authors-label">Contributeurs : </span>
+        <ul>
+            {% for member in authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+            <li>
+                <a href="#add-author" class="open-modal ico-after more blue">
+                    Ajouter un auteur
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block content %}
+    <h3>Description</h3>
+    <p>
+        {{ article.description }}
+    </p>
+    <hr>
+    <div>
+        {{ article.txt|emarkdown }}
+    </div>
+{% endblock %}

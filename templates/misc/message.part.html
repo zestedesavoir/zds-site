@@ -1,0 +1,241 @@
+{% load profile %}
+{% load emarkdown %}
+{% load date %}
+
+
+
+<article class="topic-message {% if message.is_useful %}helpful{% endif %}">
+    {% include "misc/message_user.html" with member=message.author %}
+
+
+    <div class="message">
+        {% if user.is_authenticated %}
+            <ul class="message-actions">
+                {% if message.is_visible != False %}
+                    {% if edit_link %}
+                        {% if message.author = user or perms_change %}
+                            {% if can_hide != False %}
+                                <li>
+                                    <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
+                                        Masquer
+                                    </a>
+                                    <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
+                                        {% csrf_token %}
+                                        {% if perms_change %}
+                                            <p>
+                                                Pour quelle raison souhaitez vous masquer ce message ?
+                                            </p>
+                                            <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
+                                        {% else %}
+                                            <p>
+                                                Attention, en masquant ce message, vous ne pourrez plus l'afficher vous même. Êtes vous certains de vouloir le faire ?
+                                            </p>
+                                        {% endif %}
+
+                                        <button type="submit" name="delete_message">
+                                            Confirmer
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if message.author = user or perms_change %}
+                            {% if can_edit != False %}
+                                <li>
+                                    <a href="{{ edit_link|safe }}" class="ico-after edit">
+                                        Editer
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if can_hide != False %}
+                            <li>
+                                <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                                    Signaler
+                                </a>
+                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
+                                    {% csrf_token %}
+                                    <p>
+                                        Pour quelle raison signalez-vous ce message ?
+                                    </p>
+                                    <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ...">
+
+                                    <button type="submit" name="signal_message">
+                                        Signaler
+                                    </button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                        <li>
+                            <a href="{{ cite_link|safe }}" class="ico-after cite">
+                                Citer
+                            </a>
+                        </li>
+                    {% endif %}
+                {% elif perms_change %}
+                    <li>
+                        <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
+                            Voir
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
+                            Démasquer
+                        </a>
+                        <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
+                            {% csrf_token %}
+                            <p>
+                                Ce message a été masqué par <strong>{{ message.editor }}</strong>, êtes vous certains de vouloir le ré-afficher ?
+                            </p>
+
+                            <button type="submit" name="show_message">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+
+        <div class="message-metadata">
+            <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
+            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">{{ message.pubdate|format_date|capfirst }}</a>
+        </div>
+
+        <div class="message-content">
+            {% if message.is_useful and not is_creator %}
+                <p class="message-helpful tick ico-after green">
+                    Cette réponse a aidé l'auteur du sujet
+                </p>
+            {% endif %}
+
+            {% if message.is_visible != False %}
+                {{ message.text|emarkdown }}
+            {% elif perms_change %}
+                <div class="message-hidden-content">
+                    {{ message.text|emarkdown }}
+                </div>
+            {% endif %}
+
+            {% if message.is_visible == False %}
+                <p class="message-hidden">
+                    Masqué par {{ message.editor }} : {{ message.text_hidden }}
+                </p>
+            {% elif message.update %}
+                <p class="message-edited ico-after edit">
+                    Edité {{ message.update|format_date }} par {{ message.editor }}
+                </p>
+            {% endif %}
+        </div>
+
+        {% if perms_change %}
+            {% for alert in message.alerts.all %}
+                <div class="alert-box error">
+                    {{ alert.pubdate|format_date|capfirst }} par 
+                    {% include "misc/member_item.part.html" with member=alert.author %} : 
+                    <em>{{ alert.text }}</em>
+
+                    <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
+                    <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-medium">
+                        <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
+                        <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
+
+                        {% csrf_token %}
+                        <button type="submit" name="delete-post" class="button expand alert tiny">Résoudre l'alerte</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if message.is_visible != False %}
+            <div class="message-bottom">
+                {% if user.is_authenticated %}
+                    {% with profile_user=user|profile %}
+                        {% if profile_user.show_sign %}
+                            {% with profile=message.author|profile %}
+                                {% if profile.sign %}
+                                    <div class="signature">
+                                        {{ profile.sign|emarkdown_inline }}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+
+
+                        {% if upvote_link %}
+                            <div class="message-karma">
+                                {% if helpful_link %}
+                                    {# TODO : Mettre le réel état #}
+                                    {% if topic.author == user and message.author != user %}
+                                        <a href="{{ helpful_link }}"
+                                           class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                        >
+                                            Cette réponse m'a aidé
+                                        </a>
+                                    {% elif perms_change %}
+                                        <a href="{{ helpful_link }}"
+                                           class="tick ico-after {% if message.is_useful %}green{% endif %}">
+                                            Cette réponse a aidé
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if user != message.author %}
+                                    <a href="{{ upvote_link }}"
+                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after
+                                              {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                    >
+                                        +{{ message.like }}
+                                    </a>
+                                    <a href="{{ downvote_link }}" 
+                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after
+                                              {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                    >
+                                        -{{ message.dislike }}
+                                    </a>
+                                {% else %}
+                                    <span
+                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
+                                    >
+                                        +{{ message.like }}
+                                    </span>
+                                    <span 
+                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
+                                    >
+                                        -{{ message.dislike }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    {% with profile=message.author|profile %}
+                        {% if profile.sign %}
+                            <div class="signature">
+                                {{ profile.sign|emarkdown_inline }}
+                            </div>
+                        {% endif %}
+
+                        <div class="message-karma">
+                            <span
+                               class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
+                            >
+                                +{{ message.like }}
+                            </span>
+                            <span 
+                               class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
+                            >
+                                -{{ message.dislike }}
+                            </span>
+                        </div>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</article>

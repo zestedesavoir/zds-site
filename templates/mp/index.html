@@ -1,56 +1,101 @@
 {% extends "mp/base.html" %}
-{% load humanize %}
+{% load date %}
+{% load profile %}
+
+
 
 {% block title %}
-    Liste des MP
+    Liste des conversations
 {% endblock %}
 
-{% block meta %}
-    <meta name="description" content="Votre boîte à MP" />
-{% endblock %}
 
-{% block head-title %}
-   Liste des MPs
-{% endblock %}
 
 {% block breadcrumb %}
-    <li class="current">Index</li>
+    <li>Liste des conversations</li>
 {% endblock %}
 
-{% block headline-actions %}
-    <li><a href="{% url "zds.mp.views.new" %}">Nouvel MP</a></li>
-    <li>
-        
-    </li>
+
+
+{% block headline %}
+   Liste des conversations
 {% endblock %}
+
+
 
 {% block content %}
-<form id="form" name="form" method="POST" action="{% url "zds.mp.views.index" %}">
-<div>
-    <table class="topics-entries">
-      <tbody>
-        <tr>
-            <td width="10px">
-                <a href="#" data-dropdown="deletemp" ><span class="fi-x"></span></a>
-                <div id="deletemp" class="f-dropdown small content" data-dropdown-content>  
-                    <p>
-                        Attention, vous vous appretez à supprimer les MPs qui ont été sélectionnés.
-                    </p>
-                    <button type="submit tiny" name="delete" class="button expand alert tiny">Confirmer</button>
-                </div>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
+    <div class="topic-list content-wrapper navigable-list">
         {% for topic in privatetopics %}
-            {% include "mp/details_row.part.html" %}
-        {% endfor %}
-      </tbody>
-    </table>
-</div>
-{% csrf_token %}
-</form>
-{% include "mp/details_pagination.part.html" %}
+            <div class="topic {% if topic.never_read %}unread{% endif %} navigable-elem">
+                <div class="topic-infos">
+                    <input name="items" type="checkbox" value="{{ topic.pk }}">
+                </div>
+                {% with profile=topic.author|profile %}
+                    <div class="topic-description"
+                        <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
+                            {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
+                            <span class="topic-title">{{ topic.title }}</span>
+                            <span class="topic-subtitle">{{ topic.subtitle }}</span>
+                        {% endspaceless %}</a>
 
+                        <p class="topic-members">
+                            <span class="topic-members-label">Participants :</span>
+                            <em>
+                                {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
+                            </em>{% spaceless %}
+
+                            {% endspaceless %}{% for member in topic.participants.all %}
+                                {% include "misc/member_item.part.html" with avatar=True %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                {% endwith %}
+                <p class="topic-answers">
+                    {% if topic.get_post_count > 1 %}
+                        {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
+                    {% endif %}
+                </p>
+                <p class="topic-last-answer">
+                    {% with answer=topic.get_last_answer %}
+                        {% if answer %}
+                            <a href="{{ answer.get_absolute_url }}">
+                                Dernière réponse <br>
+                                {{ answer.pubdate|format_date }}
+                            </a>
+                            <br> 
+                            par
+                            {% include "misc/member_item.part.html" with member=answer.author %}
+                        {% else %}
+                            <span class="topic-no-last-answer">Aucune réponse</span>
+                        {% endif %}
+                    {% endwith %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include "misc/pagination.part.html" with position='bottom' %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3>Actions</h3>
+        <ul>
+            <li>
+                <a href="#delete-conversations" class="open-modal ico-after cross red">
+                    Supprimer les conversations sélectionnées
+                </a>
+                
+                <form action="{% url "zds.mp.views.index" %}" method="POST" id="delete-conversations" class="modal modal-small">
+                    <p>
+                        Attention, vous vous appretez à supprimer toutes les conversations sélectionnées.
+                    </p>
+                    
+                    {% csrf_token %}
+                    <button type="submit" name="delete" class="btn">Confirmer</button>
+                </form>
+            </li>
+        </ul>
+    </div>
 {% endblock %}

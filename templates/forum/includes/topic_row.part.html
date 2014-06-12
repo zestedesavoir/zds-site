@@ -1,0 +1,62 @@
+{% load date %}
+{% load profile %}
+
+
+
+<div class="topic navigable-elem
+    {% if user.is_authenticated and topic.never_read %}
+        unread
+    {% endif %}">
+
+    <div class="topic-infos">
+        {% if topic.is_sticky %}
+            <span class="ico-after pin blue">[Epinglé]</span>
+        {% endif %}
+        {% if topic.is_solved %}
+            <span class="ico-after tick green">[Résolu]</span>
+        {% endif %}
+        {% if topic.is_locked %}
+            <span class="ico-after lock blue">[Fermé]</span>
+        {% endif %}
+    </div>
+    {% with profile=topic.author|profile %}
+        <div class="topic-description">
+            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
+                <span class="topic-title">{{ topic.title }}</span>
+                <span class="topic-subtitle">{{ topic.subtitle }}</span>
+            </a>
+            <p class="topic-members">
+                <span class="topic-members-label">Créé par</span>
+                <em>
+                    {% include "misc/member_item.part.html" with member=topic.author %}
+                </em>
+                {% if topic.tags.all %}
+                    - Tags : 
+                    {% for tag in topic.tags.all %}
+                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}" class="topic-tag">{{ tag.title }}</a>
+                    {% endfor %}
+                {% endif %}
+            </p>
+        </div>
+    {% endwith %}
+    <p class="topic-answers">
+        {% if topic.get_post_count > 1 %}
+            {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
+        {% endif %}
+    </p>
+    <p class="topic-last-answer">
+        {% with answer=topic.get_last_answer %}
+            {% if answer %}
+                <a href="{{ answer.get_absolute_url }}">
+                    Dernière réponse <br>
+                    {{ answer.pubdate|format_date }}
+                </a>
+                <br>
+                par
+                {% include "misc/member_item.part.html" with member=answer.author %}
+            {% else %}
+                <span class="topic-no-last-answer">Aucune réponse</span>
+            {% endif %}
+        {% endwith %}
+    </p>
+</div>

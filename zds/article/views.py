@@ -108,9 +108,12 @@ def view(request, article_pk, article_slug):
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
 
-    validation = Validation.objects.filter(article__pk=article.pk, version=sha)
+    validation = Validation.objects.filter(article__pk=article.pk,
+                                            version=sha)\
+                                    .order_by("-date_proposition")\
+                                    .first()
 
-    return render_template('article/view.html', {
+    return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -193,7 +196,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
 
-    return render_template('article/view_online.html', {
+    return render_template('article/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -267,7 +270,7 @@ def new(request):
     else:
         form = ArticleForm()
 
-    return render_template('article/new.html', {
+    return render_template('article/member/new.html', {
         'form': form
     })
 
@@ -327,7 +330,7 @@ def edit(request):
             'subcategory': article.subcategory.all(),
         })
 
-    return render_template('article/edit.html', {
+    return render_template('article/member/edit.html', {
         'article': article, 'form': form
     })
 
@@ -341,9 +344,8 @@ def find_article(request, name):
         .order_by('-pubdate')\
         .all()
     # Paginator
-
-    return render_template('article/find_article.html', {
-        'articles': articles, 'usr': user,
+    return render_template('article/find.html', {
+        'articles': articles, 'usr':u,
     })
 
 
@@ -436,48 +438,58 @@ def modify(request):
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
                 .latest('date_proposition')
-            validation.comment_validator = request.POST['comment-r']
-            validation.status = 'REJECTED'
-            validation.date_validation = datetime.now()
-            validation.save()
 
-            # Remove sha_validation because we rejected this version
-            # of the article.
-            article.sha_validation = None
-            article.pubdate = None
-            article.save()
+            if request.user == validation.validator:
+                validation.comment_validator = request.POST['comment-r']
+                validation.status = 'REJECTED'
+                validation.date_validation = datetime.now()
+                validation.save()
 
-            # send feedback
-            for author in article.authors.all():
-                msg = u"Désolé **{0}**, ton zeste **{1}** u\
-                un'a malheureusement pas passé l’étape de validation. u\
-                uMais ne désespère pas, certaines corrections peuvent u\
-                usurement être faite pour l’améliorer et repasser la u\
-                uvalidation plus tard. Voici le message que [{2}]({3}), u\
-                uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
-                ului envoyer un petit message pour discuter de la décision u\
-                uou demander plus de détail si tout cela te semble u\
-                uinjuste ou manque de clarté.".format(
-                    author.username,
-                    article.title,
-                    validation.validator.username,
-                    validation.validator.profile.get_absolute_url(),
-                    validation.comment_validator)
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(
-                    bot,
-                    [author],
-                    u"Refus de Validation : {0}".format(
-                        article.title),
-                    "",
-                    msg,
-                    True,
-                    direct=False)
+                # Remove sha_validation because we rejected this version
+                # of the article.
+                article.sha_validation = None
+                article.pubdate = None
+                article.save()
 
-            return redirect(
-                article.get_absolute_url() +
-                '?version=' +
-                validation.version)
+                # send feedback
+                for author in article.authors.all():
+                    msg = u"Désolé **{0}**, ton zeste **{1}** u\
+                    un'a malheureusement pas passé l’étape de validation. u\
+                    uMais ne désespère pas, certaines corrections peuvent u\
+                    usurement être faite pour l’améliorer et repasser la u\
+                    uvalidation plus tard. Voici le message que [{2}]({3}), u\
+                    uton validateur t'a laissé\n\n`{4}`\n\nN'hésite pas a u\
+                    ului envoyer un petit message pour discuter de la décision u\
+                    uou demander plus de détail si tout cela te semble u\
+                    uinjuste ou manque de clarté.".format(
+                        author.username,
+                        article.title,
+                        validation.validator.username,
+                        validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator)
+                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    send_mp(
+                        bot,
+                        [author],
+                        u"Refus de Validation : {0}".format(
+                            article.title),
+                        "",
+                        msg,
+                        True,
+                        direct=False)
+
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
+            else:
+                messages.error(request,
+                    "Vous devez avoir réservé cet article "
+                    "pour pouvoir le refuser.")
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
 
         # A validator would like to invalid an article published. We must
         # come back to sha_validation with the current sha of validation.
@@ -509,46 +521,56 @@ def modify(request):
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
                 .latest('date_proposition')
-            validation.comment_validator = request.POST['comment-v']
-            validation.status = 'PUBLISHED'
-            validation.date_validation = datetime.now()
-            validation.save()
 
-            # Update sha_public with the sha of validation.
-            # We don't update sha_draft.
-            # So, the user can continue to edit his article in offline.
-            if request.POST.get('is_major', False) or article.sha_public is None:
-                article.pubdate = datetime.now()
-            article.sha_public = validation.version
-            article.sha_validation = None
-            article.save()
+            if request.user == validation.validator:
+                validation.comment_validator = request.POST['comment-v']
+                validation.status = 'PUBLISHED'
+                validation.date_validation = datetime.now()
+                validation.save()
 
-            # send feedback
-            for author in article.authors.all():
-                msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
-                u est maintenant publié ! Les lecteurs du monde entier u\
-                upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
-                u de rester a leur écoute afin d'apporter des u\
-                ucorrections/compléments. Un Article vivant et a jour u\
-                uest bien plus lu qu'un sujet abandonné !".format(
-                    author.username,
-                    article.title,
-                    article.get_absolute_url_online())
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-                send_mp(
-                    bot,
-                    [author],
-                    u"Publication : {0}".format(
-                        article.title),
-                    "",
-                    msg,
-                    True,
-                    direct=False)
+                # Update sha_public with the sha of validation.
+                # We don't update sha_draft.
+                # So, the user can continue to edit his article in offline.
+                if request.POST.get('is_major', False) or article.sha_public is None:
+                    article.pubdate = datetime.now()
+                article.sha_public = validation.version
+                article.sha_validation = None
+                article.save()
 
-            return redirect(
-                article.get_absolute_url() +
-                '?version=' +
-                validation.version)
+                # send feedback
+                for author in article.authors.all():
+                    msg = u"Félicitations **{0}** ! Ton zeste [{1}]({2})u\
+                    u est maintenant publié ! Les lecteurs du monde entier u\
+                    upeuvent venir le lire et réagir a son sujet. Je te conseilleu\
+                    u de rester a leur écoute afin d'apporter des u\
+                    ucorrections/compléments. Un Article vivant et a jour u\
+                    uest bien plus lu qu'un sujet abandonné !".format(
+                        author.username,
+                        article.title,
+                        article.get_absolute_url_online())
+                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    send_mp(
+                        bot,
+                        [author],
+                        u"Publication : {0}".format(
+                            article.title),
+                        "",
+                        msg,
+                        True,
+                        direct=False)
+
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
+            else:
+                messages.error(request,
+                    "Vous devez avoir réservé cet article "
+                    "pour pouvoir le publier.")
+                return redirect(
+                    article.get_absolute_url() +
+                    '?version=' +
+                    validation.version)
 
     # User actions
     if request.user in article.authors.all():
@@ -577,8 +599,10 @@ def modify(request):
 
             return redirect(article.get_absolute_url())
         elif 'add_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             author_username = request.POST['author']
             author = None
@@ -599,8 +623,10 @@ def modify(request):
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.article.views.edit') + \
-                '?article={0}'.format(article.pk)
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
 
             # Avoid orphan articles
             if article.authors.all().count() <= 1:
@@ -682,8 +708,7 @@ def list_validation(request):
                         article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
-
-    return render_template('article/validation.html', {
+    return render_template('article/validation/index.html', {
         'validations': validations,
     })
 
@@ -715,7 +740,7 @@ def history_validation(request, article_pk):
             .order_by("date_proposition") \
             .all()
 
-    return render_template('article/history_validation.html', {
+    return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
     })
@@ -764,8 +789,8 @@ def history(request, article_pk, article_slug):
 
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
-
-    return render_template('article/history.html', {
+    
+    return render_template('article/member/history.html', {
         'article': article, 'logs': logs
     })
 
@@ -832,7 +857,7 @@ def answer(request):
             form = ReactionForm(article, request.user, initial={
                 'text': data['text']
             })
-            return render_template('article/answer.html', {
+            return render_template('article/reaction/new.html', {
                 'article': article,
                 'last_reaction_pk': last_reaction_pk,
                 'newreaction': newreaction,
@@ -862,7 +887,7 @@ def answer(request):
             else:
                 raise Http404
 
-    # Actions from the editor render to answer.html.
+    # Actions from the editor render to new.html.
     else:
         text = ''
 
@@ -884,7 +909,7 @@ def answer(request):
         form = ReactionForm(article, request.user, initial={
             'text': text
         })
-        return render_template('article/answer.html', {
+        return render_template('article/reaction/new.html', {
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
@@ -948,7 +973,7 @@ def edit_reaction(request):
     # must to be the user logged.
     if reaction.author != request.user \
             and not request.user.has_perm('article.change_reaction') \
-            and 'signal-reaction' not in request.POST:
+            and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user \
@@ -963,7 +988,7 @@ def edit_reaction(request):
 
     if request.method == 'POST':
 
-        if 'delete-reaction' in request.POST:
+        if 'delete_message' in request.POST:
             if reaction.author == request.user \
                     or request.user.has_perm('article.change_reaction'):
                 reaction.alerts.all().delete()
@@ -972,17 +997,17 @@ def edit_reaction(request):
                     reaction.text_hidden = request.POST['text_hidden']
                 reaction.editor = request.user
 
-        if 'show-reaction' in request.POST:
+        if 'show_message' in request.POST:
             if request.user.has_perm('article.change_reaction'):
                 reaction.is_visible = True
                 reaction.text_hidden = ''
 
-        if 'signal-reaction' in request.POST:
+        if 'signal_message' in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = reaction
             alert.scope = Alert.ARTICLE
-            alert.text = request.POST['signal-text']
+            alert.text = request.POST['signal_text']
             alert.pubdate = datetime.now()
             alert.save()
 
@@ -995,15 +1020,15 @@ def edit_reaction(request):
                 'zds.article.views.edit_reaction') + \
                 '?message=' + \
                 str(reaction_pk)
-            return render_template('article/edit_reaction.html', {
+            return render_template('article/reaction/edit.html', {
                 'reaction': reaction,
                 'article': g_article,
                 'form': form
             })
 
-        if 'delete-reaction' not in request.POST \
-                and 'signal-reaction' not in request.POST \
-                and 'show-reaction' not in request.POST:
+        if 'delete_message' not in request.POST \
+                and 'signal_message' not in request.POST \
+                and 'show_message' not in request.POST:
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 reaction.text = request.POST['text']
@@ -1021,7 +1046,7 @@ def edit_reaction(request):
         })
         form.helper.form_action = reverse(
             'zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
-        return render_template('article/edit_reaction.html', {
+        return render_template('article/reaction/edit.html', {
             'reaction': reaction,
             'article': g_article,
             'form': form

@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 
+
+
 {% block title_base %}
     &#183; Articles
 {% endblock %}
+
+
+
+{% block mobile_title %}
+    Articles
+{% endblock %}
+
+
 
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
 {% endblock %}
 
+
+
 {% block menu_article %}
     current
 {% endblock %}
 
-{% block headline %}
-    <h2 class="box article">{% block head-title %}{% endblock %}</h2>
-{% endblock %}
 
 
 {% block sidebar %}
-    <h3>Actions sur les articles</h3>
-    <ul>
-        <li><a href="{% url "zds.article.views.new" %}">Nouvel article</a></li>
-        {% block headline-sub-actions %}{% endblock %}
-    </ul>
-	{% block headline-actions %}{% endblock %}
-    {% block headline-add %}{% endblock %}
+    <aside class="sidebar mobile-menu-hide">
+		{% include "article/includes/sidebar_base.html" %}
+	</aside>
 {% endblock %}

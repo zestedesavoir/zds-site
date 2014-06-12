@@ -1,6 +1,7 @@
 # coding: utf-8
 from crispy_forms.helper import FormHelper
-from crispy_forms_foundation.layout import Layout, Field, ButtonHolder, Submit
+from crispy_forms.layout import Layout, Field, ButtonHolder, Submit
+from crispy_forms.bootstrap import StrictButton
 
 from django import forms
 
@@ -21,8 +22,33 @@ class AssocSubscribeForm(forms.Form):
         required=True,
     )
 
+    adresse = forms.CharField(
+        label=u'Adresse',
+        required=True,
+    )
+
+    adresse_complement = forms.CharField(
+        label=u'Complément d\'adresse',
+        required=False,
+    )
+
+    code_postal = forms.CharField(
+        label='Code Postal',
+        required=True,
+    )
+
+    ville = forms.CharField(
+        label='Ville',
+        required=True,
+    )
+
+    pays = forms.CharField(
+        label='Pays',
+        required=True,
+    )
+
     justification = forms.CharField(
-        label='Raison de la demande',
+        label='Pourquoi voulez-vous adhérer à l\'association ?',
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -41,8 +67,13 @@ class AssocSubscribeForm(forms.Form):
             Field('first_name'),
             Field('surname'),
             Field('email'),
+            Field('adresse'),
+            Field('adresse_complement'),
+            Field('code_postal'),
+            Field('ville'),
+            Field('pays'),
             Field('justification'),
             ButtonHolder(
-                Submit('submit', 'Valider', css_class='button'),
+                StrictButton('Valider', type='submit'),
             )
         )

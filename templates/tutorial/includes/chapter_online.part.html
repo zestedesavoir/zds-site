@@ -1,0 +1,28 @@
+{% load emarkdown %}
+
+
+
+{% with extracts=chapter.extracts %}
+    {% if chapter.type == 'BIG' %}
+        {% if chapter.intro %}
+            {{ chapter.intro|safe }}
+        {% endif %}
+    {% endif %}
+
+    {% for extract in extracts %}
+        <h2 id="{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+            <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                {{ extract.title }}
+            </a>
+        </h2>
+        {% if extract.txt %}
+            {{ extract.txt|safe }}
+        {% endif %}
+    {% endfor %}
+
+    {% if chapter.type == 'BIG' %}
+        {% if chapter.get_conclusion_online %}
+            {{ chapter.get_conclusion_online|safe }}
+        {% endif %}
+    {% endif %}
+{% endwith %}

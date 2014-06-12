@@ -1,0 +1,47 @@
+{% extends "member/register/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+    Inscription
+{% endblock %}
+
+
+
+{% block headline %}
+    Inscription
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Inscription</li>
+{% endblock %}
+
+
+
+{# TODO : améliorer cette page #}
+{% block content %}
+    {% if not user.is_authenticated %}
+        {% if error %}
+            {{ error }}
+        {% endif %}
+
+        <p>
+            <strong>Vous êtes sur le point de vous inscrire sur Zeste de Savoir</strong> ; si vous
+            possédez déjà un compte, merci de <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>
+            à la place.
+        </p>
+        <p>
+            Veuillez fournir les informations nécessaires dans le
+            formulaire suivant afin de poursuivre votre inscription.
+        </p>
+
+        {% crispy form %}
+    {% else %}
+        <p>
+            Vous êtes déjà connecté.
+        </p>
+    {% endif %}
+{% endblock %}

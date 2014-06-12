@@ -63,6 +63,14 @@ class ArticleTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
 
+        # reserve tutorial
+        validation = Validation.objects.get(
+            article__pk=self.article.pk)
+        pub = self.client.get(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
         # publish article
         pub = self.client.post(
             reverse('zds.article.views.modify'),
@@ -104,7 +112,7 @@ class ArticleTests(TestCase):
             ),
             True
         )
-        #now that we have a first image, let's change it
+        # now that we have a first image, let's change it
 
         oldAddress = self.article.thumbnail.name
         self.article.image = self.logo2
@@ -125,7 +133,7 @@ class ArticleTests(TestCase):
         )
         os.unlink(self.logo1)
         os.unlink(self.logo2)
-        #shutil.rmtree(settings.MEDIA_ROOT)
+        # shutil.rmtree(settings.MEDIA_ROOT)
 
     def test_alert(self):
         user1 = ProfileFactory().user
@@ -143,8 +151,8 @@ class ArticleTests(TestCase):
             '?message={0}'.format(
                 reaction.pk),
             {
-                'signal-text': 'Troll',
-                'signal-reaction': 'Confirmer',
+                'signal_text': 'Troll',
+                'signal_message': 'Confirmer',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -161,7 +169,7 @@ class ArticleTests(TestCase):
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
-                'delete-post': 'Resoudre',
+                'delete_message': 'Resoudre',
             },
             follow=False)
         self.assertEqual(result.status_code, 302)

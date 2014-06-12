@@ -23,7 +23,7 @@ def gallery_list(request):
     """Display the gallery list with all their images."""
 
     galleries = UserGallery.objects.all().filter(user=request.user)
-    return render_template("gallery/gallery_list.html",
+    return render_template("gallery/gallery/list.html",
                            {"galleries": galleries})
 
 
@@ -39,7 +39,8 @@ def gallery_details(request, gal_pk, gal_slug):
         raise PermissionDenied
     images = gal.get_images()
     form = UserGalleryForm()
-    return render_template("gallery/gallery_details.html", {
+
+    return render_template("gallery/gallery/details.html", {
         "gallery": gal,
         "gallery_mode": gal_mode,
         "images": images,
@@ -75,10 +76,10 @@ def new_gallery(request):
             userg.save()
             return redirect(gal.get_absolute_url())
         else:
-            return render_template("gallery/new_gallery.html", {"form": form})
+            return render_template("gallery/gallery/new.html", {"form": form})
     else:
         form = GalleryForm()
-        return render_template("gallery/new_gallery.html", {"form": form})
+        return render_template("gallery/gallery/new.html", {"form": form})
 
 
 @can_write_and_read_now
@@ -146,7 +147,7 @@ def modify_gallery(request):
             ug.mode = request.POST["mode"]
             ug.save()
         else:
-            return render_template("gallery/gallery_details.html", {
+            return render_template("gallery/gallery/details.html", {
                 "gallery": gallery,
                 "gallery_mode": gal_mode,
                 "images": gallery.get_images(),
@@ -157,22 +158,24 @@ def modify_gallery(request):
 
 @can_write_and_read_now
 @login_required
-def del_image(request, gal_pk):
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    if request.method == "POST":
-        liste = request.POST.getlist("items")
-        Image.objects.filter(pk__in=liste).delete()
-        return redirect(gal.get_absolute_url())
-    return redirect(gal.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
 def edit_image(request, gal_pk, img_pk):
     """Creates a new image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
+
+    # check if user can edit image
+    try:
+        permission = UserGallery.objects.get(user=request.user, gallery=gal)
+        if permission.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
+    # check if the image belong to the gallery
+    if img.gallery != gal:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:
@@ -190,13 +193,12 @@ def edit_image(request, gal_pk, img_pk):
 
     as_avatar_form = ImageAsAvatarForm()
     return render_template(
-        "gallery/edit_image.html", {
+        "gallery/image/edit.html", {
             "form": form,
             "as_avatar_form": as_avatar_form,
             "gallery": gal,
             "image": img
         })
-
 
 @can_write_and_read_now
 @login_required
@@ -221,11 +223,14 @@ def modify_image(request):
     except:
         raise PermissionDenied
     if "delete" in request.POST:
-        img = get_object_or_404(Image, pk=request.POST["image"])
-        img.delete()
+        try:
+            img = Image.objects.get(pk=request.POST["image"], gallery=gal)
+            img.delete()
+        except:
+            pass
     elif "delete_multi" in request.POST:
         l = request.POST.getlist("items")
-        Image.objects.filter(pk__in=l).delete()
+        Image.objects.filter(pk__in=l, gallery=gal).delete()
     return redirect(gal.get_absolute_url())
 
 
@@ -235,6 +240,15 @@ def new_image(request, gal_pk):
     """Creates a new image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
+
+    # check if the user can upload new image in this gallery
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid() and request.FILES["physical"].size \
@@ -253,9 +267,9 @@ def new_image(request, gal_pk):
             return redirect(reverse("zds.gallery.views.edit_image",
                                     args=[gal.pk, img.pk]))
         else:
-            return render_template("gallery/new_image.html", {"form": form,
+            return render_template("gallery/image/new.html", {"form": form,
                                                               "gallery": gal})
     else:
         form = ImageForm()  # A empty, unbound form
-        return render_template("gallery/new_image.html", {"form": form,
+        return render_template("gallery/image/new.html", {"form": form,
                                                           "gallery": gal})
