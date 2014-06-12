@@ -1665,12 +1665,16 @@
         }
 
         blockquote {
+            margin: 0;
             color : #777;
             padding: 0 2% 20px;
             border-left: 5px solid #CCC;
         }
 
-        code, kbd, pre, samp {
+        code,
+        kbd,
+        pre,
+        samp {
             font-family: $font-monospace;
         }
 
@@ -2006,17 +2010,35 @@ table {
                         }
                     }
                 }
+                .upvote,
+                .downvote {
+                    &:after {
+                        left: 9px;
+                    }
+                }
                 .upvote {
                     color: #48a200;
+
+                    &.more-voted {
+                        border-bottom-color: #48a200;
+                    }
                 }
                 .downvote {
                     color: #c0392b;
+
+                    &.more-voted {
+                        border-bottom-color: #c0392b;
+                    }
                 }
-                .voted {
+                .voted:after {
+                    opacity: 1;
+                }
+                .more-voted {
                     font-weight: bold;
 
-                    &:after {
-                        opacity: 1;
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: transparent !important;
                     }
                 }
             }
