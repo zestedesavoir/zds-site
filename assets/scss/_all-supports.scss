@@ -319,9 +319,7 @@
 
                     &,
                     &:hover,
-                    &:focus,
-                    &.read:hover,
-                    &.read:focus {
+                    &:focus {
                         opacity: 1;
                         transition-property: opacity, background-color;
                     }
@@ -336,10 +334,6 @@
                         .date {
                             color: #95D7F5;
                         }
-                    }
-
-                    &.read {
-                        opacity: .5;
                     }
                 }
 
