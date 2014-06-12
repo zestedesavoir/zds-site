@@ -30,11 +30,15 @@
 
 
 {% block content %}
-    {% captureas form_action %}
-        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
-    {% endcaptureas %}
+    {% comment %}
+        {% captureas form_action %}
+            {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+        {% endcaptureas %}
 
-    {% include "misc/message_form.html" with member=user %}
+        {% include "misc/message_form.html" with member=user %}
+    {% endcomment %}
+    
+    {% crispy form %}
 
     {% if form.text.value %}
         {% include "misc/previsualization.part.html" with text=form.text.value %}
