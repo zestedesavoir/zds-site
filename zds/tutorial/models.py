@@ -794,7 +794,7 @@ class Extract(models.Model):
                         self.chapter.part.slug),
                     self.chapter.slug)
 
-        return os.path.join(chapter_path, slugify(self.title) + '.md')
+        return os.path.join(chapter_path, self.slugify_title()) + '.md'
 
     def get_prod_path(self):
         if self.chapter.tutorial:
@@ -816,7 +816,8 @@ class Extract(models.Model):
                     self.chapter.part.slug),
                 self.chapter.slug)
 
-        return os.path.join(chapter_path, slugify(self.title) + '.md.html')
+        return os.path.join(chapter_path, self.slugify_title()
+             + '.md.html')
 
     def get_text(self):
         if self.chapter.tutorial:
@@ -857,6 +858,11 @@ class Extract(models.Model):
         else:
             return None
 
+    def slugify_title(self):
+        toEscape = ["introduction","conclusion"]
+        if slugify(self.title) in toEscape :
+            return "p-"+self.title
+        return slugify(self.title)
 
 class Validation(models.Model):
 
