@@ -47,7 +47,9 @@ class Category(models.Model):
         return Tutorial.objects.filter(
             subcategory__in=msct).exclude(
             sha_public=None).exclude(
-            sha_public='').all()
+            sha_public__isnull=True).all()
+    
+    
 
     def get_all_subcategories(self):
         """Get all subcategories of a category (not main include)"""
@@ -59,6 +61,7 @@ class Category(models.Model):
         """Get only main subcategories of a category."""
         return CategorySubCategory.objects \
             .filter(category__in=[self], is_main=True)\
+            .select_related('subcategory')\
             .all()
 
 
@@ -88,7 +91,8 @@ class SubCategory(models.Model):
         return Tutorial.objects.filter(
             subcategory__in=[self]).exclude(
             sha_public=None).exclude(
-            sha_public='').all()
+            sha_public='').exclude(
+            sha_public__isnull=True).all()
 
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')
