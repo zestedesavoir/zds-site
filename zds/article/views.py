@@ -346,7 +346,7 @@ def find_article(request, name):
         .all()
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr': u,
+        'articles': articles, 'usr': user,
     })
 
 
