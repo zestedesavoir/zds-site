@@ -82,9 +82,7 @@
                                 </td>
                                 <td>
                                     {% for author in validation.article.authors.all %}
-                                        <a href="{% url "zds.member.views.details" user.username %}">
-                                            {{ author.username }}
-                                        </a>
+                                        {% include 'misc/member_item.part.html' with member=author avatar=True %}
                                     {% endfor %}
                                 </td>
                                 <td>
@@ -92,9 +90,7 @@
                                 </td>
                                 <td>
                                     {% if validation.validator %}
-                                        <a href="{% url "zds.member.views.details" validation.validator.username %}">
-                                            {{ validation.validator.username }}
-                                        </a>
+                                        {% include 'misc/member_item.part.html' with member=validation.validator avatar=True %}
                                     {% endif %}
                                 </td>
                                 <td>
@@ -105,7 +101,7 @@
                                 <td>
                                     {% if validation.is_pending %}
                                         <a href="{% url "zds.article.views.reservation" validation.pk %}">
-                                            Réservé
+                                            Réserver
                                         </a>
                                     {% elif validation.is_pending_valid %}
                                         <a href="{% url "zds.article.views.reservation" validation.pk %}">
