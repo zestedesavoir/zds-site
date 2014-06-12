@@ -51,24 +51,16 @@ def interventions_privatetopics(user):
     topicspart = PrivateTopic.objects.filter(participants__in=[user])\
         .order_by('-last_message__pubdate')
     privatetopics_unread = []
-    privatetopics_read = []
 
     for topicfollowed in topicsfollowed:
         if never_privateread(topicfollowed):
             privatetopics_unread.append(topicfollowed)
-        else:
-            privatetopics_read.append(topicfollowed)
 
     for topicpart in topicspart:
         if never_privateread(topicpart):
             privatetopics_unread.append(topicpart)
-        else:
-            privatetopics_read.append(topicpart)
 
-    privateread_topics_count = 5 - \
-        (len(privatetopics_unread) if len(privatetopics_unread) < 5 else 5)
-    return {'unread': privatetopics_unread,
-            'read': privatetopics_read[:privateread_topics_count]}
+    return {'unread': privatetopics_unread}
 
 
 @register.simple_tag(name='reads_topic')
