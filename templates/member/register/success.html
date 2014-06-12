@@ -1,4 +1,4 @@
-{% extends "member/base.html" %}
+{% extends "member/register/base.html" %}
 
 
 
@@ -22,6 +22,6 @@
 
 {% block content %}
     <p>
-        Votre compte a été créé avec succès, vous pouvez maintenant <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
+        Votre compte a été créé avec succès. Vous allez recevoir un email contenant un lien d'activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion.
     </p>
 {% endblock %}
