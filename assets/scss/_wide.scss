@@ -402,23 +402,23 @@
         margin: 0 0 0 2%;
     }
 
+
+
     /* ==============
-        Gallery
+        Main / Gallery
        ============== */
     .gallery-col-image {
-        width: 50%;
         float: left;
+        width: 50%;
 
         img {
-            width: 100%;
+            max-width: 100%;
         }
     }
 
     .gallery-col-edit {
-        width: 50%;
         float: right;
-
-        box-sizing: border-box;
+        width: calc(50% - 20px);
         padding-left: 20px;
     }
 
