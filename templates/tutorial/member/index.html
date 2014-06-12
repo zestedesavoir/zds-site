@@ -4,59 +4,61 @@
 
 
 {% block title %}
-    Liste des tutoriels
+    Mes tutoriels
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des tutoriels</a>
+    <li>Mes tutoriels</li>
 {% endblock %}
 
 
 
-{% block headline %}
-    <h2>Liste des tutoriels</h2>
-{% endblock %}
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% block headline %}
+                Mes tutoriels
+            {% endblock %}
+        </h2>
 
-
-
-{% block content %}
-    {% if tutorials %}
-        <div class="tutorial-list">
-            {% for tutorial in tutorials %}
-                <article>
-                    <a href="
-                        {% if type = 'public' and tutorial.on_line %}
-                            {{ tutorial.get_absolute_url_online }}
-                        {% else %}
-                            {{ tutorial.get_absolute_url }}
-                        {% endif %}
-                    ">
-                        <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
-                        <div class="tutorial-infos">
-                            <h3>{{ tutorial.title }}</h3>
-                            
-                            <span class="article-metadata">
-                                {% if tutorial.subcategory.all %}
-                                    {% for category in tutorial.subcategory.all %}
-                                        {{ category.title }}                                    
-                                    {% endfor %}
-                                {% else %}
-                                    Aucune catégorie
-                                {% endif %}
-                                - Créé {{ tutorial.create_at|format_date }}
-                            </span>
-                        </div>
-                    </a>
-                </article>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>
-            Aucun tutoriel disponible.
-        </p>
-    {% endif %}
+        {% if tutorials %}
+            <div class="tutorial-list">
+                {% for tutorial in tutorials %}
+                    <article>
+                        <a href="
+                            {% if type = 'public' and tutorial.on_line %}
+                                {{ tutorial.get_absolute_url_online }}
+                            {% else %}
+                                {{ tutorial.get_absolute_url }}
+                            {% endif %}
+                        ">
+                            <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
+                            <div class="tutorial-infos">
+                                <h3>{{ tutorial.title }}</h3>
+                                
+                                <span class="article-metadata">
+                                    {% if tutorial.subcategory.all %}
+                                        {% for category in tutorial.subcategory.all %}
+                                            {{ category.title }}                                    
+                                        {% endfor %}
+                                    {% else %}
+                                        Aucune catégorie
+                                    {% endif %}
+                                    - Créé {{ tutorial.create_at|format_date }}
+                                </span>
+                            </div>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>
+                Aucun tutoriel disponible.
+            </p>
+        {% endif %}
+    </section>
 {% endblock %}
 
 
