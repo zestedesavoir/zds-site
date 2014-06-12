@@ -163,6 +163,23 @@
                     {% endif %}
                 {% endif %}
             {% endif %}
+
+            {% if article.sha_public %}
+                <li>
+                    <a href="#unpublish" class="open-modal ico-after cross blue">Dépublier</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="unpublish">
+                        <p>
+                            <strong>Attention !</strong> Vous allez dépublier un article actuellement <strong>en ligne</strong>.
+                        </p>
+                        <button type="submit" name="invalid-article">
+                            Confirmer
+                        </button>
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                    </form>
+                </li>
+            {% endif %}
         </ul>
     </div>
 {% endif %}
