@@ -49,7 +49,9 @@
                     {% csrf_token %}
                 </form>
             </li>
-
+            {% if article.sha_public %}
+                <li><a href="{{ article.get_absolute_url_online }}" class="ico-after view blue">Voir <span class="wide">la version</span> en ligne</a></li>
+            {% endif %}
             <li>
                 <a href="{% url "zds.article.views.history" article.pk article.slug %}" class="ico-after history blue">
                     Historique des versions
@@ -113,55 +115,54 @@
 
 
 
-    {% if perms.article.change_article %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-            <h3>Validation</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
-                        Historique de validation
-                    </a>
-                </li>
+{% if perms.article.change_article %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+        <h3>Validation</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                    Historique de validation
+                </a>
+            </li>
 
-                {% if not article.sha_validation = None %}
-                    {% if validation.is_pending %}
+            {% if not article.sha_validation = None %}
+                {% if validation.is_pending %}
+                    <li>
+                        <a href="{% url "zds.article.views.reservation" validation.pk %}" class="ico-after lock blue">Réserver</a>
+                    </li>
+                {% elif validation.is_pending_valid %}
+                    {% if validation.validator = user %}
                         <li>
-                            <a href="{% url "zds.article.views.reservation" validation.pk %}">Réserver</a>
+                            <a href="#publish" class="open-modal ico-after tick green">Publier</a>
+                            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="publish">
+                                <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"></textarea>
+
+                                <input type="hidden" name="article" value="{{ article.pk }}">
+                                <input type="hidden" name="version" value="{{ version }}">
+                                {% csrf_token %}
+                                <button type="submit" name="valid-article">Confirmer</button>
+                            </form>
                         </li>
-                    {% elif validation.is_pending_valid %}
-                        {% if validation.validator = user %}
-                            <li>
-                                <a href="#publish" class="open-modal ico-after tick green">Publier</a>
-                                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="publish">
-                                    <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"></textarea>
+                        <li>
+                            <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
+                            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="reject">
+                                <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"></textarea>
 
-                                    <input type="hidden" name="article" value="{{ article.pk }}">
-                                    <input type="hidden" name="version" value="{{ version }}">
-                                    {% csrf_token %}
-                                    <button type="submit" name="valid-article">Confirmer</button>
-                                </form>
-                            </li>
-                            <li>
-                                <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
-                                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="reject">
-                                    <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"></textarea>
-
-                                    <input type="hidden" name="article" value="{{ article.pk }}">
-                                    <input type="hidden" name="version" value="{{ version }}">
-                                    {% csrf_token %}
-                                    <button type="submit" name="reject-article">Confirmer</button>
-                                </form>
-                            </li>
-                        {% else %}
-                            <li>
-                                <a href="{% url "zds.article.views.reservation" validation.pk %}" class="open-modal ico-after cross blue">
-                                    Réservé par {{ validation.validator.username }}, le retirer
-                                </a>
-                            </li>
-                        {% endif %}
+                                <input type="hidden" name="article" value="{{ article.pk }}">
+                                <input type="hidden" name="version" value="{{ version }}">
+                                {% csrf_token %}
+                                <button type="submit" name="reject-article">Confirmer</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url "zds.article.views.reservation" validation.pk %}" class="open-modal ico-after cross blue">
+                                Réservé par {{ validation.validator.username }}, le retirer
+                            </a>
+                        </li>
                     {% endif %}
                 {% endif %}
-            </ul>
-        </div>
-    {% endif %}
-</form>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

@@ -107,6 +107,7 @@ def view(request, article_pk, article_slug):
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
+    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
 
     validation = Validation.objects.filter(article__pk=article.pk,
                                             version=sha)\
