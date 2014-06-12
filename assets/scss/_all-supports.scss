@@ -2164,13 +2164,26 @@ form.topic-message {
                 &:before {
                     display: none;
                 }
+
+                .topic-title {
+                    background: lighten($blue, 20%) !important;
+                    color: #FFF;
+                    text-decoration: none;
+                }
             }
 
             .topic-infos {
                 position: absolute;
-                top: 5px;
-                left: 5px;
-                margin: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 1;
+                height: 15px;
+                width: 15px;
+                padding: 3px 0;
+
+                input {
+                    margin: 0;
+                }
             }
 
             .topic-description {
@@ -2204,8 +2217,8 @@ form.topic-message {
             &.selected {
                 border-color: lighten($blue, 75%);
 
-                .gallery-caption {
-                    background-color: lighten($blue, 75%);
+                .topic-title {
+                    background: lighten($blue, 75%);
                 }
             }
 
