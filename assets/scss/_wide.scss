@@ -398,6 +398,11 @@
     .content-wrapper,
     .full-content-wrapper {
         margin: 0 0 0 4%;
+
+        .content-wrapper {
+            max-width: none;
+            margin: 0;
+        }
     }
 
 
