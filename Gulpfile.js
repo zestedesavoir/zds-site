@@ -139,6 +139,12 @@ gulp.task("copy", function() {
     .pipe(gulp.dest("dist/"));
 });
 
+gulp.task("pack", ["build"], function() {
+  return gulp.src(["dist/*/**", "!dist/pack.zip"])
+    .pipe($.zip("pack.zip"))
+    .pipe(gulp.dest("dist/"));
+});
+
 gulp.task("travis", function() {
   // @TODO: Configure travis tests
   return true;
