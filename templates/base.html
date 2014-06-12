@@ -203,7 +203,6 @@
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
-                                    {% with read_topics=topics.read %}
                                         <a href="{% url "zds.mp.views.index" %}" class="ico-link">
                                             {% if unread_topics|length > 0 %}
                                                 <span class="notif-count">{{ unread_topics|length }}</span>
@@ -232,29 +231,9 @@
                                                     {% endwith %}
                                                 {% endfor %}
 
-                                                {% for topic in read_topics %}
-                                                    {% with last_read=topic.last_read_post last_answer=topic.get_last_answer %}
-                                                    <li>
-                                                        {% if not last_answer %}
-                                                            {% set topic.first_post as last_answser %}
-                                                        {% endif %}
-                                                        <a href="{{ last_answer.get_absolute_url }}"
-                                                           class="read"
-                                                        >
-                                                            {% with p=last_answer.author|profile %}
-                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
-                                                            {% endwith %}
-                                                            <span class="username">{{ last_answer.author.username }}</span>
-                                                            <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
-                                                        </a>
-                                                    </li>
-                                                    {% endwith %}
-                                                {% endfor %}
-
-                                                {% if read_topics|length = 0 and unread_topics|length = 0 %}
+                                                {% if unread_topics|length = 0 %}
                                                     <li class="dropdown-empty-message">
-                                                        Aucun message
+                                                        Aucun nouveau message
                                                     </li>
                                                 {% endif %}
                                             </ul>
@@ -262,7 +241,6 @@
                                                 Tous les messages
                                             </a>
                                         </div>
-                                    {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
                                 </div>
@@ -293,33 +271,7 @@
                                                         </a>
                                                     </li>
                                                 {% endfor %}
-
-                                                {# TODO : restore read posts notifications #}
-                                                {% comment %}
-                                                {% for last_read in read_posts %}
-                                                    <li>
-                                                        {% with last_answer=topic.get_last_answer %}
-                                                            <a href="
-                                                                {% if last_answer %}
-                                                                    {{ last_answer.get_absolute_url }}
-                                                                {% else %}
-                                                                    {{ topic.first_post.get_absolute_url }}
-                                                                {% endif %}"
-                                                               class="read"
-                                                            >
-                                                                {% with p=last_read.author|profile %}
-                                                                    <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
-                                                                {% endwith %}
-                                                                <span class="username">{{ last_read.author.username }}</span>
-                                                                <span class="date">{{ last_read.pubdate|format_date:True|capfirst }}</span>
-                                                                <span class="topic">{{ topic.title }}</span>
-                                                            </a>
-                                                        {% endwith %}
-                                                    </li>
-                                                {% endfor %}
-                                                {% endcomment %}
     
-                                                {# {% if read_topics|length = 0 and unread_topics|length = 0 %} #}
                                                 {% if unread_posts|length = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         Aucune notification
