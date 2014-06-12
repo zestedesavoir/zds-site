@@ -53,9 +53,14 @@ class Category(models.Model):
 
     def get_all_subcategories(self):
         """Get all subcategories of a category (not main include)"""
-        return CategorySubCategory.objects \
+        csc = []
+        catsubcats = CategorySubCategory.objects \
             .filter(category__in=[self]) \
             .all()
+        for catsubcat in catsubcats:
+            if catsubcat.get_tutos().count() > 0:
+                csc.append(catsubcat)
+        return csc
 
     def get_subcategories(self):
         """Get only main subcategories of a category."""
