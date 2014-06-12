@@ -192,6 +192,7 @@
                                     <a href="{{ upvote_link }}"
                                        title="Ce message est utile"
                                        class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after
+                                              {% if message.like > 0 %}has-vote{% endif %}
                                               {% if profile_user|liked:message.pk %}voted{% endif %}"
                                     >
                                         {% if message.like > 0 %}
@@ -201,6 +202,7 @@
                                     <a href="{{ downvote_link }}" 
                                        title="Ce message n'est pas utile"
                                        class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after
+                                              {% if message.like > 0 %}has-vote{% endif %}
                                               {% if profile_user|disliked:message.pk %}voted{% endif %}"
                                     >
                                         {% if message.dislike > 0 %}
