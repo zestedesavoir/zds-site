@@ -341,7 +341,7 @@ def find_article(request, name):
     """Find an article from his author."""
     user = get_object_or_404(User, pk=name)
     articles = Article.objects\
-        .filter(authors__in=[user])\
+        .filter(authors__in=[user], sha_public__isnull=False)\
         .order_by('-pubdate')\
         .all()
     # Paginator
