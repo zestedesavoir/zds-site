@@ -57,7 +57,7 @@
             {% if topic.author == user %}
                 <li>
                     <a href="#add-participant" class="open-modal">Ajouter un membre</a>
-                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
                             Vous allez rajouter un nouveau membre dans la conversation privé.
                         </p>
