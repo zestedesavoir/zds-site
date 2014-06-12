@@ -96,7 +96,7 @@
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         Ajouter un membre
                     </a>
-                    <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
                             Vous allez rajouter un nouveau membre dans la conversation privée.
                         </p>
@@ -113,7 +113,7 @@
                 <a href="#leave-conversation" class="open-modal ico-after cross blue">
                     Quitter la conversation
                 </a>
-                <form action="{% url "zds.mp.views.leave" %}" mathod="post" id="leave-conversation" class="modal modal-small">
+                <form action="{% url "zds.mp.views.leave" %}" method="post" id="leave-conversation" class="modal modal-small">
                     <p>
                         Attention, vous vous apprêtez à quitter définitivement cette conversation.
                     </p>
