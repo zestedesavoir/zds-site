@@ -1624,14 +1624,14 @@
             max-width: 100%;
         }
 
-        figure {
+        figure > {
             margin: 0;
             text-align: center;
 
             img,
             video,
             pre,
-            & > code,
+            code,
             table,
             blockquote,
             embed,
@@ -1643,7 +1643,7 @@
             img,
             video,
             pre,
-            & > code {
+            code {
                 display: block;
             }
 
