@@ -128,7 +128,10 @@
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    Edité {{ message.update|format_date }} par {{ message.editor }}
+                    Edité {{ message.update|format_date }}
+                    {% if message.editor %}
+                        par {{ message.editor }}
+                    {% endif %}
                 </p>
             {% endif %}
         </div>
