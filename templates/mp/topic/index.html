@@ -96,7 +96,7 @@
                     </a>
                     <form action="{% url "zds.mp.views.add_participant" %}" mathod="post" id="add-participant" class="modal modal-medium">
                         <p>
-                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                            Vous allez rajouter un nouveau membre dans la conversation privée.
                         </p>
                         <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
                         <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
@@ -113,7 +113,7 @@
                 </a>
                 <form action="{% url "zds.mp.views.leave" %}" mathod="post" id="leave-conversation" class="modal modal-small">
                     <p>
-                        Attention, vous vous appretez à quitter définitivement cette conversation.
+                        Attention, vous vous apprêtez à quitter définitivement cette conversation.
                     </p>
                     <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
 
