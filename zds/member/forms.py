@@ -360,12 +360,19 @@ class ChangeUserForm(forms.Form):
                 if User.objects.filter(email=email_new).count() >= 1:
                     self._errors['email_new'] = self.error_class(
                         [u'Votre email est déjà utilisée'])
+            # Chech if email provider is authorized
+            with open(os.path.join(SITE_ROOT,
+                                   'forbidden_email_providers.txt'), 'r') as fh:
+                for provider in fh:
+                    if provider.strip() in email_new:
+                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                        self._errors['email_new'] = self.error_class([msg])
+                        break
 
         return cleaned_data
 
+
 # to update a password
-
-
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
         label='Nouveau mot de passe',
