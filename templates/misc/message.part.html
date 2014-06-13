@@ -194,7 +194,7 @@
 
                                 {% if user != message.author %}
                                     <a href="{{ upvote_link }}"
-                                       title="Ce message est utile {% if message.like > 0 %}({{ message.like }} votes pour){% endif %}"
+                                       title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
                                        class="upvote
                                               ico-after
                                               {% if message.like > message.dislike %}more-voted{% endif %}
@@ -204,7 +204,7 @@
                                         +{{ message.like }}
                                     </a>
                                     <a href="{{ downvote_link }}" 
-                                       title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} votes contre){% endif %}"
+                                       title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
                                        class="downvote
                                               ico-after
                                               {% if message.like < message.dislike %}more-voted{% endif %}
@@ -219,6 +219,7 @@
                                               ico-after
                                               {% if message.like > message.dislike %}more-voted{% endif %}
                                               {% if message.like > 0 %}has-vote{% endif %}"
+                                        {% if message.like > 0 %}title="{{ message.like }} personnes ont trouvé ce message utile"{% endif %}
                                     >
                                         +{{ message.like }}
                                     </span>
@@ -227,6 +228,7 @@
                                               ico-after
                                               {% if message.like < message.dislike %}more-voted{% endif %} 
                                               {% if message.dislike > 0 %}has-vote{% endif %}"
+                                        {% if message.dislike > 0 %}title="{{ message.like }} personnes n'ont pas trouvé ce message utile"{% endif %}
                                     >
                                         -{{ message.dislike }}
                                     </span>
