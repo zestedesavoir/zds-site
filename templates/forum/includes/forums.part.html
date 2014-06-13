@@ -25,9 +25,9 @@
                 </span>
             </p>
             <p class="topic-last-answer">
-                {% with last_message=forum.get_last_message %}
+                {% with last_message=forum.get_last_message last_read=last_message.topic.last_read_post %}
                     {% if last_message %}
-                        <a href="{{ last_message.get_absolute_url }}">
+                        <a href="{{ last_read.get_absolute_url }}">
                             <span class="forum-last-message">Dernier message :</span>
                             <span class="forum-last-message-title">{{ last_message.topic.title }}</span>
                         </a>
