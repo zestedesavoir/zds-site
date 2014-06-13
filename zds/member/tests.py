@@ -7,7 +7,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.member.forms import RegisterForm
+from zds.member.forms import RegisterForm, ChangeUserForm, \
+                            ChangePasswordForm
 from zds.member.models import Profile
 
 from .models import TokenRegister, Ban
@@ -62,7 +63,7 @@ class MemberTests(TestCase):
 
         # clic on the link which has been sent in mail
         user = User.objects.get(username='firm1')
-        self.assertEquals(user.is_active, False)
+        self.assertFalse(user.is_active)
 
         token = TokenRegister.objects.get(user=user)
         result = self.client.get(
@@ -72,7 +73,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEquals(len(mail.outbox), 2)
 
-        self.assertEquals(User.objects.get(username='firm1').is_active, True)
+        self.assertTrue(User.objects.get(username='firm1').is_active)
 
         # From this point we have a valid user (firm1 / firm1@zestedesavoir.com)
 
@@ -86,7 +87,7 @@ class MemberTests(TestCase):
             'email': 'email@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 2. If passwords are too shorts
         form_data = {
@@ -96,7 +97,7 @@ class MemberTests(TestCase):
             'email': 'email@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 3. If passwords are equal to username
         form_data = {
@@ -106,7 +107,7 @@ class MemberTests(TestCase):
             'email': 'email@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 4. If there is no username
         form_data = {
@@ -116,7 +117,7 @@ class MemberTests(TestCase):
             'email': 'email@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 5. If there is no email
         form_data = {
@@ -126,7 +127,7 @@ class MemberTests(TestCase):
             'email': ''
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 6. If the username is already taken
         form_data = {
@@ -136,7 +137,7 @@ class MemberTests(TestCase):
             'email': 'email@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # 7. If the email is already taken
         form_data = {
@@ -146,7 +147,7 @@ class MemberTests(TestCase):
             'email': 'firm1@zestedesavoir.com'
         }
         form = RegisterForm(data=form_data)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
     def test_sanctions(self):
         """Test various sanctions."""
@@ -270,3 +271,122 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, 'Ban Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
+    
+    def test_update_password(self):
+        """Test the password"""
+        
+        # create dummy user (to test)
+        user = ProfileFactory()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertTrue(login_check)
+        
+        # 1. If passwords don't match
+        form_data = {
+            'password_old': 'hostel77',
+            'password_new': 'ThePassword1234',
+            'password_confirm': 'TheWrongPassword'
+        }
+        form = ChangePasswordForm(user.user, data=form_data)
+        self.assertFalse(form.is_valid())
+
+        # 2. If passwords are too shorts
+        form_data = {
+            'password_old': 'hostel77',
+            'password_new': 'pass',
+            'password_confirm': 'pass'
+        }
+        form = ChangePasswordForm(user.user, data=form_data)
+        self.assertFalse(form.is_valid())
+
+        # 3. If passwords are equal to username
+        form_data = {
+            'password_old': 'hostel77',
+            'password_new': user.user.username,
+            'password_confirm': user.user.username
+        }
+        form = ChangePasswordForm(user.user, data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # 4. If old password is wrong
+        form_data = {
+            'password_old': 'WrongPassword',
+            'password_new': 'ThePassword1234',
+            'password_confirm': 'ThePassword1234'
+        }
+        form = ChangePasswordForm(user.user, data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # 5. If everything is OK
+        form_data = {
+            'password_old': 'hostel77',
+            'password_new': 'ThePassword1234',
+            'password_confirm': 'ThePassword1234'
+        }
+        form = ChangePasswordForm(user.user, data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_update_profil(self):
+        """Test the profil update (pseudo, email)"""
+        
+        # create dummy user (reference)
+        user_ref = ProfileFactory()
+        login_check = self.client.login(
+            username=user_ref.user.username,
+            password='hostel77')
+        self.assertTrue(login_check)
+        
+        # create dummy user (to test)
+        user = ProfileFactory()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertTrue(login_check)
+        
+        # A. Test email update ----
+        
+        # A1. If email looks bad
+        form_data = {
+            'email_new': 'weirdemail@'
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # A2. If email is taken
+        form_data = {
+            'email_new': user_ref.user.email
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # A3. If email provider is forbidden
+        form_data = {
+            'email_new': 'dummy@yopmail.com'
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # A4. If OK
+        form_data = {
+            'email_new': 'okmail@test.com'
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        
+        # B. t*Test pseudo update ---
+        
+        # B1. If new pseudo is taken
+        form_data = {
+            'username_new': user_ref.user.username
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        
+        # B2. If new pseudo is OK
+        form_data = {
+            'username_new': 'OriginalPseudo'
+        }
+        form = ChangeUserForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        
