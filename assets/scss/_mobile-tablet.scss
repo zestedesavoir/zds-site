@@ -453,6 +453,10 @@
                 font-size: 12px;
                 width: 50px;
                 margin-left: 10px;
+
+                &.push-badge {
+                    margin-left: 105px;
+                }
             }
             .user-metadata {
                 float: right;
@@ -481,6 +485,10 @@
                 z-index: 15;
                 height: 30px;
                 line-height: 30px;
+
+                .username {
+                    margin-left: 5px;
+                }
 
                 .date {
                     float: right;
@@ -553,13 +561,17 @@
             .subtitle,
             .authors,
             p,
-            figure {
+            figure,
+            blockquote {
                 margin-left: 15px;
                 margin-right: 15px;
             }
-            figure p {
-                margin-left: 0;
-                margin-right: 0;
+            figure {
+                p,
+                blockquote {
+                    margin-left: 0;
+                    margin-right: 0;
+                }
             }
         }
     }

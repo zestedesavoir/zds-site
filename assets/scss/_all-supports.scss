@@ -1478,6 +1478,7 @@
     .article-content,
     .message-content {
         margin-top: 20px;
+        margin-bottom: 20px;
         color: #424242;
 
         h2,
@@ -1877,6 +1878,17 @@ table {
         border-bottom-width: 3px;
         min-height: 75px;
 
+        .is-author {
+            position: absolute;
+            top: -15px;
+            left: 10px;
+            background: #FDFDFD;
+            padding: 0 5px;
+            font-size: 12px;
+            line-height: 20px;
+            color: #999;
+        }
+
         .message-metadata {
             display: inline-block;
             font-size: 14px;
@@ -2011,9 +2023,19 @@ table {
                 margin-left: auto;
                 margin-bottom: -2px;
 
-                a {
+                a,
+                span {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
+
+                    &:not(.has-vote) {
+                        text-indent: -9999px;
+                        width: 0;
+                    }
+                }
+                span:not(.has-vote) {
+                    border-bottom: none;
+                    opacity: .5;
                 }
 
                 .tick {
@@ -2043,22 +2065,20 @@ table {
                     color: $upvote-green;
 
                     &:hover,
-                    &:focus {
-                        border-bottom-color: $upvote-green;
-                    }
-
+                    &:focus,
                     &.more-voted {
                         border-bottom-color: $upvote-green;
+                    }
+                    &:not(.has-vote){
+                        text-indent: -9999px;
+                        width: 0;
                     }
                 }
                 .downvote {
                     color: $downvote-red;
 
                     &:hover,
-                    &:focus {
-                        border-bottom-color: $downvote-red;
-                    }
-
+                    &:focus,
                     &.more-voted {
                         border-bottom-color: $downvote-red;
                     }

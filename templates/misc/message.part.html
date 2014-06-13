@@ -1,14 +1,25 @@
 {% load profile %}
 {% load emarkdown %}
 {% load date %}
+{% load set %}
 
 
 
 <article class="topic-message {% if message.is_useful %}helpful{% endif %} {% if is_repeated_message %}repeated{% endif %}">
-    {% include "misc/message_user.html" with member=message.author %}
+    {% if topic.author = message.author and helpful_link %}
+        {% set True as is_author %}
+    {% else %}
+        {% set False as is_author %}
+    {% endif %}
+
+    {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
     <div class="message">
+        {% if is_author %}
+            <span class="is-author">Auteur du sujet</span>
+        {% endif %}
+
         {% if user.is_authenticated %}
             <ul class="message-actions">
                 {% if message.is_visible != False %}
@@ -127,7 +138,7 @@
                 </div>
             {% endif %}
 
-            {% if message.is_visible == False %}
+            {% if message.is_visible = False %}
                 <p class="message-hidden">
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>
@@ -178,57 +189,61 @@
                         {% if upvote_link %}
                             <div class="message-karma">
                                 {% if helpful_link %}
-                                    {# TODO : Mettre le réel état #}
-                                    {% if topic.author == user and message.author != user %}
-                                        <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                        >
-                                            Cette réponse m'a aidé
-                                        </a>
-                                    {% elif perms_change %}
-                                        <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}green{% endif %}">
-                                            Cette réponse a aidé
-                                        </a>
+                                    {% if message.author != user %}
+                                        {% if topic.author = user or perms_change %}
+                                            <a href="{{ helpful_link }}"
+                                               class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                            >
+                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
 
                                 {% if user != message.author %}
                                     <a href="{{ upvote_link }}"
-                                       title="Ce message est utile"
-                                       class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after
+                                       title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
+                                       class="upvote
+                                              ico-after
+                                              {% if message.like > message.dislike %}more-voted{% endif %}
                                               {% if message.like > 0 %}has-vote{% endif %}
                                               {% if profile_user|liked:message.pk %}voted{% endif %}"
                                     >
-                                        {% if message.like > 0 %}
-                                            +{{ message.like }}
-                                        {% endif %}
+                                        +{{ message.like }}
                                     </a>
                                     <a href="{{ downvote_link }}" 
-                                       title="Ce message n'est pas utile"
-                                       class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after
+                                       title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
+                                       class="downvote
+                                              ico-after
+                                              {% if message.like < message.dislike %}more-voted{% endif %}
                                               {% if message.dislike > 0 %}has-vote{% endif %}
                                               {% if profile_user|disliked:message.pk %}voted{% endif %}"
                                     >
-                                        {% if message.dislike > 0 %}
-                                            -{{ message.dislike }}
-                                        {% endif %}
+                                        -{{ message.dislike }}
                                     </a>
                                 {% else %}
-                                    {% if message.like > 0 %}
-                                        <span
-                                           class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
-                                        >
-                                            +{{ message.like }}
-                                        </span>
-                                    {% endif %}
-                                    {% if message.dislike > 0 %}
-                                        <span 
-                                           class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
-                                        >
-                                            -{{ message.dislike }}
-                                        </span>
-                                    {% endif %}
+                                    <span
+                                       class="upvote
+                                              ico-after
+                                              {% if message.like > message.dislike %}more-voted{% endif %}
+                                              {% if message.like > 0 %}has-vote{% endif %}"
+                                        {% if message.like > 0 %}
+                                            title="{{ message.like }} personnes ont trouvé ce message utile"
+                                        {% endif %}
+                                    >
+                                        +{{ message.like }}
+                                    </span>
+                                    <span 
+                                       class="downvote
+                                              ico-after
+                                              {% if message.like < message.dislike %}more-voted{% endif %} 
+                                              {% if message.dislike > 0 %}has-vote{% endif %}"
+                                        {% if message.dislike > 0 %}
+                                            title="{{ message.like }} personnes n'ont pas trouvé ce message utile"
+                                        {% endif %}
+                                    >
+                                        -{{ message.dislike }}
+                                    </span>
                                 {% endif %}
                             </div>
                         {% endif %}
