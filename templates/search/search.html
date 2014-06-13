@@ -38,11 +38,8 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
-            <h3>Paramètres de recherche</h3>
-            <h4>Rechercher dans</h4>
-            <form>
+            <h3>Filtrer les résultats</h3>
             {{ form.models }}
-            </form>
         </div>
     </aside>
 {% endblock %}
@@ -64,38 +61,38 @@
                         </div>
                         <div class="topic-description">
                             {% if result.object.first_post %}
-                            <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                <div class="topic-title">{% highlight result.object.title with query %}</div>
+                                <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
                             {% elif result.object.get_introduction_online %}
-                            <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                <div class="topic-title">{% highlight result.object.title with query %}</div>
+                                <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
                             {% elif result.object.get_text_online %}
-                            <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                <div class="topic-title">{% highlight result.object.title with query %}</div>
+                                <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
                             {% else %}
-                            <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                <div class="topic-title">{% highlight result.object.topic.title with query %}</div>
+                                <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.topic.title with query %}</div>
                             {% endif %}
-                                <div class="topic-subtitle">
-                                    {% if result.object.first_post %}
-                                        {% with text=result.object.first_post.text|emarkdown|htmltotext %}
-                                            {% highlight text with query %}
-                                        {% endwith %}
-                                    {% elif result.object.get_introduction_online %}
-                                        {% with text=result.object.get_introduction_online|htmltotext|safe %}
-                                            {% highlight text with query %}
-                                        {% endwith %}
-                                    {% elif result.object.get_text_online %}
-                                        {% with text=result.object.get_text_online|htmltotext|safe %}
-                                            {% highlight text with query %}
-                                        {% endwith %}
-                                    {% else %}
-                                        {% with text=result.object.text|emarkdown|htmltotext %}
-                                            {% highlight text with query %}
-                                        {% endwith %}
-                                    {% endif %}
-                                </div>
-                            </a>
+                                    <div class="topic-subtitle">
+                                        {% if result.object.first_post %}
+                                            {% with text=result.object.first_post.text|emarkdown|htmltotext %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% elif result.object.get_introduction_online %}
+                                            {% with text=result.object.get_introduction_online|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% elif result.object.get_text_online %}
+                                            {% with text=result.object.get_text_online|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% else %}
+                                            {% with text=result.object.text|emarkdown|htmltotext %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                </a>
                             <div class="topic-members">
                                 {% if result.object.first_post %}
                                     Sujet
@@ -117,19 +114,19 @@
                                 {% else %}
                                     <a href="{{ result.object.get_absolute_url }}">
                                 {% endif %}
-                                        {{ result.object.pubdate|format_date }}
+                                        {{ result.object.pubdate|format_date|capfirst }}
                                     </a>
                             {% elif result.object.tutorial.pubdate %}
                                 <a href="{{ result.object.get_absolute_url_online }}">
-                                    {{ result.object.tutorial.pubdate|format_date }}
+                                    {{ result.object.tutorial.pubdate|format_date|capfirst }}
                                 </a>
                             {% elif result.object.part.tutorial.pubdate %}
                                 <a href="{{ result.object.get_absolute_url_online }}">
-                                    {{ result.object.part.tutorial.pubdate|format_date }}
+                                    {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
                                 </a>
                             {% elif result.object.chapter.part.tutorial.pubdate %}
                                 <a href="{{ result.object.get_absolute_url_online }}">
-                                    {{ result.object.chapter.part.tutorial.pubdate|format_date }}
+                                    {{ result.object.chapter.part.tutorial.pubdate|format_date|capfirst }}
                                 </a>
                             {% endif %}
                         </div>
