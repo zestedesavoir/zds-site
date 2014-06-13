@@ -453,6 +453,10 @@
                 font-size: 12px;
                 width: 50px;
                 margin-left: 10px;
+
+                &.push-badge {
+                    margin-left: 105px;
+                }
             }
             .user-metadata {
                 float: right;

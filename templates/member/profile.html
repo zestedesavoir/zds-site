@@ -31,7 +31,7 @@
 
         <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
 
-        {% include 'misc/badge.part.html' %}
+        {% include 'misc/badge.part.html' with member=usr %}
 
         <p>
             Inscrit {{ usr.date_joined|format_date }}

@@ -1878,15 +1878,15 @@ table {
         border-bottom-width: 3px;
         min-height: 75px;
 
-        .is_author {
+        .is-author {
             position: absolute;
-            top: -12px;
-            left: 5px;
-            background: #D2D5D6;
+            top: -15px;
+            left: 10px;
+            background: #FDFDFD;
             padding: 0 5px;
             font-size: 12px;
-            line-height: 16px;
-            color: #555;
+            line-height: 20px;
+            color: #999;
         }
 
         .message-metadata {

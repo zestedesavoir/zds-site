@@ -1,16 +1,23 @@
 {% load profile %}
 {% load emarkdown %}
 {% load date %}
+{% load set %}
 
 
 
 <article class="topic-message {% if message.is_useful %}helpful{% endif %} {% if is_repeated_message %}repeated{% endif %}">
-    {% include "misc/message_user.html" with member=message.author %}
+    {% if topic.author = message.author and helpful_link %}
+        {% set True as is_author %}
+    {% else %}
+        {% set False as is_author %}
+    {% endif %}
+
+    {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
     <div class="message">
-        {% if topic.author = message.author and helpful_link %}
-            <span class="is_author">Auteur du sujet</span>
+        {% if is_author %}
+            <span class="is-author">Auteur du sujet</span>
         {% endif %}
 
         {% if user.is_authenticated %}

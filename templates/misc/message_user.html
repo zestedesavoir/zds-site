@@ -7,15 +7,8 @@
         <a href="{{ member.get_absolute_url }}" class="avatar-link">
             <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
         </a>
-        {% with status=member|state %}
-            {% if status == 'BAN'%}
-                <span class="badge banned">{{ status }}</span>
-            {% elif status == 'LS'%}
-                <span class="badge banned">{{ status }}</span>
-            {% elif status == 'STAFF' %}
-                <span class="badge staff">{{ status }}</span>
-            {% endif %}
-        {% endwith %}
+        
+        {% include 'misc/badge.part.html' %}
 
         {# TODO : ajouter les metadatas #}
         {% comment %}
