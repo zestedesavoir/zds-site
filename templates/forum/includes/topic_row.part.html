@@ -45,9 +45,9 @@
         {% endif %}
     </p>
     <p class="topic-last-answer">
-        {% with answer=topic.get_last_answer %}
+        {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
             {% if answer %}
-                <a href="{{ answer.get_absolute_url }}">
+                <a href="{{ last_read.get_absolute_url }}">
                     Dernière réponse <br>
                     {{ answer.pubdate|format_date }}
                 </a>
