@@ -1878,6 +1878,16 @@ table {
         border-bottom-width: 3px;
         min-height: 75px;
 
+        .is_author {
+            position: absolute;
+            top: -12px;
+            left: 5px;
+            background: #D2D5D6;
+            padding: 0 5px;
+            font-size: 12px;
+            line-height: 16px;
+        }
+
         .message-metadata {
             display: inline-block;
             font-size: 14px;

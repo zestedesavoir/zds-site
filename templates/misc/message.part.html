@@ -9,6 +9,10 @@
 
 
     <div class="message">
+        {% if topic.author = message.author %}
+            <span class="is_author">Auteur du sujet</span>
+        {% endif %}
+
         {% if user.is_authenticated %}
             <ul class="message-actions">
                 {% if message.is_visible != False %}
@@ -127,7 +131,7 @@
                 </div>
             {% endif %}
 
-            {% if message.is_visible == False %}
+            {% if message.is_visible = False %}
                 <p class="message-hidden">
                     Masqué par {{ message.editor }} : {{ message.text_hidden }}
                 </p>
@@ -178,17 +182,14 @@
                         {% if upvote_link %}
                             <div class="message-karma">
                                 {% if helpful_link %}
-                                    {% if topic.author == user and message.author != user %}
-                                        <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                        >
-                                            Cette réponse m'a aidé
-                                        </a>
-                                    {% elif perms_change %}
-                                        <a href="{{ helpful_link }}"
-                                           class="tick ico-after {% if message.is_useful %}green{% endif %}">
-                                            Cette réponse a aidé
-                                        </a>
+                                    {% if message.author != user %}
+                                        {% if topic.author = user or perms_change %}
+                                            <a href="{{ helpful_link }}"
+                                               class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                            >
+                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
 
