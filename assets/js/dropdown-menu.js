@@ -44,8 +44,8 @@
                 .one("blur", function(){
                     $elem = $(this);
                     setTimeout(function(){
-                        if($("a:focus", $elem.parent().find(".dropdown")).length){
-                            $("a:last", $elem.parent().find(".dropdown")).one("blur", function(){
+                        if($(":tabbable:focus", $elem.parent().find(".dropdown")).length){
+                            $(":tabbable:last", $elem.parent().find(".dropdown")).one("blur", function(){
                                 $elem.removeClass("active");
                                 triggerCloseDropdown($elem);
                             });
@@ -63,12 +63,12 @@
     });
 
     $(".dropdown-list").on("focus", function(){
-        $(this).find("a:first").focus();
+        $(this).find(":tabbable:first").focus();
     });
 
     $("body").on("keydown", function(e){
         if(e.keyCode === 27)
-            $("body").trigger("click");
+            $(".has-dropdown.active, .ico-link.active, #my-account.active").focus().removeClass("active");
     });
 
     function activeDropdown($elem){
@@ -89,7 +89,7 @@
             $("body").one("click", function(e){
                 if(!$(e.target).hasClass("dropdown") && !$(e.target).parents(".dropdown").length) {
                     $that.removeClass("active");
-                    $that.next(":visible:tabbable").focus();
+                    $that.next(":tabbable").focus();
 
                     if($that.is("[data-active]"))
                         $("#" + $that.attr("data-active")).removeClass("active");
@@ -100,7 +100,7 @@
         } else {
             $("html").removeClass("dropdown-active");
             $("body").off("click");
-            $(".dropdown a").off("blur");
+            $(".dropdown :tabbable").off("blur");
 
             if($that.is("[data-active]"))
                 $("#" + $that.attr("data-active")).removeClass("active");
