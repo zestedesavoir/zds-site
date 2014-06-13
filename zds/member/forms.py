@@ -308,6 +308,7 @@ class ChangeUserForm(forms.Form):
     username_new = forms.CharField(
         label='Nouveau pseudo',
         max_length=User._meta.get_field('username').max_length,
+        min_length=1,
         required=False,
         widget=forms.TextInput(
             attrs={
