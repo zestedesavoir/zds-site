@@ -1685,6 +1685,11 @@
             text-shadow: 0 1px 0 #FFF;
             color: darken($kbd-color, 70%);
         }
+
+        mathjax {
+            font-size: 22px;
+            font-size: 2.2rem;
+        }
     }
 
     .reactions-title {
