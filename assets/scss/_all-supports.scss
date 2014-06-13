@@ -2020,21 +2020,31 @@ table {
                 .upvote,
                 .downvote {
                     &:after {
-                        left: 9px;
+                        left: 10px;
                     }
                 }
                 .upvote {
-                    color: #48a200;
+                    color: $upvote-green;
+
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: $upvote-green;
+                    }
 
                     &.more-voted {
-                        border-bottom-color: #48a200;
+                        border-bottom-color: $upvote-green;
                     }
                 }
                 .downvote {
-                    color: #c0392b;
+                    color: $downvote-red;
+
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: $downvote-red;
+                    }
 
                     &.more-voted {
-                        border-bottom-color: #c0392b;
+                        border-bottom-color: $downvote-red;
                     }
                 }
                 .voted:after {
