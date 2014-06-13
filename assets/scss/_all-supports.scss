@@ -2016,6 +2016,15 @@ table {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
                 }
+                span {
+                    border-bottom: none;
+
+                    &:not(.has-vote) {
+                        opacity: .5;
+                        text-indent: -9999px;
+                        width: 0;
+                    }
+                }
 
                 .tick {
                     overflow: hidden;
@@ -2044,22 +2053,20 @@ table {
                     color: $upvote-green;
 
                     &:hover,
-                    &:focus {
-                        border-bottom-color: $upvote-green;
-                    }
-
+                    &:focus,
                     &.more-voted {
                         border-bottom-color: $upvote-green;
+                    }
+                    &:not(.has-vote){
+                        text-indent: -9999px;
+                        width: 0;
                     }
                 }
                 .downvote {
                     color: $downvote-red;
 
                     &:hover,
-                    &:focus {
-                        border-bottom-color: $downvote-red;
-                    }
-
+                    &:focus,
                     &.more-voted {
                         border-bottom-color: $downvote-red;
                     }
