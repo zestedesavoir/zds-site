@@ -2027,12 +2027,15 @@ table {
                 span {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
+
+                    &:not(.has-vote) {
+                        text-indent: -9999px;
+                        width: 0;
+                    }
                 }
                 span:not(.has-vote) {
                     border-bottom: none;
                     opacity: .5;
-                    text-indent: -9999px;
-                    width: 0;
                 }
 
                 .tick {
