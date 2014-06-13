@@ -1610,11 +1610,12 @@
         img {
             max-width: 100%;
         }
-
-        figure > {
+        
+        figure {
             margin: 0;
             text-align: center;
-
+        }
+        figure > {
             img,
             video,
             pre,
@@ -1639,12 +1640,15 @@
             }
             
             blockquote ~ figcaption {
-                margin: -35px 0 0 2%;
-                padding-left: 3px;
+                padding: 0 0 1px 2%;
                 font-style: italic;
                 text-align: left;
                 color: #999;
+                border-left: 5px solid #CCC;
 
+                p {
+                    margin: 0 0 5px;
+                }
                 p:before {
                     content: "— ";
                 }
@@ -1654,8 +1658,15 @@
         blockquote {
             margin: 0;
             color : #777;
-            padding: 0 2% 20px;
+            padding: 1px 2%;
             border-left: 5px solid #CCC;
+
+            p:first-child {
+                margin-top: 5px;
+            }
+            p:last-child {
+                margin-bottom: 5px;
+            }
         }
 
         code,
