@@ -378,6 +378,17 @@
                 left: -19px;
                 border-right-color: #FDFDFD;
             }
+
+            .message-content {
+                margin: 0 10px;
+
+                > :first-child {
+                    margin-top: 5px;
+                }
+                > figure:first-child {
+                    margin-top: 10px;
+                }
+            }
         }
     }
 

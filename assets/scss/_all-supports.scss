@@ -1922,7 +1922,6 @@ table {
 
         .message-content {
             clear: both;
-            margin: 0 10px 0;
             padding-top: 1px;
 
             & > p:first-child {
@@ -1937,13 +1936,13 @@ table {
             .message-hidden,
             .message-helpful,
             .message-repeated {
-                padding: 3px 0 0;
+                padding-top: 3px 0 0;
 
                 &.ico-after {
                     text-indent: 20px;
 
                     &:after {
-                        margin: 7px 0;
+                        margin: 4px 0;
                     }
                 }
             }
