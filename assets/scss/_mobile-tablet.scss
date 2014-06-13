@@ -502,9 +502,10 @@
                     top: 35px;
                     left: 10px;
 
-                    a {
-                        margin-right: 1px;
-                        margin-left: 0;
+                    a,
+                    span {
+                        border-bottom-width: 1px !important;
+                        border-bottom-color: #D2D5D6;
                     }
 
                     .tick {
@@ -551,9 +552,14 @@
             h6,
             .subtitle,
             .authors,
-            p {
-                padding-left: 15px;
-                padding-right: 15px;
+            p,
+            figure {
+                margin-left: 15px;
+                margin-right: 15px;
+            }
+            figure p {
+                margin-left: 0;
+                margin-right: 0;
             }
         }
     }

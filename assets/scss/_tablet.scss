@@ -48,4 +48,14 @@
             }
         }
     }
+
+    .main .content-container .topic-message .message .message-bottom .message-karma {
+        a,
+        span {
+            &.upvote.has-vote,
+            &.downvote.has-vote {
+                padding-left: 27px;
+            }
+        }
+    }
 }

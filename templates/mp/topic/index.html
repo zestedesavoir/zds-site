@@ -53,7 +53,7 @@
     {% include "misc/pagination.part.html" with position="top" %}
 
     
-    <div class="content-wrapper">
+    <div>
         {% for message in posts %}
             {% captureas edit_link %}
                 {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}

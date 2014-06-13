@@ -1055,10 +1055,6 @@
 /* ==============
     ALL: Main / Content Wrappers
    ============== */
-.content-wrapper,
-.full-content-wrapper {
-    margin: 0 2%;
-}
 .small-content-wrapper {
     width: 90%;
     max-width: 500px;
@@ -1464,9 +1460,6 @@
    ============== */
 .main .content-container {
     .content-wrapper {
-        max-width: 960px;
-        margin: 0 auto;
-
         &.article-content,
         &.authors {
             padding-left: 2%;
@@ -1617,11 +1610,12 @@
         img {
             max-width: 100%;
         }
-
-        figure > {
+        
+        figure {
             margin: 0;
             text-align: center;
-
+        }
+        figure > {
             img,
             video,
             pre,
@@ -1646,12 +1640,15 @@
             }
             
             blockquote ~ figcaption {
-                margin: -35px 0 0 2%;
-                padding-left: 3px;
+                padding: 0 0 1px 2%;
                 font-style: italic;
                 text-align: left;
                 color: #999;
+                border-left: 5px solid #CCC;
 
+                p {
+                    margin: 0 0 5px;
+                }
                 p:before {
                     content: "— ";
                 }
@@ -1661,8 +1658,15 @@
         blockquote {
             margin: 0;
             color : #777;
-            padding: 0 2% 20px;
+            padding: 1px 2%;
             border-left: 5px solid #CCC;
+
+            p:first-child {
+                margin-top: 5px;
+            }
+            p:last-child {
+                margin-bottom: 5px;
+            }
         }
 
         code,
@@ -1918,7 +1922,6 @@ table {
 
         .message-content {
             clear: both;
-            margin: 0 10px 0;
             padding-top: 1px;
 
             & > p:first-child {
@@ -1933,13 +1936,13 @@ table {
             .message-hidden,
             .message-helpful,
             .message-repeated {
-                padding: 3px 0 0;
+                padding-top: 3px 0 0;
 
                 &.ico-after {
                     text-indent: 20px;
 
                     &:after {
-                        margin: 7px 0;
+                        margin: 4px 0;
                     }
                 }
             }
@@ -2005,6 +2008,7 @@ table {
 
                 a {
                     border-bottom-width: 3px;
+                    border-bottom-color: transparent;
                 }
 
                 .tick {
@@ -2027,21 +2031,31 @@ table {
                 .upvote,
                 .downvote {
                     &:after {
-                        left: 9px;
+                        left: 10px;
                     }
                 }
                 .upvote {
-                    color: #48a200;
+                    color: $upvote-green;
+
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: $upvote-green;
+                    }
 
                     &.more-voted {
-                        border-bottom-color: #48a200;
+                        border-bottom-color: $upvote-green;
                     }
                 }
                 .downvote {
-                    color: #c0392b;
+                    color: $downvote-red;
+
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: $downvote-red;
+                    }
 
                     &.more-voted {
-                        border-bottom-color: #c0392b;
+                        border-bottom-color: $downvote-red;
                     }
                 }
                 .voted:after {

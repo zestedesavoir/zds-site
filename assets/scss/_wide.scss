@@ -378,6 +378,17 @@
                 left: -19px;
                 border-right-color: #FDFDFD;
             }
+
+            .message-content {
+                margin: 0 10px;
+
+                > :first-child {
+                    margin-top: 5px;
+                }
+                > figure:first-child {
+                    margin-top: 10px;
+                }
+            }
         }
     }
 
@@ -395,11 +406,14 @@
     /* ==============
         Main / Content Wrappers
        ============== */
-    .content-wrapper {
-        margin: 0 0 0 1.5%;
-    }
+    .content-wrapper,
     .full-content-wrapper {
-        margin: 0 0 0 2%;
+        margin: 0 0 0 4%;
+
+        .content-wrapper {
+            max-width: none;
+            margin: 0;
+        }
     }
 
 
