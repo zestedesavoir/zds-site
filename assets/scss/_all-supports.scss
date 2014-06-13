@@ -1392,6 +1392,10 @@
             opacity: .5;
         }
     }
+
+    .highlighted {
+        background-color: rgba(255, 255, 100, 0.5);
+    }
 }
 
 .forum-list {
@@ -1720,6 +1724,14 @@
 .js .spoiler {
     display: none;
 }
+
+/* ==============
+    ALL: Search
+   ============== */
+.search-form {
+    margin-bottom: 30px;
+}
+
 
 /**
  * TABLE
