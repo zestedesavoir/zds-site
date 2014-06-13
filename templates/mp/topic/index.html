@@ -42,11 +42,13 @@
                     {% include 'misc/member_item.part.html' with avatar=True %}
                 </li>
             {% endfor %}
-            <li>
-                <a href="#add-participant" class="open-modal ico-after more blue">
-                    Ajouter un membre
-                </a>
-            </li>
+            {% if user = topic.author %}
+                <li>
+                    <a href="#add-participant" class="open-modal ico-after more blue">
+                        Ajouter un membre
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 
