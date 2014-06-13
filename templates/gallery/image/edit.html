@@ -45,5 +45,8 @@
             Code markdown pour insérer cette image : <br>
             <input type="text" value="![{{ image.legend }}]({{ image.physical.url }})" readonly onclick="this.select()">
         </p>
+        
+        {% crispy as_avatar_form %}
+        
     </div>
 {% endblock %}

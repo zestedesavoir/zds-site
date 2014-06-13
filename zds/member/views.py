@@ -448,7 +448,8 @@ def update_avatar(request):
             return redirect(reverse("zds.member.views.settings_profile"))
         messages.success(request, "L'avatar a correctement été mis à jour.")
 
-    return redirect(reverse("zds.member.views.settings_profile"))
+    return redirect(reverse("zds.member.views.details",
+                            args=[profile.user.username]))
 
 
 @can_write_and_read_now
