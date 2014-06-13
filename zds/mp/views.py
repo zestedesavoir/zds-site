@@ -17,6 +17,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.forms.util import ErrorList
 
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
@@ -176,6 +177,16 @@ def new(request):
                 if request.user == p:
                     continue
                 ctrl.append(p)
+
+            # user add only himself
+            if (len(ctrl) < 1
+                    and len(list_part) == 1
+                    and list_part[0] == request.user.username):
+                errors = form._errors.setdefault("participants", ErrorList())
+                errors.append(u'Vous êtes déjà auteur du message')
+                return render_template('mp/topic/new.html', {
+                    'form': form,
+                })
 
             p_topic = send_mp(request.user,
                               ctrl,
