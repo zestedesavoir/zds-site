@@ -504,20 +504,8 @@
 
                     a,
                     span {
-                        margin-right: 1px;
-                        margin-left: 0;
                         border-bottom-width: 1px !important;
-
-                        &.has-vote {
-                            text-indent: 15px;
-                            line-height: 14px;
-                            font-size: 12px;
-                            text-align: right;
-
-                            &.downvote {
-                                line-height: 40px;
-                            }
-                        }
+                        border-bottom-color: #D2D5D6;
                     }
 
                     .tick {
