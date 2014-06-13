@@ -101,6 +101,12 @@
             {% url "zds.tutorial.views.solve_alert" %}
         {% endcaptureas %}
 
+        {% if forloop.first and nb > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
+        {% endif %}
+
 
         {% include "misc/message.part.html" with perms_change=perms.tutorial.change_note topic=tutorial %}
     {% endfor %}
