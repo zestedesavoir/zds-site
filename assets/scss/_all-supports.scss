@@ -1886,6 +1886,7 @@ table {
             padding: 0 5px;
             font-size: 12px;
             line-height: 16px;
+            color: #555;
         }
 
         .message-metadata {
@@ -2022,18 +2023,16 @@ table {
                 margin-left: auto;
                 margin-bottom: -2px;
 
-                a {
+                a,
+                span {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
                 }
-                span {
+                span:not(.has-vote) {
                     border-bottom: none;
-
-                    &:not(.has-vote) {
-                        opacity: .5;
-                        text-indent: -9999px;
-                        width: 0;
-                    }
+                    opacity: .5;
+                    text-indent: -9999px;
+                    width: 0;
                 }
 
                 .tick {

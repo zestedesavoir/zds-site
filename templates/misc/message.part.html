@@ -9,7 +9,7 @@
 
 
     <div class="message">
-        {% if topic.author = message.author %}
+        {% if topic.author = message.author and helpful_link %}
             <span class="is_author">Auteur du sujet</span>
         {% endif %}
 
