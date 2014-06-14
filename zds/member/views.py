@@ -788,11 +788,11 @@ def generate_token_account(request):
 
     subject = "ZDS - Confirmation d'inscription"
     from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
-    message_html = get_template("email/confirm_register.html"
+    message_html = get_template("email/register/confirm.html"
                                 ) \
         .render(Context({"username": token.user.username,
                          "url": settings.SITE_URL + token.get_absolute_url()}))
-    message_txt = get_template("email/confirm_register.txt"
+    message_txt = get_template("email/register/confirm.txt"
                                ) \
         .render(Context({"username": token.user.username,
                          "url": settings.SITE_URL + token.get_absolute_url()}))
@@ -803,7 +803,7 @@ def generate_token_account(request):
         msg.send()
     except:
         msg = None
-    return render_template('member/register/token_success.html', {})
+    return render_template('member/register/success.html', {})
 
 
 def get_client_ip(request):
