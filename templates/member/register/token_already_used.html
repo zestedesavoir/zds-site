@@ -1,0 +1,28 @@
+{% extends "member/register/base.html" %}
+
+
+
+{% block title %}
+    Compte déjà activé
+{% endblock %}
+
+
+
+{% block headline %}
+    Compte déjà activé
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
+    <li>Déjà activé</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Votre email a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver <a href="{% url "zds.member.views.forgot_password" %}">ici</a>.
+    </p>
+{% endblock %}
