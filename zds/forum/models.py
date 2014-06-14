@@ -196,7 +196,7 @@ class Topic(models.Model):
             .first()
     
     def get_followers_by_email(self):
-        """Return set on followers by mail"""
+        """Return set on followers by email"""
         return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")
 
     def last_read_post(self):
@@ -342,7 +342,7 @@ class TopicFollowed(models.Model):
 
     topic = models.ForeignKey(Topic)
     user = models.ForeignKey(User, related_name='topics_followed')
-    email = models.BooleanField('Notification par mail', default=False)
+    email = models.BooleanField('Notification par courriel', default=False)
 
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,

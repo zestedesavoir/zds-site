@@ -20,7 +20,7 @@ class AssocSubscribeForm(forms.Form):
     )
 
     email = forms.EmailField(
-        label='Adresse e-mail',
+        label='Adresse courriel',
         required=True,
     )
 
