@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load date %}
 {% load emarkdown %}
-
+{% load htmltotext %}
+{% load highlight %}
+{% load model_name %}
 
 
 {% block title %}
@@ -34,123 +36,112 @@
     {% endif %}
 {% endblock %}
 
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
+            <h3>Filtrer les résultats</h3>
+            {{ form.models }}
+        </div>
+    </aside>
+{% endblock %}
 
 
 {% block content %}
-    <form method="get" action=".">
-        {{ form.as_table }}
+    <form method="get" action="." id="search_form" class="clearfix search-form">
+        {{ form.q }}
         <button type="submit" class="button">Rechercher</button>
     </form>
 
     {% if query %}
+        {% include "misc/pagination.part.html" with position="top" %}
         {% if page.object_list %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Sujet</th>
-                        <th width="15%">Quand</th>
-                        <th width="55%">Extrait</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for result in page.object_list %}
-                        <tr>
-                            <td>
-                                <span class="label">
-                                    {% if result.object.first_post %}
-                                        Sujet
-                                    {% elif result.object.get_introduction_online %}
-                                        Tutoriel
-                                    {% elif result.object.get_text_online %}
-                                        Extrait
-                                    {% else %}
-                                        Post
-                                    {% endif %}
-                                </span>
-                            </td>
-                            <td>
+            <div class="topic-list navigable-list">
+                {% for result in page.object_list %}
+                    <div class="topic navigable-elem">
+                        <div class="topic-infos">
+                        </div>
+                        <div class="topic-description">
+                            {% if result.object.first_post %}
+                                <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
+                            {% elif result.object.get_introduction_online %}
+                                <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
+                            {% elif result.object.get_text_online %}
+                                <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.title with query %}</div>
+                            {% else %}
+                                <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                    <div class="topic-title">{% highlight result.object.topic.title with query %}</div>
+                            {% endif %}
+                                    <div class="topic-subtitle">
+                                        {% if result.object.first_post %}
+                                            {% with text=result.object.first_post.text|emarkdown|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% elif result.object.get_introduction_online %}
+                                            {% with text=result.object.get_introduction_online|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% elif result.object.get_text_online %}
+                                            {% with text=result.object.get_text_online|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% else %}
+                                            {% with text=result.object.text|emarkdown|htmltotext|safe %}
+                                                {% highlight text with query %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            <div class="topic-members">
+                                {% model_name result.app_label result.model_name False %}
+                                {% comment %}
+                                {% if result.object.first_post %}
+                                    Sujet
+                                {% elif result.object.get_introduction_online %}
+                                    Tutoriel
+                                {% elif result.object.get_text_online %}
+                                    Extrait
+                                {% else %}
+                                    Post
+                                {% endif %}
+                                {% endcomment %}
+                            </div>
+                        </div>
+                        <div class="topic-last-answer">
+                            {% if result.object.pubdate %}
                                 {% if result.object.first_post %}
                                     <a href="{{ result.object.get_absolute_url }}">
-                                        {{ result.object.title }}
-                                    </a>
-                                    {{ result.object.subtitle }}
                                 {% elif result.object.get_introduction_online %}
                                     <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.title }}
-                                    </a>
-                                    {{ result.object.description }}
-                                {% elif result.object.get_text_online %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.title }}
-                                    </a>
                                 {% else %}
-                                    <a href="{{ result.object.topic.get_absolute_url }}">
-                                        {{ result.object.topic.title }}
-                                    </a>
-                                    {{ result.object.topic.subtitle }}
+                                    <a href="{{ result.object.get_absolute_url }}">
                                 {% endif %}
-                            </td>
-                            <td>
-                                {% if result.object.pubdate %}
-                                    {% if result.object.first_post %}
-                                        <a href="{{ result.object.get_absolute_url }}">
-                                    {% elif result.object.get_introduction_online %}
-                                        <a href="{{ result.object.get_absolute_url_online }}">
-                                    {% else %}
-                                        <a href="{{ result.object.get_absolute_url }}">
-                                    {% endif %}
-                                            {{ result.object.pubdate|format_date }}
-                                        </a>
-                                {% elif result.object.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.tutorial.pubdate|format_date }}
+                                        {{ result.object.pubdate|format_date|capfirst }}
                                     </a>
-                                {% elif result.object.part.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.part.tutorial.pubdate|format_date }}
-                                    </a>
-                                {% elif result.object.chapter.part.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.chapter.part.tutorial.pubdate|format_date }}
-                                    </a>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if result.object.first_post %}
-                                    {{ result.object.first_post.text|truncatechars:200|emarkdown }}
-                                {% elif result.object.get_introduction_online %}
-                                    {{ result.object.get_introduction_online|truncatechars:200|safe }}
-                                {% elif result.object.get_text_online %}
-                                    {{ result.object.get_text_online|truncatechars:200|safe }}
-                                {% else %}
-                                    {{ result.object.text|truncatechars:200|emarkdown }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            {% if page.has_previous or page.has_next %}
-                <div class="pagination pagination-bottom pagination-chapter">
-                    {% if page.has_previous %}
-                        <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}" class="ico-after prev arrow-left">
-                            Page précédente
-                        </a>
-                    {% endif %}
-                    
-                    {% if page.has_next %}
-                        <a href="?q={{ query }}&amp;page={{ page.next_page_number }}" class="ico-after prev arrow-right">
-                            Page suivante
-                        </a>
-                    {% endif %}
-                </div>
-            {% endif %}
+                            {% elif result.object.tutorial.pubdate %}
+                                <a href="{{ result.object.get_absolute_url_online }}">
+                                    {{ result.object.tutorial.pubdate|format_date|capfirst }}
+                                </a>
+                            {% elif result.object.part.tutorial.pubdate %}
+                                <a href="{{ result.object.get_absolute_url_online }}">
+                                    {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
+                                </a>
+                            {% elif result.object.chapter.part.tutorial.pubdate %}
+                                <a href="{{ result.object.get_absolute_url_online }}">
+                                    {{ result.object.chapter.part.tutorial.pubdate|format_date|capfirst }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <p>
                 Aucun résultat trouvé.
             </p>
         {% endif %}
+        {% include "misc/pagination.part.html" with position="bottom" %}
     {% endif %}
 {% endblock %}
