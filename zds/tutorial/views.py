@@ -547,7 +547,7 @@ def modify_tutorial(request):
 
     # User actions
 
-    if request.user in tutorial.authors.all():
+    if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
         if "add_author" in request.POST:
             redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
                 tutorial.pk,
@@ -603,7 +603,7 @@ def modify_tutorial(request):
 
     # No action performed, raise 404
 
-    raise Http404
+    raise PermissionDenied
 
 
 # Tutorials.
