@@ -219,3 +219,78 @@ class MPTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 403)
+
+    def test_delete_mp_post(self):
+        """To test all aspects of the deletion of simple mp post by member."""
+
+        # Another User
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
+
+        result = self.client.post(
+            reverse('zds.mp.views.new'),
+            {
+                'participants': '{0}, {1}'.format(user2.username,
+                                                  user3.username),
+                'title': u'Un autre MP',
+                'subtitle': u'Encore ces lombards en plein été',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check topic's number
+        self.assertEqual(PrivateTopic.objects.all().count(), 1)
+        ptopic = PrivateTopic.objects.get(pk=1)
+
+        # check post's number
+        self.assertEqual(PrivatePost.objects.all().count(), 1)
+        ppost = PrivatePost.objects.get(pk=1)
+
+        # check author of the MP
+        self.assertEqual(ppost.author, self.user1)
+
+        # User3 would like leave the MP. He isn't the author
+        # and there will be still users in the MP.
+        self.client.login(username=user3.username, password='hostel77')
+        result = self.client.post(
+            reverse('zds.mp.views.leave'),
+            {
+                'leave': 'leave',
+                'topic_pk': ptopic.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check there are still 2 participants in MP.
+        self.assertEqual(ptopic.participants.count(), 1)
+
+        # User1 would like leave the MP. He is the author so User2
+        # will become the new author of the MP.
+        self.client.login(username=self.user1.username, password='hostel77')
+        result = self.client.post(
+            reverse('zds.mp.views.leave'),
+            {
+                'leave': 'leave',
+                'topic_pk': ptopic.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check there is still 1 participant in MP.
+        self.assertEqual(ptopic.participants.count(), 0)
+
+        # User2 would like leave the MP. He is the author but there
+        # isn't other participants, the MP must to be delete.
+        self.client.login(username=user2.username, password='hostel77')
+        result = self.client.post(
+            reverse('zds.mp.views.leave'),
+            {
+                'leave': 'leave',
+                'topic_pk': ptopic.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check there is no more MP.
+        self.assertEqual(PrivateTopic.objects.all().count(), 0)
