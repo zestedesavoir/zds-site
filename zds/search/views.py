@@ -3,6 +3,7 @@
 from django.shortcuts import render_to_response
 from haystack.views import SearchView
 from zds.utils.paginator import paginator_range
+from zds.search.constants import MODEL_NAMES
 
 class CustomSearchView(SearchView):
     def create_response(self):
@@ -18,6 +19,7 @@ class CustomSearchView(SearchView):
             'nb': page_nbr,
             'paginator': paginator,
             'suggestion': None,
+            'model_name': MODEL_NAMES
         }
 
         if self.results and hasattr(self.results, 'query') and self.results.query.backend.include_spelling:

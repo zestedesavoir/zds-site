@@ -3,6 +3,7 @@
 {% load emarkdown %}
 {% load htmltotext %}
 {% load highlight %}
+{% load model_name %}
 
 
 {% block title %}
@@ -94,6 +95,8 @@
                                     </div>
                                 </a>
                             <div class="topic-members">
+                                {% model_name result.app_label result.model_name False %}
+                                {% comment %}
                                 {% if result.object.first_post %}
                                     Sujet
                                 {% elif result.object.get_introduction_online %}
@@ -103,6 +106,7 @@
                                 {% else %}
                                     Post
                                 {% endif %}
+                                {% endcomment %}
                             </div>
                         </div>
                         <div class="topic-last-answer">
