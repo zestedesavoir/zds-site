@@ -907,6 +907,8 @@
     }
 
     .member-item {
+        margin-right: 7px;
+
         .avatar {
             margin-top: -2px;
             height: 20px;
@@ -2100,7 +2102,8 @@ table {
                 }
                 .more-voted {
                     font-weight: bold;
-
+                }
+                a.more-voted {
                     &:hover,
                     &:focus {
                         border-bottom-color: transparent !important;
