@@ -187,7 +187,7 @@ def modify_profile(request, user_pk):
             profile.end_ban_read = datetime.now() \
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (u'Vous ne pouvez plus vous connecter sur ZesteDeSavoir '
+            detail = (u'Vous ne pouvez plus vous connecter sur Zeste de Savoir '
                 u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
             logout_user(profile.user.username)
 
@@ -195,7 +195,7 @@ def modify_profile(request, user_pk):
             ban.type = u"Ban définitif"
             ban.text = request.POST["ban-text"]
             profile.can_read = False
-            detail = u"vous ne pouvez plus vous connecter sur ZesteDeSavoir."
+            detail = u"vous ne pouvez plus vous connecter sur Zeste de Savoir."
             logout_user(profile.user.username)
         if "un-ls" in request.POST:
             ban.type = u"Autorisation d'écrire"
@@ -225,7 +225,7 @@ Le motif de votre sanction est :
 
 `{3}`
 
-Cordialement, L'équipe ZesteDeSavoir.
+Cordialement, L'équipe Zeste de Savoir.
 
 """.format(ban.user,
                     ban.moderator, detail, ban.text)
@@ -241,7 +241,7 @@ Le motif de votre sanction est :
 
 `{4}`
 
-Cordialement, L'équipe ZesteDeSavoir.
+Cordialement, L'équipe Zeste de Savoir.
 
 """.format(ban.user,
                     ban.moderator, ban.type, detail, ban.text)
@@ -658,7 +658,7 @@ def forgot_password(request):
             # send email
 
             subject = "ZDS - Mot de passe oublié"
-            from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
+            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
                 {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
             message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
@@ -744,7 +744,7 @@ def active_account(request):
         u'plusieurs heures sur un problème.'
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
-        u'car la communauté de ZesteDeSavoir est attachée aux valeurs du libre '
+        u'car la communauté de Zeste de Savoir est attachée aux valeurs du libre '
         u'partage et désire apporter le savoir à tout le monde quelque soit ses moyens.'
         u'\n\n'
         u'En espérant que tu te plairas ici, '
@@ -787,7 +787,7 @@ def generate_token_account(request):
     # send email
 
     subject = "ZDS - Confirmation d'inscription"
-    from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
+    from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
     message_html = get_template("email/confirm_register.html"
                                 ) \
         .render(Context({"username": token.user.username,
