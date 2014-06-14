@@ -3,29 +3,26 @@
 
 
 {% block title %}
-    Confirmation d'inscription réussie
+    Compte déjà activé
 {% endblock %}
 
 
 
 {% block headline %}
-    Confirmation d'inscription réussie
+    Compte déjà activé
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
-    <li>Confirmation</li>
+    <li>Déjà activé</li>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Vous avez confirmé votre email sur le site.
-    </p>
-    <p>
-        Vous pouvez maintenant <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
+        Votre email a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver <a href="{% url "zds.member.views.forgot_password" %}">ici</a>.
     </p>
 {% endblock %}
