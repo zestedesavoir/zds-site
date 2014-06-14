@@ -75,7 +75,7 @@
                             {% endif %}
                                     <div class="topic-subtitle">
                                         {% if result.object.first_post %}
-                                            {% with text=result.object.first_post.text|emarkdown|htmltotext %}
+                                            {% with text=result.object.first_post.text|emarkdown|htmltotext|safe %}
                                                 {% highlight text with query %}
                                             {% endwith %}
                                         {% elif result.object.get_introduction_online %}
@@ -87,7 +87,7 @@
                                                 {% highlight text with query %}
                                             {% endwith %}
                                         {% else %}
-                                            {% with text=result.object.text|emarkdown|htmltotext %}
+                                            {% with text=result.object.text|emarkdown|htmltotext|safe %}
                                                 {% highlight text with query %}
                                             {% endwith %}
                                         {% endif %}
