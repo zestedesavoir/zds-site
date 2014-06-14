@@ -213,7 +213,7 @@ class MiniProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': u'Lien vers un avatar externe '
-                u'(laisser vide pour utiliser Gravatar).'
+                u'(laissez vide pour utiliser Gravatar).'
             }
         )
     )
@@ -290,7 +290,7 @@ class ProfileForm(MiniProfileForm):
             Field('avatar_url'),
             HTML(u"""
                 <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une galerie</a><br/>
-                   Naviguez vers l'image voulue et cliquer sur le bouton "Choisir comme avatar".<br/>
+                   Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
             """),
             Field('sign'),
