@@ -728,16 +728,16 @@ def active_account(request):
         u'Bonjour **{0}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
-        u'membre de la communauté de ZesteDeSavoir.'
+        u'membre de la communauté de Zeste de Savoir.'
         u'\n\n'
-        u'ZesteDeSavoir est une communauté dont le but est de diffuser des '
+        u'Zeste de Savoir est une communauté dont le but est de diffuser des '
         u'connaissances au plus grand nombre.'
         u'\n\n'
         u'Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans '
         u'plusieurs domaines et plus particulièrement autour de l\'informatique '
         u'et des sciences. Tu y retrouveras aussi des [articles]({2}) '
-        u'traitant de sujets d\'actualités ou non, qui, tout comme les tutoriels, s'
-        u'ont écrits par des [membres]({3}) de la communauté. '
+        u'traitant de sujets d\'actualité ou non, qui, tout comme les tutoriels, '
+        u'sont écrits par des [membres]({3}) de la communauté. '
         u'Pendant tes lectures et ton apprentissage, si jamais tu as des '
         u'questions à poser, tu retrouveras sur les [forums]({4}) des personnes '
         u'prêtes à te filer un coup de main et ainsi t\'éviter de passer '
@@ -745,10 +745,10 @@ def active_account(request):
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
         u'car la communauté de ZesteDeSavoir est attachée aux valeurs du libre '
-        u'partage et désire apporter le savoir à tout le monde quelques soit ses moyens.'
+        u'partage et désire apporter le savoir à tout le monde quelque soit ses moyens.'
         u'\n\n'
-        u'En espérant que tu te plaira ici, '
-        u'je te laisse maintenant faire le tour'
+        u'En espérant que tu te plairas ici, '
+        u'je te laisse maintenant faire le tour du site.'
         .format(usr.username,
                 settings.SITE_URL + reverse("zds.tutorial.views.index"),
                 settings.SITE_URL + reverse("zds.article.views.index"),
@@ -757,7 +757,7 @@ def active_account(request):
     send_mp(
         bot,
         [usr],
-        u"Bienvenue sur ZesteDeSavoir",
+        u"Bienvenue sur Zeste de Savoir",
         u"Le manuel du nouveau membre",
         msg,
         True,
