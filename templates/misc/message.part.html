@@ -173,102 +173,88 @@
 
         {% if message.is_visible != False %}
             <div class="message-bottom">
-                {% if user.is_authenticated %}
-                    {% with profile_user=user|profile %}
-                        {% if profile_user.show_sign %}
-                            {% with profile=message.author|profile %}
-                                {% if profile.sign %}
+                {% with profile=message.author|profile %}
+                    {% if profile.sign %}
+                        {% if user.is_authenticated %}
+                            {% with profile_user=user|profile %}
+                                {% if profile_user.show_sign %}
                                     <div class="signature">
                                         {{ profile.sign|emarkdown_inline }}
                                     </div>
                                 {% endif %}
                             {% endwith %}
-                        {% endif %}
-
-
-                        {% if upvote_link %}
-                            <div class="message-karma">
-                                {% if helpful_link %}
-                                    {% if message.author != user %}
-                                        {% if topic.author = user or perms_change %}
-                                            <a href="{{ helpful_link }}"
-                                               class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                            >
-                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
-                                            </a>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endif %}
-
-                                {% if user != message.author %}
-                                    <a href="{{ upvote_link }}"
-                                       title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
-                                       class="upvote
-                                              ico-after
-                                              {% if message.like > message.dislike %}more-voted{% endif %}
-                                              {% if message.like > 0 %}has-vote{% endif %}
-                                              {% if profile_user|liked:message.pk %}voted{% endif %}"
-                                    >
-                                        +{{ message.like }}
-                                    </a>
-                                    <a href="{{ downvote_link }}" 
-                                       title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
-                                       class="downvote
-                                              ico-after
-                                              {% if message.like < message.dislike %}more-voted{% endif %}
-                                              {% if message.dislike > 0 %}has-vote{% endif %}
-                                              {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                                    >
-                                        -{{ message.dislike }}
-                                    </a>
-                                {% else %}
-                                    <span
-                                       class="upvote
-                                              ico-after
-                                              {% if message.like > message.dislike %}more-voted{% endif %}
-                                              {% if message.like > 0 %}has-vote{% endif %}"
-                                        {% if message.like > 0 %}
-                                            title="{{ message.like }} personnes ont trouvé ce message utile"
-                                        {% endif %}
-                                    >
-                                        +{{ message.like }}
-                                    </span>
-                                    <span 
-                                       class="downvote
-                                              ico-after
-                                              {% if message.like < message.dislike %}more-voted{% endif %} 
-                                              {% if message.dislike > 0 %}has-vote{% endif %}"
-                                        {% if message.dislike > 0 %}
-                                            title="{{ message.like }} personnes n'ont pas trouvé ce message utile"
-                                        {% endif %}
-                                    >
-                                        -{{ message.dislike }}
-                                    </span>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-                {% else %}
-                    {% with profile=message.author|profile %}
-                        {% if profile.sign %}
+                        {% else %}
                             <div class="signature">
                                 {{ profile.sign|emarkdown_inline }}
                             </div>
                         {% endif %}
+                    {% endif %}
+                {% endwith %}
 
-                        <div class="message-karma">
+                {% if upvote_link %}
+                    <div class="message-karma">
+                        {% if user.is_authenticated and helpful_link %}
+                            {% if message.author != user or perms_change %}
+                                {% if topic.author = user or perms_change %}
+                                    <a href="{{ helpful_link }}"
+                                       class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                    >
+                                        Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+
+                        {% if user.is_authenticated and user != message.author %}
+                            <a href="{{ upvote_link }}"
+                               title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
+                               class="upvote
+                                      ico-after
+                                      {% if message.like > message.dislike %}more-voted{% endif %}
+                                      {% if message.like > 0 %}has-vote{% endif %}
+                                      {% if profile_user|liked:message.pk %}voted{% endif %}"
+                            >
+                                +{{ message.like }}
+                            </a>
+                            <a href="{{ downvote_link }}" 
+                               title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
+                               class="downvote
+                                      ico-after
+                                      {% if message.like < message.dislike %}more-voted{% endif %}
+                                      {% if message.dislike > 0 %}has-vote{% endif %}
+                                      {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                            >
+                                -{{ message.dislike }}
+                            </a>
+                        {% else %}
                             <span
-                               class="upvote {% if message.like > message.dislike %}more-voted{% endif %} ico-after"
+                               class="upvote
+                                      ico-after
+                                      {% if message.like > message.dislike %}more-voted{% endif %}
+                                      {% if message.like > 0 %}has-vote{% endif %}
+                                      {% if not user.is_authenticated and message.like > message.dislike %}voted{% endif %}"
+                                {% if message.like > 0 %}
+                                    title="{{ message.like }} personnes ont trouvé ce message utile"
+                                {% endif %}
                             >
                                 +{{ message.like }}
                             </span>
                             <span 
-                               class="downvote {% if message.like < message.dislike %}more-voted{% endif %} ico-after"
+                               class="downvote
+                                      ico-after
+                                      {% if message.like < message.dislike %}more-voted{% endif %} 
+                                      {% if message.dislike > 0 %}has-vote{% endif %}
+                                      {% if not user.is_authenticated and message.like < message.dislike %}voted{% endif %}"
+                                {% if message.dislike > 0 %}
+                                    title="{{ message.dislike }} personnes n'ont pas trouvé ce message utile"
+                                {% endif %}
                             >
                                 -{{ message.dislike }}
                             </span>
+                        {% endif %}
+                    {% if upvote_link %}
                         </div>
-                    {% endwith %}
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
