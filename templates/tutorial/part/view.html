@@ -38,7 +38,7 @@
     {% if part.intro %}
         {{ part.intro|emarkdown }}
     {% else %}
-        <p class="warning ico-after">
+        <p class="ico-after warning">
             Il n'y a pas d'introduction.
         </p>
     {% endif %}
@@ -53,6 +53,10 @@
                         </a>
                     </h3>
                 </li>
+            {% empty %}
+                <p class="ico-after warning">
+                    Il n'y a actuellement aucune partie dans ce tutoriel.
+                </p>
             {% endfor %}
         </ul>
     {% endif %}
@@ -60,7 +64,7 @@
     {% if part.conclu %}
         {{ part.conclu|emarkdown }}
     {% else %}
-        <p class="warning ico-after">
+        <p class="ico-after warning">
             Il n'y a pas de conclusion.
         </p>
     {% endif %}

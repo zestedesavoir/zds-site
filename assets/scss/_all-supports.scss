@@ -1617,7 +1617,7 @@
         }
         
         figure {
-            margin: 0;
+            margin: 30px 0;
             text-align: center;
         }
         figure > {
@@ -1638,6 +1638,10 @@
             pre,
             code {
                 display: block;
+            }
+            mathjax {
+                font-size: 22px;
+                font-size: 2.2rem;
             }
 
             figcaption {
@@ -1681,6 +1685,10 @@
             font-family: $font-monospace;
         }
 
+        pre {
+            margin: 0;
+        }
+
         kbd {
             $kbd-color: #F1F1F1;
             background-color: $kbd-color;
@@ -1691,9 +1699,12 @@
             color: darken($kbd-color, 70%);
         }
 
-        mathjax {
-            font-size: 22px;
-            font-size: 2.2rem;
+        .footnote {
+            opacity: .7;
+
+            ol {
+                padding-left: 25px;
+            }
         }
     }
 
@@ -1713,6 +1724,11 @@
         ul:not(.pagination),
         ol {
             font-family: $font-serif-active;
+        }
+        figcaption p {
+            font-family: $font-sans-serif-active;
+            font-size: 16px;
+            font-size: 1.6rem;
         }
     }
     .article-content,
