@@ -1797,6 +1797,10 @@ table {
             &:after {
                 border-right-color: $helpful;
             }
+
+            .is-author {
+                background: $helpful;
+            }
         }
         &.repeated {
             .message {
@@ -1804,6 +1808,10 @@ table {
 
                 &:after {
                     border-right-color: desaturate($helpful, 50%);
+                }
+
+                .is-author {
+                    background: desaturate($helpful, 50%);
                 }
             }
         }
@@ -1897,13 +1905,31 @@ table {
 
         .is-author {
             position: absolute;
-            top: -15px;
+            top: -16px;
             left: 10px;
             background: #FDFDFD;
             padding: 0 5px;
             font-size: 12px;
             line-height: 20px;
             color: #999;
+            border-top: 1px solid #D2D5D6;
+
+            &:before,
+            &:after {
+                content: " ";
+                display: block;
+                position: absolute;
+                top: 0;
+                height: 15px;
+                width: 1px;
+                background: #D2D5D6;
+            }
+            &:before {
+                left: 0;
+            }
+            &:after {
+                right: 0;
+            }
         }
 
         .message-metadata {
@@ -2045,9 +2071,12 @@ table {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
 
-                    &:not(.has-vote) {
-                        text-indent: -9999px;
-                        width: 0;
+                    &.upvote,
+                    &.downvote {
+                        &:not(.has-vote) {
+                            text-indent: -9999px;
+                            width: 0;
+                        }
                     }
                 }
                 span:not(.has-vote) {
@@ -2063,6 +2092,7 @@ table {
                     &:hover,
                     &:focus {
                         color: #555;
+                        border-bottom-color: $upvote-green;
                     }
                     &.active {
                         color: #48a200;
