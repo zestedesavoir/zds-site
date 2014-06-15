@@ -1,6 +1,6 @@
 # tl;dr — Installation rapide
 
-Installez [NodeJS](http://nodejs.org), [Ruby](https://www.ruby-lang.org/), et [Compass](http://compass-style.org), puis, dans le dossier du projet:
+Installez [node.js](http://nodejs.org), puis, dans le dossier du projet :
 
 ````shell
 [sudo] npm install -g bower gulp # Installe gulp et bower, si ce n'est pas déjà fait
@@ -12,9 +12,9 @@ gulp build # Lance gulp
 
 ## Prérequis
 
-### [NodeJS](http://nodejs.org)
+### [Node.js](http://nodejs.org)
 
-Pour vérifier si vous avez node d'installé:
+Pour vérifier si vous avez node d'installé :
 
 ````shell
 $ node -v
@@ -27,11 +27,11 @@ Vous devez avoir une version de node > 0.10.x, et de npm > 1.x.x
 
 #### Windows
 
-NodeJS propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node en ouvrant le fichier téléchargé.
 
 #### Mac OS X
 
-NodeJS propose un installer (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node en ouvrant le fichier téléchargé.
+Node.js propose un installer (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node en ouvrant le fichier téléchargé.
 
 #### Linux
 
@@ -57,46 +57,15 @@ $ sudo apt-get install node
 
 Les instructions détaillées pour toutes les distributions se trouvent dans la [doc officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
 
-### Compass
-
-Compass est utilisé pour compiler les fichiers SCSS. Il nécessite l'installation de Ruby
-
-#### Ruby et RubyGems
-
-##### Windows
-
-Sur Windows, vous pouvez utiliser [RubyInstaller](http://rubyinstaller.org/) pour installer Ruby et RubyGems
-
-##### Mac OS X
-
-Ruby est installé par défaut sur Mac OS X > 10.6
-
-##### Linux
-
-Ruby est disponible dans la plupart des répos officiels (via apt, yum, portage, ou pacman)
-
------
-
-Plus d'information sur l'installation de Ruby dans la [doc officielle (en anglais)](https://www.ruby-lang.org/en/installation/)
-
-#### Installer Compass
-
-Ouvrez une invite de commande (cmd.exe/PowerShell sous Windows, Terminal.app sous OS X), et tapez:
-
-````shell
-gem update --system
-gem install compass
-````
-
 ### Gulp et Bower
 
-L'installation de Gulp et Bower se fait via NPM. Selon votre installation, elle devra se faire en administrateur ou non.
+L'installation de Gulp et Bower se fait via `npm`. Selon votre installation, elle devra se faire en administrateur ou non.
 
 ````shell
 $ [sudo] npm install -g gulp bower
 ````
 
-### Installer les dépendances NPM du projet
+### Installer les dépendances npm du projet
 
 Dans le répertoire du projet, lancez simplement `npm install`. Cela installera les dépendances des tâches Gulp, et les dépendances front via Bower (jQuery, Modernizr, ...)
 
@@ -105,38 +74,39 @@ Dans le répertoire du projet, lancez simplement `npm install`. Cela installera 
 ## Présentation
 
 Gulp est un outil permettant d'automatiser les tâches liées au front.
-Dans notre cas, il permet de:
+Dans notre cas, il permet de :
 
- - Vérifier la syntaxe Javascript (JSHint)
- - Rassembler en un fichier et minimifier les fichiers Javascript
- - Compiler les fichiers SCSS, pour les transformer CSS (via compass)
- - Compresser les images
+- Vérifier la syntaxe Javascript (JSHint)
+- Rassembler en un fichier et minimifier les fichiers Javascript
+- Compiler les fichiers SCSS, pour les transformer CSS (via compass)
+- Compresser les images
 
-Il y a un dossier `assets/` à la racine, qui ressemble à ça:
+Il y a un dossier `assets/` à la racine, qui ressemble à ça :
 
 ````shell
 assets/
 ├── bower_components
 │   ├── jquery
 │   └── modernizr
+│   ...
 ├── images
 │   ├── favicon.ico
 │   ├── favicon.png
 │   ├── logo@2x.png
-│   ... ...
+│   ...
 ├── js
 │   ├── accessibility-links.js
 │   ├── data-click.js
-│   ... ...
+│   ...
 ├── scss
 │   ├── main.scss
 │   ├── _mobile.scss
 │   ├── _mobile-tablet.scss
-│   ... ...
+│   ...
 └── smileys
     ├── ange.png
     ├── angry.gif
-    ... ...
+    ...
 ````
 
 Et le build gulp donne un dossier `dist/`, avec des fichiers optimisés pour la production, comme pour le développement
@@ -150,7 +120,7 @@ dist/
 │   ├── favicon.ico
 │   ├── favicon.png
 │   ├── logo@2x.png
-│   ... ...
+│   ...
 ├── js
 │   ├── all.min.js # Vendors + custom, minimifié 
 │   ├── main.js # Tout le JS Custom
@@ -163,7 +133,7 @@ dist/
 └── smileys
     ├── ange.png
     ├── angry.gif
-    ... ...
+    ...
 ````
 
 ## Les différentes tâches

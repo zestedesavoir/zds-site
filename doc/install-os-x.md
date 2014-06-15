@@ -1,4 +1,4 @@
-#Sur OS X
+# Sur OS X
 
 Pour installer une version locale de ZdS sur OS X, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -9,34 +9,48 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 * Installer python 2.7
 * Installer pip
 * Installer git
-* Installer Ruby (installé par défaut sur Mac OS X > 10.6) et Compass (voir la [doc](gulp.md#installer-compass))
 
-Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds :
+Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
+
+## Installation de virtualenv
+
 ```console
-# Installation de virtualenv.
 pip install virtualenv
 pip install virtualenvwrapper
 mkdir ~/.virtualenvs
 echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
 echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
+```
 
-# Création de votre environnement.
+## Création de votre environnement
+
+```console
 mkvirtualenv zdsenv
+```
 
-# Récupération de la librairie lxml pour python 2.7 via MacPorts.
+## Récupération de la librairie lxml pour python 2.7 via MacPorts
+
+```console
 sudo port install py27-lxml
+```
 
-# Installation de NodeJS et de NPM via MacPorts
-sudo port install nodejs npm
+## Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml
 
-# Installation de Bower et Gulp
-sudo npm install -g bower gulp
-
-# Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml.
+```console
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
+```
 
-# Installation de toutes les dépendances.
+## Front ou Back ?
+
+Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources ici : http://zestedesavoir.com/static/pack.zip
+Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
+
+Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
+
+## Installation de toutes les dépendances
+
+```console
 pip install --upgrade -r requirements.txt
 npm install
 gulp build
@@ -44,6 +58,8 @@ gulp build
 
 Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
 Pour sortir de votre environnement : `deactive`
+
+## Aller plus loin
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 

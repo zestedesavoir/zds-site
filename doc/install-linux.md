@@ -1,4 +1,4 @@
-#Sur Linux
+# Sur Linux
 
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -19,12 +19,19 @@ Assurez vous que les dépendances suivantes soient résolues :
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : `apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev`
-- NodeJS, Ruby, Compass, Bower et Gulp (voir [la documentation](gulp.md))
+
+## Front ou Back ?
+
+Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources ici : http://zestedesavoir.com/static/pack.zip
+Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
+
+Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
+
+## Lancer ZdS
 
 Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
 
 ```console
-sudo npm install -g bower gulp
 pip install --upgrade -r requirements.txt
 npm install
 gulp build
@@ -32,6 +39,8 @@ python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
 ```
+
+## Aller plus loin
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX, Pandoc et les polices Microsoft. Ce qui revient à lancer les commmandes suivantes :
 
