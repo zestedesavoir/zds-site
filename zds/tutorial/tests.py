@@ -14,7 +14,7 @@ from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
-from zds.tutorial.models import Note, Tutorial, Validation
+from zds.tutorial.models import Note, Tutorial, Validation, Extract
 from zds.utils.models import Alert
 
 
@@ -782,6 +782,54 @@ class MiniTutorialTests(TestCase):
 
         mail.outbox = []
 
+    def test_fix_878_extract_named_introduction(self):
+        """test the use of an extract named introduction"""
+        
+        self.client.login(username=self.user_author,
+            password='hostel77')
+        
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+            
+            {
+            'title' : "Introduction",
+            'text' : u"Le contenu de l'extrait"
+            })
+        self.assertEqual(result.status_code, 302)
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(Extract.objects.all().count(),1)
+        intro_path = os.path.join(tuto.get_path(),"introduction.md")
+        extract_path =  Extract.objects.get(pk=1).get_path()
+        self.assertNotEqual(intro_path,extract_path)
+        self.assertTrue(os.path.isfile(intro_path))
+        self.assertTrue(os.path.isfile(extract_path))
+
+    def test_fix_878_extract_named_conclusion(self):
+        """test the use of an extract named introduction"""
+        
+        self.client.login(username=self.user_author,
+            password='hostel77')
+        
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+            
+            {
+            'title' : "Conclusion",
+            'text' : u"Le contenu de l'extrait"
+            })
+        self.assertEqual(result.status_code, 302)
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(Extract.objects.all().count(),1)
+        ccl_path = os.path.join(tuto.get_path(),"conclusion.md")
+        extract_path =  Extract.objects.get(pk=1).get_path()
+        self.assertNotEqual(ccl_path,extract_path)
+        self.assertTrue(os.path.isfile(ccl_path))
+        self.assertTrue(os.path.isfile(extract_path))
+        
     def test_add_note(self):
         """To test add note for tutorial."""
         user1 = ProfileFactory().user
