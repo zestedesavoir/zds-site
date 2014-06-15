@@ -15,8 +15,8 @@
                 $(this).hide();
         });
 
-        $("h4 a", $that).click(function(e){
-            $("+ ul", $(this).parent()).slideToggle(100);
+        $("h4", $that).click(function(e){
+            $("+ ul", $(this)).slideToggle(100);
 
             e.preventDefault();
             e.stopPropagation();
