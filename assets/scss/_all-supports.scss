@@ -1639,10 +1639,6 @@
             code {
                 display: block;
             }
-            mathjax {
-                font-size: 22px;
-                font-size: 2.2rem;
-            }
 
             figcaption {
                 display: block;
@@ -1697,6 +1693,11 @@
             border-bottom: solid 2px desaturate(darken($kbd-color, 20%), 10%);
             text-shadow: 0 1px 0 #FFF;
             color: darken($kbd-color, 70%);
+        }
+
+        mathjax {
+            font-size: 16px;
+            font-size: 1.6rem;
         }
 
         .footnote {

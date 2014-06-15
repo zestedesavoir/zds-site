@@ -8,7 +8,7 @@
         {% if chapter.intro %}
             {{ chapter.intro|emarkdown }}
         {% else %}
-            <p class="alert-box warning">
+            <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
         {% endif %}
@@ -25,7 +25,7 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p class="alert-box warning">
+        <p class="ico-after warning">
             Il n'y a aucun extrait.
         </p>
     {% endif %}
@@ -113,7 +113,7 @@
         {% if extract.txt %}
             {{ extract.txt|emarkdown }}
         {% else %}
-            <p class="alert-box warning">
+            <p class="ico-after warning">
                 Cet extrait est vide.
             </p>
         {% endif %}
@@ -125,7 +125,7 @@
         {% if chapter.conclu %}
             {{ chapter.conclu|emarkdown }}
         {% else %}
-            <p class="alert-box warning">
+            <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>
         {% endif %}
