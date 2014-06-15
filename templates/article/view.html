@@ -124,7 +124,7 @@
     <h3 class="reactions-title">Réactions</h3>
 
 
-    {% include "misc/pagination.part.html" with position="top" topic=article %}
+    {% include "misc/pagination.part.html" with position="top" topic=article is_online=True %}
 
 
     {% for message in reactions %}
@@ -163,7 +163,7 @@
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=article %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True %}
 
 
     

@@ -78,7 +78,7 @@
     <h2 class="reactions-title">Commentaires</h2>
 
 
-    {% include "misc/pagination.part.html" with position="top" topic=tutorial %}
+    {% include "misc/pagination.part.html" with position="top" topic=tutorial is_online=True %}
 
 
     {% for message in notes %}
@@ -113,7 +113,7 @@
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial is_online=True %}
 
 
     
