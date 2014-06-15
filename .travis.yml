@@ -3,6 +3,12 @@ git:
 language: python
 python:
   - "2.7"
+notifications:
+  irc:
+    channels:
+      - "irc.smoothirc.net#zds-dev"
+    skip_join: true
+
 cache:
   - apt
 install:
