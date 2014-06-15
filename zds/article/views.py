@@ -156,6 +156,7 @@ def view_online(request, article_pk, article_slug):
     article_version['thumbnail'] = article.thumbnail
     article_version['is_locked'] = article.is_locked
     article_version['get_absolute_url'] = article.get_absolute_url()
+    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
 
     # If the user is authenticated
     if request.user.is_authenticated():
