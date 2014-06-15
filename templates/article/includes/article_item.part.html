@@ -18,7 +18,7 @@
         <div class="tutorial-infos">
             <h3>{{ article.title }}</h3>
             <p class="article-metadata">
-                Créé {{ article.pubdate|format_date }} -
+                Publié le {{ article.pubdate|format_date }} -
                 <a href="{{ article.get_last_reaction.get_absolute_url }}">
                     {% if article.get_reaction_count == 0 %}
                         Aucune réaction
