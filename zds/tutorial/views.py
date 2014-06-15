@@ -1848,10 +1848,9 @@ def edit_extract(request):
                                                 extract.chapter.slug)
 
                 # Use path retrieve before and use it to create the new slug.
-
-                new_slug = os.path.join(chapter_part, slugify(data["title"])
-                                        + ".md")
                 extract.save()
+                new_slug = extract.get_path()
+                
                 maj_repo_extract(
                     request,
                     old_slug_path=old_slug,
@@ -1908,7 +1907,7 @@ def modify_extract(request):
 
         # Use path retrieve before and use it to create the new slug.
 
-        old_slug = os.path.join(chapter_path, slugify(extract.title) + ".md")
+        old_slug = extract.get_path()
         maj_repo_extract(request, old_slug_path=old_slug, extract=extract,
                          action="del")
         return redirect(chapter.get_absolute_url())
