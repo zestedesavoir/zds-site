@@ -82,7 +82,8 @@
         width: 46px; /* Can handle up to 9999 lines of code without overflowing */
     }
     
-    .codehilite, .linenos {
+    .codehilite,
+    .linenos {
         padding-top: 15px;
         padding-bottom: 15px;
     }
