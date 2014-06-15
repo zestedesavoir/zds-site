@@ -712,6 +712,11 @@ def active_account(request):
         return redirect(reverse("zds.pages.views.home"))
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
+    
+    # User can't confirm his request if he is already activated.
+
+    if usr.is_active:
+        return render_template("member/register/token_already_used.html")
 
     # User can't confirm his request if it is too late.
 
@@ -748,7 +753,9 @@ def active_account(request):
         u'partage et désire apporter le savoir à tout le monde quelques soit ses moyens.'
         u'\n\n'
         u'En espérant que tu te plaira ici, '
-        u'je te laisse maintenant faire le tour'
+        u'je te laisse maintenant faire un petit tour.'
+        u'\n\n'
+        u'Clem\''
         .format(usr.username,
                 settings.SITE_URL + reverse("zds.tutorial.views.index"),
                 settings.SITE_URL + reverse("zds.article.views.index"),
