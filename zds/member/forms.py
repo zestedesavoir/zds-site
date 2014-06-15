@@ -88,7 +88,7 @@ class LoginForm(forms.Form):
 
 class RegisterForm(forms.Form):
     email = forms.EmailField(
-        label='Adresse e-mail',
+        label='Adresse courriel',
         max_length=User._meta.get_field('email').max_length,
         required=True,
     )
@@ -171,13 +171,13 @@ class RegisterForm(forms.Form):
                                    'forbidden_email_providers.txt'), 'r') as fh:
                 for provider in fh:
                     if provider.strip() in email:
-                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                        msg = u'Utilisez un autre fournisseur d\'adresses courriel.'
                         self._errors['email'] = self.error_class([msg])
                         break
 
         # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre adresse email est déjà utilisée'
+            msg = u'Votre adresse courriel est déjà utilisée'
             self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
@@ -213,7 +213,7 @@ class MiniProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': u'Lien vers un avatar externe '
-                u'(laisser vide pour utiliser Gravatar).'
+                u'(laissez vide pour utiliser Gravatar).'
             }
         )
     )
@@ -253,10 +253,10 @@ class ProfileForm(MiniProfileForm):
         label='',
         required=False,
         choices=(
-            ('show_email', "Afficher mon adresse e-mail publiquement"),
+            ('show_email', "Afficher mon adresse courriel publiquement"),
             ('show_sign', "Afficher les signatures"),
             ('hover_or_click', "Cochez pour dérouler les menus au survol"),
-            ('email_for_answer', u'Recevez un email lorsque vous '
+            ('email_for_answer', u'Recevez un courriel lorsque vous '
             u'recevez une réponse à un message privé'),
         ),
         widget=forms.CheckboxSelectMultiple,
@@ -290,7 +290,7 @@ class ProfileForm(MiniProfileForm):
             Field('avatar_url'),
             HTML(u"""
                 <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une galerie</a><br/>
-                   Naviguez vers l'image voulue et cliquer sur le bouton "Choisir comme avatar".<br/>
+                   Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
             """),
             Field('sign'),
@@ -317,7 +317,7 @@ class ChangeUserForm(forms.Form):
     )
 
     email_new = forms.EmailField(
-        label='Nouvel e-mail',
+        label='Nouvelle adresse courriel',
         max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
@@ -359,7 +359,7 @@ class ChangeUserForm(forms.Form):
             if email_new.strip() != '':
                 if User.objects.filter(email=email_new).count() >= 1:
                     self._errors['email_new'] = self.error_class(
-                        [u'Votre email est déjà utilisée'])
+                        [u'Votre adresse courriel est déjà utilisée'])
             # Chech if email provider is authorized
             with open(os.path.join(SITE_ROOT,
                                    'forbidden_email_providers.txt'), 'r') as fh:

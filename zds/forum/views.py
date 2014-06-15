@@ -476,8 +476,8 @@ def answer(request):
                 g_topic.last_message = post
                 g_topic.save()
                 #Send mail
-                subject = "ZDS - Notification: " + g_topic.title
-                from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
+                subject = "ZDS - Notification : " + g_topic.title
+                from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
                 followers = g_topic.get_followers_by_email()
                 for follower in followers:
                     receiver = follower.user
