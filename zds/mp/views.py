@@ -288,8 +288,8 @@ def answer(request):
                 g_topic.save()
 
                 # send email
-                subject = "ZDS - MP: " + g_topic.title
-                from_email = "ZesteDeSavoir <{0}>".format(settings.MAIL_NOREPLY)
+                subject = "ZDS - MP : " + g_topic.title
+                from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)
