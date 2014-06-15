@@ -57,7 +57,8 @@ class Tutorial(models.Model):
 
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
-                              blank=True, null=True)
+                              blank=True, null=True,
+                              on_delete=models.SET_NULL)
 
     gallery = models.ForeignKey(Gallery,
                                 verbose_name='Galerie d\'images',
