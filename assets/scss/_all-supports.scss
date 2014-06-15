@@ -639,9 +639,10 @@
         &:before {
             content: attr(data-num);
             position: absolute;
-            margin-left: -55px;
+            left: 5%;
             text-align: right;
             width: 50px;
+            margin-left: -35px;
         }
     }
 
@@ -2466,11 +2467,6 @@ form.topic-message {
     border-top: 3px solid $orange;
     font-size: 14px;
     font-size: 1.4rem;
-
-    .wrapper {
-        max-width: 960px;
-        margin: 0 auto;
-    }
 
     p {
         float: left;
