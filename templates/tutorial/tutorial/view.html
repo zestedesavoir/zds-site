@@ -68,6 +68,7 @@
                     <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
+                    {% include "tutorial/includes/part.part.html" %}
                 </h2>
             {% empty %}
                 <p class="ico-after warning">

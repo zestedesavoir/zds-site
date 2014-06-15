@@ -56,7 +56,7 @@
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>
-                {% include "tutorial/includes/part_online.part.html" %}
+                {% include "tutorial/includes/part.part.html" with online=True %}
             {% endfor %}
         {% else %}
             <p>
