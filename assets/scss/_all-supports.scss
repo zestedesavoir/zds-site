@@ -1753,6 +1753,10 @@ table {
         &:first-child {
             border-left: 1px solid #DDD;
         }
+
+        p {
+            margin: 0;
+        }
     }
 
     tbody tr {
