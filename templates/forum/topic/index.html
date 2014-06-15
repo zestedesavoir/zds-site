@@ -111,7 +111,7 @@
 
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&solved=1" 
+            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&solved=1" 
                class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}">
                 {% if topic.is_solved %}
                     Marquer comme non résolu
@@ -123,7 +123,7 @@
     {% endif %}
 
     <li>
-        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&follow=1"
+        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&follow=1"
            class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}">
             {% if topic.is_followed %}
                 Ne plus suivre ce sujet
@@ -133,8 +133,8 @@
         </a>
     </li>
     <li>
-        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&email=1"
-           class="ico-after cite {% if topic.is_followed %}blue{% endif %}">
+        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&email=1"
+           class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}">
             {% if topic.is_email_followed %}
                 Ne plus être notifié par courriel
             {% else %}

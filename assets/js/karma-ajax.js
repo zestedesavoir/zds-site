@@ -18,14 +18,14 @@
             dataType: "json",
             success: function(data){
                 if(data.upvotes > 0){
-                    $karma.children(".upvote").text("+" + data.upvotes);
+                    $karma.children(".upvote").addClass("has-vote").text("+" + data.upvotes);
                 } else {
-                    $karma.children(".upvote").empty();
+                    $karma.children(".upvote").removeClass("has-vote").empty();
                 }
                 if(data.downvotes > 0){
-                    $karma.children(".downvote").text("-" + data.downvotes);
+                    $karma.children(".downvote").addClass("has-vote").text("-" + data.downvotes);
                 } else {
-                    $karma.children(".downvote").empty();
+                    $karma.children(".downvote").removeClass("has-vote").empty();
                 }
                 $thumb.toggleClass("voted");
                 $otherThumb.removeClass("voted");
