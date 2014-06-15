@@ -79,15 +79,14 @@
 
 
 {% block sidebar %}
-    <aside class="sidebar accordeon mobile-menu-bloc mobile-menu-hide"
+    <aside class="sidebar accordeon mobile-menu-hide"
            data-title="Catégories de tutoriels"
     >
         <h3>Catégories <span class="wide">de tutoriels</span></h3>
 
         {% with categories='.'|top_categories_tuto %}
             {% for category in categories %}
-                {# FIXME: il manque un lien ici #}
-                <h4><a href="#" class="mobile-menu-link">{{ category.title }}</a></h4>
+                <h4>{{ category.title }}</h4>
                 <ul>
                     {% for catofsubcat in category.get_subcategories %}
                         <li>

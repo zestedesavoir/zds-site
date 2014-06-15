@@ -629,6 +629,9 @@
             color: #424242;
         }
     }
+    &.accordeon h4 {
+        cursor: pointer;
+    }
     h4[data-num] {
         position: relative;
         padding-left: calc(5% + 25px);
