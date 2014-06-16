@@ -36,7 +36,7 @@
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
             <div class="alert-box warning">
-                Attention, cette version du tutoriel est en BETA !
+                Attention, cette version du tutoriel est en <strong>BÊTA</strong> !
             </div>
         </div>
     {% endif %}
@@ -65,11 +65,11 @@
 
             {% for part in parts %}
                 <h2>
-                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
+                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{% if version %}?version={{version}}{% endif %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
-                    {% include "tutorial/includes/part.part.html" %}
                 </h2>
+                {% include "tutorial/includes/part.part.html" %}
             {% empty %}
                 <p class="ico-after warning">
                     Il n'y a actuellement aucune partie dans ce tutoriel.
@@ -93,15 +93,20 @@
 
 
 {% block sidebar_new %}
-    {# TODO : passer tout ça en POST, CSRF toussa #}
     {% if not tutorial.is_mini %}
-        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">Ajouter une partie</a>
+        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
+            Ajouter une partie
+        </a>
     {% else %}
-        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">Ajouter un extrait</a>
+        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
+            Ajouter un extrait
+        </a>
     {% endif %}
 
     {% if tutorial.sha_draft = version %}
-        <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">Éditer</a>
+        <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">
+            Éditer
+        </a>
     {% endif %}
 {% endblock %}
 
@@ -116,13 +121,15 @@
             {% csrf_token %}
             <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
             <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
-            <button type="submit" class="button" name="add_author">
+            <button type="submit" name="add_author">
                 Confirmer
             </button>
         </form>
     </li>
     <li>
-        <a href="#manage-authors" class="open-modal ico-after gear blue">Gérer les auteurs</a>
+        <a href="#manage-authors" class="open-modal ico-after gear blue">
+            Gérer les auteurs
+        </a>
         <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
             <table class="fullwidth">
                 <thead>
@@ -153,16 +160,50 @@
     </li>
 
     {% if tutorial.sha_public %}
-        <li><a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">Voir <span class="wide">la version</span> en ligne</a></li>
+        <li>
+            <a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">
+                Voir <span class="wide">la version</span> en ligne
+            </a>
+        </li>
     {% endif %}
-    {# TODO : passer tout ça en POST, CSRF toussa #}
+    
     {% if not tutorial.in_beta %}
-        <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after beta blue">Activer la bêta</a></li>
+        <li>
+            <a href="#activ-beta" class="open-modal ico-after beta blue">
+                Activer la bêta
+            </a>
+            {# TODO_CSRF : passer en post #}
+            <form action="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="activ-beta">
+                <p>
+                    Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                </p>
+                <button type="submit">
+                    Confirmer
+                </button>
+            </form>
+        </li>
     {% else %}
-        <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" class="ico-after cross blue">Désactiver la bêta</a></li>
+        <li>
+            <a href="#desactiv-beta" class="open-modal ico-after cross blue">
+                Désactiver la bêta
+            </a>
+            {# TODO_CSRF : passer en post #}
+            <form action="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="desactiv-beta">
+                <p>
+                    Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                </p>
+                <button type="submit">
+                    Confirmer
+                </button>
+            </form>
+        </li>
     {% endif %}
 
-    <li><a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">Historique des versions</a>
+    <li>
+        <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">
+            Historique des versions
+        </a>
+    </li>
 
     {% if not tutorial.in_validation %}
         <li>
@@ -175,7 +216,7 @@
         </li>
     {% else %}
         <li class="inactive">
-            <span>En attente de validation</span>
+            <span class="ico-after tick disabled">En attente de validation</span>
         </li>
     {% endif %}
 {% endblock %}
@@ -187,31 +228,46 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>Validation</h3>
             <ul>
-                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
+                <li>
+                    <a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">
+                        Historique validation
+                    </a>
+                </li>
 
                 {% if tutorial.on_line %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">Dépublier</a>
-                        <div class="modal modal-small" id="unpublish">
+                        {# TODO_CSRF : passer en post #}
+                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="get" class="modal modal-small" id="unpublish">
                             <p>
-                                Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>"
+                                Êtes-vous certains de vouloir <strong>dépublier</strong> le tutoriel "<em>{{ tutorial.title }}</em>"
                             </p>
-                            <a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="btn btn-submit">Confirmer</a>
-                        </div>
+                            <button type="submit">
+                                Confirmer
+                            </button>
+                        </form>
                     </li>
                 {% endif %}
 
                 {% if tutorial.in_validation %}
                     {% if validation.is_pending %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="ico-after lock blue">Réserver</a>
+                            {# TODO_CSRF : passer en post #}
+                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                                <button type="submit" class="ico-after lock blue">
+                                    Réserver
+                                </button>
+                            </form>
                         </li>
                     {% elif validation.is_pending_valid %}
                         {% if validation.validator = user %}
                             <li>
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
-                                    Se retirer
-                                </a>
+                                {# TODO_CSRF : passer en post #}
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                                    <button type="submit" class="ico-after lock blue">
+                                        Se retirer
+                                    </button>
+                                </form>
                             </li>
                             <li>
                                 <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
@@ -227,9 +283,17 @@
                             </li>
                         {% else %}
                             <li>
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}" class="open-modal ico-after lock blue">
-                                    Réservé par {{ validation.validator.username }}, le retirer
+                                <a href="#unreservation" class="open-modal ico-after lock blue">
+                                    Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
                                 </a>
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" class="modal modal-small" id="unreservation">
+                                    <p>
+                                        La validation de ce tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. Êtes-vous certains de vouloir le retirer ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
                             </li>
                         {% endif %}
                     {% endif %}
@@ -255,7 +319,7 @@
                 </li>
             {% else %}
                 <li class="inactive">
-                    <span>Impossible car publié</span>
+                    <span class="ico-after cross disabled">Impossible car publié</span>
                 </li>
             {% endif %}
         </ul>

@@ -663,7 +663,8 @@
             transition: background $default-transition-duration ease;
 
             &:not(.inactive):hover,
-            a:focus {
+            a:focus,
+            button:focus {
                 background: $sidebar-hover;
                 outline: none;
 
@@ -717,6 +718,9 @@
                         top: 7px;
                         left: 0;
                         opacity: .7;
+                    }
+                    &.disabled:after {
+                        opacity: .4;
                     }
                     &:hover,
                     &:focus {
@@ -2536,7 +2540,6 @@ form.topic-message {
         color: #FFF;
         font-size: 1.6rem;
         font-size: 16px;
-        text-transform: uppercase;
         text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
 
         &.ico-after {
