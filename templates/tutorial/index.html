@@ -17,7 +17,7 @@
 
 
 {% block breadcrumb %}
-    <li>Liste des tutoriels</a>
+    <li>Liste des tutoriels</li>
 {% endblock %}
 
 
@@ -50,6 +50,10 @@
     <aside class="sidebar accordeon mobile-menu-bloc"
            data-title="Catégories de tutoriels"
     >
+        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+            Nouveau tutoriel
+        </a>
+
         <h3>Catégories <span class="wide">de tutoriels</span></h3>
 
         {% with categories='.'|top_categories_tuto %}
