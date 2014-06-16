@@ -41,16 +41,22 @@
                 {% for validation in validations %}
                     <tr>
                         <td>
-                            <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
+                            <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >
+                                {{ validation.tutorial.title }}
+                            </a>
                         </td>
                         <td>
                             {% for subcategory in validation.tutorial.subcategory.all %}
-                                <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
+                                <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                    {{ subcategory.title }}
+                                </a>
                             {% endfor %}
                         </td>
                         <td>
                             {% for author in validation.tutorial.authors.all %}
-                                <a href="{% url "zds.member.views.details" user.username %}">{{ author.username }}</a>
+                                <a href="{% url "zds.member.views.details" user.username %}">
+                                    {{ author.username }}
+                                </a>
                             {% endfor %}
                         </td>
                         <td>
@@ -58,19 +64,35 @@
                         </td>
                         <td>
                             {% if validation.validator %}
-                                <a href="{% url "zds.member.views.details" validation.validator.username %}">{{ validation.validator.username }}</a>
+                                <a href="{% url "zds.member.views.details" validation.validator.username %}">
+                                    {{ validation.validator.username }}
+                                </a>
                             {% endif %}
                         </td>
                         <td>
                             {% if validation.date_reserve %}
-                                <span>{{ validation.date_reserve|format_date|capfirst }}</span>
+                                <span>
+                                    {{ validation.date_reserve|format_date|capfirst }}
+                                </span>
                             {% endif %}
                         </td>
                         <td>
                             {% if validation.is_pending %}
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
+                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">
+                                    Réserver
+                                </a>
                             {% elif validation.is_pending_valid %}
-                                <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Annuler la réservation</a>
+                                <a href="#unreservation" class="open-modal">
+                                    Annuler la réservation
+                                </a>
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" class="modal modal-small" id="unreservation">
+                                    <p>
+                                        Le tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}, êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
                             {% elif validation.is_accept %}
                                 <span>Accepté</span>
                             {% elif validation.is_reject %}

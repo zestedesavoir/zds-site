@@ -245,7 +245,7 @@ def history_validation(request, tutorial_pk):
                                                 tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition"
                       ).all()
-    return render_template("tutorial/tutorial/history.html",
+    return render_template("tutorial/validation/history.html",
                            {"validations": validations, "tutorial": tutorial})
 
 
