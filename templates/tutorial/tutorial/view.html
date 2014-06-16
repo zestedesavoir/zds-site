@@ -49,7 +49,7 @@
         {% if tuto_version.introduction %}
             {{ tuto_version.introduction|emarkdown }}
         {% else %}
-            <p class="warning ico-after">
+            <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
         {% endif %}
@@ -62,19 +62,19 @@
             {# Large tutorial #}
 
             <hr />
-            {% if parts %}
-                {% for part in parts %}
-                    <h2>
-                        <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
-                            Partie {{ part.position_in_tutorial }} : {{ part.title }}
-                        </a>
-                    </h2>
-                {% endfor %}
-            {% else %}
-                <p class="warning ico-after">
+
+            {% for part in parts %}
+                <h2>
+                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{%if version %}?version={{version}}{% endif %}">
+                        Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                    </a>
+                </h2>
+            {% empty %}
+                <p class="ico-after warning">
                     Il n'y a actuellement aucune partie dans ce tutoriel.
                 </p>
-            {% endif %}
+            {% endfor %}
+            
             <hr />
 
         {% endif %}
@@ -82,7 +82,7 @@
         {% if tuto_version.conclusion %}
             {{ tuto_version.conclusion|emarkdown }}
         {% else %}
-            <p class="warning ico-after">
+            <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>
         {% endif %}

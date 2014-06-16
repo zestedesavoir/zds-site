@@ -89,7 +89,7 @@
     textarea {
         width: calc(98% - 2px);
         padding: 10px 1%;
-        font-family: Courier, "Lucida Sans Typewriter", "Lucida Typewriter", "DejaVu Sans Mono", monospace;
+        font-family: $font-monospace;
     }
 
     input,
@@ -112,26 +112,6 @@
         height: 40px;
         line-height: 40px;
         cursor: pointer;
-    }
-
-    input[type=radio],
-    input[type=checkbox] {
-        float: left;
-        margin-right: 5px;
-        height: 15px;
-        width: 15px;
-        border: 1px solid #BBB;
-        background: #FCFCFC;
-        transition: none;
-    }
-    input[type=radio] {
-        border-radius: 50%;
-    }
-    input[type=radio]:checked {
-        @include sprite-pos($radio);
-    }
-    input[type=checkbox]:checked {
-        @include sprite-pos($check);
     }
 
     [type=submit],
@@ -184,15 +164,40 @@
         display: inline-block;
         margin-top: 8px;
     }
+}
 
+.wf-active {
+    .content-container,
+    #modals {
+        textarea {
+            font-family: $font-monospace-active;
+        }
+    }
+}
 
-
- 
-
+.main-container {
+    input[type=radio],
+    input[type=checkbox] {
+        float: left;
+        margin-right: 5px;
+        height: 15px;
+        width: 15px;
+        border: 1px solid #BBB;
+        background: #FCFCFC;
+        transition: none;
+    }
+    input[type=radio] {
+        border-radius: 50%;
+    }
+    input[type=radio]:checked {
+        @include sprite-pos($radio);
+    }
+    input[type=checkbox]:checked {
+        @include sprite-pos($check);
+    }
 
 
     // TEMP STYLES TO PATCH TEMP TEMPLATE PACK MIX
-
     .checkbox,
     .radio {
         padding: 10px 0;

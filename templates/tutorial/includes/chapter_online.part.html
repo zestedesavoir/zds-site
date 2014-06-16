@@ -3,10 +3,22 @@
 
 
 {% with extracts=chapter.extracts %}
-    {% if chapter.type == 'BIG' %}
+    {% if not chapter.type = 'MINI' %}
         {% if chapter.intro %}
             {{ chapter.intro|safe }}
         {% endif %}
+    {% endif %}
+
+    {% if extracts %}
+        <ul>
+            {% for extract in extracts %}
+                <li>
+                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                        {{ extract.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     {% for extract in extracts %}
@@ -20,7 +32,7 @@
         {% endif %}
     {% endfor %}
 
-    {% if chapter.type == 'BIG' %}
+    {% if not chapter.type = 'MINI' %}
         {% if chapter.get_conclusion_online %}
             {{ chapter.get_conclusion_online|safe }}
         {% endif %}
