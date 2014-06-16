@@ -206,26 +206,28 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            <a href="{{ upvote_link }}"
-                               title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
-                               class="upvote
-                                      ico-after
-                                      {% if message.like > message.dislike %}more-voted{% endif %}
-                                      {% if message.like > 0 %}has-vote{% endif %}
-                                      {% if profile_user|liked:message.pk %}voted{% endif %}"
-                            >
-                                +{{ message.like }}
-                            </a>
-                            <a href="{{ downvote_link }}" 
-                               title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
-                               class="downvote
-                                      ico-after
-                                      {% if message.like < message.dislike %}more-voted{% endif %}
-                                      {% if message.dislike > 0 %}has-vote{% endif %}
-                                      {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                            >
-                                -{{ message.dislike }}
-                            </a>
+                            {% with profile_user=user|profile %}
+                                <a href="{{ upvote_link }}"
+                                   title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
+                                   class="upvote
+                                          ico-after
+                                          {% if message.like > message.dislike %}more-voted{% endif %}
+                                          {% if message.like > 0 %}has-vote{% endif %}
+                                          {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                >
+                                    +{{ message.like }}
+                                </a>
+                                <a href="{{ downvote_link }}" 
+                                   title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
+                                   class="downvote
+                                          ico-after
+                                          {% if message.like < message.dislike %}more-voted{% endif %}
+                                          {% if message.dislike > 0 %}has-vote{% endif %}
+                                          {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                >
+                                    -{{ message.dislike }}
+                                </a>
+                            {% endwith %}
                         {% else %}
                             <span
                                class="upvote
