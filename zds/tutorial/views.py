@@ -69,7 +69,7 @@ def index(request):
         tag = None
     if tag is None:
         tutorials = \
-            Tutorial.objects.filter(sha_public__isnull=False) \
+            Tutorial.objects.filter(sha_public__isnull=False).exclude(sha_public="") \
             .order_by("-pubdate") \
             .all()
     else:
@@ -79,7 +79,7 @@ def index(request):
 
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
-            subcategory__in=[tag]).order_by("-pubdate").all()
+            subcategory__in=[tag])..exclude(sha_public="").order_by("-pubdate").all()
     return render_template("tutorial/index.html", {"tutorials": tutorials})
 
 
@@ -1942,7 +1942,7 @@ def find_tuto(request, pk_user):
     else:
         tutorials = Tutorial.objects.all().filter(
             authors__in=[u],
-            sha_public__isnull=False).order_by("-pubdate")
+            sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
         return render_template("tutorial/member/index.html", {"tutorials": tutorials,
                                                                "usr": u})
 
