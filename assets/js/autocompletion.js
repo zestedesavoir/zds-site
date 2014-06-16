@@ -235,12 +235,12 @@
             }
 
             var sortFn = function(a, b) {
-                var valueA = a.value.toLowerCase(), valueB = b.value.toLowerCase()
+                var valueA = a.value.toLowerCase(), valueB = b.value.toLowerCase();
                 if (valueA < valueB)
-                    return -1 
+                    return -1 ;
                 if (valueA > valueB)
-                    return 1
-                return 0
+                    return 1;
+                return 0;
             };
 
             bestMatches.sort(sortFn);
