@@ -1253,7 +1253,7 @@ def view_part_beta(
                            {"tutorial": tutorial,
                             "part": final_part,
                             "version": sha,
-                            "beta": beta})
+                            "beta": True})
 
 
 def view_part_online(
@@ -1639,7 +1639,7 @@ def view_chapter_beta(
         "prev": prev_chapter,
         "next": next_chapter,
         "version": sha,
-        "beta": beta
+        "beta": True
     })
 
 

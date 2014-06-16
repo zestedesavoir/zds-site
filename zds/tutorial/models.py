@@ -181,7 +181,7 @@ class Tutorial(models.Model):
 
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = self.get_absolute_url_online()
-        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta(with_version=True)
+        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
         mandata['get_absolute_url'] = self.get_absolute_url()
         mandata['get_introduction_online'] = self.get_introduction_online()
         mandata['get_conclusion_online'] = self.get_conclusion_online()
