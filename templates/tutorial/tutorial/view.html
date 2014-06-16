@@ -159,6 +159,7 @@
     {% if not tutorial.in_beta %}
         <li><a href="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" class="ico-after beta blue">Activer la bêta</a></li>
     {% else %}
+        <li><a href="{% url "zds.tutorial.views.update_beta" tutorial.pk version %}" class="ico-after history blue">Mettre à jour la béta</a></li>
         <li><a href="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" class="ico-after cross blue">Désactiver la bêta</a></li>
     {% endif %}
 

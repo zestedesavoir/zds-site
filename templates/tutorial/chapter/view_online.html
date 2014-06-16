@@ -9,27 +9,23 @@
 
 
 
-{% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url_online }}">{{ chapter.part.tutorial.title }}</a></li>
-    <li><a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}">
-        {{ chapter.part.title }}
+{% block breadcrumb %}<li><a href="
+        {% if beta %}
+            {{ chapter.part.tutorial.get_absolute_url_beta }}{% if version %}?version={{version}}{% endif %}
+        {% else %}
+            {{ chapter.part.tutorial.get_absolute_url_online }}
+        {% endif %}
+        "> {{ chapter.part.tutorial.title }}</a></li>
+    <li><a href="
+        {% if beta %}
+            {% url "view-part-url-beta" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}{% if version %}?version={{version}}{% endif %}
+        {% else %}
+            {% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.slug %}
+        {% endif %}
+        ">{{ chapter.part.title }}
     </a></li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
-
-
-
-{% block content %}
-    {% with tutorial=chapter.get_tutorial %}
-        {% with authors=tutorial.authors.all %}
-            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
-            {% include "tutorial/includes/chapter_online.part.html" %}
-            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
-        {% endwith %}
-    {% endwith %}
-{% endblock %}
-
-
 
 {% block headline %}
     {% if chapter.tutorial %}
@@ -48,6 +44,15 @@
     {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
 
+{% block content %}
+    {% with tutorial=chapter.get_tutorial %}
+        {% with authors=tutorial.authors.all %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
+            {% include "tutorial/includes/chapter_online.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
 
 
 {% block sidebar_blocks %}

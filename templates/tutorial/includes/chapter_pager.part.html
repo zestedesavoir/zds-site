@@ -2,7 +2,9 @@
     {% if prev %}
         <li class="prev">
             <a
-                {% if online %}
+                {% if beta %}
+                    href="{{ prev.get_absolute_url_beta }}{%if version %}?version={{version}}{% endif %}"
+                {% elif online %}
                     href="{{ prev.get_absolute_url_online }}"
                 {% else %}
                     href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"
@@ -17,7 +19,9 @@
     {% if next %}
         <li class="next">
             <a
-                {% if online %}
+                {% if beta %}
+                    href="{{ next.get_absolute_url_beta }}{%if version %}?version={{version}}{% endif %}"
+                {% elif online %}
                     href="{{ next.get_absolute_url_online }}"
                 {% else %}
                     href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"

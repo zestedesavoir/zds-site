@@ -5,7 +5,11 @@
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
         {% if chapter.intro %}
-            {{ chapter.intro|safe }}
+            {% if beta %}
+                {{ chapter.intro|emarkdown }}
+            {% else %}
+                {{ chapter.intro|safe }}
+            {% endif %}
         {% endif %}
     {% endif %}
 
@@ -28,13 +32,20 @@
             </a>
         </h2>
         {% if extract.txt %}
-            {{ extract.txt|safe }}
+            {% if beta %}
+                {{ extract.txt|emarkdown }}
+            {% else %}
+                {{ extract.txt|safe }}
+            {% endif %}
         {% endif %}
     {% endfor %}
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.get_conclusion_online %}
+        {% if chapter.get_conclusion_online and not beta %}
             {{ chapter.get_conclusion_online|safe }}
+        {% endif %}
+        {% if chapter.conclu and beta %}
+            {{ chapter.conclu|emarkdown }}
         {% endif %}
     {% endif %}
 {% endwith %}
