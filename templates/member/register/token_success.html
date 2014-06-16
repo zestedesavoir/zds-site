@@ -23,9 +23,9 @@
 
 {% block content %}
     <p>
-        Vous avez confirmé votre courriel sur le site. <a href="{% url "zds.member.views.details" usr.username %}">Voir votre profil</a>.
+        Vous avez confirmé votre courriel sur le site.
     </p>
     <p>
-        Vous pouvez maintenant poster des messages sur le site.
+        Vous pouvez maintenant <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
     </p>
 {% endblock %}
