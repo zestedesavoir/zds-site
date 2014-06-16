@@ -1,0 +1,37 @@
+{% load date %}
+
+
+
+{% if validation.validator %}
+    Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
+{% endif %}
+
+{% if validation.date_reserve %}
+    {{ validation.date_reserve|format_date|capfirst }}
+{% endif %}
+
+<br>
+
+{% if validation.is_pending %}
+    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+        <button type="submit">
+            Réserver
+        </button>
+    </form>
+{% elif validation.is_pending_valid %}
+    <a href="#unreservation" class="open-modal btn btn-cancel">
+        Annuler la réservation
+    </a>
+    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" class="modal modal-small" id="unreservation">
+        <p>
+            Le tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}, êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+        </p>
+        <button type="submit">
+            Confirmer
+        </button>
+    </form>
+{% elif validation.is_accept %}
+    <span>Accepté</span>
+{% elif validation.is_reject %}
+    <span>Rejeté</span>
+{% endif %}
