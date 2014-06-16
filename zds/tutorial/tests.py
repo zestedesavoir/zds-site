@@ -14,6 +14,7 @@ from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
+from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract
 from zds.utils.models import Alert
 
@@ -43,6 +44,7 @@ class BigTutorialTests(TestCase):
 
         self.bigtuto = BigTutorialFactory()
         self.bigtuto.authors.add(self.user_author)
+        self.bigtuto.gallery = GalleryFactory()
         self.bigtuto.save()
 
         self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
@@ -700,6 +702,61 @@ class BigTutorialTests(TestCase):
             1)
         self.assertEquals(len(mail.outbox), 0)
 
+    def test_add_remove_authors(self):
+        user1 = ProfileFactory().user
+
+        # Add and remove author as simple user (not staff):
+        login_check = self.client.login(
+            username=self.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.username,
+                'tutorial': self.bigtuto.pk,
+                'add_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.pk,
+                'tutorial': self.bigtuto.pk,
+                'remove_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # Add and remove author as staff:
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.username,
+                'tutorial': self.bigtuto.pk,
+                'add_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.pk,
+                'tutorial': self.bigtuto.pk,
+                'remove_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
@@ -736,6 +793,7 @@ class MiniTutorialTests(TestCase):
 
         self.minituto = MiniTutorialFactory()
         self.minituto.authors.add(self.user_author)
+        self.minituto.gallery = GalleryFactory()
         self.minituto.save()
 
         self.chapter = ChapterFactory(
@@ -784,15 +842,15 @@ class MiniTutorialTests(TestCase):
 
     def add_test_extract_named_introduction(self):
         """test the use of an extract named introduction"""
-        
+
         self.client.login(username=self.user_author,
             password='hostel77')
-        
+
         result = self.client.post(
             reverse( 'zds.tutorial.views.add_extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
-            
+
             {
             'title' : "Introduction",
             'text' : u"Le contenu de l'extrait"
@@ -808,15 +866,15 @@ class MiniTutorialTests(TestCase):
 
     def add_test_extract_named_conclusion(self):
         """test the use of an extract named introduction"""
-        
+
         self.client.login(username=self.user_author,
             password='hostel77')
-        
+
         result = self.client.post(
             reverse( 'zds.tutorial.views.add_extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
-            
+
             {
             'title' : "Conclusion",
             'text' : u"Le contenu de l'extrait"
@@ -829,7 +887,7 @@ class MiniTutorialTests(TestCase):
         self.assertNotEqual(ccl_path,extract_path)
         self.assertTrue(os.path.isfile(ccl_path))
         self.assertTrue(os.path.isfile(extract_path))
-        
+
     def test_add_note(self):
         """To test add note for tutorial."""
         user1 = ProfileFactory().user
@@ -1265,6 +1323,61 @@ class MiniTutorialTests(TestCase):
                 author=self.user).count(),
             1)
         self.assertEquals(len(mail.outbox), 0)
+
+    def test_add_remove_authors(self):
+        user1 = ProfileFactory().user
+
+        # Add and remove author as simple user (not staff):
+        login_check = self.client.login(
+            username=self.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.username,
+                'tutorial': self.minituto.pk,
+                'add_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.pk,
+                'tutorial': self.minituto.pk,
+                'remove_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # Add and remove author as staff:
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.username,
+                'tutorial': self.minituto.pk,
+                'add_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'author': user1.pk,
+                'tutorial': self.minituto.pk,
+                'remove_author': True,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
