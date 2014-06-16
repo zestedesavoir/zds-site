@@ -81,13 +81,13 @@
                 this.fetchUsers(search)
                     .done(function(data){
                         self.updateCache(data);
-                        self.updateDropdown(data);
+                        self.updateDropdown(self.sortList(data, search));
                     })
                     .fail(function(){
                         console.log("something went wrong...");
                     })
                 ;
-                this.updateDropdown(this.searchCache(search));
+                this.updateDropdown(this.sortList(this.searchCache(search), search));
                 this.showDropdown();
             }
         },
@@ -196,6 +196,8 @@
                 self.handleInput();
             };
 
+            if(list.length > this.options.limit) list = list.slice(0, this.options.limit);
+
             var $list = $("<ul>"), $el, selected = false;
             for(var i in list){
                 $el = $("<li>").text(list[i].value);
@@ -213,6 +215,35 @@
 
             if(!selected)
                 this.select($list.find("li").first().attr("data-autocomplete-id"));
+        },
+
+        sortList: function(list, search) {
+            var bestMatches = [], otherMatches = [];
+
+            for(var i = 0; i < list.length; i++) {
+                if(list[i].value.indexOf(search) === 0) {
+                    bestMatches.push(list[i]);
+                }
+                else {
+                    otherMatches.push(list[i]);
+                }
+            }
+
+            var sortFn = function(a, b) {
+                var valueA = a.value.toLowerCase(), valueB = b.value.toLowerCase()
+                if (valueA < valueB)
+                    return -1 
+                if (valueA > valueB)
+                    return 1
+                return 0
+            };
+
+            bestMatches.sort(sortFn);
+            otherMatches.sort(sortFn);
+
+            console.log(bestMatches, otherMatches);
+
+            return bestMatches.concat(otherMatches);
         },
 
         fetchUsers: function(input) {
@@ -235,7 +266,8 @@
     $.fn.autocomplete = function(options) {
         var defaults = {
             type: "single", // single|multiple|mentions
-            url: "/membres/?q=%s"
+            url: "/membres/?q=%s",
+            limit: 4
         };
 
         if(!options) {
