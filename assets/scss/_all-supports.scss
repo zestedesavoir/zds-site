@@ -2243,6 +2243,7 @@ form.topic-message {
 
     .autocomplete-dropdown {
         position: absolute;
+        z-index: 60;
         
         ul {
             padding: 0;

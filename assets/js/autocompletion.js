@@ -12,6 +12,11 @@
         this.$input = this.$wrapper.find(".autocomplete-input");
         this.$dropdown = this.$wrapper.find(".autocomplete-dropdown");
 
+        this.$dropdown.css({
+            top: "-" + this.$input.css("margin-bottom"),
+            left: this.$input.css("margin-left")
+        });
+
         this.$input.on("keyup", this.handleInput.bind(this));
         this.$input.on("keydown", this.handleKeydown.bind(this));
         this.$input.on("blur", this.hideDropdown.bind(this));
@@ -240,8 +245,6 @@
 
             bestMatches.sort(sortFn);
             otherMatches.sort(sortFn);
-
-            console.log(bestMatches, otherMatches);
 
             return bestMatches.concat(otherMatches);
         },
