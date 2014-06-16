@@ -127,6 +127,8 @@ class Tutorial(models.Model):
             ]) + '?version=' + self.sha_beta
         else:
             return self.get_absolute_url()
+    def slugify_title(self):
+        return slugify(str(self.pk)+"_"+self.title)
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
@@ -478,13 +480,14 @@ class Part(models.Model):
 
     def get_path(self, relative=False):
         if relative:
-            return self.slug
+            return self.slugify_title()
         else:
             return os.path.join(
                 os.path.join(
-                    settings.REPO_PATH, str(
-                        self.tutorial.pk) + '_' + self.tutorial.slug),
-                self.slug)
+                    settings.REPO_PATH, self.tutorial.slugify_title(),
+                self.slugify_title()
+                )
+            )
 
     def get_introduction(self):
         intro = open(
@@ -519,6 +522,9 @@ class Part(models.Model):
         conclu.close()
 
         return conclu_contenu.decode('utf-8')
+
+    def slugify_title(self):
+        return slugify(str(self.pk)+"_"+self.title)
 
     def get_conclusion_online(self):
         conclu = open(
@@ -614,7 +620,7 @@ class Chapter(models.Model):
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
 
-    def extracts(self):
+    def get_extracts(self):
         return Extract.objects.all()\
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
@@ -642,25 +648,26 @@ class Chapter(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.tutorial:
-                chapter_path = self.slug
+                chapter_path = self.slugify_title()
             else:
-                chapter_path = os.path.join(self.part.slug, self.slug)
+                chapter_path = os.path.join(
+                    self.part.slugify_title(),
+                    self.slugify_title())
         else:
             if self.tutorial:
                 chapter_path = os.path.join(
                     os.path.join(
-                        settings.REPO_PATH, str(
-                            self.tutorial.pk) + '_' + self.tutorial.slug),
+                        settings.REPO_PATH,
+                        self.tutorial.slugify_title()),
                     self.slug)
             else:
                 chapter_path = os.path.join(
                     os.path.join(
                         os.path.join(
-                            settings.REPO_PATH, str(
-                                self.part.tutorial.pk)
-                            + '_'
-                            + self.part.tutorial.slug),
-                        self.part.slug), self.slug)
+                            settings.REPO_PATH,
+                            self.part.tutorial.slugify_title()),
+                        self.part.slugify_title()
+                        ), self.slugify_title)
 
         return chapter_path
 
@@ -755,6 +762,9 @@ class Chapter(models.Model):
             return conclu_contenu.decode('utf-8')
         else:
             return None
+
+    def slugify_title(self):
+        return slugify(str(self.pk)+"_"+self.title)
 
 
 class Extract(models.Model):
@@ -883,10 +893,7 @@ class Extract(models.Model):
             return None
 
     def slugify_title(self):
-        toEscape = ["introduction","conclusion"]
-        if slugify(self.title) in toEscape :
-            return "p-"+self.title
-        return slugify(self.title)
+        return slugify(str(self.pk)+"_"+self.title)
 
 class Validation(models.Model):
 
