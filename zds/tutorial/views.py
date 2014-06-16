@@ -79,7 +79,7 @@ def index(request):
 
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
-            subcategory__in=[tag])..exclude(sha_public="").order_by("-pubdate").all()
+            subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
     return render_template("tutorial/index.html", {"tutorials": tutorials})
 
 
