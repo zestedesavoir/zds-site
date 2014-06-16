@@ -6,15 +6,21 @@
     {% with authors=tutorial.authors.all %}
         {% with chapters=part.chapters %}            
             {% if part.intro %}
-                {{ part.intro|safe }}
+                {% if beta %}
+                    {{ part.intro|emarkdown }}
+                {% else %}
+                    {{ part.intro|safe }}
+                {% endif %}
             {% endif %}
 
             <ul>
                 {% for chapter in chapters %}
                     <li>
                         <h3>
-                            <a href="
-                                {% if online %}
+                            <a href=" 
+                                {% if beta %}
+                                    {% url "view-chapter-url-beta" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
+                                {% elif online %}
                                     {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
                                 {% else %}
                                     {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}
@@ -28,7 +34,9 @@
                                 <li>
                                     <h4>
                                         <a href="{% spaceless %}
-                                            {% if online %}
+                                            {% if beta %}
+                                                {% url "view-chapter-url-beta" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
+                                            {% elif online %}
                                                 {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
                                             {% else %}
                                                 {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}
@@ -43,9 +51,13 @@
                     </li>
                 {% endfor %}
             </ul>
-
+            
             {% if part.conclu %}
-                {{ part.conclu|safe }}
+                {% if beta %}
+                    {{ part.conclu|emarkdown }}
+                {% else %}
+                    {{ part.conclu|safe }}
+                {% endif %}
             {% endif %}
         {% endwith %}
     {% endwith %}

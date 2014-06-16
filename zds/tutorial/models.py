@@ -120,11 +120,14 @@ class Tutorial(models.Model):
             self.pk, slugify(self.title)
         ])
 
-    def get_absolute_url_beta(self):
+    def get_absolute_url_beta(self, with_version=False):
         if self.sha_beta is not None:
-            return reverse('zds.tutorial.views.view_tutorial', args=[
+            lnk = reverse('zds.tutorial.views.view_tutorial_beta', args=[
                 self.pk, slugify(self.title)
-            ]) + '?version=' + self.sha_beta
+            ])
+            if with_version:
+                lnk += '?version=' + self.sha_beta
+            return lnk
         else:
             return self.get_absolute_url()
 
@@ -178,6 +181,7 @@ class Tutorial(models.Model):
 
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = self.get_absolute_url_online()
+        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
         mandata['get_absolute_url'] = self.get_absolute_url()
         mandata['get_introduction_online'] = self.get_introduction_online()
         mandata['get_conclusion_online'] = self.get_conclusion_online()
@@ -301,7 +305,7 @@ class Tutorial(models.Model):
                 .latest('note__pubdate').note
         except Note.DoesNotExist:
             return self.first_post()
-    
+
     def first_unread_note(self):
         """Return the first note the user has unread."""
         try:
@@ -472,6 +476,16 @@ class Part(models.Model):
             self.slug,
         ])
 
+    def get_absolute_url_beta(self):
+        if self.tutorial.sha_beta is not None:
+            return reverse('zds.tutorial.views.view_part_beta', args=[
+                self.tutorial.pk,
+                self.tutorial.slug,
+                self.slug,
+            ])
+        else:
+            return self.get_absolute_url_online()
+
     def get_chapters(self):
         return Chapter.objects.all()\
             .filter(part=self).order_by('position_in_part')
@@ -606,6 +620,17 @@ class Chapter(models.Model):
 
         elif self.part:
             return self.part.get_absolute_url_online(
+            ) + '{0}/'.format(self.slug)
+
+        else:
+            return reverse('zds.tutorial.views.index')
+
+    def get_absolute_url_beta(self):
+        if self.tutorial:
+            return self.tutorial.get_absolute_url_beta()
+
+        elif self.part:
+            return self.part.get_absolute_url_beta(
             ) + '{0}/'.format(self.slug)
 
         else:
@@ -818,7 +843,7 @@ class Extract(models.Model):
                         self.chapter.part.slug),
                     self.chapter.slug)
 
-        return os.path.join(chapter_path, self.slugify_title()) + '.md'
+        return os.path.join(chapter_path, self.slugify_title() + '.md')
 
     def get_prod_path(self):
         if self.chapter.tutorial:
@@ -841,7 +866,7 @@ class Extract(models.Model):
                 self.chapter.slug)
 
         return os.path.join(chapter_path, self.slugify_title()
-             + '.md.html')
+            + '.md.html')
 
     def get_text(self):
         if self.chapter.tutorial:
@@ -883,10 +908,11 @@ class Extract(models.Model):
             return None
 
     def slugify_title(self):
-        toEscape = ["introduction","conclusion"]
-        if slugify(self.title) in toEscape :
-            return "p-"+self.title
+        toEscape = ["introduction", "conclusion"]
+        if slugify(self.title) in toEscape:
+            return "p-" + self.title
         return slugify(self.title)
+
 
 class Validation(models.Model):
 

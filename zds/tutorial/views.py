@@ -56,7 +56,6 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
 
 
-
 def index(request):
     """Display all public tutorials of the website."""
 
@@ -151,7 +150,6 @@ def list_validation(request):
                            {"validations": validations})
 
 
-
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
 def reservation(request, validation_pk):
@@ -176,7 +174,6 @@ def reservation(request, validation_pk):
         return redirect(validation.tutorial.get_absolute_url())
 
 
-
 @login_required
 def diff(request, tutorial_pk, tutorial_slug):
     try:
@@ -199,7 +196,6 @@ def diff(request, tutorial_pk, tutorial_slug):
     })
 
 
-
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
     """History of the tutorial."""
@@ -218,7 +214,6 @@ def history(request, tutorial_pk, tutorial_slug):
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
     return render_template("tutorial/tutorial/history.html",
                            {"tutorial": tutorial, "logs": logs})
-
 
 
 @login_required
@@ -293,12 +288,14 @@ def reject_tutorial(request):
                 u'de la décision ou demander plus de détail si tout cela te '
                 u'semble injuste ou manque de clarté.'
                 .format(author.username, tutorial.title, validation.validator.username,
-                        settings.SITE_URL + validation.validator.profile.get_absolute_url(), validation.comment_validator))
+                        settings.SITE_URL
+                        + validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
                 [author],
-                u"Refus de Validation : {0}".format(tutorial.title),
+                u"Refus de Validation: {0}".format(tutorial.title),
                 "",
                 msg,
                 True,
@@ -371,7 +368,7 @@ def valid_tutorial(request):
             send_mp(
                 bot,
                 [author],
-                u"Publication : {0}".format(tutorial.title),
+                u"Publication: {0}".format(tutorial.title),
                 "",
                 msg,
                 True,
@@ -428,7 +425,20 @@ def activ_beta(request, tutorial_pk, version):
     tutorial.sha_beta = version
     tutorial.save()
     messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
-    return redirect(tutorial.get_absolute_url_beta())
+    return redirect(tutorial.get_absolute_url_beta(with_version=True))
+
+
+@can_write_and_read_now
+@login_required
+def update_beta(request, tutorial_pk, version):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm("tutorial.change_tutorial"):
+            raise PermissionDenied
+    tutorial.sha_beta = version
+    tutorial.save()
+    messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
+    return redirect(tutorial.get_absolute_url_beta(with_version=True))
 
 
 @can_write_and_read_now
@@ -441,7 +451,7 @@ def desactiv_beta(request, tutorial_pk, version):
     tutorial.sha_beta = None
     tutorial.save()
     messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
-    return redirect(tutorial.get_absolute_url_beta())
+    return redirect(tutorial.get_absolute_url())
 
 
 @can_write_and_read_now
@@ -547,7 +557,7 @@ def modify_tutorial(request):
 
     # User actions
 
-    if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
+    if request.user in tutorial.authors.all():
         if "add_author" in request.POST:
             redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
                 tutorial.pk,
@@ -603,7 +613,7 @@ def modify_tutorial(request):
 
     # No action performed, raise 404
 
-    raise PermissionDenied
+    raise Http404
 
 
 # Tutorials.
@@ -712,7 +722,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         "formValid": formValid,
         "formReject": formReject,
     })
-
 
 
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
@@ -852,6 +861,100 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         "nb": page_nbr,
         "last_note_pk": last_note_pk,
         "form": form,
+    })
+
+
+@login_required
+def view_tutorial_beta(request, tutorial_pk, tutorial_slug):
+    """Display a tutorial in beta version."""
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+
+    # If the tutorial isn't in beta, we raise 404 error.
+
+    if not tutorial.in_beta():
+        raise PermissionDenied
+
+    # SHA is needed !:
+    try:
+        sha = request.GET["version"]
+    except KeyError:
+        raise PermissionDenied
+
+    # sha must be correct:
+    if not tutorial.sha_beta == sha:
+        raise PermissionDenied
+
+    # Two variables to handle two distinct cases (large/small tutorial)
+
+    chapter = None
+    parts = None
+
+    # Find the good manifest file
+
+    repo = Repo(tutorial.get_path())
+
+    # Load the tutorial.
+
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    mandata = json_reader.loads(manifest)
+
+    # If it's a small tutorial, fetch its chapter
+
+    if tutorial.type == "MINI":
+        if "chapter" in mandata:
+            chapter = mandata["chapter"]
+            chapter["path"] = tutorial.get_path()
+            chapter["type"] = "MINI"
+            chapter["intro"] = get_blob(repo.commit(sha).tree,
+                                        "introduction.md")
+            chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
+                                         )
+            cpt = 1
+            for ext in chapter["extracts"]:
+                ext["position_in_chapter"] = cpt
+                ext["path"] = tutorial.get_path()
+                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
+                cpt += 1
+        else:
+            chapter = None
+    else:
+
+        # If it's a big tutorial, fetch parts.
+
+        parts = mandata["parts"]
+        cpt_p = 1
+        for part in parts:
+            part["tutorial"] = tutorial
+            part["path"] = tutorial.get_path()
+            part["slug"] = slugify(part["title"])
+            part["position_in_tutorial"] = cpt_p
+            cpt_c = 1
+            for chapter in part["chapters"]:
+                chapter["part"] = part
+                chapter["path"] = tutorial.get_path()
+                chapter["slug"] = slugify(chapter["title"])
+                chapter["type"] = "BIG"
+                chapter["position_in_part"] = cpt_c
+                chapter["position_in_tutorial"] = cpt_c * cpt_p
+                cpt_e = 1
+                for ext in chapter["extracts"]:
+                    ext["chapter"] = chapter
+                    ext["position_in_chapter"] = cpt_e
+                    ext["path"] = tutorial.get_path()
+                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
+                    cpt_e += 1
+                cpt_c += 1
+            cpt_p += 1
+
+        mandata['get_parts'] = parts
+
+    return render_template("tutorial/tutorial/view_online.html", {
+        "tutorial": tutorial,
+        "chapter": chapter,
+        "parts": parts,
+        "version": sha,
+        "beta": True
     })
 
 
@@ -1027,7 +1130,6 @@ def edit_tutorial(request):
 # Parts.
 
 
-
 @login_required
 def view_part(
     request,
@@ -1044,7 +1146,7 @@ def view_part(
         sha = tutorial.sha_draft
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     if not request.user.has_perm("tutorial.change_tutorial") and request.user \
-            not in tutorial.authors.all() and not beta:
+            not in tutorial.authors.all():
         raise PermissionDenied
     final_part = None
 
@@ -1089,6 +1191,69 @@ def view_part(
                             "part": final_part,
                             "version": sha})
 
+
+@login_required
+def view_part_beta(
+    request,
+    tutorial_pk,
+    tutorial_slug,
+    part_slug,
+):
+    """Display a part."""
+
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    try:
+        sha = request.GET["version"]
+    except KeyError:
+        sha = tutorial.sha_draft
+
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    if not request.user.has_perm("tutorial.change_tutorial") and request.user \
+            not in tutorial.authors.all() and not beta:
+        raise PermissionDenied
+    final_part = None
+
+    # find the good manifest file
+
+    repo = Repo(tutorial.get_path())
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    mandata = json_reader.loads(manifest)
+    parts = mandata["parts"]
+    cpt_p = 1
+    for part in parts:
+        if part_slug == slugify(part["title"]):
+            part["tutorial"] = tutorial
+            part["path"] = tutorial.get_path()
+            part["slug"] = slugify(part["title"])
+            part["position_in_tutorial"] = cpt_p
+            part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"
+                                                                 ])
+            part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"
+                                                                  ])
+            cpt_c = 1
+            for chapter in part["chapters"]:
+                chapter["part"] = part
+                chapter["path"] = tutorial.get_path()
+                chapter["slug"] = slugify(chapter["title"])
+                chapter["type"] = "BIG"
+                chapter["position_in_part"] = cpt_c
+                chapter["position_in_tutorial"] = cpt_c * cpt_p
+                cpt_e = 1
+                for ext in chapter["extracts"]:
+                    ext["chapter"] = chapter
+                    ext["position_in_chapter"] = cpt_e
+                    ext["path"] = tutorial.get_path()
+                    cpt_e += 1
+                cpt_c += 1
+            final_part = part
+            break
+        cpt_p += 1
+
+    return render_template("tutorial/part/view_online.html",
+                           {"tutorial": tutorial,
+                            "part": final_part,
+                            "version": sha,
+                            "beta": True})
 
 
 def view_part_online(
@@ -1320,7 +1485,7 @@ def view_chapter(
     tutorial = chapter.get_tutorial()
     beta = tutorial.in_beta() and sha == tutorial.sha_beta
     if not request.user.has_perm("tutorial.change_tutorial") and request.user \
-            not in tutorial.authors.all() and not beta:
+            not in tutorial.authors.all():
         raise PermissionDenied
     if not tutorial_slug == slugify(tutorial.title) or not part_slug \
             == slugify(chapter.part.title) or not chapter_slug \
@@ -1386,6 +1551,96 @@ def view_chapter(
         "version": sha,
     })
 
+
+@login_required
+def view_chapter_beta(
+    request,
+    tutorial_pk,
+    tutorial_slug,
+    part_slug,
+    chapter_slug,
+):
+    """View chapter in beta version."""
+
+    chapter = get_object_or_404(Chapter, slug=chapter_slug,
+                                part__slug=part_slug,
+                                part__tutorial__pk=tutorial_pk)
+
+    # SHA must be provided, but if it's not, the default sha is used:
+    try:
+        sha = request.GET["version"]
+    except KeyError:
+        sha = chapter.part.tutorial.sha_beta
+
+    tutorial = chapter.get_tutorial()
+    beta = tutorial.in_beta() and sha == tutorial.sha_beta
+    if not request.user.has_perm("tutorial.change_tutorial") and request.user \
+            not in tutorial.authors.all() and not beta:
+        raise PermissionDenied
+    if not tutorial_slug == slugify(tutorial.title) or not part_slug \
+            == slugify(chapter.part.title) or not chapter_slug \
+            == slugify(chapter.title):
+        return redirect(chapter.get_absolute_url())
+
+    # find the good manifest file
+
+    repo = Repo(tutorial.get_path())
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    mandata = json_reader.loads(manifest)
+    parts = mandata["parts"]
+    cpt_p = 1
+    final_chapter = None
+    chapter_tab = []
+    final_position = 0
+    for part in parts:
+        cpt_c = 1
+        part["slug"] = slugify(part["title"])
+        part["get_absolute_url_beta"] = reverse(
+            "zds.tutorial.views.view_part_beta",
+            args=[
+                tutorial.pk,
+                tutorial.slug,
+                part["slug"]])
+        part["tutorial"] = tutorial
+        for chapter in part["chapters"]:
+            chapter["part"] = part
+            chapter["path"] = tutorial.get_path()
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["type"] = "BIG"
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            chapter["get_absolute_url_beta"] = part["get_absolute_url_beta"] \
+                + "{0}/".format(chapter["slug"])
+            if chapter_slug == slugify(chapter["title"]):
+                chapter["intro"] = get_blob(repo.commit(sha).tree,
+                                            chapter["introduction"])
+                chapter["conclu"] = get_blob(repo.commit(sha).tree,
+                                             chapter["conclusion"])
+                cpt_e = 1
+                for ext in chapter["extracts"]:
+                    ext["chapter"] = chapter
+                    ext["position_in_chapter"] = cpt_e
+                    ext["path"] = tutorial.get_path()
+                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
+                    cpt_e += 1
+            chapter_tab.append(chapter)
+            if chapter_slug == slugify(chapter["title"]):
+                final_chapter = chapter
+                final_position = len(chapter_tab) - 1
+            cpt_c += 1
+        cpt_p += 1
+
+    prev_chapter = (chapter_tab[final_position - 1] if final_position
+                    > 0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1
+                    < len(chapter_tab) else None)
+    return render_template("tutorial/chapter/view_online.html", {
+        "chapter": final_chapter,
+        "prev": prev_chapter,
+        "next": next_chapter,
+        "version": sha,
+        "beta": True
+    })
 
 
 def view_chapter_online(
@@ -1723,7 +1978,6 @@ def edit_chapter(request):
                                                           "form": form})
 
 
-
 @login_required
 def add_extract(request):
     """Add extract."""
@@ -1848,9 +2102,10 @@ def edit_extract(request):
                                                 extract.chapter.slug)
 
                 # Use path retrieve before and use it to create the new slug.
+
                 extract.save()
                 new_slug = extract.get_path()
-                
+
                 maj_repo_extract(
                     request,
                     old_slug_path=old_slug,
@@ -1924,7 +2179,6 @@ def modify_extract(request):
         extract.save()
         return redirect(extract.get_absolute_url())
     raise Http404
-
 
 
 def find_tuto(request, pk_user):
@@ -2472,9 +2726,9 @@ def maj_repo_extract(
                                  str(extract.chapter.part.tutorial.pk) + "_"
                                  + extract.chapter.part.tutorial.slug))
     index = repo.index
-    
+
     chap = extract.chapter
-    
+
     if action == "del":
         msg = "Suppression de l'exrait "
         extract.delete()
@@ -2517,8 +2771,6 @@ def maj_repo_extract(
     else:
         chap.part.tutorial.sha_draft = com_ex.hexsha
         chap.part.tutorial.save()
-    #extract.save()
-
 
 
 def download(request):
@@ -2534,7 +2786,6 @@ def download(request):
     response["Content-Disposition"] = \
         "attachment; filename={0}.tar".format(tutorial.slug)
     return response
-
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
@@ -2555,7 +2806,6 @@ def download_markdown(request):
     return response
 
 
-
 def download_html(request):
     """Download a pdf tutorial."""
 
@@ -2573,7 +2823,6 @@ def download_html(request):
     return response
 
 
-
 def download_pdf(request):
     """Download a pdf tutorial."""
 
@@ -2589,7 +2838,6 @@ def download_pdf(request):
     response["Content-Disposition"] = \
         "attachment; filename={0}.pdf".format(tutorial.slug)
     return response
-
 
 
 def download_epub(request):
@@ -2758,11 +3006,11 @@ def MEP(tutorial, sha):
     out_file.close()
 
     # define whether to log pandoc's errors
-    
+
     pandoc_debug_str = ""
     if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = " 2>&1 | tee -a "+settings.PANDOC_LOG
-    
+        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+
     # load pandoc
 
     os.chdir(tutorial.get_prod_path())
@@ -2770,7 +3018,7 @@ def MEP(tutorial, sha):
               + "pandoc --latex-engine=xelatex -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".html"+pandoc_debug_str)
+                                         tutorial.slug) + ".html" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
               + "--template=../../assets/tex/template.tex " + "-s " + "-S "
               + "-N " + "--toc " + "-V documentclass=scrbook "
@@ -2779,11 +3027,11 @@ def MEP(tutorial, sha):
               + "-V geometry:margin=1in "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug) + ".md "
               + "-o " + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".pdf"+pandoc_debug_str)
+              + ".pdf" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".epub"+pandoc_debug_str)
+                                         tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 
@@ -2914,7 +3162,7 @@ def solve_alert(request):
         (u'Bonjour {0},'
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
-        u'et il vous a laissé le message suivant :'
+        u'et il vous a laissé le message suivant:'
         u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
             alert.author.username,
             note.author.username,
@@ -2925,7 +3173,7 @@ def solve_alert(request):
     send_mp(
         bot,
         [alert.author],
-        u"Résolution d'alerte : {0}".format(note.tutorial.title),
+        u"Résolution d'alerte: {0}".format(note.tutorial.title),
         "",
         msg,
         False,
@@ -2960,7 +3208,7 @@ def edit_note(request):
             and request.user.has_perm("tutorial.change_note"):
         messages.add_message(request, messages.WARNING,
                              u'Vous \xe9ditez ce message en tant que '
-                             u'mod\xe9rateur (auteur : {}). Soyez encore plus '
+                             u'mod\xe9rateur (auteur: {}). Soyez encore plus '
                              u'prudent lors de l\'\xe9dition de '
                              u'celui-ci !'.format(note.author.username))
         note.alerts.all().delete()

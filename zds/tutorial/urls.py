@@ -22,6 +22,17 @@ urlpatterns = patterns('',
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
                            'zds.tutorial.views.view_tutorial'),
 
+                       # View beta
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
+                           r'(?P<part_slug>.+)/' +
+                           r'(?P<chapter_slug>.+)/$', 'zds.tutorial.views.view_chapter_beta', name="view-chapter-url-beta"),
+
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
+                           r'(?P<part_slug>.+)/$', 'zds.tutorial.views.view_part_beta', name="view-part-url-beta"),
+
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           'zds.tutorial.views.view_tutorial_beta'),
+
                        # View online
                        url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
                            r'(?P<part_slug>.+)/' +
@@ -82,6 +93,9 @@ urlpatterns = patterns('',
                        # user actions
                        url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$',
                            'zds.tutorial.views.activ_beta'),
+                       url(
+                           r'^update/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$',
+                           'zds.tutorial.views.update_beta'),
                        url(
                            r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$',
                            'zds.tutorial.views.desactiv_beta'),

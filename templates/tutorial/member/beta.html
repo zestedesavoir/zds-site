@@ -1,6 +1,7 @@
 {% extends "tutorial/base_online.html" %}
 {% load profile %}
 {% load emarkdown %}
+{% load repo_reader %}
 
 
 
@@ -36,20 +37,22 @@
         </thead>
         <tbody>
             {% for tuto in tutos %}
-                <tr>
-                    <td>
-                        <img src="{{ tuto.thumbnail.url }}" alt="">
-                        <a href="{{ tuto.get_absolute_url_beta }}">{{ tuto.title }}</a> 
-                        {% if tuto.description %}
-                            <p>
-                                {{ tuto.description }}
-                            </p>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ tuto.get_introduction|truncatechars:200|emarkdown }}
-                    </td>
-                </tr>
+                {% with tuto_version=tuto|repo_tuto:tuto.sha_beta %}
+                    <tr>
+                        <td>
+                            <img src="{{ tuto.thumbnail.url }}" alt="">
+                            <a href="{{ tuto.get_absolute_url_beta }}{% if tuto.sha_beta %}?version={{tuto.sha_beta}}{% endif %}">{{ tuto.title }}</a> 
+                            {% if tuto.description %}
+                                <p>
+                                    {{ tuto.description }}
+                                </p>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ tuto_version.introduction|truncatechars:200|emarkdown }}
+                        </td>
+                    </tr>
+                {% endwith %}
             {% endfor %}
         </tbody>
     </table>

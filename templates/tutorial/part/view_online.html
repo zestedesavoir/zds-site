@@ -9,7 +9,13 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
+    <li><a href="
+        {% if beta %}
+            {{ part.tutorial.get_absolute_url_beta }}{% if version %}?version={{version}}{% endif %}
+        {% else %}
+            {{ part.tutorial.get_absolute_url_online }}
+        {% endif %}
+        "> {{ part.tutorial.title }}</a></li>
     <li>{{ part.title }}</li>
 {% endblock %}
 
