@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
    Author: Sandhose / Quentin Gliech
    ---------------------------------
-   Add autocompletion for members names
+   Add autocomplete for members names
    ========================================================================== */
 
 (function($) {
@@ -34,10 +34,10 @@
                     e.stopPropagation();
 
                     if(this.selected === -1){
-                        this.select(this.$dropdown.find("ul li").last().attr("data-autocompletion-id"));
+                        this.select(this.$dropdown.find("ul li").last().attr("data-autocomplete-id"));
                     } else {
-                        $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").prev("li");
-                        this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
+                        $tmp = this.$dropdown.find("ul li[data-autocomplete-id=" + this.selected + "]").prev("li");
+                        this.select($tmp.length === 1 ? $tmp.attr("data-autocomplete-id") : -1);
                     }
                     break;
                 case 40: // Down
@@ -45,10 +45,10 @@
                     e.stopPropagation();
 
                     if(this.selected === -1){
-                        this.select(this.$dropdown.find("ul li").first().attr("data-autocompletion-id"));
+                        this.select(this.$dropdown.find("ul li").first().attr("data-autocomplete-id"));
                     } else {
-                        $tmp = this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").next("li");
-                        this.select($tmp.length === 1 ? $tmp.attr("data-autocompletion-id") : -1);
+                        $tmp = this.$dropdown.find("ul li[data-autocomplete-id=" + this.selected + "]").next("li");
+                        this.select($tmp.length === 1 ? $tmp.attr("data-autocomplete-id") : -1);
                     }
                     break;
                 case 13: // Enter
@@ -75,7 +75,7 @@
             var search = this.parseInput(input),
                 self = this;
 
-            if(!search){
+            if(!search || search === this._lastAutocomplete){
                 this.hideDropdown();
             } else {
                 this.fetchUsers(search)
@@ -103,26 +103,34 @@
         select: function(id){
             this.selected = id;
             this.$dropdown.find("ul li.active").removeClass("active");
-            this.$dropdown.find("ul li[data-autocompletion-id=" + this.selected + "]").addClass("active");
+            this.$dropdown.find("ul li[data-autocomplete-id=" + this.selected + "]").addClass("active");
         },
 
         enter: function(selected){
             selected = selected || this.selected;
             var input = this.$input.val();
             var lastChar = input.substr(-1);
-            if(lastChar === "," || lastChar === " " || selected === -1)
-                return false; // At the next pseudo
+            if((lastChar === "," || lastChar === " " || selected === -1) && this.options.type === "multiple")
+                return false;
 
             var completion = this.getFromCache(selected);
             if(!completion)
                 return false;
-            var lastSpace = input.replace(",", " ").lastIndexOf(" ");
-            if(lastSpace){
-                input = input.substr(0, lastSpace + 1) + completion.value + ", ";
-                this.$input.val(input);
-            } else {
-                this.$input.val(completion.value + ", ");
+
+            if(this.options.type === "multiple") {
+                var lastSpace = input.replace(",", " ").lastIndexOf(" ");
+                if(lastSpace){
+                    input = input.substr(0, lastSpace + 1) + completion.value + ", ";
+                    this.$input.val(input);
+                } else {
+                    this.$input.val(completion.value + ", ");
+                }
             }
+            else {
+                this.$input.val(completion.value);
+            }
+
+            this._lastAutocomplete = completion.value;
         },
 
         updateCache: function(data){
@@ -145,14 +153,19 @@
         },
 
         parseInput: function(input){
-            var lastChar = input.substr(-1);
-            if(lastChar === "," || lastChar === " ")
-                return false; // At the next pseudo
+            if(this.options.type === "multiple") {
+                var lastChar = input.substr(-1);
+                if(lastChar === "," || lastChar === " ")
+                    return false;
 
-            var words = this.extractWords(input);
-            if(words.length === 0) return false;
+                var words = this.extractWords(input);
+                if(words.length === 0) return false;
 
-            return words[words.length - 1]; // last word in list
+                return words[words.length - 1]; // last word in list
+            }
+            else {
+                return input;
+            }
         },
 
         searchCache: function(input){
@@ -178,7 +191,7 @@
             var onClick = function(e){
                 e.preventDefault();
                 e.stopPropagation();
-                self.enter($(this).attr("data-autocompletion-id"));
+                self.enter($(this).attr("data-autocomplete-id"));
                 self.$input.focus();
                 self.handleInput();
             };
@@ -186,7 +199,7 @@
             var $list = $("<ul>"), $el, selected = false;
             for(var i in list){
                 $el = $("<li>").text(list[i].value);
-                $el.attr("data-autocompletion-id", list[i].id);
+                $el.attr("data-autocomplete-id", list[i].id);
                 if(list[i].id === this.selected){
                     $el.addClass("active");
                     selected = true;
@@ -199,7 +212,7 @@
             this.$dropdown.append($list);
 
             if(!selected)
-                this.select($list.find("li").first().attr("data-autocompletion-id"));
+                this.select($list.find("li").first().attr("data-autocomplete-id"));
         },
 
         fetchUsers: function(input) {
@@ -221,14 +234,18 @@
 
     $.fn.autocomplete = function(options) {
         var defaults = {
-            type: "mp",
+            type: "single", // single|multiple|mentions
             url: "/membres/?q=%s"
         };
+
+        if(!options) {
+            options = $(this).data("autocomplete");
+        }
 
         return new AutoComplete(this, $.extend(defaults, options));
     };
 
     $(document).ready(function() {
-        $("#id_participants").autocomplete();
+        $("[data-autocomplete]").autocomplete();
     });
 })(jQuery);

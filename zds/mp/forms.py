@@ -17,7 +17,8 @@ class PrivateTopicForm(forms.Form):
             attrs={
                 'placeholder': u'Les participants doivent '
                 u'être séparés par une virgule.',
-                'required': 'required'}))
+                'required': 'required',
+                'data-autocomplete': '{ "type": "multiple" }'}))
 
     title = forms.CharField(
         label='Titre',
