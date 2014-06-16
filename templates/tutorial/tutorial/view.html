@@ -286,7 +286,8 @@
                                 <a href="#unreservation" class="open-modal ico-after lock blue">
                                     Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
                                 </a>
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" class="modal modal-small" id="unreservation">
+                                {# TODO_CSRF : passer en post #}
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get" class="modal modal-small" id="unreservation">
                                     <p>
                                         La validation de ce tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. Êtes-vous certains de vouloir le retirer ?
                                     </p>
@@ -309,17 +310,24 @@
         <ul>
             {% if not tutorial.on_line %}
                 <li>
-                    <a href="#delete-tutorial" class="open-modal ico-after cross red">Supprimer le tutoriel</a>
-                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" id="delete-tutorial" class="modal modal-medium" method="get">
+                    <a href="#delete-tutorial" class="open-modal ico-after cross red">
+                        Supprimer le tutoriel
+                    </a>
+                    {# TODO_CSRF : passer en post #}
+                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="get" id="delete-tutorial" class="modal modal-medium">
                         <p>
                             Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
                         </p>
-                        <button type="submit">Confirmer</button>
+                        <button type="submit">
+                            Confirmer
+                        </button>
                     </form>
                 </li>
             {% else %}
                 <li class="inactive">
-                    <span class="ico-after cross disabled">Impossible car publié</span>
+                    <span class="ico-after cross disabled">
+                        Impossible, car publié
+                    </span>
                 </li>
             {% endif %}
         </ul>
