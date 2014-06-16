@@ -1174,7 +1174,7 @@ def add_part(request):
             part.tutorial = tutorial
             part.title = data["title"]
             part.position_in_tutorial = tutorial.get_parts().count() + 1
-            new_slug = part.get_path(False)
+            
             part.save()
             part.introduction = os.path.join(part.get_path(False),
                 "introduction.md")

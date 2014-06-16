@@ -47,9 +47,12 @@ class BigTutorialTests(TestCase):
         self.bigtuto.gallery = GalleryFactory()
         self.bigtuto.save()
 
-        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
-        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
-        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3)
+        self.part1 = PartFactory(tutorial=self.bigtuto,
+           position_in_tutorial=1)
+        self.part2 = PartFactory(tutorial=self.bigtuto,
+            position_in_tutorial=2)
+        self.part3 = PartFactory(tutorial=self.bigtuto,
+            position_in_tutorial=3)
 
         self.chapter1_1 = ChapterFactory(
             part=self.part1,
@@ -113,6 +116,39 @@ class BigTutorialTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
+
+    def tert_add_part_named_introduction(self):
+
+        self.client.login(username=selft.user_author,
+            password='hostel77')
+        part_number = self.bigtuto.get_parts.count()
+        
+        #add a new part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part'+
+            '?tutoriel={0}'.format(
+                self.bigtuto.pk),
+                {
+                    'title':'Introduction',
+                    'introduction':'Introduction for test part',
+                    'conclusion':'conclusion for test',
+                }, follow = False)
+        )
+        self.assertEqual(result.status_code,302)
+        #check part number
+        self.assertEqual(part_number + 1,
+            self.bigtuto.get_parts.count())
+        #check no conflict :
+        part = self.bigtuto.get_parts()[-1]
+        tuto_intro = os.path.join(self.bigtuto.get_path(),
+            'introduction.md')
+        part_path = part.get_path()
+        part_intro = os.path.join(part_path, 'introduction.md')
+        self.assertNotEqual("",part.get_introduction())
+        self.assertNotEqual(part_path,tuto_intro)
+        self.assertNotEqual("Introduction for test part",
+            self.bigtuto.get_introduction())
+        
 
     def test_add_note(self):
         """To test add note for tutorial."""
@@ -361,7 +397,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        """Test import d'un big tuto."""
+        """Test import big tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
@@ -1135,7 +1171,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        """Test import d'un mini tuto."""
+        """Test import  mini tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
