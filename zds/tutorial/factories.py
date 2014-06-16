@@ -117,15 +117,17 @@ class PartFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-        part.introduction = os.path.join(part.slug, 'introduction.md')
-        part.conclusion = os.path.join(part.slug, 'conclusion.md')
+        part.introduction = os.path.join(part.get_path(True),
+            'introduction.md')
+        part.conclusion = os.path.join(part.get_path(True),
+            'conclusion.md')
         part.save()
 
-        f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
+        f = open(os.path.join(path, 'introduction.md'), "w")
         f.write(u'Test')
         f.close()
         repo.index.add([part.introduction])
-        f = open(os.path.join(tutorial.get_path(), part.conclusion), "w")
+        f = open(os.path.join(path, 'conclusion.md'), "w")
         f.write(u'Test')
         f.close()
         repo.index.add([part.conclusion])
@@ -187,12 +189,10 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         elif part:
             chapter.introduction = os.path.join(
-                part.slug,
-                chapter.slug,
+                chapter.get_path(),
                 'introduction.md')
             chapter.conclusion = os.path.join(
-                part.slug,
-                chapter.slug,
+                chapter.get_path(),
                 'conclusion.md')
             chapter.save()
             f = open(

@@ -169,14 +169,12 @@ class Tutorial(models.Model):
             return ''
         else:
             return os.path.join(
-                settings.REPO_PATH, str(
-                    self.pk) + '_' + self.slug)
+                settings.REPO_PATH, self.slugify_title())
 
     def get_prod_path(self):
         data = self.load_json_for_public()
         return os.path.join(
-            settings.REPO_PATH_PROD,
-            str(self.pk) + '_' + slugify(data['title']))
+            settings.REPO_PATH_PROD,self.slugify_title())
 
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = self.get_absolute_url_online()
@@ -667,7 +665,7 @@ class Chapter(models.Model):
                             settings.REPO_PATH,
                             self.part.tutorial.slugify_title()),
                         self.part.slugify_title()
-                        ), self.slugify_title)
+                        ), self.slugify_title())
 
         return chapter_path
 
