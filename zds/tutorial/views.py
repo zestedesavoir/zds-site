@@ -1268,6 +1268,7 @@ def edit_part(request):
 
             old_slug = part.get_path()
             part.title = data["title"]
+            part.save()
             new_slug = part.get_path()
             
 
@@ -2030,8 +2031,7 @@ def import_content(
         userg.save()
         tutorial.gallery = gal
         tutorial.save()
-        tuto_path = os.path.join(settings.REPO_PATH, str(tutorial.pk) + "_"
-                                 + slugify(tutorial.title))
+        tuto_path = tutorial.get_path()
         mapping = upload_images(images, tutorial)
         maj_repo_tuto(
             request,
@@ -2054,14 +2054,11 @@ def import_content(
             part.title = part_title.text.strip()
             part.position_in_tutorial = part_count
             part.tutorial = tutorial
-            part.introduction = os.path.join(slugify(part_title.text.strip()),
+            part.introduction = os.path.join(part.get_path(True),
                                              "introduction.md")
-            part.conclusion = os.path.join(slugify(part_title.text.strip()),
+            part.conclusion = os.path.join(part.get_path(True),
                                            "conclusion.md")
-            part_path = os.path.join(os.path.join(settings.REPO_PATH,
-                                                  str(part.tutorial.pk) + "_"
-                                                  + part.tutorial.slug),
-                                     slugify(part.title))
+            part_path = part.get_path()
             part.save()
             maj_repo_part(
                 request,
@@ -2351,20 +2348,19 @@ def maj_repo_part(
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
             msg = "Creation de la partie "
-        index.add([part.slugify_title()])
-        man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
+        index.add([new_slug_path])
+        man_path = os.path.join(new_slug_path, "manifest.json")
         part.tutorial.dump_json(path=man_path)
-        index.add(["manifest.json"])
-        intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
+        index.add([os.path.join(new_slug_path,"manifest.json")])
+        intro = open(os.path.join(new_slug_path,
+            "introduction.md"), "w")
         intro.write(smart_str(introduction).strip())
         intro.close()
-        index.add([os.path.join(part.get_path(relative=True), "introduction.md"
-                                )])
+        index.add(["introduction.md"])
         conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
         conclu.write(smart_str(conclusion).strip())
         conclu.close()
-        index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
-                                )])
+        index.add(["conclusion.md"])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
     if aut_email is None or aut_email.strip() == "":

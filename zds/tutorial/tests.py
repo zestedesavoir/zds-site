@@ -361,7 +361,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        """Test import of big tuto."""
+        """Test import d'un big tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
@@ -1135,7 +1135,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        """Test import of big tuto."""
+        """Test import d'un mini tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
