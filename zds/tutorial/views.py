@@ -1882,7 +1882,7 @@ def modify_extract(request):
         raise Http404
     data = request.POST
     try:
-        extract_pk = request.POST["extract"]
+        extract_pk = data["extract"]
     except KeyError:
         raise Http404
     extract = get_object_or_404(Extract, pk=extract_pk)
@@ -1922,15 +1922,15 @@ def modify_extract(request):
         return redirect(chapter.get_absolute_url())
     elif "move" in data:
         try:
-            new_pos = int(request.POST["move_target"])
+            new_pos = int(data["move_target"])
         except ValueError:
-
             # Error, the user misplayed with the move button
-
             return redirect(extract.get_absolute_url())
         move(extract, new_pos, "position_in_chapter", "chapter", "get_extracts"
              )
         extract.save()
+        maj_repo_extract(request, extract=extract, action="move")
+        
         return redirect(extract.get_absolute_url())
     raise Http404
 
@@ -2492,10 +2492,12 @@ def maj_repo_extract(
         if action == "maj":
             os.rename(old_slug_path, new_slug_path)
             msg = "Modification de l'exrait "
-        ext = open(new_slug_path, "w")
-        ext.write(smart_str(text).strip())
-        ext.close()
-        index.add([extract.get_path(relative=True)])
+            ext = open(new_slug_path, "w")
+            ext.write(smart_str(text).strip())
+            ext.close()
+            index.add([extract.get_path(relative=True)])
+        elif action == "move" :
+            msg = "Déplacement de l'extrait"
         msg = "Mise a jour de l'exrait "
 
     # update manifest

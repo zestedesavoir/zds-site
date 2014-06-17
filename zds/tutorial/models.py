@@ -615,7 +615,7 @@ class Chapter(models.Model):
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
 
-    def extracts(self):
+    def get_extracts(self):
         return Extract.objects.all()\
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
