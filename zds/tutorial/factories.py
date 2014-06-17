@@ -17,6 +17,7 @@ import factory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
+from zds.utils.models import SubCategory 
 from zds.utils.tutorials import export_tutorial
 
 
@@ -118,8 +119,8 @@ class PartFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-        part.introduction = os.path.join(part.slug, 'introduction.md')
-        part.conclusion = os.path.join(part.slug, 'conclusion.md')
+        part.introduction = os.path.join(part.get_slug(), 'introduction.md')
+        part.conclusion = os.path.join(part.get_slug(), 'conclusion.md')
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
@@ -188,12 +189,12 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         elif part:
             chapter.introduction = os.path.join(
-                part.slug,
-                chapter.slug,
+                part.get_slug(),
+                chapter.get_slug(),
                 'introduction.md')
             chapter.conclusion = os.path.join(
-                part.slug,
-                chapter.slug,
+                part.get_slug(),
+                chapter.get_slug(),
                 'conclusion.md')
             chapter.save()
             f = open(
@@ -278,6 +279,13 @@ class NoteFactory(factory.DjangoModelFactory):
             tutorial.last_note = note
             tutorial.save()
         return note
+
+class SubCategoryFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = SubCategory
+
+    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
+    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
+    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
 
 
 class VaidationFactory(factory.DjangoModelFactory):
