@@ -322,8 +322,7 @@ def edit(request):
 
             new_slug = os.path.join(
                 settings.REPO_ARTICLE_PATH,
-                slugify(
-                    data['title']))
+                article.get_slug())
 
             maj_repo_article(request,
                              old_slug_path=old_slug,
@@ -334,7 +333,7 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm({
+        form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
@@ -410,7 +409,7 @@ def download(request):
 
     article = get_object_or_404(Article, pk=request.GET['article'])
 
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.slug)
+    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_slug())
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", 'w'))
 

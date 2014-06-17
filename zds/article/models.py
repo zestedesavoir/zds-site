@@ -96,6 +96,9 @@ class Article(models.Model):
         return reverse('zds.article.views.view',
                        kwargs={'article_pk': self.pk,
                                'article_slug': slugify(self.title)})
+    
+    def get_slug(self):
+        return str(self.pk) + "_" + self.slug
 
     def get_absolute_url_online(self):
         return reverse('zds.article.views.view_online',
@@ -119,7 +122,7 @@ class Article(models.Model):
         if relative:
             return None
         else:
-            return os.path.join(settings.REPO_ARTICLE_PATH, self.slug)
+            return os.path.join(settings.REPO_ARTICLE_PATH, self.get_slug())
 
     def load_json(self, path=None, online=False):
         if path is None:
