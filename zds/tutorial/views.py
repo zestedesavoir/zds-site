@@ -1930,7 +1930,7 @@ def modify_extract(request):
              )
         extract.save()
         maj_repo_extract(request, extract=extract, action="move")
-        
+
         return redirect(extract.get_absolute_url())
     raise Http404
 
@@ -2496,9 +2496,9 @@ def maj_repo_extract(
             ext.write(smart_str(text).strip())
             ext.close()
             index.add([extract.get_path(relative=True)])
+            msg = "Mise a jour de l'exrait "
         elif action == "move" :
             msg = "Déplacement de l'extrait"
-        msg = "Mise a jour de l'exrait "
 
     # update manifest
 
