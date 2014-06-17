@@ -264,7 +264,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     """
     old_pos = getattr(obj, position_f)
     objects = getattr(getattr(obj, parent_f), children_fn)()
-
+    
     # Check that asked new position is correct
     if not 1 <= new_pos <= objects.count():
         raise ValueError('Can\'t move object to position {0}'.format(new_pos))
