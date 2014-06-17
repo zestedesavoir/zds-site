@@ -89,17 +89,17 @@
     <h3>Filtres</h3>
     <ul>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green">
                 En cours de validation
             </a>
         </li>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick">
                 En attente de validateur
             </a>
         </li>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}">
+            <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
                 Annuler le filtre
             </a>
         </li>

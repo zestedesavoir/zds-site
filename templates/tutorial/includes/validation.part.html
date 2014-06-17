@@ -4,7 +4,7 @@
 
 {% if validation.validator %}
     Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
-    
+
     {% if validation.date_reserve %}
         {{ validation.date_reserve|format_date|capfirst }}
         <br>
@@ -23,7 +23,8 @@
     <a href="#unreservation" class="open-modal btn btn-cancel">
         Annuler la réservation
     </a>
-    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" class="modal modal-small" id="unreservation">
+    {# TODO_CSRF : passer en post #}
+    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" mathod="get" class="modal modal-small" id="unreservation">
         <p>
             Le tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}, êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
         </p>
