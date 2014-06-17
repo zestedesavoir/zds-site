@@ -1808,7 +1808,10 @@ table {
 
     &.repeated {
         .message {
-            background-color: #EEE;
+            &,
+            .is-author {
+                background: #EEE;
+            }
 
             &:after {
                 border-right-color: #EEE;
@@ -1817,26 +1820,24 @@ table {
     }
     &.helpful {
         .message {
-            background-color: $helpful;
+            &,
+            .is-author {
+                background: $helpful;
+            }
 
             &:after {
                 border-right-color: $helpful;
             }
-
-            .is-author {
-                background: $helpful;
-            }
         }
         &.repeated {
             .message {
-                background-color: desaturate($helpful, 50%);
+                &,
+                .is-author {
+                    background: desaturate($helpful, 50%);
+                }
 
                 &:after {
                     border-right-color: desaturate($helpful, 50%);
-                }
-
-                .is-author {
-                    background: desaturate($helpful, 50%);
                 }
             }
         }
