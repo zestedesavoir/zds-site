@@ -14,8 +14,9 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFacto
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory
-from zds.tutorial.models import Note, Tutorial, Validation, Extract
+    ChapterFactory, NoteFactory, SubCategoryFactory
+from zds.gallery.factories import GalleryFactory
+from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import Alert
 
 
@@ -41,6 +42,7 @@ class BigTutorialTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
+        self.souscat = SubCategoryFactory()
 
         self.bigtuto = BigTutorialFactory()
         self.bigtuto.authors.add(self.user_author)
@@ -449,6 +451,68 @@ class BigTutorialTests(TestCase):
                           self.chapter2_1.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
+    
+    def test_workflow_tuto(self):
+        """Test workflow of tutorial."""
+
+        # logout before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        
+        #add new big tuto
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_tutorial'),
+            {
+                'title': u"Introduction à l'algèbre",
+                'description': "Perçer les mystère de boole",
+                'introduction':"Bienvenue dans le monde binaires",
+                'conclusion': "",
+                'type': "BIG",
+                'subcategory': self.souscat.pk,
+            },
+            follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 2)
+        tuto = Tutorial.objects.last()
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 1",
+                'introduction':"Présentation",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 1)
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction':"Analyse",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 3",
+                'introduction':"Expérimentation",
+                'conclusion': "C'est terminé",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
 
     def test_url_for_member(self):
         """Test simple get request by simple member."""
