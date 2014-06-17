@@ -230,8 +230,8 @@ class TokenForgotPassword(models.Model):
         verbose_name = 'Token de mot de passe oublié'
         verbose_name_plural = 'Tokens de mots de passe oubliés'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur')
-    token = models.CharField(max_length=100)
+    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
+    token = models.CharField(max_length=100, db_index=True)
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
@@ -246,8 +246,8 @@ class TokenRegister(models.Model):
         verbose_name = 'Token d\'inscription'
         verbose_name_plural = 'Tokens  d\'inscription'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur')
-    token = models.CharField(max_length=100)
+    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True)
+    token = models.CharField(max_length=100, db_index=True)
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
@@ -266,15 +266,15 @@ class Ban(models.Model):
         verbose_name = 'Sanction'
         verbose_name_plural = 'Sanctions'
 
-    user = models.ForeignKey(User, verbose_name='Sanctionné')
+    user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True)
     moderator = models.ForeignKey(User, verbose_name='Moderateur',
-                                  related_name='bans')
-    type = models.CharField('Type', max_length=80)
+                                  related_name='bans', db_index=True)
+    type = models.CharField('Type', max_length=80, db_index=True)
     text = models.TextField('Explication de la sanction')
     pubdate = models.DateTimeField(
         'Date de publication',
         blank=True,
-        null=True)
+        null=True, db_index=True)
 
 
 def logout_user(username):
