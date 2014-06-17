@@ -1,5 +1,6 @@
 {% extends "tutorial/base_online.html" %}
 {% load date %}
+{% load captureas %}
 
 
 
@@ -23,6 +24,13 @@
             {% endblock %}
         </h2>
 
+        {% captureas headlinesub %}
+            {% block headline_sub %}{% endblock %}
+        {% endcaptureas %}
+        {% if headlinesub %}
+            <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+        {% endif %}
+
         {% block content %}
             {% if validations %}
                 <table>
@@ -39,13 +47,15 @@
                         {% for validation in validations %}
                             <tr>
                                 <td>
-                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
+                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
+                                        {{ validation.tutorial.title }}
+                                    </a>
                                 </td>
                                 <td>
                                     {% for subcategory in validation.tutorial.subcategory.all %}
-                                        <p>
-                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
-                                        </p>
+                                        <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">
+                                            {{ subcategory.title }}
+                                        </a>
                                     {% endfor %}
                                 </td>
                                 <td>

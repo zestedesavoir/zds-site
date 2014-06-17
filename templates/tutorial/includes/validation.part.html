@@ -4,13 +4,14 @@
 
 {% if validation.validator %}
     Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
+    
+    {% if validation.date_reserve %}
+        {{ validation.date_reserve|format_date|capfirst }}
+        <br>
+    {% endif %}
 {% endif %}
 
-{% if validation.date_reserve %}
-    {{ validation.date_reserve|format_date|capfirst }}
-{% endif %}
 
-<br>
 
 {% if validation.is_pending %}
     <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
@@ -31,7 +32,7 @@
         </button>
     </form>
 {% elif validation.is_accept %}
-    <span>Accepté</span>
+    Accepté
 {% elif validation.is_reject %}
-    <span>Rejeté</span>
+    Rejeté
 {% endif %}
