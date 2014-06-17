@@ -122,9 +122,9 @@ class CategorySubCategory(models.Model):
         verbose_name = 'Hierarchie catégorie'
         verbose_name_plural = 'Hierarchies catégories'
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie')
-    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie')
-    is_main = models.BooleanField('Est la catégorie principale', default=True)
+    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True)
+    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
+    is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
     def __unicode__(self):
         """Textual Link Form."""
@@ -164,13 +164,13 @@ class Comment(models.Model):
     objects = InheritanceManager()
 
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='comments')
+                               related_name='comments', db_index=True)
     editor = models.ForeignKey(User, verbose_name='Editeur',
                                related_name='comments-editor',
                                null=True, blank=True)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 
-    position = models.IntegerField('Position')
+    position = models.IntegerField('Position', db_index=True)
 
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en Html')
@@ -178,7 +178,7 @@ class Comment(models.Model):
     like = models.IntegerField('Likes', default=0)
     dislike = models.IntegerField('Dislikes', default=0)
 
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)
 
     is_visible = models.BooleanField('Est visible', default=True)
@@ -211,13 +211,15 @@ class Alert(models.Model):
 
     author = models.ForeignKey(User,
                                verbose_name='Auteur',
-                               related_name='alerts')
+                               related_name='alerts',
+                               db_index=True)
     comment = models.ForeignKey(Comment,
                                 verbose_name='Commentaire',
-                                related_name='alerts')
-    scope = models.CharField(max_length=1, choices=SCOPE_CHOICES)
+                                related_name='alerts',
+                                db_index=True)
+    scope = models.CharField(max_length=1, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField('Texte d\'alerte')
-    pubdate = models.DateTimeField('Date de publication')
+    pubdate = models.DateTimeField('Date de publication', db_index=True)
 
     def get_comment(self):
         return Comment.objects.get(id=self.comment.id)
@@ -245,8 +247,8 @@ class CommentLike(models.Model):
         verbose_name = 'Ce message est utile'
         verbose_name_plural = 'Ces messages sont utiles'
 
-    comments = models.ForeignKey(Comment)
-    user = models.ForeignKey(User, related_name='post_liked')
+    comments = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, related_name='post_liked', db_index=True)
 
 
 class CommentDislike(models.Model):
@@ -256,8 +258,8 @@ class CommentDislike(models.Model):
         verbose_name = 'Ce message est inutile'
         verbose_name_plural = 'Ces messages sont inutiles'
 
-    comments = models.ForeignKey(Comment)
-    user = models.ForeignKey(User, related_name='post_disliked')
+    comments = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
 
 
 class Tag(models.Model):
