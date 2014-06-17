@@ -107,40 +107,62 @@
 
 
 {% block sidebar_actions %}
-    {# TODO : protéger tout ça des CSRF #}
-
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
-            <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&solved=1" 
-               class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}">
-                {% if topic.is_solved %}
-                    Marquer comme non résolu
-                {% else %}
-                    Marquer comme résolu
-                {% endif %}
-            </a>
+            {# TODO_CSRF : passer en post #}
+            <form action="{% url "zds.forum.views.edit" %}" method="get">
+
+                {# Il faudra peut-être repasser ces paramètres en get #}
+                <input type="hidden" name="topic" value="{{ topic.pk }}">
+                <input type="hidden" name="nb" value="{{ nb }}">
+                <input type="hidden" name="solved" value="1">
+
+                <button class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
+                    {% if topic.is_solved %}
+                        Marquer comme non résolu
+                    {% else %}
+                        Marquer comme résolu
+                    {% endif %}
+                </button>
+            </form>
         </li>
     {% endif %}
 
     <li>
-        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&follow=1"
-           class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}">
-            {% if topic.is_followed %}
-                Ne plus suivre ce sujet
-            {% else %}
-                Suivre ce sujet
-            {% endif %}
-        </a>
+        {# TODO_CSRF : passer en post #}
+        <form action="{% url "zds.forum.views.edit" %}" method="get">
+
+            {# Il faudra peut-être repasser ces paramètres en get #}
+            <input type="hidden" name="topic" value="{{ topic.pk }}">
+            <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="follow" value="1">
+
+            <button class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
+                {% if topic.is_followed %}
+                    Ne plus suivre ce sujet
+                {% else %}
+                    Suivre ce sujet
+                {% endif %}
+            </button>
+        </form>
     </li>
     <li>
-        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{ nb }}&email=1"
-           class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}">
-            {% if topic.is_email_followed %}
-                Ne plus être notifié par courriel
-            {% else %}
-                Être notifié par courriel
-            {% endif %}
-        </a>
+        {# TODO_CSRF : passer en post #}
+        <form action="{% url "zds.forum.views.edit" %}" method="get">
+
+            {# Il faudra peut-être repasser ces paramètres en get #}
+            <input type="hidden" name="topic" value="{{ topic.pk }}">
+            <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="email" value="1">
+
+            <button class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+                {% if topic.is_email_followed %}
+                    Ne plus être notifié par courriel
+                {% else %}
+                    Être notifié par courriel
+                {% endif %}
+            </button>
+        </form>
     </li>
 {% endblock %}
 
@@ -152,31 +174,41 @@
             <h3>Modération</h3>
             <ul>
                 <li>
-                    {% if topic.is_locked %}
-                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=false"
-                           class="ico-after lock blue">
-                            Ouvrir le sujet
-                        </a>
-                    {% else %}
-                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&lock=true"
-                           class="ico-after lock blue">
-                            Fermer le sujet
-                        </a>
-                    {% endif %}
+                    {# TODO_CSRF : passer en post #}
+                    <form action="{% url "zds.forum.views.edit" %}" method="get">
+
+                        {# Il faudra peut-être repasser ces paramètres en get #}
+                        <input type="hidden" name="topic" value="{{ topic.pk }}">
+                        <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
+
+                        <button class="ico-after cite {% if not topic.is_locked %}blue{% endif %}" type="submit">
+                            {% if topic.is_locked %}
+                                Ouvrir le sujet
+                            {% else %}
+                                Fermer le sujet
+                            {% endif %}
+                        </button>
+                    </form>
                 </li>
 
                 <li>
-                    {% if topic.is_sticky %}
-                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=false"
-                           class="ico-after pin blue">
-                            Enlever du post-it
-                        </a>
-                    {% else %}
-                        <a href="{% url "zds.forum.views.edit" %}?topic={{ topic.pk }}&page={{nb}}&sticky=true"
-                           class="ico-after pin blue">
-                            Marquer en post-it
-                        </a>
-                    {% endif %}
+                    {# TODO_CSRF : passer en post #}
+                    <form action="{% url "zds.forum.views.edit" %}" method="get">
+
+                        {# Il faudra peut-être repasser ces paramètres en get #}
+                        <input type="hidden" name="topic" value="{{ topic.pk }}">
+                        <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
+
+                        <button class="ico-after cite {% if not topic.is_sticky %}blue{% endif %}" type="submit">
+                            {% if topic.is_sticky %}
+                                Enlever du post-it
+                            {% else %}
+                                Marquer en post-it
+                            {% endif %}
+                        </button>
+                    </form>
                 </li>
 
                 <li>
