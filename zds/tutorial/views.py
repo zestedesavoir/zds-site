@@ -1724,6 +1724,7 @@ def edit_chapter(request):
 
 
 
+@can_write_and_read_now
 @login_required
 def add_extract(request):
     """Add extract."""
@@ -1868,6 +1869,7 @@ def edit_extract(request):
 
 
 @can_write_and_read_now
+@login_required
 def modify_extract(request):
     if not request.method == "POST":
         raise Http404
@@ -1876,11 +1878,25 @@ def modify_extract(request):
         extract_pk = data["extract"]
     except KeyError:
         raise Http404
+        
     extract = get_object_or_404(Extract, pk=extract_pk)
     chapter = extract.chapter
+    part = chapter.part
+
+    # Make sure the user is allowed to do that :
+    
+    if part and request.user \
+            not in extract.chapter.part.tutorial.authors.all() or not part \
+            and request.user not in extract.chapter.tutorial.authors.all():
+
+        # If the user isn't an author or a staff, we raise an exception.
+
+        if not request.user.has_perm("tutorial.change_tutorial"):
+            raise PermissionDenied
+        
     if "delete" in data:
         pos_current_extract = extract.position_in_chapter
-        for extract_c in extract.chapter.extracts():
+        for extract_c in extract.chapter.get_extracts():
             if pos_current_extract <= extract_c.position_in_chapter:
                 extract_c.position_in_chapter = extract_c.position_in_chapter \
                     - 1
@@ -1917,8 +1933,23 @@ def modify_extract(request):
         except ValueError:
             # Error, the user misplayed with the move button
             return redirect(extract.get_absolute_url())
-        move(extract, new_pos, "position_in_chapter", "chapter", "get_extracts"
-             )
+        extracts_in_chapter = extract.chapter.get_extract_count()
+        if new_pos < 0 or new_pos > extracts_in_chapter:
+            # error the new position does not exists !
+            messages.error(request,
+                    "Impossible de déplacer l'extrait à cette position")
+            return redirect(extract.get_absolute_url())
+
+        try :
+            move(extract, new_pos, "position_in_chapter", "chapter", 
+                "get_extracts"
+            )
+        except ValueError :
+            # move() raise an error
+            messages.error(request,
+                    "Impossible de déplacer l'extrait à cette position")
+            return redirect(extract.get_absolute_url())
+
         extract.save()
         maj_repo_extract(request, extract=extract, action="move")
 
@@ -2474,14 +2505,15 @@ def maj_repo_extract(
     index = repo.index
     
     chap = extract.chapter
-    
+
+    msg="Modification de l'extrait"  
     if action == "del":
         msg = "Suppression de l'exrait "
         extract.delete()
     else:
         if action == "maj":
             os.rename(old_slug_path, new_slug_path)
-            msg = "Modification de l'exrait "
+            msg = "Modification de l'exrait"
             ext = open(new_slug_path, "w")
             ext.write(smart_str(text).strip())
             ext.close()

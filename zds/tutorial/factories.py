@@ -251,15 +251,52 @@ class ExtractFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
+        title = kwargs.pop('title', None)
         chapter = kwargs.pop('chapter', None)
         if chapter:
+            extract.chapter = chapter
+            extract.title = title
+            extract.text = extract.get_path(relative=True)
             if chapter.tutorial:
-                chapter.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.tutorial.save()
+                tutorial = chapter.tutorial
             elif chapter.part:
-                chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.part.tutorial.save()
+                tutorial = chapter.part.tutorial
+       
+            repo = Repo(tutorial.get_path())
 
+            f = open(
+            os.path.join(
+                tutorial.get_path(),
+                extract.text),
+                "w")
+            f.write(u'Test')
+            f.close()
+
+            extract.save()
+            tutorial.save()    
+            man = export_tutorial(tutorial)
+            f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
+            f.write(
+                json_writer.dumps(
+                    man,
+                    indent=4,
+                    ensure_ascii=False).encode('utf-8'))
+            f.close()
+            repo.index.add(['manifest.json', extract.text])
+
+            cm = repo.index.commit("Add extract")
+
+            if chapter.tutorial:
+                tutorial.sha_draft = cm.hexsha
+                tutorial.save()
+                chapter.save()
+                extract.chapter = chapter
+            elif chapter.part:
+                tutorial.sha_draft = cm.hexsha
+                tutorial.save()
+                extract.chapter.part.save()
+                chapter.save()
+                extract.chapter = chapter
         return extract
 
 
