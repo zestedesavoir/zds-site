@@ -2486,9 +2486,9 @@ def maj_repo_extract(
             ext.write(smart_str(text).strip())
             ext.close()
             index.add([extract.get_path(relative=True)])
-            msg = "Mise a jour de l'exrait "
+            msg = "Mise a jour de l'extrait "
         elif action == "move" :
-            msg = "Déplacement de l'extrait"
+            msg = "Deplacement de l'extrait"
 
     # update manifest
 
