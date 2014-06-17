@@ -22,13 +22,13 @@ class PrivateTopic(models.Model):
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='author')
+                               related_name='author', db_index=True)
     participants = models.ManyToManyField(User, verbose_name='Participants',
-                                          related_name='participants')
+                                          related_name='participants', db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True,
                                      related_name='last_message',
                                      verbose_name='Dernier message')
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
@@ -105,16 +105,17 @@ class PrivatePost(models.Model):
     """A private post written by an user."""
     privatetopic = models.ForeignKey(
         PrivateTopic,
-        verbose_name='Message privé')
+        verbose_name='Message privé',
+        db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='privateposts')
+                               related_name='privateposts', db_index=True)
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en HTML')
 
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)
 
-    position_in_topic = models.IntegerField('Position dans le sujet')
+    position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -145,9 +146,9 @@ class PrivateTopicRead(models.Model):
         verbose_name = 'Message privé lu'
         verbose_name_plural = 'Messages privés lus'
 
-    privatetopic = models.ForeignKey(PrivateTopic)
-    privatepost = models.ForeignKey(PrivatePost)
-    user = models.ForeignKey(User, related_name='privatetopics_read')
+    privatetopic = models.ForeignKey(PrivateTopic, db_index=True)
+    privatepost = models.ForeignKey(PrivatePost, db_index=True)
+    user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
 
     def __unicode__(self):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.privatetopic,
