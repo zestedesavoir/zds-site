@@ -47,11 +47,11 @@ class Tutorial(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.CharField('Description', max_length=200)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True)
+                                         blank=True, null=True, db_index=True)
 
     slug = models.SlugField(max_length=80)
 
@@ -61,28 +61,28 @@ class Tutorial(models.Model):
 
     gallery = models.ForeignKey(Gallery,
                                 verbose_name='Galerie d\'images',
-                                blank=True, null=True)
+                                blank=True, null=True, db_index=True)
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
-                                   blank=True, null=True)
+                                   blank=True, null=True, db_index=True)
     update = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80)
+                                  blank=True, null=True, max_length=80, db_index=True)
     sha_beta = models.CharField('Sha1 de la version beta publique',
-                                blank=True, null=True, max_length=80)
+                                blank=True, null=True, max_length=80, db_index=True)
     sha_validation = models.CharField('Sha1 de la version en validation',
-                                      blank=True, null=True, max_length=80)
+                                      blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
-                                 blank=True, null=True, max_length=80)
+                                 blank=True, null=True, max_length=80, db_index=True)
 
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
-                                blank=True, null=True)
+                                blank=True, null=True, db_index=True)
 
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
 
     introduction = models.CharField(
         'chemin relatif introduction',
@@ -360,7 +360,7 @@ class Note(Comment):
         verbose_name = 'note sur un tutoriel'
         verbose_name_plural = 'notes sur un tutoriel'
 
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel')
+    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -387,9 +387,9 @@ class TutorialRead(models.Model):
         verbose_name = 'Tutoriel lu'
         verbose_name_plural = 'Tutoriels lus'
 
-    tutorial = models.ForeignKey(Tutorial)
-    note = models.ForeignKey(Note)
-    user = models.ForeignKey(User, related_name='tuto_notes_read')
+    tutorial = models.ForeignKey(Tutorial, db_index=True)
+    note = models.ForeignKey(Note, db_index=True)
+    user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
 
     def __unicode__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
@@ -430,8 +430,8 @@ class Part(models.Model):
 
     # A part has to belong to a tutorial, since only tutorials with parts
     # are large tutorials
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel parent')
-    position_in_tutorial = models.IntegerField('Position dans le tutoriel')
+    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel parent', db_index=True)
+    position_in_tutorial = models.IntegerField('Position dans le tutoriel', db_index=True)
 
     title = models.CharField('Titre', max_length=80)
 
@@ -543,10 +543,10 @@ class Chapter(models.Model):
     # A chapter may belong to a part, that's where the difference between large
     # and small tutorials is.
     part = models.ForeignKey(Part, null=True, blank=True,
-                             verbose_name='Partie parente')
+                             verbose_name='Partie parente', db_index=True)
 
     position_in_part = models.IntegerField('Position dans la partie',
-                                           null=True, blank=True)
+                                           null=True, blank=True, db_index=True)
 
     image = models.ForeignKey(Image,
                               verbose_name='Image du chapitre',
@@ -559,7 +559,7 @@ class Chapter(models.Model):
     # If the chapter doesn't belong to a part, it's a small tutorial; we need
     # to bind informations about said tutorial directly
     tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
-                                 verbose_name='Tutoriel parent')
+                                 verbose_name='Tutoriel parent', db_index=True)
 
     title = models.CharField('Titre', max_length=80, blank=True)
 
@@ -765,8 +765,8 @@ class Extract(models.Model):
         verbose_name_plural = 'Extraits'
 
     title = models.CharField('Titre', max_length=80)
-    chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent')
-    position_in_chapter = models.IntegerField('Position dans le chapitre')
+    chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent', db_index=True)
+    position_in_chapter = models.IntegerField('Position dans le chapitre', db_index=True)
 
     text = models.CharField(
         'chemin relatif du texte',
@@ -896,15 +896,15 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
-                                 verbose_name='Tutoriel proposé')
+                                 verbose_name='Tutoriel proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
-                               blank=True, null=True, max_length=80)
-    date_proposition = models.DateTimeField('Date de proposition')
+                               blank=True, null=True, max_length=80, db_index=True)
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
     comment_authors = models.TextField('Commentaire de l\'auteur')
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_validations',
-                                  blank=True, null=True)
+                                  blank=True, null=True, db_index=True)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',

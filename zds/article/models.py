@@ -51,31 +51,32 @@ class Article(models.Model):
     description = models.CharField('Description', max_length=200)
     slug = models.SlugField(max_length=80)
 
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField(
         'Date de publication',
         blank=True,
-        null=True)
+        null=True,
+        db_index=True)
     update = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True)
+                                         blank=True, null=True, db_index=True)
 
     image = models.ImageField(upload_to=image_path, blank=True, null=True)
     thumbnail = models.ImageField(upload_to=image_path, blank=True, null=True)
 
-    is_visible = models.BooleanField('Visible en rédaction', default=False)
+    is_visible = models.BooleanField('Visible en rédaction', default=False, db_index=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80)
+                                  blank=True, null=True, max_length=80,db_index=True)
     sha_validation = models.CharField('Sha1 de la version en validation',
-                                      blank=True, null=True, max_length=80)
+                                      blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
-                                 blank=True, null=True, max_length=80)
+                                 blank=True, null=True, max_length=80, db_index=True)
 
     text = models.CharField(
         'chemin relatif du texte',
@@ -324,7 +325,7 @@ STATUS_CHOICES = (
 class Reaction(Comment):
 
     """A reaction article written by an user."""
-    article = models.ForeignKey(Article, verbose_name='Article')
+    article = models.ForeignKey(Article, verbose_name='Article', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -351,9 +352,9 @@ class ArticleRead(models.Model):
         verbose_name = 'Article lu'
         verbose_name_plural = 'Articles lus'
 
-    article = models.ForeignKey(Article)
-    reaction = models.ForeignKey(Reaction)
-    user = models.ForeignKey(User, related_name='reactions_read')
+    article = models.ForeignKey(Article, db_index=True)
+    reaction = models.ForeignKey(Reaction, db_index=True)
+    user = models.ForeignKey(User, related_name='reactions_read', db_index=True)
 
     def __unicode__(self):
         return u'<Article "{0}" lu par {1}, #{2}>'.format(self.article,
@@ -393,15 +394,15 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     article = models.ForeignKey(Article, null=True, blank=True,
-                                verbose_name='Article proposé')
+                                verbose_name='Article proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
-                               blank=True, null=True, max_length=80)
-    date_proposition = models.DateTimeField('Date de proposition')
+                               blank=True, null=True, max_length=80, db_index=True)
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
     comment_authors = models.TextField('Commentaire de l\'auteur')
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='articles_author_validations',
-                                  blank=True, null=True)
+                                  blank=True, null=True, db_index=True)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',
