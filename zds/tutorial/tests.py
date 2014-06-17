@@ -14,7 +14,8 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFacto
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory
+    ChapterFactory, NoteFactory, ExtractFactory
+from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract
 from zds.utils.models import Alert
 
@@ -73,6 +74,19 @@ class BigTutorialTests(TestCase):
             position_in_part=2,
             position_in_tutorial=5)
 
+        self.extract2_2_1 = ExtractFactory(
+            chapter=self.chapter2_2,
+            position_in_chapter=1,
+            title='Titre 1')
+        self.extract2_2_2 = ExtractFactory(
+            chapter=self.chapter2_2,
+            position_in_chapter=2,
+            title='Titre 2')
+        self.extract2_2_3 = ExtractFactory(
+            chapter=self.chapter2_2,
+            position_in_chapter=3,
+            title='Titre 3')
+        
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
@@ -756,6 +770,164 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+    
+    def test_move_extracts(self):
+        """Test if extract can be moved"""
+        old_position = self.extract2_2_1.position_in_chapter
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 2 # no1 in pos 2, no2 in pos 1 and no3 in pos 3
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            2)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_2.pk).position_in_chapter,
+            1)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_3.pk).position_in_chapter,
+            3)
+        # move extract no1 down
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 1 # get back to old situation
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_2.pk).position_in_chapter,
+            2)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_3.pk).position_in_chapter,
+            3)
+
+        # test impossible deplacements :
+
+        # (1) negative position :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': -1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
+        # (2) more than chapter.get_extract_count() :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': self.chapter2_2.get_extract_count()+1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
+        # (3) same position :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
+
+        # then logout
+        self.client.logout()
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 2 # staff can move extracts as well
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            2)
+        # then back
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
+
+        # then logout
+        self.client.logout()
+        # login with normal user
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract2_2_1.pk,
+                'move': '',
+                'move_target': 1 # normal user canot move
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403) # PermissionDenied
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2_2_1.pk).position_in_chapter,
+            1)
 
     def test_delete_image_tutorial(self):
         """To test delete image of a tutorial."""
@@ -997,6 +1169,19 @@ class MiniTutorialTests(TestCase):
         self.chapter = ChapterFactory(
             tutorial=self.minituto,
             position_in_tutorial=1)
+
+        self.extract1 = ExtractFactory(
+            chapter=self.chapter,
+            position_in_chapter=1,
+            title='Titre 1')
+        self.extract2 = ExtractFactory(
+            chapter=self.chapter,
+            position_in_chapter=2,
+            title='Titre 2')
+        self.extract3 = ExtractFactory(
+            chapter=self.chapter,
+            position_in_chapter=3,
+            title='Titre 3')
 
         self.staff = StaffProfileFactory().user
 
@@ -1784,3 +1969,161 @@ class MiniTutorialTests(TestCase):
             shutil.rmtree(settings.REPO_ARTICLE_PATH)
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+
+    def test_move_extracts(self):
+        """Test if extract can be moved"""
+        old_position = self.extract1.position_in_chapter
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 2 # no1 in pos 2, no2 in pos 1 and no3 in pos 3
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            2)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2.pk).position_in_chapter,
+            1)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract3.pk).position_in_chapter,
+            3)
+        # move extract no1 down
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 1 # get back to old situation
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract2.pk).position_in_chapter,
+            2)
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract3.pk).position_in_chapter,
+            3)
+
+        # test impossible deplacements :
+
+        # (1) negative position :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': -1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
+        # (2) more than chapter.get_extract_count() :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': self.chapter.get_extract_count()+1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
+        # (3) same position :
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
+
+        # then logout
+        self.client.logout()
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 2 # staff can move extracts as well
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            2)
+        # then back
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 1
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
+
+        # then logout
+        self.client.logout()
+        # login with normal user
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        # move extract no1 up
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': self.extract1.pk,
+                'move': '',
+                'move_target': 1 # normal user canot move
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403) # PermissionDenied
+        # check position
+        self.assertEqual(
+            Extract.objects.get(pk=self.extract1.pk).position_in_chapter,
+            1)
