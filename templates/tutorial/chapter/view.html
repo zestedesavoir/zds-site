@@ -90,7 +90,7 @@
                             </option>
                         {% endif %}
 
-                        {% if chapter.position_in_part < chapter.part.chapters.count %}
+                        {% if chapter.position_in_part < chapter.part.chapters|length %}
                             <option value="{{ chapter.position_in_part|add:1 }}">
                                 Descendre
                             </option>
@@ -153,8 +153,7 @@
                             <a href="#delete-chapter" class="open-modal ico-after cross red">
                                 Supprimer le chapitre
                             </a>
-                            {# TODO_CSRF : passer en post #}
-                            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="get" id="delete-chapter" class="modal modal-medium">
+                            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="post" id="delete-chapter" class="modal modal-medium">
                                 <p>
                                     Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
                                 </p>
