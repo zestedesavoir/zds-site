@@ -111,6 +111,9 @@ class Tutorial(models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_slug(self):
+        return str(self.pk) + "_" + self.slug
+
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_tutorial', args=[
             self.pk, slugify(self.title)
@@ -167,9 +170,7 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(
-                settings.REPO_PATH, str(
-                    self.pk) + '_' + self.slug)
+            return os.path.join(settings.REPO_PATH, self.get_slug())
 
     def get_prod_path(self):
         data = self.load_json_for_public()
@@ -459,6 +460,9 @@ class Part(models.Model):
         return u'<Partie pour {0}, {1}>' \
             .format(self.tutorial.title, self.position_in_tutorial)
 
+    def get_slug(self):
+        return str(self.pk) + "_" + self.slug
+
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_part', args=[
             self.tutorial.pk,
@@ -479,13 +483,9 @@ class Part(models.Model):
 
     def get_path(self, relative=False):
         if relative:
-            return self.slug
+            return self.get_slug()
         else:
-            return os.path.join(
-                os.path.join(
-                    settings.REPO_PATH, str(
-                        self.tutorial.pk) + '_' + self.tutorial.slug),
-                self.slug)
+            return os.path.join(settings.REPO_PATH, self.tutorial.get_slug(), self.get_slug())
 
     def get_introduction(self):
         intro = open(
@@ -591,6 +591,9 @@ class Chapter(models.Model):
         else:
             return u'<orphelin>'
 
+    def get_slug(self):
+        return str(self.pk) + "_" + self.slug
+
     def get_absolute_url(self):
         if self.tutorial:
             return self.tutorial.get_absolute_url()
@@ -615,7 +618,7 @@ class Chapter(models.Model):
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
 
-    def extracts(self):
+    def get_extracts(self):
         return Extract.objects.all()\
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
@@ -643,25 +646,17 @@ class Chapter(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.tutorial:
-                chapter_path = self.slug
+                chapter_path = self.get_slug()
             else:
-                chapter_path = os.path.join(self.part.slug, self.slug)
+                chapter_path = os.path.join(self.part.get_slug(), self.get_slug())
         else:
             if self.tutorial:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        settings.REPO_PATH, str(
-                            self.tutorial.pk) + '_' + self.tutorial.slug),
-                    self.slug)
+                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_slug(), self.get_slug())
             else:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        os.path.join(
-                            settings.REPO_PATH, str(
-                                self.part.tutorial.pk)
-                            + '_'
-                            + self.part.tutorial.slug),
-                        self.part.slug), self.slug)
+                chapter_path = os.path.join(settings.REPO_PATH,
+                                            self.part.tutorial.get_slug(),
+                                            self.part.get_slug(),
+                                            self.get_slug())
 
         return chapter_path
 
@@ -798,51 +793,44 @@ class Extract(models.Model):
                 chapter_path = ''
             else:
                 chapter_path = os.path.join(
-                    self.chapter.part.slug,
-                    self.chapter.slug)
+                    self.chapter.part.get_slug(),
+                    self.chapter.get_slug())
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(
-                    settings.REPO_PATH, str(
-                        self.chapter.tutorial.pk)
-                    + '_'
-                    + self.chapter.tutorial.slug)
+                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_slug())
             else:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        os.path.join(
-                            settings.REPO_PATH,
-                            str(
-                                self.chapter.part.tutorial.pk) +
-                            '_' +
-                            self.chapter.part.tutorial.slug),
-                        self.chapter.part.slug),
-                    self.chapter.slug)
+                chapter_path = os.path.join(settings.REPO_PATH,
+                                            self.chapter.part.tutorial.get_slug(),
+                                            self.chapter.part.get_slug(),
+                                            self.chapter.get_slug())
 
-        return os.path.join(chapter_path, self.slugify_title()) + '.md'
+        return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
 
     def get_prod_path(self):
+        
         if self.chapter.tutorial:
-            chapter_path = os.path.join(
-                os.path.join(
-                    settings.REPO_PATH_PROD, str(
-                        self.chapter.tutorial.pk)
-                    + '_'
-                    + self.chapter.tutorial.slug), self.chapter.slug)
+            data = self.chapter.tutorial.load_json_for_public()
+            mandata = tutorial.load_dic(data)
+            if "chapter" in mandata:
+                for ext in mandata["chapter"]["extracts"]:
+                    if ext['pk'] == self.pk:
+                        return os.path.join(settings.REPO_PATH_PROD,
+                                            str(self.chapter.tutorial.pk) + '_' + slugify(mandata['title']),
+                                            str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                            + '.md.html'
         else:
-            chapter_path = os.path.join(
-                os.path.join(
-                    os.path.join(
-                        settings.REPO_PATH_PROD,
-                        str(
-                            self.chapter.part.tutorial.pk) +
-                        '_' +
-                        self.chapter.part.tutorial.slug),
-                    self.chapter.part.slug),
-                self.chapter.slug)
-
-        return os.path.join(chapter_path, self.slugify_title()
-             + '.md.html')
+            data = self.chapter.part.tutorial.load_json_for_public()
+            mandata = tutorial.load_dic(data)
+            for part in mandata["parts"]:
+                for chapter in part["chapters"]:
+                    for ext in chapter["extracts"]:
+                        if ext['pk'] == self.pk:
+                            chapter_path = os.path.join(settings.REPO_PATH_PROD,
+                                                        str(mandata['pk']) + '_' + slugify(mandata['title']),
+                                                        str(part['pk']) + "_" + slugify(part['title']),
+                                                        str(chapter['pk']) + "_" + slugify(chapter['title']),
+                                                        str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                                        + '.md.html'
 
     def get_text(self):
         if self.chapter.tutorial:
@@ -882,12 +870,6 @@ class Extract(models.Model):
             return text_contenu.decode('utf-8')
         else:
             return None
-
-    def slugify_title(self):
-        toEscape = ["introduction","conclusion"]
-        if slugify(self.title) in toEscape :
-            return "p-"+self.title
-        return slugify(self.title)
 
 class Validation(models.Model):
 

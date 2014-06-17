@@ -68,13 +68,7 @@
                         <option disabled>&mdash; Déplacer avant</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:-1 != extract.position_in_chapter %}
-                            <option value="
-                                {% if extract_mv.position_chapter < extract.position_in_chapter %}
-                                    {{ extract_mv.position_in_chapter }}
-                                {% else %}
-                                    {{ extract_mv.position_in_chapter|add:-1 }}
-                                {% endif %}
-                            ">
+                            <option value="{{ extract_mv.position_in_chapter }}">
                                 Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                             </option>
                             {% endif %}
@@ -83,13 +77,7 @@
                         <option disabled>&mdash; Déplacer après</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:1 != extract.position_in_chapter %}
-                            <option value="
-                                {% if extract_mv.position_chapter < extract.position_in_chapter %}
-                                    {{ extract_mv.position_in_chapter|add:1 }}
-                                {% else %}
-                                    {{ extract_mv.position_in_chapter }}
-                                {% endif %}
-                            ">
+                            <option value="{{ extract_mv.position_in_chapter }}">
                                 Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                             </option>
                             {% endif %}
