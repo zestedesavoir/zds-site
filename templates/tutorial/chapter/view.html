@@ -10,8 +10,8 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}{% if version %}?version={{version}}{% endif %}">{{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}</a></li>
-    <li><a href="{{ chapter.part.get_absolute_url }}{% if version %}?version={{version}}{% endif %}">{{ chapter.part.title }}</a></li>
+    <li><a href="{{ chapter.part.tutorial.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ chapter.part.tutorial.title }} {{ chapter.tutorial.title }}</a></li>
+    <li><a href="{{ chapter.part.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ chapter.part.title }}</a></li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
 
@@ -55,7 +55,7 @@
 
 
 {% block sidebar_new %}
-    {% if user in chapter.part.tutorial.authors.all %}
+    {% if user in chapter.part.tutorial.authors.all or perms.tutorial.change_tutorial %}
         <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}"
            class="ico-after more blue new-btn"
         >
@@ -72,7 +72,7 @@
 
 
 {% block sidebar_actions %}
-    {% if user in chapter.part.tutorial.authors.all %}
+    {% if user in chapter.part.tutorial.authors.all or perms.tutorial.change_tutorial %}
         {% if chapter.part %}
             <li>
                 <a href="#move-chapter" class="open-modal ico-after move blue">
@@ -144,28 +144,35 @@
     {% include "tutorial/includes/summary.part.html" with tutorial=chapter.part.tutorial chapter_current=chapter %}
 
     {% if chapter.part %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-            <h3>Suppression</h3>
-            <ul>
-                {% if not tutorial.on_line %}
-                    <li>
-                        <a href="#delete-chapter" class="open-modal ico-after cross red">Supprimer le chapitre</a>
-                        <form action="{% url "zds.tutorial.views.modify_chapter" %}" id="delete-chapter" class="modal modal-medium" method="get">
-                            <p>
-                                Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
-                            </p>
-                            <input type="hidden" name="chapter" value="{{ chapter.pk }}">
+        {% if user in chapter.part.tutorial.authors.all %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+                <h3>Suppression</h3>
+                <ul>
+                    {% if not tutorial.on_line %}
+                        <li>
+                            <a href="#delete-chapter" class="open-modal ico-after cross red">
+                                Supprimer le chapitre
+                            </a>
+                            {# TODO_CSRF : passer en post #}
+                            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="get" id="delete-chapter" class="modal modal-medium">
+                                <p>
+                                    Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
+                                </p>
+                                <input type="hidden" name="chapter" value="{{ chapter.pk }}">
 
-                            {% csrf_token %}
-                            <button type="submit">Confirmer</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="inactive">
-                        <span>Impossible car publié</span>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
+                                {% csrf_token %}
+                                <button type="submit">
+                                    Confirmer
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="inactive">
+                            <span>Impossible car publié</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}

@@ -1934,16 +1934,16 @@ def find_tuto(request, pk_user):
         type = None
     u = get_object_or_404(User, pk=pk_user)
     if type == "beta":
-        tutos = Tutorial.objects.all().filter(
+        tutorials = Tutorial.objects.all().filter(
             authors__in=[u],
             sha_beta__isnull=False).order_by("-pubdate")
         return render_template("tutorial/member/beta.html",
-                               {"tutos": tutos, "usr": u})
+                               {"tutorials": tutorials, "usr": u})
     else:
-        tutos = Tutorial.objects.all().filter(
+        tutorials = Tutorial.objects.all().filter(
             authors__in=[u],
             sha_public__isnull=False).order_by("-pubdate")
-        return render_template("tutorial/member/index.html", {"tutos": tutos,
+        return render_template("tutorial/member/index.html", {"tutorials": tutorials,
                                                                "usr": u})
 
 
