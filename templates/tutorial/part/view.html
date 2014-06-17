@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    {{ part.title }} ({{ part.tutorial.title }})
+    {{ part.title }} - {{ part.tutorial.title }}
 {% endblock %}
 
 
@@ -73,12 +73,14 @@
 
 
 {% block sidebar_new %}
-    <a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}" class="ico-after more blue new-btn">
-        Ajouter un chapitre
-    </a>
-    <a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}" class="ico-after edit blue new-btn">
-        Éditer la partie
-    </a>
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+        <a href="{% url "zds.tutorial.views.add_chapter" %}?partie={{ part.pk }}" class="ico-after more blue new-btn">
+            Ajouter un chapitre
+        </a>
+        <a href="{% url "zds.tutorial.views.edit_part" %}?partie={{ part.pk }}" class="ico-after edit blue new-btn">
+            Éditer la partie
+        </a>
+    {% endif %}
 {% endblock %}
 
 
