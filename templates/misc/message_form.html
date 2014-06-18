@@ -14,7 +14,7 @@
                         name="text"
                         id="text"
                         class="md-editor"
-                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                        {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
                     >{% spaceless %}
                         {% if topic.is_locked %}
