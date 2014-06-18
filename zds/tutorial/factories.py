@@ -119,8 +119,8 @@ class PartFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-        part.introduction = os.path.join(part.get_slug(), 'introduction.md')
-        part.conclusion = os.path.join(part.get_slug(), 'conclusion.md')
+        part.introduction = os.path.join(part.get_phy_slug(), 'introduction.md')
+        part.conclusion = os.path.join(part.get_phy_slug(), 'conclusion.md')
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
@@ -189,12 +189,12 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         elif part:
             chapter.introduction = os.path.join(
-                part.get_slug(),
-                chapter.get_slug(),
+                part.get_phy_slug(),
+                chapter.get_phy_slug(),
                 'introduction.md')
             chapter.conclusion = os.path.join(
-                part.get_slug(),
-                chapter.get_slug(),
+                part.get_phy_slug(),
+                chapter.get_phy_slug(),
                 'conclusion.md')
             chapter.save()
             f = open(

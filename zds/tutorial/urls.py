@@ -12,23 +12,25 @@ urlpatterns = patterns('',
                        url(r'^recherche/(?P<pk_user>.+)/$',
                            'zds.tutorial.views.find_tuto'),
 
-                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-                           r'(?P<part_slug>.+)/' +
-                           r'(?P<chapter_slug>.+)/$', 'zds.tutorial.views.view_chapter', name="view-chapter-url"),
+                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
+                           'zds.tutorial.views.view_chapter',
+                           name="view-chapter-url"),
 
-                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-                           r'(?P<part_slug>.+)/$', 'zds.tutorial.views.view_part', name="view-part-url"),
+                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
+                           'zds.tutorial.views.view_part',
+                           name="view-part-url"),
 
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
                            'zds.tutorial.views.view_tutorial'),
 
                        # View online
-                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-                           r'(?P<part_slug>.+)/' +
-                           r'(?P<chapter_slug>.+)/$', 'zds.tutorial.views.view_chapter_online', name="view-chapter-url-online"),
+                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
+                           'zds.tutorial.views.view_chapter_online',
+                           name="view-chapter-url-online"),
 
-                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/' +
-                           r'(?P<part_slug>.+)/$', 'zds.tutorial.views.view_part_online', name="view-part-url-online"),
+                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
+                           'zds.tutorial.views.view_part_online',
+                           name="view-part-url-online"),
 
                        url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
                            'zds.tutorial.views.view_tutorial_online'),

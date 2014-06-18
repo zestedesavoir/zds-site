@@ -69,7 +69,7 @@
 
             {% for part in parts %}
                 <h2>
-                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{% if version %}?version={{version}}{% endif %}">
+                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}{%if version %}?version={{version}}{% endif %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>
