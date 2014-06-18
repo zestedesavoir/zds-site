@@ -61,7 +61,7 @@
                             <option value="{{ extract.position_in_chapter|add:-1 }}">Monter</option>
                         {% endif %}
 
-                        {% if extract.position_in_chapter < extracts.count %}
+                        {% if extract.position_in_chapter < extracts|length %}
                             <option value="{{ extract.position_in_chapter|add:1 }}">Descendre</option>
                         {% endif %}
 

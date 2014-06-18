@@ -1,5 +1,6 @@
 {% extends "tutorial/base_online.html" %}
 {% load date %}
+{% load captureas %}
 
 
 
@@ -23,6 +24,13 @@
             {% endblock %}
         </h2>
 
+        {% captureas headlinesub %}
+            {% block headline_sub %}{% endblock %}
+        {% endcaptureas %}
+        {% if headlinesub %}
+            <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+        {% endif %}
+
         {% block content %}
             {% if validations %}
                 <table>
@@ -32,22 +40,22 @@
                             <th width="8%">Catégorie(s)</th>
                             <th width="8%">Auteur(s)</th>
                             <th width="8%">Proposé</th>
-                            <th width="8%">Validateur</th>
-                            <th width="8%">Statut</th>
-                            <th width="8%">Action</th>
+                            <th width="24%">Statut</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for validation in validations %}
                             <tr>
                                 <td>
-                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}" >{{ validation.tutorial.title }}</a>
+                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
+                                        {{ validation.tutorial.title }}
+                                    </a>
                                 </td>
                                 <td>
                                     {% for subcategory in validation.tutorial.subcategory.all %}
-                                        <p>
-                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">{{ subcategory.title }}</a>
-                                        </p>
+                                        <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">
+                                            {{ subcategory.title }}
+                                        </a>
                                     {% endfor %}
                                 </td>
                                 <td>
@@ -59,25 +67,7 @@
                                     <span>{{ validation.date_proposition|format_date|capfirst }}</span>
                                 </td>
                                 <td>
-                                    {% if validation.validator %}
-                                        {% include 'misc/member_item.part.html' with member=validation.validator avatar=True %}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if validation.date_reserve %}
-                                        <span>{{ validation.date_reserve|format_date|capfirst }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if validation.is_pending %}
-                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Réserver</a>
-                                    {% elif validation.is_pending_valid %}
-                                        <a href="{% url "zds.tutorial.views.reservation" validation.pk %}">Annuler la réservation</a>
-                                    {% elif validation.is_accept %}
-                                        <span>Accepté</span>
-                                    {% elif validation.is_reject %}
-                                        <span>Rejeté</span>
-                                    {% endif %}
+                                    {% include "tutorial/includes/validation.part.html" %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -99,17 +89,17 @@
     <h3>Filtres</h3>
     <ul>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved">
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green">
                 En cours de validation
             </a>
         </li>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan">
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick">
                 En attente de validateur
             </a>
         </li>
         <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}">
+            <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
                 Annuler le filtre
             </a>
         </li>
