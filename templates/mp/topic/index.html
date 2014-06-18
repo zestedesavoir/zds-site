@@ -103,7 +103,7 @@
                             Vous allez rajouter un nouveau membre dans la conversation privée.
                         </p>
                         <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
-                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
+                        <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre" autocomplete="{'type':'single'}">
 
                         {% csrf_token %}
                         <button type="submit">Ajouter</button>
