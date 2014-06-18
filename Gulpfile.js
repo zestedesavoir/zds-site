@@ -13,7 +13,7 @@ var paths = {
   sass: {
     sass: "assets/scss",
     images: "assets/images",
-    includePaths: ["assets/scss"],
+    includePaths: ["assets/scss", "assets/bower_components/modularized-normalize-scss"],
   },
   sprite: "assets/images/sprite@2x/*.png"
 };

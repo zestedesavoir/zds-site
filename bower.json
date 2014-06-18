@@ -9,10 +9,15 @@
     "jquery": "~2.1.1",
     "jquery.tabbable": "~1.0.2",
     "css3-mediaqueries-js": "*",
-    "modernizr": "~2.8.2"
+    "modernizr": "~2.8.2",
+    "modularized-normalize-scss": "~3.0.1"
   },
   "overrides": {
-    "jquery.tabbable": { "main": "jquery.tabbable.js" },
-    "modernizr": { "main": "modernizr.js" }
+    "jquery.tabbable": {
+      "main": "jquery.tabbable.js"
+    },
+    "modernizr": {
+      "main": "modernizr.js"
+    }
   }
 }
