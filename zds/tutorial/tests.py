@@ -12,10 +12,11 @@ from django.test.utils import override_settings
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
-from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory
+from zds.tutorial.factories import BigTutorialFactory, \
+    MiniTutorialFactory, PartFactory, \
+    ChapterFactory, NoteFactory, SubCategoryFactory
 from zds.gallery.factories import GalleryFactory
-from zds.tutorial.models import Note, Tutorial, Validation, Extract
+from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part
 from zds.utils.models import Alert
 
 
@@ -78,7 +79,7 @@ class BigTutorialTests(TestCase):
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
-
+        self.subcat = SubCategoryFactory()
         login_check = self.client.login(
             username=self.staff.username,
             password='hostel77')
@@ -117,29 +118,30 @@ class BigTutorialTests(TestCase):
 
         mail.outbox = []
 
-    def tert_add_part_named_introduction(self):
-
-        self.client.login(username=selft.user_author,
+    def test_add_part_named_introduction(self):
+        """Test addition of part named introduction because it can
+        cause conflicts"""
+        self.client.login(username=self.user_author,
             password='hostel77')
-        part_number = self.bigtuto.get_parts.count()
+        part_number = self.bigtuto.get_parts().count()
         
         #add a new part
         result = self.client.post(
-            reverse('zds.tutorial.views.add_part'+
+            reverse('zds.tutorial.views.add_part')+
             '?tutoriel={0}'.format(
                 self.bigtuto.pk),
                 {
                     'title':'Introduction',
                     'introduction':'Introduction for test part',
                     'conclusion':'conclusion for test',
-                }, follow = False)
+                }, follow = False
         )
         self.assertEqual(result.status_code,302)
         #check part number
         self.assertEqual(part_number + 1,
-            self.bigtuto.get_parts.count())
+            self.bigtuto.get_parts().count())
         #check no conflict :
-        part = self.bigtuto.get_parts()[-1]
+        part = self.bigtuto.get_parts()[part_number]
         tuto_intro = os.path.join(self.bigtuto.get_path(),
             'introduction.md')
         part_path = part.get_path()
@@ -485,7 +487,65 @@ class BigTutorialTests(TestCase):
                           self.chapter2_1.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
+    def test_workflow_tuto(self):
+        """Test workflow of tutorial."""
+        # logout before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        #add new big tuto
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_tutorial'),
+            {
+                'title': u"Introduction à l'algèbre",
+                'description': "Perçer les mystère de boole",
+                'introduction':"Bienvenue dans le monde binaires",
+                'conclusion': "",
+                'type': "BIG",
+                'subcategory': self.subcat.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 2)
+        tuto = Tutorial.objects.last()
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 1",
+                'introduction':"Présentation",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
 
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 1)
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction':"Analyse",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 3",
+                'introduction':"Expérimentation",
+                'conclusion': "C'est terminé",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
     def test_url_for_member(self):
         """Test simple get request by simple member."""
 

@@ -18,7 +18,7 @@ import factory
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
 from zds.utils.tutorials import export_tutorial
-
+from zds.utils.models import SubCategory
 
 class BigTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
@@ -278,6 +278,11 @@ class NoteFactory(factory.DjangoModelFactory):
             tutorial.save()
         return note
 
+class SubCategoryFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = SubCategory
+    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
+    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
+    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
 
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
