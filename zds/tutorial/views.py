@@ -2884,7 +2884,7 @@ def answer(request):
                 raise PermissionDenied
             for line in note_cite.text.splitlines():
                 text = text + "> " + line + "\n"
-            text = u"{0}\nSource:[{1}]({2})".format(
+            text = u"{0}Source:[{1}]({2})".format(
                 text,
                 note_cite.author.username,
                 note_cite.get_absolute_url())

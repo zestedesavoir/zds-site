@@ -912,7 +912,7 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}\nSource:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2})'.format(
                 text,
                 reaction_cite.author.username,
                 reaction_cite.get_absolute_url())
