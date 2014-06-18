@@ -490,23 +490,14 @@ def settings_user(request):
         form = ChangeUserForm(request.POST)
         c = {"form": form}
         if form.is_valid():
-            email_exist = User.objects.filter(email=form.data["username_new"
-                                                              ]).count()
-            username_exist = \
-                User.objects.filter(username=form.data["username_new"]).count()
             old = User.objects.filter(pk=request.user.pk).all()[0]
-            if form.data["username_new"] and username_exist > 0:
-                raise Http404
-            elif form.data["username_new"]:
-                if form.data["username_new"].strip() != "":
-                    old.username = form.data["username_new"]
-            if form.data["email_new"] and email_exist > 0:
-                raise Http404
+            if form.data["username_new"]:
+                old.username = form.data["username_new"]
             elif form.data["email_new"]:
                 if form.data["email_new"].strip() != "":
                     old.email = form.data["email_new"]
             old.save()
-            return redirect(profile.get_absolute_url())
+            return redirect(old.profile.get_absolute_url())
         else:
             return render_to_response("member/settings/user.html", c,
                                       RequestContext(request))
