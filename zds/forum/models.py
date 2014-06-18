@@ -75,9 +75,9 @@ class Forum(models.Model):
         blank=True)
     image = models.ImageField(upload_to=image_path_forum)
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie')
+    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
-                                               null=True, blank=True)
+                                               null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
 
@@ -139,23 +139,24 @@ class Topic(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
 
-    forum = models.ForeignKey(Forum, verbose_name='Forum')
+    forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='topics')
+                               related_name='topics', db_index=True)
     last_message = models.ForeignKey('Post', null=True,
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
-    is_solved = models.BooleanField('Est résolu', default=False)
+    is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     is_locked = models.BooleanField('Est verrouillé', default=False)
-    is_sticky = models.BooleanField('Est en post-it', default=False)
+    is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
 
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Tags du forum',
         null=True,
-        blank=True)
+        blank=True,
+        db_index=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
@@ -289,7 +290,7 @@ class Post(Comment):
 
     """A forum post written by an user."""
 
-    topic = models.ForeignKey(Topic, verbose_name='Sujet')
+    topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
     is_useful = models.BooleanField('Est utile', default=False)
 
@@ -318,9 +319,9 @@ class TopicRead(models.Model):
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
 
-    topic = models.ForeignKey(Topic)
-    post = models.ForeignKey(Post)
-    user = models.ForeignKey(User, related_name='topics_read')
+    topic = models.ForeignKey(Topic, db_index=True)
+    post = models.ForeignKey(Post, db_index=True)
+    user = models.ForeignKey(User, related_name='topics_read', db_index=True)
 
     def __unicode__(self):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
@@ -340,9 +341,9 @@ class TopicFollowed(models.Model):
         verbose_name = 'Sujet suivi'
         verbose_name_plural = 'Sujets suivis'
 
-    topic = models.ForeignKey(Topic)
-    user = models.ForeignKey(User, related_name='topics_followed')
-    email = models.BooleanField('Notification par courriel', default=False)
+    topic = models.ForeignKey(Topic, db_index=True)
+    user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
+    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
 
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,

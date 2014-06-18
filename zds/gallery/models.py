@@ -54,8 +54,8 @@ class UserGallery(models.Model):
         verbose_name = "Galeries de l'utilisateur"
         verbose_name_plural = "Galeries de l'utilisateur"
 
-    user = models.ForeignKey(User, verbose_name=('Membre'))
-    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'))
+    user = models.ForeignKey(User, verbose_name=('Membre'), db_index=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     MODE_CHOICES = (
         ('R', 'Lecture'),
         ('W', 'Ecriture')
@@ -89,7 +89,7 @@ class Image(models.Model):
         verbose_name = "Image"
         verbose_name_plural = "Images"
 
-    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'))
+    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     title = models.CharField('Titre', max_length=80, null=True, blank=True)
     slug = models.SlugField(max_length=80)
     physical = models.ImageField(upload_to=image_path)
@@ -102,7 +102,7 @@ class Image(models.Model):
         null=True,
         blank=True)
     legend = models.CharField('Légende', max_length=80, null=True, blank=True)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     update = models.DateTimeField(
         'Date de modification', null=True, blank=True)
 
@@ -203,7 +203,7 @@ class Gallery(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous titre', max_length=200)
     slug = models.SlugField(max_length=80)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     update = models.DateTimeField(
         'Date de modification', null=True, blank=True)
 
