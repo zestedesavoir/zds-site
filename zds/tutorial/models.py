@@ -111,7 +111,7 @@ class Tutorial(models.Model):
     def __unicode__(self):
         return self.title
 
-    def get_slug(self):
+    def get_phy_slug(self):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
@@ -170,7 +170,7 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(settings.REPO_PATH, self.get_slug())
+            return os.path.join(settings.REPO_PATH, self.get_phy_slug())
 
     def get_prod_path(self):
         data = self.load_json_for_public()
@@ -460,13 +460,14 @@ class Part(models.Model):
         return u'<Partie pour {0}, {1}>' \
             .format(self.tutorial.title, self.position_in_tutorial)
 
-    def get_slug(self):
+    def get_phy_slug(self):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_part', args=[
             self.tutorial.pk,
             self.tutorial.slug,
+            self.pk,
             self.slug,
         ])
 
@@ -474,6 +475,7 @@ class Part(models.Model):
         return reverse('zds.tutorial.views.view_part_online', args=[
             self.tutorial.pk,
             self.tutorial.slug,
+            self.pk,
             self.slug,
         ])
 
@@ -483,9 +485,9 @@ class Part(models.Model):
 
     def get_path(self, relative=False):
         if relative:
-            return self.get_slug()
+            return self.get_phy_slug()
         else:
-            return os.path.join(settings.REPO_PATH, self.tutorial.get_slug(), self.get_slug())
+            return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
 
     def get_introduction(self):
         intro = open(
@@ -591,7 +593,7 @@ class Chapter(models.Model):
         else:
             return u'<orphelin>'
 
-    def get_slug(self):
+    def get_phy_slug(self):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
@@ -599,7 +601,7 @@ class Chapter(models.Model):
             return self.tutorial.get_absolute_url()
 
         elif self.part:
-            return self.part.get_absolute_url() + '{0}/'.format(self.slug)
+            return self.part.get_absolute_url() + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
             return reverse('zds.tutorial.views.index')
@@ -610,7 +612,7 @@ class Chapter(models.Model):
 
         elif self.part:
             return self.part.get_absolute_url_online(
-            ) + '{0}/'.format(self.slug)
+            ) + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
             return reverse('zds.tutorial.views.index')
@@ -646,17 +648,17 @@ class Chapter(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.tutorial:
-                chapter_path = self.get_slug()
+                chapter_path = self.get_phy_slug()
             else:
-                chapter_path = os.path.join(self.part.get_slug(), self.get_slug())
+                chapter_path = os.path.join(self.part.get_phy_slug(), self.get_phy_slug())
         else:
             if self.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_slug(), self.get_slug())
+                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
             else:
                 chapter_path = os.path.join(settings.REPO_PATH,
-                                            self.part.tutorial.get_slug(),
-                                            self.part.get_slug(),
-                                            self.get_slug())
+                                            self.part.tutorial.get_phy_slug(),
+                                            self.part.get_phy_slug(),
+                                            self.get_phy_slug())
 
         return chapter_path
 
@@ -793,16 +795,16 @@ class Extract(models.Model):
                 chapter_path = ''
             else:
                 chapter_path = os.path.join(
-                    self.chapter.part.get_slug(),
-                    self.chapter.get_slug())
+                    self.chapter.part.get_phy_slug(),
+                    self.chapter.get_phy_slug())
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_slug())
+                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_phy_slug())
             else:
                 chapter_path = os.path.join(settings.REPO_PATH,
-                                            self.chapter.part.tutorial.get_slug(),
-                                            self.chapter.part.get_slug(),
-                                            self.chapter.get_slug())
+                                            self.chapter.part.tutorial.get_phy_slug(),
+                                            self.chapter.part.get_phy_slug(),
+                                            self.chapter.get_phy_slug())
 
         return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
 

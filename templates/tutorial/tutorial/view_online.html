@@ -52,7 +52,7 @@
         {% if parts %}
             {% for part in parts %}
                 <h2>
-                    <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
+                    <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.pk part.slug %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>

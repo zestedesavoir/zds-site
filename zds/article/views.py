@@ -322,7 +322,7 @@ def edit(request):
 
             new_slug = os.path.join(
                 settings.REPO_ARTICLE_PATH,
-                article.get_slug())
+                article.get_phy_slug())
 
             maj_repo_article(request,
                              old_slug_path=old_slug,
@@ -409,7 +409,7 @@ def download(request):
 
     article = get_object_or_404(Article, pk=request.GET['article'])
 
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_slug())
+    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", 'w'))
 
