@@ -175,7 +175,8 @@
     }
 }
 
-.main-container {
+.main-container,
+#modals {
     input[type=radio],
     input[type=checkbox] {
         float: left;

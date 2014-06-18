@@ -133,16 +133,29 @@
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>Admin<span class="wide">istration</span></h3>
             <ul>
-                <li><a href="{{ tutorial.get_absolute_url }}" class="ico-after offline blue">Version hors-ligne</a></li>
-                <li><a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">Historique validation</a></li>
                 <li>
-                    <a href="#unpublish" class="ico-after open-modal cross blue">Dépublier</a>
-                    <div class="modal modal-small" id="unpublish">
+                    <a href="{{ tutorial.get_absolute_url }}" class="ico-after offline blue">
+                        Version hors-ligne
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">
+                        Historique validation
+                    </a>
+                </li>
+                <li>
+                    <a href="#unpublish" class="ico-after open-modal cross blue">
+                        Dépublier
+                    </a>
+                    {# TODO_CSRF : passer en post #}
+                    <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="get" class="modal modal-small" id="unpublish">
                         <p>
-                            Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>"
+                            Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>".
                         </p>
-                        <a href="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" class="btn btn-submit">Confirmer</a>
-                    </div>
+                        <button type="submit">
+                            Confirmer
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>

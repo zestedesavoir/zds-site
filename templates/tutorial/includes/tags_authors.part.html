@@ -1,8 +1,10 @@
-<ul class="taglist">
-    {% for catofsubcat in tutorial.subcategory.all %}
-        <li><a href="{{ catofsubcat.get_absolute_url_tutorial }}">{{ catofsubcat.title }}</a></li>
-    {% endfor %}
-</ul>
+{% if tutorial.subcategory.all|length > 0 %}
+    <ul class="taglist">
+        {% for catofsubcat in tutorial.subcategory.all %}
+            <li><a href="{{ catofsubcat.get_absolute_url_tutorial }}">{{ catofsubcat.title }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
 <div class="authors">
     <span class="authors-label">Auteurs : </span>
@@ -13,7 +15,7 @@
             </li>
         {% endfor %}
 
-        {% if add_author == True %}
+        {% if add_author = True %}
             <li>
                 <a href="#add-author" class="open-modal ico-after more blue">
                     Ajouter un auteur
