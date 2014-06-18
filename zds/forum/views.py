@@ -540,7 +540,7 @@ def answer(request):
                 raise PermissionDenied
             for line in post_cite.text.splitlines():
                 text = text + "> " + line + "\n"
-            text = u"{0}\nSource:[{1}]({2}{3})".format(
+            text = u"{0}Source:[{1}]({2}{3})".format(
                 text,
                 post_cite.author.username,
                 settings.SITE_URL,
