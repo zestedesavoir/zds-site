@@ -114,7 +114,7 @@
         </a>
         <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
             {% csrf_token %}
-            <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter">
+            <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
             <input type="hidden" name="tutorial" value="{{ tutorial.pk }}" />
             <button type="submit" class="button" name="add_author">
                 Confirmer

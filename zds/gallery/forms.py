@@ -62,7 +62,8 @@ class UserGalleryForm(forms.Form):
         required=True,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Nom de l\'utilisateur'
+                'placeholder': 'Nom de l\'utilisateur',
+                'data-autocomplete': '{ "type": "single" }'
             }
         )
     )
