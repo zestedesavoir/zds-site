@@ -2506,19 +2506,18 @@ def maj_repo_extract(
     
     chap = extract.chapter
 
-    msg="Modification de l'extrait"  
+    msg = "Modification de l'extrait"  
     if action == "del":
-        msg = "Suppression de l'exrait "
+        msg = "Suppression de l'exrait"
         extract.delete()
     else:
         if action == "maj":
             os.rename(old_slug_path, new_slug_path)
-            msg = "Modification de l'exrait"
             ext = open(new_slug_path, "w")
             ext.write(smart_str(text).strip())
             ext.close()
             index.add([extract.get_path(relative=True)])
-            msg = "Mise a jour de l'extrait "
+            msg = "Mise a jour de l'extrait"
         elif action == "move" :
             msg = "Deplacement de l'extrait"
 
