@@ -16,8 +16,9 @@ class LastPostsFeedRSS(Feed):
     u'parus sur le forum de Zeste de Savoir.'
 
     def items(self):
-        return Post.objects\
-            .order_by('-pubdate')[:5]
+        posts = Post.objects.filter(topic__forum__group__isnull=True)\
+            .order_by('-pubdate')
+        return posts[:5]
 
     def item_title(self, item):
         return u'{}, message #{}'.format(item.topic.title, item.pk)
@@ -47,8 +48,9 @@ class LastTopicsFeedRSS(Feed):
     description = u'Les derniers sujets créés sur le forum de Zeste de Savoir.'
 
     def items(self):
-        return Topic.objects\
-            .order_by('-pubdate')[:5]
+        topics = Topic.objects.filter(forum__group__isnull=True)\
+            .order_by('-pubdate')
+        return topics[:5]
 
     def item_title(self, item):
         return u'{} dans {}'.format(item.title, item.forum.title)
