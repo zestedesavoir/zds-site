@@ -14,13 +14,15 @@
                         name="text"
                         id="text"
                         class="md-editor"
-                        {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                        {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
                     >{% spaceless %}
                         {% if topic.is_locked %}
                             Ce sujet est verrouillé.
                         {% elif topic.antispam  %}
                             Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                        {% elif topic.alone %}
+                            Vous êtes seul dans cette conversation.
                         {% else %}
                             {{ text }}
                         {% endif %}
@@ -33,7 +35,7 @@
                             type="submit"
                             name="preview"
                             class="btn-grey"
-                            {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                            {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         >
                             Aperçu
                         </button>
@@ -41,7 +43,7 @@
                         <button
                             type="submit"
                             name="answer"
-                            {% if topic.is_locked or topic.antispam %}disabled{% endif %}
+                            {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         >
                             Envoyer
                         </button>
