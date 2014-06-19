@@ -17,7 +17,7 @@
                                 {% if online %}
                                     {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
                                 {% else %}
-                                    {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}
+                                    {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
                                 {% endif %}
                             ">
                                 Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}
@@ -31,7 +31,7 @@
                                             {% if online %}
                                                 {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
                                             {% else %}
-                                                {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}
+                                                {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
                                             {% endif %}
                                             {% endspaceless %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
                                             {{ extract.title }}

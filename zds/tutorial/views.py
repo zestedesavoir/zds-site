@@ -420,32 +420,6 @@ def invalid_tutorial(request, tutorial_pk):
 
 @can_write_and_read_now
 @login_required
-def activ_beta(request, tutorial_pk, version):
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if request.user not in tutorial.authors.all():
-        if not request.user.has_perm("tutorial.change_tutorial"):
-            raise PermissionDenied
-    tutorial.sha_beta = version
-    tutorial.save()
-    messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
-    return redirect(tutorial.get_absolute_url_beta())
-
-
-@can_write_and_read_now
-@login_required
-def desactiv_beta(request, tutorial_pk, version):
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if request.user not in tutorial.authors.all():
-        if not request.user.has_perm("tutorial.change_tutorial"):
-            raise PermissionDenied
-    tutorial.sha_beta = None
-    tutorial.save()
-    messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
-    return redirect(tutorial.get_absolute_url_beta())
-
-
-@can_write_and_read_now
-@login_required
 @require_POST
 def ask_validation(request):
     """User ask validation for his tutorial."""
@@ -600,8 +574,29 @@ def modify_tutorial(request):
                              u"L'auteur {0} a bien été retiré du tutoriel."
                              .format(author.username))
             return redirect(redirect_url)
+        elif "activ_beta" in request.POST:
+            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
+                tutorial.sha_beta = tutorial.sha_draft
+                tutorial.save()
+                messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
+            else:
+                messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
+            return redirect(tutorial.get_absolute_url_beta())
+        elif "update_beta" in request.POST:
+            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
+                tutorial.sha_beta = tutorial.sha_draft
+                tutorial.save()
+                messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
+            else:
+                messages.error(request, u"Impossible de mettre à jour la BETA sur ce tutoriel.")
+            return redirect(tutorial.get_absolute_url_beta())
+        elif "desactiv_beta" in request.POST:
+            tutorial.sha_beta = None
+            tutorial.save()
+            messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
+            return redirect(tutorial.get_absolute_url())
 
-    # No action performed, raise 404
+    # No action performed, raise 403
 
     raise PermissionDenied
 

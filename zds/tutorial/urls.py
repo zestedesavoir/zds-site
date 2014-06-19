@@ -80,11 +80,6 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.diff'),
 
                        # user actions
-                       url(r'^activation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$',
-                           'zds.tutorial.views.activ_beta'),
-                       url(
-                           r'^desactivation/beta/(?P<tutorial_pk>\d+)/(?P<version>.+)/$',
-                           'zds.tutorial.views.desactiv_beta'),
                        url(r'^suppression/(?P<tutorial_pk>\d+)/$',
                            'zds.tutorial.views.delete_tutorial'),
                        url(r'^validation/tutoriel/$',

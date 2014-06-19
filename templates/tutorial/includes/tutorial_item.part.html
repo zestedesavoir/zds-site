@@ -1,5 +1,11 @@
 <article>
-    <a href="{{ tutorial.get_absolute_url_online }}">
+    <a href="
+        {% if beta %}
+            {{ tutorial.get_absolute_url_beta }}
+        {% else %}
+            {{ tutorial.get_absolute_url_online }}
+        {% endif %}
+    ">
         <img src="{{ tutorial.image.thumb.url }}" alt="" class="tutorial-img avatar">
         <div class="tutorial-infos">
             <h3>{{ tutorial.title }}</h3>

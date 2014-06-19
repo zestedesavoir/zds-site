@@ -55,6 +55,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         cm = repo.index.commit("Init Tuto")
 
         tuto.sha_draft = cm.hexsha
+        tuto.sha_beta = None
         return tuto
 
 

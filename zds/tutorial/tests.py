@@ -789,6 +789,172 @@ class BigTutorialTests(TestCase):
         self.assertEqual(1, Tutorial.objects.filter(pk=self.bigtuto.pk).count())
         self.assertTrue(Tutorial.objects.get(pk=self.bigtuto.pk).image == None)
 
+    def test_workflow_beta_tuto(self) :
+        "Ensure the behavior of the beta version of tutorials"
+
+        # logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # then active the beta on tutorial :
+        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.bigtuto.pk,
+                    'activ_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        # test beta :
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta, 
+            sha_draft)
+        url = Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
+        sha_beta = sha_draft
+        # Test access for author (get 200)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 200)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        
+        # then modify tutorial
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter2_1.pk),
+
+            {
+            'title' : "Introduction",
+            'text' : u"Le contenu de l'extrait"
+            })
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta, 
+            sha_beta)
+        self.assertNotEqual(
+            Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft, 
+            sha_beta)
+        # update beta
+        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.bigtuto.pk,
+                    'update_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        old_url = url
+        url = Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
+        # test access to new beta url (get 200) :
+        self.assertEqual(
+            self.client.get(old_url).status_code,
+            200)
+        # test access for random user to new url (get 200) and old (get 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        self.assertEqual(
+            self.client.get(old_url).status_code,
+            403)
+
+        # then desactive beta :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.bigtuto.pk,
+                    'desactiv_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta, 
+            None)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            403)
+
+        # ensure staff behavior (staff can also active/update/desactive beta)
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.bigtuto.pk,
+                    'activ_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 200)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
@@ -1442,6 +1608,172 @@ class MiniTutorialTests(TestCase):
         # Check if the tutorial is already in database and it doesn't have image.
         self.assertEqual(1, Tutorial.objects.filter(pk=self.minituto.pk).count())
         self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image == None)
+
+    def test_workflow_beta_tuto(self) :
+        "Ensure the behavior of the beta version of tutorials"
+
+        # logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # then active the beta on tutorial :
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.minituto.pk,
+                    'activ_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        # test beta :
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.minituto.pk).sha_beta, 
+            sha_draft)
+        url = Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
+        sha_beta = sha_draft
+        # Test access for author (get 200)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 200)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        
+        # then modify tutorial
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+
+            {
+            'title' : "Introduction",
+            'text' : u"Le contenu de l'extrait"
+            })
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.minituto.pk).sha_beta, 
+            sha_beta)
+        self.assertNotEqual(
+            Tutorial.objects.get(pk=self.minituto.pk).sha_draft, 
+            sha_beta)
+        # update beta
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.minituto.pk,
+                    'update_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        old_url = url
+        url = Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
+        # test access to new beta url (get 200) :
+        self.assertEqual(
+            self.client.get(old_url).status_code,
+            200)
+        # test access for random user to new url (get 200) and old (get 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
+        self.assertEqual(
+            self.client.get(old_url).status_code,
+            403)
+
+        # then desactive beta :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.minituto.pk,
+                    'desactiv_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(
+            Tutorial.objects.get(pk=self.minituto.pk).sha_beta, 
+            None)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            403)
+
+        # ensure staff behavior (staff can also active/update/desactive beta)
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': self.minituto.pk,
+                    'activ_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        # test access from outside (get 302, connexion form)
+        self.client.logout()
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302)
+        # test access for random user (get 200)
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        self.assertEqual(
+            self.client.get(url).status_code,
+            200)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):

@@ -43,6 +43,8 @@
         </p>
     {% endif %}
 
+    <hr />
+
     {% if part.chapters %}
         <ul>
             {% for chapter in part.chapters %}
@@ -52,6 +54,23 @@
                             {{ chapter.title }}
                         </a>
                     </h3>
+                    <ul>
+                        {% for extract in chapter.extracts %}
+                            <li>
+                                <h4>
+                                    <a href="{% spaceless %}
+                                        {% if online %}
+                                            {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
+                                        {% else %}
+                                            {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
+                                        {% endif %}
+                                        {% endspaceless %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                                        {{ extract.title }}
+                                    </a>
+                                </h4>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </li>
             {% empty %}
                 <p class="ico-after warning">
@@ -60,6 +79,8 @@
             {% endfor %}
         </ul>
     {% endif %}
+    
+    <hr />
 
     {% if part.conclu %}
         {{ part.conclu|emarkdown }}
