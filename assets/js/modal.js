@@ -53,7 +53,7 @@
     $("body").on("keydown", function(e){
         if($("#modals .modal:visible").length > 0){
             // Espace close modal
-            if(e.keyCode === 27){
+            if(e.which === 27){
                 closeModal();
                 e.stopPropagation();
             }

@@ -22,7 +22,7 @@
         $("body").on("keydown", function(e){
             if($(".zen-mode").length > 0){
                 // Escape close modal
-                if(e.keyCode === 27){
+                if(e.which === 27){
                     $(".content-container").toggleClass("zen-mode tab-modalize");
                     $(this).blur();
                     e.stopPropagation();

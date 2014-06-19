@@ -9,16 +9,16 @@
     
     var $list = $(".navigable-list");
 
-    if($list.length === 1){
+    if($list.length > 0){
         var $navigableElems = $list.find(".navigable-elem");
         $("body").on("keydown", function(e){
-            if(e.keyCode === 74 || e.keyCode === 75){
+            if(e.which === 74 || e.which === 75){
                 var $current = $list.find(".navigable-elem.active"),
                     nextIndex = null;
 
                 if($current.length === 1){
                     var currentIndex = $navigableElems.index($current);
-                    if(e.keyCode === 75){ // J
+                    if(e.which === 75){ // J
                         if(currentIndex > 0)
                             nextIndex = currentIndex - 1;
                     } else { // K
@@ -45,8 +45,6 @@
         $list.find(".navigable-link").on("blur", function(){
             $(this).parents(".navigable-elem:first").removeClass("active");
         });
-    } else if($list.length > 1){
-        console.error("There is more than one .navigable-list element in this page !");
     }
 
     function activeNavigableElem($elem){
