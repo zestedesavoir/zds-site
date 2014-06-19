@@ -1,22 +1,17 @@
 {% load captureas %}
+{% load append_to_get %}
 
 
 
 {% if pages|length > 1 %}
-    {% captureas url %}
-        {% if is_online and topic.get_absolute_url_online %}
-            {{ topic.get_absolute_url_online }}
-        {% else %}
-            {{ topic.get_absolute_url }}
-        {% endif %}
-    {% endcaptureas %}
-
     <ul class="pagination pagination-{{ position }}">
         {% ifnotequal nb 1 %}
             <li class="prev">
-                <a href="{{ url }}?page={{ nb|add:"-1" }}" class="ico-after arrow-left blue">
-                    Précédente
-                </a>
+                {% with prev=nb|add:-1 %}
+                    <a href="{% append_to_get page=prev %}" class="ico-after arrow-left blue">
+                        Précédente
+                    </a>
+                {% endwith %}
             </li>
         {% endifnotequal %}
 
@@ -24,14 +19,14 @@
         {% for page in pages %}
             {% if page %}
                 <li>
-                    <a {% ifnotequal page nb %}href="{{ url }}?page={{ page }}"{% else %}class="current"{% endifnotequal %}>
+                    <a {% ifnotequal page nb %}href="{% append_to_get page=page %}"{% else %}class="current"{% endifnotequal %}>
                         {{ page }}
                     </a>
                 </li>
             {% else %}
                 <li>
-                    <a href="#pagination-{{ url }}-{{ position }}" class="open-modal">…</a>
-                    <form action="{{ url }}" method="get" class="modal modal-small" id="pagination-{{ url }}-{{ position }}">
+                    <a href="#pagination-{{ position }}" class="open-modal">…</a>
+                    <form action="." method="get" class="modal modal-small" id="pagination-{{ position }}" data-modal-title="Aller à la page…">
                         <p>
                             Indiquez la page à laquelle vous souhaitez vous rendre.
                         </p>
@@ -46,9 +41,11 @@
         
         {% if pages|last > 0 and pages|last != nb %}
             <li class="next">
-                <a href="{{ url }}?page={{ nb|add:"1" }}" class="ico-after arrow-right blue">
-                    Suivante
-                </a>
+                {% with next=nb|add:1 %}
+                    <a href="{% append_to_get page=next %}" class="ico-after arrow-right blue">
+                        Suivante
+                    </a>
+                {% endwith %}
             </li>
         {% endif %}
     </ul>
