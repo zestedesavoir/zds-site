@@ -12,7 +12,7 @@
     if($list.length > 0){
         var $navigableElems = $list.find(".navigable-elem");
         $("body").on("keydown", function(e){
-            if(e.which === 74 || e.which === 75){
+            if(!$(document.activeElement).is(':input') && (e.which === 74 || e.which === 75)){
                 var $current = $list.find(".navigable-elem.active"),
                     nextIndex = null;
 
