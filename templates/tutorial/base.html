@@ -16,7 +16,11 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.tutorials" %}">Mes tutoriels</a></li>
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+        <li><a href="{% url "zds.member.views.tutorials" %}">Mes tutoriels</a></li>
+    {% else %}
+        <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+    {% endif %}
 {% endblock %}
 
 

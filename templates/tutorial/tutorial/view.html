@@ -30,8 +30,12 @@
             {{ tutorial.description }}
         </h3>
     {% endif %}
-
-    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial add_author=True %}
+    
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+        {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial add_author=True %}
+    {% else %}
+        {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
+    {% endif %}
 
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
@@ -93,138 +97,158 @@
 
 
 {% block sidebar_new %}
-    {% if not tutorial.is_mini %}
-        <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
-            Ajouter une partie
-        </a>
-    {% else %}
-        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
-            Ajouter un extrait
-        </a>
-    {% endif %}
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+        {% if not tutorial.is_mini %}
+            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
+                Ajouter une partie
+            </a>
+        {% else %}
+            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
+                Ajouter un extrait
+            </a>
+        {% endif %}
 
-    {% if tutorial.sha_draft = version %}
-        <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">
-            Éditer
-        </a>
-    {% endif %}
+        {% if tutorial.sha_draft = version %}
+            <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">
+                Éditer
+            </a>
+        {% endif %}
+     {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
-    <li>
-        <a href="#add-author" class="open-modal ico-after more blue">
-            Ajouter un auteur
-        </a>
-        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
-            {% csrf_token %}
-            <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
-            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-            <button type="submit" name="add_author">
-                Confirmer
-            </button>
-        </form>
-    </li>
-    <li>
-        <a href="#manage-authors" class="open-modal ico-after gear blue">
-            Gérer les auteurs
-        </a>
-        <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
-            <table class="fullwidth">
-                <thead>
-                    <th>Auteur</th>
-                    <th>Actions</th>
-                </thead>
-                <tbody>
-                    {% for member in tutorial.authors.all %}
-                        <tr>
-                            <td>{% include "misc/member_item.part.html" %}</td>
-                            <td>
-                                {% if tutorial.authors.count > 1 %}
-                                    <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
-                                        Supprimer
-                                    </button>
-                                {% else %}
-                                    Vous êtes seul !
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <input type="hidden" name="remove_author" value="1">
-            <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-            {% csrf_token %}
-        </form>
-    </li>
-
-    {% if tutorial.sha_public %}
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
         <li>
-            <a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">
-                Voir <span class="wide">la version</span> en ligne
+            <a href="#add-author" class="open-modal ico-after more blue">
+                Ajouter un auteur
             </a>
-        </li>
-    {% endif %}
-    
-    {% if not tutorial.in_beta %}
-        <li>
-            <a href="#activ-beta" class="open-modal ico-after beta blue">
-                Activer la bêta
-            </a>
-            {# TODO_CSRF : passer en post #}
-            <form action="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="activ-beta">
-                <p>
-                    Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
-                </p>
-                <button type="submit">
+            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
+                {% csrf_token %}
+                <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                <button type="submit" name="add_author">
                     Confirmer
                 </button>
             </form>
         </li>
-    {% else %}
         <li>
-            <a href="#desactiv-beta" class="open-modal ico-after cross blue">
-                Désactiver la bêta
+            <a href="#manage-authors" class="open-modal ico-after gear blue">
+                Gérer les auteurs
             </a>
-            {# TODO_CSRF : passer en post #}
-            <form action="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="desactiv-beta">
-                <p>
-                    Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
-                </p>
-                <button type="submit">
-                    Confirmer
-                </button>
+            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+                <table class="fullwidth">
+                    <thead>
+                        <th>Auteur</th>
+                        <th>Actions</th>
+                    </thead>
+                    <tbody>
+                        {% for member in tutorial.authors.all %}
+                            <tr>
+                                <td>{% include "misc/member_item.part.html" %}</td>
+                                <td>
+                                    {% if tutorial.authors.count > 1 %}
+                                        <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                            Supprimer
+                                        </button>
+                                    {% else %}
+                                        Vous êtes seul !
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <input type="hidden" name="remove_author" value="1">
+                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                {% csrf_token %}
             </form>
         </li>
-    {% endif %}
 
-    <li>
-        <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">
-            Historique des versions
-        </a>
-    </li>
+        {% if tutorial.sha_public %}
+            <li>
+                <a href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue">
+                    Voir <span class="wide">la version</span> en ligne
+                </a>
+            </li>
+        {% endif %}
+        
+        {% if not tutorial.in_beta %}
+            <li>
+                <a href="#activ-beta" class="open-modal ico-after beta blue">
+                    Activer la bêta
+                </a>
+                {# TODO_CSRF : passer en post #}
+                <form action="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="activ-beta">
+                    <p>
+                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                    </p>
+                    <button type="submit">
+                        Confirmer
+                    </button>
+                </form>
+            </li>
+        {% else %}
+            {% if tutorial.sha_beta != version %}
+                <li>
+                    <a href="#update-beta" class="open-modal ico-after history blue">
+                        Mettre à jour la bêta
+                    </a>
+                    {# TODO_CSRF : passer en post #}
+                    <form action="{% url "zds.tutorial.views.update_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="update-beta">
+                        <p>
+                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                        </p>
+                        <button type="submit">
+                            Confirmer
+                        </button>
+                    </form>
+                </li>
+            {% endif %}
+            <li>
+                <a href="#desactiv-beta" class="open-modal ico-after cross blue">
+                    Désactiver la bêta
+                </a>
+                {# TODO_CSRF : passer en post #}
+                <form action="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="desactiv-beta">
+                    <p>
+                        Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                    </p>
+                    <button type="submit">
+                        Confirmer
+                    </button>
+                </form>
+            </li>
+        {% endif %}
 
-    {% if not tutorial.in_validation %}
         <li>
-            <a href="#ask-validation" class="open-modal ico-after tick green">
-                Demander la validation
+            <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">
+                Historique des versions
             </a>
-            <div id="ask-validation" class="modal modal-small">
-                {% crispy formAskValidation %}
-            </div>
         </li>
-    {% else %}
-        <li class="inactive">
-            <span class="ico-after tick disabled">En attente de validation</span>
-        </li>
-    {% endif %}
+
+        {% if not tutorial.in_validation %}
+            <li>
+                <a href="#ask-validation" class="open-modal ico-after tick green">
+                    Demander la validation
+                </a>
+                <div id="ask-validation" class="modal modal-small">
+                    {% crispy formAskValidation %}
+                </div>
+            </li>
+        {% else %}
+            <li class="inactive">
+                <span class="ico-after tick disabled">En attente de validation</span>
+            </li>
+        {% endif %}
+     {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_blocks %}
-    {% if perms.tutorial.change_tutorial %}
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>Validation</h3>
             <ul>
@@ -304,32 +328,34 @@
     {% endif %}
 
     {% include "tutorial/includes/summary.part.html" %}
-
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-        <h3>Suppression</h3>
-        <ul>
-            {% if not tutorial.on_line %}
-                <li>
-                    <a href="#delete-tutorial" class="open-modal ico-after cross red">
-                        Supprimer le tutoriel
-                    </a>
-                    {# TODO_CSRF : passer en post #}
-                    <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="get" id="delete-tutorial" class="modal modal-medium">
-                        <p>
-                            Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
-                        </p>
-                        <button type="submit">
-                            Confirmer
-                        </button>
-                    </form>
-                </li>
-            {% else %}
-                <li class="inactive">
-                    <span class="ico-after cross disabled">
-                        Impossible, car publié
-                    </span>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
+    
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+            <h3>Suppression</h3>
+            <ul>
+                {% if not tutorial.on_line %}
+                    <li>
+                        <a href="#delete-tutorial" class="open-modal ico-after cross red">
+                            Supprimer le tutoriel
+                        </a>
+                        {# TODO_CSRF : passer en post #}
+                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="get" id="delete-tutorial" class="modal modal-medium">
+                            <p>
+                                Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
+                            </p>
+                            <button type="submit">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="inactive">
+                        <span class="ico-after cross disabled">
+                            Impossible, car publié
+                        </span>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
