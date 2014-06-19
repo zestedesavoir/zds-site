@@ -1,7 +1,7 @@
 <article>
     <a href="
         {% if beta %}
-            {{ tutorial.get_absolute_url }}{% if tutorial.sha_beta %}?version={{tutorial.sha_beta}}{% endif %}
+            {{ tutorial.get_absolute_url_beta }}
         {% else %}
             {{ tutorial.get_absolute_url_online }}
         {% endif %}

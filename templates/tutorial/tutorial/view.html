@@ -179,8 +179,11 @@
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
                     Activer la bêta
                 </a>
-                {# TODO_CSRF : passer en post #}
-                <form action="{% url "zds.tutorial.views.activ_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="activ-beta">
+                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                    {% csrf_token %}
+                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                    <input type="hidden" name="activ_beta" />
+                    <input type="hidden" name="version" value="{{version}}" />
                     <p>
                         Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                     </p>
@@ -195,8 +198,11 @@
                     <a href="#update-beta" class="open-modal ico-after history blue">
                         Mettre à jour la bêta
                     </a>
-                    {# TODO_CSRF : passer en post #}
-                    <form action="{% url "zds.tutorial.views.update_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="update-beta">
+                    <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="update-beta">
+                        {% csrf_token %}
+                        <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                        <input type="hidden" name="update_beta" />
+                        <input type="hidden" name="version" value="{{version}}" />
                         <p>
                             Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                         </p>
@@ -210,8 +216,11 @@
                 <a href="#desactiv-beta" class="open-modal ico-after cross blue">
                     Désactiver la bêta
                 </a>
-                {# TODO_CSRF : passer en post #}
-                <form action="{% url "zds.tutorial.views.desactiv_beta" tutorial.pk version %}" method="get" class="modal modal-small" id="desactiv-beta">
+                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="desactiv-beta">
+                    {% csrf_token %}
+                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                    <input type="hidden" name="desactiv_beta" />
+                    <input type="hidden" name="version" value="{{version}}" />
                     <p>
                         Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                     </p>
