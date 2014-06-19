@@ -57,7 +57,7 @@ def index(request):
 
     if tag is None:
         article = Article.objects\
-            .filter(sha_public__isnull=False)\
+            .filter(sha_public__isnull=False).exclude(sha_public="")\
             .order_by('-pubdate')\
             .all()
     else:
@@ -65,7 +65,7 @@ def index(request):
         # all articles in the subcategory specified.
         article = Article.objects\
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
-            .order_by('-pubdate')\
+            .exclude(sha_public="").order_by('-pubdate')\
             .all()
 
     return render_template('article/index.html', {
@@ -351,7 +351,7 @@ def find_article(request, name):
     """Find an article from his author."""
     user = get_object_or_404(User, pk=name)
     articles = Article.objects\
-        .filter(authors__in=[user], sha_public__isnull=False)\
+        .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
     # Paginator

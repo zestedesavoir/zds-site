@@ -69,7 +69,7 @@ def index(request):
         tag = None
     if tag is None:
         tutorials = \
-            Tutorial.objects.filter(sha_public__isnull=False) \
+            Tutorial.objects.filter(sha_public__isnull=False).exclude(sha_public="") \
             .order_by("-pubdate") \
             .all()
     else:
@@ -79,7 +79,7 @@ def index(request):
 
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
-            subcategory__in=[tag]).order_by("-pubdate").all()
+            subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
     return render_template("tutorial/index.html", {"tutorials": tutorials})
 
 
@@ -615,9 +615,19 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
+    # Retrieve sha given by the user. This sha must to be exist. If it doesn't
+    # exist, we take draft version of the article.
+
+    try:
+        sha = request.GET["version"]
+    except KeyError:
+        sha = tutorial.sha_draft
+    
+    is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
+
     # Only authors of the tutorial and staff can view tutorial in offline.
 
-    if request.user not in tutorial.authors.all():
+    if request.user not in tutorial.authors.all() and not is_beta:
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
@@ -626,13 +636,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     if not tutorial_slug == slugify(tutorial.title):
         return redirect(tutorial.get_absolute_url())
 
-    # Retrieve sha given by the user. This sha must to be exist. If it doesn't
-    # exist, we take draft version of the article.
-
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -1042,10 +1045,15 @@ def view_part(
         sha = request.GET["version"]
     except KeyError:
         sha = tutorial.sha_draft
-    beta = tutorial.in_beta() and sha == tutorial.sha_beta
-    if not request.user.has_perm("tutorial.change_tutorial") and request.user \
-            not in tutorial.authors.all() and not beta:
-        raise PermissionDenied
+
+    is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
+
+    # Only authors of the tutorial and staff can view tutorial in offline.
+
+    if request.user not in tutorial.authors.all() and not is_beta:
+        if not request.user.has_perm("tutorial.change_tutorial"):
+            raise PermissionDenied
+
     final_part = None
 
     # find the good manifest file
@@ -1313,15 +1321,21 @@ def view_chapter(
     chapter = get_object_or_404(Chapter, slug=chapter_slug,
                                 part__slug=part_slug,
                                 part__tutorial__pk=tutorial_pk)
+    tutorial = chapter.get_tutorial()
+    
     try:
         sha = request.GET["version"]
     except KeyError:
-        sha = None
-    tutorial = chapter.get_tutorial()
-    beta = tutorial.in_beta() and sha == tutorial.sha_beta
-    if not request.user.has_perm("tutorial.change_tutorial") and request.user \
-            not in tutorial.authors.all() and not beta:
-        raise PermissionDenied
+        sha = tutorial.sha_draft
+    
+    is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
+
+    # Only authors of the tutorial and staff can view tutorial in offline.
+
+    if request.user not in tutorial.authors.all() and not is_beta:
+        if not request.user.has_perm("tutorial.change_tutorial"):
+            raise PermissionDenied
+
     if not tutorial_slug == slugify(tutorial.title) or not part_slug \
             == slugify(chapter.part.title) or not chapter_slug \
             == slugify(chapter.title):
@@ -1936,13 +1950,14 @@ def find_tuto(request, pk_user):
     if type == "beta":
         tutorials = Tutorial.objects.all().filter(
             authors__in=[u],
-            sha_beta__isnull=False).order_by("-pubdate")
+            sha_beta__isnull=False).exclude(sha_beta="").order_by("-pubdate")
         return render_template("tutorial/member/beta.html",
                                {"tutorials": tutorials, "usr": u})
     else:
         tutorials = Tutorial.objects.all().filter(
             authors__in=[u],
-            sha_public__isnull=False).order_by("-pubdate")
+            sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
+
         return render_template("tutorial/member/index.html", {"tutorials": tutorials,
                                                                "usr": u})
 
