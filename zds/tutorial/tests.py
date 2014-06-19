@@ -10,11 +10,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory
-from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract
 from zds.utils.models import Alert
 
@@ -757,6 +757,38 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+    def test_delete_image_tutorial(self):
+        """To test delete image of a tutorial."""
+        # Author of the tutorial and the gallery (read and write permissions).
+        login_check = self.client.login(username=self.user_author.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        # Attach an image of a gallery at a tutorial.
+        image_tutorial = ImageFactory(gallery=self.bigtuto.gallery)
+        user_gallery = UserGalleryFactory(user=self.user_author, gallery=self.bigtuto.gallery)
+
+        self.bigtuto.image = image_tutorial
+        self.bigtuto.save()
+
+        self.assertTrue(Tutorial.objects.get(pk=self.bigtuto.pk).image != None)
+
+        # Delete the image of the bigtuto.
+
+        response = self.client.post(
+                reverse('zds.gallery.views.modify_image'),
+                {
+                    'gallery': self.bigtuto.gallery.pk,
+                    'delete_multi': '',
+                    'items': [image_tutorial.pk]
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+
+        # Check if the tutorial is already in database and it doesn't have image.
+        self.assertEqual(1, Tutorial.objects.filter(pk=self.bigtuto.pk).count())
+        self.assertTrue(Tutorial.objects.get(pk=self.bigtuto.pk).image == None)
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
@@ -1378,6 +1410,38 @@ class MiniTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+    def test_delete_image_tutorial(self):
+        """To test delete image of a tutorial."""
+        # Author of the tutorial and the gallery (read and write permissions).
+        login_check = self.client.login(username=self.user_author.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        # Attach an image of a gallery at a tutorial.
+        image_tutorial = ImageFactory(gallery=self.minituto.gallery)
+        user_gallery = UserGalleryFactory(user=self.user_author, gallery=self.minituto.gallery)
+
+        self.minituto.image = image_tutorial
+        self.minituto.save()
+
+        self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image != None)
+
+        # Delete the image of the minituto.
+
+        response = self.client.post(
+                reverse('zds.gallery.views.modify_image'),
+                {
+                    'gallery': self.minituto.gallery.pk,
+                    'delete_multi': '',
+                    'items': [image_tutorial.pk]
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+
+        # Check if the tutorial is already in database and it doesn't have image.
+        self.assertEqual(1, Tutorial.objects.filter(pk=self.minituto.pk).count())
+        self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image == None)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
