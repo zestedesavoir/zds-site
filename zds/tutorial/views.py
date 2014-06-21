@@ -1392,6 +1392,7 @@ def view_chapter(
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
     return render_template("tutorial/chapter/view.html", {
+        "tutorial": tutorial,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
@@ -1956,7 +1957,7 @@ def find_tuto(request, pk_user):
             authors__in=[u],
             sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
 
-        return render_template("tutorial/member/index.html", {"tutorials": tutorials,
+        return render_template("tutorial/member/online.html", {"tutorials": tutorials,
                                                                "usr": u})
 
 
