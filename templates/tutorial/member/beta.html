@@ -40,3 +40,9 @@
         </p>
     {% endif %}
 {% endblock %}
+
+{% block sidebar_blocks %}
+    <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}" class="new-btn ico-after view blue">
+        Tutoriels en ligne par {{ usr.username }}
+    </a>
+{% endblock %}
