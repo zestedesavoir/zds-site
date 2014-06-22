@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from zds.utils import slugify
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
-    TopicFactory, PostFactory
+    TopicFactory, PostFactory, TagFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentLike, CommentDislike, Alert
 from django.core import mail
@@ -112,6 +112,8 @@ class ForumMemberTests(TestCase):
         self.assertContains(response, self.forum11.title)
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
+
+
 
     def test_answer(self):
         """To test all aspects of answer."""
@@ -533,6 +535,36 @@ class ForumMemberTests(TestCase):
         # topic)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(Post.objects.filter(topic=topic1.pk).count(), 1)
+
+    def test_add_tag(self):
+        
+        
+        TagCSharp = TagFactory(title="C#")
+        
+        TagC = TagFactory(title="C")
+        self.assertEqual(TagCSharp.slug, TagC.slug)
+        self.assertNotEqual(TagCSharp.title, TagC.title)
+        #post a topic with a tag
+        result = self.client.post(
+            reverse('zds.forum.views.new') + '?forum={0}'
+            .format(self.forum12.pk),
+            {'title': u'[C#]Un autre sujet',
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        
+        #test the topic is added to the good tag
+        
+        self.assertEqual( Topic.objects.filter(
+                tags__in=[TagCSharp])
+                .order_by("-last_message__pubdate").prefetch_related(
+                    "tags").count(), 1)
+        self.assertEqual( Topic.objects.filter(tags__in=[TagC])
+                .order_by("-last_message__pubdate").prefetch_related(
+                    "tags").count(), 0)
+                    
 
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""

@@ -18,6 +18,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.utils.encoding import smart_text
+
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
@@ -240,7 +242,7 @@ def new(request):
             # add tags
 
             for tag in tags:
-                tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                tg = Tag.objects.filter(title=smart_text(tag[2])).first()
                 if tg is None:
                     tg = Tag(title=tag[2])
                     tg.save()
@@ -840,10 +842,10 @@ def dislike_post(request):
 
 
 
-def find_topic_by_tag(request, tag_slug):
+def find_topic_by_tag(request, tag_pk, tag_slug):
     """Finds all topics byg tag."""
 
-    tag = Tag.objects.filter(slug=tag_slug).first()
+    tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
         return redirect(reverse("zds.forum.views.index"))
     if "filter" in request.GET:
