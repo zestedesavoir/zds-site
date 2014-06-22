@@ -205,8 +205,8 @@ def get_tag_by_title(title):
                 nb_bracket += 1
         elif char == u"]" and nb_bracket > 0:
             nb_bracket -= 1
-            if nb_bracket == 0 :
-                tags.append(current_tag)
+            if nb_bracket == 0 and current_tag.strip() != u"":
+                tags.append(current_tag.strip())
                 current_tag = u""
         elif char != u"[" :
             current_title = current_title + char

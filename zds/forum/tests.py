@@ -570,7 +570,12 @@ class ForumMemberTests(TestCase):
         (tags, title) = get_tag_by_title(topicWithConflictTags.title)
         topicWithConflictTags.add_tags(tags)
         self.assertEqual(topicWithConflictTags.tags.all().count(), 1)
-        
+        topicWithConflictTags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topicWithConflictTags.title = u"[][ ][	]name"
+        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
+        topicWithConflictTags.add_tags(tags)
+        self.assertEqual(topicWithConflictTags.tags.all().count(), 0)
 
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""
