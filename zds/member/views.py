@@ -741,7 +741,7 @@ def active_account(request):
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
         u'car la communauté de Zeste de Savoir est attachée aux valeurs du libre '
-        u'partage et désire apporter le savoir à tout le monde quelque soit ses moyens.'
+        u'partage et désire apporter le savoir à tout le monde quels que soient ses moyens.'
         u'\n\n'
         u'En espérant que tu te plairas ici, '
         u'je te laisse maintenant faire un petit tour.'
