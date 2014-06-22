@@ -11,6 +11,7 @@ import uuid
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_text
 
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
@@ -197,11 +198,13 @@ class Topic(models.Model):
 
     def add_tags(self,tag_collection):
         for tag in tag_collection:
-            tg = Tag.objects.filter(title=smart_text(tag[2])).first()
-            if tg is None:
-                tg = Tag(title=tag[2])
-                tg.save()
-            self.tags.add(tg)
+            tag_title = smart_text(tag.strip().lower())
+            current_tag = Tag.objects.filter(title=tag_title).first()
+            if current_tag is None:
+                current_tag = Tag(title=tag_title)
+                current_tag.save()
+
+            self.tags.add(current_tag)
         self.save()
 
     def get_followers_by_email(self):

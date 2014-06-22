@@ -13,7 +13,7 @@ from zds.utils.models import CommentLike, CommentDislike, Alert
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
-
+from zds.forum.views import get_tag_by_title
 
 class ForumMemberTests(TestCase):
 
@@ -564,7 +564,13 @@ class ForumMemberTests(TestCase):
         self.assertEqual( Topic.objects.filter(tags__in=[TagC])
                 .order_by("-last_message__pubdate").prefetch_related(
                     "tags").count(), 0)
-                    
+        topicWithConflictTags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topicWithConflictTags.title = u"[C][c][ c][C ]name"
+        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
+        topicWithConflictTags.add_tags(tags)
+        self.assertEqual(topicWithConflictTags.tags.all().count(), 1)
+        
 
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""
