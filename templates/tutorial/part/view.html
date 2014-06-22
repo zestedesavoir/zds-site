@@ -50,7 +50,7 @@
             {% for chapter in part.chapters %}
                 <li>
                     <h3>
-                        <a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.slug chapter.slug %}?version={{ version }}">
+                        <a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.pk part.slug chapter.pk chapter.slug %}?version={{version}}">
                             {{ chapter.title }}
                         </a>
                     </h3>

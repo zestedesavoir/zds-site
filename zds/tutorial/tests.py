@@ -14,8 +14,9 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFacto
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory
-from zds.tutorial.models import Note, Tutorial, Validation, Extract
+    ChapterFactory, NoteFactory, SubCategoryFactory
+from zds.gallery.factories import GalleryFactory
+from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import Alert
 
 
@@ -41,6 +42,7 @@ class BigTutorialTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
+        self.subcat = SubCategoryFactory()
 
         self.bigtuto = BigTutorialFactory()
         self.bigtuto.authors.add(self.user_author)
@@ -408,6 +410,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -416,7 +419,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -437,6 +442,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -445,10 +451,132 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
+    
+    def test_workflow_tuto(self):
+        """Test workflow of tutorial."""
+
+        # logout before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        
+        #add new big tuto
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_tutorial'),
+            {
+                'title': u"Introduction à l'algèbre",
+                'description': "Perçer les mystère de boole",
+                'introduction':"Bienvenue dans le monde binaires",
+                'conclusion': "",
+                'type': "BIG",
+                'subcategory': self.subcat.pk,
+            },
+            follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 2)
+        tuto = Tutorial.objects.last()
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 1",
+                'introduction':"Présentation",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 1)
+        p1 = Part.objects.filter(tutorial=tuto).last()
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction':"Analyse",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
+        p2 = Part.objects.filter(tutorial=tuto).last()
+        #add part
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction':"Expérimentation",
+                'conclusion': "C'est terminé",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
+        p3 = Part.objects.filter(tutorial=tuto).last()
+        #add chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            {
+                'title': u"Chapitre 1",
+                'introduction':"Mon premier chapitre",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
+        self.assertEqual(Chapter.objects.filter(part=p2).count(), 1)
+        self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        
+        #add chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            {
+                'title': u"Chapitre 2",
+                'introduction':"Mon deuxième chapitre",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
+        self.assertEqual(Chapter.objects.filter(part=p2).count(), 2)
+        self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        
+        #add chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            {
+                'title': u"Chapitre 2",
+                'introduction':"Mon troisième chapitre homonyme",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
+        self.assertEqual(Chapter.objects.filter(part=p2).count(), 3)
+        self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        
+        #add chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Chapitre 1",
+                'introduction':"Mon premier chapitre d'une autre partie",
+                'conclusion': "",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Chapter.objects.filter(part=p1).count(), 1)
+        self.assertEqual(Chapter.objects.filter(part=p2).count(), 3)
+        self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
 
     def test_url_for_member(self):
         """Test simple get request by simple member."""
@@ -478,6 +606,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -486,7 +615,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -507,6 +638,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 403)
@@ -515,7 +647,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 403)
@@ -548,6 +682,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -556,7 +691,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -577,6 +714,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -585,7 +723,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -618,6 +758,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -626,7 +767,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -647,6 +790,7 @@ class BigTutorialTests(TestCase):
                 args=[
                     self.bigtuto.pk,
                     self.bigtuto.slug,
+                    self.part2.pk,
                     self.part2.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -655,7 +799,9 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.view_chapter',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
+                          self.part2.pk,
                           self.part2.slug,
+                          self.chapter2_1.pk,
                           self.chapter2_1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
