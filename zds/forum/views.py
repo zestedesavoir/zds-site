@@ -190,9 +190,28 @@ def topic(request, topic_pk, topic_slug):
 
 
 def get_tag_by_title(title):
-    regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
-    tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
-    title = re.sub(regex, sub_tag, title)
+    nb_bracket = 0
+    current_tag = u""
+    current_title = u""
+    tags = []
+    
+    for char in title:
+		
+        if char == u"[" and nb_bracket == 0:
+            nb_bracket += 1
+        elif nb_bracket > 0 and char != u"]":
+            current_tag = current_tag + char
+            if char == u"[" :
+                nb_bracket += 1
+        elif char == u"]" and nb_bracket > 0:
+            nb_bracket -= 1
+            if nb_bracket == 0 :
+                tags.append(current_tag)
+                current_tag = u""
+        elif char != u"[" :
+            current_title = current_title + char
+    title = current_title
+    
     return (tags, title.strip())
 
 
@@ -230,7 +249,6 @@ def new(request):
             (tags, title) = get_tag_by_title(data["title"])
 
             # Creating the thread
-
             n_topic = Topic()
             n_topic.forum = forum
             n_topic.title = title
@@ -238,17 +256,10 @@ def new(request):
             n_topic.pubdate = datetime.now()
             n_topic.author = request.user
             n_topic.save()
-
             # add tags
 
-            for tag in tags:
-                tg = Tag.objects.filter(title=smart_text(tag[2].lower())).first()
-                if tg is None:
-                    tg = Tag(title=tag[2])
-                    tg.save()
-                n_topic.tags.add(tg)
+            n_topic.add_tags(tags)
             n_topic.save()
-
             # Adding the first message
 
             post = Post()
@@ -658,13 +669,7 @@ def edit_post(request):
 
                 # add tags
 
-                for tag in tags:
-                    tg = Tag.objects.filter(slug=smart_text(tag[2].lower())).first()
-                    if tg is None:
-                        tg = Tag(title=tag[2])
-                        tg.save()
-                    g_topic.tags.add(tg)
-                g_topic.save()
+                g_topic.add_tags(tags)
         post.save()
         return redirect(post.get_absolute_url())
     else:
