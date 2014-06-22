@@ -195,7 +195,16 @@ class Topic(models.Model):
             .select_related("author")\
             .order_by('pubdate')\
             .first()
-    
+
+    def add_tags(self,tag_collection):
+        for tag in tag_collection:
+            tg = Tag.objects.filter(title=smart_text(tag[2])).first()
+            if tg is None:
+                tg = Tag(title=tag[2])
+                tg.save()
+            self.tags.add(tg)
+        self.save()
+
     def get_followers_by_email(self):
         """Return set on followers by email"""
         return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")

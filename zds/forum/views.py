@@ -242,7 +242,7 @@ def new(request):
             # add tags
 
             for tag in tags:
-                tg = Tag.objects.filter(title=smart_text(tag[2])).first()
+                tg = Tag.objects.filter(title=smart_text(tag[2].lower())).first()
                 if tg is None:
                     tg = Tag(title=tag[2])
                     tg.save()
@@ -659,7 +659,7 @@ def edit_post(request):
                 # add tags
 
                 for tag in tags:
-                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
+                    tg = Tag.objects.filter(slug=smart_text(tag[2].lower())).first()
                     if tg is None:
                         tg = Tag(title=tag[2])
                         tg.save()
