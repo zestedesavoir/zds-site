@@ -212,6 +212,7 @@ div.zform-popup {
     z-index: 100;
 
     & > div {
+        position: relative;
         display: inline-block;
         text-align: left;
         background: #f4f6f6;
@@ -249,6 +250,39 @@ div.zform-popup {
                 margin: 7px 15px;
             }
         }
+    }
+
+    .btn,
+    [type=submit] {
+        position: absolute;
+        width: 50%;
+        height: 50px;
+        line-height: 50px;
+        bottom: 0;
+        right: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+        background: none !important;
+        border-top: 1px solid #CCC;
+        color: #333;
+        cursor: pointer;
+
+        &:hover,
+        &:focus {
+            background: #DDD !important;
+        }
+    }
+    .btn-submit,
+    [type=submit] {
+        color: $blue;
+        font-weight: bold;
+    }
+    .btn-cancel {
+        right: auto;
+        left: 0;
+        border-right: 1px solid #CCC;
+        color: #555;
     }
 }
 

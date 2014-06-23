@@ -2561,57 +2561,54 @@ form.topic-message {
         }
     }
 
-    &,
-    #zform-modal-wrapper {
-        p,
-        input,
-        select,
-        textarea {
-            margin: 10px 15px;
+    p,
+    input,
+    select,
+    textarea {
+        margin: 10px 15px;
 
-            &:not([type=checkbox]):not([type=radio]) {
-                width: calc(98% - 32px) !important;
-            }
+        &:not([type=checkbox]):not([type=radio]) {
+            width: calc(98% - 32px) !important;
         }
-        label {
-            margin: 0 15px;
-        }
-        textarea {
-            margin-top: 0;
-        }
+    }
+    label {
+        margin: 0 15px;
+    }
+    textarea {
+        margin-top: 0;
+    }
 
-        .btn:not(.modal-inner),
-        [type=submit]:not(.modal-inner) {
-            position: absolute;
-            width: 50%;
-            height: 50px;
-            line-height: 50px;
-            bottom: 0;
-            right: 0;
-            margin: 0 !important;
-            padding: 0 !important;
-            text-align: center;
-            background: none !important;
-            border-top: 1px solid #CCC;
-            color: #333;
-        }
-        .btn-submit:not(.modal-inner),
-        [type=submit]:not(.modal-inner) {
-            height: 51px;
-            color: $blue;
-            font-weight: bold;
-        }
-        .btn-cancel {
-            right: auto;
-            left: 0;
-            border-right: 1px solid #CCC;
-            color: #555;
-        }
-        .btn.btn-modal-fullwidth {
-            width: 100%;
-            border-right: none;
-            font-weight: bold;
-        }
+    .btn:not(.modal-inner),
+    [type=submit]:not(.modal-inner) {
+        position: absolute;
+        width: 50%;
+        height: 50px;
+        line-height: 50px;
+        bottom: 0;
+        right: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+        background: none !important;
+        border-top: 1px solid #CCC;
+        color: #333;
+    }
+    .btn-submit:not(.modal-inner),
+    [type=submit]:not(.modal-inner) {
+        height: 51px;
+        color: $blue;
+        font-weight: bold;
+    }
+    .btn-cancel {
+        right: auto;
+        left: 0;
+        border-right: 1px solid #CCC;
+        color: #555;
+    }
+    .btn.btn-modal-fullwidth {
+        width: 100%;
+        border-right: none;
+        font-weight: bold;
     }
 }
 .enable-mobile-menu #modals .modal {
