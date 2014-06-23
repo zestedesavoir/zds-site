@@ -38,8 +38,7 @@ install:
   - "sudo apt-get -y install nodejs"
   - "npm install -g bower gulp"
   - "npm install"
-script: 
-  - python manage.py test
+script:
   - npm run-script travis
   - coverage run --source='.' manage.py test
 after_success:
