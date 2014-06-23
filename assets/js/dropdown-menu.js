@@ -67,7 +67,7 @@
     });
 
     $("body").on("keydown", function(e){
-        if(e.keyCode === 27)
+        if(e.which === 27)
             $(".has-dropdown.active, .ico-link.active, #my-account.active").focus().removeClass("active");
     });
 

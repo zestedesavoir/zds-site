@@ -39,7 +39,7 @@
     {% include "misc/pagination.part.html" with position="top" %}
 
     {% if sticky_topics %}
-        <div class="topic-list">
+        <div class="topic-list navigable-list">
             {% for topic in sticky_topics %}
                 {% include "forum/includes/topic_row.part.html" %}
             {% endfor %}

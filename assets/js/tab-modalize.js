@@ -11,7 +11,7 @@
         var $modal = $(".tab-modalize:visible");
         if($modal.length > 0){
             // Tab do not go out modal
-            if(e.keyCode === 9){
+            if(e.which === 9){
                 var $current = $modal.find(":focus"),
                     $tabbables = $modal.find(":tabbable"),
                     nextIndex = e.shiftKey ? $tabbables.length - 1 : 0;
