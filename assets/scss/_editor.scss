@@ -226,7 +226,6 @@ div.zform-popup {
             padding-left: 6px;
             padding-right: 6px;
             white-space: nowrap;
-
             border-bottom: 3px solid #f8ad32;
             line-height: 53px;
             height: 50px;
@@ -235,19 +234,7 @@ div.zform-popup {
             background: #084561;
             font-size: 1.6rem;
             font-size: 16px;
-            text-transform: uppercase;
             text-shadow: rgba(0,0,0,.75)0 0 3px;
-        }
-        & > footer {
-            background: #e7ebec;
-            text-align: right;
-            padding-right: 6px;
-            line-height: 32px;
-            border-top: 2px solid #d1d4d5;
-
-            & > a {
-                cursor: pointer;
-            }
         }
     }
 
@@ -259,14 +246,16 @@ div.zform-popup {
         div {
             input {
                 min-width: 260px;
-                margin: 15px;
+                margin: 7px 15px;
             }
         }
     }
 }
 
-.zform-modal label {
-    display: inline-block;
-    width: 70px;
-    text-align: left;
+.zform-modal {
+    label {
+        display: inline-block;
+        width: 70px;
+        text-align: left;
+    }
 }

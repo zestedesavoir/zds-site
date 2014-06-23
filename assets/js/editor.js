@@ -129,7 +129,7 @@
         
                 "<section class=\"zform-modal\" id=\"zform-modal-image\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-image-src\">Url :</label>" +
+                        "<label for=\"zform-modal-image-src\">URL :</label>" +
                         "<input type=\"text\" id=\"zform-modal-image-src\" />" +
                     "</div>" +
                     
@@ -146,7 +146,7 @@
         
                 "<section class=\"zform-modal\" id=\"zform-modal-abbr\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-abbr-abbr\">Abré. :</label>" +
+                        "<label for=\"zform-modal-abbr-abbr\">Abréviation :</label>" +
                         "<input type=\"text\" id=\"zform-modal-abbr-abbr\" />" +
                     "</div>" +
                     
@@ -158,7 +158,7 @@
         
                 "<section class=\"zform-modal\" id=\"zform-modal-footnote\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-footnote-guid\">Id :</label>" +
+                        "<label for=\"zform-modal-footnote-guid\">Identifiant :</label>" +
                         "<input type=\"text\" id=\"zform-modal-footnote-guid\" />" +
                     "</div>" +
                     
@@ -171,7 +171,7 @@
                     "</div>" +  
                 "</section>" +
         
-                "<footer><a id=\"zform-modal-validate\" class=\"button tiny\">Valider</a> <a id=\"zform-modal-cancel\" class=\"button secondary tiny\">Annuler</a></footer>" +
+                "<footer><a id=\"zform-modal-validate\" class=\"btn btn-submit\">Valider</a> <a id=\"zform-modal-cancel\" class=\"btn btn-cancel secondary tiny\">Annuler</a></footer>" +
             "</div>";
             
             this.addEvent(document.getElementById("zform-modal-validate"), "click", (function(_this) {
