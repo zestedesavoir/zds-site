@@ -715,6 +715,32 @@ class ForumGuestTests(TestCase):
         # check post's number
         self.assertEqual(Post.objects.all().count(), 3)
 
+    def test_tag_parsing(self):
+        """test the tag parsing in nominal, limit and borns cases"""
+        (tags, title) = get_tag_by_title("[tag]title");
+        self.assertEqual(len(tags),1)
+        self.assertEqual(title,"title")
+        
+        (tags,title) = get_tag_by_title("[[tag1][tag2]]title")
+        self.assertEqual(len(tags),1)
+        self.assertEqual(tags[0],"[tag1][tag2]")
+        self.assertEqual(title,"title")
+        
+        (tags,title) = get_tag_by_title("[tag1][tag2]title")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title")
+        
+        (tags,title) = get_tag_by_title("[tag1][tag2]title[tag3]")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title[tag3]")
+
+        (tags,title) = get_tag_by_title("[tag1[][tag2]title")
+        self.assertEqual(len(tags),0)
+        self.assertEqual(title,"[tag1[][tag2]title")
+        
+        
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by guest."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)

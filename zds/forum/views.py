@@ -194,24 +194,32 @@ def get_tag_by_title(title):
     current_tag = u""
     current_title = u""
     tags = []
-    
+    continue_parsing_tags = True
+    original_title = title
     for char in title:
 		
-        if char == u"[" and nb_bracket == 0:
+        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
-        elif nb_bracket > 0 and char != u"]":
+        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
             current_tag = current_tag + char
             if char == u"[" :
                 nb_bracket += 1
-        elif char == u"]" and nb_bracket > 0:
+        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
             if nb_bracket == 0 and current_tag.strip() != u"":
                 tags.append(current_tag.strip())
                 current_tag = u""
-        elif char != u"[" :
+            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = current_tag + char
+                
+        elif char != u"[" or not continue_parsing_tags:
+            continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
-    
+    #if we did not succed in parsing the tags
+    if nb_bracket != 0 :
+        return ([],original_title)
+
     return (tags, title.strip())
 
 
