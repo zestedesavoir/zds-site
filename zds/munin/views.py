@@ -40,6 +40,6 @@ def total_tutorials(request):
 graph_vlabel articles""")
 def total_articles(request):
     articles = Article.objects.all()
-    return [("tutorials", articles.count()),
+    return [("articles", articles.count()),
             ("offline", articles.filter(sha_public__isnull=True).count()),
             ("online", articles.filter(sha_public__isnull=False).count())]
