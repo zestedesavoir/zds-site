@@ -20,7 +20,7 @@
                         {% if topic.is_locked %}
                             Ce sujet est verrouillé.
                         {% elif topic.antispam  %}
-                            Vous ne pouvez pas encore poster dans ce sujet (protection antispam de 15 min).
+                            Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood.
                         {% elif topic.alone %}
                             Vous êtes seul dans cette conversation.
                         {% else %}
