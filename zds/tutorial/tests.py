@@ -95,7 +95,7 @@ class BigTutorialTests(TestCase):
         # reserve tutorial
         validation = Validation.objects.get(
             tutorial__pk=self.bigtuto.pk)
-        pub = self.client.get(
+        pub = self.client.post(
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -1019,7 +1019,7 @@ class MiniTutorialTests(TestCase):
         # reserve tutorial
         validation = Validation.objects.get(
             tutorial__pk=self.minituto.pk)
-        pub = self.client.get(
+        pub = self.client.post(
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
