@@ -33,8 +33,6 @@ Une fois dans votre environnement python (`source ../bin/activate` si vous utili
 
 ```console
 pip install --upgrade -r requirements.txt
-npm install
-gulp build
 python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
