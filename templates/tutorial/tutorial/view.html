@@ -285,8 +285,8 @@
                 {% if tutorial.in_validation %}
                     {% if validation.is_pending %}
                         <li>
-                            {# TODO_CSRF : passer en post #}
-                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                                {% csrf_token %}
                                 <button type="submit" class="ico-after lock blue">
                                     Réserver
                                 </button>
@@ -295,8 +295,8 @@
                     {% elif validation.is_pending_valid %}
                         {% if validation.validator = user %}
                             <li>
-                                {# TODO_CSRF : passer en post #}
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                                    {% csrf_token %}
                                     <button type="submit" class="ico-after lock blue">
                                         Se retirer
                                     </button>
@@ -319,8 +319,8 @@
                                 <a href="#unreservation" class="open-modal ico-after lock blue">
                                     Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
                                 </a>
-                                {# TODO_CSRF : passer en post #}
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get" class="modal modal-small" id="unreservation">
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                    {% csrf_token %}
                                     <p>
                                         La validation de ce tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. Êtes-vous certains de vouloir le retirer ?
                                     </p>
