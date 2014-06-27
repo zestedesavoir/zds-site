@@ -730,7 +730,12 @@ class ForumGuestTests(TestCase):
         self.assertEqual(len(tags),2)
         self.assertEqual(tags[0],"tag1")
         self.assertEqual(title,"title")
+        (tags,title) = get_tag_by_title("[tag1] [tag2]title")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title")
         
+
         (tags,title) = get_tag_by_title("[tag1][tag2]title[tag3]")
         self.assertEqual(len(tags),2)
         self.assertEqual(tags[0],"tag1")
