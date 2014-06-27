@@ -391,6 +391,7 @@ def valid_tutorial(request):
 @can_write_and_read_now
 @login_required
 @permission_required("tutorial.change_tutorial", raise_exception=True)
+@require_POST
 def invalid_tutorial(request, tutorial_pk):
     """Staff invalid tutorial of an author."""
 
