@@ -458,6 +458,7 @@ def ask_validation(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def delete_tutorial(request, tutorial_pk):
     """User would like delete his tutorial."""
 
