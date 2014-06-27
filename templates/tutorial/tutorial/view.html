@@ -347,8 +347,8 @@
                         <a href="#delete-tutorial" class="open-modal ico-after cross red">
                             Supprimer le tutoriel
                         </a>
-                        {# TODO_CSRF : passer en post #}
-                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="get" id="delete-tutorial" class="modal modal-medium">
+                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="post" id="delete-tutorial" class="modal modal-medium">
+                        	{% csrf_token %}
                             <p>
                                 Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
                             </p>
