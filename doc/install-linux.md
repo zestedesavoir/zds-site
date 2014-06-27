@@ -44,7 +44,7 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 
 ```console
 apt-get install --reinstall ttf-mscorefonts-installer
-apt-get install texlive texlive-lang-french texlive-latex-extra
+apt-get install texlive texlive-xetex texlive-lang-french texlive-latex-extra
 apt-get install haskell-platform
 cabal update
 cabal install pandoc
