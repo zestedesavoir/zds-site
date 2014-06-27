@@ -33,8 +33,6 @@ Une fois dans votre environnement python (`source ../bin/activate` si vous utili
 
 ```console
 pip install --upgrade -r requirements.txt
-npm install
-gulp build
 python manage.py syncdb
 python manage.py migrate
 python manage.py runserver
@@ -46,11 +44,8 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 
 ```console
 apt-get install --reinstall ttf-mscorefonts-installer
-apt-get install texlive
-apt-get install texlive-xetex
-apt-get install texlive-lang-french
-apt-get install texlive-latex-extra
+apt-get install texlive texlive-xetex texlive-lang-french texlive-latex-extra
 apt-get install haskell-platform
-apt-get install cabal update
-apt-get install cabal install pandoc
+cabal update
+cabal install pandoc
 ```
