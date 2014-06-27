@@ -154,6 +154,7 @@ def list_validation(request):
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
+@require_POST
 def reservation(request, validation_pk):
     """Display tutorials list in validation."""
 

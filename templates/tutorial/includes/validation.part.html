@@ -14,7 +14,8 @@
 
 
 {% if validation.is_pending %}
-    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+        {% csrf_token %}
         <button type="submit">
             Réserver
         </button>
@@ -23,8 +24,8 @@
     <a href="#unreservation" class="open-modal btn btn-cancel">
         Annuler la réservation
     </a>
-    {# TODO_CSRF : passer en post #}
-    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" mathod="get" class="modal modal-small" id="unreservation">
+    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+        {% csrf_token %}
         <p>
             Le tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}, êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
         </p>
