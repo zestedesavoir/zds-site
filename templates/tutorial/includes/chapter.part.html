@@ -5,7 +5,7 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro %}
+        {% if chapter.intro and chapter.intro != "None" %}
             {{ chapter.intro|emarkdown }}
         {% else %}
             <p class="ico-after warning">
@@ -110,9 +110,9 @@
     <hr />
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.conclu %}
+        {% if chapter.conclu and chapter.conclu != "None" %}
             {{ chapter.conclu|emarkdown }}
-        {% else %}
+        {% else %} 
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>

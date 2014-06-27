@@ -364,7 +364,7 @@ def valid_tutorial(request):
                 u'qu\'un sujet abandonné !'
                 .format(author.username,
                         tutorial.title,
-                        tutorial.get_absolute_url_online(),
+                        settings.SITE_URL + tutorial.get_absolute_url_online(),
                         validation.validator.username,
                         settings.SITE_URL + validation.validator.profile.get_absolute_url()))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
@@ -985,7 +985,8 @@ def edit_tutorial(request):
                 img.save()
                 tutorial.image = img
             tutorial.save()
-            
+            tutorial.update_children()
+
             new_slug = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
             
             maj_repo_tuto(
@@ -1184,6 +1185,7 @@ def add_part(request):
             part.save()
             
             new_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
+
             maj_repo_part(
                 request,
                 new_slug_path=new_slug,
@@ -1192,7 +1194,13 @@ def add_part(request):
                 conclusion=data["conclusion"],
                 action="add",
             )
-            return redirect(part.get_absolute_url())
+            if "submit_continue" in request.POST:
+                form = PartForm()
+                messages.success(request,
+                                 u'Partie « {0} » ajouté '
+                                 u'avec succès.'.format(part.title))
+            else:
+                return redirect(part.get_absolute_url())
     else:
         form = PartForm()
     return render_template("tutorial/part/new.html", {"tutorial": tutorial,
@@ -1282,6 +1290,7 @@ def edit_part(request):
             part.introduction = os.path.join(part.get_phy_slug(), "introduction.md")
             part.conclusion = os.path.join(part.get_phy_slug(), "conclusion.md")
             part.save()
+            part.update_children()
             
             new_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
             
@@ -1620,7 +1629,12 @@ def modify_chapter(request):
     elif "delete" in data:
         old_pos = chapter.position_in_part
         old_tut_pos = chapter.position_in_tutorial
-
+        
+        if chapter.part:
+            parent = chapter.part
+        else:
+            parent = chapter.tutorial
+        
         # Move other chapters first
 
         for tut_c in chapter.part.get_chapters():
@@ -1641,7 +1655,9 @@ def modify_chapter(request):
             tut_c.update_position_in_tutorial()
             tut_c.save()
         messages.info(request, u"Le chapitre a bien été supprimé.")
-        return redirect(chapter.part.get_absolute_url())
+
+        return redirect(parent.get_absolute_url())
+
     return redirect(chapter.get_absolute_url())
 
 
@@ -2456,6 +2472,8 @@ def maj_repo_extract(
     if action == "del":
         msg = "Suppression de l'exrait "
         extract.delete()
+        if old_slug_path:
+            os.remove(old_slug_path)
     else:
         if action == "maj":
             os.rename(old_slug_path, new_slug_path)
@@ -2674,7 +2692,8 @@ def MEP(tutorial, sha):
         except:
             shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
-
+    repo.head.reset(commit = sha, index=True, working_tree=True)
+    
     # collect md files
 
     fichiers = []

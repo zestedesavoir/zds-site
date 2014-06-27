@@ -159,7 +159,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'django.contrib.humanize',
-
+    
+    'easy_thumbnails',
     'south',
     'crispy_forms',
     'email_obfuscator',
@@ -182,6 +183,22 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'size': (60, 60), 'crop': True},
+        'avatar_mini': {'size': (24, 24), 'crop': True},
+        'tutorial_illu': {'size': (60, 60), 'crop': True},
+        'article_illu': {'size': (60, 60), 'crop': True},
+        'gallery': {'size': (120, 120), 'crop': True},
+        'content': {'size': (960, 960), 'crop': False},
+    },
+}
+
 if (DEBUG):
     INSTALLED_APPS += (
         'debug_toolbar',
@@ -237,7 +254,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024 * 1024 * 2
+IMAGE_MAX_SIZE = 1024 * 1024
 
 # git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')

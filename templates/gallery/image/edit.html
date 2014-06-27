@@ -1,5 +1,6 @@
 {% extends "gallery/base.html" %}
 {% load crispy_forms_tags %}
+{% load thumbnail %}
 
 
 
@@ -33,9 +34,12 @@
 
 {% block content %}
     <div class="gallery-col-image">
+        <p>Image :</p>
         <a href="{{ image.physical.url }}"><img src="{{ image.physical.url }}" alt="{{ image.legend }}"></a>
+        
+        <p> Miniature :</p>
+        <a href="{{ image.physical.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend }}"></a>
     </div>
-    
     <div class="gallery-col-edit">
         {% crispy form %}
 
@@ -43,7 +47,8 @@
 
         <p>
             Code markdown pour insérer cette image : <br>
-            <input type="text" value="![{{ image.legend }}]({{ image.physical.url }})" readonly onclick="this.select()">
+            Taille normale : <input type="text" value="![{{ image.legend }}]({{ image.physical.content.url }})" readonly onclick="this.select()">
+            Miniature : <input type="text" value="![{{ image.legend }}]({{ image.physical.gallery.url }})" readonly onclick="this.select()">
         </p>
         
         {% crispy as_avatar_form %}

@@ -4,7 +4,7 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro %}
+        {% if chapter.intro and chapter.intro != "None" %}
             {{ chapter.intro|safe }}
         {% endif %}
     {% endif %}
@@ -33,8 +33,8 @@
     {% endfor %}
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.get_conclusion_online %}
-            {{ chapter.get_conclusion_online|safe }}
+        {% if chapter.conclu%}
+            {{ chapter.conclu|safe }}
         {% endif %}
     {% endif %}
 {% endwith %}

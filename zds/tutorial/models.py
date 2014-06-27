@@ -344,6 +344,14 @@ class Tutorial(models.Model):
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
         return False
+    
+    def update_children(self):
+        for part in self.get_parts():
+            part.update_children()
+        
+        chapter = self.get_chapter()
+        if chapter:
+            chapter.update_children()
 
 
 def get_last_tutorials():
@@ -534,6 +542,13 @@ class Part(models.Model):
         conclu.close()
 
         return conclu_contenu.decode('utf-8')
+
+    def update_children(self):
+        self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
+        self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
+        self.save()
+        for chapter in self.get_chapters():
+            chapter.update_children()
 
 
 class Chapter(models.Model):
@@ -754,6 +769,12 @@ class Chapter(models.Model):
         else:
             return None
 
+    def update_children(self):
+        self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
+        self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
+        self.save()
+        for extract in self.get_extracts():
+            extract.update_children()
 
 class Extract(models.Model):
 
