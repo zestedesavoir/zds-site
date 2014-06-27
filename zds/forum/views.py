@@ -212,7 +212,7 @@ def get_tag_by_title(title):
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
                 
-        elif char != u"[" or not continue_parsing_tags:
+        elif ((char != u"[" and char.strip()!="") or not continue_parsing_tags):
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
