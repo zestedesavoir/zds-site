@@ -7,13 +7,13 @@ from django.core.urlresolvers import reverse
 from zds.utils import slugify
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
-    TopicFactory, PostFactory
+    TopicFactory, PostFactory, TagFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentLike, CommentDislike, Alert
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
-
+from zds.forum.views import get_tag_by_title
 
 class ForumMemberTests(TestCase):
 
@@ -112,6 +112,8 @@ class ForumMemberTests(TestCase):
         self.assertContains(response, self.forum11.title)
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
+
+
 
     def test_answer(self):
         """To test all aspects of answer."""
@@ -534,6 +536,47 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(Post.objects.filter(topic=topic1.pk).count(), 1)
 
+    def test_add_tag(self):
+        
+        
+        TagCSharp = TagFactory(title="C#")
+        
+        TagC = TagFactory(title="C")
+        self.assertEqual(TagCSharp.slug, TagC.slug)
+        self.assertNotEqual(TagCSharp.title, TagC.title)
+        #post a topic with a tag
+        result = self.client.post(
+            reverse('zds.forum.views.new') + '?forum={0}'
+            .format(self.forum12.pk),
+            {'title': u'[C#]Un autre sujet',
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        
+        #test the topic is added to the good tag
+        
+        self.assertEqual( Topic.objects.filter(
+                tags__in=[TagCSharp])
+                .order_by("-last_message__pubdate").prefetch_related(
+                    "tags").count(), 1)
+        self.assertEqual( Topic.objects.filter(tags__in=[TagC])
+                .order_by("-last_message__pubdate").prefetch_related(
+                    "tags").count(), 0)
+        topicWithConflictTags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topicWithConflictTags.title = u"[C][c][ c][C ]name"
+        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
+        topicWithConflictTags.add_tags(tags)
+        self.assertEqual(topicWithConflictTags.tags.all().count(), 1)
+        topicWithConflictTags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topicWithConflictTags.title = u"[][ ][	]name"
+        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
+        topicWithConflictTags.add_tags(tags)
+        self.assertEqual(topicWithConflictTags.tags.all().count(), 0)
+
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""
         init_topic_count = Topic.objects.all().count()
@@ -672,6 +715,37 @@ class ForumGuestTests(TestCase):
         # check post's number
         self.assertEqual(Post.objects.all().count(), 3)
 
+    def test_tag_parsing(self):
+        """test the tag parsing in nominal, limit and borns cases"""
+        (tags, title) = get_tag_by_title("[tag]title");
+        self.assertEqual(len(tags),1)
+        self.assertEqual(title,"title")
+        
+        (tags,title) = get_tag_by_title("[[tag1][tag2]]title")
+        self.assertEqual(len(tags),1)
+        self.assertEqual(tags[0],"[tag1][tag2]")
+        self.assertEqual(title,"title")
+        
+        (tags,title) = get_tag_by_title("[tag1][tag2]title")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title")
+        (tags,title) = get_tag_by_title("[tag1] [tag2]title")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title")
+        
+
+        (tags,title) = get_tag_by_title("[tag1][tag2]title[tag3]")
+        self.assertEqual(len(tags),2)
+        self.assertEqual(tags[0],"tag1")
+        self.assertEqual(title,"title[tag3]")
+
+        (tags,title) = get_tag_by_title("[tag1[][tag2]title")
+        self.assertEqual(len(tags),0)
+        self.assertEqual(title,"[tag1[][tag2]title")
+        
+        
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by guest."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)

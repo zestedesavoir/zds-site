@@ -18,6 +18,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.utils.encoding import smart_text
+
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
@@ -188,9 +190,36 @@ def topic(request, topic_pk, topic_slug):
 
 
 def get_tag_by_title(title):
-    regex = ur"(?P<start>)(\[.*?\])(?P<end>)"
-    tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
-    title = re.sub(regex, sub_tag, title)
+    nb_bracket = 0
+    current_tag = u""
+    current_title = u""
+    tags = []
+    continue_parsing_tags = True
+    original_title = title
+    for char in title:
+		
+        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+            nb_bracket += 1
+        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+            current_tag = current_tag + char
+            if char == u"[" :
+                nb_bracket += 1
+        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+            nb_bracket -= 1
+            if nb_bracket == 0 and current_tag.strip() != u"":
+                tags.append(current_tag.strip())
+                current_tag = u""
+            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = current_tag + char
+                
+        elif ((char != u"[" and char.strip()!="") or not continue_parsing_tags):
+            continue_parsing_tags = False
+            current_title = current_title + char
+    title = current_title
+    #if we did not succed in parsing the tags
+    if nb_bracket != 0 :
+        return ([],original_title)
+
     return (tags, title.strip())
 
 
@@ -228,7 +257,6 @@ def new(request):
             (tags, title) = get_tag_by_title(data["title"])
 
             # Creating the thread
-
             n_topic = Topic()
             n_topic.forum = forum
             n_topic.title = title
@@ -236,17 +264,10 @@ def new(request):
             n_topic.pubdate = datetime.now()
             n_topic.author = request.user
             n_topic.save()
-
             # add tags
 
-            for tag in tags:
-                tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                if tg is None:
-                    tg = Tag(title=tag[2])
-                    tg.save()
-                n_topic.tags.add(tg)
+            n_topic.add_tags(tags)
             n_topic.save()
-
             # Adding the first message
 
             post = Post()
@@ -655,13 +676,7 @@ def edit_post(request):
 
                 # add tags
 
-                for tag in tags:
-                    tg = Tag.objects.filter(slug=slugify(tag[2])).first()
-                    if tg is None:
-                        tg = Tag(title=tag[2])
-                        tg.save()
-                    g_topic.tags.add(tg)
-                g_topic.save()
+                g_topic.add_tags(tags)
         post.save()
         return redirect(post.get_absolute_url())
     else:
@@ -840,10 +855,10 @@ def dislike_post(request):
 
 
 
-def find_topic_by_tag(request, tag_slug):
+def find_topic_by_tag(request, tag_pk, tag_slug):
     """Finds all topics byg tag."""
 
-    tag = Tag.objects.filter(slug=tag_slug).first()
+    tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
         return redirect(reverse("zds.forum.views.index"))
     if "filter" in request.GET:

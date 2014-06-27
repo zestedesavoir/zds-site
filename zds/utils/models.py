@@ -277,6 +277,6 @@ class Tag(models.Model):
         return u"{0}".format(self.title)
 
     def save(self, *args, **kwargs):
-        self.title = smart_text(self.title)
+        self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)
