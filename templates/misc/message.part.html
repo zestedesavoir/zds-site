@@ -196,37 +196,47 @@
                         {% if user.is_authenticated and helpful_link %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author = user or perms_change %}
-                                    <a href="{{ helpful_link }}"
-                                       class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                    >
-                                        Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
-                                    </a>
+                                    {# TODO_CSRF : passer en post #}
+                                    <form action="{{ helpful_link }}" method="get">
+                                        <button type="submit" class="tick ico-after {% if message.is_useful %}green{% endif %}">
+                                            Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                        </button>
+                                    </form>
                                 {% endif %}
                             {% endif %}
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
                             {% with profile_user=user|profile %}
-                                <a href="{{ upvote_link }}"
-                                   title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
-                                   class="upvote
-                                          ico-after
-                                          {% if message.like > message.dislike %}more-voted{% endif %}
-                                          {% if message.like > 0 %}has-vote{% endif %}
-                                          {% if profile_user|liked:message.pk %}voted{% endif %}"
-                                >
-                                    +{{ message.like }}
-                                </a>
-                                <a href="{{ downvote_link }}" 
-                                   title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
-                                   class="downvote
-                                          ico-after
-                                          {% if message.like < message.dislike %}more-voted{% endif %}
-                                          {% if message.dislike > 0 %}has-vote{% endif %}
-                                          {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                                >
-                                    -{{ message.dislike }}
-                                </a>
+                                {# TODO_CSRF : passer en post #}
+                                <form action="{{ upvote_link }}" method="get">
+                                    <button
+                                        type="submit"
+                                        title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
+                                        class=" upvote
+                                                ico-after
+                                                {% if message.like > message.dislike %}more-voted{% endif %}
+                                                {% if message.like > 0 %}has-vote{% endif %}
+                                                {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                    >
+                                        +{{ message.like }}
+                                    </button>
+                                </form>
+
+                                {# TODO_CSRF : passer en post #}
+                                <form action="{{ downvote_link }}" method="get">
+                                    <button
+                                        type="submit"
+                                        title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
+                                        class=" downvote
+                                                ico-after
+                                                {% if message.like < message.dislike %}more-voted{% endif %}
+                                                {% if message.dislike > 0 %}has-vote{% endif %}
+                                                {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                    >
+                                        -{{ message.dislike }}
+                                    </button>
+                                </form>
                             {% endwith %}
                         {% else %}
                             <span
