@@ -24,7 +24,7 @@
         Annuler la réservation
     </a>
     {# TODO_CSRF : passer en post #}
-    <form action="{{ reservation_url }}" mathod="get" class="modal modal-small" id="unreservation">
+    <form action="{{ reservation_url }}" method="get" class="modal modal-small" id="unreservation">
         <p>
             Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
             Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
