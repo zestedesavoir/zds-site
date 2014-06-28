@@ -33,7 +33,7 @@
                 {% if topic.tags.all %}
                     - Tags : 
                     {% for tag in topic.tags.all %}
-                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.slug %}" class="topic-tag">{{ tag.title }}</a>
+                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag">{{ tag.title }}</a>
                     {% endfor %}
                 {% endif %}
             </p>
