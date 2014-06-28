@@ -21,7 +21,7 @@
     {% with authors=tutorial.authors.all %}
         <h1 {% if chapter.image %}class="illu"{% endif %}>
             {% if chapter.image %}
-                <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
+                <img src="{{ chapter.image.thumb.url }}" alt="">
             {% endif %}
             {{ chapter.title }}
         </h1>
@@ -57,7 +57,7 @@
         >
             Ajouter un extrait
         </a>
-        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{ version }}"
+        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&amp;version={{ version }}"
            class="ico-after edit blue new-btn"
         >
             Éditer le chapitre
