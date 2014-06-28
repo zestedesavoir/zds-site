@@ -14,7 +14,7 @@
 
 
 {% if validation.is_pending %}
-    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+    <form action="{{ reservation_url }}" method="get">
         <button type="submit">
             Réserver
         </button>
@@ -24,9 +24,10 @@
         Annuler la réservation
     </a>
     {# TODO_CSRF : passer en post #}
-    <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" mathod="get" class="modal modal-small" id="unreservation">
+    <form action="{{ reservation_url }}" mathod="get" class="modal modal-small" id="unreservation">
         <p>
-            Le tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}, êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+            Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
+            Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
         </p>
         <button type="submit">
             Confirmer
