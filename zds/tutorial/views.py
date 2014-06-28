@@ -2621,7 +2621,9 @@ def get_url_images(md_text, pt):
 
             # if link is http type
 
-            if parse_object.scheme in ("http", "https"):
+            if parse_object.scheme in ("http", "https", "ftp") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
                 (filepath, filename) = os.path.split(parse_object.path)
                 if not os.path.isdir(os.path.join(pt, "images")):
                     os.makedirs(os.path.join(pt, "images"))
@@ -2663,12 +2665,16 @@ def sub_urlimg(g):
     (filepath, filename) = os.path.split(parse_object.path)
     ext = filename.split(".")[-1]
     if ext == "gif":
-        if parse_object.scheme in ("http", "https"):
+        if parse_object.scheme in ("http", "https") or \
+        parse_object.netloc[:3]=="www" or \
+        parse_object.path[:3]=="www":
             url = os.path.join("images", filename.split(".")[0] + ".png")
         else:
             url = (url.split(".")[0])[1:] + ".png"
     else:
-        if parse_object.scheme in ("http", "https"):
+        if parse_object.scheme in ("http", "https") or \
+        parse_object.netloc[:3]=="www" or \
+        parse_object.path[:3]=="www":
             url = os.path.join("images", filename)
         else:
             url = url[1:]
@@ -2677,7 +2683,7 @@ def sub_urlimg(g):
 
 
 def markdown_to_out(md_text):
-    return re.sub(r"(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
+    return re.sub(ur"(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 

@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     
     'easy_thumbnails',
+    'easy_thumbnails.optimize',
     'south',
     'crispy_forms',
     'email_obfuscator',

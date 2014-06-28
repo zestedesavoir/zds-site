@@ -1,6 +1,7 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load profile %}
+{% load thumbnail %}
 
 
 
@@ -37,7 +38,7 @@
 {% block headline %}
     <h1 {% if article.image %}class="illu"{% endif %}>
         {% if article.image %}
-            <img src="{{article.image.url }}" alt="">
+            <img src="{{article.image.article_illu.url }}" alt="">
         {% endif %}
         {{ article.title }}
     </h1>

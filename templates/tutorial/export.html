@@ -1,5 +1,6 @@
 {% load emarkdown %}
 {% load profile %}
+{% load thumbnail %}
 
 {# TODO : Comprendre comment designer l'export #}
 
@@ -7,7 +8,7 @@
     <div class="large-12 columns">
         <div class="large-1 columns hide-for-small">
             {% if tutorial.image %}
-                <img src="{{ tutorial.image.thumb.url }}">
+                <img src="{{ tutorial.image.physical.tutorial_illu.url }}">
             {% endif %}
         </div>
         <div class="large-6 columns">

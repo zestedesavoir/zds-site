@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from django.conf import settings
+from django.contrib import messages
 from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -174,22 +175,34 @@ def edit_image(request, gal_pk, img_pk):
     # check if the image belong to the gallery
     if img.gallery != gal:
         raise PermissionDenied
-
+    
+    
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
-        if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:
-            img.title = request.POST["title"]
-            img.legend = request.POST["legend"]
-            img.physical = request.FILES["physical"]
-            img.slug = slugify(request.FILES["physical"])
-            img.update = datetime.now()
-            img.save()
+        if form.is_valid():
+            if "physical" in request.FILES:
+                if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
+                    messages.error(request, "Votre image est beaucoup trop lourde, réduidez sa taille à moins de {} avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE/1024*1024)))
+                else:
+                    img.title = request.POST["title"]
+                    img.legend = request.POST["legend"]
+                    img.physical = request.FILES["physical"]
+                    img.slug = slugify(request.FILES["physical"])
+                    img.update = datetime.now()
+                    img.save()
+                    # Redirect to the document list after POST
+                    return redirect(gal.get_absolute_url())
+            else:
+                img.title = request.POST["title"]
+                img.legend = request.POST["legend"]
+                img.update = datetime.now()
+                img.save()
 
-            # Redirect to the document list after POST
-            return redirect(gal.get_absolute_url())
+                # Redirect to the document list after POST
+                return redirect(gal.get_absolute_url())
     else:
         form = ImageForm(initial={"title": img.title, "legend": img.legend, "physical": img.physical})
-
+    
     as_avatar_form = ImageAsAvatarForm()
     return render_template(
         "gallery/image/edit.html", {
