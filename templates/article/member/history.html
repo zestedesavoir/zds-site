@@ -2,7 +2,7 @@
 {% load emarkdown %}
 {% load date %}
 {% load profile %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -25,9 +25,9 @@
 
 
 {% block headline %}
-    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
-        {% if article.thumbnail %}
-            <img src="{{article.thumbnail.url }}" alt="">
+    <h1 {% if article.image %}class="illu"{% endif %}>
+        {% if article.image %}
+            <img src="{{article.image.article_illu.url }}" alt="">
         {% endif %}
         Historique de l'article "{{ article.title }}"
     </h1>

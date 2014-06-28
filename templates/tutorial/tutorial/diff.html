@@ -1,7 +1,7 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
 {% load repo_reader %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -26,7 +26,7 @@
 {% block headline %}
     <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
-            <img src="{{tutorial.image.thumb.url }}" alt="">
+            <img src="{{tutorial.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         {{ tutorial.title }}
     </h1>

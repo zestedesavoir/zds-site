@@ -153,7 +153,6 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
-    article_version['thumbnail'] = article.thumbnail
     article_version['is_locked'] = article.is_locked
     article_version['get_absolute_url'] = article.get_absolute_url()
     article_version['get_absolute_url_online'] = article.get_absolute_url_online()
@@ -322,8 +321,7 @@ def edit(request):
 
             new_slug = os.path.join(
                 settings.REPO_ARTICLE_PATH,
-                slugify(
-                    data['title']))
+                article.get_phy_slug())
 
             maj_repo_article(request,
                              old_slug_path=old_slug,
@@ -334,7 +332,7 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm({
+        form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
@@ -410,7 +408,7 @@ def download(request):
 
     article = get_object_or_404(Article, pk=request.GET['article'])
 
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.slug)
+    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", 'w'))
 

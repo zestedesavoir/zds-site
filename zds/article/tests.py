@@ -107,20 +107,20 @@ class ArticleTests(TestCase):
         self.assertEqual(
             os.path.exists(
                 os.path.join(
-                    settings.MEDIA_ROOT, self.article.thumbnail.name
+                    settings.MEDIA_ROOT, self.article.image.name
                 )
             ),
             True
         )
         # now that we have a first image, let's change it
 
-        oldAddress = self.article.thumbnail.name
+        oldAddress = self.article.image.name
         self.article.image = self.logo2
         self.article.save()
         self.assertEqual(
             os.path.exists(
                 os.path.join(
-                    settings.MEDIA_ROOT, self.article.thumbnail.name
+                    settings.MEDIA_ROOT, self.article.image.name
                 )
             ),
             True
@@ -131,7 +131,6 @@ class ArticleTests(TestCase):
             ),
             False
         )
-        os.unlink(self.logo1)
         os.unlink(self.logo2)
         # shutil.rmtree(settings.MEDIA_ROOT)
 

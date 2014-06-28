@@ -1,6 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load set %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -57,7 +57,7 @@
         >
             Ajouter un extrait
         </a>
-        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&version={{ version }}"
+        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&amp;version={{ version }}"
            class="ico-after edit blue new-btn"
         >
             Éditer le chapitre
@@ -156,7 +156,7 @@
                                 <input type="hidden" name="chapter" value="{{ chapter.pk }}">
 
                                 {% csrf_token %}
-                                <button type="submit">
+                                <button type="submit" name="delete">
                                     Confirmer
                                 </button>
                             </form>

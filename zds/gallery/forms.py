@@ -86,7 +86,6 @@ class UserGalleryForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
             Field('user', autocomplete='off'),
             Field('mode'),
             Hidden('gallery', '{{ gallery.pk }}'),

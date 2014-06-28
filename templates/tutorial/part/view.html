@@ -35,7 +35,7 @@
 
 
 {% block content %}
-    {% if part.intro %}
+    {% if part.intro and part.intro != "None" %}
         {{ part.intro|emarkdown }}
     {% else %}
         <p class="ico-after warning">
@@ -50,7 +50,7 @@
             {% for chapter in part.chapters %}
                 <li>
                     <h3>
-                        <a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.slug chapter.slug %}?version={{ version }}">
+                        <a href="{% url "view-chapter-url" part.tutorial.pk part.tutorial.slug part.pk part.slug chapter.pk chapter.slug %}?version={{version}}">
                             {{ chapter.title }}
                         </a>
                     </h3>
@@ -60,9 +60,9 @@
                                 <h4>
                                     <a href="{% spaceless %}
                                         {% if online %}
-                                            {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.slug chapter.slug %}
+                                            {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}
                                         {% else %}
-                                            {% url "view-chapter-url" tutorial.pk tutorial.slug part.slug chapter.slug %}{% if version %}?version={{version}}{% endif %}
+                                            {% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}{% if version %}?version={{version}}{% endif %}
                                         {% endif %}
                                         {% endspaceless %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
                                         {{ extract.title }}
@@ -82,7 +82,7 @@
     
     <hr />
 
-    {% if part.conclu %}
+    {% if part.conclu and part.conclu != "None" %}
         {{ part.conclu|emarkdown }}
     {% else %}
         <p class="ico-after warning">
@@ -105,6 +105,72 @@
 {% endblock %}
 
 
+{% block sidebar_actions %}
+    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+        {% if part %}
+            <li>
+                <a href="#move-part" class="open-modal ico-after move blue">
+                    Déplacer <span class="wide">la partie</span>
+                </a>
+                <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST" class="modal modal-small" id="move-part">
+                    <select name="move_target" class="select-autosubmit">
+                        <option disabled="disabled">
+                            Déplacer
+                        </option>
+
+                        {% if part.position_in_tutorial > 1 %}
+                            <option value="{{ part.position_in_tutorial|add:-1 }}">
+                                Monter
+                            </option>
+                        {% endif %}
+
+                        {% if part.position_in_tutorial < part.tutorial.get_parts|length %}
+                            <option value="{{ part.position_in_tutorial|add:1 }}">
+                                Descendre
+                            </option>
+                        {% endif %}
+
+                        <option disabled="disabled">&mdash; Déplacer avant</option>
+                        {% for part_mv in part.tutorial.get_parts %}
+                            {% if part != part_mv and part_mv.position_in_tutorial|add:-1 != part.position_in_tutorial %}
+                                <option value="
+                                    {% if part_mv.position_in_tutorial < part.position_in_tutorial %}
+                                        {{ part_mv.position_in_tutorial }}
+                                    {% else %}
+                                        {{ part_mv.position_in_tutorial|add:-1 }}
+                                    {% endif %}
+                                ">
+                                    Partie {{ part_mv.position_in_tutorial }} : {{ part_mv.title }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+
+                        <option disabled="disabled">&mdash; Déplacer après</option>
+                        {% for part_mv in part.tutorial.get_parts %}
+                            {% if part != part_mv and part_mv.position_in_tutorial|add:1 != part.position_in_tutorial %}
+                                <option value="
+                                    {% if part_mv.position_in_tutorial < part.position_in_tutorial %}
+                                        {{ part_mv.position_in_tutorial|add:1 }}
+                                    {% else %}
+                                        {{ part_mv.position_in_tutorial }}
+                                    {% endif %}
+                                ">
+                                    Partie {{ part_mv.position_in_tutorial }} : {{ part_mv.title }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <input type="hidden" name="move" value="">
+                    <input type="hidden" name="part" value="{{ part.pk }}">
+                    {% csrf_token %}
+
+                    <button type="submit">Déplacer</button>
+                </form>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endblock %}
 
 {% block sidebar_blocks %}
     {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}

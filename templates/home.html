@@ -3,6 +3,7 @@
 {% load date %}
 {% load interventions %}
 {% load topbar %}
+{% load thumbnail %}
 
 
 
@@ -30,9 +31,9 @@
         {% if last_articles %}
             {% for article in last_articles %}
                 <article>
-                    {% if article.thumbnail %}
+                    {% if article.image %}
                         <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
-                            <img src="{{ article.thumbnail.url }}" alt="" class="tutorial-img avatar">
+                            <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
                         </a>
                     {% endif %}
                     <div class="tutorial-infos">

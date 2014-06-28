@@ -4,7 +4,7 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load set %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -20,9 +20,9 @@
 
 
 {% block headline %}
-    <h1 {% if article.thumbnail %}class="illu"{% endif %}>
-        {% if article.thumbnail %}
-            <img src="{{ article.thumbnail.url }}" alt="">
+    <h1 {% if article.image %}class="illu"{% endif %}>
+        {% if article.image %}
+            <img src="{{ article.image.article_illu.url }}" alt="">
         {% endif %}
         {{ article.title }}
     </h1>

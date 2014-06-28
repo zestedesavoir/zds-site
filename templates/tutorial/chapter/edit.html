@@ -1,6 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -25,7 +25,7 @@
 {% block headline %}
     <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
-            <img src="{{ chapter.image.thumb.url }}" alt="">
+            <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         Éditer le chapitre : {{ part.title }}
     </h1>

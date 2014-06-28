@@ -1,7 +1,7 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
 {% load profile %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -30,7 +30,7 @@
         <div class="large-12 columns">
             <div class="large-1 columns hide-for-small">
                 {% if tutorial.image %}
-                    <img src="{{tutorial.image.thumb.url }}" alt="">
+                    <img src="{{tutorial.image.physical.tutorial_illu.url }}" alt="">
                 {% endif %}
             </div>
             <div class="large-11 columns">

@@ -1,6 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -20,7 +20,7 @@
 {% block headline %}
     <h1 {% if part.image %}class="illu"{% endif %}>
         {% if part.image %}
-            <img src="{{ part.image.thumb.url }}" alt="">
+            <img src="{{ part.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         Éditer la partie : {{ part.title }}
     </h1>

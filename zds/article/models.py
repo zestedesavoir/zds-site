@@ -8,6 +8,7 @@ from math import ceil
 import os
 import string
 import uuid
+from easy_thumbnails.fields import ThumbnailerImageField
 
 try:
     import ujson as json_reader
@@ -22,7 +23,6 @@ import json as json_writer
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from PIL import Image
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
@@ -66,8 +66,7 @@ class Article(models.Model):
                                          verbose_name='Sous-Catégorie',
                                          blank=True, null=True, db_index=True)
 
-    image = models.ImageField(upload_to=image_path, blank=True, null=True)
-    thumbnail = models.ImageField(upload_to=image_path, blank=True, null=True)
+    image = ThumbnailerImageField(upload_to=image_path, blank=True, null=True)
 
     is_visible = models.BooleanField('Visible en rédaction', default=False, db_index=True)
 
@@ -97,6 +96,9 @@ class Article(models.Model):
                        kwargs={'article_pk': self.pk,
                                'article_slug': slugify(self.title)})
 
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
+
     def get_absolute_url_online(self):
         return reverse('zds.article.views.view_online',
                        kwargs={'article_pk': self.pk,
@@ -119,7 +121,7 @@ class Article(models.Model):
         if relative:
             return None
         else:
-            return os.path.join(settings.REPO_ARTICLE_PATH, self.slug)
+            return os.path.join(settings.REPO_ARTICLE_PATH, self.get_phy_slug())
 
     def load_json(self, path=None, online=False):
         if path is None:
@@ -155,49 +157,18 @@ class Article(models.Model):
 
         return txt_contenu.decode('utf-8')
 
-    def save(
-            self,
-            force_update=False,
-            force_insert=False,
-            thumb_size=(
-                IMAGE_MAX_HEIGHT,
-                IMAGE_MAX_WIDTH),
-            *args,
-            **kwargs):
-
+    def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-
+        
         if has_changed(self, 'image') and self.image:
-
-            image = Image.open(self.image)
-
-            image.thumbnail(thumb_size, Image.ANTIALIAS)
-
-            # save the thumbnail to memory
-            temp_handle = StringIO()
-            image.save(temp_handle, 'png')
-            temp_handle.seek(0)  # rewind the file
-
-            # save to the thumbnail field
-            suf = SimpleUploadedFile(os.path.split(self.image.name)[-1],
-                                     temp_handle.read(),
-                                     content_type='image/png')
-            self.thumbnail.save(suf.name + '.png', suf, save=False)
-
-            old = get_old_field_value(self, 'thumbnail', 'objects')
-
-            # save the image object
-            super(Article, self).save(force_update, force_insert)
-
-            # delete the image if the update went well and has no image
-            # before
+            old = get_old_field_value(self, 'image', 'objects')
+            
             if old is not None and len(old.name) > 0:
                 root = settings.MEDIA_ROOT
                 name = os.path.join(root, old.name)
                 os.remove(name)
 
-        else:
-            super(Article, self).save()
+        super(Article, self).save(*args, **kwargs)
 
     def get_reaction_count(self):
         """Return the number of reactions in the article."""

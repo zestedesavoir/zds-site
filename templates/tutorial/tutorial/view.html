@@ -2,7 +2,7 @@
 {% load emarkdown %}
 {% load repo_reader %}
 {% load crispy_forms_tags %}
-
+{% load thumbnail %}
 
 
 {% block title %}
@@ -20,9 +20,9 @@
 {% block headline %}
     <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
-            <img src="{{ tutorial.image.thumb.url }}" alt="">
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" />
         {% endif %}
-        {{ tutorial.title }}
+        {{ tutorial.title }} - {{ tutorial.image }}
     </h1>
 
     {% if tutorial.description %}
@@ -50,7 +50,7 @@
 
 {% block content %}
     {% with tuto_version=tutorial|repo_tuto:version %}
-        {% if tuto_version.introduction %}
+        {% if tuto_version.introduction and tuto_version.introduction != "None" %}
             {{ tuto_version.introduction|emarkdown }}
         {% else %}
             <p class="ico-after warning">
@@ -69,7 +69,7 @@
 
             {% for part in parts %}
                 <h2>
-                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.slug %}{% if version %}?version={{version}}{% endif %}">
+                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}{%if version %}?version={{version}}{% endif %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>
@@ -84,7 +84,7 @@
 
         {% endif %}
 
-        {% if tuto_version.conclusion %}
+        {% if tuto_version.conclusion and tuto_version.conclusion != "None" %}
             {{ tuto_version.conclusion|emarkdown }}
         {% else %}
             <p class="ico-after warning">

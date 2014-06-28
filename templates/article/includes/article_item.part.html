@@ -1,6 +1,6 @@
 {% load date %}
 {% load captureas %}
-
+{% load thumbnail %}
 
 <article>
     {% if not link %}
@@ -11,8 +11,8 @@
     {% endif %}
 
     <a href="{{ link }}">
-        {% if article.thumbnail %}
-            <img src="{{ article.thumbnail.url }}" alt="" class="tutorial-img avatar">
+        {% if article.image %}
+            <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
         {% endif %}
 
         <div class="tutorial-infos">

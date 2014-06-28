@@ -154,7 +154,13 @@ class PartForm(FormWithTitle):
             Field('introduction'),
             Field('conclusion'),
             ButtonHolder(
-                StrictButton('Valider', type='submit'),
+                StrictButton(
+                    'Valider',
+                    type='submit'),
+                StrictButton(
+                    'Ajouter et continuer',
+                    type='submit',
+                    name='submit_continue'),
             )
         )
 

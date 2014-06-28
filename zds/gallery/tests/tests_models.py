@@ -79,13 +79,9 @@ class ImageTest(TestCase):
     def test_save_image(self):
         test_image = ImageFactory(gallery=self.gallery)
         self.assertTrue(os.path.isfile(test_image.physical.path))
-        self.assertTrue(os.path.isfile(test_image.medium.path))
-        self.assertTrue(os.path.isfile(test_image.thumb.path))
 
         test_image.delete()
         self.assertFalse(os.path.isfile(test_image.physical.path))
-        self.assertFalse(os.path.isfile(test_image.medium.path))
-        self.assertFalse(os.path.isfile(test_image.thumb.path))
 
 
 class GalleryTest(TestCase):

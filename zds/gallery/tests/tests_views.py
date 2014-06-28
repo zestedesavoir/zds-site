@@ -361,7 +361,7 @@ class EditImageViewTest(TestCase):
     def test_success_member_edit_image(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
-
+        
         with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
 
             response = self.client.post(
@@ -377,7 +377,6 @@ class EditImageViewTest(TestCase):
                     },
                     follow=True
             )
-
         self.assertEqual(200, response.status_code)
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
@@ -546,7 +545,7 @@ class NewImageViewTest(TestCase):
                     },
                     follow=True
             )
-
+        
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(self.gallery.get_images()))
         self.gallery.get_images()[0].delete()
