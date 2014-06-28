@@ -2097,10 +2097,12 @@ table {
                 margin-left: auto;
                 margin-bottom: -2px;
 
-                a,
-                span {
+                span,
+                button.ico-after {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
+                    background: none;
+                    height: 32px;
 
                     &.upvote,
                     &.downvote {
@@ -2167,7 +2169,7 @@ table {
                 .more-voted {
                     font-weight: bold;
                 }
-                a.more-voted {
+                button.more-voted {
                     &:hover,
                     &:focus {
                         border-bottom-color: transparent !important;
@@ -2203,6 +2205,10 @@ table {
         .message-submit {
             @include display(flex);
 
+            form {
+                width: auto;
+            }
+
             a,
             span,
             button {
@@ -2212,7 +2218,7 @@ table {
                 transition: all $default-transition-duration ease;
 
                 &.ico-after {
-                    padding-left: 30px;
+                    padding-left: 30px !important;
                 }
 
                 &:after {
@@ -2220,10 +2226,12 @@ table {
                     left: 7px;
                     transition: all $default-transition-duration ease;
                     opacity: .5;
+                    margin: 0;
                 }
             }
             a,
-            span {
+            span,
+            button.ico-after {
                 border-bottom: 1px solid #D2D5D6;
                 text-decoration: none;
                 color: #999;
@@ -2231,13 +2239,15 @@ table {
                 line-height: 30px;
                 padding: 0 10px;
             }
-            a {
+            a,
+            button.ico-after {
                 cursor: pointer;
 
                 &:hover,
                 &:focus {
                     border-bottom-color: lighten($blue, 15%);
                     outline: none;
+                    background: none;
 
                     &:after {
                         opacity: 1;
