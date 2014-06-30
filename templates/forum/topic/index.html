@@ -110,8 +110,6 @@
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
             <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-                {# Il faudra peut-être repasser ces paramètres en get #}
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
                 <input type="hidden" name="solved" value="1">
@@ -130,8 +128,6 @@
 
     <li>
         <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-            {# Il faudra peut-être repasser ces paramètres en get #}
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="follow" value="1">
@@ -148,8 +144,6 @@
     </li>
     <li>
         <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-            {# Il faudra peut-être repasser ces paramètres en get #}
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="email" value="1">
@@ -175,8 +169,6 @@
             <ul>
                 <li>
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-                        {# Il faudra peut-être repasser ces paramètres en get #}
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
@@ -194,8 +186,6 @@
 
                 <li>
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-                        {# Il faudra peut-être repasser ces paramètres en get #}
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">

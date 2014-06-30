@@ -62,8 +62,6 @@
                         {% for topic in topics %}
                             <li>
                                 <form action="{% url "zds.forum.views.edit" %}" method="post">
-
-                                    {# Il faudra peut-être repasser ces paramètres en get #}
                                     <input type="hidden" name="topic" value="{{ topic.pk }}">
                                     <input type="hidden" name="nb" value="{{ nb }}">
                                     <input type="hidden" name="follow" value="1">
