@@ -14,7 +14,8 @@
 
 
 {% if validation.is_pending %}
-    <form action="{{ reservation_url }}" method="get">
+    <form action="{{ reservation_url }}" method="post">
+    	{% csrf_token %}
         <button type="submit">
             Réserver
         </button>
@@ -23,8 +24,8 @@
     <a href="#unreservation" class="open-modal btn btn-cancel">
         Annuler la réservation
     </a>
-    {# TODO_CSRF : passer en post #}
-    <form action="{{ reservation_url }}" method="get" class="modal modal-small" id="unreservation">
+    <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation">
+    	{% csrf_token %}
         <p>
             Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
             Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?

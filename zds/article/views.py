@@ -45,7 +45,6 @@ from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read
 
 
-
 def index(request):
     """Display all public articles of the website."""
     # The tag indicate what the category article the user would
@@ -71,7 +70,6 @@ def index(request):
     return render_template('article/index.html', {
         'articles': article,
     })
-
 
 
 @login_required
@@ -129,7 +127,6 @@ def view(request, article_pk, article_slug):
         'version': sha,
         'validation': validation
     })
-
 
 
 def view_online(request, article_pk, article_slug):
@@ -344,7 +341,6 @@ def edit(request):
     })
 
 
-
 def find_article(request, name):
     """Find an article from his author."""
     user = get_object_or_404(User, pk=name)
@@ -400,7 +396,6 @@ def maj_repo_article(
                            )
         article.sha_draft = com.hexsha
         article.save()
-
 
 
 def download(request):
@@ -657,7 +652,6 @@ def modify(request):
     return redirect(article.get_absolute_url())
 
 
-
 @permission_required('article.change_article', raise_exception=True)
 @login_required
 def list_validation(request):
@@ -722,7 +716,6 @@ def list_validation(request):
     })
 
 
-
 @login_required
 @permission_required('article.change_article', raise_exception=True)
 def history_validation(request, article_pk):
@@ -755,9 +748,9 @@ def history_validation(request, article_pk):
     })
 
 
-
 @permission_required('article.change_article', raise_exception=True)
 @login_required
+@require_POST
 def reservation(request, validation_pk):
     """Display articles list in validation."""
 
@@ -777,7 +770,6 @@ def reservation(request, validation_pk):
         validation.status = 'RESERVED'
         validation.save()
         return redirect(validation.article.get_absolute_url())
-
 
 
 @login_required
