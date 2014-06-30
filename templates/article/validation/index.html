@@ -1,5 +1,6 @@
 {% extends "article/base.html" %}
 {% load date %}
+{% load captureas %}
 
 
 
@@ -58,9 +59,7 @@
                             <th width="8%">Catégorie(s)</th>
                             <th width="8%">Auteur(s)</th>
                             <th width="8%">Proposé</th>
-                            <th width="8%">Validateur</th>
-                            <th width="8%">Réservé</th>
-                            <th width="8%">Action</th>
+                            <th width="24%">Statut</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,29 +88,10 @@
                                     <span>{{ validation.date_proposition|format_date|capfirst }}</span>
                                 </td>
                                 <td>
-                                    {% if validation.validator %}
-                                        {% include 'misc/member_item.part.html' with member=validation.validator avatar=True %}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if validation.date_reserve %}
-                                        <span>{{ validation.date_reserve|format_date|capfirst }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if validation.is_pending %}
-                                        <a href="{% url "zds.article.views.reservation" validation.pk %}">
-                                            Réserver
-                                        </a>
-                                    {% elif validation.is_pending_valid %}
-                                        <a href="{% url "zds.article.views.reservation" validation.pk %}">
-                                            Annuler la réservation
-                                        </a>
-                                    {% elif validation.is_accept %}
-                                        <span>Accepté</span>
-                                    {% elif validation.is_reject %}
-                                        <span>Rejeté</span>
-                                    {% endif %}
+                                    {% captureas reservation_url %}
+                                        {% url "zds.article.views.reservation" validation.pk %}
+                                    {% endcaptureas %}
+                                    {% include "misc/validation.part.html" %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -119,7 +99,7 @@
                 </table>
             {% else %}
                 <p>
-                    Aucun tutoriel soumis en validation.
+                    Aucun article soumis en validation.
                 </p>
             {% endif %}
         {% endblock %}
