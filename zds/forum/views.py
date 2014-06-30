@@ -707,6 +707,7 @@ def edit_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def useful_post(request):
     """Marks a message as useful (for the OP)"""
 
@@ -766,6 +767,7 @@ def unread_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def like_post(request):
     """Like a post."""
 
@@ -812,6 +814,7 @@ def like_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def dislike_post(request):
     """Dislike a post."""
 
