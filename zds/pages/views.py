@@ -23,7 +23,6 @@ from zds.utils import render_template, slugify
 from zds.utils.models import Alert
 
 
-
 def home(request):
     """Display the home page with last topics added."""
 
@@ -59,10 +58,8 @@ def home(request):
     })
 
 
-
 def index(request):
     return render_template('pages/index.html')
-
 
 
 def about(request):
@@ -116,11 +113,9 @@ def assoc_subscribe(request):
     return render_template("pages/assoc_subscribe.html", {"form": form})
 
 
-
 def association(request):
     """Display association's presentation."""
     return render_template('pages/association.html')
-
 
 
 def contact(request):
@@ -137,10 +132,14 @@ def contact(request):
     })
 
 
-
 def eula(request):
     """End-User Licence Agreement."""
     return render_template('pages/eula.html')
+
+
+def cookies(request):
+    """Cookies explaination page."""
+    return render_template('pages/cookies.html')
 
 
 @can_write_and_read_now

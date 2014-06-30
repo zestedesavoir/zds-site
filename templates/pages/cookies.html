@@ -1,0 +1,117 @@
+{% extends "pages/base.html" %}
+
+
+
+{% block title %}
+    À propos des cookies
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>À propos des cookies</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2>À propos des cookies</h2>
+{% endblock %}
+
+
+
+{% block content %}
+    <h3>Qu'est-ce qu'un cookie ?</h3>
+    <p>Un <strong>cookie</strong> (aussi appellé <strong>témoin de connexion</strong> ou <strong>témoin</strong> au Québec) est un petit bout de texte envoyé par le serveur web au navigateur, et renvoyé à l'identique par le navigateur au serveur.</p>
+    <p>Les cookies ne sont ni des logiciels espions ni des virus, puisqu'ils ne sont en réalité que de simples fichiers textes et ne peuvent en aucun cas être exécutés.</p>
+    <p>Pour plus de détails sur ce qu'est un cookie, voyez <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/">le site de la CNIL</a> ou <a href="http://fr.wikipedia.org/wiki/Cookie_%28informatique%29">Wikipédia</a>.</p>
+    
+    <h3>À quoi servent les cookies ?</h3>
+    <p>Les cookies se répartissent en deux grands types : les impératifs techniques et la mesure d'audience.</p>
+    <p><strong>En aucun cas</strong> les cookies servent pour recueillir des renseignements personnels, transmettre des données sensibles ou transmettre des données personnelles à des tiers.</p>
+
+    <h4>Cookies techniques</h4>
+    <p>Certaines fonctionnalités du site nécessitent des cookies pour pouvoir être opérationnelles. L'exemple typique est la connexion aux parties privées de Zeste de Savoir.</p>
+    <p>La liste complète des cookies techniques utilisés sur Zeste de Savoir et leur utilité est détaillée un peu plus bas.</p>
+    <p>Ces cookies, purement techniques, <strong>sont indispensables au foncitonnement de Zeste de Savoir</strong>. Si vous les refusez, les éléments qui en dépendent ne fonctionneront tout simplement pas !</p> 
+    
+    <h4>Cookies d'analyse d'audience</h4>
+    <p>Zeste de Savoir analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :</p>
+    <ul>
+    	<li>Quelles fonctionnalités sont utilisées ?</li>
+    	<li>À quelle fréquence ?</li>
+    	<li>D'où viennent nos utilisateurs ? (oui, c'est de vous que je parle !)</li>
+    	<li>Comment naviguent-ils dans le site ?</li>
+    	<li>Etc.</li>
+    </ul>
+    <p><em>À quoi cela peut-il bien servir</em>, allez-vous me demander avec sagacité.</p>
+    <p>Tout simplement à <strong>améliorer l'expérience utilisateur du site</strong>. Les développeurs, aussi ingénieux soient-ils, ne peuvent <em>jamais</em> deviner l'utilisation <em>réelle</em> qui sera faite du site. Telle ou telle fonctionnalité qui leur paraîtra mineure sera en fait utilisée par une grande majorité, ou telle autre qui leur paraissait cruciale sera ignorée.</p>
+    <p>Le seul moyen <em>fiable</em> de savoir ce qui est réellement utilisé - et donc ce qu'il faut travailler - est d'analyser l'audience réelle.</p>
+    <p>Ceci implique de suive les utilisateurs à travers le site, ce qui se fait grâce à un cookie dédié;</p>
+    <p>C'est cette analyse qui peut être désactivée, puisqu'elle n'est pas strictement indispensable au bon fonctionnement du site.</p>
+    
+    <h3>Les cookies sur ce site</h3>
+    <p>Pour être tout à fait précis, Zeste de Savoir utilise les cookies suivants :</p>
+    <h4>Cookies techniques</h4>
+    <dl>
+    	<dt><tt>sessionid</tt></dt>
+    	<dd>Ce cookie est un identifiant unique qui permet de faire le lien entre votre session de navigation et les différentes pages que vous visitez. Il permet en particulier de vous connecter à Zeste de Savoir. Il ne contient qu'une chaîne de caractères aléatoires.</dd>
+    	<dt><tt>csrftoken</tt></dt>
+    	<dd>Ce cookie contient une chaîne de caractères aléatoires qui permet de se prémunir des attaques <a href="http://fr.wikipedia.org/wiki/Cross-Site_Request_Forgery">CSRF</a>. Composant indispensable de la sécurité du site, vous ne pourrez rien poster sans ce cookie.</dd>
+    	<dt><tt>hasConsent</tt></dt>
+    	<dd>Ce cookie indique si vous acceptez l'analyse d'audience. Il peut prendre les valeurs <tt>True</tt> (analyse accepté) ou <tt>False</tt> (analyse refusé).</dd>
+    </dl>
+    
+    <h4>Cookies d'analyse d'audience</h4>
+    <dl>
+    	<dt><tt>_ga</tt>, <tt>__utma</tt>, <tt>__utmb</tt>, <tt>__utmc</tt> et <tt>__utmz</tt></dt>
+    	<dd>Ces cookies sont les cookies d'analyse d'audience de <a href="http://www.google.fr/intl/fr/analytics/">Google Analytics</a>. Leur présence et leur contenu exact est géré par Google Analytics.</dd>
+    </dl>
+    
+    <h3>Comment refuser les cookies tiers</h3>
+    <h4>Refus pur et simple des cookies tiers dans le navigateur</h4>
+    <p>Vous pouvez bloquer purement et simplement les cookies <strong>tiers</strong> dans votre navigateur, en suivant la procédure décrite <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">sur le site de la CNIL dans le Conseil 1</a>.</p>
+    <p>Cette man&oelig;uvre n'empêchera pas Zeste de Savoir de fonctionner, puisque les cookies techniques ne sont pas des cookies tiers.</p>
+    <p>Toutefois, devant le manque de finesse de contrôle d'une telle solution, vous pourriez préférer utiliser une solution présentée au paragraphe suivant.</p>
+    
+    <h4>Utilisation d'un logiciel "anti-espions"</h4>
+    <p>Il existe différents logiciels <em>"anti-espions"</em>, qui empêchent l'installation des cookies d'analyse d'audience, et bien d'autres encore.</p>
+    <p>La CNIL <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">indique quelles solutions sont disponibles avec votre navigateur</a>, dans son Conseil 2.</p>
+    
+    <h3>Licence de cette page</h3>
+    <p>
+    	<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+    	<span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{% url "zds.pages.views.cookies" %}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
+    </p>
+    <p>N'oubliez pas d'adapter les cookies réellement utilisés à votre cas si vous reprennez cette page !</p>
+    
+    <h3>Une recette de cookies</h3>
+    <p>Puisque vous avez réussi à trouver cette page et que vous avez eu le courage de lire jusqu'ici, vous avez bien droit à une récompense : une recette de cookies !</p>
+    <h4>Ingrédients</h4>
+    <p>Pour 30 cookies environ (parce que c'est bon, on va en faire plein !) :</p>
+    <ul>
+    	<li>500 g de farine</li>
+    	<li>250 g de beurre</li>
+    	<li>300 g de chocolat à pâtisser</li>
+    	<li>200 g de cassonade, ou à défaut de sucre roux</li>
+    	<li>2 &oelig;ufs</li>
+    	<li>2 sachets de sucre vanillé</li>
+    	<li>1 pincée de sel</li>
+    	<li>1 sachet de levure</li>
+    </ul>
+    <p>Préparation : 10 minutes</p>
+    <p>Cuisson : 10 minutes</p>
+    <h4>Préparation</h4>
+    <p>Avec un grand couteau bien aiguisé, découpez le chocolat en petits morceaux.</p>
+    <p>Dans un grand saladier, mélangez la farine, la cassonade, le sucre vanillé, la levure et le sel.</p>
+    <p>Faites fondre le beurre, ajoutez-y les &oelig;ufs. Incorporez le tout à la préparation.</p>
+    <p>Ajoutez les morceaux de chocolat et mélangez avec soin.</p>
+    <h4>Cuisson</h4>
+    <p>Préchauffez votre four à 220°C / thermostat 7-8, grille en position basse.</p>
+    <p>Façonnez des cookies d'environ 10 cm de côté sur la plaque recouverte de papier sulfurisé. Attention, espacez-les parce qu'ils s'étalent à la cuisson.</p>
+    <p>Enfournez-lez environ 10 minutes, ils sont cuits lorsqu'ils prennent une belle couleur dorée !</p>
+    <h4>Conseils divers</h4>
+    <p>Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat à déguster : ces chocolats manquent de sucre pour la patisserie !</p>
+    <p>La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage !</p>
+    <p>On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat.</p>
+{% endblock %}

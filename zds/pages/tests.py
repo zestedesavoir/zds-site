@@ -22,61 +22,51 @@ class PagesMemberTests(TestCase):
     def test_url_home(self):
         """Test: check that home page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.home'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_eula(self):
         """Test: check that eula page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.eula'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_about(self):
         """Test: check that about page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.about'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_contact(self):
         """Test: check that contact page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.contact'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_association(self):
         """Test: check that association page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.association'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_subscribe_association(self):
         """To test the "subscription to the association" form."""
-        
+
         long_str = u""
         for i in range(3100):
             long_str += u"A"
@@ -103,7 +93,7 @@ class PagesMemberTests(TestCase):
 
         # check email has been sent
         self.assertEquals(len(mail.outbox), 0)
-        
+
         result = self.client.post(
             reverse('zds.pages.views.assoc_subscribe'),
             {
@@ -127,6 +117,15 @@ class PagesMemberTests(TestCase):
         # check email has been sent
         self.assertEquals(len(mail.outbox), 1)
 
+    def test_url_cookies(self):
+        """Test: check that cookies page is alive."""
+
+        result = self.client.get(
+            reverse('zds.pages.views.cookies'),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
 
 class PagesStaffTests(TestCase):
 
@@ -140,56 +139,55 @@ class PagesStaffTests(TestCase):
     def test_url_home(self):
         """Test: check that home page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.home'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_eula(self):
         """Test: check that eula page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.eula'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_about(self):
         """Test: check that about page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.about'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_contact(self):
         """Test: check that contact page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.contact'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_association(self):
         """Test: check that association page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.association'),
         )
 
-        # Check username in new MP page
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_cookies(self):
+        """Test: check that cookies page is alive."""
+
+        result = self.client.get(
+            reverse('zds.pages.views.cookies'),
+        )
+
         self.assertEqual(result.status_code, 200)
 
 
@@ -198,54 +196,53 @@ class PagesGuestTests(TestCase):
     def test_url_home(self):
         """Test: check that home page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.home'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_eula(self):
         """Test: check that eula page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.eula'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_about(self):
         """Test: check that about page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.about'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_contact(self):
         """Test: check that contact page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.contact'),
         )
 
-        # Check username in new MP page
         self.assertEqual(result.status_code, 200)
 
     def test_url_association(self):
         """Test: check that association page is alive."""
 
-        # Test if user is correctly added to the MP
         result = self.client.get(
             reverse('zds.pages.views.association'),
         )
 
-        # Check username in new MP page
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_cookies(self):
+        """Test: check that cookies page is alive."""
+
+        result = self.client.get(
+            reverse('zds.pages.views.cookies'),
+        )
+
         self.assertEqual(result.status_code, 200)
