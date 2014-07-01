@@ -136,12 +136,7 @@
                     "<div>" +
                         "<label for=\"zform-modal-image-text\">Texte :</label>" +
                         "<input type=\"text\" id=\"zform-modal-image-text\" />" +
-                    "</div>" +
-                    
-                    "<br /><div>" +
-                        "<label for=\"zform-modal-image-href\">Lien :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-image-href\" />" +
-                    "</div>" +              
+                    "</div>" +           
                 "</section>" +
         
                 "<section class=\"zform-modal\" id=\"zform-modal-abbr\">" +
@@ -466,13 +461,8 @@
                     if (isFromPopup) {
                         var src   = document.getElementById("zform-modal-image-src").value;
                         text  = document.getElementById("zform-modal-image-text").value || "Image utilisateur";
-                        href  = document.getElementById("zform-modal-image-href").value;
-                        
-                        if (href) {
-                            selection.current = "[![" + text + "](" + src + ")](" + href + ")";
-                        } else {
-                            selection.current = "![" + text + "](" + src + ")";
-                        }
+
+                        selection.current = "![" + text + "](" + src + ")";
                     } else {
                         regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
                         
