@@ -1680,11 +1680,14 @@
             padding: 1px 2%;
             border-left: 5px solid #CCC;
 
-            p:first-child {
+            & > p:first-child {
                 margin-top: 5px;
             }
-            p:last-child {
+            & > p:last-child {
                 margin-bottom: 5px;
+            }
+            figure {
+                margin: 15px 0;
             }
         }
 
