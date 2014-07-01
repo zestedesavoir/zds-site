@@ -145,10 +145,7 @@ gulp.task("pack", ["build"], function() {
     .pipe(gulp.dest("dist/"));
 });
 
-gulp.task("travis", function() {
-  // @TODO: Configure travis tests
-  return true;
-});
+gulp.task("travis", ["test"]);
 
 
 gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
