@@ -365,6 +365,10 @@ gulp clean
 gulp build
 ```
 
+Réindexation Solr :
+
+`python manage.py rebuild_index`
+
 ## Redémarrage de l'application
 
 `sudo supervisorctl start zds`
