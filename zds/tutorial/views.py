@@ -2162,6 +2162,7 @@ def import_content(
                     extract.chapter = chapter
                     extract.save()
                     extract.text = extract.get_path(relative=True)
+                    extract.save()
                     maj_repo_extract(
                         request,
                         new_slug_path=extract.get_path(),
@@ -2230,6 +2231,7 @@ def import_content(
             extract.chapter = chapter
             extract.save()
             extract.text = extract.get_path(relative=True)
+            extract.save()
             maj_repo_extract(request, new_slug_path=extract.get_path(),
                              extract=extract,
                              text=replace_real_url(extract_text.text,
