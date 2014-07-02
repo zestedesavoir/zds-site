@@ -34,12 +34,14 @@ from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.topbar import top_categories
 
 
 def index(request):
     """Display the category list with all their forums."""
 
-    categories = Category.objects.order_by("position").all()
+    categories = top_categories(request.user)
+
     return render_template("forum/index.html", {"categories": categories,
                                                 "user": request.user})
 
@@ -52,7 +54,7 @@ def details(request, cat_slug, forum_slug):
     if not forum.can_read(request.user):
         raise PermissionDenied
     sticky_topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=True).order_by(
-        "-last_message__pubdate").prefetch_related("author", "last_message").all()
+        "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
     if "filter" in request.GET:
         filter = request.GET["filter"]
         if request.GET["filter"] == "solve":
@@ -103,10 +105,20 @@ def details(request, cat_slug, forum_slug):
 
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
-
+    
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = \
-        Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
+    
+    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
+    if request.user.is_authenticated():
+        forums_prv = Forum.objects.filter(group__isnull=False).select_related("category").all()
+        out = []
+        for forum in forums_prv:
+            if forum.can_read(request.user):
+                out.append(forum.pk)
+        forums = forums_pub|forums_prv.exclude(pk__in=out)
+    else :
+        forums = forums_pub
+
     return render_template("forum/category/index.html", {"category": category,
                                                          "forums": forums})
 
@@ -114,8 +126,6 @@ def cat_details(request, cat_slug):
 
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
-
-    # TODO: Clean that up
 
     topic = get_object_or_404(Topic, pk=topic_pk)
     if not topic.forum.can_read(request.user):
