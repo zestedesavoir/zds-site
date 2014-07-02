@@ -6,14 +6,14 @@
 
 (function($){
     "use strict";
-    
+
     $(".upvote, .downvote").click(function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
             $otherThumb = $thumb.hasClass("downvote") ? $karma.children(".upvote") : $karma.children(".downvote");
 
-        var message = $form.find('input[name=message]').val(),
+        var message = $form.find("input[name=message]").val(),
             csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
 
         $.ajax({
