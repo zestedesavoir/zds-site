@@ -270,8 +270,8 @@
                 {% if tutorial.on_line %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">Dépublier</a>
-                        {# TODO_CSRF : passer en post #}
-                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="get" class="modal modal-small" id="unpublish">
+                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
+                        	{% csrf_token %}
                             <p>
                                 Êtes-vous certains de vouloir <strong>dépublier</strong> le tutoriel "<em>{{ tutorial.title }}</em>"
                             </p>
@@ -285,8 +285,8 @@
                 {% if tutorial.in_validation %}
                     {% if validation.is_pending %}
                         <li>
-                            {# TODO_CSRF : passer en post #}
-                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                                {% csrf_token %}
                                 <button type="submit" class="ico-after lock blue">
                                     Réserver
                                 </button>
@@ -295,8 +295,8 @@
                     {% elif validation.is_pending_valid %}
                         {% if validation.validator = user %}
                             <li>
-                                {# TODO_CSRF : passer en post #}
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get">
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                                    {% csrf_token %}
                                     <button type="submit" class="ico-after lock blue">
                                         Se retirer
                                     </button>
@@ -319,8 +319,8 @@
                                 <a href="#unreservation" class="open-modal ico-after lock blue">
                                     Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
                                 </a>
-                                {# TODO_CSRF : passer en post #}
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="get" class="modal modal-small" id="unreservation">
+                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                    {% csrf_token %}
                                     <p>
                                         La validation de ce tutoriel est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. Êtes-vous certains de vouloir le retirer ?
                                     </p>
@@ -347,8 +347,8 @@
                         <a href="#delete-tutorial" class="open-modal ico-after cross red">
                             Supprimer le tutoriel
                         </a>
-                        {# TODO_CSRF : passer en post #}
-                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="get" id="delete-tutorial" class="modal modal-medium">
+                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="post" id="delete-tutorial" class="modal modal-medium">
+                        	{% csrf_token %}
                             <p>
                                 Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> le tutoriel "<em>{{ tutorial.title }}</em>".
                             </p>

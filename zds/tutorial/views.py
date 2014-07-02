@@ -154,6 +154,7 @@ def list_validation(request):
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
+@require_POST
 def reservation(request, validation_pk):
     """Display tutorials list in validation."""
 
@@ -390,6 +391,7 @@ def valid_tutorial(request):
 @can_write_and_read_now
 @login_required
 @permission_required("tutorial.change_tutorial", raise_exception=True)
+@require_POST
 def invalid_tutorial(request, tutorial_pk):
     """Staff invalid tutorial of an author."""
 
@@ -456,6 +458,7 @@ def ask_validation(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def delete_tutorial(request, tutorial_pk):
     """User would like delete his tutorial."""
 

@@ -61,13 +61,11 @@
                     {% with topics=user|followed_topics %}
                         {% for topic in topics %}
                             <li>
-                                {# TODO_CSRF : passer en post #}
-                                <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-                                    {# Il faudra peut-être repasser ces paramètres en get #}
+                                <form action="{% url "zds.forum.views.edit" %}" method="post">
                                     <input type="hidden" name="topic" value="{{ topic.pk }}">
                                     <input type="hidden" name="nb" value="{{ nb }}">
                                     <input type="hidden" name="follow" value="1">
+                                    {% csrf_token %}
 
                                     <button class="ico-after cross red stop-follow action-hover" 
                                             data-title="Ne plus suivre">

@@ -109,13 +109,11 @@
 {% block sidebar_actions %}
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
-            {# TODO_CSRF : passer en post #}
-            <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-                {# Il faudra peut-être repasser ces paramètres en get #}
+            <form action="{% url "zds.forum.views.edit" %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
                 <input type="hidden" name="solved" value="1">
+                {% csrf_token %}
 
                 <button class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
                     {% if topic.is_solved %}
@@ -129,13 +127,11 @@
     {% endif %}
 
     <li>
-        {# TODO_CSRF : passer en post #}
-        <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-            {# Il faudra peut-être repasser ces paramètres en get #}
+        <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="follow" value="1">
+            {% csrf_token %}
 
             <button class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
                 {% if topic.is_followed %}
@@ -147,13 +143,11 @@
         </form>
     </li>
     <li>
-        {# TODO_CSRF : passer en post #}
-        <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-            {# Il faudra peut-être repasser ces paramètres en get #}
+        <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="email" value="1">
+            {% csrf_token %}
 
             <button class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
@@ -174,13 +168,11 @@
             <h3>Modération</h3>
             <ul>
                 <li>
-                    {# TODO_CSRF : passer en post #}
-                    <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-                        {# Il faudra peut-être repasser ces paramètres en get #}
+                    <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
+            			{% csrf_token %}
 
                         <button class="ico-after lock {% if not topic.is_locked %}blue{% endif %}" type="submit">
                             {% if topic.is_locked %}
@@ -193,13 +185,11 @@
                 </li>
 
                 <li>
-                    {# TODO_CSRF : passer en post #}
-                    <form action="{% url "zds.forum.views.edit" %}" method="get">
-
-                        {# Il faudra peut-être repasser ces paramètres en get #}
+                    <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
+            			{% csrf_token %}
 
                         <button class="ico-after pin {% if not topic.is_sticky %}blue{% endif %}" type="submit">
                             {% if topic.is_sticky %}
