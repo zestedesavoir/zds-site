@@ -360,7 +360,10 @@ Migration de la BDD :
 
 MAJ des statics :
 
+Sous le compte **zds** :
+
 ```
+source /usr/local/nvm/nvm.sh
 gulp clean
 gulp build
 ```
