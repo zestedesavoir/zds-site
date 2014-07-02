@@ -129,24 +129,19 @@
         
                 "<section class=\"zform-modal\" id=\"zform-modal-image\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-image-src\">Url :</label>" +
+                        "<label for=\"zform-modal-image-src\">URL :</label>" +
                         "<input type=\"text\" id=\"zform-modal-image-src\" />" +
                     "</div>" +
                     
                     "<div>" +
                         "<label for=\"zform-modal-image-text\">Texte :</label>" +
                         "<input type=\"text\" id=\"zform-modal-image-text\" />" +
-                    "</div>" +
-                    
-                    "<br /><div>" +
-                        "<label for=\"zform-modal-image-href\">Lien :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-image-href\" />" +
-                    "</div>" +              
+                    "</div>" +           
                 "</section>" +
         
                 "<section class=\"zform-modal\" id=\"zform-modal-abbr\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-abbr-abbr\">Abré. :</label>" +
+                        "<label for=\"zform-modal-abbr-abbr\">Abréviation :</label>" +
                         "<input type=\"text\" id=\"zform-modal-abbr-abbr\" />" +
                     "</div>" +
                     
@@ -158,7 +153,7 @@
         
                 "<section class=\"zform-modal\" id=\"zform-modal-footnote\">" +
                     "<div>" +
-                        "<label for=\"zform-modal-footnote-guid\">Id :</label>" +
+                        "<label for=\"zform-modal-footnote-guid\">Identifiant :</label>" +
                         "<input type=\"text\" id=\"zform-modal-footnote-guid\" />" +
                     "</div>" +
                     
@@ -171,7 +166,7 @@
                     "</div>" +  
                 "</section>" +
         
-                "<footer><a id=\"zform-modal-validate\" class=\"button tiny\">Valider</a> <a id=\"zform-modal-cancel\" class=\"button secondary tiny\">Annuler</a></footer>" +
+                "<footer><a id=\"zform-modal-validate\" class=\"btn btn-submit\">Valider</a> <a id=\"zform-modal-cancel\" class=\"btn btn-cancel secondary tiny\">Annuler</a></footer>" +
             "</div>";
             
             this.addEvent(document.getElementById("zform-modal-validate"), "click", (function(_this) {
@@ -466,13 +461,8 @@
                     if (isFromPopup) {
                         var src   = document.getElementById("zform-modal-image-src").value;
                         text  = document.getElementById("zform-modal-image-text").value || "Image utilisateur";
-                        href  = document.getElementById("zform-modal-image-href").value;
-                        
-                        if (href) {
-                            selection.current = "[![" + text + "](" + src + ")](" + href + ")";
-                        } else {
-                            selection.current = "![" + text + "](" + src + ")";
-                        }
+
+                        selection.current = "![" + text + "](" + src + ")";
                     } else {
                         regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
                         

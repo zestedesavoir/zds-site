@@ -151,8 +151,8 @@ class PartForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('introduction'),
-            Field('conclusion'),
+            Field('introduction', css_class='md-editor'),
+            Field('conclusion', css_class='md-editor'),
             ButtonHolder(
                 StrictButton(
                     'Valider',
@@ -174,6 +174,7 @@ class ChapterForm(FormWithTitle):
     )
 
     introduction = forms.CharField(
+        label='Introduction',
         required=False,
         widget=forms.Textarea
     )
@@ -197,8 +198,8 @@ class ChapterForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Field('image'),
-            Field('introduction'),
-            Field('conclusion'),
+            Field('introduction', css_class='md-editor'),
+            Field('conclusion', css_class='md-editor'),
             ButtonHolder(
                 StrictButton(
                     'Valider',
@@ -234,8 +235,8 @@ class EmbdedChapterForm(forms.Form):
             Fieldset(
                 u'Contenu',
                 Field('image'),
-                Field('introduction'),
-                Field('conclusion')
+                Field('introduction', css_class='md-editor'),
+                Field('conclusion', css_class='md-editor')
             ),
             ButtonHolder(
                 Submit('submit', 'Valider')
