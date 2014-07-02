@@ -393,6 +393,10 @@
                     margin-top: 10px;
                 }
             }
+            .message-bottom .signature p {
+                white-space: nowrap;
+                overflow: hidden;
+            }
         }
     }
 
