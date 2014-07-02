@@ -295,7 +295,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.like_post') +
             '?message={0}'.format(
                 post2.pk),
@@ -322,7 +322,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.like_post') +
             '?message={0}'.format(
                 post1.pk),
@@ -357,7 +357,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.dislike_post') +
             '?message={0}'.format(
                 post2.pk),
@@ -384,7 +384,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.like_post') +
             '?message={0}'.format(
                 post1.pk),
@@ -419,7 +419,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.useful_post') +
             '?message={0}'.format(
                 post2.pk),
@@ -432,7 +432,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
         # useful the first post
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.useful_post') +
             '?message={0}'.format(
                 post1.pk),
@@ -448,7 +448,7 @@ class ForumMemberTests(TestCase):
         post4 = PostFactory(topic=topic1, author=user1, position=1)
         post5 = PostFactory(topic=topic1, author=self.user, position=2)
 
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.useful_post') +
             '?message={0}'.format(
                 post5.pk),
@@ -465,7 +465,7 @@ class ForumMemberTests(TestCase):
             username=self.user.username,
             password='hostel77'),
             True)
-        result = self.client.get(
+        result = self.client.post(
             reverse('zds.forum.views.useful_post') +
             '?message={0}'.format(
                 post4.pk),

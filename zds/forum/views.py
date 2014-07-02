@@ -366,18 +366,19 @@ def move_topic(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def edit(request):
     """Edit the given topic."""
 
     try:
-        topic_pk = request.GET["topic"]
+        topic_pk = request.POST["topic"]
     except KeyError:
         raise Http404
     try:
-        page = int(request.GET["page"])
+        page = int(request.POST["page"])
     except KeyError:
         page = 1
-    data = request.GET
+    data = request.POST
     resp = {}
     g_topic = get_object_or_404(Topic, pk=topic_pk)
     if "follow" in data:
@@ -706,6 +707,7 @@ def edit_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def useful_post(request):
     """Marks a message as useful (for the OP)"""
 
@@ -765,6 +767,7 @@ def unread_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def like_post(request):
     """Like a post."""
 
@@ -811,6 +814,7 @@ def like_post(request):
 
 @can_write_and_read_now
 @login_required
+@require_POST
 def dislike_post(request):
     """Dislike a post."""
 

@@ -66,7 +66,7 @@ class ArticleTests(TestCase):
         # reserve tutorial
         validation = Validation.objects.get(
             article__pk=self.article.pk)
-        pub = self.client.get(
+        pub = self.client.post(
             reverse('zds.article.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
