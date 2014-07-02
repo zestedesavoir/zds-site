@@ -2160,8 +2160,8 @@ def import_content(
                     extract.title = extract_title.text.strip()
                     extract.position_in_chapter = extract_count
                     extract.chapter = chapter
-                    extract.text = extract.get_path(relative=True)
                     extract.save()
+                    extract.text = extract.get_path(relative=True)
                     maj_repo_extract(
                         request,
                         new_slug_path=extract.get_path(),
@@ -2228,8 +2228,8 @@ def import_content(
             extract.title = extract_title.text.strip()
             extract.position_in_chapter = extract_count
             extract.chapter = chapter
-            extract.text = extract.get_path(relative=True)
             extract.save()
+            extract.text = extract.get_path(relative=True)
             maj_repo_extract(request, new_slug_path=extract.get_path(),
                              extract=extract,
                              text=replace_real_url(extract_text.text,
@@ -2514,7 +2514,6 @@ def maj_repo_extract(
     else:
         chap.part.tutorial.sha_draft = com_ex.hexsha
         chap.part.tutorial.save()
-    #extract.save()
 
 
 
