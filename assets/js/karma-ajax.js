@@ -11,7 +11,7 @@
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
-            $otherThumb = $thumb.hasClass("downvote") ? $karma.children(".upvote") : $karma.children(".downvote");
+            $otherThumb = $thumb.hasClass("downvote") ? $karma.find(".upvote") : $karma.find(".downvote");
 
         var message = $form.find("input[name=message]").val(),
             csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
@@ -25,15 +25,16 @@
                 "csrfmiddlewaretoken": csrfmiddlewaretoken
             },
             success: function(data){
+                debugger;
                 if(data.upvotes > 0){
-                    $karma.children(".upvote").addClass("has-vote").text("+" + data.upvotes);
+                    $karma.find(".upvote").addClass("has-vote").text("+" + data.upvotes);
                 } else {
-                    $karma.children(".upvote").removeClass("has-vote").empty();
+                    $karma.find(".upvote").removeClass("has-vote").empty();
                 }
                 if(data.downvotes > 0){
-                    $karma.children(".downvote").addClass("has-vote").text("-" + data.downvotes);
+                    $karma.find(".downvote").addClass("has-vote").text("-" + data.downvotes);
                 } else {
-                    $karma.children(".downvote").removeClass("has-vote").empty();
+                    $karma.find(".downvote").removeClass("has-vote").empty();
                 }
                 $thumb.toggleClass("voted");
                 $otherThumb.removeClass("voted");
