@@ -9,13 +9,21 @@
     
     $(".upvote, .downvote").click(function(e){
         var $thumb = $(this),
+            $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
             $otherThumb = $thumb.hasClass("downvote") ? $karma.children(".upvote") : $karma.children(".downvote");
 
+        var message = $form.find('input[name=message]').val(),
+            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
         $.ajax({
-            url: $thumb.attr("href"),
-            type: "GET", // TODO : use POST method (CSRF in GET)
+            url: $form.attr("action"),
+            type: "POST",
             dataType: "json",
+            data: {
+                "message": message,
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
             success: function(data){
                 if(data.upvotes > 0){
                     $karma.children(".upvote").addClass("has-vote").text("+" + data.upvotes);
