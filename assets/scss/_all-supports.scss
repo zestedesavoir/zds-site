@@ -6,11 +6,11 @@
 
 
 
-.header-container header .accessibility {
+ #accessibility {
     list-style: none;
     margin: 0;
     padding: 0 2.5%;
-    background: rgba(0, 0, 0, .2);
+    background: #062E41;
     overflow: hidden;
     height: 0;
 
@@ -26,19 +26,84 @@
         a {
             display: inline-block;
             padding: 0 7px;
+            color: #EEE;
 
             &:hover,
             &:focus {
                 color: #084561;
                 background-color: #fff;
+                text-decoration: none;
             }
         }
     }
 }
 
+
+
+/* ===================
+    COOKIES
+   =================== */
+#cookies-banner {
+    padding: 0 2.5%;
+    background: #062E41;
+
+    p {
+        margin: 0;
+        padding: 7px 0;
+        color: #EEE;
+
+        a {
+            display: inline-block;
+            color: #EEE;
+            padding: 4px 13px;
+            margin-left: 15px;
+            background: $blue;
+            text-decoration: none;
+
+            &:hover,
+            &:focus {
+                background: #EEE;
+                color: $blue;
+            }
+        }
+
+        button {
+            display: inline-block;
+            background: none;
+            border: none;
+            text-decoration: underline;
+            margin: 0;
+            padding: 0;
+            color: #EEE;
+
+            &:hover,
+            &:focus {
+                text-decoration: none;
+            }
+        }
+    }
+
+    #accept-cookies {
+        text-decoration: none;
+        background: #EEE;
+        color: $blue;
+        padding: 4px 15px;
+        border: none;
+        transition: background .15s, color .15s;
+
+        &:hover,
+        &:focus {
+            background: $blue;
+            color: #EEE;
+        }
+    }
+}
+
+
 .header-container header {
     background: #084561;
     border-bottom: 3px solid $orange;
+    position: relative;
 
     a,
     button {
@@ -2778,34 +2843,4 @@ form.topic-message {
 .screen,
 .wide {
     display: none;
-}
-
-
-/* ===================
-    COOKIE
-   =================== */
-.cookie-banner {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #444;
-    color: #FAFAFA;
-    height: 20px;
-    padding: 7px 20px;
-    line-height: 20px;
-
-    a {
-        display: inline-block;
-        color: white;
-        text-decoration: none;
-        background-color: #555;
-        padding: 0px 6px;
-        border: solid 1px #666;
-        border-radius: 2px;
-        font-weight: bold;
-        font-size: 12px;
-        margin: 0 4px;
-
-    }
 }

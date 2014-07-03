@@ -7,6 +7,12 @@
 
 
 @media only screen and (min-width: 1360px) {
+    #cookies-banner {
+        #accept-cookies {
+            float: right;
+        }
+    }
+
     .main .content-container {
         .content-wrapper {
             max-width: 960px;
