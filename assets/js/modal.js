@@ -37,13 +37,12 @@
     $("#modals").append($overlay);
 
 	$(".modal").each(function(){
-		var $this = $(this);
-		var field = $this.attr("data-field");
-		var value = $this.attr("data-other");
-		$this.append('<input type="hidden" name="'+field+
-		'" value="'+value+'"/>');
-		
-	});
+        var $this = $(this);
+        $this.append($("<input type=\"hidden\"/>").attr({
+            value: $this.attr("data-other"),
+            name: $this.attr("data-field")
+        }));
+    });
 
     $(".open-modal").on("click", function(e){
         $overlay.show();
