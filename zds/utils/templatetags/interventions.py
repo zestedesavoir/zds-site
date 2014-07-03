@@ -26,6 +26,7 @@ def is_read(topic):
 
 @register.filter('humane_delta')
 def humane_delta(value):
+    # mapping between label day and key
     const = {1:"Aujourd'hui", 2:"Hier", 3:"Cette semaine", 4:"Ce mois-ci", 5: "Cette année"}
 
     return const[value]
@@ -34,7 +35,11 @@ def humane_delta(value):
 def followed_topics(user):
     topicsfollowed = TopicFollowed.objects.select_related("topic").filter(user=user)\
         .order_by('-topic__last_message__pubdate')[:10]
-
+    # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
+    # the number of days for which we can say we're still in the period
+    # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
+    # to humane_delta, means if your pubdate hasn't exceeded one day, we are always at "Yesterday"
+    # Number is use for index for sort map easily
     period = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
     topics = {}
     for tf in topicsfollowed:
