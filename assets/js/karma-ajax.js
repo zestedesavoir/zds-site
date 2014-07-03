@@ -25,7 +25,6 @@
                 "csrfmiddlewaretoken": csrfmiddlewaretoken
             },
             success: function(data){
-                debugger;
                 if(data.upvotes > 0){
                     $karma.find(".upvote").addClass("has-vote").text("+" + data.upvotes);
                 } else {
