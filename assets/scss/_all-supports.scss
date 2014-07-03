@@ -2779,3 +2779,33 @@ form.topic-message {
 .wide {
     display: none;
 }
+
+
+/* ===================
+    COOKIE
+   =================== */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #444;
+    color: #FAFAFA;
+    height: 20px;
+    padding: 7px 20px;
+    line-height: 20px;
+
+    a {
+        display: inline-block;
+        color: white;
+        text-decoration: none;
+        background-color: #555;
+        padding: 0px 6px;
+        border: solid 1px #666;
+        border-radius: 2px;
+        font-weight: bold;
+        font-size: 12px;
+        margin: 0 4px;
+
+    }
+}
