@@ -27,20 +27,6 @@
 
 
     /**
-     * Hide address bar
-     */
-    if(!window.location.hash) {
-        window.addEventListener("load",function() {
-            setTimeout(function(){
-                window.scrollTo(0, 1);
-                window.scrollTo(0, 0);
-            }, 0);
-        });
-    }
-
-
-
-    /**
      * Get prefix to support CSS transform
      */
     var transform = "";

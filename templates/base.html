@@ -67,6 +67,9 @@
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
 
+    {# Fullsceen on iOS #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml"
           title="Forum" href="{% url "post-feed-rss" %}"/>
