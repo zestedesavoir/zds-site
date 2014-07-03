@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
+from zds.tutorial.models import Tutorial
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
@@ -93,25 +94,35 @@ def modify_gallery(request):
 
     if "delete_multi" in request.POST:
         l = request.POST.getlist("items")
-        perms = UserGallery.objects.filter(gallery__pk__in=l,
+        
+        # Don't delete gallery when it's link to tutorial
+        free_galleries = []
+        for g_pk in l:
+            if Tutorial.objects.filter(gallery__pk=g_pk).exists():
+                gallery = Gallery.objects.get(pk=g_pk)
+                messages.error(request, "La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant".format(gallery.title))
+            else:
+                free_galleries.append(g_pk)
+        
+        perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
                                            user=request.user, mode="W").count()
 
         # Check that the user has the RW right on each gallery
 
-        if perms < len(l):
+        if perms < len(free_galleries):
             raise PermissionDenied
 
         # Delete all the permissions on all the selected galleries
 
-        UserGallery.objects.filter(gallery__pk__in=l).delete()
+        UserGallery.objects.filter(gallery__pk__in=free_galleries).delete()
 
         # Delete all the images of the gallery (autodelete of file)
 
-        Image.objects.filter(gallery__pk__in=l).delete()
+        Image.objects.filter(gallery__pk__in=free_galleries).delete()
 
         # Finally delete the selected galleries
 
-        Gallery.objects.filter(pk__in=l).delete()
+        Gallery.objects.filter(pk__in=free_galleries).delete()
         return redirect(reverse("zds.gallery.views.gallery_list"))
     elif "adduser" in request.POST:
 
