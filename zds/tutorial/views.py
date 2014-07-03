@@ -2859,7 +2859,7 @@ def answer(request):
             # Saving the message
 
             form = NoteForm(tutorial, request.user, request.POST)
-            if form.is_valid() and data["text"].strip() != "":
+            if form.is_valid():
                 data = form.data
                 note = Note()
                 note.tutorial = tutorial
@@ -2874,7 +2874,12 @@ def answer(request):
                 tutorial.save()
                 return redirect(note.get_absolute_url())
             else:
-                raise Http404
+                return render_template("tutorial/comment/new.html", {
+                    "tutorial": tutorial,
+                    "last_note_pk": last_note_pk,
+                    "newnote": newnote,
+                    "form": form,
+                })
     else:
 
         # Actions from the editor render to answer.html.
