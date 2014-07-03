@@ -116,22 +116,21 @@ def interventions_topics(user):
 
 @register.filter('interventions_privatetopics')
 def interventions_privatetopics(user):
-    privatetopics_unread = []
     
-    topicsfollowed = PrivateTopic.objects\
-        .filter(Q(author=user) | Q(participants__in=[user]))\
-        .distinct()\
-        .all()
-    
-    
-    topics_never_read = PrivateTopicRead.objects\
+    topics_never_read = list(PrivateTopicRead.objects\
         .filter(user=user)\
-        .filter(privatetopic__in = topicsfollowed)\
+        .filter(privatepost=F('privatetopic__last_message')).all())
+    
+    tnrs = []
+    for tnr in topics_never_read:
+        tnrs.append(tnr.privatetopic.pk)
+    
+    privatetopics_unread = PrivateTopic.objects\
+        .filter(Q(author=user) | Q(participants__in=[user]))\
+        .exclude(pk__in=tnrs)\
         .select_related("privatetopic")\
-        .exclude(privatepost=F('privatetopic__last_message'))
-
-    for top in topics_never_read:
-        privatetopics_unread.append(top.privatetopic)
+        .order_by("-pubdate")\
+        .distinct()
 
     return {'unread': privatetopics_unread}
 
