@@ -868,7 +868,7 @@ def answer(request):
         # Saving the message
         else:
             form = ReactionForm(article, request.user, request.POST)
-            if form.is_valid() and data['text'].strip() != '':
+            if form.is_valid():
                 data = form.data
 
                 reaction = Reaction()
@@ -886,7 +886,12 @@ def answer(request):
 
                 return redirect(reaction.get_absolute_url())
             else:
-                raise Http404
+                return render_template('article/reaction/new.html', {
+                    'article': article,
+                    'last_reaction_pk': last_reaction_pk,
+                    'newreaction': newreaction,
+                    'form': form
+                })
 
     # Actions from the editor render to new.html.
     else:
