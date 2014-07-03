@@ -175,10 +175,7 @@ class Topic(models.Model):
 
     def get_last_post(self):
         """Gets the last post in the thread."""
-        return Post.objects.all()\
-            .filter(topic__pk=self.pk)\
-            .order_by('pubdate')\
-            .last()
+        return self.last_message
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
@@ -252,7 +249,7 @@ class Topic(models.Model):
         except TopicFollowed.DoesNotExist:
             return False
         return True
-    
+
     def is_email_followed(self, user=None):
         """Check if the topic is currently email followed by the user.
 
