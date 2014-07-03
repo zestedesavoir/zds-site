@@ -5,6 +5,7 @@ import json
 import re
 
 from django.conf import settings
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -874,7 +875,9 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
-                "tags").all()
+                "tags")\
+                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+                .all()
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
@@ -882,21 +885,18 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 is_solved=False).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
-                "tags").all()
+                "tags")\
+                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+                .all()
     else:
         filter = None
         topics = Topic.objects.filter(tags__in=[tag], is_sticky=False) .order_by(
-            "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
-    tops = []
-    for top in topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
-
+            "-last_message__pubdate")\
+            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+            .prefetch_related("author", "last_message", "tags").all()
     # Paginator
 
-    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -922,18 +922,15 @@ def find_topic(request, user_pk):
 
     u = get_object_or_404(User, pk=user_pk)
     topics = \
-        Topic.objects.filter(author=u).prefetch_related().order_by("-pubdate"
-                                                                   ).all()
-    tops = []
-    for top in topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
+        Topic.objects\
+        .filter(author=u)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+        .prefetch_related("author")\
+        .order_by("-pubdate").all()
 
     # Paginator
 
-    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -958,20 +955,24 @@ def find_post(request, user_pk):
     """Finds all posts of a user."""
 
     u = get_object_or_404(User, pk=user_pk)
-    posts = \
-        Post.objects.filter(author=u).prefetch_related().order_by("-pubdate"
-                                                                  ).all()
-    pts = []
+    
+    if request.user.has_perm("forum.change_post"):
+        posts = \
+            Post.objects.filter(author=u)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .prefetch_related("author")\
+            .order_by("-pubdate").all()
+    else:
+        posts = \
+            Post.objects.filter(author=u)\
+            .filter(is_visible=True)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .prefetch_related("author").order_by("-pubdate").all()
 
-    for post in posts:
-        if not post.topic.forum.can_read(request.user):
-            continue
-        else:
-            pts.append(post)
 
     # Paginator
 
-    paginator = Paginator(pts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_posts = paginator.page(page)
