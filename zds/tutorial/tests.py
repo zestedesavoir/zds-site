@@ -121,6 +121,19 @@ class BigTutorialTests(TestCase):
         user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
+        # add note with no text = try again !
+        result = self.client.post(
+            reverse('zds.tutorial.views.answer') +
+            '?tutorial={0}'.format(
+                self.bigtuto.pk),
+            {
+                'last_note': '0',
+                'text': u''},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # check notes's number
+        self.assertEqual(Note.objects.all().count(), 0)
+
         # add note
         result = self.client.post(
             reverse('zds.tutorial.views.answer') +
