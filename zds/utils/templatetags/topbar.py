@@ -15,13 +15,12 @@ def top_categories(user):
     cats = {}
     
     forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
-    if user.is_authenticated():
-        forums_prv = Forum.objects.filter(group__isnull=False).select_related("category").all()
-        out = []
-        for forum in forums_prv:
-            if forum.can_read(user):
-                out.append(forum.pk)
-        forums = list(forums_pub|forums_prv.exclude(pk__in=out))
+    if user and user.is_authenticated():
+        forums_prv = Forum\
+                    .objects\
+                    .filter(group__isnull=False, group__in=user.groups.all())\
+                    .select_related("category").all()
+        forums = list(forums_pub|forums_prv)
     else :
         forums = list(forums_pub)
     
