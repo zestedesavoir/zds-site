@@ -147,16 +147,16 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='.'|top_categories_tuto %}
-                                            {% for category in categories %}
+                                            {% for title, subcats in categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
-                                                            {{ category.title }}
+                                                            {{ title }}
                                                         </li>
-                                                        {% for catofsubcat in category.get_subcategories %}
+                                                        {% for subcat in subcats %}
                                                             <li>
-                                                                <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                                                    {{ catofsubcat.subcategory }}
+                                                                <a href="{{ subcat.get_absolute_url_tutorial }}">
+                                                                    {{ subcat.title }}
                                                                 </a>
                                                             </li>
                                                         {% endfor %}
@@ -182,18 +182,16 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories='.'|top_categories %}
-                                            {% for category in categories %}
+                                        {% with categories=user|top_categories %}
+                                            {% for title, forums in categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
-                                                            {{ category.title }}
+                                                            {{ title }}
                                                         </li>
-                                                        {% with forums=category.get_forums|auth_forums:user %}
-                                                            {% for forum in forums %}
-                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                                            {% endfor %}
-                                                        {% endwith %}
+                                                        {% for forum in forums %}
+                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                        {% endfor %}
                                                     </ul>
                                                 </li>
                                             {% endfor %}
@@ -282,7 +280,7 @@
                                                         </a>
                                                     </li>
                                                 {% endfor %}
-    
+
                                                 {% if unread_posts|length = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         Aucune notification

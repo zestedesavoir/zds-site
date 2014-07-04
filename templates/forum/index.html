@@ -38,12 +38,11 @@
     </p>
 
     <div class="content-wrapper topic-list topic-list-small forum-list navigable-list">
-        {% for category in categories %}
+        {% for title, forums in categories.items %}
             <h3 class="group-title content-wrapper">
-                {{ category.title }}
+                {{ title }}
             </h3>
-
-            {% include "forum/includes/forums.part.html" %}
+            {% include "forum/includes/forums.part.html" with forum=forums %}
         {% endfor %}
     </div>
 {% endblock %}

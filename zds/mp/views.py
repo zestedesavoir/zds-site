@@ -26,6 +26,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
+from django.db.models.query_utils import select_related_descend
 
 
 
@@ -51,6 +52,7 @@ def index(request):
 
     privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
+        .select_related("author", "participants")\
         .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator

@@ -86,13 +86,13 @@
         <h3>Catégories <span class="wide">de tutoriels</span></h3>
 
         {% with categories='.'|top_categories_tuto %}
-            {% for category in categories %}
-                <h4>{{ category.title }}</h4>
+            {% for title, subcats in categories.items %}
+                <h4>{{ title }}</h4>
                 <ul>
-                    {% for catofsubcat in category.get_subcategories %}
+                    {% for subcat in subcats %}
                         <li>
-                            <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                {{ catofsubcat.subcategory }}
+                            <a href="{{ subcat.get_absolute_url_tutorial }}">
+                                {{ subcat.title }}
                             </a>
                         </li>
                     {% endfor %}
