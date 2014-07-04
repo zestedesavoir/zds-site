@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
             u'utils_alert',
             'comment',
             self.gf('django.db.models.fields.related.ForeignKey')(
-                default=0,
+                default=None,
                 related_name='comments',
                 to=orm['utils.Comment']),
             keep_default=False)
