@@ -756,8 +756,9 @@ def active_account(request):
         True,
         False,
     )
-    return render_template("member/register/token_success.html", {"usr": usr})
     token.delete()
+    form = LoginForm(user=usr)
+    return render_template("member/register/token_success.html", {"usr": usr, "form": form})
 
 
 def generate_token_account(request):
