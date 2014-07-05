@@ -840,8 +840,9 @@
 
             .count {
                 display: block;
-                float: right;
-                margin: 7px 10px 0 0;
+                position: absolute;
+                top: 6px;
+                right: 20px;
                 padding: 1px 10px;
                 height: 16px;
                 line-height: 16px;
@@ -851,7 +852,6 @@
             }
 
             .last-answer {
-                // TODO : designer ce tooltip
                 display: none;
             }
 
