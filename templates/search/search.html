@@ -54,8 +54,7 @@
 
 
     {% if query %}
-		
-        {% include "misc/pagination.part.html" with position="top" fieldname="q" getdata=query %}
+        {% include "misc/pagination.part.html" with position="top" %}
 
 
         {% if page.object_list %}
