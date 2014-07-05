@@ -800,6 +800,7 @@
                         display: none;
                         overflow: visible;
                         top: 0;
+                        left: 10%;
                         padding: 0;
                         z-index: 1;
                         width: 30px;
@@ -815,8 +816,8 @@
                             position: absolute;
                             background: $sidebar-hover;
                             color: #555;
-                            top: 0;
-                            left: 35px;
+                            top: -27px;
+                            left: 0;
                             height: 27px;
                             line-height: 27px;
                             line-height: 2.7rem;
