@@ -59,88 +59,90 @@
         {% if user.is_authenticated %}
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
-                <ul>
-                    {% with follwedtopics=user|followed_topics %}
-                        {% for period, topics in follwedtopics.items %}
-                            <h4>{{ period|humane_delta }}</h4>
+                {% with follwedtopics=user|followed_topics %}
+                    {% for period, topics in follwedtopics.items %}
+                        <h4>{{ period|humane_delta }}</h4>
+                        <ul>
                             {% for topic in topics %}
-                            <li>
-                                <form action="{% url "zds.forum.views.edit" %}" method="post">
-                                    <input type="hidden" name="topic" value="{{ topic.pk }}">
-                                    <input type="hidden" name="nb" value="{{ nb }}">
-                                    <input type="hidden" name="follow" value="1">
-                                    {% csrf_token %}
+                                <li>
+                                    <form action="{% url "zds.forum.views.edit" %}" method="post">
+                                        <input type="hidden" name="topic" value="{{ topic.pk }}">
+                                        <input type="hidden" name="nb" value="{{ nb }}">
+                                        <input type="hidden" name="follow" value="1">
+                                        {% csrf_token %}
 
-                                    <button class="ico-after cross red stop-follow action-hover" 
-                                            data-title="Ne plus suivre">
-                                        Ne plus suivre
-                                    </button>
-                                </form>
-                                
-                                <a href="{% spaceless %}
-                                    {% with first_unread=topic.first_unread_post %}
-                                        {% if first_unread %}
-                                            {{ first_unread.get_absolute_url }}
-                                        {% else %}
-                                            {{ topic.last_read_post.get_absolute_url }}
-                                        {% endif %}
-                                    {% endwith %}
-                                    {% endspaceless %}"
-                                   class="{% if not topic|is_read %}unread{% endif %}
-                                        ico-after
+                                        <button class="ico-after cross red stop-follow action-hover" 
+                                                data-title="Ne plus suivre">
+                                            Ne plus suivre
+                                        </button>
+                                    </form>
+                                    
+                                    <a href="{% spaceless %}
+                                        {% with first_unread=topic.first_unread_post %}
+                                            {% if first_unread %}
+                                                {{ first_unread.get_absolute_url }}
+                                            {% else %}
+                                                {{ topic.last_read_post.get_absolute_url }}
+                                            {% endif %}
+                                        {% endwith %}
+                                        {% endspaceless %}"
+                                       class="{% if not topic|is_read %}unread{% endif %}
+                                            ico-after
 
-                                        {% if topic.is_solved %}
-                                            tick green
-                                        {% elif topic.is_locked %}
-                                            lock
-                                        {% else %}
-                                            star yellow
+                                            {% if topic.is_solved %}
+                                                tick green
+                                            {% elif topic.is_locked %}
+                                                lock
+                                            {% else %}
+                                                star yellow
+                                            {% endif %}
+                                        "
+                                       {% if topic.is_solved or topic.is_locked %}
+                                        data-prefix="
+                                            {% if topic.is_solved %}
+                                                Résolu
+                                            {% endif %}
+                                            {% if topic.is_locked %}
+                                                Fermé
+                                            {% endif %}
+                                        "
+                                       {% endif %}
+                                    >
+                                        {% if not topic|is_read %}
+                                            <span class="a11y">Non-lu :</span>
                                         {% endif %}
-                                    "
-                                   {% if topic.is_solved or topic.is_locked %}
-                                    data-prefix="
-                                        {% if topic.is_solved %}
-                                            Résolu
-                                        {% endif %}
-                                        {% if topic.is_locked %}
-                                            Fermé
-                                        {% endif %}
-                                    "
-                                   {% endif %}
-                                >
-                                    {% if not topic|is_read %}
-                                        <span class="a11y">Non-lu :</span>
-                                    {% endif %}
-                                    {{ topic.title }}
-                                </a>
+                                        {{ topic.title }}
+                                    </a>
 
-                                {# TODO: Designer ça #}
-                                <span class="last-answer">
-                                    {% with answer=topic.get_last_answer %}
-                                        {% if answer %}
-                                            {% with profile=answer.author|profile %}
-                                                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
-                                            {% endwith %}
-                                            Dernière réponse
-                                            {{ answer.pubdate|format_date }}
-                                            par
-                                            {{ answer.author.username }}
-                                        {% else %}
-                                            <span class="topic-no-last-answer">
-                                                Aucune réponse
-                                            </span>
-                                        {% endif %}
-                                    {% endwith %}
-                                </span>
-                            </li>
+                                    {# TODO: Designer ça #}
+                                    <span class="last-answer">
+                                        {% with answer=topic.get_last_answer %}
+                                            {% if answer %}
+                                                {% with profile=answer.author|profile %}
+                                                    <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                                {% endwith %}
+                                                Dernière réponse
+                                                {{ answer.pubdate|format_date }}
+                                                par
+                                                {{ answer.author.username }}
+                                            {% else %}
+                                                <span class="topic-no-last-answer">
+                                                    Aucune réponse
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </span>
+                                </li>
                             {% endfor %}
-                        {% endfor %}
+                        </ul>
+                    {% endfor %}
 
-                        {% if topics|length <= 0 %}
+                    {% if topics|length <= 0 %}
+                        <ul>
                             <li class="inactive"><em>Aucun sujet suivi</em></li>
-                        {% endif %}
-                    {% endwith %}
-                </ul>
+                        </ul>
+                    {% endif %}
+                {% endwith %}
             </div>
         {% endif %}
 
