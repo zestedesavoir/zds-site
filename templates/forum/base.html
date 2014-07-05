@@ -52,9 +52,11 @@
                     </ul>
                 </div>
             {% endif %}
+        {% endif %}
 
-            {% block sidebar_blocks %}{% endblock %}
+        {% block sidebar_blocks %}{% endblock %}
 
+        {% if user.is_authenticated %}
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
                 <ul>
