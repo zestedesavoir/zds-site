@@ -120,10 +120,12 @@
                                                 {% with profile=answer.author|profile %}
                                                     <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
                                                 {% endwith %}
-                                                Dernière réponse
-                                                {{ answer.pubdate|format_date }}
-                                                par
-                                                {{ answer.author.username }}
+                                                <span class="topic-last-answer">
+                                                    Dernière réponse
+                                                    {{ answer.pubdate|format_date }}
+                                                    par
+                                                    <em>{{ answer.author.username }}</em>
+                                                </span>
                                             {% else %}
                                                 <span class="topic-no-last-answer">
                                                     Aucune réponse
