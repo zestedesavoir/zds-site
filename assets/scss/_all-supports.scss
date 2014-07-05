@@ -800,6 +800,7 @@
                         display: none;
                         overflow: visible;
                         top: 0;
+                        left: 10%;
                         padding: 0;
                         z-index: 1;
                         width: 30px;
@@ -815,15 +816,15 @@
                             position: absolute;
                             background: $sidebar-hover;
                             color: #555;
-                            top: 0;
-                            left: 35px;
+                            top: -27px;
+                            left: 0;
                             height: 27px;
                             line-height: 27px;
                             line-height: 2.7rem;
                             text-indent: 0;
                             padding: 0 15px;
                             border: 1px solid #EEE;
-                            box-shadow: rgba(0, 0, 0, .5) 0 0 3px;
+                            box-shadow: rgba(0, 0, 0, .15) 0 0 7px;
                         }
 
                         &:after {
@@ -852,7 +853,53 @@
             }
 
             .last-answer {
-                display: none;
+                display: block;
+                visibility: hidden;
+                position: absolute;
+                top: -13px;
+                left: 102%;
+                width: 250px;
+                height: 40px;
+                background: #FFF;
+                padding: 7px 10px;
+                border: 1px solid #F0F0F0;
+                box-shadow: rgba(0, 0, 0, .1) 2px 2px 2px;
+                opacity: 0;
+                transition: visibility 0s linear 0.15s, opacity 0.15s, left 0.15s;
+
+                .avatar {
+                    height: 40px;
+                    width: 40px;
+                    float: left;
+                    border: 1px solid #F0F0F0;
+                }
+
+                .topic-last-answer {
+                    display: block;
+                    margin-left: 50px;
+                    line-height: 18px;
+                    padding: 3px 0;
+                    color: #555;
+                }
+                .topic-no-last-answer {
+                    display: block;
+                    line-height: 40px;
+                    width: 100%;
+                    text-align: center;
+                    color: #999;
+                }
+            }
+
+            a {
+                &:hover,
+                &:focus {
+                    & + .last-answer {
+                        visibility: visible;
+                        left: 100%;
+                        opacity: 1;
+                        transition: visibility 0s linear 0, opacity 0.15s, left 0.15s;
+                    }
+                }
             }
 
             button {
