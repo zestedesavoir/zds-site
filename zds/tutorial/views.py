@@ -2312,14 +2312,16 @@ def maj_repo_tuto(
         man_path = os.path.join(new_slug_path, "manifest.json")
         tuto.dump_json(path=man_path)
         index.add(["manifest.json"])
-        intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
-        intro.write(smart_str(introduction).strip())
-        intro.close()
-        index.add(["introduction.md"])
-        conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
-        conclu.write(smart_str(conclusion).strip())
-        conclu.close()
-        index.add(["conclusion.md"])
+        if introduction is not None:
+            intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
+            intro.write(smart_str(introduction).strip())
+            intro.close()
+            index.add(["introduction.md"])
+        if conclusion is not None:
+            conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
+            conclu.write(smart_str(conclusion).strip())
+            conclu.close()
+            index.add(["conclusion.md"])
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
@@ -2354,7 +2356,7 @@ def maj_repo_part(
         msg = "Suppresion de la partie "
     else:
         if action == "maj":
-            if ld_slug_path != new_slug_path:
+            if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
                 msg = "Modification de la partie "
         elif action == "add":
@@ -2365,14 +2367,16 @@ def maj_repo_part(
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
         index.add(["manifest.json"])
-        intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
-        intro.write(smart_str(introduction).strip())
-        intro.close()
-        index.add([os.path.join(part.get_path(relative=True), "introduction.md")])
-        conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
-        conclu.write(smart_str(conclusion).strip())
-        conclu.close()
-        index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
+        if introduction is not None:
+            intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
+            intro.write(smart_str(introduction).strip())
+            intro.close()
+            index.add([os.path.join(part.get_path(relative=True), "introduction.md")])
+        if conclusion is not None:
+            conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
+            conclu.write(smart_str(conclusion).strip())
+            conclu.close()
+            index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
                                 )])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
@@ -2421,12 +2425,14 @@ def maj_repo_chapter(
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
             msg = "Creation du chapitre"
-        intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
-        intro.write(smart_str(introduction).strip())
-        intro.close()
-        conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
-        conclu.write(smart_str(conclusion).strip())
-        conclu.close()
+        if introduction is not None:
+             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
+             intro.write(smart_str(introduction).strip())
+             intro.close()
+        if conclusion is not None:
+            conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
+            conclu.write(smart_str(conclusion).strip())
+            conclu.close()
         if ph != None:
             index.add([ph])
 
