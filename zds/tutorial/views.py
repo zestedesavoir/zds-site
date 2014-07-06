@@ -2298,8 +2298,9 @@ def maj_repo_tuto(
         shutil.rmtree(old_slug_path)
     else:
         if action == "maj":
-            shutil.move(old_slug_path, new_slug_path)
-            repo = Repo(new_slug_path)
+            if old_slug_path != new_slug_path:
+                shutil.move(old_slug_path, new_slug_path)
+                repo = Repo(new_slug_path)
             msg = "Modification du tutoriel"
         elif action == "add":
             if not os.path.exists(new_slug_path):
@@ -2353,8 +2354,9 @@ def maj_repo_part(
         msg = "Suppresion de la partie "
     else:
         if action == "maj":
-            os.rename(old_slug_path, new_slug_path)
-            msg = "Modification de la partie "
+            if ld_slug_path != new_slug_path:
+                os.rename(old_slug_path, new_slug_path)
+                msg = "Modification de la partie "
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
@@ -2412,7 +2414,8 @@ def maj_repo_chapter(
         msg = "Suppresion du chapitre"
     else:
         if action == "maj":
-            os.rename(old_slug_path, new_slug_path)
+            if old_slug_path != new_slug_path:
+                os.rename(old_slug_path, new_slug_path)
             msg = "Modification du chapitre"
         elif action == "add":
             if not os.path.exists(new_slug_path):
@@ -2482,7 +2485,8 @@ def maj_repo_extract(
             os.remove(old_slug_path)
     else:
         if action == "maj":
-            os.rename(old_slug_path, new_slug_path)
+            if old_slug_path != new_slug_path:
+                os.rename(old_slug_path, new_slug_path)
             msg = "Modification de l'exrait "
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())

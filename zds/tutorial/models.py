@@ -774,7 +774,7 @@ class Chapter(models.Model):
         self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
         self.save()
         for extract in self.get_extracts():
-            extract.update_children()
+            extract.save()
 
 class Extract(models.Model):
 
