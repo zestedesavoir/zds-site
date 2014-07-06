@@ -2414,7 +2414,7 @@ def maj_repo_chapter(
         msg = "Suppresion du chapitre"
     else:
         if action == "maj":
-            if ld_slug_path != new_slug_path:
+            if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             msg = "Modification du chapitre"
         elif action == "add":
@@ -2485,7 +2485,7 @@ def maj_repo_extract(
             os.remove(old_slug_path)
     else:
         if action == "maj":
-            if ld_slug_path != new_slug_path:
+            if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             msg = "Modification de l'exrait "
         ext = open(new_slug_path, "w")
