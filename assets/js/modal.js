@@ -36,13 +36,7 @@
     });
     $("#modals").append($overlay);
 
-	$(".modal").each(function(){
-        var $this = $(this);
-        $this.append($("<input type=\"hidden\"/>").attr({
-            value: $this.attr("data-other"),
-            name: $this.attr("data-field")
-        }));
-    });
+
 
     $(".open-modal").on("click", function(e){
         $overlay.show();

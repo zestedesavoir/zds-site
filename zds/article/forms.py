@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from django.conf import settings
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from django import forms
@@ -130,3 +132,21 @@ class ReactionForm(forms.Form):
                 placeholder=u'Cet article est verrouillé.',
                 disabled=True
             )
+            
+    def clean(self):
+        cleaned_data = super(ReactionForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [u'Vous devez écrire une réponse !'])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) > settings.MAX_POST_LENGTH:
+            self._errors['text'] = self.error_class(
+                [(u'Ce message est trop long, il ne doit pas dépasser {0} '
+                  u'caractères').format(settings.MAX_POST_LENGTH)])
+
+        return cleaned_data

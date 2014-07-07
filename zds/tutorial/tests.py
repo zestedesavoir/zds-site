@@ -17,7 +17,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
     ChapterFactory, NoteFactory, SubCategoryFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
-from zds.utils.models import Alert
+from zds.utils.models import SubCategory, Licence, Alert
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -120,6 +120,19 @@ class BigTutorialTests(TestCase):
         """To test add note for tutorial."""
         user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
+
+        # add note with no text = try again !
+        result = self.client.post(
+            reverse('zds.tutorial.views.answer') +
+            '?tutorial={0}'.format(
+                self.bigtuto.pk),
+            {
+                'last_note': '0',
+                'text': u''},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # check notes's number
+        self.assertEqual(Note.objects.all().count(), 0)
 
         # add note
         result = self.client.post(
@@ -998,6 +1011,7 @@ class BigTutorialTests(TestCase):
             'title' : "Introduction",
             'text' : u"Le contenu de l'extrait"
             })
+        	
         self.assertEqual(result.status_code, 302)
         self.assertEqual(
             Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta, 
@@ -1755,6 +1769,99 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(1, Tutorial.objects.filter(pk=self.minituto.pk).count())
         self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image == None)
 
+    def test_edit_tuto(self):
+        "test that edition work well and avoid issue 1058"
+        sub = SubCategory()
+        sub.title = "toto"
+        sub.save()
+       	# logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        #edit the tuto without slug change
+        response = self.client.post(
+                reverse('zds.tutorial.views.edit_tutorial') + "?tutoriel={0}".format(self.minituto.pk),
+                {
+                    'title': self.minituto.title,
+                    'description': "nouvelle description",
+                    'subcategory': [sub.pk],
+                    'introduction': self.minituto.get_introduction(),
+                    'conclusion': self.minituto.get_conclusion(),
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        tuto = Tutorial.objects.filter(pk=self.minituto.pk).first()
+        self.assertEqual(tuto.title, self.minituto.title)
+        self.assertEqual(tuto.description, "nouvelle description")
+        #edit tuto with a slug change
+        (introduction, conclusion) = (self.minituto.get_introduction(), self.minituto.get_conclusion())
+        self.client.post(
+                reverse('zds.tutorial.views.edit_tutorial') + "?tutoriel={0}".format(self.minituto.pk),
+                {
+                    'title': "nouveau titre pour nouveau slug",
+                    'description': "nouvelle description",
+                    'subcategory': [sub.pk],
+                    'introduction': self.minituto.get_introduction(),
+                    'conclusion': self.minituto.get_conclusion(),
+                },
+                follow=False
+        )
+        tuto = Tutorial.objects.filter(pk=self.minituto.pk).first()
+        self.assertEqual(tuto.title, "nouveau titre pour nouveau slug")
+        self.assertEqual(tuto.description, "nouvelle description")
+        self.assertEqual(introduction, tuto.get_introduction())
+
+    def test_reorder_tuto(self):
+        "test that reordering makes it good to avoid #1060"
+       	# logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        (introduction, conclusion) = (self.minituto.get_introduction(), self.minituto.get_conclusion())
+        # prepare the extracts
+        self.client.post(
+                reverse('zds.tutorial.views.add_extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
+                {
+                    
+                    'title': "extract 1",
+                    'text': "extract 1 text"
+                },
+                follow=False
+        )
+        extract_pk = Tutorial.objects.get(pk=self.minituto.pk).get_chapter().get_extracts()[0].pk
+        self.client.post(
+                reverse('zds.tutorial.views.add_extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
+                {
+                    
+                    'title': "extract 2",
+                    'text': "extract 2 text"
+                },
+                follow=False
+        )
+        self.assertEqual(2, self.minituto.get_chapter().get_extracts().count())
+        # reorder
+        self.client.post(
+                reverse('zds.tutorial.views.modify_extract'),
+                {
+                    'move': "",
+                    'move_target': 2,
+                    'extract': self.minituto.get_chapter().get_extracts()[0].pk
+                },
+                follow=False
+        )
+        # this test check issue 1060
+        self.assertEqual(introduction, Tutorial.objects.filter(pk=self.minituto.pk).first().get_introduction())
+        self.assertEqual(2, Extract.objects.get(pk=extract_pk).position_in_chapter)
+    
     def test_workflow_beta_tuto(self) :
         "Ensure the behavior of the beta version of tutorials"
 

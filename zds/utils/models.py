@@ -101,7 +101,7 @@ class SubCategory(models.Model):
             subcategory__in=[self]).exclude(
             sha_public=None).exclude(
             sha_public='').exclude(
-            sha_public__isnull=True).all()
+            sha_public__isnull=True)
 
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')

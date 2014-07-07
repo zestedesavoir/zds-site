@@ -6,9 +6,10 @@
 
 
 
-ZesteDeSavoir
-=============
-Site internet communautaire codé à l'aide du Framework Django 1.6.
+Zeste de Savoir
+===============
+
+Site internet communautaire codé à l'aide du framework Django 1.6.
 
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
 * Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
@@ -20,12 +21,13 @@ Site internet communautaire codé à l'aide du Framework Django 1.6.
 Fonctionnalités implementées
 ----------------------------
 
-- La gestion des forums
-- La gestion des membres
-- La gestion des tutoriels
-- La gestion des articles
-- La gestion des message Privés
-- La gestion des galleries d'images
+- Membres
+- Tutoriels
+- Articles
+- Forums
+- Messages privés
+- Galeries d'images
+- Recherche
 
 
 
@@ -33,7 +35,10 @@ Fonctionnalités implementées
 
 Fonctionnalités à venir
 -----------------------
+
 Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues)
+
+
 
 
 
@@ -108,7 +113,10 @@ git clone https://github.com/zestedesavoir/zds-site.git -b LA_BRANCHE --depth 1
 
 En savoir plus
 --------------
+
 - [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+
+
 
 
 

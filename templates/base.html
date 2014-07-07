@@ -84,22 +84,29 @@
 
 
     <div class="page-container">
+        <ul id="accessibility">
+            <li>
+                <a href="#menu">Aller au menu</a>
+            </li>
+            <li>
+                <a href="#content" accesskey="s">Aller au contenu</a>
+            </li>
+            <li>
+                <a href="#search" accesskey="4">Aller à la recherche</a>
+            </li>
+        </ul>
+
+        <div id="cookies-banner">
+            <p>
+                Ce site utilise Google Analytics. En continuant à naviguer, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer 
+                <button id="reject-cookies">ici</button>.
+                <a href="/pages/cookies">En savoir plus</a>
+                <button id="accept-cookies">OK</button>
+            </p>
+        </div>
+
         <div class="header-container">
             <header class="clearfix">
-                <ul class="accessibility">
-                    <li>
-                        <a href="#menu">Aller au menu</a>
-                    </li>
-                    <li>
-                        <a href="#content" accesskey="s">Aller au contenu</a>
-                    </li>
-                    <li>
-                        <a href="#search" accesskey="4">Aller à la recherche</a>
-                    </li>
-                </ul>
-
-
-
                 <div class="wrapper">
                     <div class="mobile-menu-btn ico-after"></div>
 
@@ -140,16 +147,16 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='.'|top_categories_tuto %}
-                                            {% for category in categories %}
+                                            {% for title, subcats in categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
-                                                            {{ category.title }}
+                                                            {{ title }}
                                                         </li>
-                                                        {% for catofsubcat in category.get_subcategories %}
+                                                        {% for subcat in subcats %}
                                                             <li>
-                                                                <a href="{{ catofsubcat.subcategory.get_absolute_url_tutorial }}">
-                                                                    {{ catofsubcat.subcategory }}
+                                                                <a href="{{ subcat.get_absolute_url_tutorial }}">
+                                                                    {{ subcat.title }}
                                                                 </a>
                                                             </li>
                                                         {% endfor %}
@@ -175,18 +182,16 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories='.'|top_categories %}
-                                            {% for category in categories %}
+                                        {% with categories=user|top_categories %}
+                                            {% for title, forums in categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
-                                                            {{ category.title }}
+                                                            {{ title }}
                                                         </li>
-                                                        {% with forums=category.get_forums|auth_forums:user %}
-                                                            {% for forum in forums %}
-                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
-                                                            {% endfor %}
-                                                        {% endwith %}
+                                                        {% for forum in forums %}
+                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                        {% endfor %}
                                                     </ul>
                                                 </li>
                                             {% endfor %}
@@ -275,7 +280,7 @@
                                                         </a>
                                                     </li>
                                                 {% endfor %}
-    
+
                                                 {% if unread_posts|length = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         Aucune notification
@@ -491,8 +496,6 @@
 
 
 
-
-
     {# Javascript stuff start #}
     {% if debug %}
     <script src="/static/js/vendors.js"></script>
@@ -512,7 +515,7 @@
                 displayMath: [['$$','$$']],
                 processEscapes: true,
             },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "MathZoom.js"] },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
             messageStyle: "none",
         });
     </script>
