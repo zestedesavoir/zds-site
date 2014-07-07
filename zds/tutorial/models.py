@@ -47,6 +47,7 @@ class Tutorial(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.CharField('Description', max_length=200)
+    source = models.CharField('Source', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
 
     subcategory = models.ManyToManyField(SubCategory,
@@ -191,6 +192,7 @@ class Tutorial(models.Model):
         mandata['subcategory'] = self.subcategory
         mandata['image'] = self.image
         mandata['pubdate'] = self.pubdate
+        mandata['source'] = self.source
 
         return mandata
 
