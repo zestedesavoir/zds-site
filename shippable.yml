@@ -1,41 +1,32 @@
+build_environment: ubuntu1204
 git:
   depth: 1
 language: python
 python:
   - "2.7"
-notifications:
-  irc:
-    channels:
-      - "irc.smoothirc.net#zds-dev"
-    skip_join: true
-
-cache:
-  - apt
 install:
   - "sudo apt-get update"
-  - "sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections"
-  - "sudo apt-get install ttf-mscorefonts-installer"
-  - "sudo apt-get install texlive"
-  - "sudo apt-get install texlive-xetex"
-  - "sudo apt-get install texlive-lang-french"
-  - "sudo apt-get install texlive-latex-extra"
   - "sudo mkdir -p ~/cabal/bin"
   - "sudo mkdir -p ~/.pandoc"
+  # install tex libs
+  - "sudo apt-get install texlive texlive-xetex texlive-lang-french texlive-latex-extra texlive-latex-extra"
+  # download pandoc for 12.04 and default fonts
   - "sudo wget -P ~/cabal/bin https://dl.dropboxusercontent.com/u/18967337/pandoc"
+  - "sudo chmod u+x,g+x,o+x ~/cabal/bin/pandoc"
   - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.epub"
   - "sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.html"
   - "sudo touch ~/.pandoc/epub.css"
   - "sudo touch ~/.pandoc/templates/epub.css"
-  - "sudo chmod u+x,g+x,o+x ~/cabal/bin/pandoc"
-  - "export PATH=$PATH:~/cabal/bin"
-  - "sudo ~/cabal/bin/pandoc --version"
+  - "export PATH=~/cabal/bin:$PATH"
+  - "sudo ln -s ~/cabal/bin/pandoc /usr/bin/pandoc"
+  - "pandoc --version"
+  # download fonts Verdana and Andale Mono
+  - "sudo wget -P /usr/share/fonts/truetype/msttcorefonts https://www.dropbox.com/s/yop3h76n7p3mpsi/Verdana.ttf?dl=1"
+  - "sudo wget -P /usr/share/fonts/truetype/msttcorefonts https://www.dropbox.com/s/teds83czkfytl1p/Andale_Mono.ttf?dl=1"
+  # install fr langage pack
   - "sudo apt-get --reinstall install -qq language-pack-fr"
-  - "pip install -r requirements.txt"
+  - "pip install -r requirements.txt --use-mirrors"
   - "pip install coveralls"
-  # NodeJS + NPM stuff
-  - "sudo add-apt-repository -y ppa:chris-lea/node.js"
-  - "sudo apt-get -y update"
-  - "sudo apt-get -y install nodejs"
   - "npm install -g bower gulp"
   - "npm install"
 script:
