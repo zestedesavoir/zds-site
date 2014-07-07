@@ -22,7 +22,7 @@
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" />
         {% endif %}
-        {{ tutorial.title }} - {{ tutorial.image }}
+        {{ tutorial.title }}
     </h1>
 
     {% if tutorial.description %}
@@ -30,7 +30,7 @@
             {{ tutorial.description }}
         </h3>
     {% endif %}
-    
+
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
         {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial add_author=True %}
     {% else %}
@@ -79,7 +79,7 @@
                     Il n'y a actuellement aucune partie dans ce tutoriel.
                 </p>
             {% endfor %}
-            
+
             <hr />
 
         {% endif %}
@@ -173,7 +173,7 @@
                 </a>
             </li>
         {% endif %}
-        
+
         {% if not tutorial.in_beta %}
             <li>
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
@@ -337,7 +337,7 @@
     {% endif %}
 
     {% include "tutorial/includes/summary.part.html" %}
-    
+
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
          <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
             <h3>Suppression</h3>
