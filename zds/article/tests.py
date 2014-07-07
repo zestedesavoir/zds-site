@@ -184,6 +184,19 @@ class ArticleTests(TestCase):
         user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
 
+        # add empty reaction
+        result = self.client.post(
+            reverse('zds.article.views.answer') +
+            '?article={0}'.format(
+                self.article.pk),
+            {
+                'last_reaction': '0',
+                'text': u''},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # check reactions's number
+        self.assertEqual(Reaction.objects.all().count(), 0)
+
         # add reaction
         result = self.client.post(
             reverse('zds.article.views.answer') +

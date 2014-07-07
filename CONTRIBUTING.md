@@ -20,13 +20,14 @@ Les contributions externes sont les bienvenues !
 # Quelques bonnes pratiques
 * Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.6/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/)
 * Le code et les commentaires sont en anglais
-* Le _workflow_ Git utilisé est le [git flow](http://nvie.com/posts/a-successful-git-branching-model/) :
-    * Les contributions se font uniquement sur la branche `dev`
+* Le _workflow_ Git utilisé est le [git flow](http://nvie.com/posts/a-successful-git-branching-model/) à quelques détails près :
+    * Les contributions se font uniquement sur la branche `dev` (appelée `develop` dans le git flow standard)
+    * Lorsqu'on décide que `dev` est prête pour la prod, la branche est mergée dans `master` (les branches `releases` dans le git flow standard). Dès lors, cette branche ne reçoit plus que des corrections, aucune nouvelle fonctionnalité.
     * Pensez à préfixer vos branches selon l'objet de votre PR : `hotfix-XXX`, `feature-XXX`, etc.
-    * La branche `master` contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus ! 
+    * La branche `prod` (appelée `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
 
 * Votre test doit échouer sans votre modification, et réussir avec
-* Faites des messages de _commit_ clairs et en anglais
+* Faites des messages de _commit_ clairs et en français
 * Il n'y a aucune chance que votre _pull request_ soit acceptée sans son test associé
 
 # Les bonnes pratiques pour les PR et les commits

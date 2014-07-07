@@ -40,9 +40,11 @@
         </div>
     {% endwith %}
     <p class="topic-answers">
-        {% if topic.get_post_count > 1 %}
-            {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
-        {% endif %}
+        {% with nb_post=topic.get_post_count %}
+            {% if nb_post > 1 %}
+                {{ nb_post|add:"-1" }} réponse{% if nb_post > 2 %}s{% endif %}
+            {% endif %}
+        {% endwith %}
     </p>
     <p class="topic-last-answer">
         {% with answer=topic.get_last_answer last_read=topic.last_read_post %}

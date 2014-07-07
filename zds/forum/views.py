@@ -5,6 +5,7 @@ import json
 import re
 
 from django.conf import settings
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -34,12 +35,14 @@ from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.topbar import top_categories
 
 
 def index(request):
     """Display the category list with all their forums."""
 
-    categories = Category.objects.order_by("position").all()
+    categories = top_categories(request.user)
+
     return render_template("forum/index.html", {"categories": categories,
                                                 "user": request.user})
 
@@ -52,7 +55,7 @@ def details(request, cat_slug, forum_slug):
     if not forum.can_read(request.user):
         raise PermissionDenied
     sticky_topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=True).order_by(
-        "-last_message__pubdate").prefetch_related("author", "last_message").all()
+        "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
     if "filter" in request.GET:
         filter = request.GET["filter"]
         if request.GET["filter"] == "solve":
@@ -103,10 +106,20 @@ def details(request, cat_slug, forum_slug):
 
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
-
+    
     category = get_object_or_404(Category, slug=cat_slug)
-    forums = \
-        Forum.objects.filter(category__pk=category.pk).prefetch_related().all()
+    
+    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
+    if request.user.is_authenticated():
+        forums_prv = Forum.objects.filter(group__isnull=False).select_related("category").all()
+        out = []
+        for forum in forums_prv:
+            if forum.can_read(request.user):
+                out.append(forum.pk)
+        forums = forums_pub|forums_prv.exclude(pk__in=out)
+    else :
+        forums = forums_pub
+
     return render_template("forum/category/index.html", {"category": category,
                                                          "forums": forums})
 
@@ -114,8 +127,6 @@ def cat_details(request, cat_slug):
 
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
-
-    # TODO: Clean that up
 
     topic = get_object_or_404(Topic, pk=topic_pk)
     if not topic.forum.can_read(request.user):
@@ -874,7 +885,9 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
-                "tags").all()
+                "tags")\
+                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+                .all()
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
@@ -882,21 +895,18 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 is_solved=False).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
-                "tags").all()
+                "tags")\
+                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+                .all()
     else:
         filter = None
         topics = Topic.objects.filter(tags__in=[tag], is_sticky=False) .order_by(
-            "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
-    tops = []
-    for top in topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
-
+            "-last_message__pubdate")\
+            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+            .prefetch_related("author", "last_message", "tags").all()
     # Paginator
 
-    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -922,18 +932,15 @@ def find_topic(request, user_pk):
 
     u = get_object_or_404(User, pk=user_pk)
     topics = \
-        Topic.objects.filter(author=u).prefetch_related().order_by("-pubdate"
-                                                                   ).all()
-    tops = []
-    for top in topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
+        Topic.objects\
+        .filter(author=u)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+        .prefetch_related("author")\
+        .order_by("-pubdate").all()
 
     # Paginator
 
-    paginator = Paginator(tops, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -958,20 +965,24 @@ def find_post(request, user_pk):
     """Finds all posts of a user."""
 
     u = get_object_or_404(User, pk=user_pk)
-    posts = \
-        Post.objects.filter(author=u).prefetch_related().order_by("-pubdate"
-                                                                  ).all()
-    pts = []
+    
+    if request.user.has_perm("forum.change_post"):
+        posts = \
+            Post.objects.filter(author=u)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .prefetch_related("author")\
+            .order_by("-pubdate").all()
+    else:
+        posts = \
+            Post.objects.filter(author=u)\
+            .filter(is_visible=True)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .prefetch_related("author").order_by("-pubdate").all()
 
-    for post in posts:
-        if not post.topic.forum.can_read(request.user):
-            continue
-        else:
-            pts.append(post)
 
     # Paginator
 
-    paginator = Paginator(pts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get("page")
     try:
         shown_posts = paginator.page(page)

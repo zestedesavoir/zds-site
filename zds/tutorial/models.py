@@ -144,7 +144,10 @@ class Tutorial(models.Model):
     def get_chapter(self):
         """Gets the chapter associated with the tutorial if it's small."""
         # We can use get since we know there'll only be one chapter
-        return Chapter.objects.get(tutorial__pk=self.pk)
+        try:
+            return Chapter.objects.get(tutorial__pk=self.pk)
+        except Chapter.DoesNotExist:
+            return None
 
     def in_beta(self):
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
@@ -303,7 +306,7 @@ class Tutorial(models.Model):
                 .latest('note__pubdate').note
         except Note.DoesNotExist:
             return self.first_post()
-    
+
     def first_unread_note(self):
         """Return the first note the user has unread."""
         try:
@@ -344,11 +347,11 @@ class Tutorial(models.Model):
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
         return False
-    
+
     def update_children(self):
         for part in self.get_parts():
             part.update_children()
-        
+
         chapter = self.get_chapter()
         if chapter:
             chapter.update_children()
@@ -774,7 +777,7 @@ class Chapter(models.Model):
         self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
         self.save()
         for extract in self.get_extracts():
-            extract.update_children()
+            extract.save()
 
 class Extract(models.Model):
 
@@ -830,7 +833,7 @@ class Extract(models.Model):
         return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
 
     def get_prod_path(self):
-        
+
         if self.chapter.tutorial:
             data = self.chapter.tutorial.load_json_for_public()
             mandata = tutorial.load_dic(data)

@@ -130,6 +130,21 @@ class ForumMemberTests(TestCase):
         TopicFollowed(topic=topic1, user=user2, email=True).save()
         TopicFollowed(topic=topic1, user=self.user, email=True).save()
 
+        # check if we send ane empty text
+        result = self.client.post(
+            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # check topic's number
+        self.assertEqual(Topic.objects.all().count(), 1)
+        # check post's number (should be 3 for the moment)
+        self.assertEqual(Post.objects.all().count(), 3)
+
+        # now check what happen if everything is fine
         result = self.client.post(
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
             {
@@ -161,6 +176,15 @@ class ForumMemberTests(TestCase):
                 pk=4).text,
             u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
         
+        # test antispam return 403
+        result = self.client.post(
+            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u'Testons l\'antispam'
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
         
 
     def test_edit_main_post(self):
