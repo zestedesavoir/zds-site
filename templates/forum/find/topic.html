@@ -12,7 +12,7 @@
 
 
 {% block headline %}
-    <h2 class="box forum">Sujets crées par "{{ usr.username }}""</h2>
+    Sujets crées par "{{ usr.username }}"
 {% endblock %}
 
 
@@ -21,7 +21,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.forum.views.find_topic" usr.username %}">Sujets crées</a></li>
+    <li><a href="{% url "zds.forum.views.find_topic" usr.id %}">Sujets crées</a></li>
     <li>Recherche</li>
 {% endblock %}
 
