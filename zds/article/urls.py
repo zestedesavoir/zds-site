@@ -29,7 +29,7 @@ urlpatterns = patterns('',
                        url(r'^nouveau/$', 'zds.article.views.new'),
                        url(r'^editer/$', 'zds.article.views.edit'),
                        url(r'^modifier/$', 'zds.article.views.modify'),
-                       url(r'^recherche/(?P<name>.+)/$',
+                       url(r'^recherche/(?P<name>\d+)/$',
                            'zds.article.views.find_article'),
 
 

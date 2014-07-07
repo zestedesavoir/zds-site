@@ -9,7 +9,7 @@ urlpatterns = patterns('',
                        # Viewing
 
                        # Current URLs
-                       url(r'^recherche/(?P<pk_user>.+)/$',
+                       url(r'^recherche/(?P<pk_user>\d+)/$',
                            'zds.tutorial.views.find_tuto'),
 
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
