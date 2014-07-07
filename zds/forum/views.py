@@ -876,6 +876,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
     tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
         return redirect(reverse("zds.forum.views.index"))
+    u = request.user
     if "filter" in request.GET:
         filter = request.GET["filter"]
         if request.GET["filter"] == "solve":
