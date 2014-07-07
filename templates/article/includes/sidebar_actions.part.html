@@ -128,10 +128,23 @@
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}
                     <li>
-                        <a href="{% url "zds.article.views.reservation" validation.pk %}" class="ico-after lock blue">Réserver</a>
+                        <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="ico-after lock blue">
+                                Réserver
+                            </button>
+                        </form>
                     </li>
                 {% elif validation.is_pending_valid %}
                     {% if validation.validator = user %}
+                        <li>
+                            <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="ico-after lock blue">
+                                    Annuler la réservation
+                                </button>
+                            </form>
+                        </li>
                         <li>
                             <a href="#publish" class="open-modal ico-after tick green">Publier</a>
                             <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="publish">
@@ -156,9 +169,18 @@
                         </li>
                     {% else %}
                         <li>
-                            <a href="{% url "zds.article.views.reservation" validation.pk %}" class="open-modal ico-after cross blue">
-                                Réservé par {{ validation.validator.username }}, le retirer
+                            <a href="#unreservation" class="open-modal ico-after lock blue">
+                                Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
                             </a>
+                            <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                {% csrf_token %}
+                                <p>
+                                    La validation de cet article est actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. Êtes-vous certains de vouloir le retirer ?
+                                </p>
+                                <button type="submit">
+                                    Confirmer
+                                </button>
+                            </form>
                         </li>
                     {% endif %}
                 {% endif %}
