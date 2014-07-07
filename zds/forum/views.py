@@ -109,14 +109,17 @@ def cat_details(request, cat_slug):
     
     category = get_object_or_404(Category, slug=cat_slug)
     
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
+    forums_pub = Forum.objects\
+                    .filter(group__isnull=True, category__pk=category.pk)\
+                    .select_related("category").all()
     if request.user.is_authenticated():
-        forums_prv = Forum.objects.filter(group__isnull=False).select_related("category").all()
-        out = []
-        for forum in forums_prv:
-            if forum.can_read(request.user):
-                out.append(forum.pk)
-        forums = forums_pub|forums_prv.exclude(pk__in=out)
+        forums_prv = Forum.objects\
+                    .filter(group__isnull=False, \
+                            group__in=request.user.groups.all(), \
+                            category__pk=category.pk)\
+                    .select_related("category")\
+                    .all()
+        forums = forums_pub|forums_prv
     else :
         forums = forums_pub
 
