@@ -20,9 +20,9 @@
 {% block headline %}
     <h1 {% if tutorial.image %}class="illu"{% endif %}>
         {% if tutorial.image %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" />
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
-        {{ tutorial.title }} - {{ tutorial.image }}
+        {{ tutorial.title }}
     </h1>
 
     {% if tutorial.description %}
@@ -242,7 +242,7 @@
                 <a href="#ask-validation" class="open-modal ico-after tick green">
                     Demander la validation
                 </a>
-                <div id="ask-validation" class="modal modal-small">
+                <div id="ask-validation" class="modal modal-medium">
                     {% crispy formAskValidation %}
                 </div>
             </li>
@@ -304,7 +304,7 @@
                             </li>
                             <li>
                                 <a href="#valid-publish" class="open-modal ico-after tick green">Valider et publier</a>
-                                <div class="modal modal-small" id="valid-publish">
+                                <div class="modal modal-big" id="valid-publish">
                                     {% crispy formValid %}
                                 </div>
                             </li>
