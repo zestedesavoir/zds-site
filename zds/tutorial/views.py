@@ -2664,18 +2664,19 @@ def get_url_images(md_text, pt):
                 # relative link
 
                 srcfile = settings.SITE_ROOT + img[1]
-                dstroot = pt + img[1]
-                dstdir = os.path.dirname(dstroot)
-                if not os.path.exists(dstdir):
-                    os.makedirs(dstdir)
-                shutil.copy(srcfile, dstroot)
-                ext = dstroot.split(".")[-1]
-
-                # if image is gif, convert to png
-
-                if ext == "gif":
-                    im = ImagePIL.open(dstroot)
-                    im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                if os.path.isfile(srcfile):
+                    dstroot = pt + img[1]
+                    dstdir = os.path.dirname(dstroot)
+                    if not os.path.exists(dstdir):
+                        os.makedirs(dstdir)
+                    shutil.copy(srcfile, dstroot)
+                    ext = dstroot.split(".")[-1]
+    
+                    # if image is gif, convert to png
+    
+                    if ext == "gif":
+                        im = ImagePIL.open(dstroot)
+                        im.save(os.path.join(dstroot.split(".")[0] + ".png"))
 
 
 def sub_urlimg(g):
