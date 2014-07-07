@@ -29,7 +29,6 @@ from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
 
-
 @login_required
 def index(request):
     """Display the all private topics."""
@@ -76,7 +75,6 @@ def index(request):
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
-
 
 
 @login_required
@@ -140,7 +138,6 @@ def topic(request, topic_pk, topic_slug):
         'last_post_pk': last_post_pk,
         'form': form
     })
-
 
 
 @login_required
@@ -221,7 +218,6 @@ def new(request):
         })
 
 
-
 @login_required
 @require_POST
 def edit(request):
@@ -249,7 +245,6 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -260,6 +255,11 @@ def answer(request):
 
     # Retrieve current topic.
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
+
+    # check if user has right to answer
+    if not g_topic.author == request.user \
+            and request.user not in list(g_topic.participants.all()):
+        raise PermissionDenied
 
     # Retrieve 3 last posts of the currenta topic.
     posts = PrivatePost.objects\
@@ -356,7 +356,7 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             post_cite_pk = request.GET['cite']
-            post_cite = PrivatePost.objects.get(pk=post_cite_pk)
+            post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
@@ -375,7 +375,6 @@ def answer(request):
             'last_post_pk': last_post_pk,
             'form': form
         })
-
 
 
 @login_required
@@ -451,13 +450,12 @@ def edit_post(request):
         })
 
 
-
 @login_required
 @require_POST
 @transaction.atomic
 def leave(request):
     if 'leave' in request.POST:
-        ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
         if ptopic.participants.count() == 0:
             ptopic.delete()
         elif request.user.pk == ptopic.author.pk:
@@ -475,13 +473,18 @@ def leave(request):
     return redirect(reverse('zds.mp.views.index'))
 
 
-
 @login_required
 @require_POST
 @transaction.atomic
 def add_participant(request):
-    ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+    ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+
+    # check if user is the author of topic
+    if not ptopic.author == request.user:
+        raise PermissionDenied
+
     try:
+        # user_pk or user_username ?
         part = User.objects.get(username=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
