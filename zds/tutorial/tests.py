@@ -89,7 +89,8 @@ class BigTutorialTests(TestCase):
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
-                'version': self.bigtuto.sha_draft
+                'version': self.bigtuto.sha_draft,
+                'source': 'http://zestedesavoir.com',
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -108,7 +109,8 @@ class BigTutorialTests(TestCase):
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
-                'is_major': True
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -1171,7 +1173,8 @@ class MiniTutorialTests(TestCase):
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
-                'version': self.minituto.sha_draft
+                'version': self.minituto.sha_draft,
+                'source': 'http://zestedesavoir.com',
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -1190,7 +1193,8 @@ class MiniTutorialTests(TestCase):
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
-                'is_major': True
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)

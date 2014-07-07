@@ -365,6 +365,15 @@ class AskValidationForm(forms.Form):
             }
         )
     )
+    source = forms.CharField(
+        label='Source originale',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Url de la version originale'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(AskValidationForm, self).__init__(*args, **kwargs)
@@ -373,7 +382,9 @@ class AskValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(), StrictButton(
+            CommonLayoutModalText(), 
+            Field('source'),
+            StrictButton(
                 'Confirmer',
                 type='submit'),
             Hidden(
@@ -393,6 +404,15 @@ class ValidForm(forms.Form):
         )
     )
     is_major = forms.BooleanField(label='Version majeure ?', required=False)
+    source = forms.CharField(
+        label='Source originale',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Url de la version originale'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ValidForm, self).__init__(*args, **kwargs)
@@ -402,6 +422,7 @@ class ValidForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
+            Field('source'),
             Field('is_major'),
             StrictButton('Publier', type='submit'),
             Hidden('tutorial', '{{ tutorial.pk }}'),

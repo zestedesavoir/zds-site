@@ -7,6 +7,11 @@
     &#183; Tutoriels
 {% endblock %}
 
+{% block source_content %}
+    {% if tutorial.source and tutorial.source != "" %}
+    <link rel="canonical" href="{{tutorial.source}}" />
+    {% endif %}
+{% endblock %}
 
 
 {% block breadcrumb_base %}

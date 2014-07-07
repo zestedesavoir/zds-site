@@ -348,6 +348,7 @@ def valid_tutorial(request):
         if request.POST.get('is_major', False) or tutorial.sha_public is None:
             tutorial.pubdate = datetime.now()
         tutorial.sha_public = validation.version
+        tutorial.source = request.POST["source"]
         tutorial.sha_validation = None
         tutorial.save()
         messages.success(request, u"Le tutoriel a bien été validé.")
@@ -449,6 +450,7 @@ def ask_validation(request):
     validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
     validation.save()
+    validation.tutorial.source=request.POST["source"]
     validation.tutorial.sha_validation = request.POST["version"]
     validation.tutorial.save()
     messages.success(request,
@@ -700,7 +702,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                     .order_by("-date_proposition")\
                                     .first()
     formAskValidation = AskValidationForm()
-    formValid = ValidForm()
+    if tutorial.source:
+        formValid = ValidForm(initial={"source": tutorial.source})
+    else:
+        formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
         "tutorial": tutorial,
