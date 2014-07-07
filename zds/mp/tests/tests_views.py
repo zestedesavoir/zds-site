@@ -437,7 +437,7 @@ class EditViewTest(TestCase):
             )
         )
 
-        self.client.post(
+        response = self.client.post(
             reverse('zds.mp.views.edit'),
             {
                 'privatetopic': self.topic1.pk,
@@ -446,7 +446,7 @@ class EditViewTest(TestCase):
             follow=True
         )
 
-        # self.assertEqual(403, response.status_code)
+        self.assertEqual(403, response.status_code)
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertNotIn(
             self.profile3.user,
@@ -560,8 +560,6 @@ class AnswerViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, PrivatePost.objects.all().count())
 
-    # TODO test mail notification
-
     def test_fail_answer_with_no_right(self):
 
         self.client.logout()
@@ -614,12 +612,23 @@ class EditPostViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse('zds.mp.views.edit_post'), follow=True)
+        response = self.client.get(
+            reverse('zds.mp.views.edit_post'),
+            follow=True
+        )
 
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view')
             + '?next=' + urllib.quote(reverse('zds.mp.views.edit_post'), ''))
+
+    def test_fail_edit_post_no_get_parameter(self):
+
+        response = self.client.get(
+            reverse('zds.mp.views.edit_post')
+        )
+
+        self.assertEqual(404, response.status_code)
 
     def test_succes_get_edit_post_page(self):
 
@@ -865,7 +874,10 @@ class AddParticipantViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse('zds.mp.views.add_participant'), follow=True)
+        response = self.client.get(
+            reverse('zds.mp.views.add_participant'),
+            follow=True
+        )
 
         self.assertRedirects(
             response,

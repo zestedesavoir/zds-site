@@ -222,7 +222,6 @@ def new(request):
 @require_POST
 def edit(request):
     """Edit the given topic."""
-    authenticated_user = request.user
 
     try:
         topic_pk = request.POST['privatetopic']
@@ -238,7 +237,7 @@ def edit(request):
 
     if request.POST['username']:
         u = get_object_or_404(User, username=request.POST['username'])
-        if not authenticated_user == u:
+        if not request.user == u:
             g_topic.participants.add(u)
             g_topic.save()
 

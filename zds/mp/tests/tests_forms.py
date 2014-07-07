@@ -142,9 +142,6 @@ class PrivatePostFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_form_post_no_text(self):
-        data = {
-        }
-
-        form = PrivatePostForm(self.topic, self.profile.user, data=data)
+        form = PrivatePostForm(self.topic, self.profile.user, data={})
 
         self.assertFalse(form.is_valid())
