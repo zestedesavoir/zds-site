@@ -89,8 +89,7 @@ class BigTutorialTests(TestCase):
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
-                'version': self.bigtuto.sha_draft,
-                'source': 'http://zestedesavoir.com',
+                'version': self.bigtuto.sha_draft
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -109,8 +108,7 @@ class BigTutorialTests(TestCase):
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
-                'is_major': True,
-                'source': 'http://zestedesavoir.com',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -118,23 +116,23 @@ class BigTutorialTests(TestCase):
 
         mail.outbox = []
 
+    def test_remove_chapter(self):
+        """To test the correct removal of a chapter in big tuto"""
+        self.client.login(username=self.user_author, password='hostel77')
+        olddata = self.bigtuto.load_json()
+        result = self.client.post(
+             reverse('zds.tutorial.views.modify_chapter'),
+             {'delete':"", 'chapter': self.chapter1_1.pk}
+        );
+        
+        self.assertEqual(302,result.status_code)
+        jsondata = self.bigtuto.load_json()
+        self.assertNotEqual(len(olddata["parts"][0]["chapters"]), len(jsondata["parts"][0]["chapters"]))
+
     def test_add_note(self):
         """To test add note for tutorial."""
         user1 = ProfileFactory().user
         self.client.login(username=user1.username, password='hostel77')
-
-        # add note with no text = try again !
-        result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
-            '?tutorial={0}'.format(
-                self.bigtuto.pk),
-            {
-                'last_note': '0',
-                'text': u''},
-            follow=False)
-        self.assertEqual(result.status_code, 200)
-        # check notes's number
-        self.assertEqual(Note.objects.all().count(), 0)
 
         # add note
         result = self.client.post(
@@ -1173,8 +1171,7 @@ class MiniTutorialTests(TestCase):
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
-                'version': self.minituto.sha_draft,
-                'source': 'http://zestedesavoir.com',
+                'version': self.minituto.sha_draft
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
@@ -1193,8 +1190,7 @@ class MiniTutorialTests(TestCase):
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
-                'is_major': True,
-                'source': 'http://zestedesavoir.com',
+                'is_major': True
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
