@@ -1,5 +1,6 @@
 {% extends "tutorial/validation/index.html" %}
 {% load date %}
+{% load captureas %}
 
 
 
@@ -46,7 +47,10 @@
                             {{ validation.date_proposition|format_date|capfirst }}
                         </td>
                         <td>
-                            {% include "tutorial/includes/validation.part.html" %}
+                            {% captureas reservation_url %}
+                                {% url "zds.tutorial.views.reservation" validation.pk %}
+                            {% endcaptureas %}
+                            {% include "misc/validation.part.html" %}
                         </td>
                     </tr>
                 {% endfor %}
