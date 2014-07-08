@@ -19,18 +19,39 @@
 
 
 {% block headline %}
-    Historique de validation de : {{ article.title }}
+    {{ article.title }}
 {% endblock %}
 
 
 
-{% block sidebar_actions %}
-    {% include 'article/includes/sidebar_actions.part.html' %}
+{% block headline_sub %}
+    Historique de validation
 {% endblock %}
 
 
 
 {% block content %}
+    <ul class="taglist">
+        {% for tag in tags.all %}
+            <li>
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                    {{ tag.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="authors">
+        <span class="authors-label">Contributeurs : </span>
+        <ul>
+            {% for member in authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
     {% if validations %}
         <table class="fullwidth">
             <thead>

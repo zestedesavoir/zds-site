@@ -745,6 +745,8 @@ def history_validation(request, article_pk):
     return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
+        'authors': article.authors,
+        'tags': article.subcategory,
     })
 
 
