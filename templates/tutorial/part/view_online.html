@@ -20,6 +20,12 @@
         {{ part.title }}
     </h2>
 
+    {% if tutorial.licence %}
+        <p class="license">
+            Licence {{ tutorial.licence }}
+        </p>
+    {% endif %}
+
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 {% endblock %}
 

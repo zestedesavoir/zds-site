@@ -738,7 +738,6 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-
     mandata = tutorial.load_dic(mandata)
 
     # If it's a small tutorial, fetch its chapter
@@ -1120,6 +1119,7 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
@@ -1444,6 +1444,7 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+
     mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1

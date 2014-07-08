@@ -19,23 +19,17 @@
 
 
 
-{% block content %}
-    {% with tutorial=chapter.get_tutorial %}
-        {% with authors=tutorial.authors.all %}
-            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
-            {% include "tutorial/includes/chapter_online.part.html" %}
-            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
-        {% endwith %}
-    {% endwith %}
-{% endblock %}
-
-
-
 {% block headline %}
     {% if chapter.tutorial %}
         {% set chapter.tutorial as tutorial %}
     {% else %}
         {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
+    {% if tutorial.licence %}
+        <p class="license">
+            Licence {{ tutorial.licence }}
+        </p>
     {% endif %}
 
     <h1 {% if chapter.image %}class="illu"{% endif %}>
@@ -46,6 +40,18 @@
     </h1>
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% with tutorial=chapter.get_tutorial %}
+        {% with authors=tutorial.authors.all %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="top" online=True %}
+            {% include "tutorial/includes/chapter_online.part.html" %}
+            {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
+        {% endwith %}
+    {% endwith %}
 {% endblock %}
 
 
