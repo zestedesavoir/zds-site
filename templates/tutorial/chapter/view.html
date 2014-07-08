@@ -26,9 +26,11 @@
             {{ chapter.title }}
         </h1>
 
-        <p class="license">
-            {{ tutorial.licence.title }}
-        </p>
+        {% if tutorial.licence %}
+            <p class="license">
+                Licence {{ tutorial.licence }}
+            </p>
+        {% endif %}
 
         {% include 'tutorial/includes/tags_authors.part.html' %}
 

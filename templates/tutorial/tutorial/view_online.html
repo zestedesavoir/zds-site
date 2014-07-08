@@ -27,9 +27,11 @@
         {{ tutorial.title }}
     </h1>
 
-    <p class="license">
-        {{ tutorial.licence.title }}
-    </p>
+    {% if tutorial.licence %}
+        <p class="license">
+            Licence {{ tutorial.licence }}
+        </p>
+    {% endif %}
 
     {% if tutorial.description %}
         <h3 class="subtitle">

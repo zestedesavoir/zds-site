@@ -26,9 +26,11 @@
         {% set chapter.part.tutorial as tutorial %}
     {% endif %}
 
-    <p class="license">
-        {{ tutorial.licence.title }}
-    </p>
+    {% if tutorial.licence %}
+        <p class="license">
+            Licence {{ tutorial.licence }}
+        </p>
+    {% endif %}
 
     <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
