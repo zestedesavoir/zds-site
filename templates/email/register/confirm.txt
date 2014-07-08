@@ -6,4 +6,5 @@ Il ne vous reste plus qu'à activer votre profil ! Pour ce faire, visitez le lie
 
 {{ url }}
 
+A très bientôt !
 L'équipe Zeste de Savoir
