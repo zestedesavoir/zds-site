@@ -54,6 +54,8 @@ class LastTopicsFeedRSS(Feed):
         topics = Topic.objects.filter(forum__group__isnull=True)\
             .order_by('-pubdate')
         return topics[:5]
+    def item_pubdate(self, item):
+        return item.pubdate
 
     def item_title(self, item):
         return u'{} dans {}'.format(item.title, item.forum.title)
