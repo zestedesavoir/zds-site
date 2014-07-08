@@ -12,7 +12,7 @@ from .models import Post, Topic
 class LastPostsFeedRSS(Feed):
     title = u'Derniers messages sur Zeste de Savoir'
     link = '/forums/'
-    description = u'Les derniers messages '
+    description = u'Les derniers messages '+ \
     u'parus sur le forum de Zeste de Savoir.'
 
     def items(self):
@@ -22,6 +22,9 @@ class LastPostsFeedRSS(Feed):
 
     def item_title(self, item):
         return u'{}, message #{}'.format(item.topic.title, item.pk)
+
+    def item_pubdate(self, item):
+        return item.pubdate
 
     def item_description(self, item):
         # TODO: Use cached Markdown when implemented
