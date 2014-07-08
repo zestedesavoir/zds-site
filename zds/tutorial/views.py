@@ -348,7 +348,6 @@ def valid_tutorial(request):
         if request.POST.get('is_major', False) or tutorial.sha_public is None:
             tutorial.pubdate = datetime.now()
         tutorial.sha_public = validation.version
-        tutorial.source = request.POST["source"]
         tutorial.sha_validation = None
         tutorial.save()
         messages.success(request, u"Le tutoriel a bien été validé.")
@@ -450,7 +449,6 @@ def ask_validation(request):
     validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
     validation.save()
-    validation.tutorial.source=request.POST["source"]
     validation.tutorial.sha_validation = request.POST["version"]
     validation.tutorial.save()
     messages.success(request,
@@ -702,10 +700,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                     .order_by("-date_proposition")\
                                     .first()
     formAskValidation = AskValidationForm()
-    if tutorial.source:
-        formValid = ValidForm(initial={"source": tutorial.source})
-    else:
-        formValid = ValidForm()
+    formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
         "tutorial": tutorial,
@@ -738,6 +733,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
+
     mandata = tutorial.load_dic(mandata)
 
     # If it's a small tutorial, fetch its chapter
@@ -1119,7 +1115,6 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
-
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
@@ -1444,7 +1439,6 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
-
     mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
@@ -1609,6 +1603,7 @@ def modify_chapter(request):
         chapter_pk = request.POST["chapter"]
     except KeyError:
         raise Http404
+
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
 
     # Make sure the user is allowed to do that
@@ -2417,11 +2412,13 @@ def maj_repo_chapter(
     else:
         repo = Repo(os.path.join(settings.REPO_PATH, chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+
     index = repo.index
     msg = "repo chapitre"
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = "Suppresion du chapitre"
+        Chapter.objects.filter(pk = chapter.pk).delete()
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
@@ -2443,7 +2440,6 @@ def maj_repo_chapter(
             index.add([ph])
 
     # update manifest
-
     if chapter.tutorial:
         man_path = os.path.join(chapter.tutorial.get_path(), "manifest.json")
         chapter.tutorial.dump_json(path=man_path)
@@ -2665,19 +2661,18 @@ def get_url_images(md_text, pt):
                 # relative link
 
                 srcfile = settings.SITE_ROOT + img[1]
-                if os.path.isfile(srcfile):
-                    dstroot = pt + img[1]
-                    dstdir = os.path.dirname(dstroot)
-                    if not os.path.exists(dstdir):
-                        os.makedirs(dstdir)
-                    shutil.copy(srcfile, dstroot)
-                    ext = dstroot.split(".")[-1]
-    
-                    # if image is gif, convert to png
-    
-                    if ext == "gif":
-                        im = ImagePIL.open(dstroot)
-                        im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                dstroot = pt + img[1]
+                dstdir = os.path.dirname(dstroot)
+                if not os.path.exists(dstdir):
+                    os.makedirs(dstdir)
+                shutil.copy(srcfile, dstroot)
+                ext = dstroot.split(".")[-1]
+
+                # if image is gif, convert to png
+
+                if ext == "gif":
+                    im = ImagePIL.open(dstroot)
+                    im.save(os.path.join(dstroot.split(".")[0] + ".png"))
 
 
 def sub_urlimg(g):
@@ -2876,7 +2871,7 @@ def answer(request):
             # Saving the message
 
             form = NoteForm(tutorial, request.user, request.POST)
-            if form.is_valid():
+            if form.is_valid() and data["text"].strip() != "":
                 data = form.data
                 note = Note()
                 note.tutorial = tutorial
@@ -2891,12 +2886,7 @@ def answer(request):
                 tutorial.save()
                 return redirect(note.get_absolute_url())
             else:
-                return render_template("tutorial/comment/new.html", {
-                    "tutorial": tutorial,
-                    "last_note_pk": last_note_pk,
-                    "newnote": newnote,
-                    "form": form,
-                })
+                raise Http404
     else:
 
         # Actions from the editor render to answer.html.
