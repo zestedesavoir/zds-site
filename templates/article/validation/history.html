@@ -19,7 +19,7 @@
 
 
 {% block headline %}
-    <h2>Historique de validation de : {{ article.title }}</h2>
+    Historique de validation de : {{ article.title }}
 {% endblock %}
 
 
@@ -32,50 +32,18 @@
 
 {% block content %}
     {% if validations %}
-        <table>
+        <table class="fullwidth">
             <thead>
                 <tr>
-                    <th>Titre</th>
-                    <th width="8%">Catégorie(s)</th>
-                    <th width="8%">Auteur(s)</th>
-                    <th width="8%">Proposé</th>
-                    <th width="24%">Statut</th>
+                    <th width="50%">Proposé</th>
+                    <th width="50%">Statut</th>
                 </tr>
             </thead>
             <tbody>
                 {% for validation in validations %}
                     <tr>
                         <td>
-                            <a href="{% url "zds.article.views.view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >{{ validation.article.title }}</a>
-                        </td>
-                        <td>
-                            {% for subcategory in validation.article.subcategory.all %}
-                                <a href="{% url "zds.article.views.history_validation" article.pk %}?subcategory={{subcategory.pk}}">
-                                    {{ subcategory.title }}
-                                </a>
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for author in validation.article.authors.all %}
-                                <a href="{% url "zds.member.views.details" user.username %}">
-                                    {{ author.username }}
-                                </a>
-                            {% endfor %}
-                        </td>
-                        <td>
-                            <span>{{ validation.date_proposition|format_date|capfirst }}</span>
-                        </td>
-                        <td>
-                            {% if validation.validator %}
-                                <a href="{% url "zds.member.views.details" validation.validator.username %}">
-                                    {{ validation.validator.username }}
-                                </a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if validation.date_reserve %}
-                                <span>{{ validation.date_reserve|format_date|capfirst }}</span>
-                            {% endif %}
+                            {{ validation.date_proposition|format_date|capfirst }}
                         </td>
                         <td>
                             {% captureas reservation_url %}
