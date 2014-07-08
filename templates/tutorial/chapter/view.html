@@ -26,6 +26,10 @@
             {{ chapter.title }}
         </h1>
 
+        <p class="license">
+            {{ tutorial.licence.title }}
+        </p>
+
         {% include 'tutorial/includes/tags_authors.part.html' %}
 
         {% if tutorial.in_beta and tutorial.sha_beta == version %}
