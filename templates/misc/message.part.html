@@ -140,7 +140,10 @@
 
             {% if message.is_visible = False %}
                 <p class="message-hidden">
-                    Masqué par {{ message.editor }} : {{ message.text_hidden }}
+                    Masqué par {{ message.editor }}
+                    {% if message.text_hidden %}
+                        : {{ message.text_hidden }}
+                    {% endif %}
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
