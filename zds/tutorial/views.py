@@ -2423,7 +2423,7 @@ def maj_repo_chapter(
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = "Suppresion du chapitre"
-        Chapter.objects.filter(pk = chapter.pk).delete()
+        chapter.delete()
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
