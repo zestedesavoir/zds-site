@@ -43,7 +43,7 @@
         {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
     {% endif %}
 
-    {% if perms.tutorial.change_tutorial and tutorial.in_validation %}
+    {% if perms.tutorial.change_tutorial and tutorial.in_validation and validation.comment_authors %}
         <div class="content-wrapper comment-author">
             <p>
                 Le message suivant à été laissé à destination des validateurs : 

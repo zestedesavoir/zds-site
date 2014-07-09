@@ -69,7 +69,7 @@
         </ul>
     </div>
 
-    {% if perms.article.change_article and article.sha_validation != None %}
+    {% if perms.article.change_article and article.sha_validation != None and validation.comment_authors %}
         <div class="content-wrapper comment-author">
             <p>
                 Le message suivant à été laissé à destination des validateurs : 

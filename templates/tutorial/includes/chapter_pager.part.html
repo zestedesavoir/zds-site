@@ -5,7 +5,7 @@
                 {% if online %}
                     href="{{ prev.get_absolute_url_online }}"
                 {% else %}
-                    href="{{ prev.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"
+                    href="{{ prev.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                 {% endif %}
                 class="ico-after arrow-left"
             >
@@ -20,7 +20,7 @@
                 {% if online %}
                     href="{{ next.get_absolute_url_online }}"
                 {% else %}
-                    href="{{ next.get_absolute_url }}{%if version %}?version={{version}}{% endif %}"
+                    href="{{ next.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                 {% endif %}
                 class="ico-after arrow-right"
             >
