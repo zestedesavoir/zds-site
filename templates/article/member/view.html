@@ -68,6 +68,18 @@
             </li>
         </ul>
     </div>
+
+    {% if perms.article.change_article and article.sha_validation != None %}
+        <div class="content-wrapper comment-author">
+            <p>
+                Le message suivant à été laissé à destination des validateurs : 
+            </p>
+
+            <blockquote>
+                {{ validation.comment_authors }}
+            </blockquote>
+        </div>
+    {% endif %}
 {% endblock %}
 
 

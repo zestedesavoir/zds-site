@@ -43,6 +43,18 @@
         {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
     {% endif %}
 
+    {% if perms.tutorial.change_tutorial and tutorial.in_validation %}
+        <div class="content-wrapper comment-author">
+            <p>
+                Le message suivant à été laissé à destination des validateurs : 
+            </p>
+
+            <blockquote>
+                {{ validation.comment_authors }}
+            </blockquote>
+        </div>
+    {% endif %}
+
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
             <div class="alert-box warning">
@@ -75,7 +87,7 @@
 
             {% for part in parts %}
                 <h2>
-                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}{%if version %}?version={{version}}{% endif %}">
+                    <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}{% if version %}?version={{ version }}{% endif %}">
                         Partie {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>

@@ -1610,6 +1610,17 @@
         }
     }
 
+    .comment-author {
+        background: #EEE;
+        padding: 7px 15px;
+
+        blockquote {
+            margin: 10px 0;
+            border-left: 5px solid  #CCC;
+            padding: 5px 0 5px 15px;
+        }
+    }
+
     .article-content,
     .message-content {
         margin-top: 20px;
