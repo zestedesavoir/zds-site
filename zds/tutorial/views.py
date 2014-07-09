@@ -2417,11 +2417,13 @@ def maj_repo_chapter(
     else:
         repo = Repo(os.path.join(settings.REPO_PATH, chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+
     index = repo.index
     msg = "repo chapitre"
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = "Suppresion du chapitre"
+        Chapter.objects.filter(pk = chapter.pk).delete()
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
@@ -2443,7 +2445,6 @@ def maj_repo_chapter(
             index.add([ph])
 
     # update manifest
-
     if chapter.tutorial:
         man_path = os.path.join(chapter.tutorial.get_path(), "manifest.json")
         chapter.tutorial.dump_json(path=man_path)

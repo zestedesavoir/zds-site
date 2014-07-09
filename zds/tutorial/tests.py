@@ -117,6 +117,18 @@ class BigTutorialTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
+    def test_remove_chapter(self):
+        """To test the correct removal of a chapter in big tuto"""
+        self.client.login(username=self.user_author, password='hostel77')
+        olddata = self.bigtuto.load_json()
+        result = self.client.post(
+             reverse('zds.tutorial.views.modify_chapter'),
+             {'delete':"", 'chapter': self.chapter1_1.pk}
+        );
+        
+        self.assertEqual(302,result.status_code)
+        jsondata = self.bigtuto.load_json()
+        self.assertNotEqual(len(olddata["parts"][0]["chapters"]), len(jsondata["parts"][0]["chapters"]))
 
     def test_add_note(self):
         """To test add note for tutorial."""
