@@ -7,9 +7,9 @@
     &#183; Tutoriels
 {% endblock %}
 
-{% block source_content %}
+{% block canonical %}
     {% if tutorial.source and tutorial.source != "" %}
-    <link rel="canonical" href="{{tutorial.source}}" />
+    	<link rel="canonical" href="{{ tutorial.source }}">
     {% endif %}
 {% endblock %}
 
