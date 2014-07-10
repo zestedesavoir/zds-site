@@ -4,6 +4,12 @@
 
 
 {% if pages|length > 1 %}
+    {% captureas full_anchor %}
+        {% if anchor %}
+            #{{ anchor }}
+        {% endif %}
+    {% endcaptureas %}
+
     <ul class="pagination pagination-{{ position }}">
         {% ifnotequal nb 1 %}
             <li class="prev">
