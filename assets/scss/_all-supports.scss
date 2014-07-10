@@ -1140,6 +1140,10 @@
     }
     .tutorial-infos {
         margin: 7px 0 0 70px;
+
+        &.no-illu {
+            margin-left: 0;
+        }
     }
 }
 

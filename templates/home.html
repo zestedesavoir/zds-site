@@ -36,7 +36,7 @@
                             <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
                         </a>
                     {% endif %}
-                    <div class="tutorial-infos">
+                    <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
                         <h3>
                             <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}">
                                 {{ article.title }}
@@ -45,7 +45,13 @@
                         
                         <span class="article-metadata">
                             {{ article.pubdate|format_date|capfirst }} -
-                            <a href="{{ article.get_last_reaction.get_absolute_url }}">
+                            <a href="
+                                {% if article.get_reaction_count == 0 %}
+                                    {{ link }}#reactions
+                                {% else %}
+                                    {{ article.get_last_reaction.get_absolute_url }}
+                                {% endif %}
+                            ">
                                 {% if article.get_reaction_count == 0 %}
                                     Aucune réaction
                                 {% elif article.get_reaction_count == 1 %}
@@ -73,7 +79,6 @@
                 {% include 'tutorial/includes/tutorial_item.part.html' %}
             {% endfor %}
         {% endif %}
-        
     </section>
 {% endblock %}
 
