@@ -8,7 +8,6 @@
 (function(window, document, undefined) {
     var $banner = $("#cookies-banner");
 
-    // Disable tracking if the opt-out cookie exists.
     function checkHasConsent(){
         if(document.cookie.indexOf("hasconsent=true") > -1){
             $("#gtm").after(
@@ -23,22 +22,26 @@
             );
         } else if(document.cookie.indexOf("hasconsent=false") === -1){
             $banner.show();
+            // Accept for the next page
+            setHasConsent(true, false);
         }
     }
     checkHasConsent();
 
 
-    function setHasConsent(hasconsent){
+    function setHasConsent(hasconsent, hide){
         document.cookie = "hasconsent="+hasconsent+"; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/";
-        $banner.slideUp(200);
+
+        if(hide)
+            $banner.slideUp(200);
     }
 
     $("#reject-cookies").on("click", function(){
-        setHasConsent(false);
+        setHasConsent(false, true);
     });
 
     $("#accept-cookies").on("click", function(){
-        setHasConsent(true);
+        setHasConsent(true, true);
         checkHasConsent();
     });
 })(window, document);
