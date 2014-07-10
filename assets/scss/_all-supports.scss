@@ -1604,6 +1604,7 @@
 
     .article-content {
         p,
+        a,
         ul:not(.pagination),
         ol {
             font-family: $font-serif;
@@ -2573,11 +2574,13 @@ form.topic-message {
     ALL: Markdown help
    ============== */
 .markdown-help {
+    min-height: 50px;
+
     .open-markdown-help {
-        position: absolute;
-        bottom: 0;
-        left: 8px;
-        
+        float: none !important;
+        display: inline-block !important;
+        margin-bottom: 20px;
+
         .close-markdown-help-text {
             display: none;
         }
@@ -2603,6 +2606,18 @@ form.topic-message {
         }
         .open-markdown-help-text {
             display: none;
+        }
+    }
+}
+.topic-message {
+    .markdown-help {
+        min-height: 0;
+
+        .open-markdown-help {
+            position: absolute;
+            bottom: 0;
+            left: 8px;
+            margin-bottom: 0;
         }
     }
 }
