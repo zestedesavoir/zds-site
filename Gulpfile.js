@@ -9,6 +9,12 @@ var paths = {
   smileys: "assets/smileys/**",
   stylesheet: "assets/scss/main.scss",
   scss: ["assets/scss/**", "!assets/scss/_sprite.scss"],
+  errors_scss: ["errors/scss/**"],
+  errors: {
+    sass: "errors/scss",
+    images: "errors/images",
+    includePaths: ["errors/scss", "assets/bower_components/modularized-normalize-scss"],
+  },
   sass: {
     sass: "assets/scss",
     images: "assets/images",
@@ -46,6 +52,20 @@ gulp.task("stylesheet", ["sprite"], function() {
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
     .pipe(gulp.dest("dist/css"));
+});
+
+gulp.task("errors", function() {
+  return gulp.src(paths.stylesheet)
+    .pipe($.sass({
+      sass: paths.errors.sass,
+      imagePath: paths.errors.images,
+      includePaths: paths.errors.includePaths
+    }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
+    .pipe(gulp.dest("errors/css"))
+    .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
+    .pipe($.minifyCss())
+    .pipe(gulp.dest("errors/css"));
 });
 
 gulp.task("sprite", function() {
@@ -116,6 +136,7 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.scss, ["stylesheet"]);
+  gulp.watch(paths.errors_scss, ["errors"]);
   gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
