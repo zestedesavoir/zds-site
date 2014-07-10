@@ -2585,6 +2585,16 @@ form.topic-message {
             display: none;
         }
     }
+    .topic-message & {
+        min-height: 0;
+
+        .open-markdown-help {
+            position: absolute;
+            bottom: 0;
+            left: 8px;
+            margin-bottom: 0;
+        }
+    }
 
     .markdown-help-more {
         display: none;
@@ -2606,18 +2616,6 @@ form.topic-message {
         }
         .open-markdown-help-text {
             display: none;
-        }
-    }
-}
-.topic-message {
-    .markdown-help {
-        min-height: 0;
-
-        .open-markdown-help {
-            position: absolute;
-            bottom: 0;
-            left: 8px;
-            margin-bottom: 0;
         }
     }
 }
