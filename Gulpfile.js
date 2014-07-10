@@ -146,13 +146,14 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
-    filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
+    var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
     $.livereload.changed(filePath);
   });
 
-  gulp.watch("errors/images", function(file) {
-    filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
-    $.livereload.changed(filePath);
+  gulp.watch("errors/*/**", function(file) {
+    setImmediate(function(){
+      $.livereload.changed(file.path);
+    });
   });
 
   $.livereload.listen();

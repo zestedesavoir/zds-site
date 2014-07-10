@@ -24,7 +24,6 @@ base.db
 /assets/.sass-css
 /assets/bower_components
 /assets/scss/_sprite.scss
-/errors/css
 
 #############
 ## Python
