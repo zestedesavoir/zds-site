@@ -10,7 +10,7 @@
 
 
 <!DOCTYPE html>
-<html class="no-js enable-mobile-menu wf-active">
+<html class="no-js enable-mobile-menu wf-active" lang="fr">
 <head>
     <meta charset="utf-8">
 
@@ -32,27 +32,6 @@
     {% endif %}
 
     {# Webfont async loading #}
-    {# Do not put this code into a distant file #}
-    <!-- TODO : optimiser ça pour ne pas voir le changement de font à chaque page
-    <script>
-        WebFontConfig = {
-            google: {
-              families: ['Source Sans Pro:400,700', 'Source Code Pro:400,700', 'Merriweather:400,700']
-            }
-        };
-
-        (function() {
-            var wf = document.createElement('script');
-            wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-                      '://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js';
-            wf.type = 'text/javascript';
-            wf.async = 'true';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(wf, s);
-        })();
-    </script>
-    -->
-    <!-- TEMP : load fonts from Google / Procude FOUT effect (see above) -->
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
 
     {# favicons #}
@@ -68,8 +47,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     {# RSS links #}
-    <link rel="alternate" type="application/rss+xml"
-          title="Forum" href="{% url "post-feed-rss" %}"/>
+    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
 
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -504,7 +482,18 @@
 
 
 
-    {# MathJax, see mathjax-config.js for configuration #}
+    {# MathJax #}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$','$$']],
+                processEscapes: true,
+            },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
+            messageStyle: "none",
+        });
+    </script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
     
