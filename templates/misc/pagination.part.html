@@ -14,7 +14,7 @@
         {% ifnotequal nb 1 %}
             <li class="prev">
                 {% with prev=nb|add:-1 %}
-                    <a href="{% append_to_get page=prev %}" class="ico-after arrow-left blue">
+                    <a href="{% append_to_get page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue">
                         Précédente
                     </a>
                 {% endwith %}
@@ -25,7 +25,7 @@
         {% for page in pages %}
             {% if page %}
                 <li>
-                    <a {% ifnotequal page nb %}href="{% append_to_get page=page %}"{% else %}class="current"{% endifnotequal %}>
+                    <a {% ifnotequal page nb %}href="{% append_to_get page=page %}{{ full_anchor }}"{% else %}class="current"{% endifnotequal %}>
                         {{ page }}
                     </a>
                 </li>
@@ -55,7 +55,7 @@
         {% if pages|last > 0 and pages|last != nb %}
             <li class="next">
                 {% with next=nb|add:1 %}
-                    <a href="{% append_to_get page=next %}" class="ico-after arrow-right blue">
+                    <a href="{% append_to_get page=next %}{{ full_anchor }}" class="ico-after arrow-right blue">
                         Suivante
                     </a>
                 {% endwith %}
