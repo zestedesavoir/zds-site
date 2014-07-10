@@ -5,7 +5,7 @@
    Manage tracking cookies message
    ========================================================================== */
 
-(function(window, document, undefined) {
+(function(document, undefined) {
     var $banner = $("#cookies-banner");
 
     function checkHasConsent(){
@@ -21,27 +21,27 @@
                 "</script>"
             );
         } else if(document.cookie.indexOf("hasconsent=false") === -1){
-            $banner.show();
             // Accept for the next page
-            setHasConsent(true, false);
+            setHasConsent(true);
+            
+            // Show the banner
+            $banner.show();
         }
     }
     checkHasConsent();
 
 
-    function setHasConsent(hasconsent, hide){
+    function setHasConsent(hasconsent){
         document.cookie = "hasconsent="+hasconsent+"; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/";
-
-        if(hide)
-            $banner.slideUp(200);
     }
 
     $("#reject-cookies").on("click", function(){
-        setHasConsent(false, true);
+        setHasConsent(false);
+        $banner.slideUp(200);
     });
 
     $("#accept-cookies").on("click", function(){
-        setHasConsent(true, true);
         checkHasConsent();
+        $banner.slideUp(200);
     });
-})(window, document);
+})(document);
