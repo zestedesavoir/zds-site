@@ -7,15 +7,16 @@ var paths = {
   scripts: "assets/js/**",
   images: "assets/images/**",
   smileys: "assets/smileys/**",
-  stylesheet: "assets/scss/main.scss",
-  scss: ["assets/scss/**", "!assets/scss/_sprite.scss"],
-  errors_scss: ["errors/scss/**"],
+  errors_main: "errors/scss/main.scss",
+  errors_path: "errors/scss/**",
   errors: {
     sass: "errors/scss",
     images: "errors/images",
     includePaths: ["errors/scss", "assets/bower_components/modularized-normalize-scss"],
   },
-  sass: {
+  styles_main: "assets/scss/main.scss",
+  styles_path: ["assets/scss/**", "!assets/scss/_sprite.scss"],
+  styles: {
     sass: "assets/scss",
     images: "assets/images",
     includePaths: ["assets/scss", "assets/bower_components/modularized-normalize-scss"],
@@ -40,22 +41,13 @@ gulp.task("script", ["test"], function() {
     .pipe($.size({ title: "main.min.js" }));
 });
 
-gulp.task("stylesheet", ["sprite"], function() {
-  return gulp.src(paths.stylesheet)
-    .pipe($.sass({
-      sass: paths.sass.sass,
-      imagePath: paths.sass.images,
-      includePaths: paths.sass.includePaths
-    }))
-    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
-    .pipe(gulp.dest("dist/css"))
-    .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
-    .pipe($.minifyCss())
-    .pipe(gulp.dest("dist/css"));
+gulp.task("clean-errors", function() {
+  return gulp.src(["errors/css/*"])
+    .pipe($.clean());
 });
 
-gulp.task("errors", function() {
-  return gulp.src(paths.stylesheet)
+gulp.task("errors", ["clean-errors"], function() {
+  return gulp.src(paths.errors_main)
     .pipe($.sass({
       sass: paths.errors.sass,
       imagePath: paths.errors.images,
@@ -66,6 +58,20 @@ gulp.task("errors", function() {
     .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
     .pipe($.minifyCss())
     .pipe(gulp.dest("errors/css"));
+});
+
+gulp.task("stylesheet", ["sprite"], function() {
+  return gulp.src(paths.styles_main)
+    .pipe($.sass({
+      sass: paths.styles.sass,
+      imagePath: paths.styles.images,
+      includePaths: paths.styles.includePaths
+    }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
+    .pipe(gulp.dest("dist/css"))
+    .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
+    .pipe($.minifyCss())
+    .pipe(gulp.dest("dist/css"));
 });
 
 gulp.task("sprite", function() {
@@ -89,7 +95,7 @@ gulp.task("sprite", function() {
       }
     }));
   sprite.img.pipe(gulp.dest("dist/images"));
-  sprite.css.pipe(gulp.dest(paths.sass.sass));
+  sprite.css.pipe(gulp.dest(paths.styles.sass));
   return sprite.css;
 });
 
@@ -135,11 +141,16 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.scripts, ["script"]);
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
-  gulp.watch(paths.scss, ["stylesheet"]);
-  gulp.watch(paths.errors_scss, ["errors"]);
+  gulp.watch(paths.styles_path, ["stylesheet"]);
+  gulp.watch(paths.errors_path, ["errors"]);
   gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
+    filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
+    $.livereload.changed(filePath);
+  });
+
+  gulp.watch("errors/images", function(file) {
     filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
     $.livereload.changed(filePath);
   });
