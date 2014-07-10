@@ -7,7 +7,6 @@ var paths = {
   scripts: "assets/js/**",
   images: "assets/images/**",
   smileys: "assets/smileys/**",
-  copy: "assets/misc/**",
   stylesheet: "assets/scss/main.scss",
   scss: ["assets/scss/**", "!assets/scss/_sprite.scss"],
   sass: {
@@ -114,7 +113,6 @@ gulp.task("merge-scripts", ["script", "vendors"], function() {
 
 gulp.task("watch", function(cb) {
   gulp.watch(paths.scripts, ["script"]);
-  gulp.watch(paths.copy, ["copy"]);
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.scss, ["stylesheet"]);
@@ -134,11 +132,6 @@ gulp.task("test", function() {
     .pipe($.jshint.reporter("jshint-stylish"));
 });
 
-gulp.task("copy", function() {
-  return gulp.src(paths.copy)
-    .pipe(gulp.dest("dist/"));
-});
-
 gulp.task("pack", ["build"], function() {
   return gulp.src(["dist/*/**", "!dist/pack.zip"])
     .pipe($.zip("pack.zip"))
@@ -148,6 +141,6 @@ gulp.task("pack", ["build"], function() {
 gulp.task("travis", ["test"]);
 
 
-gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
+gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts"]);
 
 gulp.task("default", ["build", "watch"]);
