@@ -283,28 +283,29 @@ def reject_tutorial(request):
 
         # send feedback
 
-        for author in tutorial.authors.all():
-            msg = (
-                u'Désolé **{0}**, ton zeste **{1}** n\'a malheureusement '
-                u'pas passé l’étape de validation. Mais ne désespère pas, '
-                u'certaines corrections peuvent surement être faite pour '
-                u'l’améliorer et repasser la validation plus tard. '
-                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé:\n\n`{4}`\n\n'
-                u'N\'hésite pas a lui envoyer un petit message pour discuter '
-                u'de la décision ou demander plus de détail si tout cela te '
-                u'semble injuste ou manque de clarté.'
-                .format(author.username, tutorial.title, validation.validator.username,
-                        settings.SITE_URL + validation.validator.profile.get_absolute_url(), validation.comment_validator))
-            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-            send_mp(
-                bot,
-                [author],
-                u"Refus de Validation : {0}".format(tutorial.title),
-                "",
-                msg,
-                True,
-                direct=False,
-            )
+        msg = (
+            u'Désolé, le zeste **{0}** n\'a malheureusement '
+            u'pas passé l’étape de validation. Mais ne désespère pas, '
+            u'certaines corrections peuvent surement être faite pour '
+            u'l’améliorer et repasser la validation plus tard. '
+            u'Voici le message que [{1}]({2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
+            u'N\'hésite pas a lui envoyer un petit message pour discuter '
+            u'de la décision ou demander plus de détail si tout cela te '
+            u'semble injuste ou manque de clarté.'
+            .format(tutorial.title, 
+                    validation.validator.username,
+                    settings.SITE_URL + validation.validator.profile.get_absolute_url(), 
+                    validation.comment_validator))
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(
+            bot,
+            tutorial.authors.all(),
+            u"Refus de Validation : {0}".format(tutorial.title),
+            "",
+            msg,
+            True,
+            direct=False,
+        )
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
     else:
@@ -355,30 +356,28 @@ def valid_tutorial(request):
 
         # send feedback
 
-        for author in tutorial.authors.all():
-            msg = (
-                u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
-                u'a été publié par [{3}]({4}) ! Les lecteurs du monde entier '
-                u'peuvent venir l\'éplucher et réagir a son sujet. '
-                u'Je te conseille de rester a leur écoute afin '
-                u'd\'apporter des corrections/compléments.'
-                u'Un Tutoriel vivant et a jour est bien plus lu '
-                u'qu\'un sujet abandonné !'
-                .format(author.username,
-                        tutorial.title,
-                        settings.SITE_URL + tutorial.get_absolute_url_online(),
-                        validation.validator.username,
-                        settings.SITE_URL + validation.validator.profile.get_absolute_url()))
-            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-            send_mp(
-                bot,
-                [author],
-                u"Publication : {0}".format(tutorial.title),
-                "",
-                msg,
-                True,
-                direct=False,
-            )
+        msg = (
+            u'Félicitations ! Le zeste [{0}]({1}) '
+            u'a été publié par [{2}]({3}) ! Les lecteurs du monde entier '
+            u'peuvent venir l\'éplucher et réagir a son sujet. '-
+            u'Je te conseille de rester a leur écoute afin '
+            u'd\'apporter des corrections/compléments.'
+            u'Un Tutoriel vivant et a jour est bien plus lu '
+            u'qu\'un sujet abandonné !'
+            .format(tutorial.title,
+                    settings.SITE_URL + tutorial.get_absolute_url_online(),
+                    validation.validator.username,
+                    settings.SITE_URL + validation.validator.profile.get_absolute_url()))
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        send_mp(
+            bot,
+            tutorial.authors.all(),
+            u"Publication : {0}".format(tutorial.title),
+            "",
+            msg,
+            True,
+            direct=False,
+        )
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
     else:
