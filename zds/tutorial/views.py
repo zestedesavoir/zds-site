@@ -726,9 +726,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
     # If the tutorial isn't online, we raise 404 error.
-
-    if not tutorial.on_line:
-        raise PermissionDenied
+    if not tutorial.on_line():
+        raise Http404
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -1112,7 +1111,7 @@ def view_part_online(
 
     part = get_object_or_404(Part, slug=part_slug, tutorial__pk=tutorial_pk)
     tutorial = part.tutorial
-    if not tutorial.on_line:
+    if not tutorial.on_line():
         raise Http404
 
     # find the good manifest file
@@ -1260,7 +1259,7 @@ def modify_part(request):
                 tut_p.position_in_tutorial = tut_p.position_in_tutorial - 1
                 tut_p.save()
         old_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
-        maj_repo_part(request, old_slug_path=old_slug, action="del")
+        maj_repo_part(request, old_slug_path=old_slug, part=part, action="del")
 
         # Actually delete the part
 
@@ -1387,12 +1386,13 @@ def view_chapter(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             chapter["get_absolute_url"] = part["get_absolute_url"] \
-                + "{0}/".format(chapter["slug"])
+                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
                                             chapter["introduction"])
                 chapter["conclu"] = get_blob(repo.commit(sha).tree,
                                              chapter["conclusion"])
+                
                 cpt_e = 1
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
@@ -1411,6 +1411,7 @@ def view_chapter(
                     > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
+    
     return render_template("tutorial/chapter/view.html", {
         "tutorial": tutorial,
         "chapter": final_chapter,
@@ -1437,7 +1438,7 @@ def view_chapter_online(
                                    part__tutorial__pk=tutorial_pk)
     
     tutorial = chapter_bd.get_tutorial()
-    if not tutorial.on_line:
+    if not tutorial.on_line():
         raise Http404
 
     # find the good manifest file
@@ -1472,7 +1473,7 @@ def view_chapter_online(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             chapter["get_absolute_url_online"] = part[
-                "get_absolute_url_online"] + "{0}/".format(chapter["slug"])
+                "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 intro = open(
                     os.path.join(
@@ -1702,6 +1703,7 @@ def edit_chapter(request):
             
             old_slug = chapter.get_path()
             chapter.save()
+            chapter.update_children()
             
             if chapter.part:
                 if chapter.tutorial:
@@ -1723,7 +1725,6 @@ def edit_chapter(request):
                     img.pubdate = datetime.now()
                     img.save()
                     chapter.image = img
-            
             maj_repo_chapter(
                 request,
                 old_slug_path=old_slug,
@@ -1810,7 +1811,6 @@ def add_extract(request):
 @login_required
 def edit_extract(request):
     """Edit extract."""
-
     try:
         extract_pk = request.GET["extrait"]
     except KeyError:
@@ -2558,13 +2558,12 @@ def download_markdown(request):
     """Download a markdown tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    response = HttpResponse(
-        open(
-            os.path.join(
+    phy_path = os.path.join(
                 tutorial.get_prod_path(),
                 tutorial.slug +
-                ".md"),
-            "rb").read(),
+                ".md") 
+    response = HttpResponse(
+        open(phy_path, "rb").read(),
         mimetype="application/txt")
     response["Content-Disposition"] = \
         "attachment; filename={0}.md".format(tutorial.slug)
@@ -2576,13 +2575,14 @@ def download_html(request):
     """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    response = HttpResponse(
-        open(
-            os.path.join(
+    phy_path = os.path.join(
                 tutorial.get_prod_path(),
                 tutorial.slug +
-                ".html"),
-            "rb").read(),
+                ".html")
+    if not os.path.isfile(phy_path):
+        raise Http404
+    response = HttpResponse(
+        open(phy_path, "rb").read(),
         mimetype="text/html")
     response["Content-Disposition"] = \
         "attachment; filename={0}.html".format(tutorial.slug)
@@ -2594,13 +2594,14 @@ def download_pdf(request):
     """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    response = HttpResponse(
-        open(
-            os.path.join(
+    phy_path = os.path.join(
                 tutorial.get_prod_path(),
                 tutorial.slug +
-                ".pdf"),
-            "rb").read(),
+                ".pdf")
+    if not os.path.isfile(phy_path):
+        raise Http404
+    response = HttpResponse(
+        open(phy_path, "rb").read(),
         mimetype="application/pdf")
     response["Content-Disposition"] = \
         "attachment; filename={0}.pdf".format(tutorial.slug)
@@ -2612,13 +2613,14 @@ def download_epub(request):
     """Download an epub tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    response = HttpResponse(
-        open(
-            os.path.join(
+    phy_path = os.path.join(
                 tutorial.get_prod_path(),
                 tutorial.slug +
-                ".epub"),
-            "rb").read(),
+                ".epub")
+    if not os.path.isfile(phy_path):
+        raise Http404
+    response = HttpResponse(
+        open(phy_path, "rb").read(),
         mimetype="application/epub")
     response["Content-Disposition"] = \
         "attachment; filename={0}.epub".format(tutorial.slug)

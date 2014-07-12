@@ -162,7 +162,8 @@ class Tutorial(models.Model):
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def on_line(self):
-        return (self.sha_public is not None) and (self.sha_public.strip() != '')
+        print('--------------> {}'.format(self.sha_public))
+        return (self.sha_public is not None) and (self.sha_public.strip() != '') and (self.sha_public.strip() != '') 
 
     def is_mini(self):
         return self.type == 'MINI'
@@ -196,6 +197,10 @@ class Tutorial(models.Model):
         mandata['image'] = self.image
         mandata['pubdate'] = self.pubdate
         mandata['source'] = self.source
+        mandata['have_markdown'] = self.have_markdown()
+        mandata['have_html'] = self.have_html()
+        mandata['have_pdf'] = self.have_pdf()
+        mandata['have_epub'] = self.have_epub()
 
         return mandata
 
@@ -358,6 +363,22 @@ class Tutorial(models.Model):
         if chapter:
             chapter.update_children()
 
+    def have_markdown(self):
+        return os.path.isfile(os.path.join(self.get_prod_path(),
+                                           self.slug +
+                                           ".md"))
+    def have_html(self):
+        return os.path.isfile(os.path.join(self.get_prod_path(),
+                                           self.slug +
+                                           ".html"))
+    def have_pdf(self):
+        return os.path.isfile(os.path.join(self.get_prod_path(),
+                                           self.slug +
+                                           ".pdf"))
+    def have_epub(self):
+        return os.path.isfile(os.path.join(self.get_prod_path(),
+                                           self.slug +
+                                           ".epub"))
 
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
@@ -775,8 +796,12 @@ class Chapter(models.Model):
             return None
 
     def update_children(self):
-        self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
-        self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
+        if self.part:
+            self.introduction = os.path.join(self.part.get_phy_slug(), self.get_phy_slug(), "introduction.md")
+            self.conclusion = os.path.join(self.part.get_phy_slug(), self.get_phy_slug(), "conclusion.md")
+        else:
+            self.introduction = os.path.join("introduction.md")
+            self.conclusion = os.path.join("conclusion.md")
         self.save()
         for extract in self.get_extracts():
             extract.save()
