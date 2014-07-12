@@ -193,7 +193,7 @@ def edit_image(request, gal_pk, img_pk):
         if form.is_valid():
             if "physical" in request.FILES:
                 if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
-                    messages.error(request, "Votre image est beaucoup trop lourde, réduidez sa taille à moins de {} \
+                    messages.error(request, "Votre image est beaucoup trop lourde, réduisez sa taille à moins de {} \
                     <abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE/1024)))
                 else:
                     img.title = request.POST["title"]
