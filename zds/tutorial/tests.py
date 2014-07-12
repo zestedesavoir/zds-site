@@ -936,7 +936,7 @@ class BigTutorialTests(TestCase):
         # Delete the image of the bigtuto.
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.bigtuto.gallery.pk,
                     'delete_multi': '',
@@ -1759,7 +1759,7 @@ class MiniTutorialTests(TestCase):
         # Delete the image of the minituto.
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.minituto.gallery.pk,
                     'delete_multi': '',
