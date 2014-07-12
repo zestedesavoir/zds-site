@@ -25,7 +25,6 @@ git checkout -b $1
 # Compute front stuff
 source /usr/local/nvm/nvm.sh
 gulp pack
-gulp build
 
 # Update application data
 source ../bin/activate
