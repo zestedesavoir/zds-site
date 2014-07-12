@@ -169,6 +169,7 @@ def modify_gallery(request):
 
 
 @login_required
+@can_write_and_read_now
 def edit_image(request, gal_pk, img_pk):
     """Edit an existing image."""
 
@@ -231,12 +232,9 @@ def edit_image(request, gal_pk, img_pk):
 
 @can_write_and_read_now
 @login_required
-def modify_image(request):
+@require_POST
+def delete_image(request):
 
-    # We only handle secured POST actions
-
-    if request.method != "POST":
-        raise Http404
     try:
         gal_pk = request.POST["gallery"]
     except KeyError:
@@ -246,7 +244,6 @@ def modify_image(request):
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
 
         # Only allow RW users to modify images
-
         if gal_mode.mode != "W":
             raise PermissionDenied
     except:
