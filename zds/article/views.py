@@ -779,7 +779,7 @@ def history(request, article_pk, article_slug):
     """Display an article."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    if not article.on_line \
+    if not article.on_line() \
        and not request.user.has_perm('article.change_article') \
        and request.user not in article.authors.all():
         raise Http404
