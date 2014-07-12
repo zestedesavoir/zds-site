@@ -16,6 +16,8 @@ fi
 cd /opt/zdsenv/ZesteDeSavoir/
 
 # Switch to new tag
+git fetch --tags
+# Server has git < 1.9, git fetch --tags doesn't retrieve commits...
 git fetch
 # -b is required to have version data in footer
 git checkout -b $1
