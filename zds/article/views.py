@@ -543,7 +543,8 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
+                    msg = ( 
+                    u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
                     u'est maintenant publié ! Les lecteurs du monde entier '
                     u'peuvent venir le lire et réagir a son sujet. Je te conseille '
                     u'de rester a leur écoute afin d\'apporter des '
@@ -551,7 +552,7 @@ def modify(request):
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         author.username,
                         article.title,
-                        article.get_absolute_url_online())
+                        article.get_absolute_url_online()))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
