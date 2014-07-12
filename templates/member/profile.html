@@ -61,7 +61,7 @@
 
 
         {% if topics %}
-            <h2>Dernier sujets crées</h2>
+            <h2>Derniers sujets créés</h2>
             {% for topic in topics %}
                 <h4><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></h4>
                 <h5>{{ topic.subtitle }}</h5>
