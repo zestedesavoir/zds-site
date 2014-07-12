@@ -56,28 +56,35 @@
                 <ul>
                     {% if tutorial.on_line %}
                         {% if perms.tutorial.change_tutorial %}
-                           <li>
-                                <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
-                                    Markdown
-                                </a>
-                            </li>
+                            {% if tutorial.have_markdown %}
+                                <li>
+                                    <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                        Markdown
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% endif %}
-
+                        {% if tutorial.have_html %}
                         <li>
                             <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 HTML
                             </a>
                         </li>
+                        {% endif %}
+                        {% if tutorial.have_pdf %}
                         <li>
                             <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 PDF
                             </a>
                         </li>
+                        {% endif %}
+                        {% if tutorial.have_epub %}
                         <li>
                             <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                 EPUB
                             </a>
                         </li>
+                        {% endif %}
                     {% endif %}
 
                     <li>
