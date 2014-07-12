@@ -15,6 +15,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template import Context, RequestContext
@@ -122,16 +123,13 @@ def details(request, user_name):
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
                   ).all()
-    my_topics = Topic.objects.filter(author__pk=usr.pk).order_by("-pubdate"
-                                                                 ).all()
-    tops = []
-    for top in my_topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
-            if len(tops) >= 5:
-                break
+    my_topics = \
+        Topic.objects\
+        .filter(author=usr)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
+        .prefetch_related("author")\
+        .order_by("-pubdate").all()
+
     form = OldTutoForm(profile)
     oldtutos = []
     if profile.sdz_tutorial:
@@ -146,7 +144,7 @@ def details(request, user_name):
         "bans": bans,
         "articles": my_articles[:5],
         "tutorials": my_tutorials[:5],
-        "topics": tops,
+        "topics": my_topics[:5],
         "form": form,
         "old_tutos": oldtutos,
     })
