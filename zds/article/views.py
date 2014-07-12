@@ -546,9 +546,9 @@ def modify(request):
                     msg = (
                         u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
                         u'est maintenant publié ! Les lecteurs du monde entier '
-                        u'peuvent venir le lire et réagir a son sujet. Je te conseille '
-                        u'de rester a leur écoute afin d\'apporter des '
-                        u'corrections/compléments. Un Article vivant et a jour '
+                        u'peuvent venir le lire et réagir à son sujet. Je te conseille '
+                        u'de rester à leur écoute afin d\'apporter des '
+                        u'corrections/compléments. Un article vivant et à jour '
                         u'est bien plus lu qu\'un sujet abandonné !'
                         .format(author.username,
                                 article.title,
