@@ -552,7 +552,7 @@ def modify(request):
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         author.username,
                         article.title,
-                        article.get_absolute_url_online()))
+                        settings.SITE_URL + article.get_absolute_url_online()))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
