@@ -30,7 +30,7 @@ class LastArticlesFeedRSS(Feed):
         authors_list = item.authors.all()
         authors = []
         for authors_obj in authors_list:
-            authors.append(str(authors_obj))
+            authors.append(authors_obj.username)
         authors = ", ".join(authors).decode('utf-8')
         return authors
 
