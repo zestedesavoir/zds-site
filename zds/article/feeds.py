@@ -31,7 +31,7 @@ class LastArticlesFeedRSS(Feed):
         authors = []
         for authors_obj in authors_list:
             authors.append(authors_obj.username)
-        authors = ", ".join(authors).decode('utf-8')
+        authors = ", ".join(authors)
         return authors
 
     def item_link(self, item):
