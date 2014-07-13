@@ -1246,7 +1246,6 @@ def modify_part(request):
                       tuto = part.tutorial,
                       action = "maj")
     elif "delete" in request.POST:
-
         # Delete all chapters belonging to the part
 
         Chapter.objects.all().filter(part=part).delete()
@@ -1261,9 +1260,16 @@ def modify_part(request):
         old_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
         maj_repo_part(request, old_slug_path=old_slug, part=part, action="del")
 
+        new_slug_tuto_path = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug())
         # Actually delete the part
-
         part.delete()
+        
+        
+        maj_repo_tuto(request,
+                      old_slug_path = new_slug_tuto_path,
+                      new_slug_path = new_slug_tuto_path,
+                      tuto = part.tutorial,
+                      action = "maj")
     return redirect(part.tutorial.get_absolute_url())
 
 
@@ -1656,7 +1662,7 @@ def modify_chapter(request):
                          old_slug_path=chapter.get_path(), action="del")
 
         # Then delete the chapter
-
+        new_slug_path_part = os.path.join(settings.REPO_PATH, chapter.part.tutorial.get_phy_slug())
         chapter.delete()
 
         # Update all the position_in_tutorial fields for the next chapters
@@ -1665,6 +1671,12 @@ def modify_chapter(request):
                 Chapter.objects.filter(position_in_tutorial__gt=old_tut_pos):
             tut_c.update_position_in_tutorial()
             tut_c.save()
+        
+        maj_repo_part(request,
+                      old_slug_path = new_slug_path_part,
+                      new_slug_path = new_slug_path_part,
+                      part = chapter.part,
+                      action = "maj")
         messages.info(request, u"Le chapitre a bien été supprimé.")
 
         return redirect(parent.get_absolute_url())
@@ -1921,8 +1933,24 @@ def modify_extract(request):
         # Use path retrieve before and use it to create the new slug.
 
         old_slug = extract.get_path()
+        
+        if extract.chapter.tutorial:
+            new_slug_path_chapter = os.path.join(settings.REPO_PATH,
+                                         extract.chapter.tutorial.get_phy_slug())
+        else:
+            new_slug_path_chapter = os.path.join(settings.REPO_PATH,
+                                         chapter.part.tutorial.get_phy_slug(),
+                                         chapter.part.get_phy_slug(),
+                                         chapter.get_phy_slug())
+
         maj_repo_extract(request, old_slug_path=old_slug, extract=extract,
                          action="del")
+        
+        maj_repo_chapter(request,
+                         old_slug_path = new_slug_path_chapter,
+                         new_slug_path = new_slug_path_chapter,
+                         chapter = chapter,
+                         action = "maj")
         return redirect(chapter.get_absolute_url())
     elif "move" in data:
         try:
