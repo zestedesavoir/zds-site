@@ -162,8 +162,7 @@ class Tutorial(models.Model):
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def on_line(self):
-        print('--------------> {}'.format(self.sha_public))
-        return (self.sha_public is not None) and (self.sha_public.strip() != '') and (self.sha_public.strip() != '') 
+        return (self.sha_public is not None) and (self.sha_public.strip() != '') 
 
     def is_mini(self):
         return self.type == 'MINI'

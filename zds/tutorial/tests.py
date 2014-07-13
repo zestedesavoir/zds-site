@@ -113,6 +113,7 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
+        self.bigtuto = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
 
@@ -1398,6 +1399,8 @@ class MiniTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.minituto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(self.minituto.on_line(), True)
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []

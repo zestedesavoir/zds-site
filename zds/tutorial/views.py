@@ -345,7 +345,7 @@ def valid_tutorial(request):
         # Update sha_public with the sha of validation. We don't update sha_draft.
         # So, the user can continue to edit his tutorial in offline.
 
-        if request.POST.get('is_major', False) or tutorial.sha_public is None:
+        if request.POST.get('is_major', False) or tutorial.sha_public is None or tutorial.sha_public == '':
             tutorial.pubdate = datetime.now()
         tutorial.sha_public = validation.version
         tutorial.source = request.POST["source"]
@@ -3048,13 +3048,13 @@ def edit_note(request):
 @login_required
 def like_note(request):
     """Like a note."""
-
     try:
         note_pk = request.GET["message"]
     except KeyError:
         raise Http404
     resp = {}
     note = get_object_or_404(Note, pk=note_pk)
+
     user = request.user
     if note.author.pk != request.user.pk:
 
