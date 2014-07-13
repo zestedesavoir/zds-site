@@ -118,6 +118,7 @@
                 <a href="#move-part" class="open-modal ico-after move blue">
                     Déplacer <span class="wide">la partie</span>
                 </a>
+
                 <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST" class="modal modal-small" id="move-part">
                     <select name="move_target" class="select-autosubmit">
                         <option disabled="disabled">
@@ -172,6 +173,23 @@
                     {% csrf_token %}
 
                     <button type="submit">Déplacer</button>
+                </form>
+            </li>
+            <li>
+                <a href="#delete-part" class="open-modal ico-after cross red">
+                    Supprimer la partie
+                </a>
+
+                <form action="{% url "zds.tutorial.views.modify_part" %}" method="post" id="delete-part" class="modal modal-medium">
+                    <p>
+                        Attention, vous vous apprêtez à supprimer définitivement la partie "<em>{{ part.title }}</em>".
+                    </p>
+                    <input type="hidden" name="part" value="{{ part.pk }}">
+
+                    {% csrf_token %}
+                    <button type="submit" name="delete">
+                        Confirmer
+                    </button>
                 </form>
             </li>
         {% endif %}

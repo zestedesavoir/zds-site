@@ -21,7 +21,7 @@
     {% with authors=tutorial.authors.all %}
         <h1 {% if chapter.image %}class="illu"{% endif %}>
             {% if chapter.image %}
-                <img src="{{ chapter.image.thumb.url }}" alt="">
+                <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
             {% endif %}
             {{ chapter.title }}
         </h1>
