@@ -445,8 +445,13 @@ def ask_validation(request):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
+    #delete old pending validation
+    Validation.objects.filter(tutorial__pk=tutorial_pk,
+                              status__in=['PENDING','PENDING_V'])\
+                              .delete()
     # We create and save validation object of the tutorial.
-
+    
+    
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
