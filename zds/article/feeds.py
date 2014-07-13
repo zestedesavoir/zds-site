@@ -14,20 +14,25 @@ class LastArticlesFeedRSS(Feed):
 
     def items(self):
         return Article.objects\
-            .filter(is_visible=True)\
+            .filter(sha_public__isnull=False)\
             .order_by('-pubdate')[:5]
 
     def item_title(self, item):
         return item.title
 
+    def item_pubdate(self, item):
+        return item.pubdate
+
     def item_description(self, item):
         return item.description
 
     def item_author_name(self, item):
-        return item.author.username
-
-    def item_author_link(self, item):
-        return item.author.get_absolute_url()
+        authors_list = item.authors.all()
+        authors = []
+        for authors_obj in authors_list:
+            authors.append(authors_obj.username)
+        authors = ", ".join(authors)
+        return authors
 
     def item_link(self, item):
         return item.get_absolute_url()
