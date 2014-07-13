@@ -98,17 +98,14 @@ def get_blob(tree, chemin):
                 return data.decode('utf-8')
         except:
             return ""
-            print('---------> OK')
     if len(tree.trees) > 0:
         for tr in tree.trees:
             result = get_blob(tr, chemin)
             if result is not None:
                 return result
         return None
-        print('---------> OK')
     else:
         return None
-        print('---------> OK')
 
 
 def export_tutorial_to_md(tutorial):
