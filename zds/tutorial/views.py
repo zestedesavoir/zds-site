@@ -1387,7 +1387,7 @@ def view_chapter(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             chapter["get_absolute_url"] = part["get_absolute_url"] \
-                + "{0}/".format(chapter["slug"])
+                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
                                             chapter["introduction"])
@@ -1472,7 +1472,7 @@ def view_chapter_online(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             chapter["get_absolute_url_online"] = part[
-                "get_absolute_url_online"] + "{0}/".format(chapter["slug"])
+                "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 intro = open(
                     os.path.join(
