@@ -125,11 +125,12 @@ class PostForm(forms.Form):
                     u'afin de limiter le flood.',
                     disabled=True)
         elif topic.is_locked:
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Ce topic est verrouillé.',
-                disabled=True
-            )
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Ce topic est verrouillé.',
+                    disabled=True
+                )
 
     def clean(self):
         cleaned_data = super(PostForm, self).clean()
