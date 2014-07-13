@@ -934,16 +934,15 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
 
-    u = get_object_or_404(User, pk=user_pk)
+    displayed_user = get_object_or_404(User, pk=user_pk)
     topics = \
         Topic.objects\
-        .filter(author=u)\
-        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+        .filter(author=displayed_user)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
         .prefetch_related("author")\
         .order_by("-pubdate").all()
 
     # Paginator
-
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
@@ -958,34 +957,32 @@ def find_topic(request, user_pk):
 
     return render_template("forum/find/topic.html", {
         "topics": shown_topics,
-        "usr": u,
+        "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
     })
 
 
-
 def find_post(request, user_pk):
     """Finds all posts of a user."""
 
-    u = get_object_or_404(User, pk=user_pk)
+    displayed_user = get_object_or_404(User, pk=user_pk)
+    user = request.user
     
-    if request.user.has_perm("forum.change_post"):
+    if user.has_perm("forum.change_post"):
         posts = \
-            Post.objects.filter(author=u)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            Post.objects.filter(author=displayed_user)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
     else:
         posts = \
-            Post.objects.filter(author=u)\
+            Post.objects.filter(author=displayed_user)\
             .filter(is_visible=True)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
             .prefetch_related("author").order_by("-pubdate").all()
 
-
     # Paginator
-
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get("page")
     try:
@@ -1000,14 +997,13 @@ def find_post(request, user_pk):
 
     return render_template("forum/find/post.html", {
         "posts": shown_posts,
-        "usr": u,
+        "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
     })
 
 
 @login_required
-
 def followed_topics(request):
     followed_topics = request.user.get_profile().get_followed_topics()
 
