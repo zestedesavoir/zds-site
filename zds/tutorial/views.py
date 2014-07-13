@@ -290,11 +290,14 @@ def reject_tutorial(request):
                 u'certaines corrections peuvent surement être faite pour '
                 u'l’améliorer et repasser la validation plus tard. '
                 u'Voici le message que [{2}]({3}), ton validateur t\'a laissé `{4}`'
-                u'N\'hésite pas a lui envoyer un petit message pour discuter '
-                u'de la décision ou demander plus de détail si tout cela te '
-                u'semble injuste ou manque de clarté.'
-                .format(author.username, tutorial.title, validation.validator.username,
-                        settings.SITE_URL + validation.validator.profile.get_absolute_url(), validation.comment_validator))
+                u'N\'hésite pas à lui envoyer un petit message pour discuter '
+                u'de la décision ou demander plus de détails si tout cela te '
+                u'semble injuste ou manque de clarté.'.format(
+                author.username,
+                tutorial.title,
+                validation.validator.username,
+                settings.SITE_URL + validation.validator.profile.get_absolute_url(),
+                validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -359,16 +362,16 @@ def valid_tutorial(request):
             msg = (
                 u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
                 u'a été publié par [{3}]({4}) ! Les lecteurs du monde entier '
-                u'peuvent venir l\'éplucher et réagir a son sujet. '
-                u'Je te conseille de rester a leur écoute afin '
+                u'peuvent venir l\'éplucher et réagir à son sujet. '
+                u'Je te conseille de rester à leur écoute afin '
                 u'd\'apporter des corrections/compléments.'
-                u'Un Tutoriel vivant et a jour est bien plus lu '
-                u'qu\'un sujet abandonné !'
-                .format(author.username,
-                        tutorial.title,
-                        settings.SITE_URL + tutorial.get_absolute_url_online(),
-                        validation.validator.username,
-                        settings.SITE_URL + validation.validator.profile.get_absolute_url()))
+                u'Un Tutoriel vivant et à jour est bien plus lu '
+                u'qu\'un sujet abandonné !'.format(
+                author.username,
+                tutorial.title,
+                settings.SITE_URL + tutorial.get_absolute_url_online(),
+                validation.validator.username,
+                settings.SITE_URL + validation.validator.profile.get_absolute_url()))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -1109,8 +1112,7 @@ def view_part_online(
 ):
     """Display a part."""
 
-    part = get_object_or_404(Part, slug=part_slug, tutorial__pk=tutorial_pk)
-    tutorial = part.tutorial
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     if not tutorial.on_line():
         raise Http404
 
@@ -1122,6 +1124,7 @@ def view_part_online(
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
+    final_part= None
     for part in parts:
         part["tutorial"] = mandata
         part["path"] = tutorial.get_path()
@@ -1136,6 +1139,7 @@ def view_part_online(
                                        part["conclusion"] + ".html"), "r")
             part["conclu"] = conclu.read()
             conclu.close()
+            final_part=part
         cpt_c = 1
         for chapter in part["chapters"]:
             chapter["part"] = part
@@ -1155,7 +1159,7 @@ def view_part_online(
         part["get_chapters"] = part["chapters"]
         cpt_p += 1
 
-    return render_template("tutorial/part/view_online.html", {"part": part})
+    return render_template("tutorial/part/view_online.html", {"part": final_part})
 
 
 @can_write_and_read_now
@@ -1176,8 +1180,8 @@ def add_part(request):
 
     # Make sure the user belongs to the author list
 
-    if request.user not in tutorial.authors.all():
-        raise Http404
+    if request.user not in tutorial.authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if request.method == "POST":
         form = PartForm(request.POST)
         if form.is_valid():
@@ -1226,8 +1230,8 @@ def modify_part(request):
 
     # Make sure the user is allowed to do that
 
-    if request.user not in part.tutorial.authors.all():
-        raise Http404
+    if request.user not in part.tutorial.authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if "move" in request.POST:
         try:
             new_pos = int(request.POST["move_target"])
@@ -1286,8 +1290,8 @@ def edit_part(request):
 
     # Make sure the user is allowed to do that
 
-    if request.user not in part.tutorial.authors.all():
-        raise Http404
+    if request.user not in part.tutorial.authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if request.method == "POST":
         form = PartForm(request.POST)
         if form.is_valid():
@@ -1439,11 +1443,7 @@ def view_chapter_online(
 ):
     """View chapter."""
 
-    chapter_bd = get_object_or_404(Chapter, pk=chapter_pk,
-                                   part__pk=part_pk,
-                                   part__tutorial__pk=tutorial_pk)
-    
-    tutorial = chapter_bd.get_tutorial()
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     if not tutorial.on_line():
         raise Http404
 
@@ -1541,8 +1541,8 @@ def add_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if request.user not in part.tutorial.authors.all():
-        raise Http404
+    if request.user not in part.tutorial.authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if request.method == "POST":
         form = ChapterForm(request.POST, request.FILES)
         if form.is_valid():
@@ -1620,8 +1620,8 @@ def modify_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if request.user not in chapter.get_tutorial().authors.all():
-        raise Http404
+    if request.user not in chapter.get_tutorial().authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if "move" in data:
         try:
             new_pos = int(request.POST["move_target"])
@@ -1699,9 +1699,10 @@ def edit_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if big and request.user not in chapter.part.tutorial.authors.all() \
-            or small and request.user not in chapter.tutorial.authors.all():
-        raise Http404
+    if (big and request.user not in chapter.part.tutorial.authors.all() \
+            or small and request.user not in chapter.tutorial.authors.all())\
+         and not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
     if request.method == "POST":
         if chapter.part:
             form = ChapterForm(request.POST, request.FILES)
