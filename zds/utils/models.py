@@ -214,6 +214,7 @@ class Alert(models.Model):
                                related_name='alerts',
                                db_index=True)
     comment = models.ForeignKey(Comment,
+                                null=True,
                                 verbose_name='Commentaire',
                                 related_name='alerts',
                                 db_index=True)
