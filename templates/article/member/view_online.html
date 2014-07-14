@@ -26,6 +26,12 @@
         {% endif %}
         {{ article.title }}
     </h1>
+    
+    {% if article.licence %}
+        <p class="license">
+            {{ article.licence }}
+        </p>
+    {% endif %}
 
     <ul class="taglist">
         {% for tag in tags.all %}
@@ -53,9 +59,6 @@
 
 {% block content %}
     {{ article.txt|safe }}
-
-
-    {% include "article/includes/pager.part.html" %}
 {% endblock %}
 
 

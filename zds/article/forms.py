@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 
 from zds.article.models import Article
 from zds.utils.forms import CommonLayoutEditor
-from zds.utils.models import SubCategory
+from zds.utils.models import SubCategory, Licence
 
 
 class ArticleForm(forms.Form):
@@ -52,6 +52,12 @@ class ArticleForm(forms.Form):
         queryset=SubCategory.objects.all(),
         required=False
     )
+    
+    licence = forms.ModelChoiceField(
+        label="Licence de votre publication",
+        queryset=Licence.objects.all(),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super(ArticleForm, self).__init__(*args, **kwargs)
@@ -64,6 +70,7 @@ class ArticleForm(forms.Form):
             Field('description', autocomplete='off'),
             Field('image'),
             Field('subcategory'),
+            Field('licence'),
             CommonLayoutEditor(),
         )
 

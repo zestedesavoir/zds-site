@@ -26,7 +26,7 @@ from django.utils import timezone
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
-from zds.utils.models import SubCategory, Comment
+from zds.utils.models import SubCategory, Comment, Licence
 from django.core.urlresolvers import reverse
 
 
@@ -87,6 +87,10 @@ class Article(models.Model):
                                       related_name='last_reaction',
                                       verbose_name='Derniere réaction')
     is_locked = models.BooleanField('Est verrouillé', default=False)
+
+    licence = models.ForeignKey(Licence,
+                                verbose_name='Licence',
+                                blank=True, null=True, db_index=True)
 
     def __unicode__(self):
         return self.title
