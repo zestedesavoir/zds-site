@@ -792,6 +792,53 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
         self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
 
+    def test_available_tuto(self):
+        """ Test that all page of big tutorial is available"""
+        parts = self.bigtuto.get_parts()
+        for part in parts:
+            result = self.client.get(reverse(
+                                        'zds.tutorial.views.view_part_online',
+                                        args=[
+                                            self.bigtuto.pk,
+                                            self.bigtuto.slug,
+                                            part.pk,
+                                            part.slug]),
+                                    follow=True)
+            self.assertEqual(result.status_code, 200)
+            result = self.client.get(reverse(
+                                        'zds.tutorial.views.view_part',
+                                        args=[
+                                            self.bigtuto.pk,
+                                            self.bigtuto.slug,
+                                            part.pk,
+                                            part.slug]),
+                                    follow=True)
+            self.assertEqual(result.status_code, 200)
+            chapters = part.get_chapters()
+            for chapter in chapters:
+                result = self.client.get(reverse(
+                                            'zds.tutorial.views.view_chapter_online',
+                                            args=[
+                                                self.bigtuto.pk,
+                                                self.bigtuto.slug,
+                                                part.pk,
+                                                part.slug,
+                                                chapter.pk,
+                                                chapter.slug]),
+                                        follow=True)
+                self.assertEqual(result.status_code, 200)
+                result = self.client.get(reverse(
+                                            'zds.tutorial.views.view_chapter',
+                                            args=[
+                                                self.bigtuto.pk,
+                                                self.bigtuto.slug,
+                                                part.pk,
+                                                part.slug,
+                                                chapter.pk,
+                                                chapter.slug]),
+                                        follow=True)
+                self.assertEqual(result.status_code, 200)
+
     def test_url_for_member(self):
         """Test simple get request by simple member."""
 
