@@ -1071,9 +1071,11 @@ def view_part(
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
+    find = False
     cpt_p = 1
     for part in parts:
         if part_pk == str(part["pk"]):
+            find = True
             part["tutorial"] = tutorial
             part["path"] = tutorial.get_path()
             part["slug"] = slugify(part["title"])
@@ -1100,7 +1102,11 @@ def view_part(
             final_part = part
             break
         cpt_p += 1
-
+    
+    # if part can't find
+    if not find:
+        raise Http404
+    
     return render_template("tutorial/part/view.html",
                            {"tutorial": tutorial,
                             "part": final_part,
@@ -1130,12 +1136,14 @@ def view_part_online(
     parts = mandata["parts"]
     cpt_p = 1
     final_part= None
+    find = False
     for part in parts:
         part["tutorial"] = mandata
         part["path"] = tutorial.get_path()
         part["slug"] = slugify(part["title"])
         part["position_in_tutorial"] = cpt_p
         if part_pk == str(part["pk"]):
+            find = True
             intro = open(os.path.join(tutorial.get_prod_path(),
                                       part["introduction"] + ".html"), "r")
             part["intro"] = intro.read()
@@ -1164,6 +1172,10 @@ def view_part_online(
         part["get_chapters"] = part["chapters"]
         cpt_p += 1
 
+    # if part can't find
+    if not find:
+        raise Http404
+    
     return render_template("tutorial/part/view_online.html", {"part": final_part})
 
 
@@ -1382,6 +1394,7 @@ def view_chapter(
     final_chapter = None
     chapter_tab = []
     final_position = 0
+    find = False
     for part in parts:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
@@ -1403,6 +1416,7 @@ def view_chapter(
             chapter["get_absolute_url"] = part["get_absolute_url"] \
                 + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
+                find = True
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
                                             chapter["introduction"])
                 chapter["conclu"] = get_blob(repo.commit(sha).tree,
@@ -1421,6 +1435,10 @@ def view_chapter(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
+    
+    # if chapter can't find
+    if not find:
+        raise Http404
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position
                     > 0 else None)
@@ -1463,6 +1481,8 @@ def view_chapter_online(
     final_chapter = None
     chapter_tab = []
     final_position = 0
+    
+    find = False
     for part in parts:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
@@ -1486,6 +1506,7 @@ def view_chapter_online(
             chapter["get_absolute_url_online"] = part[
                 "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
+                find = True
                 intro = open(
                     os.path.join(
                         tutorial.get_prod_path(),
@@ -1521,6 +1542,10 @@ def view_chapter_online(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
+    
+    # if chapter can't find
+    if not find:
+        raise Http404
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
