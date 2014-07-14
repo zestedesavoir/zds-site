@@ -1390,7 +1390,7 @@ def view_chapter(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = tutorial
         for chapter in part["chapters"]:
@@ -1400,8 +1400,15 @@ def view_chapter(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url"] = part["get_absolute_url"] \
-                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
+            chapter["get_absolute_url"] = reverse(
+                                        "zds.tutorial.views.view_chapter",
+                                        args=[
+                                              tutorial.pk,
+                                              tutorial.slug,
+                                              part["pk"],
+                                              part["slug"],
+                                              chapter["pk"],
+                                              chapter["slug"]])
             if chapter_pk == str(chapter["pk"]):
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
                                             chapter["introduction"])
@@ -1422,10 +1429,8 @@ def view_chapter(
             cpt_c += 1
         cpt_p += 1
 
-    prev_chapter = (chapter_tab[final_position - 1] if final_position
-                    > 0 else None)
-    next_chapter = (chapter_tab[final_position + 1] if final_position + 1
-                    < len(chapter_tab) else None)
+    prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
     
     return render_template("tutorial/chapter/view.html", {
         "tutorial": tutorial,
@@ -1471,7 +1476,7 @@ def view_chapter_online(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = mandata
         part["position_in_tutorial"] = cpt_p
@@ -1483,8 +1488,15 @@ def view_chapter_online(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url_online"] = part[
-                "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
+            chapter["get_absolute_url_online"] = reverse(
+                                                "zds.tutorial.views.view_chapter_online",
+                                                args=[
+                                                      tutorial.pk,
+                                                      tutorial.slug,
+                                                      part["pk"],
+                                                      part["slug"],
+                                                      chapter["pk"],
+                                                      chapter["slug"]]) 
             if chapter_pk == str(chapter["pk"]):
                 intro = open(
                     os.path.join(
