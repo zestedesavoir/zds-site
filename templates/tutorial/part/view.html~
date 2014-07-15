@@ -37,7 +37,7 @@
 {% block content %}
     {% if part.intro and part.intro != "None" %}
         {{ part.intro|emarkdown }}
-    {% elif not tutorial.in_beta or tutorial.sha_beta != version  %}
+    {% else %}
         <p class="ico-after warning">
             Il n'y a pas d'introduction.
         </p>
@@ -84,7 +84,7 @@
 
     {% if part.conclu and part.conclu != "None" %}
         {{ part.conclu|emarkdown }}
-    {% elif not tutorial.in_beta or tutorial.sha_beta != version  %}
+    {% else %}
         <p class="ico-after warning">
             Il n'y a pas de conclusion.
         </p>
