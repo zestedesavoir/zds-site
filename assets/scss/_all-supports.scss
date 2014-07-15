@@ -1832,6 +1832,9 @@
             figure {
                 margin: 15px 0;
             }
+            &:last-child {
+                margin-bottom: 15px;
+            }
         }
 
         code,
@@ -2524,6 +2527,7 @@ form.topic-message {
                 left: 0;
                 right: 0;
                 padding: 10px 20px 5px;
+                font-size: 15px;
                 font-size: 1.5rem;
                 line-height: 15px;
                 color: #444;
@@ -2706,8 +2710,8 @@ form.topic-message {
         margin-bottom: 20px;
         background: $blue;
         color: #FFF;
-        font-size: 1.6rem;
         font-size: 16px;
+        font-size: 1.6rem;
         text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
 
         &.ico-after {
