@@ -59,6 +59,9 @@
 
 {% block content %}
     {{ article.txt|safe }}
+
+ 
+     {% include "article/includes/pager.part.html" %}
 {% endblock %}
 
 
