@@ -13,11 +13,13 @@
 
 {% block breadcrumb %}
     {% with profile=usr|profile %}
-        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+        <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.username %}">Tutoriels publiés</a></li>
+    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">Tutoriels publiés</a></li>
     <li>Recherche</li>
 {% endblock %}
+
+
 
 {% block headline %}
     <h2 class="ico-after ico-tutorials">Tutoriels publiés par {{ usr.username }}</h2>
