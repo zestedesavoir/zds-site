@@ -385,8 +385,9 @@ def maj_repo_article(
         shutil.rmtree(old_slug_path)
     else:
         if action == 'maj':
-            shutil.move(old_slug_path, new_slug_path)
-            repo = Repo(new_slug_path)
+            if old_slug_path != new_slug_path:
+                shutil.move(old_slug_path, new_slug_path)
+                repo = Repo(new_slug_path)
             msg = 'Modification de l\'article'
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
