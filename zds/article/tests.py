@@ -389,11 +389,11 @@ class ArticleTests(TestCase):
         # logout before
         self.client.logout()
         # login with author
-        self.assertEqual(
+        self.assertTrue(
             self.client.login(
                 username=self.user_author.username,
-                password='hostel77'),
-            True)
+                password='hostel77')
+        )
 
         # change licence (get 302) :
         result = self.client.post(
@@ -421,11 +421,11 @@ class ArticleTests(TestCase):
         # then logout ...
         self.client.logout()
         # ... and login with staff
-        self.assertEqual(
+        self.assertTrue(
             self.client.login(
                 username=self.staff.username,
-                password='hostel77'),
-            True)
+                password='hostel77')
+        )
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
@@ -473,11 +473,11 @@ class ArticleTests(TestCase):
         self.assertNotEqual(article.licence.pk, new_licence.pk)
         
         # login with random user
-        self.assertEqual(
+        self.assertTrue(
             self.client.login(
                 username=self.user.username,
-                password='hostel77'),
-            True)
+                password='hostel77')
+        )
 
         # change licence (get 403, random user cannot edit article if not in
         # authors list) :
