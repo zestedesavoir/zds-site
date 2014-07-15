@@ -14,7 +14,7 @@ except:
 import json as json_writer
 import os
 from zds.article.models import Article, Reaction, \
-    Validation
+    Validation, Licence
 from zds.utils.articles import export_article
 
 
@@ -70,3 +70,15 @@ class ReactionFactory(factory.DjangoModelFactory):
 
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
+
+class LicenceFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Licence
+    
+    code = u'GNU_GPL'
+    title = u'GNU General Public License'
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
+        return licence
+    

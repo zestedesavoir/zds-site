@@ -110,7 +110,6 @@ def view(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
-    article_version['licence'] = article.licence
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
@@ -321,9 +320,13 @@ def edit(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
-            if "licence" in data and data["licence"] != "":
-                lc = Licence.objects.filter(pk=data["licence"]).all()[0]
-                article.licence = lc
+            if "licence" in data:
+                if data["licence"] != "":
+                    lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                    article.licence = lc
+                else:
+                    article.licence = None
+            
 
             article.save()
 
