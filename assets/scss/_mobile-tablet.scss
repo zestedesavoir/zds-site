@@ -134,6 +134,7 @@
         .mobile-menu-link {
             display: block;
             height: 40px;
+            line-height: 40px;
             text-decoration: none;
             color: #CCC;
             font-size: 16px;
@@ -141,6 +142,10 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 0;
 
             &.mobile-menu-sublink {
                 width: 90%;
