@@ -910,7 +910,7 @@ def answer(request):
             text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 reaction_cite.author.username,
-			 settings.SITE_URL,
+                settings.SITE_URL,
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={

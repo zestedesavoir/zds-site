@@ -351,7 +351,7 @@ def answer(request):
             text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 post_cite.author.username,
-			 settings.SITE_URL,
+                settings.SITE_URL,
                 post_cite.get_absolute_url())
 
         form = PrivatePostForm(g_topic, request.user, initial={
