@@ -178,22 +178,22 @@
         if($elem.hasClass("mobile-show-ico"))
             $div.addClass("mobile-show-ico");
 
-        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button", $elem).not('.action-hover').addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
+        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button", $elem).not(".action-hover").addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
 
         $links.each(function(){
             if($(this).parents(".mobile-menu-imported, .modal").length === 0){
                 var $elem = $(this).clone().addClass("light");
                 var formId;
 
-                if($(this).is('button')){
-                    var $form = $(this).parents('form:first');
+                if($(this).is("button")){
+                    var $form = $(this).parents("form:first");
                     if(!$form.attr('id')){
-                        formId = "form" + $('.identified-form').length;
-                        $form.attr('id', formId).addClass('identified-form');
+                        formId = "form" + $(".identified-form").length;
+                        $form.attr("id", formId).addClass("identified-form");
                     } else {
-                        formId = $form.attr('id');
+                        formId = $form.attr("id");
                     }
-                    $elem.attr('form', formId);
+                    $elem.attr("form", formId);
                 }
 
                 $div.append($elem);
