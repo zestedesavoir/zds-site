@@ -100,6 +100,10 @@
             .mobile-menu-link {
                 margin: 0;
                 width: 100%;
+
+                &.disabled {
+                    opacity: .5;
+                }
             }
 
             &:not(.mobile-show-ico) .ico-after:after {
