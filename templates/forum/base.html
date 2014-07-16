@@ -59,6 +59,7 @@
         {% if user.is_authenticated %}
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
+
                 {% with follwedtopics=user|followed_topics %}
                     {% for period, topics in follwedtopics.items %}
                         <h4>{{ period|humane_delta }}</h4>
@@ -138,9 +139,11 @@
                         </ul>
                     {% endfor %}
 
-                    {% if topics|length <= 0 %}
+                    {% if follwedtopics.items|length <= 0 %}
                         <ul>
-                            <li class="inactive"><em>Aucun sujet suivi</em></li>
+                            <li class="inactive">
+                                <span class="disabled">Aucun sujet suivi</span>
+                            </li>
                         </ul>
                     {% endif %}
                 {% endwith %}
