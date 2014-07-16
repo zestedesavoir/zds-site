@@ -1,8 +1,8 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Ugly markdown help block management
    TEMP : Add this to the future awesome Markdown editor directly
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function($){

@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Sandhose / Quentin Gliech
-   ---------------------------------
    Add autocomplete for members names
+   ---------------------------------
+   Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
 (function($) {

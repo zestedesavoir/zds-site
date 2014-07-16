@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Manage karma AJAX requests (+1/-1 on messages)
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function($){

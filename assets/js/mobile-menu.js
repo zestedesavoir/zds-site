@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Mobile sidebar menu, swipe open/close
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function($){
