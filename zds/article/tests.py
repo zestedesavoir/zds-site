@@ -89,8 +89,8 @@ class ArticleTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
         mail.outbox = []
 
-    def test_delete_image_on_change(self):
-        """test que l'image est bien supprimée quand on la change"""
+    def test_not_delete_image_on_change(self):
+        '''test if image IS NOT deleted on change (for versioning)'''
 
         root = settings.SITE_ROOT
         if not os.path.isdir(settings.MEDIA_ROOT):
@@ -108,32 +108,29 @@ class ArticleTests(TestCase):
 
         self.article.image = self.logo1
         self.article.save()
-        self.assertEqual(
+        self.assertTrue(
             os.path.exists(
                 os.path.join(
                     settings.MEDIA_ROOT, self.article.image.name
                 )
-            ),
-            True
+            )
         )
         # now that we have a first image, let's change it
 
         oldAddress = self.article.image.name
         self.article.image = self.logo2
         self.article.save()
-        self.assertEqual(
+        self.assertTrue(
             os.path.exists(
                 os.path.join(
                     settings.MEDIA_ROOT, self.article.image.name
                 )
-            ),
-            True
+            )
         )
-        self.assertEqual(
+        self.assertTrue(
             os.path.exists(
                 os.path.join(settings.MEDIA_ROOT, oldAddress)
-            ),
-            False
+            )
         )
         os.unlink(self.logo2)
         # shutil.rmtree(settings.MEDIA_ROOT)
