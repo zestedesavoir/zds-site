@@ -2895,9 +2895,10 @@ def answer(request):
                 raise PermissionDenied
             for line in note_cite.text.splitlines():
                 text = text + "> " + line + "\n"
-            text = u"{0}Source:[{1}]({2})".format(
+            text = u"{0}Source:[{1}]({2}{3})".format(
                 text,
                 note_cite.author.username,
+			 settings.SITE_URL,
                 note_cite.get_absolute_url())
         form = NoteForm(tutorial, request.user, initial={"text": text})
         return render_template("tutorial/comment/new.html", {
