@@ -500,6 +500,51 @@ class ArticleTests(TestCase):
         json = article.load_json()
         self.assertEquals(json['licence'], self.licence.code)
 
+    def test_versionning_image(self):
+        '''test if versionning of thumbnail is active'''
+
+        #json = self.article.load_json()
+        
+        root = settings.SITE_ROOT
+        if not os.path.isdir(settings.MEDIA_ROOT):
+            os.mkdir(settings.MEDIA_ROOT)
+        shutil.copyfile(
+            os.path.join(root, 'fixtures', 'logo.png'),
+            os.path.join(settings.MEDIA_ROOT, 'logo2.png')
+        )
+        shutil.copyfile(
+            os.path.join(settings.MEDIA_ROOT, 'logo2.png'),
+            os.path.join(settings.MEDIA_ROOT, 'logo.png')
+        )
+        self.logo1 = os.path.join(settings.MEDIA_ROOT, 'logo.png')
+        self.logo2 = os.path.join(settings.MEDIA_ROOT, 'logo2.png')
+        
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertTrue(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77')
+        )
+
+        # change licence (get 302) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : self.article.licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        article = Article.objects.get(pk=self.article.pk)
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_ARTICLE_PATH):
             shutil.rmtree(settings.REPO_ARTICLE_PATH)
