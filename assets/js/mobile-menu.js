@@ -187,7 +187,7 @@
 
                 if($(this).is("button")){
                     var $form = $(this).parents("form:first");
-                    if(!$form.attr('id')){
+                    if(!$form.attr("id")){
                         formId = "form" + $(".identified-form").length;
                         $form.attr("id", formId).addClass("identified-form");
                     } else {
