@@ -178,7 +178,7 @@
         if($elem.hasClass("mobile-show-ico"))
             $div.addClass("mobile-show-ico");
 
-        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button", $elem).not(".action-hover").addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
+        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button, span.disabled", $elem).not(".action-hover").addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
 
         $links.each(function(){
             if($(this).parents(".mobile-menu-imported, .modal").length === 0){
@@ -279,4 +279,35 @@
             }, 200);
         }
     }
+
+
+
+
+    /**
+     * Manage actions buttons, move them at the top af core of page
+     */
+    $(window).on("resize", function(){
+        if(parseInt($("html").css("width")) < 960 && !disableMobileMenu){
+            var $newBtns = $(".sidebar .new-btn:not(.mobile-btn-imported)");
+            if($newBtns.length > 0){
+                var $prevElem = $("#content > .content-wrapper, #content > .full-content-wrapper").find("h1, h2");
+                if($prevElem.next(".license").length > 0)
+                    $prevElem = $prevElem.next(".license");
+                if($prevElem.next(".subtitle").length > 0)
+                    $prevElem = $prevElem.next(".subtitle");
+                if($prevElem.next(".taglist").length > 0)
+                    $prevElem = $prevElem.next(".taglist");
+
+                var $newBtnContainer = $("<div/>", {
+                    "class": "new-btn-container"
+                });
+                $newBtns.each(function(){
+                    $newBtnContainer.append($(this).clone().removeAttr("id").removeClass("blue"));
+                    $(this).addClass("mobile-btn-imported");
+                });
+                $prevElem.after($newBtnContainer);
+            }
+        }
+    });
+    $(window).trigger("resize");
 })(jQuery);

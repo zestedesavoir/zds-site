@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Style only for mobiles and tablets
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
@@ -386,9 +386,37 @@
     }
 
 
-/* ====================
-    Content positionning
-   ==================== */
+    .main .content-container .new-btn-container {
+        display: block;
+        margin: 30px 0;
+        border-top: 1px solid #DDD;
+        overflow: hidden;
+
+        .new-btn {
+            display: block;
+            width: 100%;
+            padding: 7px 10px 7px 35px;
+            text-decoration: none;
+            height: 30px;
+            line-height: 30px;
+            background: #EEE;
+            color: #333;
+            border-bottom: 1px solid #DDD;
+
+            &.ico-after:after {
+                top: 13px;
+                left: 10px;
+            }
+        }
+    }
+
+
+
+
+
+    /* ====================
+        Content positionning
+       ==================== */
 
     .main {
         width: 100%;
@@ -429,9 +457,11 @@
 
 
 
-/* ====================
-    Forums
-   ==================== */
+
+
+    /* ====================
+        Forums
+       ==================== */
     .topic-list {
         .topic {
             background: none !important;
@@ -457,6 +487,7 @@
                 line-height: 20px;
                 font-size: 12px;
                 width: 50px;
+                margin-top: -2px;
                 margin-left: 10px;
 
                 &.push-badge {
@@ -513,7 +544,7 @@
                 .message-karma {
                     position: absolute;
                     top: 35px;
-                    left: 10px;
+                    left: 7px;
 
                     a,
                     span {
@@ -544,10 +575,17 @@
 
 
 
-/* ====================
-    Tutorials/Articles
-   ==================== */
+
+    /* ====================
+        Tutorials/Articles
+       ==================== */
+
     .main .content-container {
+        .taglist {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
         .article-content {
             p,
             ul:not(.pagination) {
@@ -568,8 +606,8 @@
             p,
             figure,
             blockquote {
-                margin-left: 15px;
-                margin-right: 15px;
+                margin-left: 10px;
+                margin-right: 10px;
             }
             figure {
                 p,
@@ -582,6 +620,12 @@
     }
 
 
+
+
+
+    /* ====================
+        Footer
+       ==================== */
 
     .page-footer {
         text-align: center;
