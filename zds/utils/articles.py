@@ -17,6 +17,9 @@ def export_article(article):
     dct['text'] = article.text
     if article.licence:
         dct['licence'] = article.licence.code
+    dct['image_url'] = ''
+    if article.image:
+        dct['image_url'] = article.image.name
 
     return dct
 
