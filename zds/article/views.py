@@ -36,7 +36,7 @@ from zds.utils import slugify
 from zds.utils.articles import *
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
-    CommentDislike, Alert
+    CommentDislike, Alert, Licence
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -203,7 +203,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
 
-    return render_template('article/view.html', {
+    return render_template('article/member/view_online.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -232,9 +232,10 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory')
+                'subcategory': request.POST.getlist('subcategory'), 
+                'licence': request.POST['licence']
             })
-            return render_template('article/new.html', {
+            return render_template('article/member/new.html', {
                 'text': request.POST['text'],
                 'form': form
             })
@@ -265,6 +266,11 @@ def new(request):
             # Add subcategories on article
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
+
+            # add a licence to the article
+            if "licence" in data and data["licence"] != "":
+                lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                article.licence = lc
 
             article.save()
 
@@ -314,6 +320,14 @@ def edit(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
+            if "licence" in data:
+                if data["licence"] != "":
+                    lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                    article.licence = lc
+                else:
+                    article.licence = None
+            
+
             article.save()
 
             new_slug = os.path.join(
@@ -329,11 +343,16 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
+        if "licence" in json:
+            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+        else:
+            licence = None
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
             'subcategory': article.subcategory.all(),
+            'licence' : licence
         })
 
     return render_template('article/member/edit.html', {
@@ -366,8 +385,9 @@ def maj_repo_article(
         shutil.rmtree(old_slug_path)
     else:
         if action == 'maj':
-            shutil.move(old_slug_path, new_slug_path)
-            repo = Repo(new_slug_path)
+            if old_slug_path != new_slug_path:
+                shutil.move(old_slug_path, new_slug_path)
+                repo = Repo(new_slug_path)
             msg = 'Modification de l\'article'
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
