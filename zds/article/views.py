@@ -29,6 +29,8 @@ from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import *
 
+from easy_thumbnails.files import get_thumbnailer
+
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template
@@ -109,11 +111,19 @@ def view(request, article_pk, article_slug):
         article_version['text'])
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
-    article_version['image'] = article.image
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
     article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+
+    # Handle the case of article created and modified before this modification :
+    image = None
+    if not 'image_url' in article_version and article.image: 
+        image = article.image
+    elif 'image_url' in article_version and article_version['image_url'] != '':
+        image = get_thumbnailer(article_version['image_url'])
+
+    article_version['image'] = image
 
     validation = Validation.objects.filter(article__pk=article.pk,
                                             version=sha)\
@@ -158,10 +168,18 @@ def view_online(request, article_pk, article_slug):
     txt.close()
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
-    article_version['image'] = article.image
     article_version['is_locked'] = article.is_locked
     article_version['get_absolute_url'] = article.get_absolute_url()
     article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+
+    # Handle the case of article created and modified before this modification :
+    image = None
+    if not 'image_url' in article_version and article.image: 
+        image = article.image
+    elif 'image_url' in article_version and article_version['image_url'] != '':
+        image = get_thumbnailer(article_version['image_url'])
+
+    article_version['image'] = image
 
     # If the user is authenticated
     if request.user.is_authenticated():
