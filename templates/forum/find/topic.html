@@ -54,6 +54,10 @@
                     {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
                 </td>
             </tr>
+            {% empty %}
+            <p>
+                Aucun sujet disponible.
+            </p>
             {% endfor %}
         </tbody>
     </table>
