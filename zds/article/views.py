@@ -132,13 +132,22 @@ def view(request, article_pk, article_slug):
 def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
+    
+    if not article.sha_public : # article not online
+        raise Http404
 
     # The slug of the article must to be right.
     if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url_online())
+        return redirect(article.get_absolute_url_online())    
+    
+    # Find the good manifest file
+    repo = Repo(article.get_path())
+    sha = article.sha_public
 
     # Load the article.
-    article_version = article.load_json()
+    manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+
+    article_version = json_reader.loads(manifest)
     txt = open(
         os.path.join(
             article.get_path(),
@@ -930,10 +939,9 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2}{3})'.format(
+            text = u'{0}Source:[{1}]({2})'.format(
                 text,
                 reaction_cite.author.username,
-                settings.SITE_URL,
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={
