@@ -701,10 +701,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                            version=sha)\
                                     .order_by("-date_proposition")\
                                     .first()
-    formAskValidation = AskValidationForm()
     if tutorial.source:
+        formAskValidation = AskValidationForm(initial={"source": tutorial.source})
         formValid = ValidForm(initial={"source": tutorial.source})
     else:
+        formAskValidation = AskValidationForm()
         formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
