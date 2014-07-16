@@ -957,10 +957,9 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2}{3})'.format(
+            text = u'{0}Source:[{1}]({2})'.format(
                 text,
                 reaction_cite.author.username,
-                settings.SITE_URL,
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={
