@@ -1,7 +1,8 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
     path = require("path"),
-    spritesmith = require("gulp.spritesmith");
+    spritesmith = require("gulp.spritesmith"),
+    mainBowerFiles = require('main-bower-files');
 
 var paths = {
   scripts: "assets/js/**",
@@ -91,7 +92,7 @@ gulp.task("smileys", function() {
 });
 
 gulp.task("vendors", function() {
-  return $.bowerFiles()
+  return gulp.src(mainBowerFiles())
     .pipe($.newer("dist/js/vendors.js"))
     .pipe($.flatten()) // remove folder structure
     .pipe($.size({ title: "vendors", showFiles: true }))

@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Sandhose / Quentin Gliech
-   ---------------------------------
    Gallery list and grid views management
+   ---------------------------------
+   Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
 (function($){

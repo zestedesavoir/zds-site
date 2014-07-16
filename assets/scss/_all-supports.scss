@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Common style for all supports
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
@@ -1048,9 +1048,20 @@
     }
     .authors .member-item {
         margin-right: 0;
+        margin-left: 7px;
+
+        .avatar {
+            height: 30px;
+            width: 30px;
+            margin: -3px 5px 0 -6px;
+        }
     }
 
     .open-zen-mode {
+        display: none;
+    }
+
+    .new-btn-container {
         display: none;
     }
 }
@@ -1290,7 +1301,7 @@
             &.current {
                 height: 38px;
                 color: #808080;
-                background: #F4F6F6;
+                background: #F7F7F7;
                 margin-top: -1px;
                 border-left: 1px solid #d2d5d6;
                 border-bottom: 3px solid #d2d5d6;
@@ -1831,6 +1842,9 @@
             }
             figure {
                 margin: 15px 0;
+            }
+            &:last-child {
+                margin-bottom: 15px;
             }
         }
 
@@ -2524,6 +2538,7 @@ form.topic-message {
                 left: 0;
                 right: 0;
                 padding: 10px 20px 5px;
+                font-size: 15px;
                 font-size: 1.5rem;
                 line-height: 15px;
                 color: #444;
@@ -2706,8 +2721,8 @@ form.topic-message {
         margin-bottom: 20px;
         background: $blue;
         color: #FFF;
-        font-size: 1.6rem;
         font-size: 16px;
+        font-size: 1.6rem;
         text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
 
         &.ico-after {

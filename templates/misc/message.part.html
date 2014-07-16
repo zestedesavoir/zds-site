@@ -202,7 +202,11 @@
                                     <form action="{{ helpful_link }}" method="post">
                                         {% csrf_token %}
                                         <button type="submit" class="tick ico-after {% if message.is_useful %}green{% endif %}">
-                                            Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            {% if message.is_useful %}
+                                                Cette réponse {% if topic.author == user %}ne m'{% else %}n'{% endif %}a pas aidé
+                                            {% else %}
+                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            {% endif %}
                                         </button>
                                     </form>
                                 {% endif %}

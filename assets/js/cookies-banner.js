@@ -1,8 +1,8 @@
 /* ===== Zeste de Savoir ====================================================
+   Manage tracking cookies message
+   ---------------------------------
    Authors: Sandhose
             Alex-D / Alexandre Demode
-   ---------------------------------
-   Manage tracking cookies message
    ========================================================================== */
 
 (function(document, undefined) {
