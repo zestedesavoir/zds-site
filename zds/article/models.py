@@ -164,13 +164,13 @@ class Article(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         
-        if has_changed(self, 'image') and self.image:
+        '''if has_changed(self, 'image') and self.image:
             old = get_old_field_value(self, 'image', 'objects')
             
             if old is not None and len(old.name) > 0:
                 root = settings.MEDIA_ROOT
                 name = os.path.join(root, old.name)
-                os.remove(name)
+                os.remove(name)'''
 
         super(Article, self).save(*args, **kwargs)
 
