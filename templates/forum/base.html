@@ -79,15 +79,15 @@
                                     </form>
                                     
                                     <a href="{% spaceless %}
-                                        {% with first_unread=topic.first_unread_post %}
-                                            {% if first_unread %}
-                                                {{ first_unread.get_absolute_url }}
-                                            {% else %}
-                                                {{ topic.last_read_post.get_absolute_url }}
-                                            {% endif %}
-                                        {% endwith %}
-                                        {% endspaceless %}"
-                                       class="{% if not topic|is_read %}unread{% endif %}
+                                            {% with first_unread=topic.first_unread_post %}
+                                                {% if first_unread %}
+                                                    {{ first_unread.get_absolute_url }}
+                                                {% else %}
+                                                    {{ topic.last_read_post.get_absolute_url }}
+                                                {% endif %}
+                                            {% endwith %}
+                                            {% endspaceless %}"
+                                        class="{% if not topic|is_read %}unread{% endif %}
                                             ico-after
 
                                             {% if topic.is_solved %}
@@ -98,16 +98,16 @@
                                                 star yellow
                                             {% endif %}
                                         "
-                                       {% if topic.is_solved or topic.is_locked %}
-                                        data-prefix="
-                                            {% if topic.is_solved %}
-                                                Résolu
-                                            {% endif %}
-                                            {% if topic.is_locked %}
-                                                Fermé
-                                            {% endif %}
-                                        "
-                                       {% endif %}
+                                        {% if topic.is_solved or topic.is_locked %}
+                                            data-prefix="
+                                                {% if topic.is_solved %}
+                                                    Résolu
+                                                {% endif %}
+                                                {% if topic.is_locked %}
+                                                    Fermé
+                                                {% endif %}
+                                            "
+                                        {% endif %}
                                     >
                                         {% if not topic|is_read %}
                                             <span class="a11y">Non-lu :</span>
@@ -123,7 +123,7 @@
                                                 {% endwith %}
                                                 <span class="topic-last-answer">
                                                     Dernière réponse
-                                                    {{ answer.pubdate|format_date }}
+                                                    {{ answer.pubdate|format_date:True }}
                                                     par
                                                     <em>{{ answer.author.username }}</em>
                                                 </span>
