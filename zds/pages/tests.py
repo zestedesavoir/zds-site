@@ -246,3 +246,12 @@ class PagesGuestTests(TestCase):
         )
 
         self.assertEqual(result.status_code, 200)
+
+    def test_render_template(self):
+        """Test if render_template() and git_version work."""
+
+        result = self.client.get(
+            reverse('zds.pages.views.home'),
+        )
+
+        self.assertTrue('git_version' in result.context[-1])
