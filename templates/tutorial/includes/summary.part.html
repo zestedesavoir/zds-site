@@ -22,6 +22,12 @@
                     </li>
                 {% endfor %}
             </ul>
+        {% else %}
+            <ul>
+                <li class="inactive">
+                    <span class="disabled mobile-menu-link">Aucun extrait actuellement</span>
+                </li>
+            </ul>
         {% endif %}
     {% else %}
         {# Large tutorial #}
@@ -29,11 +35,11 @@
             {% for part in tutorial.get_parts %}
                 <h4 data-num="{{ part.position_in_tutorial|roman }}">
                     <a class="mobile-menu-link"
-                       {% if online %}
-                           href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.pk part.slug %}"
-                       {% else %}
-                           href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}"{% if version %}?version={{ version }}{% endif %}
-                       {% endif %}
+                        {% if online %}
+                            href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.pk part.slug %}"
+                        {% else %}
+                            href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}"{% if version %}?version={{ version }}{% endif %}
+                        {% endif %}
                     >
                         {{ part.title }}
                     </a>
@@ -43,12 +49,12 @@
                     {% for chapter in part.get_chapters %}
                         <li {% if chapter_current.pk == chapter.pk %}class="current"{% endif %}>
                             <a data-num="{{ chapter.position_in_part }}"
-                               {% if online %}
-                                   href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"
-                               {% else %}
-                                   href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"{% if version %}?version={{ version }}{% endif %}
-                               {% endif %}
-                               class="mobile-menu-link mobile-menu-sublink {% if chapter_current.pk = chapter.pk %}unread{% endif %}"
+                                {% if online %}
+                                    href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"
+                                {% else %}
+                                    href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"{% if version %}?version={{ version }}{% endif %}
+                                {% endif %}
+                                class="mobile-menu-link mobile-menu-sublink {% if chapter_current.pk = chapter.pk %}unread{% endif %}"
                             >
                                 {{ chapter.title }}
                             </a>
@@ -58,11 +64,11 @@
                                     {% for extract in chapter.extracts %}
                                         <li>
                                             <a
-                                               {% if online %}
-                                                   href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}"
-                                               {% else %}
-                                                   href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}"{% if version %}?version={{ version }}{% endif %}
-                                               {% endif %}
+                                                {% if online %}
+                                                    href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{  extract.title|slugify }}"
+                                                {% else %}
+                                                    href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}"{% if version %}?version={{ version }}{% endif %}
+                                                {% endif %}
                                             >
                                                 {{ extract.title }}
                                             </a>
@@ -74,6 +80,12 @@
                     {% endfor %}
                 </ul>
             {% endfor %}
+        {% else %}
+            <ul>
+                <li class="inactive">
+                    <span class="disabled mobile-menu-link">Aucune partie actuellement</span>
+                </li>
+            </ul>
         {% endif %}
     {% endif %}
 </div>

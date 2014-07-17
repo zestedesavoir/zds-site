@@ -34,11 +34,13 @@
 
 
 {% block content %}
-    <ul class="taglist">
-        {% for tag in topic.tags.all %}
-            <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">{{ tag.title }}</a></li>
-        {% endfor %}
-    </ul>
+    {% if topic.tags.all %}
+        <ul class="taglist">
+            {% for tag in topic.tags.all %}
+                <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">{{ tag.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     {% include "misc/pagination.part.html" with position="top" %}
 
