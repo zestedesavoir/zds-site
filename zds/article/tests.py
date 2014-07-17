@@ -2,11 +2,21 @@
 import os
 import shutil
 
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+
+from git import *
 
 from zds.article.factories import ArticleFactory, ReactionFactory,   \
     LicenceFactory
@@ -14,6 +24,7 @@ from zds.article.models import Validation, Reaction, Article, Licence
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
+from zds.utils.articles import *
 from zds.utils.models import Alert
 
 
@@ -503,8 +514,7 @@ class ArticleTests(TestCase):
     def test_versionning_image(self):
         '''test if versionning of thumbnail is active'''
 
-        #json = self.article.load_json()
-        
+        # get files :
         root = settings.SITE_ROOT
         if not os.path.isdir(settings.MEDIA_ROOT):
             os.mkdir(settings.MEDIA_ROOT)
@@ -519,6 +529,13 @@ class ArticleTests(TestCase):
         self.logo1 = os.path.join(settings.MEDIA_ROOT, 'logo.png')
         self.logo2 = os.path.join(settings.MEDIA_ROOT, 'logo2.png')
         
+        # test initial situation : no thumbnail, but field "image_url" exists
+        # and is empty (not "None"!)
+        self.assertEqual(self.article.image, None)
+        json = self.article.load_json()
+        self.assertTrue('image_url' in json)
+        self.assertEqual(json['image_url'], '')
+
         # logout before
         self.client.logout()
         # login with author
@@ -528,7 +545,7 @@ class ArticleTests(TestCase):
                 password='hostel77')
         )
 
-        # change licence (get 302) :
+        # change thumbnail (get 302) :
         result = self.client.post(
             reverse('zds.article.views.edit') + 
                 '?article={}'.format(self.article.pk),
@@ -537,13 +554,138 @@ class ArticleTests(TestCase):
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : self.article.licence.pk
+                'licence' : self.article.licence.pk,
+                'image' : open(self.logo1,'r')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
         # test change :
         article = Article.objects.get(pk=self.article.pk)
+        json = article.load_json()
+        self.assertEqual(article.image.name, json['image_url'])
+
+        old_thumbnail = article.image.name
+        old_sha = article.sha_draft
+
+        # change thumbnail again (get 302) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : self.article.licence.pk,
+                'image' : open(self.logo2,'r')
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        article = Article.objects.get(pk=self.article.pk)
+        json = article.load_json()
+        self.assertEqual(article.image.name, json['image_url'])
+        self.assertNotEqual(article.image.name, old_thumbnail)
+        
+        # test if reference to old thumbnail is still in old manifest.json
+        repo = Repo(article.get_path())
+        manifest = get_blob(repo.commit(old_sha).tree, 'manifest.json')
+        article_version = json_reader.loads(manifest)
+        self.assertEqual(article_version['image_url'], old_thumbnail)
+
+        # revalidate article :
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': self.article.pk,
+                'comment': u'Revalide moi ça',
+                'pending': 'Demander validation',
+                'version': article.sha_draft,
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 2)
+
+        # logout before
+        self.client.logout()
+        # login with staff
+        self.assertTrue(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77')
+        )
+
+        validation = Validation.objects.get(
+            article__pk=self.article.pk,status='PENDING')
+        pub = self.client.post(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': self.article.pk,
+                'comment-v': u'Cet article est excellent',
+                'valid-article': 'Demander validation',
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
+        mail.outbox = []
+
+        # test if no change for thumbnail :
+        article = Article.objects.get(pk=self.article.pk)
+        repo = Repo(article.get_path())
+        manifest = get_blob(repo.commit(article.sha_public).tree, 
+            'manifest.json')
+        article_version = json_reader.loads(manifest)
+        self.assertEqual(article_version['image_url'], article.image.name)
+        
+        old_thumbnail = article.image.name
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertTrue(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77')
+        )
+
+        # get back to old thumbnail (get 302) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : self.article.licence.pk,
+                'image' : open(self.logo1,'r')
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        article = Article.objects.get(pk=self.article.pk)
+        json = article.load_json()
+        self.assertEqual(article.image.name, json['image_url'])
+
+        # test if no change for thumbnail in (outdated) public version :
+        article = Article.objects.get(pk=self.article.pk)
+        repo = Repo(article.get_path())
+        manifest = get_blob(repo.commit(article.sha_public).tree, 
+            'manifest.json')
+        article_version = json_reader.loads(manifest)
+        self.assertEqual(article_version['image_url'], old_thumbnail)
+        self.assertNotEqual(article_version['image_url'], article.image.name)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_ARTICLE_PATH):
