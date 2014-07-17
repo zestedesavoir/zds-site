@@ -83,7 +83,7 @@ Cela va créer plusieurs entitées :
 
 ### Conseils de developpement
 
-Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires et qu'il est compatible [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) (sous peine de refus de Pull Request) en exécutant les commandes suivantes, pour le back :
+Avant de faire une Pull Request (PR), vérifiez que votre code passe tous les tests unitaires et qu'il est compatible [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) en exécutant les commandes suivantes, pour le back :
 
 ```console
 python manage.py test
@@ -114,6 +114,8 @@ En savoir plus
 --------------
 
 - [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+- [Contribuer](CONTRIBUTING.md)
+- [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
 
 
 
