@@ -247,7 +247,7 @@ class PagesGuestTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-  def test_render_template(self):
+    def test_render_template(self):
         """Test: render_template() works and git_version is in template."""
 
         result = self.client.get(
