@@ -203,7 +203,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
 
-    return render_template('article/member/view_online.html', {
+    return render_template('article/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
