@@ -145,7 +145,7 @@ class ImageForm(forms.Form):
 
         physical = cleaned_data.get('physical')
 
-        if physical.size > settings.IMAGE_MAX_SIZE:
+        if physical is not None and physical.size > settings.IMAGE_MAX_SIZE:
             self._errors['physical'] = self.error_class([u'Votre image est trop lourde, la limite autorisée est de : {0} Ko'
                                                                                      .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
         return cleaned_data
