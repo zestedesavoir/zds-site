@@ -104,6 +104,20 @@ class UserGalleryForm(forms.Form):
 
         return cleaned_data
 
+    def clean(self):
+        cleaned_data = super(ImageForm, self).clean()
+
+        physical= cleaned_data.get('physical')
+
+        print(settings.IMAGE_MAX_SIZE, physical_size)
+
+        if physical.size > settings.IMAGE_MAX_SIZE:
+            self._errors['physical'] = self.error_class([u'Votre image est trop lourde, la limite autorisée est de : ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)'])
+
+            print("nananananananère")
+
+            print("size : {}".format(str(physical.size)))
+        return cleaned_data
 
 class ImageForm(forms.Form):
     title = forms.CharField(

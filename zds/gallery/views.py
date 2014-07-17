@@ -277,7 +277,7 @@ def new_image(request, gal_pk):
 
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
-        if form.is_valid() and request.FILES["physical"].size < settings.IMAGE_MAX_SIZE:
+        if form.is_valid():
             img = Image()
             img.physical = request.FILES["physical"]
             img.gallery = gal
