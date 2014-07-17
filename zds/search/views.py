@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from django.shortcuts import render_to_response
 from haystack.views import SearchView
-from zds.utils.paginator import paginator_range
 from zds.search.constants import MODEL_NAMES
+from zds.utils.paginator import paginator_range
+from zds.utils import render_template
 
 class CustomSearchView(SearchView):
     def create_response(self):
@@ -26,4 +26,4 @@ class CustomSearchView(SearchView):
             context['suggestion'] = self.form.get_suggestion()
 
         context.update(self.extra_context())
-        return render_to_response(self.template, context, context_instance=self.context_class(self.request))
+        return render_template(self.template, context, context_instance=self.context_class(self.request))
