@@ -26,4 +26,4 @@ class CustomSearchView(SearchView):
             context['suggestion'] = self.form.get_suggestion()
 
         context.update(self.extra_context())
-        return render_template(self.template, context, context_instance=self.context_class(self.request))
+        return render_template(self.template, context)
