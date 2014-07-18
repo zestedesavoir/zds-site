@@ -706,6 +706,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.get_path(),"introduction.md"),os.path.join(p2.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : edition de titre")
@@ -720,6 +721,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c3.get_path(),"introduction.md"),os.path.join(c3.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Chapitre 3 : edition de titre")
@@ -734,6 +736,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.get_path(),"introduction.md"),os.path.join(p2.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : seconde edition de titre")
@@ -748,6 +751,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c2.get_path(),"introduction.md"),os.path.join(c2.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Chapitre 2 : edition de titre")
@@ -791,53 +795,6 @@ class BigTutorialTests(TestCase):
             follow=True)
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
         self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
-
-    def test_available_tuto(self):
-        """ Test that all page of big tutorial is available"""
-        parts = self.bigtuto.get_parts()
-        for part in parts:
-            result = self.client.get(reverse(
-                                        'zds.tutorial.views.view_part_online',
-                                        args=[
-                                            self.bigtuto.pk,
-                                            self.bigtuto.slug,
-                                            part.pk,
-                                            part.slug]),
-                                    follow=True)
-            self.assertEqual(result.status_code, 200)
-            result = self.client.get(reverse(
-                                        'zds.tutorial.views.view_part',
-                                        args=[
-                                            self.bigtuto.pk,
-                                            self.bigtuto.slug,
-                                            part.pk,
-                                            part.slug]),
-                                    follow=True)
-            self.assertEqual(result.status_code, 200)
-            chapters = part.get_chapters()
-            for chapter in chapters:
-                result = self.client.get(reverse(
-                                            'zds.tutorial.views.view_chapter_online',
-                                            args=[
-                                                self.bigtuto.pk,
-                                                self.bigtuto.slug,
-                                                part.pk,
-                                                part.slug,
-                                                chapter.pk,
-                                                chapter.slug]),
-                                        follow=True)
-                self.assertEqual(result.status_code, 200)
-                result = self.client.get(reverse(
-                                            'zds.tutorial.views.view_chapter',
-                                            args=[
-                                                self.bigtuto.pk,
-                                                self.bigtuto.slug,
-                                                part.pk,
-                                                part.slug,
-                                                chapter.pk,
-                                                chapter.slug]),
-                                        follow=True)
-                self.assertEqual(result.status_code, 200)
 
     def test_url_for_member(self):
         """Test simple get request by simple member."""
@@ -2411,6 +2368,7 @@ class MiniTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Edition d'introduction",
+                "last_hash": compute_hash([e2.get_path(), e2.get_path()])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
