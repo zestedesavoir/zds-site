@@ -60,7 +60,7 @@ sitemaps = {
         priority=0.7
     ),
     'topics': GenericSitemap(
-        {'queryset': Topic.objects.filter(is_locked=False), 'date_field': 'pubdate'},
+        {'queryset': Topic.objects.filter(is_locked=False, forum__group__isnull=True), 'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
     ),
