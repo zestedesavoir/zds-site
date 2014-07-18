@@ -4,7 +4,11 @@
 
 
 {% block title %}
-    Liste des tutoriels
+    {% if tag %}
+        {{ tag }}
+    {% else %}
+        Tous les tutoriels
+    {% endif %}
 {% endblock %}
 
 
@@ -17,7 +21,11 @@
 
 
 {% block breadcrumb %}
-    <li>Liste des tutoriels</li>
+    {% if tag %}
+        <li>{{ tag }}</li>
+    {% else %}
+        <li>Tous les tutoriels</li>
+    {% endif %}
 {% endblock %}
 
 
@@ -26,7 +34,11 @@
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
-                Liste des tutoriels
+                {% if tag %}
+                    Tutoriels : {{ tag }}
+                {% else %}
+                    Tous les tutoriels
+                {% endif %}
             {% endblock %}
         </h2>
 

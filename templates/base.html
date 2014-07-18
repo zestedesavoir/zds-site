@@ -17,16 +17,17 @@
 
     <title>
         {% captureas title %}
-            {% captureas _title %}
+            {% captureas title_blocks %}
                 {% block title %}{% endblock %}
                 {% block title_base %}{% endblock %}
             {% endcaptureas %}
-            {{ _title }}
-            {% if _title %}
+            {% if title_blocks %}
+                {{ title_blocks|safe }}
                 &bull;
             {% endif %}
             Zeste de Savoir
         {% endcaptureas %}
+        {{ title|safe }}
     </title>
 
     <meta name="language" content="fr">
@@ -41,14 +42,23 @@
 d'entraide animés par et pour la communauté.
         {% endblock %}
     {% endcaptureas %}
-    <meta name="description" content="">
+    <meta name="description" content="{{ description|safe }}">
+
+
+    {% captureas image %}
+        {{ request.META.HTTP_HOST }}{% block image %}{% spaceless %}
+            {% static "images/apple-touch-icon-144x144-precomposed.png" %}
+        {% endspaceless %}{% endblock %}
+    {% endcaptureas %}
 
 
     {# OpenGraph #}
     <meta property="og:site_name" content="Zeste de Savoir">
-    <meta property="og:title" content="{{ title }}">
-    <meta property="og:url" content="{{ request.get_full_path }}">
+    <meta property="og:title" content="{{ title|safe }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:language" content="fr_FR">
+    <meta property="og:image:url" content="http://{{ image }}">
+    <meta property="og:image:secure_url" content="https://{{ image }}">
     {% block opengraph %}
         <meta property="og:type" content="website">
     {% endblock %}
@@ -57,12 +67,12 @@ d'entraide animés par et pour la communauté.
     {# Twitter cards #}
     <meta property="twitter:domain" content="http://zestedesavoir.com/">
     <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="{{ request.get_full_path }}">
-    <meta property="twitter:title" content="{{ title }}">
-    <meta property="twitter:description" content="{{ description }}">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{{ title|safe }}">
+    <meta property="twitter:description" content="{{ description|safe }}">
     <meta property="twitter:site" content="@ZesteDeSavoir">
     <meta property="twitter:creator" content="@{% block twitter_creator %}ZesteDeSavoir{% endblock %}">
-    <meta property="twitter:image" content="{% block twitter_image %}{% static "images/apple-touch-icon-144x144-precomposed.png" %}{% endblock %}">
+    <meta property="twitter:image" content="http://{{ image }}">
 
 
     {# Stylesheets #}

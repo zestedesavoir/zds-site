@@ -73,14 +73,13 @@ def index(request):
             .order_by("-pubdate") \
             .all()
     else:
-
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all tutorials in the subcategory specified.
 
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-    return render_template("tutorial/index.html", {"tutorials": tutorials})
+    return render_template("tutorial/index.html", {"tutorials": tutorials, "tag": tag})
 
 
 # Staff actions.

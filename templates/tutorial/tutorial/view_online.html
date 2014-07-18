@@ -13,6 +13,40 @@
 
 
 
+{% block description %}
+    {{ tutorial.description }}
+{% endblock %}
+
+
+
+{% block image %}{% spaceless %}
+    {% if tutorial.image %}
+        {{ tutorial.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    <meta property="og:type" content="article">
+
+    {% if tutorial.create_at %}
+        <meta property="og:article:published_time" content="{{ tutorial.create_at|date:"c" }}">
+    {% endif %}
+    {% if tutorial.pubdate %}
+        <meta property="og:article:modified_time" content="{{ tutorial.pubdate|date:"c" }}">
+    {% endif %}
+
+    <meta property="og:article:section" content="Tutoriels">
+    {% for catofsubcat in tutorial.subcategory.all %}
+        <meta property="og:article:tag" content="{{ catofsubcat.title }}">
+    {% endfor %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li>{{ tutorial.title }}</li>
 {% endblock %}
