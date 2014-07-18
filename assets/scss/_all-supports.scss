@@ -1756,7 +1756,8 @@
 
     .article-content {
         p,
-        a,
+        > a,
+        p a,
         ul:not(.pagination),
         ol {
             font-family: $font-serif-active;
