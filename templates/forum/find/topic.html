@@ -59,7 +59,9 @@
             </tbody>
         </table>
     {% else %}
-        Aucun sujet n'a été créé par cet utilisateur'.
+        <p>
+            Aucun sujet n'a été créé par cet utilisateur.
+        </p>
     {% endif %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
