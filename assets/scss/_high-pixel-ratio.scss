@@ -51,12 +51,15 @@
         }
     }
 
-    .main .content-container h2 {
-        &.ico-articles:after {
-            @include sprite-pos($articles, true);
-        }
-        &.ico-tutorials:after {
-            @include sprite-pos($tutorials, true);
+    .main .content-container {
+        h1,
+        h2 {
+            &.ico-articles:after {
+                @include sprite-pos($articles, true);
+            }
+            &.ico-tutorials:after {
+                @include sprite-pos($tutorials, true);
+            }
         }
     }
 

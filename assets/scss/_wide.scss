@@ -282,7 +282,8 @@
 
             h3,
             h4,
-            ul li {
+            ul li,
+            ol li {
                 padding-left: 11.5%;
             }
 
@@ -299,7 +300,8 @@
             }
 
             &.sommaire ul li.current {
-                ul {
+                ul,
+                ol {
                     margin-left: calc(-11% - 10px);
                     width: calc(111% + 10px);
                     background: linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px);

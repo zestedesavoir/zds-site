@@ -712,11 +712,13 @@
         }
     }
 
-    h3 + ul {
+    h3 + ul,
+    h3 + ol {
         margin: 7px 0;
     }
 
-    ul {
+    ul,
+    ol {
         margin: 0;
         padding: 0;
         list-style: none;
@@ -939,18 +941,21 @@
             text-overflow: ellipsis;
             white-space: nowrap;
 
-            & + ul > li:first-child {
-                margin-top: 5px;
+            & + ul,
+            & + ol {
+                & > li:first-child {
+                    margin-top: 5px;
+                }
             }
         }
 
-        ul li.current {
+        ol li.current {
             margin-top: 0 !important;
             padding-top: 5px;
             margin-bottom: 5px;
             background-color: #FFF;
 
-            ul {
+            ol {
                 margin-top: 5px;
                 padding-top: 5px;
                 padding-bottom: 5px;
