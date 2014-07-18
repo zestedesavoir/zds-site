@@ -17,7 +17,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render_to_response
+from django.shortcuts import redirect, get_object_or_404
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -359,8 +359,7 @@ def settings_mini_profile(request, user_name):
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -369,8 +368,7 @@ def settings_mini_profile(request, user_name):
             "sign": profile.sign,
         })
         c = {"form": form, "profile": profile}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -409,8 +407,7 @@ def settings_profile(request):
                              "Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = ProfileForm(initial={
             "biography": profile.biography,
@@ -423,8 +420,7 @@ def settings_profile(request):
             "sign": profile.sign,
         })
         c = {"form": form}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -469,13 +465,11 @@ def settings_account(request):
                 messages.error(request, "Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
-            return render_to_response("member/settings/account.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/account.html", c)
     else:
         form = ChangePasswordForm(request.user)
         c = {"form": form}
-        return render_to_response("member/settings/account.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/account.html", c)
 
 
 @can_write_and_read_now
@@ -497,13 +491,11 @@ def settings_user(request):
             old.save()
             return redirect(old.profile.get_absolute_url())
         else:
-            return render_to_response("member/settings/user.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/user.html", c)
     else:
         form = ChangeUserForm()
         c = {"form": form}
-        return render_to_response("member/settings/user.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/user.html", c)
 
 
 
