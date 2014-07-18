@@ -9,7 +9,6 @@ from git import *
 
 from zds.utils import slugify
 
-
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
@@ -289,3 +288,5 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # All objects have been updated except the current one we want to move, so
     # we can do it now
     setattr(obj, position_f, new_pos)
+
+
