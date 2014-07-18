@@ -638,11 +638,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
-    # Make sure the URL is well-formed
-
-    if not tutorial_slug == slugify(tutorial.title):
-        return redirect(tutorial.get_absolute_url())
-
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -1367,11 +1362,6 @@ def view_chapter(
     if request.user not in tutorial.authors.all() and not is_beta:
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
-
-    if not tutorial_slug == slugify(tutorial.title) or not part_slug \
-            == slugify(chapter.part.title) or not chapter_slug \
-            == slugify(chapter.title):
-        return redirect(chapter.get_absolute_url())
 
     # find the good manifest file
 
