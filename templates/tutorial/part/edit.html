@@ -35,5 +35,8 @@
 
 
 {% block content %}
+    {% if new_version %}
+        <p>Une nouvelle version a été postée</p>
+    {% endif%}
    {% crispy form %}
 {% endblock %}

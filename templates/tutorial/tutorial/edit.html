@@ -29,10 +29,15 @@
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
     <li>Éditer le tutoriel</li>
+    
+
 {% endblock %}
 
 
 
 {% block content %}
+    {% if new_version %}
+        <p>Une nouvelle version a été postée</p>
+    {% endif%}
     {% crispy form %}
 {% endblock %}
