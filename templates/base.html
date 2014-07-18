@@ -5,6 +5,7 @@
 {% load captureas %}
 {% load date %}
 {% load set %}
+{% load captureas %}
 {% load thumbnail %}
 
 
@@ -15,15 +16,55 @@
     <meta charset="utf-8">
 
     <title>
-        {% block title %}{% endblock %}
-        {% block title_base %}{% endblock %}
-        &bull; Zeste de Savoir
+        {% captureas title %}
+            {% captureas _title %}
+                {% block title %}{% endblock %}
+                {% block title_base %}{% endblock %}
+            {% endcaptureas %}
+            {{ _title }}
+            {% if _title %}
+                &bull;
+            {% endif %}
+            Zeste de Savoir
+        {% endcaptureas %}
     </title>
 
+    <meta name="language" content="fr">
+    <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
+    
 
-    {% block meta %}{% endblock %}
+    {# Description #}
+    {% captureas description %}
+        {% block description %}
+            Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums 
+d'entraide animés par et pour la communauté.
+        {% endblock %}
+    {% endcaptureas %}
+    <meta name="description" content="">
 
+
+    {# OpenGraph #}
+    <meta property="og:site_name" content="Zeste de Savoir">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:url" content="{{ request.get_full_path }}">
+    <meta property="og:language" content="fr_FR">
+    {% block opengraph %}
+        <meta property="og:type" content="website">
+    {% endblock %}
+
+
+    {# Twitter cards #}
+    <meta name="twitter:domain" content="http://zestedesavoir.com/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="{{ request.get_full_path }}">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta name="twitter:description" content="{{ description }}">
+    <meta name="twitter:site" content="@ZesteDeSavoir">
+    <meta name="twitter:creator" content="@{% block twitter_creator %}ZesteDeSavoir{% endblock %}">
+
+
+    {# Stylesheets #}
     {% if debug %}
         <link rel="stylesheet" href="/static/css/main.css">
     {% else %}
@@ -31,8 +72,10 @@
         {% block canonical %}{% endblock %}
     {% endif %}
 
+
     {# Webfont async loading #}
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
+
 
     {# favicons #}
     <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
@@ -43,12 +86,13 @@
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
 
+
     {# Fullsceen on iOS #}
     <meta name="apple-mobile-web-app-capable" content="yes">
 
+
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
-
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <!--[if lt IE 8]>
@@ -72,12 +116,12 @@
         </ul>
 
         <div id="cookies-banner">
-            <p>
+            <span>
                 Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer 
-                <button id="reject-cookies">ici</button>.
-                <a href="/pages/cookies">En savoir plus</a>
-                <button id="accept-cookies">OK</button>
-            </p>
+            </span>
+            <button id="reject-cookies">ici</button>.
+            <a href="/pages/cookies">En savoir plus</a>
+            <button id="accept-cookies">OK</button>
         </div>
 
         <div class="header-container">
