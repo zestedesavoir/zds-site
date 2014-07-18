@@ -18,7 +18,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
-
+from zds.utils.misc import compute_hash
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
@@ -540,7 +540,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
         p2 = Part.objects.filter(tutorial=tuto).last()
-        
+        self.assertEqual(u"Analyse", p2.get_introduction())
         #check view offline
         result = self.client.get(
             reverse(
@@ -706,7 +706,8 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
-                "last_hash": compute_hash([os.path.join(p2.get_path(),"introduction.md"),os.path.join(p2.get_path(),"conclusion.md")])
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : edition de titre")
@@ -728,7 +729,7 @@ class BigTutorialTests(TestCase):
         self.assertContains(response=result, text = u"Edition d'introduction")
         self.assertContains(response=result, text = u"Edition de conlusion")
         self.assertEqual(Chapter.objects.filter(part=p2.pk).count(), 3)
-        
+        p2 = Part.objects.filter(pk=p2.pk).first()
         #edit part 2
         result = self.client.post(
             reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
@@ -736,7 +737,8 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
-                "last_hash": compute_hash([os.path.join(p2.get_path(),"introduction.md"),os.path.join(p2.get_path(),"conclusion.md")])
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : seconde edition de titre")
@@ -2368,7 +2370,7 @@ class MiniTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Edition d'introduction",
-                "last_hash": compute_hash([e2.get_path(), e2.get_path()])
+                "last_hash": compute_hash([e2.get_path()])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
