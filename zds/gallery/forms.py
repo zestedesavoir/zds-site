@@ -150,6 +150,7 @@ class ImageForm(forms.Form):
                                                                                      .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
         return cleaned_data
 
+
 class UpdateImageForm(ImageForm):
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
