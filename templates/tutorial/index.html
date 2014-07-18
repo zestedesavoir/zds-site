@@ -14,8 +14,12 @@
 
 
 {% block description %}
-    Les tutoriels vous permettent d'apprendre divers sujets tous plus intéressants 
-    les uns que les autres.
+    {% if tag %}
+        Découvrez tous nos tutoriels sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres.
+    {% else %}
+        Les tutoriels vous permettent d'apprendre divers sujets tous plus intéressants 
+        les uns que les autres.
+    {% endif %}
 {% endblock %}
 
 
@@ -32,7 +36,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper">
-        <h2 class="ico-after ico-tutorials">
+        <h1 class="ico-after ico-tutorials">
             {% block headline %}
                 {% if tag %}
                     Tutoriels : {{ tag }}
@@ -40,7 +44,7 @@
                     Tous les tutoriels
                 {% endif %}
             {% endblock %}
-        </h2>
+        </h1>
 
         {% if tutorials %}
             <div class="tutorial-list">

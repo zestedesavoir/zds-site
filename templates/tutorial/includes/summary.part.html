@@ -10,7 +10,7 @@
     {% if tutorial.type == 'MINI' %}
         {# Small tutorial #}
         {% if chapter.extracts %}
-            <ul>
+            <ol>
                 {% for extract in chapter.extracts %}
                     <li>
                         <a data-num="{{ extract.position_in_chapter }}"
@@ -21,7 +21,7 @@
                         </a>
                     </li>
                 {% endfor %}
-            </ul>
+            </ol>
         {% else %}
             <ul>
                 <li class="inactive">
@@ -45,7 +45,7 @@
                     </a>
                 </h4>
                 
-                <ul>
+                <ol>
                     {% for chapter in part.get_chapters %}
                         <li {% if chapter_current.pk == chapter.pk %}class="current"{% endif %}>
                             <a data-num="{{ chapter.position_in_part }}"
@@ -60,7 +60,7 @@
                             </a>
 
                             {% if chapter_current.pk == chapter.pk %}
-                                <ul class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
+                                <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
                                     {% for extract in chapter.extracts %}
                                         <li>
                                             <a
@@ -74,11 +74,11 @@
                                             </a>
                                         </li>
                                     {% endfor %}
-                                </ul>
+                                </ol>
                             {% endif %}
                         </li>
                     {% endfor %}
-                </ul>
+                </ol>
             {% endfor %}
         {% else %}
             <ul>

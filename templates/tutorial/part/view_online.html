@@ -8,6 +8,22 @@
 
 
 
+{% block image %}{% spaceless %}
+    {% if tutorial.image %}
+        {{ tutorial.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorial/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
     <li>{{ part.title }}</li>
@@ -16,9 +32,12 @@
 
 
 {% block headline %}
-    <h2>
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+        {% if tutorial.image %}
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
         {{ part.title }}
-    </h2>
+    </h1>
 
     {% if tutorial.licence %}
         <p class="license">

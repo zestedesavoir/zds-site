@@ -30,19 +30,7 @@
 
 
 {% block opengraph %}
-    <meta property="og:type" content="article">
-
-    {% if tutorial.create_at %}
-        <meta property="og:article:published_time" content="{{ tutorial.create_at|date:"c" }}">
-    {% endif %}
-    {% if tutorial.pubdate %}
-        <meta property="og:article:modified_time" content="{{ tutorial.pubdate|date:"c" }}">
-    {% endif %}
-
-    <meta property="og:article:section" content="Tutoriels">
-    {% for catofsubcat in tutorial.subcategory.all %}
-        <meta property="og:article:tag" content="{{ catofsubcat.title }}">
-    {% endfor %}
+    {% include "tutorial/includes/opengraph.part.html" %}
 {% endblock %}
 
 
@@ -73,7 +61,7 @@
         </h3>
     {% endif %}
 
-    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
+    {% include "tutorial/includes/tags_authors.part.html" with tutorial=tutorial %}
 {% endblock %}
 
 

@@ -38,8 +38,8 @@
     {# Description #}
     {% captureas description %}
         {% block description %}
-            Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums 
-d'entraide animés par et pour la communauté.
+            Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide animés par 
+            et pour la communauté.
         {% endblock %}
     {% endcaptureas %}
     <meta name="description" content="{{ description|safe }}">
@@ -147,14 +147,14 @@ d'entraide animés par et pour la communauté.
                     {% endcaptureas %}
 
                     {# Logo #}
-                    <h1 class="header-logo">
+                    <div class="header-logo">
                         <a href="{% url "zds.pages.views.home" %}"
                            class="header-logo-link"
                            data-title="{{ mobiletitle }}"
                         >
                             Zeste de Savoir
                         </a>
-                    </h1>
+                    </div>
 
 
                     {# Menu #}
@@ -483,14 +483,14 @@ d'entraide animés par et pour la communauté.
 
                     {% block content_out %}
                         <section class="content-wrapper">
-                            <h2>{% block headline %}{% endblock %}</h2>
+                            <h1>{% block headline %}{% endblock %}</h1>
 
                             {% captureas headlinesub %}
                                 {% block headline_sub %}{% endblock %}
                             {% endcaptureas %}
 
                             {% if headlinesub %}
-                                <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+                                <h2 class="subtitle">{{ headlinesub|safe }}</h2>
                             {% endif %}
 
                             {% block content %}{% endblock %}
@@ -501,8 +501,8 @@ d'entraide animés par et pour la communauté.
                 {% block sidebar %}
                 {% endblock %}
 
-            </div> <!-- #main -->
-        </div> <!-- #main-container -->
+            </div>
+        </div>
 
 
 
