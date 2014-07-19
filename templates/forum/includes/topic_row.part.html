@@ -42,7 +42,7 @@
     <p class="topic-answers">
         {% with nb_post=topic.get_post_count %}
             {% if nb_post > 1 %}
-                {{ nb_post|add:"-1" }} réponse{% if nb_post > 2 %}s{% endif %}
+                {{ nb_post|add:"-1" }} réponse{{ nb_post|add:"-1"|pluralize }}
             {% endif %}
         {% endwith %}
     </p>
