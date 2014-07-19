@@ -38,7 +38,7 @@
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">Participants :</span>
+                            <span class="topic-members-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
