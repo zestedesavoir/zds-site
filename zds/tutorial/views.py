@@ -741,6 +741,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
 
     # If it's a small tutorial, fetch its chapter
 
@@ -1127,6 +1128,7 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
 
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
@@ -1458,6 +1460,7 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
 
     mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
