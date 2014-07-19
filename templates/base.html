@@ -105,7 +105,10 @@
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}" 
+      itemscope 
+      itemtype="http://schema.org/WebPage"
+>
     <!--[if lt IE 8]>
         <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> pour améliorer votre expérience.</p>
     <![endif]-->
@@ -443,14 +446,14 @@
         
             <div class="clearfix sub-header">
                 <div class="wrapper">
-                    <div class="breadcrumb">
-                        <ul>
+                    <div class="breadcrumb" itemprop="breadcrumb">
+                        <ol>
                             <li>
                                 <a href="{% url "zds.pages.views.home" %}">Accueil</a>
                             </li>
                             {% block breadcrumb_base %}{% endblock %}
                             {% block breadcrumb %}{% endblock %}
-                        </ul>
+                        </ol>
                     </div>
                     <div class="search header-right" id="search">
                         <form action="/rechercher">

@@ -13,7 +13,7 @@
     }
     .ico,
     .ico-after:after,
-    .breadcrumb ul li:not(:last-child):after,
+    .breadcrumb ol li:not(:last-child):after,
     input[type=radio]:checked,
     input[type=checkbox]:checked {
         background-size: round($sprite_width / 2) round($sprite_height / 2) !important;
@@ -40,7 +40,7 @@
         }
     }
 
-    .breadcrumb ul li:not(:last-child):after {
+    .breadcrumb ol li:not(:last-child):after {
         @include sprite-pos($ariane, true);
     }
 
