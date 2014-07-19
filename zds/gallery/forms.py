@@ -104,7 +104,6 @@ class UserGalleryForm(forms.Form):
 
         return cleaned_data
 
-
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
@@ -140,6 +139,16 @@ class ImageForm(forms.Form):
                 u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
+
+    def clean(self):
+        cleaned_data = super(ImageForm, self).clean()
+
+        physical = cleaned_data.get('physical')
+
+        if physical is not None and physical.size > settings.IMAGE_MAX_SIZE:
+            self._errors['physical'] = self.error_class([u'Votre image est trop lourde, la limite autorisée est de : {0} Ko'
+                                                                                     .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
+        return cleaned_data
 
 
 class UpdateImageForm(ImageForm):
