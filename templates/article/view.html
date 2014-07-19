@@ -20,10 +20,16 @@
 
 
 
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/NewsArticle"
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 {% if article.image %}class="illu"{% endif %}>
+    <h1 {% if article.image %}class="illu"{% endif %} itemprop="name">
         {% if article.image %}
-            <img src="{{ article.image.article_illu.url }}" alt="">
+            <img src="{{ article.image.article_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ article.title }}
     </h1>
@@ -35,7 +41,7 @@
     {% endif %}
     
     {% if article.licence %}
-        <span class="license">
+        <span class="license" itemprop="license">
             {{ article.licence }}
         </span>
     {% endif %}
@@ -43,7 +49,7 @@
     <ul class="taglist">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}" itemprop="keywords">
                     {{ tag.title }}
                 </a>
             </li>
@@ -61,12 +67,18 @@
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
-                <li>
+                <li itemprop="author">
                     {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+{% endblock %}
+
+
+
+{% block article_content_schema %}
+    itemprop="articleBody"
 {% endblock %}
 
 
@@ -81,7 +93,16 @@
 
 
 {% block content_after %}
-    <h3 class="reactions-title" id="reactions">Réactions</h3>
+    <h3 class="reactions-title" id="reactions">
+        <span itemprop="commentCount">
+            {% if article.get_reaction_count > 0 %}
+                {{ article.get_reaction_count }}
+            {% else %}
+                Aucune
+            {% endif %}
+        </span>
+        réaction{{ article.get_reaction_count|pluralize }}
+    </h3>
 
 
     {% include "misc/pagination.part.html" with position="top" topic=article is_online=True anchor="reactions" %}
@@ -119,7 +140,9 @@
         {% endif %}
 
 
-        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
+        <div itemprop="comment">
+            {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
+        </div>
     {% endfor %}
 
 
