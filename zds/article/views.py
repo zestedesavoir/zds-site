@@ -69,6 +69,7 @@ def index(request):
 
     return render_template('article/index.html', {
         'articles': article,
+        'tag': tag,
     })
 
 

@@ -3,20 +3,33 @@
 
 
 {% block title %}
-    Liste des articles
+    {% if tag %}
+        {{ tag }}
+    {% else %}
+        Tous les articles
+    {% endif %}
 {% endblock %}
 
 
 
 {% block description %}
-    Les articles sont rédigés par la communauté. Ils permettent aussi bien de se tenir informé des dernières
-    innovations du moment que de découvrir de nouvelles notions liées aux différents domaines de l'informatique.
+    {% if tag %}
+        Articles de la communauté à propos de {{ tag }}. Vous pourrez également découvrir de nouvelles notions en parcourant les autres catégories.
+    {% else %}
+        Les articles sont rédigés par la communauté. Ils permettent aussi bien de se tenir 
+        informé des dernières innovations du moment que de découvrir de nouvelles notions 
+        liées à différents domaines : sciences, informatiques, ...
+    {% endif %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des articles</li>
+    {% if tag %}
+        <li>{{ tag }}</li>
+    {% else %}
+        <li>Tous les articles</li>
+    {% endif %}
 {% endblock %}
 
 
@@ -25,7 +38,11 @@
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-articles">
             {% block headline %}
-                Liste des articles
+                {% if tag %}
+                    Articles : {{ tag }}
+                {% else %}
+                    Tous les articles
+                {% endif %}
             {% endblock %}
         </h2>
 

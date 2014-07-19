@@ -2825,9 +2825,16 @@ form.topic-message {
         }
     }
 
-    .version,
-    .version a {
-        color: rgba(255, 255, 255, .5);
+    .version {
+        &,
+        a {
+            color: rgba(255, 255, 255, .5);
+        }
+
+        a:hover,
+        a:focus {
+            color: #FFF;
+        }
     }
 }
 
