@@ -60,9 +60,11 @@
             {% endfor %}
         </div>
 
+        {% if galleries|length > 0 %}
         <button type="submit" name="delete_multi" class="btn btn-cancel">
             Supprimer la séléction
         </button>
+        {% endif %}
 
         {% csrf_token %}
     </form>
