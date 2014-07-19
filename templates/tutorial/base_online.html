@@ -7,6 +7,8 @@
     &bull; Tutoriels
 {% endblock %}
 
+
+
 {% block canonical %}
     {% if tutorial.source and tutorial.source != "" %}
     	<link rel="canonical" href="{{ tutorial.source }}">
@@ -14,6 +16,13 @@
 {% endblock %}
 
 
+
 {% block breadcrumb_base %}
     <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+{% endblock %}
+
+
+
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/Article"
 {% endblock %}

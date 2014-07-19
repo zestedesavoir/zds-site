@@ -21,6 +21,12 @@
 
 
 
+{% block schema %}
+    itemscope itemtype="http://schema.org/Question"
+{% endblock %}
+
+
+
 {% block headline %}
     {{ topic.title }}
 {% endblock %}
@@ -82,7 +88,13 @@
                 {% set False as is_repeated_message %}
             {% endif %}
 
-            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
+            {% if forloop.first and nb = 1 %}
+                {% set True as answer_schema %}
+            {% else %}
+                {% set False as answer_schema %}
+            {% endif %}
+
+            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
         {% endfor %}
     </div>
 

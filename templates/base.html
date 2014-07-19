@@ -472,8 +472,7 @@
             {% block pre_content %}
             {% endblock %}
 
-            <div class="main wrapper clearfix">    
-                
+            <div class="main wrapper clearfix">
                 <main class="content-container" role="main" id="content">
                     {% if messages %}
                         {% for message in messages %}
@@ -485,15 +484,20 @@
                     {% endif %}
 
                     {% block content_out %}
-                        <section class="content-wrapper">
-                            <h1>{% block headline %}{% endblock %}</h1>
+                        {% captureas schema %}
+                            {% block schema %}{% endblock %}
+                        {% endcaptureas %}
+                        <section class="content-wrapper" {{ schema }}>
+                            <h1 {% if schema %}itemprop="name"{% endif %}>
+                                {% block headline %}{% endblock %}
+                            </h1>
 
                             {% captureas headlinesub %}
                                 {% block headline_sub %}{% endblock %}
                             {% endcaptureas %}
 
                             {% if headlinesub %}
-                                <h2 class="subtitle">{{ headlinesub|safe }}</h2>
+                                <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
                             {% endif %}
 
                             {% block content %}{% endblock %}
@@ -501,9 +505,7 @@
                     {% endblock %}
                 </main>
                 
-                {% block sidebar %}
-                {% endblock %}
-
+                {% block sidebar %}{% endblock %}
             </div>
         </div>
 
