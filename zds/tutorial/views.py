@@ -977,10 +977,29 @@ def edit_tutorial(request):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+    introduction = os.path.join(tutorial.get_path(), "introduction.md")
+    conclusion = os.path.join(tutorial.get_path(), "conclusion.md")
     if request.method == "POST":
         form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
+            if content_has_changed([introduction, conclusion], data["last_hash"]):
+                form = TutorialForm(initial={
+                    "title": tutorial.title,
+                    "type": tutorial.type,
+                    "licence": tutorial.licence,
+                    "description": tutorial.description,
+                    "subcategory": tutorial.subcategory.all(),
+                    "introduction": tutorial.get_introduction(),
+                    "conclusion": tutorial.get_conclusion(),
+
+                })
+                return render_template("tutorial/tutorial/edit.html",
+                           {
+                               "tutorial": tutorial, "form": form,
+                               "last_hash": compute_hash([introduction, conclusion]),
+                               "new_version": True
+                           })        
             old_slug = tutorial.get_path()
             tutorial.title = data["title"]
             tutorial.description = data["description"]
@@ -1045,7 +1064,7 @@ def edit_tutorial(request):
             "conclusion": tutorial.get_conclusion(),
         })
     return render_template("tutorial/tutorial/edit.html",
-                           {"tutorial": tutorial, "form": form})
+                           {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
 
 # Parts.
 
