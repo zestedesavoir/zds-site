@@ -3,11 +3,14 @@
 
 
 {% with profile=member|profile %}
-    <a href="{{ member.get_absolute_url }}" class="member-item">{% spaceless %}
+    <a href="{{ member.get_absolute_url }}" class="member-item" itemscope itemtype="http://schema.org/Person">{% spaceless %}
     	{% if avatar %}
-        	<img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+        	<img src="{{ profile.get_avatar_url }}" alt="" class="avatar" itemprop="image">
     	{% endif %}
-        {{ member.username }}
+    	
+        <span itemprop="name">
+        	{{ member.username }}
+        </span>
 
         {% if info %}
             <span class="info">({{ info }})</span>
