@@ -35,8 +35,8 @@
 
 
 {% block content_out %}
-    <section class="full-content-wrapper">
-        <h1 class="ico-after ico-tutorials">
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <h1 class="ico-after ico-tutorials" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     Tutoriels : {{ tag }}
@@ -45,6 +45,8 @@
                 {% endif %}
             {% endblock %}
         </h1>
+        
+        <meta itemprop="itemListOrder" content="Unordered">
 
         {% if tutorials %}
             <div class="tutorial-list">

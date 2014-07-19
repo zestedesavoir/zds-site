@@ -35,8 +35,8 @@
 
 
 {% block content_out %}
-    <section class="full-content-wrapper">
-        <h2 class="ico-after ico-articles">
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <h2 class="ico-after ico-articles" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     Articles : {{ tag }}
@@ -45,6 +45,8 @@
                 {% endif %}
             {% endblock %}
         </h2>
+
+        <meta itemprop="itemListOrder" content="Unordered">
 
         {% block content %}
             {% if articles %}
