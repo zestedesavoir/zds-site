@@ -1,6 +1,7 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load captureas %}
+{% load date %}
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load set %}
@@ -26,11 +27,17 @@
         {% endif %}
         {{ article.title }}
     </h1>
+
+    {% if article.description %}
+        <h3 class="subtitle">
+            {{ article.description }}
+        </h3>
+    {% endif %}
     
     {% if article.licence %}
-        <p class="license">
+        <span class="license">
             {{ article.licence }}
-        </p>
+        </span>
     {% endif %}
 
     <ul class="taglist">
@@ -42,6 +49,13 @@
             </li>
         {% endfor %}
     </ul>
+
+    <span class="pubdate">
+        Publié 
+        <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+            {{ article.pubdate|format_date }}
+        </time>
+    </span>
     
     <div class="authors">
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>

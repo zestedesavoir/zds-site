@@ -17,7 +17,6 @@
     input[type=radio]:checked,
     input[type=checkbox]:checked {
         background-size: round($sprite_width / 2) round($sprite_height / 2) !important;
-        //background-size: 50% 50% !important;
         background-image: $sprite2x !important;
     }
 

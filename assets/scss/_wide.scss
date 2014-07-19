@@ -227,6 +227,10 @@
             width: 80%;
             margin-right: 0;
 
+            .taglist + .pubdate {
+                margin-top: -40px;
+            }
+
             .open-zen-mode {
                 display: block;
             }
