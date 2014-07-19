@@ -33,7 +33,7 @@
     </h1>
     
     <div class="authors">
-        <span class="authors-label">Contributeurs : </span>
+        <span class="authors-label">Contributeur{{ article.authors.all|pluralize }} : </span>
         <ul>
             {% for member in article.authors.all %}
                 <li>

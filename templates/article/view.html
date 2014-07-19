@@ -44,7 +44,7 @@
     </ul>
     
     <div class="authors">
-        <span class="authors-label">Contributeurs : </span>
+        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
                 <li>

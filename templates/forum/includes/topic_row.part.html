@@ -31,7 +31,7 @@
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
                 {% if topic.tags.all %}
-                    - Tags : 
+                    - Tag{{ topic.tags.all|pluralize }} : 
                     {% for tag in topic.tags.all %}
                         <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag">{{ tag.title }}</a>
                     {% endfor %}
@@ -42,7 +42,7 @@
     <p class="topic-answers">
         {% with nb_post=topic.get_post_count %}
             {% if nb_post > 1 %}
-                {{ nb_post|add:"-1" }} réponse{% if nb_post > 2 %}s{% endif %}
+                {{ nb_post|add:"-1" }} réponse{{ nb_post|add:"-1"|pluralize }}
             {% endif %}
         {% endwith %}
     </p>
