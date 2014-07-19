@@ -7,7 +7,7 @@
 {% endif %}
 
 <div class="authors">
-    <span class="authors-label">Auteurs : </span>
+    <span class="authors-label">Auteur{{ tutorial.authors.all|pluralize }} : </span>
     <ul>
         {% for member in tutorial.authors.all %}
             <li>
