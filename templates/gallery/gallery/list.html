@@ -61,13 +61,13 @@
         </div>
 
         {% if galleries|length > 0 %}
-        <button type="submit" name="delete_multi" class="btn btn-cancel">
-            Supprimer la séléction
-        </button>
+            <button type="submit" name="delete_multi" class="btn btn-cancel">
+                Supprimer la séléction
+            </button>
         {% else %}
-        <p>
-            Vous n'avez pas encore <a href="{% url "zds.gallery.views.new_gallery" %}">ajouter de galerie</a>.
-        </p>
+            <p>
+                Vous n'avez pas encore <a href="{% url "zds.gallery.views.new_gallery" %}">ajouter de galerie</a>.
+            </p>
         {% endif %}
 
         {% csrf_token %}
