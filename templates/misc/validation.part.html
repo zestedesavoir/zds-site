@@ -21,10 +21,10 @@
         </button>
     </form>
 {% elif validation.is_pending_valid %}
-    <a href="#unreservation" class="open-modal btn btn-cancel">
+    <a href="#unreservation-{{ validation.pk }}" class="open-modal btn btn-cancel">
         Annuler la réservation
     </a>
-    <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation">
+    <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation-{{ validation.pk }}">
     	{% csrf_token %}
         <p>
             Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
