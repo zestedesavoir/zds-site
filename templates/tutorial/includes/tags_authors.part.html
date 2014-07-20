@@ -3,9 +3,9 @@
 
 
 {% if tutorial.subcategory.all|length > 0 %}
-    <ul class="taglist">
+    <ul class="taglist" itemprop="keywords">
         {% for catofsubcat in tutorial.subcategory.all %}
-            <li><a href="{{ catofsubcat.get_absolute_url_tutorial }}" itemprop="keywords">{{ catofsubcat.title }}</a></li>
+            <li><a href="{{ catofsubcat.get_absolute_url_tutorial }}">{{ catofsubcat.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -15,7 +15,7 @@
 {% if tutorial.update %}
     <span class="pubdate">
         Dernière mise à jour :  
-        <time datetime="{{ tutorial.update|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+        <time datetime="{{ tutorial.update|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
             {{ tutorial.update|format_date }}
         </time>
     </span>
@@ -27,8 +27,8 @@
     <span class="authors-label">Auteur{{ tutorial.authors.all|pluralize }} : </span>
     <ul>
         {% for member in tutorial.authors.all %}
-            <li itemprop="author">
-                {% include "misc/member_item.part.html" with avatar=True %}
+            <li>
+                {% include "misc/member_item.part.html" with avatar=True author=True %}
             </li>
         {% endfor %}
 

@@ -446,10 +446,10 @@
         
             <div class="clearfix sub-header">
                 <div class="wrapper">
-                    <div class="breadcrumb" itemprop="breadcrumb">
+                    <div class="breadcrumb" itemprop="breadcrumb" itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
                         <ol>
                             <li>
-                                <a href="{% url "zds.pages.views.home" %}">Accueil</a>
+                                <a href="{% url "zds.pages.views.home" %}" rel="home">Accueil</a>
                             </li>
                             {% block breadcrumb_base %}{% endblock %}
                             {% block breadcrumb %}{% endblock %}

@@ -3,7 +3,15 @@
 
 
 {% with profile=member|profile %}
-    <a href="{{ member.get_absolute_url }}" class="member-item" itemscope itemtype="http://schema.org/Person">{% spaceless %}
+    <a
+        href="{{ member.get_absolute_url }}"
+        class="member-item"
+        itemscope
+        itemtype="http://schema.org/Person"
+        {% if author %}
+            itemprop="author"
+        {% endif %}
+    >{% spaceless %}
     	{% if avatar %}
         	<img src="{{ profile.get_avatar_url }}" alt="" class="avatar" itemprop="image">
     	{% endif %}

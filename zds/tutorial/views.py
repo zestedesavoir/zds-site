@@ -742,6 +742,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
     mandata["update"] = tutorial.update
+    mandata["get_note_count"] = tutorial.get_note_count()
 
     # If it's a small tutorial, fetch its chapter
 

@@ -32,15 +32,15 @@
 
 
 {% block headline %}
-    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+    <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="">
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ part.title }}
     </h1>
 
     {% if tutorial.licence %}
-        <p class="license">
+        <p class="license" itemprop="license">
             Licence {{ tutorial.licence }}
         </p>
     {% endif %}

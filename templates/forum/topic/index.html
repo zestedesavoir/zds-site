@@ -41,9 +41,13 @@
 
 {% block content %}
     {% if topic.tags.all %}
-        <ul class="taglist">
+        <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
-                <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">{{ tag.title }}</a></li>
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">
+                        {{ tag.title }}
+                    </a>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}

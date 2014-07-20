@@ -19,9 +19,6 @@
         {% if message.is_useful %}helpful{% endif %}
         {% if is_repeated_message %}repeated{% endif %}
     " 
-    {% if message.is_useful or message.like > message.dislike %}
-        itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
-    {% endif %}
     {% if comment_schema %}
         itemscope 
         itemtype="http://schema.org/Comment"
@@ -29,6 +26,9 @@
     {% elif answer_schema %}
         itemscope 
         itemtype="http://schema.org/Answer"
+        {% if message.is_useful or message.like > message.dislike %}
+            itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
+        {% endif %}
     {% endif %}
 >
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
@@ -278,7 +278,6 @@
                             {% endwith %}
                         {% else %}
                             <span
-                                itemprop="upvoteCount"
                                 class="upvote
                                       ico-after
                                       {% if message.like > message.dislike %}more-voted{% endif %}
@@ -288,10 +287,11 @@
                                     title="{{ message.like }} personnes ont trouvé ce message utile"
                                 {% endif %}
                             >
-                                +{{ message.like }}
+                                +<span itemprop="upvoteCount">
+                                    {{ message.like }}
+                                </span>
                             </span>
                             <span 
-                                itemprop="downvoteCount"
                                 class="downvote
                                       ico-after
                                       {% if message.like < message.dislike %}more-voted{% endif %} 
@@ -301,7 +301,9 @@
                                     title="{{ message.dislike }} personnes n'ont pas trouvé ce message utile"
                                 {% endif %}
                             >
-                                -{{ message.dislike }}
+                                -<span itemprop="downvoteCount">
+                                    {{ message.dislike }}
+                                </span>
                             </span>
                         {% endif %}
                     {% if upvote_link %}

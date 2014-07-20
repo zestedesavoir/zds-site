@@ -56,7 +56,7 @@
     {% endif %}
 
     {% if tutorial.description %}
-        <h3 class="subtitle">
+        <h3 class="subtitle" itemprop="description">
             {{ tutorial.description }}
         </h3>
     {% endif %}
@@ -104,7 +104,16 @@
 
 
 {% block content_after %}
-    <h2 class="reactions-title" id="comments">Commentaires</h2>
+    <h3 class="comments-title" id="comments">
+        {% if tutorial.get_note_count > 0 %}
+            <span itemprop="commentCount">
+                {{ tutorial.get_note_count }}
+            </span>
+            commentaire{{ tutorial.get_note_count|pluralize }}
+        {% else %}
+            Aucun commentaire
+        {% endif %}
+    </h3>
 
 
     {% include "misc/pagination.part.html" with position="top" topic=tutorial is_online=True anchor="comments" %}

@@ -46,10 +46,10 @@
         </h3>
     {% endif %}
 
-    <ul class="taglist">
+    <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}" itemprop="keywords">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -67,8 +67,8 @@
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
-                <li itemprop="author">
-                    {% include "misc/member_item.part.html" with avatar=True %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True author=True %}
                 </li>
             {% endfor %}
         </ul>
@@ -93,15 +93,15 @@
 
 
 {% block content_after %}
-    <h3 class="reactions-title" id="reactions">
-        <span itemprop="commentCount">
-            {% if article.get_reaction_count > 0 %}
+    <h3 class="comments-title" id="reactions">
+        {% if article.get_reaction_count > 0 %}
+            <span itemprop="commentCount">
                 {{ article.get_reaction_count }}
-            {% else %}
-                Aucune
-            {% endif %}
-        </span>
-        réaction{{ article.get_reaction_count|pluralize }}
+            </span>
+            réaction{{ article.get_reaction_count|pluralize }}
+        {% else %}
+            Aucune réaction
+        {% endif %}
     </h3>
 
 
