@@ -21,5 +21,6 @@
         <a href="{% url "zds.gallery.views.new_gallery" %}" class="new-btn ico-after more blue">
             Ajouter une galerie
         </a>
+        {% block sidebar_actions %}{% endblock %}
     </aside>
 {% endblock %}
