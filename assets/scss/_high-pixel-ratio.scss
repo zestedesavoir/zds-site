@@ -44,8 +44,11 @@
         @include sprite-pos($ariane, true);
     }
 
-    .search form button:after {
-        @include sprite-pos($search, true);
+    .search,
+    .search-box {
+        form button:after {
+            @include sprite-pos($search, true);
+        }
     }
 
     .main .content-container h2 {

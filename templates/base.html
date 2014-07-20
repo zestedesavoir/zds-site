@@ -411,7 +411,10 @@
 
 
         <div class="main-container">
-            <div class="main wrapper clearfix">
+            {% block pre_content %}
+            {% endblock %}
+
+            <div class="main wrapper clearfix">    
                 
                 <main class="content-container" role="main" id="content">
                     {% if messages %}
