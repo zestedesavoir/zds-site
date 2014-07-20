@@ -14,9 +14,19 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li>{{ topic.title }}</li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.category.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.title }}</span>
+        </a>
+    </li>
+    <li>
+        {{ topic.title }}
+    </li>
 {% endblock %}
 
 

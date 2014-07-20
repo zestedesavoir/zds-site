@@ -18,7 +18,11 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{% url "zds.tutorial.views.index" %}" itemprop="url">
+            <span itemprop="title">Tutoriels</span>
+        </a>
+    </li>
 {% endblock %}
 
 

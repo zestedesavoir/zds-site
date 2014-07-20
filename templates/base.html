@@ -449,7 +449,9 @@
                     <div class="breadcrumb" itemprop="breadcrumb" itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
                         <ol>
                             <li>
-                                <a href="{% url "zds.pages.views.home" %}" rel="home">Accueil</a>
+                                <a href="{% url "zds.pages.views.home" %}" rel="home" itemprop="url">
+                                    <span itemprop="title">Accueil</span>
+                                </a>
                             </li>
                             {% block breadcrumb_base %}{% endblock %}
                             {% block breadcrumb %}{% endblock %}
