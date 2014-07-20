@@ -60,19 +60,21 @@
     </ul>
     
     <div class="authors">
-        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
-        <ul>
-            {% for member in authors.all %}
+        {% with authors_all=authors.all %}
+            <span class="authors-label">Contributeur{{ authors_all|pluralize }} : </span>
+            <ul>
+                {% for member in authors_all %}
+                    <li>
+                        {% include "misc/member_item.part.html" with avatar=True %}
+                    </li>
+                {% endfor %}
                 <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
+                    <a href="#add-author" class="open-modal ico-after more blue">
+                        Ajouter un auteur
+                    </a>
                 </li>
-            {% endfor %}
-            <li>
-                <a href="#add-author" class="open-modal ico-after more blue">
-                    Ajouter un auteur
-                </a>
-            </li>
-        </ul>
+            </ul>
+        {% endwith %}
     </div>
 
     {% if perms.article.change_article and article.sha_validation != None and validation.comment_authors %}

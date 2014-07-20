@@ -33,14 +33,16 @@
     </h1>
     
     <div class="authors">
-        <span class="authors-label">Contributeur{{ article.authors.all|pluralize }} : </span>
-        <ul>
-            {% for member in article.authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
+        {% with article_authors_all=article.authors.all %}
+            <span class="authors-label">Contributeur{{ article_authors_all|pluralize }} : </span>
+            <ul>
+                {% for member in article_authors_all %}
+                    <li>
+                        {% include "misc/member_item.part.html" with avatar=True %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endwith %}
     </div>
 {% endblock %}
 

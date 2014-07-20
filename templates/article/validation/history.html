@@ -42,14 +42,16 @@
     </ul>
     
     <div class="authors">
-        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
-        <ul>
-            {% for member in authors.all %}
-                <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
-                </li>
-            {% endfor %}
-        </ul>
+        {% with authors_all=authors.all %}
+            <span class="authors-label">Contributeur{{ authors_all|pluralize }} : </span>
+            <ul>
+                {% for member in authors_all %}
+                    <li>
+                        {% include "misc/member_item.part.html" with avatar=True %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endwith %}
     </div>
 
     {% if validations %}
