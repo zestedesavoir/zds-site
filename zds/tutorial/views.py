@@ -983,6 +983,13 @@ def edit_tutorial(request):
 
             tutorial.update = datetime.now()
 
+            # MAJ gallery
+
+            gal = Gallery.objects.filter(pk=tutorial.gallery.pk)
+            gal.update(title=data["title"])
+            gal.update(slug=slugify(data["title"]))
+            gal.update(update=datetime.now())
+
             # MAJ image
 
             if "image" in request.FILES:

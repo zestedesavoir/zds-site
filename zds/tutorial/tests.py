@@ -1363,6 +1363,30 @@ class BigTutorialTests(TestCase):
             self.client.get(url).status_code,
             200)
 
+    def test_gallery_tuto_change_name(self):
+        """
+        Test if the gallery attached to a tutorial change its name when the tuto
+        has the name changed.
+        """
+
+        newtitle = u"The New Title"
+        response = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': newtitle,
+                'subcategory': self.subcat.pk,
+                'introduction': self.bigtuto.introduction,
+                'description': self.bigtuto.description,
+                'conclusion': self.bigtuto.conclusion,
+            },
+            follow=True)
+
+        tuto = Tutorial.objects.filter(pk=self.bigtuto.pk).first()
+        self.assertEqual(tuto.title, newtitle)
+        self.assertEqual(tuto.gallery.title, tuto.title)
+        self.assertEqual(tuto.gallery.slug, tuto.slug)
+
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
