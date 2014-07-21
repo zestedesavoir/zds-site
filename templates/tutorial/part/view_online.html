@@ -25,7 +25,11 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ part.tutorial.get_absolute_url_online }}" itemprop="url">
+            <span itemprop="title">{{ part.tutorial.title }}</span>
+        </a>
+    </li>
     <li>{{ part.title }}</li>
 {% endblock %}
 

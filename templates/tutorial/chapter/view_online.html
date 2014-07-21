@@ -10,10 +10,16 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ chapter.part.tutorial.get_absolute_url_online }}">{{ chapter.part.tutorial.title }}</a></li>
-    <li><a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.pk chapter.part.slug %}">
-        {{ chapter.part.title }}
-    </a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ chapter.part.tutorial.get_absolute_url_online }}" itemprop="url">
+            <span itemprop="title">{{ chapter.part.tutorial.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{% url "view-part-url-online" chapter.part.tutorial.pk chapter.part.tutorial.slug chapter.part.pk chapter.part.slug %}" itemprop="url">
+            <span itemprop="title">{{ chapter.part.title }}</span>
+        </a>
+    </li>
     <li>{{ chapter.title }}</li>
 {% endblock %}
 
