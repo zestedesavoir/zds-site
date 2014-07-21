@@ -959,7 +959,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u'Bonjour {0},\n\nVous recevez ce message car vous avez '
+    msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
     u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
     u'Votre alerte a été traitée par **{4}** et il vous a laissé '
     u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
@@ -970,7 +970,7 @@ def solve_alert(request):
         settings.SITE_URL +
         reaction.get_absolute_url(),
         request.user.username,
-        request.POST['text'])
+        request.POST['text']))
     send_mp(
         bot, [
             alert.author], u"Résolution d'alerte : {0}".format(
