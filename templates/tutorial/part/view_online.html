@@ -44,9 +44,9 @@
     </h1>
 
     {% if tutorial.licence %}
-        <p class="license" itemprop="license">
+        <span class="license" itemprop="license">
             Licence {{ tutorial.licence }}
-        </p>
+        </span>
     {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}

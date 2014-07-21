@@ -32,18 +32,18 @@
         {% set chapter.part.tutorial as tutorial %}
     {% endif %}
 
-    {% if tutorial.licence %}
-        <p class="license">
-            Licence {{ tutorial.licence }}
-        </p>
-    {% endif %}
-
     <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
             <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         {{ chapter.title }}
     </h1>
+
+    {% if tutorial.licence %}
+        <span class="license">
+            Licence {{ tutorial.licence }}
+        </span>
+    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
