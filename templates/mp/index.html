@@ -38,21 +38,25 @@
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
-                            <em>
-                                {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
-                            </em>{% spaceless %}
+                            {% with topic_participants_all=topic.participants.all %}
+                                <span class="topic-members-label">Participant{{ topic_participants_all|length|add:"1"|pluralize }} :</span>
+                                <em>
+                                    {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
+                                </em>{% spaceless %}
 
-                            {% endspaceless %}{% for member in topic.participants.all %}
-                                {% include "misc/member_item.part.html" with avatar=True %}
-                            {% endfor %}
+                                {% endspaceless %}{% for member in topic_participants_all %}
+                                    {% include "misc/member_item.part.html" with avatar=True %}
+                                {% endfor %}
+                            {% endwith %}
                         </p>
                     </div>
                 {% endwith %}
                 <p class="topic-answers">
-                    {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
-                    {% endif %}
+                    {% with post_count=topic.get_post_count %}
+                        {% if post_count > 1 %}
+                            {{ post_count|add:"-1" }} réponse{{ post_count|add:"-1"|pluralize }}
+                        {% endif %}
+                    {% endwith %}
                 </p>
                 <p class="topic-last-answer">
                     {% with answer=topic.get_last_answer %}

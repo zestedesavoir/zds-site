@@ -32,24 +32,26 @@
 
 {% block content %}
     <div class="authors">
-        <span class="authors-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
-        <ul>
-            <li>
-                {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
-            </li>
-            {% for member in topic.participants.all %}
+        {% with topic_participants_all=topic.participants.all%}
+            <span class="authors-label">Participant{{ topic_participants_all|length|add:"1"|pluralize }} : </span>
+            <ul>
                 <li>
-                    {% include 'misc/member_item.part.html' with avatar=True %}
+                    {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
                 </li>
-            {% endfor %}
-            {% if user = topic.author %}
-                <li>
-                    <a href="#add-participant" class="open-modal ico-after more blue">
-                        Ajouter un membre
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
+                {% for member in topic_participants_all %}
+                    <li>
+                        {% include 'misc/member_item.part.html' with avatar=True %}
+                    </li>
+                {% endfor %}
+                {% if user = topic.author %}
+                    <li>
+                        <a href="#add-participant" class="open-modal ico-after more blue">
+                            Ajouter un membre
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endwith %}
     </div>
 
     {% include "misc/pagination.part.html" with position="top" %}
