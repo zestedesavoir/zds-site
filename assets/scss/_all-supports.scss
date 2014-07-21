@@ -1089,6 +1089,8 @@
         color: #0b668e;
         font-style: italic;
         margin: 0;
+        width: 100%;
+        text-align: center;
     }
 
     &.home-simple-quote {
@@ -1098,12 +1100,11 @@
             position: absolute;
             height: 80px;
             top: -15px;
-            left: 150px;
-            margin-left: -10px;
+            left: -20px;
         }
 
         blockquote {
-            margin: 0 0 0 300px;
+            margin: 0;
             font-size: 16px;
             font-size: 1.6rem;
         }
@@ -1112,15 +1113,15 @@
     &.home-full-description {
         padding: 20px 0;
         min-height: 210px;
+        text-align: center;
 
         img {
-            float: left;
-            margin: 15px 0 0 -20px;
+            margin: 0 0 15px -100px;
         }
 
         .home-full-description-text {
-            margin-left: 300px;
             line-height: 18px;
+            text-align: left;
 
             h2 {
                 font-size: 22px;
@@ -1149,36 +1150,35 @@
 }
 .search-box {
     width: 100%;
-    height: 60px;
+    min-height: 60px;
     background: #EEE;
     box-shadow: rgba(0, 0, 0, .25) 0 0 3px;
 
     form {
-        height: 60px;
+        min-height: 60px;
 
         label {
             display: block;
-            line-height: 60px;
+            line-height: 40px;
             font-size: 16px;
             font-size: 1.6rem;
             color: #333;
-            width: 300px;
             text-align: center;
-            float: left;
+            width: 100%;
         }
 
         input,
         button {
             border: 1px solid $orange;
             background: #FFF;
-            margin: 12px 0;
-            float: left;
+            margin: 5px 0 12px;
         }
         input {
             height: 34px;
             padding: 0 15px;
-            width: calc(100% - 372px);
             border-right: none;
+            width: 85%;
+            width: calc(100% - 71px);
         }
         button {
             height: 36px;
@@ -1186,6 +1186,10 @@
             border-left: none;
             width: 40px;
             transition: background .15s;
+            
+            position: absolute;
+            bottom: 0;
+            right: 15px;
 
             &:hover {
                 background: #EEE;
