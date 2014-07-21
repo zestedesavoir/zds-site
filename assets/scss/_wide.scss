@@ -316,6 +316,54 @@
     /* ============
        Main / Home
        ============ */
+    .home-quote {
+        blockquote {
+            text-align: left;
+        }
+
+        &.home-simple-quote {
+            img {
+                height: 80px;
+                top: -15px;
+                left: 150px;
+                margin-left: -10px;
+            }
+            
+            blockquote {
+                margin: 0 0 0 300px;
+            }
+        }
+
+        &.home-full-description {
+            img {
+                float: left;
+                margin: 15px 0 0 -15px;
+            }
+
+            .home-full-description-text {
+                margin-left: 300px;
+            }
+        }
+    }
+    .search-box {
+        form {
+            label {
+                line-height: 60px;
+                width: 300px;
+                float: left;
+            }
+
+            input,
+            button {
+                margin: 12px 0;
+                float: left;
+            }
+            input {
+                width: calc(100% - 371px);
+            }
+        }
+    }
+
     .content-cols .main {
         .content-container {
             width: 79%;
