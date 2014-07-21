@@ -1138,7 +1138,7 @@ def view_part_online(
         part["path"] = tutorial.get_path()
         part["slug"] = slugify(part["title"])
         part["position_in_tutorial"] = cpt_p
-        if part_pk == str(part["pk"]):
+        if part_pk is not None and part_pk == str(part["pk"]):
             intro = open(os.path.join(tutorial.get_prod_path(),
                                       part["introduction"] + ".html"), "r")
             part["intro"] = intro.read()
@@ -1156,7 +1156,7 @@ def view_part_online(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            if part_slug == slugify(part["title"]):
+            if part_slug is not None and part_slug == slugify(part["title"]):
                 cpt_e = 1
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
@@ -1452,6 +1452,8 @@ def view_chapter_online(
     """View chapter."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    get_object_or_404(Chapter, pk=chapter_pk)
+    
     if not tutorial.on_line():
         raise Http404
 
