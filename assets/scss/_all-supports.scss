@@ -6,7 +6,7 @@
 
 
 
- #accessibility {
+#accessibility {
     list-style: none;
     margin: 0;
     padding: 0 2.5%;
@@ -1065,13 +1065,145 @@
         display: none;
     }
 }
-.main.home .content-container {
+.home .main .content-container {
     margin-top: 0;
 }
+
+
 
 /* ==============
     ALL: Main / Home
    ============== */
+.home-wrapper {
+    position: relative;
+    max-width: 1100px;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+.home-quote {
+    width: 100%;
+    min-height: 24px;
+    background: #e9e7e4;
+
+    blockquote {
+        color: #0b668e;
+        font-style: italic;
+        margin: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    &.home-simple-quote {
+        padding: 20px 0;
+
+        img {
+            position: absolute;
+            height: 80px;
+            top: -15px;
+            left: -20px;
+        }
+
+        blockquote {
+            margin: 0;
+            font-size: 16px;
+            font-size: 1.6rem;
+        }
+    }
+
+    &.home-full-description {
+        padding: 20px 0;
+        min-height: 210px;
+        text-align: center;
+
+        img {
+            margin: 0 0 15px -100px;
+        }
+
+        .home-full-description-text {
+            line-height: 18px;
+            text-align: left;
+
+            h2 {
+                font-size: 22px;
+                font-size: 2.2rem;
+                line-height: 38px;
+                line-height: 3.8rem;
+                color: #084561;
+                font-weight: normal;
+                border-bottom: 1px solid #F8AD32;
+                margin-top: 0;
+            }
+
+            blockquote {
+                color: #0b668e;
+                font-style: italic;
+                font-size: 18px;
+                font-size: 1.8rem;
+                margin: 0;
+            }
+
+            p:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+.search-box {
+    width: 100%;
+    min-height: 60px;
+    background: #EEE;
+    box-shadow: rgba(0, 0, 0, .25) 0 0 3px;
+
+    form {
+        min-height: 60px;
+
+        label {
+            display: block;
+            line-height: 40px;
+            font-size: 16px;
+            font-size: 1.6rem;
+            color: #333;
+            text-align: center;
+            width: 100%;
+        }
+
+        input,
+        button {
+            border: 1px solid $orange;
+            background: #FFF;
+            margin: 5px 0 12px;
+        }
+        input {
+            height: 34px;
+            padding: 0 15px;
+            border-right: none;
+            width: 85%;
+            width: calc(100% - 71px);
+        }
+        button {
+            height: 36px;
+            text-indent: -9999px;
+            border-left: none;
+            width: 40px;
+            transition: background .15s;
+            
+            position: absolute;
+            bottom: 0;
+            right: 15px;
+
+            &:hover {
+                background: #EEE;
+            }
+
+            &:after {
+                top: 9px;
+                left: 12px;
+                @include sprite-pos($search);
+            }
+        }
+    }
+}
+
 .tutorial-list article,
 .main .article-content .tutorial-list article {
     min-height: 60px;

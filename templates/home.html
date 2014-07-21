@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load emarkdown %}
 {% load date %}
 {% load interventions %}
@@ -21,6 +22,58 @@
 
 
 {% block body_class %}home content-cols{% endblock %}
+
+
+
+{% block pre_content %}
+    {% if user.is_authenticated %}
+        <section class="home-quote home-simple-quote">
+            <div class="home-wrapper">
+                <img src="{% static "images/clem-home-quote.png" %}" alt="">
+                <blockquote>
+                    «&nbsp;{{ quote }}&nbsp;»
+                </blockquote>
+            </div>
+        </section>
+    {% else %}
+        <section class="home-quote home-full-description">
+            <div class="home-wrapper">
+                <img src="{% static "images/clem-home.png" %}" alt="" width="214" height="209">
+                <div class="home-full-description-text">
+                    <h2>Zeste de Savoir, la connaissance pour tous et sans pépins</h2>
+
+                    <blockquote>
+                        «&nbsp;{{ quote }}&nbsp;»
+                    </blockquote>
+
+                    <p>
+                        Zeste de Savoir est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="http://zestedesavoir.com/tutoriels/">tutoriels de tous niveaux</a>, des <a href="http://zestedesavoir.com/articles/">articles</a> et des <a href="http://zestedesavoir.com/forums/">forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                    </p>
+                    <p>
+                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
+                    </p>
+                    <p>
+                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré et financé par une <a href="http://zestedesavoir.com/pages/association/">association</a> a but non lucratif.
+                    </p>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+    
+
+
+    <section class="search-box">
+        <form action="/rechercher" class="home-wrapper">
+            <label for="search-box-field">
+                Tu cherches quelque chose ?
+            </label>
+            <input type="text" name="q" placeholder="Exemples : Mathématiques, UDK, HTML, PHP, Java, ..." id="search-box-field">
+            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">
+                OK
+            </button>
+        </form>
+    </section>
+{% endblock %}
 
 
 
