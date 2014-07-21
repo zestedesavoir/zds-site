@@ -5,14 +5,14 @@
 
 
 {% block title %}
-  {{ tutorial.title }}
+    Historique de "{{ tutorial.title }}"
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
-    <li>Historique</li>
+    <li>Historique des modifications</li>
 {% endblock %}
 
 
@@ -22,7 +22,7 @@
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
-        {{ tutorial.title }}
+        Historique de "{{ tutorial.title }}"
     </h1>
 
     {% if tutorial.licence %}
@@ -42,8 +42,8 @@
     <table class="fullwidth">
         <thead>
             <tr>
-                <th>Etat</th>
-                <th width="25%">Date</th>
+                <th width="10%">Etat</th>
+                <th width="18%">Date</th>
                 <th>Version</th>
                 <th width="10%">Diff.</th>
                 <th width="15%">Auteur</th>
@@ -79,7 +79,7 @@
                             {% if u %}
                                 {% include "misc/member_item.part.html" with member=u avatar=True %}
                             {% else %}
-                                Inconnu
+                                <em>Inconnu</em>
                             {% endif %}
                         {% endwith %}
                     </td>

@@ -111,6 +111,7 @@ def view(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['pubdate'] = article.pubdate
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public

@@ -77,7 +77,12 @@
                     <span>En attente de validation</span>
                 </li>
             {% endif %}
+        </ul>
+    </div>
 
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Supprimer">
+        <h3>Supprimer</h3>
+        <ul>
             {% if article.sha_public = None %}
                 <li>
                     <a href="#delete" class="open-modal ico-after cross red">Supprimer</a>
@@ -94,7 +99,9 @@
                         </button>
                     </form>
                 </li>
-                <li>
+            {% else %}
+                <li class="inactive">
+                    <span class="disabled">Impossible, car en publié</span>
                 </li>
             {% endif %}
         </ul>
