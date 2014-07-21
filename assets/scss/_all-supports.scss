@@ -1074,10 +1074,40 @@
 /* ==============
     ALL: Main / Home
    ============== */
+.home-wrapper {
+    position: relative;
+    max-width: 1100px;
+    padding: 0 15px;
+    margin: 0 auto;
+}
 .home-quote {
     width: 100%;
-    min-height: 50px;
+    min-height: 24px;
     background: #e9e7e4;
+
+    blockquote {
+        color: #0b668e;
+        font-style: italic;
+        margin: 0;
+    }
+
+    &.home-simple-quote {
+        padding: 20px 0;
+
+        img {
+            position: absolute;
+            height: 80px;
+            top: -15px;
+            left: 150px;
+            margin-left: -10px;
+        }
+
+        blockquote {
+            margin: 0 0 0 300px;
+            font-size: 16px;
+            font-size: 1.6rem;
+        }
+    }
 
     &.home-full-description {
         padding: 20px 0;
@@ -1116,10 +1146,6 @@
             }
         }
     }
-}
-.home-wrapper {
-    max-width: 1100px;
-    margin: 0 auto;
 }
 .search-box {
     width: 100%;

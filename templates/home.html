@@ -27,9 +27,12 @@
 
 {% block pre_content %}
     {% if user.is_authenticated %}
-        <section class="home-quote">
+        <section class="home-quote home-simple-quote">
             <div class="home-wrapper">
-                Ceci est une citation
+                <img src="{% static "images/clem-home-quote.png" %}" alt="">
+                <blockquote>
+                    « Un concentré de connaissances, sans ajout ni conservateur, sans zeste déplacé »
+                </blockquote>
             </div>
         </section>
     {% else %}
