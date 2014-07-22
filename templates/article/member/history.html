@@ -11,6 +11,16 @@
 
 
 
+{% block breadcrumb_base %}
+    {% if user in article.authors.all %}
+        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% else %}
+        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    {% endif %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
     <li>Historique des modifications</li>

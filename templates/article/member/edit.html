@@ -11,7 +11,7 @@
 
 
 {% block breadcrumb_base %}
-    {% if user in tutorial.authors.all %}
+    {% if user in article.authors.all %}
         <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
     {% else %}
         <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
