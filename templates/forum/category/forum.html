@@ -4,12 +4,21 @@
 
 {% block title %}
     {{ forum.title }}
+    {% if request.GET.filter == "unsolve" %}
+        / Sujets résolus
+    {% elif request.GET.filter == "solve" %}
+        / Sujets non-résolus
+    {% endif %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ forum.category.title }}</span>
+        </a>
+    </li>
     <li>{{ forum.title }}</li>
 {% endblock %}
 
@@ -17,6 +26,11 @@
 
 {% block headline %}
     {{ forum.title }}
+    {% if request.GET.filter == "unsolve" %}
+        / Sujets résolus
+    {% elif request.GET.filter == "solve" %}
+        / Sujets non-résolus
+    {% endif %}
 {% endblock %}
 
 
@@ -39,7 +53,7 @@
     {% include "misc/pagination.part.html" with position="top" %}
 
     {% if sticky_topics %}
-        <div class="topic-list navigable-list">
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
             {% for topic in sticky_topics %}
                 {% include "forum/includes/topic_row.part.html" %}
             {% endfor %}
@@ -47,7 +61,7 @@
     {% endif %}
 
     {% if topics %}
-        <div class="topic-list navigable-list">
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
             {% for topic in topics %}
                 {% include "forum/includes/topic_row.part.html" %}
             {% endfor %}
@@ -71,25 +85,27 @@
         <ul>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve"
-                   class="ico-after tick green"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}unread{% endif %}"
                 >
                     Sujets résolus
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=unsolve"
-                   class="ico-after tick blue"
+                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}unread{% endif %}"
                 >
                     Sujets non résolus
                 </a>
             </li>
-            <li>
-                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}"
-                   class="ico-after cross blue"
-                >
-                    Annuler le filtre
-                </a>
-            </li>
+            {% if request.GET.filter %}
+                <li>
+                    <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}"
+                       class="ico-after cross blue"
+                    >
+                        Annuler le filtre
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 {% endblock %}

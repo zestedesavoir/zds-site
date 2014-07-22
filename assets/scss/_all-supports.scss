@@ -1016,7 +1016,7 @@
             height: 50px;
         }
 
-        &:not(:first-child) {
+        &:not(.subtitle):not(:first-child) {
             margin-top: 50px;
         }
     }
@@ -1029,6 +1029,7 @@
     .subtitle {
         font-size: 18px;
         font-size: 1.8rem;
+        line-height: 23px;
         color: #999;
         margin-top: -15px;
         margin-bottom: 15px;

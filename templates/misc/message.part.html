@@ -227,7 +227,7 @@
 
                 {% if upvote_link %}
                     <div class="message-karma">
-                        {% if user.is_authenticated and helpful_link %}
+                        {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author = user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">

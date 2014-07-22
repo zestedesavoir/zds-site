@@ -34,11 +34,13 @@
         proposer des exercices au reste de la communauté.
     </p>
 
-    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list">
+    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+        <meta itemprop="itemListOrder" content="Unordered">
+
         {% for title, forums in categories.items %}
-            <h3 class="group-title content-wrapper">
+            <h2 class="group-title content-wrapper">
                 {{ title }}
-            </h3>
+            </h2>
             {% include "forum/includes/forums.part.html" with forum=forums %}
         {% endfor %}
     </div>

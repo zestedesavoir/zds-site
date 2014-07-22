@@ -32,9 +32,9 @@
     {% endif %}
 
     {% if tutorial.description %}
-        <h3 class="subtitle">
+        <h2 class="subtitle">
             {{ tutorial.description }}
-        </h3>
+        </h2>
     {% endif %}
 
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}

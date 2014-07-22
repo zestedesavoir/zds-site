@@ -56,9 +56,9 @@
     {% endif %}
 
     {% if tutorial.description %}
-        <h3 class="subtitle" itemprop="description">
+        <h2 class="subtitle" itemprop="description">
             {{ tutorial.description }}
-        </h3>
+        </h2>
     {% endif %}
 
     {% include "tutorial/includes/tags_authors.part.html" with tutorial=tutorial %}
