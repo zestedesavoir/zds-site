@@ -54,8 +54,18 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
+from zds.utils.misc import compute_hash, content_has_changed
 
+def render_chapter_form(chapter):
+    if chapter.part:
+        return ChapterForm({"title": chapter.title,
+                            "introduction": chapter.get_introduction(),
+                            "conclusion": chapter.get_conclusion()})
+    else:
 
+        return \
+            EmbdedChapterForm({"introduction": chapter.get_introduction(),
+                               "conclusion": chapter.get_conclusion()})
 
 def index(request):
     """Display all public tutorials of the website."""
@@ -703,11 +713,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                            version=sha)\
                                     .order_by("-date_proposition")\
                                     .first()
+    formAskValidation = AskValidationForm()
     if tutorial.source:
-        formAskValidation = AskValidationForm(initial={"source": tutorial.source})
         formValid = ValidForm(initial={"source": tutorial.source})
     else:
-        formAskValidation = AskValidationForm()
         formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
@@ -969,10 +978,29 @@ def edit_tutorial(request):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+    introduction = os.path.join(tutorial.get_path(), "introduction.md")
+    conclusion = os.path.join(tutorial.get_path(), "conclusion.md")
     if request.method == "POST":
         form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.data
+            if content_has_changed([introduction, conclusion], data["last_hash"]):
+                form = TutorialForm(initial={
+                    "title": tutorial.title,
+                    "type": tutorial.type,
+                    "licence": tutorial.licence,
+                    "description": tutorial.description,
+                    "subcategory": tutorial.subcategory.all(),
+                    "introduction": tutorial.get_introduction(),
+                    "conclusion": tutorial.get_conclusion(),
+
+                })
+                return render_template("tutorial/tutorial/edit.html",
+                           {
+                               "tutorial": tutorial, "form": form,
+                               "last_hash": compute_hash([introduction, conclusion]),
+                               "new_version": True
+                           })        
             old_slug = tutorial.get_path()
             tutorial.title = data["title"]
             tutorial.description = data["description"]
@@ -1037,7 +1065,7 @@ def edit_tutorial(request):
             "conclusion": tutorial.get_conclusion(),
         })
     return render_template("tutorial/tutorial/edit.html",
-                           {"tutorial": tutorial, "form": form})
+                           {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
 
 # Parts.
 
@@ -1309,7 +1337,8 @@ def edit_part(request):
     except KeyError:
         raise Http404
     part = get_object_or_404(Part, pk=part_pk)
-
+    introduction = os.path.join(part.get_path(), "introduction.md")
+    conclusion = os.path.join(part.get_path(), "conclusion.md")
     # Make sure the user is allowed to do that
 
     if request.user not in part.tutorial.authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
@@ -1318,7 +1347,18 @@ def edit_part(request):
         form = PartForm(request.POST)
         if form.is_valid():
             data = form.data
-
+            # avoid collision
+            if content_has_changed([introduction, conclusion],data["last_hash"]):
+                form = PartForm({"title": part.title,
+                         "introduction": part.get_introduction(),
+                         "conclusion": part.get_conclusion()})
+                return render_template("tutorial/part/edit.html", 
+                    {
+                         "part": part,
+                         "last_hash": compute_hash([introduction, conclusion]),
+                         "new_version":True,
+                         "form": form
+                    })
             # Update title and his slug.
 
             part.title = data["title"]
@@ -1347,8 +1387,12 @@ def edit_part(request):
         form = PartForm({"title": part.title,
                          "introduction": part.get_introduction(),
                          "conclusion": part.get_conclusion()})
-    return render_template("tutorial/part/edit.html", {"part": part,
-                                                       "form": form})
+    return render_template("tutorial/part/edit.html",
+        {
+            "part": part,
+	        "last_hash": compute_hash([introduction, conclusion]),
+            "form": form
+        })
 
 
 # Chapters.
@@ -1403,7 +1447,7 @@ def view_chapter(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part["pk"],
+                part_pk,
                 part["slug"]])
         part["tutorial"] = tutorial
         for chapter in part["chapters"]:
@@ -1413,15 +1457,8 @@ def view_chapter(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url"] = reverse(
-                                        "zds.tutorial.views.view_chapter",
-                                        args=[
-                                              tutorial.pk,
-                                              tutorial.slug,
-                                              part["pk"],
-                                              part["slug"],
-                                              chapter["pk"],
-                                              chapter["slug"]])
+            chapter["get_absolute_url"] = part["get_absolute_url"] \
+                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
@@ -1447,8 +1484,10 @@ def view_chapter(
     if not find:
         raise Http404
 
-    prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
-    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
+    prev_chapter = (chapter_tab[final_position - 1] if final_position
+                    > 0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1
+                    < len(chapter_tab) else None)
     
     return render_template("tutorial/chapter/view.html", {
         "tutorial": tutorial,
@@ -1497,7 +1536,7 @@ def view_chapter_online(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part["pk"],
+                part_pk,
                 part["slug"]])
         part["tutorial"] = mandata
         part["position_in_tutorial"] = cpt_p
@@ -1509,15 +1548,8 @@ def view_chapter_online(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url_online"] = reverse(
-                                                "zds.tutorial.views.view_chapter_online",
-                                                args=[
-                                                      tutorial.pk,
-                                                      tutorial.slug,
-                                                      part["pk"],
-                                                      part["slug"],
-                                                      chapter["pk"],
-                                                      chapter["slug"]]) 
+            chapter["get_absolute_url_online"] = part[
+                "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
                 intro = open(
@@ -1746,7 +1778,10 @@ def edit_chapter(request):
             or small and request.user not in chapter.tutorial.authors.all())\
          and not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
+    introduction = os.path.join(chapter.get_path(), "introduction.md")
+    conclusion = os.path.join(chapter.get_path(), "conclusion.md")
     if request.method == "POST":
+        
         if chapter.part:
             form = ChapterForm(request.POST, request.FILES)
             gal = chapter.part.tutorial.gallery
@@ -1755,6 +1790,16 @@ def edit_chapter(request):
             gal = chapter.tutorial.gallery
         if form.is_valid():
             data = form.data
+            # avoid collision
+            if content_has_changed([introduction, conclusion], data["last_hash"]):
+                form = render_chapter_form(chapter)
+                return render_template("tutorial/part/edit.html", 
+                    {
+                         "chapter": chapter,
+                         "last_hash": compute_hash([introduction, conclusion]),
+                         "new_version":True,
+                         "form": form
+                    })
             chapter.title = data["title"]
             
             old_slug = chapter.get_path()
@@ -1792,16 +1837,9 @@ def edit_chapter(request):
             )
             return redirect(chapter.get_absolute_url())
     else:
-        if chapter.part:
-            form = ChapterForm({"title": chapter.title,
-                                "introduction": chapter.get_introduction(),
-                                "conclusion": chapter.get_conclusion()})
-        else:
-
-            form = \
-                EmbdedChapterForm({"introduction": chapter.get_introduction(),
-                                   "conclusion": chapter.get_conclusion()})
+        form = render_chapter_form(chapter)
     return render_template("tutorial/chapter/edit.html", {"chapter": chapter,
+                                                          "last_hash": compute_hash([introduction, conclusion]),
                                                           "form": form})
 
 
@@ -1888,7 +1926,17 @@ def edit_extract(request):
             raise PermissionDenied
     if request.method == "POST":
         data = request.POST
-
+        if content_has_changed([extract.get_path()], data["last_hash"]):
+            form = form = ExtractForm(initial={
+                "title": extract.title,
+                "text": extract.get_text()})
+            return render_template("tutorial/extract/edit.html", 
+                {
+                     "extract": extract,
+                     "last_hash": compute_hash([extract.get_path()]),
+                     "new_version":True,
+                     "form": form
+                })
         # Using the « preview button »
 
         if "preview" in data:
@@ -1937,8 +1985,12 @@ def edit_extract(request):
     else:
         form = ExtractForm({"title": extract.title,
                             "text": extract.get_text()})
-    return render_template("tutorial/extract/edit.html", {"extract": extract,
-                                                          "form": form})
+    return render_template("tutorial/extract/edit.html", 
+        {
+            "extract": extract,
+            "last_hash": compute_hash([extract.get_path()]),
+            "form": form
+        })
 
 
 @can_write_and_read_now
@@ -2986,10 +3038,9 @@ def answer(request):
                 raise PermissionDenied
             for line in note_cite.text.splitlines():
                 text = text + "> " + line + "\n"
-            text = u"{0}Source:[{1}]({2}{3})".format(
+            text = u"{0}Source:[{1}]({2})".format(
                 text,
                 note_cite.author.username,
-                settings.SITE_URL,
                 note_cite.get_absolute_url())
         form = NoteForm(tutorial, request.user, initial={"text": text})
         return render_template("tutorial/comment/new.html", {

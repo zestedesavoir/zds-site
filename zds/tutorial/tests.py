@@ -18,7 +18,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
-
+from zds.utils.misc import compute_hash
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
@@ -540,7 +540,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
         p2 = Part.objects.filter(tutorial=tuto).last()
-        
+        self.assertEqual(u"Analyse", p2.get_introduction())
         #check view offline
         result = self.client.get(
             reverse(
@@ -706,6 +706,8 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : edition de titre")
@@ -720,13 +722,15 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c3.get_path(),"introduction.md"),
+				    os.path.join(c3.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Chapitre 3 : edition de titre")
         self.assertContains(response=result, text = u"Edition d'introduction")
         self.assertContains(response=result, text = u"Edition de conlusion")
         self.assertEqual(Chapter.objects.filter(part=p2.pk).count(), 3)
-        
+        p2 = Part.objects.filter(pk=p2.pk).first()
         #edit part 2
         result = self.client.post(
             reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
@@ -734,6 +738,8 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text = u"Partie 2 : seconde edition de titre")
@@ -748,6 +754,8 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c2.get_path(),"introduction.md"),
+				    os.path.join(c2.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text = u"Chapitre 2 : edition de titre")
@@ -889,52 +897,111 @@ class BigTutorialTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 404)
 
-    def test_available_tuto(self):
-        """ Test that all page of big tutorial is available"""
-        parts = self.bigtuto.get_parts()
-        for part in parts:
-            result = self.client.get(reverse(
-                                        'zds.tutorial.views.view_part_online',
-                                        args=[
-                                            self.bigtuto.pk,
-                                            self.bigtuto.slug,
-                                            part.pk,
-                                            part.slug]),
-                                    follow=True)
-            self.assertEqual(result.status_code, 200)
-            result = self.client.get(reverse(
-                                        'zds.tutorial.views.view_part',
-                                        args=[
-                                            self.bigtuto.pk,
-                                            self.bigtuto.slug,
-                                            part.pk,
-                                            part.slug]),
-                                    follow=True)
-            self.assertEqual(result.status_code, 200)
-            chapters = part.get_chapters()
-            for chapter in chapters:
-                result = self.client.get(reverse(
-                                            'zds.tutorial.views.view_chapter_online',
-                                            args=[
-                                                self.bigtuto.pk,
-                                                self.bigtuto.slug,
-                                                part.pk,
-                                                part.slug,
-                                                chapter.pk,
-                                                chapter.slug]),
-                                        follow=True)
-                self.assertEqual(result.status_code, 200)
-                result = self.client.get(reverse(
-                                            'zds.tutorial.views.view_chapter',
-                                            args=[
-                                                self.bigtuto.pk,
-                                                self.bigtuto.slug,
-                                                part.pk,
-                                                part.slug,
-                                                chapter.pk,
-                                                chapter.slug]),
-                                        follow=True)
-                self.assertEqual(result.status_code, 200)
+    def test_conflict_does_not_destroy(self):
+        """tests that simultaneous edition does not conflict"""
+        sub = SubCategory()
+        sub.title = "toto"
+        sub.save()
+       	# logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # test tuto
+        (introduction_path, conclusion_path) =(os.path.join(self.bigtuto.get_path(),"introduction.md"), os.path.join(self.bigtuto.get_path(),"conclusion.md"))
+        hash = compute_hash([introduction_path, conclusion_path])
+        self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial')+'?tutoriel={0}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': "nouvelle description",
+                'subcategory': [sub.pk],
+                'introduction': self.bigtuto.get_introduction() +" un essai",
+                'conclusion': self.bigtuto.get_conclusion(),
+                'last_hash': hash 
+            }, follow= True)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial')+'?tutoriel={0}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': "nouvelle description",
+                'subcategory': [sub.pk],
+                'introduction': self.bigtuto.get_introduction() +" conflictual",
+                'conclusion': self.bigtuto.get_conclusion(),
+                'last_hash': hash 
+            }, follow= False)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
+
+        # test parts
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction': u"Analyse",
+                'conclusion': u"Fin de l'analyse",
+            },
+            follow=False)
+        p1 = Part.objects.last()
+        hash = compute_hash([os.path.join(p1.tutorial.get_path(), p1.introduction),
+                    os.path.join(p1.tutorial.get_path(), p1.conclusion)])        
+        self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Partie 2 : edition de titre",
+                'introduction': u"Expérimentation : edition d'introduction",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": hash
+            },
+            follow=False)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Partie 2 : edition de titre",
+                'introduction': u"Expérimentation : edition d'introduction conflit",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": hash
+            },
+            follow=False)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
+
+        # test chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Chapitre 1",
+                'introduction':"Mon premier chapitre",
+                'conclusion': "Fin de mon premier chapitre",
+            },
+            follow=False)
+        c1 = Chapter.objects.last()
+        hash = compute_hash([os.path.join(c1.get_path(),"introduction.md"),
+		    os.path.join(c1.get_path(),"conclusion.md")])
+        self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            {
+                'title': u"Chapitre 3 : edition de titre",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": hash
+            },
+            follow=True)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            {
+                'title': u"Chapitre 3 : edition de titre",
+                'introduction': u"Edition d'introduction conflict",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": hash
+            },
+            follow=True)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
 
     def test_url_for_member(self):
         """Test simple get request by simple member."""
@@ -1475,6 +1542,8 @@ class BigTutorialTests(TestCase):
                 'introduction': self.bigtuto.introduction,
                 'description': self.bigtuto.description,
                 'conclusion': self.bigtuto.conclusion,
+                'last_hash': compute_hash([os.path.join(self.bigtuto.get_path(),"introduction.md"),
+					    os.path.join(self.bigtuto.get_path(),"conclusion.md")])
             },
             follow=True)
 
@@ -2166,6 +2235,8 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
+					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
                 follow=False
         )
@@ -2183,6 +2254,8 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
+					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
                 follow=False
         )
@@ -2508,6 +2581,7 @@ class MiniTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Edition d'introduction",
+                "last_hash": compute_hash([e2.get_path()])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
