@@ -74,7 +74,7 @@
                 </li>
             {% else %}
                 <li class="inactive">
-                    <span>En attente de validation</span>
+                    <span class="ico-after tick">En attente de validation</span>
                 </li>
             {% endif %}
         </ul>
@@ -107,18 +107,6 @@
         </ul>
     </div>
 {% endif %}
-
-<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-    <h3>Télécharger</h3>
-    <ul>
-        <li>
-            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
-                Archive
-            </a>
-        </li>
-    </ul>
-</div>
-
 
 
 
@@ -212,3 +200,16 @@
         </ul>
     </div>
 {% endif %}
+
+
+
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+    <h3>Télécharger</h3>
+    <ul>
+        <li>
+            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
+                Archive
+            </a>
+        </li>
+    </ul>
+</div>
