@@ -2420,9 +2420,12 @@ table {
                         }
                     }
                 }
-                span:not(.has-vote) {
-                    border-bottom: none;
-                    opacity: .5;
+                .upvote,
+                .downvote {
+                    &:not(.has-vote) {
+                        border-bottom: none;
+                        opacity: .5;
+                    }
                 }
 
                 .tick {
@@ -2518,7 +2521,8 @@ table {
             }
 
             a,
-            span,
+            .upvote,
+            .downvote,
             button {
                 display: block;
                 float: left;
@@ -2538,7 +2542,8 @@ table {
                 }
             }
             a,
-            span,
+            .upvote,
+            .downvote,
             button.ico-after {
                 border-bottom: 1px solid #D2D5D6;
                 text-decoration: none;
