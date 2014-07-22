@@ -2323,8 +2323,13 @@ table {
             clear: both;
             padding-top: 1px;
 
-            & > p:first-child {
-                margin-top: 7px;
+            & > div {
+                & > p:first-child {
+                    margin-top: 7px;
+                }
+                & > figure:first-child {
+                    margin-top: 8px;
+                }
             }
 
             .message-hidden-content {
