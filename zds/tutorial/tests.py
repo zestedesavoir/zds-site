@@ -772,6 +772,47 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 4)
+        
+        # ask public tutorial
+        tuto = Tutorial.objects.get(pk=tuto.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'version': tuto.sha_draft,
+                'source': '',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # logout before
+        self.client.logout()
+        # login with staff member
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve tutorial
+        validation = Validation.objects.filter(
+            tutorial__pk=tuto.pk).last()
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
 
         #delete part 1
         result = self.client.post(
@@ -791,6 +832,62 @@ class BigTutorialTests(TestCase):
             follow=True)
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
         self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
+        
+        # ask public tutorial
+        tuto = Tutorial.objects.get(pk=tuto.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'version': tuto.sha_draft,
+                'source': '',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.filter(
+            tutorial__pk=tuto.pk).last()
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        #check view online delete part and chapter
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
 
     def test_available_tuto(self):
         """ Test that all page of big tutorial is available"""
