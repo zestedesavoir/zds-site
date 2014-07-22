@@ -32,9 +32,9 @@
     {% endif %}
 
     {% if tutorial.description %}
-        <h3 class="subtitle">
+        <h2 class="subtitle">
             {{ tutorial.description }}
-        </h3>
+        </h2>
     {% endif %}
 
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
@@ -43,16 +43,21 @@
         {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
     {% endif %}
 
-    {% if perms.tutorial.change_tutorial and tutorial.in_validation and validation.comment_authors %}
-        <div class="content-wrapper comment-author">
-            <p>
-                Le message suivant a été laissé à destination des validateurs : 
-            </p>
+    {% if perms.tutorial.change_tutorial and tutorial.sha_validation %}
+        <p class="content-wrapper alert-box info">
+            Ce tutoriel est en attente de validation
+        </p>
+        {% if validation.comment_authors %}
+            <div class="content-wrapper comment-author">
+                <p>
+                    Le message suivant a été laissé à destination des validateurs : 
+                </p>
 
-            <blockquote>
-                {{ validation.comment_authors }}
-            </blockquote>
-        </div>
+                <blockquote>
+                    {{ validation.comment_authors }}
+                </blockquote>
+            </div>
+        {% endif %}
     {% endif %}
 
     {% if tutorial.in_beta and tutorial.sha_beta == version %}

@@ -16,7 +16,7 @@
         {% endif %}
 
         <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
-            <h3>{{ article.title }}</h3>
+            <h3 itemprop="itemListElement">{{ article.title }}</h3>
             <p class="article-metadata">
                 {{ article.pubdate|format_date|capfirst }} -
                 <a href="

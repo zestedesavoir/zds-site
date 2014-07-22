@@ -14,9 +14,25 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li>{{ topic.title }}</li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.category.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.title }}</span>
+        </a>
+    </li>
+    <li>
+        {{ topic.title }}
+    </li>
+{% endblock %}
+
+
+
+{% block schema %}
+    itemscope itemtype="http://schema.org/Question"
 {% endblock %}
 
 
@@ -35,9 +51,13 @@
 
 {% block content %}
     {% if topic.tags.all %}
-        <ul class="taglist">
+        <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
-                <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">{{ tag.title }}</a></li>
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">
+                        {{ tag.title }}
+                    </a>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -82,7 +102,13 @@
                 {% set False as is_repeated_message %}
             {% endif %}
 
-            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
+            {% if forloop.first and nb = 1 %}
+                {% set True as answer_schema %}
+            {% else %}
+                {% set False as answer_schema %}
+            {% endif %}
+
+            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
         {% endfor %}
     </div>
 

@@ -5,13 +5,32 @@
 
 
 
-<article class="topic-message {% if message.is_useful %}helpful{% endif %} {% if is_repeated_message %}repeated{% endif %}">
-    {% if topic.author = message.author and helpful_link %}
-        {% set True as is_author %}
-    {% else %}
-        {% set False as is_author %}
-    {% endif %}
+{% if topic.author = message.author and helpful_link %}
+    {% set True as is_author %}
+{% else %}
+    {% set False as is_author %}
+{% endif %}
 
+
+
+<article
+    class="
+        topic-message
+        {% if message.is_useful %}helpful{% endif %}
+        {% if is_repeated_message %}repeated{% endif %}
+    " 
+    {% if comment_schema %}
+        itemscope 
+        itemtype="http://schema.org/Comment"
+        itemprop="comment"
+    {% elif answer_schema %}
+        itemscope 
+        itemtype="http://schema.org/Answer"
+        {% if message.is_useful or message.like > message.dislike %}
+            itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
+        {% endif %}
+    {% endif %}
+>
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
@@ -114,8 +133,15 @@
         {% endif %}
 
         <div class="message-metadata">
-            <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
-            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">{{ message.pubdate|format_date|capfirst }}</a>
+            <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <span itemprop="name">{{ message.author.username }}</span>
+            </a>
+
+            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
+                <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
+                    {{ message.pubdate|format_date|capfirst }}
+                </time>
+            </a>
         </div>
 
         <div class="message-content">
@@ -131,7 +157,9 @@
             {% endif %}
 
             {% if message.is_visible != False %}
-                {{ message.text_html|safe }}
+                <div itemprop="text">
+                    {{ message.text_html|safe }}
+                </div>
             {% elif perms_change %}
                 <div class="message-hidden-content">
                     {{ message.text_html|safe }}
@@ -147,10 +175,13 @@
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    Edité {{ message.update|format_date }}
+                    Edité
                     {% if message.editor %}
                         par {{ message.editor }}
                     {% endif %}
+                    <time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
+                        {{ message.update|format_date }}
+                    </time>
                 </p>
             {% endif %}
         </div>
@@ -196,7 +227,7 @@
 
                 {% if upvote_link %}
                     <div class="message-karma">
-                        {% if user.is_authenticated and helpful_link %}
+                        {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author = user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">
@@ -247,7 +278,7 @@
                             {% endwith %}
                         {% else %}
                             <span
-                               class="upvote
+                                class="upvote
                                       ico-after
                                       {% if message.like > message.dislike %}more-voted{% endif %}
                                       {% if message.like > 0 %}has-vote{% endif %}
@@ -256,10 +287,12 @@
                                     title="{{ message.like }} personnes ont trouvé ce message utile"
                                 {% endif %}
                             >
-                                +{{ message.like }}
+                                +<span itemprop="upvoteCount">
+                                    {{ message.like }}
+                                </span>
                             </span>
                             <span 
-                               class="downvote
+                                class="downvote
                                       ico-after
                                       {% if message.like < message.dislike %}more-voted{% endif %} 
                                       {% if message.dislike > 0 %}has-vote{% endif %}
@@ -268,7 +301,9 @@
                                     title="{{ message.dislike }} personnes n'ont pas trouvé ce message utile"
                                 {% endif %}
                             >
-                                -{{ message.dislike }}
+                                -<span itemprop="downvoteCount">
+                                    {{ message.dislike }}
+                                </span>
                             </span>
                         {% endif %}
                     {% if upvote_link %}

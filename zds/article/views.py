@@ -69,6 +69,7 @@ def index(request):
 
     return render_template('article/index.html', {
         'articles': article,
+        'tag': tag,
     })
 
 
@@ -110,6 +111,7 @@ def view(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['pubdate'] = article.pubdate
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
@@ -150,7 +152,9 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['pubdate'] = article.pubdate
     article_version['is_locked'] = article.is_locked
+    article_version['get_reaction_count'] = article.get_reaction_count
     article_version['get_absolute_url'] = article.get_absolute_url()
     article_version['get_absolute_url_online'] = article.get_absolute_url_online()
 

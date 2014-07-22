@@ -5,6 +5,7 @@
 {% load captureas %}
 {% load date %}
 {% load set %}
+{% load captureas %}
 {% load thumbnail %}
 
 
@@ -15,15 +16,66 @@
     <meta charset="utf-8">
 
     <title>
-        {% block title %}{% endblock %}
-        {% block title_base %}{% endblock %}
-        &bull; Zeste de Savoir
+        {% captureas title %}
+            {% captureas title_blocks %}
+                {% block title %}{% endblock %}
+                {% block title_base %}{% endblock %}
+            {% endcaptureas %}
+            {% if title_blocks %}
+                {{ title_blocks|safe }}
+                &bull;
+            {% endif %}
+            Zeste de Savoir
+        {% endcaptureas %}
+        {{ title|safe }}
     </title>
 
+    <meta name="language" content="fr">
+    <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
+    
 
-    {% block meta %}{% endblock %}
+    {# Description #}
+    {% captureas description %}
+        {% block description %}
+            Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide animés par 
+            et pour la communauté.
+        {% endblock %}
+    {% endcaptureas %}
+    <meta name="description" content="{{ description|safe }}">
 
+
+    {% captureas image %}
+        {{ request.META.HTTP_HOST }}{% block image %}{% spaceless %}
+            {% static "images/apple-touch-icon-144x144-precomposed.png" %}
+        {% endspaceless %}{% endblock %}
+    {% endcaptureas %}
+
+
+    {# OpenGraph #}
+    <meta property="og:site_name" content="Zeste de Savoir">
+    <meta property="og:title" content="{{ title|safe }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:language" content="fr_FR">
+    <meta property="og:image:url" content="http://{{ image }}">
+    <meta property="og:image:secure_url" content="https://{{ image }}">
+    {% block opengraph %}
+        <meta property="og:type" content="website">
+    {% endblock %}
+
+
+    {# Twitter cards #}
+    <meta property="twitter:domain" content="http://zestedesavoir.com/">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{{ title|safe }}">
+    <meta property="twitter:description" content="{{ description|safe }}">
+    <meta property="twitter:site" content="@ZesteDeSavoir">
+    <meta property="twitter:creator" content="@{% block twitter_creator %}ZesteDeSavoir{% endblock %}">
+    <meta property="twitter:image" content="http://{{ image }}">
+
+
+    {# Stylesheets #}
     {% if debug %}
         <link rel="stylesheet" href="/static/css/main.css">
     {% else %}
@@ -31,8 +83,10 @@
         {% block canonical %}{% endblock %}
     {% endif %}
 
+
     {# Webfont async loading #}
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
+
 
     {# favicons #}
     <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
@@ -43,14 +97,18 @@
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
 
+
     {# Fullsceen on iOS #}
     <meta name="apple-mobile-web-app-capable" content="yes">
 
+
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
-
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}" 
+      itemscope 
+      itemtype="http://schema.org/WebPage"
+>
     <!--[if lt IE 8]>
         <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> pour améliorer votre expérience.</p>
     <![endif]-->
@@ -72,12 +130,12 @@
         </ul>
 
         <div id="cookies-banner">
-            <p>
+            <span>
                 Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer 
-                <button id="reject-cookies">ici</button>.
-                <a href="/pages/cookies">En savoir plus</a>
-                <button id="accept-cookies">OK</button>
-            </p>
+            </span>
+            <button id="reject-cookies">ici</button>.
+            <a href="/pages/cookies">En savoir plus</a>
+            <button id="accept-cookies">OK</button>
         </div>
 
         <div class="header-container">
@@ -92,14 +150,14 @@
                     {% endcaptureas %}
 
                     {# Logo #}
-                    <h1 class="header-logo">
+                    <div class="header-logo">
                         <a href="{% url "zds.pages.views.home" %}"
                            class="header-logo-link"
                            data-title="{{ mobiletitle }}"
                         >
                             Zeste de Savoir
                         </a>
-                    </h1>
+                    </div>
 
 
                     {# Menu #}
@@ -388,14 +446,16 @@
         
             <div class="clearfix sub-header">
                 <div class="wrapper">
-                    <div class="breadcrumb">
-                        <ul>
+                    <div class="breadcrumb" itemprop="breadcrumb">
+                        <ol>
                             <li>
-                                <a href="{% url "zds.pages.views.home" %}">Accueil</a>
+                                <a href="{% url "zds.pages.views.home" %}" rel="home" itemprop="url">
+                                    <span itemprop="title">Accueil</span>
+                                </a>
                             </li>
                             {% block breadcrumb_base %}{% endblock %}
                             {% block breadcrumb %}{% endblock %}
-                        </ul>
+                        </ol>
                     </div>
                     <div class="search header-right" id="search">
                         <form action="/rechercher">
@@ -414,8 +474,7 @@
             {% block pre_content %}
             {% endblock %}
 
-            <div class="main wrapper clearfix">    
-                
+            <div class="main wrapper clearfix">
                 <main class="content-container" role="main" id="content">
                     {% if messages %}
                         {% for message in messages %}
@@ -427,15 +486,20 @@
                     {% endif %}
 
                     {% block content_out %}
-                        <section class="content-wrapper">
-                            <h2>{% block headline %}{% endblock %}</h2>
+                        {% captureas schema %}
+                            {% block schema %}{% endblock %}
+                        {% endcaptureas %}
+                        <section class="content-wrapper" {{ schema }}>
+                            <h1 {% if schema %}itemprop="name"{% endif %}>
+                                {% block headline %}{% endblock %}
+                            </h1>
 
                             {% captureas headlinesub %}
                                 {% block headline_sub %}{% endblock %}
                             {% endcaptureas %}
 
                             {% if headlinesub %}
-                                <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+                                <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
                             {% endif %}
 
                             {% block content %}{% endblock %}
@@ -443,11 +507,9 @@
                     {% endblock %}
                 </main>
                 
-                {% block sidebar %}
-                {% endblock %}
-
-            </div> <!-- #main -->
-        </div> <!-- #main-container -->
+                {% block sidebar %}{% endblock %}
+            </div>
+        </div>
 
 
 

@@ -712,11 +712,13 @@
         }
     }
 
-    h3 + ul {
+    h3 + ul,
+    h3 + ol {
         margin: 7px 0;
     }
 
-    ul {
+    ul,
+    ol {
         margin: 0;
         padding: 0;
         list-style: none;
@@ -939,18 +941,21 @@
             text-overflow: ellipsis;
             white-space: nowrap;
 
-            & + ul > li:first-child {
-                margin-top: 5px;
+            & + ul,
+            & + ol {
+                & > li:first-child {
+                    margin-top: 5px;
+                }
             }
         }
 
-        ul li.current {
+        ol li.current {
             margin-top: 0 !important;
             padding-top: 5px;
             margin-bottom: 5px;
             background-color: #FFF;
 
-            ul {
+            ol {
                 margin-top: 5px;
                 padding-top: 5px;
                 padding-bottom: 5px;
@@ -1011,7 +1016,7 @@
             height: 50px;
         }
 
-        &:not(:first-child) {
+        &:not(.subtitle):not(:first-child) {
             margin-top: 50px;
         }
     }
@@ -1024,12 +1029,19 @@
     .subtitle {
         font-size: 18px;
         font-size: 1.8rem;
+        line-height: 23px;
         color: #999;
         margin-top: -15px;
         margin-bottom: 15px;
         padding: 10px 0;
         font-weight: normal;
         border-bottom: 1px solid #EEE;
+    }
+
+    .pubdate {
+        display: block;
+        color: #999;
+        margin-bottom: 15px;
     }
 
     .member-item {
@@ -1751,7 +1763,8 @@
 
     .article-content {
         p,
-        a,
+        > a,
+        p a,
         ul:not(.pagination),
         ol {
             font-family: $font-serif-active;
@@ -2015,7 +2028,7 @@
         }
     }
 
-    .reactions-title {
+    .comments-title {
         margin: 50px 0 20px;
         color: $blue;
         border-bottom: 1px solid $orange;
@@ -2819,9 +2832,16 @@ form.topic-message {
         }
     }
 
-    .version,
-    .version a {
-        color: rgba(255, 255, 255, .5);
+    .version {
+        &,
+        a {
+            color: rgba(255, 255, 255, .5);
+        }
+
+        a:hover,
+        a:focus {
+            color: #FFF;
+        }
     }
 }
 

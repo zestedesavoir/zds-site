@@ -3,33 +3,50 @@
 
 
 {% block title %}
-    Liste des articles
+    {% if tag %}
+        {{ tag }}
+    {% else %}
+        Tous les articles
+    {% endif %}
 {% endblock %}
 
 
 
-{% block meta %}
-    <meta name="description" content="Les articles sont rédigés par la
-    communauté. Ils permettent aussi bien de se tenir informé des dernières
-    innovations du moment que de découvrir de nouvelles notions liées aux
-    différents domaines de l'informatique.">
+{% block description %}
+    {% if tag %}
+        Articles de la communauté à propos de {{ tag }}. Vous pourrez également découvrir de nouvelles notions en parcourant les autres catégories.
+    {% else %}
+        Les articles sont rédigés par la communauté. Ils permettent aussi bien de se tenir 
+        informé des dernières innovations du moment que de découvrir de nouvelles notions 
+        liées à différents domaines : sciences, informatiques, ...
+    {% endif %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des articles</li>
+    {% if tag %}
+        <li>{{ tag }}</li>
+    {% else %}
+        <li>Tous les articles</li>
+    {% endif %}
 {% endblock %}
 
 
 
 {% block content_out %}
-    <section class="full-content-wrapper">
-        <h2 class="ico-after ico-articles">
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <h2 class="ico-after ico-articles" itemprop="name">
             {% block headline %}
-                Liste des articles
+                {% if tag %}
+                    Articles : {{ tag }}
+                {% else %}
+                    Tous les articles
+                {% endif %}
             {% endblock %}
         </h2>
+
+        <meta itemprop="itemListOrder" content="Unordered">
 
         {% block content %}
             {% if articles %}

@@ -4,8 +4,10 @@
 
 
 {% block title_base %}
-    &#183; Tutoriels
+    &bull; Tutoriels
 {% endblock %}
+
+
 
 {% block canonical %}
     {% if tutorial.source and tutorial.source != "" %}
@@ -14,6 +16,17 @@
 {% endblock %}
 
 
+
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.tutorial.views.index" %}">Tutoriels</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{% url "zds.tutorial.views.index" %}" itemprop="url">
+            <span itemprop="title">Tutoriels</span>
+        </a>
+    </li>
+{% endblock %}
+
+
+
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/Article"
 {% endblock %}

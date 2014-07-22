@@ -22,7 +22,7 @@
     {% with profile=topic.author|profile %}
         <div class="topic-description">
             <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
-                <span class="topic-title">{{ topic.title }}</span>
+                <span class="topic-title" itemprop="itemListElement">{{ topic.title }}</span>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>
             <p class="topic-members">
@@ -30,6 +30,7 @@
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
+                <span class="topic-members-label">{{ topic.pubdate|format_date }}</span>
                 {% if topic.tags.all %}
                     - Tag{{ topic.tags.all|pluralize }} : 
                     {% for tag in topic.tags.all %}

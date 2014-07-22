@@ -3,11 +3,11 @@
 
 
 {% block content_out %}
-    <article class="content-wrapper">
+    <article class="content-wrapper" {% block article_schema %}{% endblock %}>
         <header>
             {% block headline %}{% endblock %}
         </header>
-        <section class="article-content">
+        <section class="article-content" {% block article_centent_schema %}{% endblock %}>
             {% block content %}{% endblock %}
         </section>
         {% block content_after %}{% endblock %}

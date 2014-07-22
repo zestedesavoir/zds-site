@@ -1,18 +1,23 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load profile %}
+{% load date %}
 {% load thumbnail %}
 
 
 
 {% block title_base %}
-    &#183; Mes articles
+    &bull; Articles
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% if user in authors.all %}
+        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% else %}
+        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    {% endif %}
 {% endblock %}
 
 
@@ -44,9 +49,15 @@
     </h1>
     
     {% if article.licence %}
-        <p class="license">
-            {{ article.licence }}
-        </p>
+        <span class="license">
+            Licence {{ article.licence }}
+        </span>
+    {% endif %}
+
+    {% if article.description %}
+        <h2 class="subtitle">
+            {{ article.description }}
+        </h2>
     {% endif %}
 
     <ul class="taglist">
@@ -58,6 +69,15 @@
             </li>
         {% endfor %}
     </ul>
+
+    {% if article.sha_public %}
+        <span class="pubdate">
+            Publié 
+            <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+                {{ article.pubdate|format_date }}
+            </time>
+        </span>
+    {% endif %}
     
     <div class="authors">
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
@@ -75,27 +95,27 @@
         </ul>
     </div>
 
-    {% if perms.article.change_article and article.sha_validation != None and validation.comment_authors %}
-        <div class="content-wrapper comment-author">
-            <p>
-                Le message suivant a été laissé à destination des validateurs : 
-            </p>
+    {% if perms.article.change_article and article.sha_validation != None %}
+        <p class="content-wrapper alert-box info">
+            Cet article est en attente de validation
+        </p>
+        {% if validation.comment_authors %}
+            <div class="content-wrapper comment-author">
+                <p>
+                    Le message suivant a été laissé à destination des validateurs : 
+                </p>
 
-            <blockquote>
-                {{ validation.comment_authors }}
-            </blockquote>
-        </div>
+                <blockquote>
+                    {{ validation.comment_authors }}
+                </blockquote>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
 
 
 {% block content %}
-    <h3>Description</h3>
-    <p>
-        {{ article.description }}
-    </p>
-    <hr>
     <div>
         {{ article.txt|emarkdown }}
     </div>

@@ -1,6 +1,7 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load captureas %}
+{% load date %}
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load set %}
@@ -19,21 +20,33 @@
 
 
 
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/Article"
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 {% if article.image %}class="illu"{% endif %}>
+    <h1 {% if article.image %}class="illu"{% endif %} itemprop="name">
         {% if article.image %}
-            <img src="{{ article.image.article_illu.url }}" alt="">
+            <img src="{{ article.image.article_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ article.title }}
     </h1>
     
     {% if article.licence %}
-        <p class="license">
+        <span class="license" itemprop="license">
             {{ article.licence }}
-        </p>
+        </span>
     {% endif %}
 
-    <ul class="taglist">
+    {% if article.description %}
+        <h2 class="subtitle">
+            {{ article.description }}
+        </h2>
+    {% endif %}
+
+    <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
                 <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
@@ -42,17 +55,30 @@
             </li>
         {% endfor %}
     </ul>
+
+    <span class="pubdate">
+        Publié 
+        <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+            {{ article.pubdate|format_date }}
+        </time>
+    </span>
     
     <div class="authors">
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
+                    {% include "misc/member_item.part.html" with avatar=True author=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+{% endblock %}
+
+
+
+{% block article_content_schema %}
+    itemprop="articleBody"
 {% endblock %}
 
 
@@ -67,7 +93,16 @@
 
 
 {% block content_after %}
-    <h3 class="reactions-title" id="reactions">Réactions</h3>
+    <h3 class="comments-title" id="reactions">
+        {% if article.get_reaction_count > 0 %}
+            <span itemprop="commentCount">
+                {{ article.get_reaction_count }}
+            </span>
+            réaction{{ article.get_reaction_count|pluralize }}
+        {% else %}
+            Aucune réaction
+        {% endif %}
+    </h3>
 
 
     {% include "misc/pagination.part.html" with position="top" topic=article is_online=True anchor="reactions" %}
@@ -105,7 +140,7 @@
         {% endif %}
 
 
-        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
+        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article comment_schema=True %}
     {% endfor %}
 
 

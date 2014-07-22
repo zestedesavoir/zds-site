@@ -73,14 +73,13 @@ def index(request):
             .order_by("-pubdate") \
             .all()
     else:
-
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all tutorials in the subcategory specified.
 
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-    return render_template("tutorial/index.html", {"tutorials": tutorials})
+    return render_template("tutorial/index.html", {"tutorials": tutorials, "tag": tag})
 
 
 # Staff actions.
@@ -742,6 +741,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
+    mandata["get_note_count"] = tutorial.get_note_count()
 
     # If it's a small tutorial, fetch its chapter
 
@@ -1134,6 +1135,7 @@ def view_part_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
 
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
@@ -1477,6 +1479,7 @@ def view_chapter_online(
 
     mandata = tutorial.load_json_for_public()
     mandata = tutorial.load_dic(mandata)
+    mandata["update"] = tutorial.update
 
     mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]

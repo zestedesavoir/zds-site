@@ -74,44 +74,12 @@
                 </li>
             {% else %}
                 <li class="inactive">
-                    <span>En attente de validation</span>
-                </li>
-            {% endif %}
-
-            {% if article.sha_public = None %}
-                <li>
-                    <a href="#delete" class="open-modal ico-after cross red">Supprimer</a>
-                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="delete">
-                        <p>
-                            Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article.title }}</em>".
-                        </p>
-
-                        <input type="hidden" name="article" value="{{ article.pk }}">
-                        <input type="hidden" name="version" value="{{ version }}">
-                        {% csrf_token %}
-                        <button type="submit" name="delete">
-                            Confirmer
-                        </button>
-                    </form>
-                </li>
-                <li>
+                    <span class="ico-after tick">En attente de validation</span>
                 </li>
             {% endif %}
         </ul>
     </div>
 {% endif %}
-
-<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
-    <h3>Télécharger</h3>
-    <ul>
-        <li>
-            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
-                Archive
-            </a>
-        </li>
-    </ul>
-</div>
-
 
 
 
@@ -205,3 +173,47 @@
         </ul>
     </div>
 {% endif %}
+
+
+
+{% if user in authors.all or perms.article.change_article %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Supprimer">
+        <h3>Supprimer</h3>
+        <ul>
+            {% if article.sha_public = None %}
+                <li>
+                    <a href="#delete" class="open-modal ico-after cross red">Supprimer</a>
+                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="delete">
+                        <p>
+                            Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article.title }}</em>".
+                        </p>
+
+                        <input type="hidden" name="article" value="{{ article.pk }}">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        {% csrf_token %}
+                        <button type="submit" name="delete">
+                            Confirmer
+                        </button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="disabled">Impossible, car en publié</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}
+
+
+
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+    <h3>Télécharger</h3>
+    <ul>
+        <li>
+            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
+                Archive
+            </a>
+        </li>
+    </ul>
+</div>
