@@ -48,39 +48,41 @@
     background: #062E41;
     display: none;
 
-    p {
+    span {
+        display: inline-block;
         margin: 0;
         padding: 7px 0;
         color: #EEE;
+        line-height: 23px;
+    }
 
-        a {
-            display: inline-block;
-            color: #EEE;
-            padding: 4px 13px;
-            margin-left: 15px;
-            background: $blue;
-            text-decoration: none;
+    a {
+        display: inline-block;
+        color: #EEE;
+        padding: 4px 13px;
+        margin-left: 15px;
+        background: $blue;
+        text-decoration: none;
 
-            &:hover,
-            &:focus {
-                background: #EEE;
-                color: $blue;
-            }
+        &:hover,
+        &:focus {
+            background: #EEE;
+            color: $blue;
         }
+    }
 
-        button {
-            display: inline-block;
-            background: none;
-            border: none;
-            text-decoration: underline;
-            margin: 0;
-            padding: 0;
-            color: #EEE;
+    #reject-cookies {
+        display: inline-block;
+        background: none;
+        border: none;
+        text-decoration: underline;
+        margin: 0;
+        padding: 0;
+        color: #EEE;
 
-            &:hover,
-            &:focus {
-                text-decoration: none;
-            }
+        &:hover,
+        &:focus {
+            text-decoration: none;
         }
     }
 
@@ -91,6 +93,7 @@
         padding: 4px 15px;
         border: none;
         transition: background .15s, color .15s;
+        margin-top: 3px;
 
         &:hover,
         &:focus {
@@ -2320,8 +2323,13 @@ table {
             clear: both;
             padding-top: 1px;
 
-            & > p:first-child {
-                margin-top: 7px;
+            & > div {
+                & > p:first-child {
+                    margin-top: 7px;
+                }
+                & > figure:first-child {
+                    margin-top: 8px;
+                }
             }
 
             .message-hidden-content {
@@ -2358,6 +2366,10 @@ table {
             .message-helpful {
                 color: #48A200;
                 text-indent: 20px;
+            }
+
+            .member-item {
+                margin: 0;
             }
 
             textarea {
@@ -2417,9 +2429,12 @@ table {
                         }
                     }
                 }
-                span:not(.has-vote) {
-                    border-bottom: none;
-                    opacity: .5;
+                .upvote,
+                .downvote {
+                    &:not(.has-vote) {
+                        border-bottom: none;
+                        opacity: .5;
+                    }
                 }
 
                 .tick {
@@ -2515,7 +2530,8 @@ table {
             }
 
             a,
-            span,
+            .upvote,
+            .downvote,
             button {
                 display: block;
                 float: left;
@@ -2535,7 +2551,8 @@ table {
                 }
             }
             a,
-            span,
+            .upvote,
+            .downvote,
             button.ico-after {
                 border-bottom: 1px solid #D2D5D6;
                 text-decoration: none;

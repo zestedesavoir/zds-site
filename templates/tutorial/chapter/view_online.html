@@ -9,6 +9,22 @@
 
 
 
+{% block meta_image %}{% spaceless %}
+    {% if tutorial.image %}
+        {{ tutorial.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorial/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a href="{{ chapter.part.tutorial.get_absolute_url_online }}" itemprop="url">

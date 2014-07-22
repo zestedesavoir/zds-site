@@ -45,8 +45,8 @@
     <meta name="description" content="{{ description|safe }}">
 
 
-    {% captureas image %}
-        {{ request.META.HTTP_HOST }}{% block image %}{% spaceless %}
+    {% captureas meta_image %}
+        {{ request.META.HTTP_HOST }}{% block meta_image %}{% spaceless %}
             {% static "images/apple-touch-icon-144x144-precomposed.png" %}
         {% endspaceless %}{% endblock %}
     {% endcaptureas %}
@@ -57,8 +57,8 @@
     <meta property="og:title" content="{{ title|safe }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:language" content="fr_FR">
-    <meta property="og:image:url" content="http://{{ image }}">
-    <meta property="og:image:secure_url" content="https://{{ image }}">
+    <meta property="og:image:url" content="http://{{ meta_image }}">
+    <meta property="og:image:secure_url" content="https://{{ meta_image }}">
     {% block opengraph %}
         <meta property="og:type" content="website">
     {% endblock %}
@@ -72,7 +72,7 @@
     <meta property="twitter:description" content="{{ description|safe }}">
     <meta property="twitter:site" content="@ZesteDeSavoir">
     <meta property="twitter:creator" content="@{% block twitter_creator %}ZesteDeSavoir{% endblock %}">
-    <meta property="twitter:image" content="http://{{ image }}">
+    <meta property="twitter:image" content="http://{{ meta_image }}">
 
 
     {# Stylesheets #}
