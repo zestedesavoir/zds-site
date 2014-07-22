@@ -183,7 +183,8 @@ class Tutorial(models.Model):
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = self.get_absolute_url_online()
+        mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
+                                                     args=[self.pk, slugify(mandata["title"])])
         mandata['get_absolute_url'] = self.get_absolute_url()
         mandata['get_introduction_online'] = self.get_introduction_online()
         mandata['get_conclusion_online'] = self.get_conclusion_online()
@@ -203,7 +204,9 @@ class Tutorial(models.Model):
 
         return mandata
 
-    def load_json_for_public(self):
+    def load_json_for_public(self, sha=None):
+        if sha is None:
+            sha = self.sha_public
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
