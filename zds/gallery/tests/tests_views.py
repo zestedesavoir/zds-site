@@ -365,17 +365,17 @@ class EditImageViewTest(TestCase):
         with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
 
             response = self.client.post(
-                    reverse(
-                        'zds.gallery.views.edit_image',
-                        args=[self.gallery.pk, self.image.pk]
-                    ),
-                    {
-                        'title': 'edit title',
-                        'legend': 'dit legend',
-                        'slug': 'edit-slug',
-                        'physical': fp
-                    },
-                    follow=True
+                reverse(
+                    'zds.gallery.views.edit_image',
+                    args=[self.gallery.pk, self.image.pk]
+                ),
+                {
+                    'title': 'edit title',
+                    'legend': 'dit legend',
+                    'slug': 'edit-slug',
+                    'physical': fp
+                },
+                follow=True
             )
         self.assertEqual(200, response.status_code)
         image_test = Image.objects.get(pk=self.image.pk)
@@ -415,17 +415,17 @@ class ModifyImageTest(TestCase):
         self.image3.delete()
 
     def test_denies_anonymous(self):
-        response = self.client.get(reverse('zds.gallery.views.modify_image'), follow=True)
+        response = self.client.get(reverse('zds.gallery.views.delete_image'), follow=True)
         self.assertRedirects(response,
                 reverse('zds.member.views.login_view')
-                + '?next=' + urllib.quote(reverse('zds.gallery.views.modify_image'), ''))
+                + '?next=' + urllib.quote(reverse('zds.gallery.views.delete_image'), ''))
 
     def test_fail_modify_image_with_no_permission(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                 },
@@ -445,7 +445,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                     'delete': '',
@@ -462,7 +462,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                     'delete': '',
@@ -479,7 +479,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                     'delete_multi': '',
@@ -497,7 +497,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                     'delete': '',

@@ -8,8 +8,9 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from zds.article.factories import ArticleFactory, ReactionFactory
-from zds.article.models import Validation, Reaction, Article
+from zds.article.factories import ArticleFactory, ReactionFactory,   \
+    LicenceFactory
+from zds.article.models import Validation, Reaction, Article, Licence
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
@@ -33,9 +34,12 @@ class ArticleTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
+        
+        self.licence = LicenceFactory()
 
         self.article = ArticleFactory()
         self.article.authors.add(self.user_author)
+        self.article.licence = self.licence
         self.article.save()
 
         # connect with user
@@ -370,6 +374,134 @@ class ArticleTests(TestCase):
                     self.article.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
+
+    def test_workflow_licence(self):
+        '''Ensure the behavior of licence on articles'''
+
+        # create a new licence
+        new_licence = LicenceFactory(code='CC_BY', title='Creative Commons BY')
+        new_licence = Licence.objects.get(pk=new_licence.pk)
+
+        # check value first
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertEqual(article.licence.pk, self.licence.pk)
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertTrue(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77')
+        )
+
+        # change licence (get 302) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : new_licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertNotEqual(article.licence.pk, self.licence.pk)
+        self.assertEqual(article.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = article.load_json()
+        self.assertEquals(json['licence'], new_licence.code)
+
+        # then logout ...
+        self.client.logout()
+        # ... and login with staff
+        self.assertTrue(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77')
+        )
+
+        # change licence back to old one (get 302, staff can change licence) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : self.licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertEqual(article.licence.pk, self.licence.pk)
+        self.assertNotEqual(article.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = article.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
+
+        # then logout ...
+        self.client.logout()
+
+        # change licence (get 302, redirection to login page) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : new_licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change (normaly, nothing has) :
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertEqual(article.licence.pk, self.licence.pk)
+        self.assertNotEqual(article.licence.pk, new_licence.pk)
+        
+        # login with random user
+        self.assertTrue(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77')
+        )
+
+        # change licence (get 403, random user cannot edit article if not in
+        # authors list) :
+        result = self.client.post(
+            reverse('zds.article.views.edit') + 
+                '?article={}'.format(self.article.pk),
+            {
+                'title': self.article.title,
+                'description': self.article.description,
+                'text': self.article.get_text(),
+                'subcategory': self.article.subcategory.all(),
+                'licence' : new_licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # test change (normaly, nothing has) :
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertEqual(article.licence.pk, self.licence.pk)
+        self.assertNotEqual(article.licence.pk, new_licence.pk)
+
+        # test change in JSON (normaly, nothing has) :
+        json = article.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_ARTICLE_PATH):

@@ -36,7 +36,7 @@ from zds.utils import slugify
 from zds.utils.articles import *
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
-    CommentDislike, Alert
+    CommentDislike, Alert, Licence
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -69,6 +69,7 @@ def index(request):
 
     return render_template('article/index.html', {
         'articles': article,
+        'tag': tag,
     })
 
 
@@ -110,6 +111,7 @@ def view(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['pubdate'] = article.pubdate
     article_version['sha_draft'] = article.sha_draft
     article_version['sha_validation'] = article.sha_validation
     article_version['sha_public'] = article.sha_public
@@ -150,7 +152,9 @@ def view_online(request, article_pk, article_slug):
     article_version['pk'] = article.pk
     article_version['slug'] = article.slug
     article_version['image'] = article.image
+    article_version['pubdate'] = article.pubdate
     article_version['is_locked'] = article.is_locked
+    article_version['get_reaction_count'] = article.get_reaction_count
     article_version['get_absolute_url'] = article.get_absolute_url()
     article_version['get_absolute_url_online'] = article.get_absolute_url_online()
 
@@ -232,9 +236,10 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory')
+                'subcategory': request.POST.getlist('subcategory'), 
+                'licence': request.POST['licence']
             })
-            return render_template('article/new.html', {
+            return render_template('article/member/new.html', {
                 'text': request.POST['text'],
                 'form': form
             })
@@ -265,6 +270,11 @@ def new(request):
             # Add subcategories on article
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
+
+            # add a licence to the article
+            if "licence" in data and data["licence"] != "":
+                lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                article.licence = lc
 
             article.save()
 
@@ -314,6 +324,14 @@ def edit(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
+            if "licence" in data:
+                if data["licence"] != "":
+                    lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                    article.licence = lc
+                else:
+                    article.licence = None
+            
+
             article.save()
 
             new_slug = os.path.join(
@@ -329,11 +347,16 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
+        if "licence" in json:
+            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+        else:
+            licence = None
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
             'subcategory': article.subcategory.all(),
+            'licence' : licence
         })
 
     return render_template('article/member/edit.html', {
@@ -366,8 +389,9 @@ def maj_repo_article(
         shutil.rmtree(old_slug_path)
     else:
         if action == 'maj':
-            shutil.move(old_slug_path, new_slug_path)
-            repo = Repo(new_slug_path)
+            if old_slug_path != new_slug_path:
+                shutil.move(old_slug_path, new_slug_path)
+                repo = Repo(new_slug_path)
             msg = 'Modification de l\'article'
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
@@ -543,15 +567,16 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
-                    u'est maintenant publié ! Les lecteurs du monde entier '
-                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
-                    u'de rester a leur écoute afin d\'apporter des '
-                    u'corrections/compléments. Un Article vivant et a jour '
-                    u'est bien plus lu qu\'un sujet abandonné !'.format(
-                        author.username,
-                        article.title,
-                        article.get_absolute_url_online())
+                    msg = (
+                        u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
+                        u'est maintenant publié ! Les lecteurs du monde entier '
+                        u'peuvent venir le lire et réagir à son sujet. Je te conseille '
+                        u'de rester à leur écoute afin d\'apporter des '
+                        u'corrections/compléments. Un article vivant et à jour '
+                        u'est bien plus lu qu\'un sujet abandonné !'
+                        .format(author.username,
+                                article.title,
+                                settings.SITE_URL + article.get_absolute_url_online()))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
@@ -745,6 +770,8 @@ def history_validation(request, article_pk):
     return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
+        'authors': article.authors,
+        'tags': article.subcategory,
     })
 
 
@@ -777,7 +804,7 @@ def history(request, article_pk, article_slug):
     """Display an article."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    if not article.on_line \
+    if not article.on_line() \
        and not request.user.has_perm('article.change_article') \
        and request.user not in article.authors.all():
         raise Http404
@@ -907,9 +934,10 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 reaction_cite.author.username,
+                settings.SITE_URL,
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={
@@ -935,7 +963,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u'Bonjour {0},\n\nVous recevez ce message car vous avez '
+    msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
     u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
     u'Votre alerte a été traitée par **{4}** et il vous a laissé '
     u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
@@ -946,7 +974,7 @@ def solve_alert(request):
         settings.SITE_URL +
         reaction.get_absolute_url(),
         request.user.username,
-        request.POST['text'])
+        request.POST['text']))
     send_mp(
         bot, [
             alert.author], u"Résolution d'alerte : {0}".format(

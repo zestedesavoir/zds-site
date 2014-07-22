@@ -15,6 +15,8 @@ def export_article(article):
     dct['description'] = article.description
     dct['type'] = 'article'
     dct['text'] = article.text
+    if article.licence:
+        dct['licence'] = article.licence.code
 
     return dct
 

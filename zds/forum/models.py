@@ -243,11 +243,8 @@ class Topic(models.Model):
         if user is None:
             user = get_current_user()
 
-        try:
-            TopicFollowed.objects.get(topic=self, user=user)
-        except TopicFollowed.DoesNotExist:
-            return False
-        return True
+        return TopicFollowed.objects.filter(topic=self, user=user).exists()
+
 
     def is_email_followed(self, user=None):
         """Check if the topic is currently email followed by the user.

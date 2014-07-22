@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Override for high pixel ratio screens : HD icons
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
@@ -13,11 +13,10 @@
     }
     .ico,
     .ico-after:after,
-    .breadcrumb ul li:not(:last-child):after,
+    .breadcrumb ol li:not(:last-child):after,
     input[type=radio]:checked,
     input[type=checkbox]:checked {
         background-size: round($sprite_width / 2) round($sprite_height / 2) !important;
-        //background-size: 50% 50% !important;
         background-image: $sprite2x !important;
     }
 
@@ -40,20 +39,26 @@
         }
     }
 
-    .breadcrumb ul li:not(:last-child):after {
+    .breadcrumb ol li:not(:last-child):after {
         @include sprite-pos($ariane, true);
     }
 
-    .search form button:after {
-        @include sprite-pos($search, true);
+    .search,
+    .search-box {
+        form button:after {
+            @include sprite-pos($search, true);
+        }
     }
 
-    .main .content-container h2 {
-        &.ico-articles:after {
-            @include sprite-pos($articles, true);
-        }
-        &.ico-tutorials:after {
-            @include sprite-pos($tutorials, true);
+    .main .content-container {
+        h1,
+        h2 {
+            &.ico-articles:after {
+                @include sprite-pos($articles, true);
+            }
+            &.ico-tutorials:after {
+                @include sprite-pos($tutorials, true);
+            }
         }
     }
 

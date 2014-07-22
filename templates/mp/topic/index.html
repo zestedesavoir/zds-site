@@ -32,7 +32,7 @@
 
 {% block content %}
     <div class="authors">
-        <span class="authors-label">Participants : </span>
+        <span class="authors-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
         <ul>
             <li>
                 {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}

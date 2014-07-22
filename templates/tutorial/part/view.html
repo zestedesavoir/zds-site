@@ -21,6 +21,12 @@
         {{ part.title }}
     </h2>
 
+    {% if tutorial.licence %}
+        <p class="license">
+            {{ tutorial.licence }}
+        </p>
+    {% endif %}
+
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
     {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
@@ -37,7 +43,7 @@
 {% block content %}
     {% if part.intro and part.intro != "None" %}
         {{ part.intro|emarkdown }}
-    {% else %}
+    {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
         <p class="ico-after warning">
             Il n'y a pas d'introduction.
         </p>
@@ -84,7 +90,7 @@
 
     {% if part.conclu and part.conclu != "None" %}
         {{ part.conclu|emarkdown }}
-    {% else %}
+    {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
         <p class="ico-after warning">
             Il n'y a pas de conclusion.
         </p>
@@ -112,6 +118,7 @@
                 <a href="#move-part" class="open-modal ico-after move blue">
                     Déplacer <span class="wide">la partie</span>
                 </a>
+
                 <form action="{% url "zds.tutorial.views.modify_part" %}" method="POST" class="modal modal-small" id="move-part">
                     <select name="move_target" class="select-autosubmit">
                         <option disabled="disabled">
@@ -166,6 +173,23 @@
                     {% csrf_token %}
 
                     <button type="submit">Déplacer</button>
+                </form>
+            </li>
+            <li>
+                <a href="#delete-part" class="open-modal ico-after cross red">
+                    Supprimer la partie
+                </a>
+
+                <form action="{% url "zds.tutorial.views.modify_part" %}" method="post" id="delete-part" class="modal modal-medium">
+                    <p>
+                        Attention, vous vous apprêtez à supprimer définitivement la partie "<em>{{ part.title }}</em>".
+                    </p>
+                    <input type="hidden" name="part" value="{{ part.pk }}">
+
+                    {% csrf_token %}
+                    <button type="submit" name="delete">
+                        Confirmer
+                    </button>
                 </form>
             </li>
         {% endif %}

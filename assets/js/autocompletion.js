@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Sandhose / Quentin Gliech
-   ---------------------------------
    Add autocomplete for members names
+   ---------------------------------
+   Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
 (function($) {
@@ -13,8 +13,8 @@
         this.$dropdown = this.$wrapper.find(".autocomplete-dropdown");
 
         this.$dropdown.css({
-            top: "-" + this.$input.css("margin-bottom"),
-            left: this.$input.css("margin-left")
+            "marginTop": "-" + this.$input.css("margin-bottom"),
+            "left": this.$input.css("margin-left")
         });
 
         this.$input.on("keyup", this.handleInput.bind(this));
@@ -59,6 +59,7 @@
                 case 13: // Enter
                     e.preventDefault();
                     e.stopPropagation();
+
                     this.enter();
                     break;
             }
@@ -89,7 +90,7 @@
                         self.updateDropdown(self.sortList(data, search));
                     })
                     .fail(function(){
-                        console.log("something went wrong...");
+                        console.error("[Autocompletition] Something went wrong...");
                     })
                 ;
                 this.updateDropdown(this.sortList(this.searchCache(search), search));
@@ -98,6 +99,8 @@
         },
 
         showDropdown: function(){
+            if(this.$input.is("input"))
+                this.$dropdown.css("width", this.$input.outerWidth());
             this.$dropdown.show();
         },
 
@@ -256,10 +259,16 @@
 
     function buildDom(input) {
         var $input = $(input),
-            $wrapper = $("<span>", { class: "autocomplete-wrapper" }),
-            $dropdown = $("<div>", { class: "autocomplete-dropdown" });
+            $wrapper = $("<div/>", {
+                "class": "autocomplete-wrapper"
+            }),
+            $dropdown = $("<div/>", {
+                "class": "autocomplete-dropdown"
+            })
+        ;
 
         return $input.addClass("autocomplete-input")
+            .attr("autocomplete", "off")
             .wrap($wrapper)
             .parent()
             .append($dropdown)

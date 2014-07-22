@@ -9,10 +9,9 @@
 Zeste de Savoir
 ===============
 
-Site internet communautaire codé à l'aide du framework Django 1.6.
+Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.6 et de [Python](https://www.djangoproject.com/) 2.7.
 
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
-* Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
 
 
 
@@ -36,7 +35,7 @@ Fonctionnalités implementées
 Fonctionnalités à venir
 -----------------------
 
-Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues)
+Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues).
 
 
 
@@ -71,20 +70,20 @@ python manage.py loaddata fixtures/users.yaml fixtures/forums.yaml fixtures/topi
 
 Cela va créer plusieurs entitées :
 
-* 3 utilisateurs (username/password) :
+* 3 utilisateurs (utilisateur/mot de passe) :
 	* user/user : Utilisateur normal
 	* staff/staff : Utilisateur avec les droits d'un staff
 	* admin/admin : Utilisateur avec les droits d'un staff et d'un admin
-* 3 categories
+* 3 catégories
 * 11 forums
-* 3 topics with one answer
-* 1 mp with 3 participants
+* 3 sujets avec une réponse
+* 1 message privé (MP) avec 3 participants
 * 3 catégories et 2 sous-catégories
 
 
-### Conseil de developpement
+### Conseils de developpement
 
-Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires et qu'il est compatible PEP-8 (sous peine de refus de Pull Request) en exécutant les commandes suivantes, pour le back :
+Avant de faire une Pull Request (PR), vérifiez que votre code passe tous les tests unitaires et qu'il est compatible [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) en exécutant les commandes suivantes, pour le back :
 
 ```console
 python manage.py test
@@ -115,9 +114,11 @@ En savoir plus
 --------------
 
 - [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+- [Contribuer](CONTRIBUTING.md)
+- [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
 
 
 
 
 
-Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/))
+Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/)).

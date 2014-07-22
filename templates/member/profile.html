@@ -25,9 +25,9 @@
 
 {% block content_out %}
     <section class="content-col-2">
-        <h2>
-            {{ usr.username }}
-        </h2>
+        <h1>
+            Profil de {{ usr.username }}
+        </h1>
 
         <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
 
@@ -61,7 +61,7 @@
 
 
         {% if topics %}
-            <h2>Dernier sujets crées</h2>
+            <h2>Derniers sujets créés</h2>
             {% for topic in topics %}
                 <h4><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></h4>
                 <h5>{{ topic.subtitle }}</h5>

@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-from zds.gallery.forms import ImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
+from zds.gallery.forms import ImageForm, UpdateImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.tutorial.models import Tutorial
 from zds.member.decorator import can_write_and_read_now
@@ -169,13 +169,14 @@ def modify_gallery(request):
 
 
 @login_required
+@can_write_and_read_now
 def edit_image(request, gal_pk, img_pk):
-    """Creates a new image."""
+    """Edit an existing image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
 
-    # check if user can edit image
+    # Check if user can edit image
     try:
         permission = UserGallery.objects.get(user=request.user, gallery=gal)
         if permission.mode != 'W':
@@ -183,17 +184,17 @@ def edit_image(request, gal_pk, img_pk):
     except:
         raise PermissionDenied
 
-    # check if the image belong to the gallery
+    # Check if the image belong to the gallery
     if img.gallery != gal:
         raise PermissionDenied
-    
-    
+
     if request.method == "POST":
-        form = ImageForm(request.POST, request.FILES)
+        form = UpdateImageForm(request.POST, request.FILES)
         if form.is_valid():
             if "physical" in request.FILES:
                 if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
-                    messages.error(request, "Votre image est beaucoup trop lourde, réduidez sa taille à moins de {} avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE/1024*1024)))
+                    messages.error(request, "Votre image est beaucoup trop lourde, réduisez sa taille à moins de {} \
+                    <abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE/1024)))
                 else:
                     img.title = request.POST["title"]
                     img.legend = request.POST["legend"]
@@ -201,19 +202,24 @@ def edit_image(request, gal_pk, img_pk):
                     img.slug = slugify(request.FILES["physical"])
                     img.update = datetime.now()
                     img.save()
-                    # Redirect to the document list after POST
-                    return redirect(gal.get_absolute_url())
+                    # Redirect to the newly uploaded image edit page after POST
+                    return redirect(reverse("zds.gallery.views.edit_image", args=[gal.pk, img.pk]))
             else:
                 img.title = request.POST["title"]
                 img.legend = request.POST["legend"]
                 img.update = datetime.now()
                 img.save()
+                # Redirect to the newly uploaded image edit page after POST
+                return redirect(reverse("zds.gallery.views.edit_image", args=[gal.pk, img.pk]))
 
-                # Redirect to the document list after POST
-                return redirect(gal.get_absolute_url())
     else:
-        form = ImageForm(initial={"title": img.title, "legend": img.legend, "physical": img.physical})
-    
+        form = UpdateImageForm(initial={
+            "title": img.title,
+            "legend": img.legend,
+            "physical": img.physical,
+            "new_image": False,
+        })
+
     as_avatar_form = ImageAsAvatarForm()
     return render_template(
         "gallery/image/edit.html", {
@@ -226,12 +232,9 @@ def edit_image(request, gal_pk, img_pk):
 
 @can_write_and_read_now
 @login_required
-def modify_image(request):
+@require_POST
+def delete_image(request):
 
-    # We only handle secured POST actions
-
-    if request.method != "POST":
-        raise Http404
     try:
         gal_pk = request.POST["gallery"]
     except KeyError:
@@ -241,7 +244,6 @@ def modify_image(request):
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
 
         # Only allow RW users to modify images
-
         if gal_mode.mode != "W":
             raise PermissionDenied
     except:
@@ -275,8 +277,7 @@ def new_image(request, gal_pk):
 
     if request.method == "POST":
         form = ImageForm(request.POST, request.FILES)
-        if form.is_valid() and request.FILES["physical"].size \
-                < settings.IMAGE_MAX_SIZE:
+        if form.is_valid():
             img = Image()
             img.physical = request.FILES["physical"]
             img.gallery = gal
@@ -287,13 +288,12 @@ def new_image(request, gal_pk):
             img.save()
 
             # Redirect to the newly uploaded image edit page after POST
-
             return redirect(reverse("zds.gallery.views.edit_image",
                                     args=[gal.pk, img.pk]))
         else:
             return render_template("gallery/image/new.html", {"form": form,
                                                               "gallery": gal})
     else:
-        form = ImageForm()  # A empty, unbound form
+        form = ImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
                                                           "gallery": gal})
