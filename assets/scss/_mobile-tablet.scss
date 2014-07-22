@@ -599,10 +599,15 @@
                 font-size: 1.8ex;
             }
         }
-        .content-wrapper {
+        .content-wrapper,
+        .full-content-wrapper {
             h1,
             h2,
-            h3,
+            h3 {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
             h4,
             h5,
             h6,
@@ -614,6 +619,7 @@
                 margin-left: 10px;
                 margin-right: 10px;
             }
+
             figure {
                 p,
                 blockquote {

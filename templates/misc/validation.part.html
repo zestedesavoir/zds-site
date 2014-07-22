@@ -6,7 +6,7 @@
     Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
 
     {% if validation.date_reserve %}
-        {{ validation.date_reserve|format_date|capfirst }}
+        {{ validation.date_reserve|format_date:True|capfirst }}
         <br>
     {% endif %}
 {% endif %}
