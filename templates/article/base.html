@@ -16,9 +16,9 @@
 
 {% block breadcrumb_base %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-    	<a href="{% url "zds.article.views.index" %}" itemprop="url">
-    		<span itemprop="title">Articles</span>
-    	</a>
+        <a href="{% url "zds.article.views.index" %}" itemprop="url">
+            <span itemprop="title">Articles</span>
+        </a>
     </li>
 {% endblock %}
 
@@ -32,6 +32,6 @@
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-		{% include "article/includes/sidebar_base.html" %}
-	</aside>
+        {% include "article/includes/sidebar_base.html" %}
+    </aside>
 {% endblock %}
