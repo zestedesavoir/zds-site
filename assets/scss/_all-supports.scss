@@ -48,39 +48,41 @@
     background: #062E41;
     display: none;
 
-    p {
+    span {
+        display: inline-block;
         margin: 0;
         padding: 7px 0;
         color: #EEE;
+        line-height: 23px;
+    }
 
-        a {
-            display: inline-block;
-            color: #EEE;
-            padding: 4px 13px;
-            margin-left: 15px;
-            background: $blue;
-            text-decoration: none;
+    a {
+        display: inline-block;
+        color: #EEE;
+        padding: 4px 13px;
+        margin-left: 15px;
+        background: $blue;
+        text-decoration: none;
 
-            &:hover,
-            &:focus {
-                background: #EEE;
-                color: $blue;
-            }
+        &:hover,
+        &:focus {
+            background: #EEE;
+            color: $blue;
         }
+    }
 
-        button {
-            display: inline-block;
-            background: none;
-            border: none;
-            text-decoration: underline;
-            margin: 0;
-            padding: 0;
-            color: #EEE;
+    #reject-cookies {
+        display: inline-block;
+        background: none;
+        border: none;
+        text-decoration: underline;
+        margin: 0;
+        padding: 0;
+        color: #EEE;
 
-            &:hover,
-            &:focus {
-                text-decoration: none;
-            }
+        &:hover,
+        &:focus {
+            text-decoration: none;
         }
     }
 
@@ -91,6 +93,7 @@
         padding: 4px 15px;
         border: none;
         transition: background .15s, color .15s;
+        margin-top: 3px;
 
         &:hover,
         &:focus {
