@@ -7,13 +7,17 @@
 
 
 {% block title_base %}
-    &bull; Mes articles
+    &bull; Articles
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% if user in tutorial.authors.all %}
+        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% else %}
+        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    {% endif %}
 {% endblock %}
 
 
