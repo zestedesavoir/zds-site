@@ -55,7 +55,7 @@
     {# OpenGraph #}
     <meta property="og:site_name" content="Zeste de Savoir">
     <meta property="og:title" content="{{ title|safe }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="http://zestedesavoir.com{{ request.path }}">
     <meta property="og:language" content="fr_FR">
     <meta property="og:image:url" content="http://{{ meta_image }}">
     <meta property="og:image:secure_url" content="https://{{ meta_image }}">
@@ -67,7 +67,7 @@
     {# Twitter cards #}
     <meta property="twitter:domain" content="http://zestedesavoir.com/">
     <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:url" content="http://zestedesavoir.com{{ request.path }}">
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">
     <meta property="twitter:site" content="@ZesteDeSavoir">
