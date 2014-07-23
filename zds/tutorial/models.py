@@ -185,6 +185,7 @@ class Tutorial(models.Model):
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
                                                      args=[self.pk, slugify(mandata["title"])])
+        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
         mandata['get_absolute_url'] = self.get_absolute_url()
         mandata['get_introduction_online'] = self.get_introduction_online()
         mandata['get_conclusion_online'] = self.get_conclusion_online()
