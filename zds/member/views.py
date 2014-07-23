@@ -125,15 +125,15 @@ def details(request, user_name):
                   ).all()[:5]
     
     my_tuto_versions = []
-        for my_tutorial in my_tutorials:
-            mandata = my_tutorial.load_json_for_public()
-            mandata = my_tutorial.load_dic(mandata)
-            my_tuto_versions.append(mandata)
+    for my_tutorial in my_tutorials:
+        mandata = my_tutorial.load_json_for_public()
+        mandata = my_tutorial.load_dic(mandata)
+        my_tuto_versions.append(mandata)
     my_article_versions = []
-        for my_article in my_articles:
-            article_version = my_article.load_json_for_public()
-            article_version = my_article.load_dic(article_version)
-            my_tuto_versions.append(article_version)
+    for my_article in my_articles:
+        article_version = my_article.load_json_for_public()
+        article_version = my_article.load_dic(article_version)
+        my_tuto_versions.append(article_version)
 
     my_topics = \
         Topic.objects\
