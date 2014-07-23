@@ -61,7 +61,7 @@
                                     </a>
                                     <br>
                                     {% if validation.tutorial.subcategory.all %}
-                                        Catégories : 
+                                        Catégorie{{ validation.article.subcategory.all|pluralize }} : 
                                         {% for subcategory in validation.tutorial.subcategory.all %}
                                             {% if not forloop.first %}
                                                 -
