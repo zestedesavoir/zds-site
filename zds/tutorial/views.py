@@ -1412,10 +1412,7 @@ def view_chapter(
 ):
     """View chapter."""
 
-    chapter = get_object_or_404(Chapter, pk=chapter_pk,
-                                part__pk=part_pk,
-                                part__tutorial__pk=tutorial_pk)
-    tutorial = chapter.get_tutorial()
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
     try:
         sha = request.GET["version"]
@@ -1449,7 +1446,7 @@ def view_chapter(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = tutorial
         for chapter in part["chapters"]:
@@ -1538,7 +1535,7 @@ def view_chapter_online(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = mandata
         part["position_in_tutorial"] = cpt_p
