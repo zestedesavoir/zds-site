@@ -90,7 +90,7 @@
                         {{ article.pubdate|format_date|capfirst }} -
                         <a href="
                             {% if article.get_reaction_count == 0 %}
-                                {{ link }}#reactions
+                                {{ article.get_absolute_url_online }}#reactions
                             {% else %}
                                 {{ article.get_last_reaction.get_absolute_url }}
                             {% endif %}
