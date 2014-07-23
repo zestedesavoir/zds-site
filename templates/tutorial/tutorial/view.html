@@ -205,8 +205,8 @@
                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
                     {% csrf_token %}
                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                    <input type="hidden" name="activ_beta" />
-                    <input type="hidden" name="version" value="{{version}}" />
+                    <input type="hidden" name="activ_beta">
+                    <input type="hidden" name="version" value="{{ version }}">
                     <p>
                         Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                     </p>
@@ -218,14 +218,14 @@
         {% else %}
             {% if tutorial.sha_beta != version %}
                 <li>
-                    <a href="#update-beta" class="open-modal ico-after history blue">
+                    <a href="#update-beta" class="open-modal ico-after beta blue">
                         Mettre à jour la bêta
                     </a>
                     <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="update-beta">
                         {% csrf_token %}
                         <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                        <input type="hidden" name="update_beta" />
-                        <input type="hidden" name="version" value="{{version}}" />
+                        <input type="hidden" name="update_beta">
+                        <input type="hidden" name="version" value="{{ version }}">
                         <p>
                             Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                         </p>
@@ -242,8 +242,8 @@
                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="desactiv-beta">
                     {% csrf_token %}
                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                    <input type="hidden" name="desactiv_beta" />
-                    <input type="hidden" name="version" value="{{version}}" />
+                    <input type="hidden" name="desactiv_beta">
+                    <input type="hidden" name="version" value="{{ version }}">
                     <p>
                         Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
                     </p>
