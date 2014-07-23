@@ -1929,26 +1929,30 @@ def edit_extract(request):
 
     if request.method == "POST":
         data = request.POST
-        if content_has_changed([extract.get_path()], data["last_hash"]):
-            form = form = ExtractForm(initial={
-                "title": extract.title,
-                "text": extract.get_text()})
-            return render_template("tutorial/extract/edit.html", 
-                {
-                     "extract": extract,
-                     "last_hash": compute_hash([extract.get_path()]),
-                     "new_version":True,
-                     "form": form
-                })
         # Using the « preview button »
 
         if "preview" in data:
-            form = ExtractForm(initial={"title": data["title"],
-                                        "text": data["text"]})
+            form = ExtractForm(initial={
+                                           "title": data["title"],
+                                           "text": data["text"]
+                                       })
             return render_template("tutorial/extract/edit.html",
-                                   {"extract": extract, "form": form})
+                                   {
+                                       "extract": extract, "form": form,
+                                       "last_hash": compute_hash([extract.get_path()])
+                                   })
         else:
-
+            if content_has_changed([extract.get_path()], data["last_hash"]):
+                form = ExtractForm(initial={
+                    "title": extract.title,
+                    "text": extract.get_text()})
+                return render_template("tutorial/extract/edit.html", 
+                    {
+                         "extract": extract,
+                         "last_hash": compute_hash([extract.get_path()]),
+                         "new_version":True,
+                         "form": form
+                    })
             # Edit extract.
 
             form = ExtractForm(request.POST)
