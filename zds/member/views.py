@@ -133,7 +133,7 @@ def details(request, user_name):
     for my_article in my_articles:
         article_version = my_article.load_json_for_public()
         article_version = my_article.load_dic(article_version)
-        my_tuto_versions.append(article_version)
+        my_article_versions.append(article_version)
 
     my_topics = \
         Topic.objects\
