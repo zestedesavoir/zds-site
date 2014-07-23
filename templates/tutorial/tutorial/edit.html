@@ -21,11 +21,8 @@
 
 
 {% block headline_sub %}
-    {{ tutorial.description }}
+   {{ tutorial.description }}
 {% endblock %}
-
-
-
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
     <li>Éditer le tutoriel</li>
@@ -34,5 +31,10 @@
 
 
 {% block content %}
+    {% if new_version %}
+        <p class="ico-after warning">
+            Une nouvelle version a été postée avant que vous ne validiez.
+        </p>
+    {% endif %}
     {% crispy form %}
 {% endblock %}

@@ -14,6 +14,31 @@
 
 
 
+{% block meta_image %}{% spaceless %}
+    {% if article.image %}
+        {{ article.image.article_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    <meta property="og:type" content="article">
+
+    {% if article.pubdate %}
+        <meta property="og:article:published_time" content="{{ article.pubdate|date:"c" }}">
+    {% endif %}
+
+    <meta property="og:article:section" content="Articles">
+    {% for tag in tags.all %}
+        <meta property="og:article:tag" content="{{ tag.title }}">
+    {% endfor %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li>{{ article.title }}</li>
 {% endblock %}

@@ -108,6 +108,7 @@ class TutorialForm(FormWithTitle):
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
             ButtonHolder(
@@ -153,6 +154,7 @@ class PartForm(FormWithTitle):
             Field('title'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
                     'Valider',
@@ -200,6 +202,7 @@ class ChapterForm(FormWithTitle):
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
                     'Valider',
@@ -236,7 +239,8 @@ class EmbdedChapterForm(forms.Form):
                 u'Contenu',
                 Field('image'),
                 Field('introduction', css_class='md-editor'),
-                Field('conclusion', css_class='md-editor')
+                Field('conclusion', css_class='md-editor'),
+                Hidden('last_hash', '{{ last_hash }}'),
             ),
             ButtonHolder(
                 Submit('submit', 'Valider')
@@ -265,6 +269,7 @@ class ExtractForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
+            Hidden('last_hash', '{{ last_hash }}'),
             CommonLayoutEditor()
         )
 
@@ -387,8 +392,9 @@ class AskValidationForm(forms.Form):
             StrictButton(
                 'Confirmer',
                 type='submit'),
-            Hidden('tutorial', '{{ tutorial.pk }}'), 
-            Hidden('version', '{{ version }}'), )
+            Hidden(
+                'tutorial', '{{ tutorial.pk }}'), Hidden(
+                'version', '{{ version }}'), )
 
 
 class ValidForm(forms.Form):

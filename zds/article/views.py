@@ -55,20 +55,26 @@ def index(request):
         tag = None
 
     if tag is None:
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False).exclude(sha_public="")\
             .order_by('-pubdate')\
             .all()
     else:
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all articles in the subcategory specified.
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
+    
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version) 
 
     return render_template('article/index.html', {
-        'articles': article,
+        'articles': article_versions,
         'tag': tag,
     })
 
@@ -82,10 +88,6 @@ def view(request, article_pk, article_slug):
     if request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
             raise PermissionDenied
-
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
 
     # Retrieve sha given by the user. This sha must to be exist.
     # If it doesn't exist, we take draft version of the article.
@@ -105,17 +107,8 @@ def view(request, article_pk, article_slug):
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
     article_version = json_reader.loads(manifest)
-    article_version['txt'] = get_blob(
-        repo.commit(sha).tree,
-        article_version['text'])
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['pubdate'] = article.pubdate
-    article_version['sha_draft'] = article.sha_draft
-    article_version['sha_validation'] = article.sha_validation
-    article_version['sha_public'] = article.sha_public
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
+    article_version = article.load_dic(article_version)
 
     validation = Validation.objects.filter(article__pk=article.pk,
                                             version=sha)\
@@ -135,28 +128,14 @@ def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url_online())
-
     # Load the article.
-    article_version = article.load_json()
-    txt = open(
-        os.path.join(
-            article.get_path(),
-            article_version['text'] +
-            '.html'),
-        "r")
+    article_version = article.load_json_for_public()
+    txt = open(os.path.join(article.get_path(),
+                            article_version['text'] + '.html'),
+               "r")
     article_version['txt'] = txt.read()
     txt.close()
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['pubdate'] = article.pubdate
-    article_version['is_locked'] = article.is_locked
-    article_version['get_reaction_count'] = article.get_reaction_count
-    article_version['get_absolute_url'] = article.get_absolute_url()
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version = article.load_dic(article_version)
 
     # If the user is authenticated
     if request.user.is_authenticated():
@@ -364,16 +343,23 @@ def edit(request):
     })
 
 
-def find_article(request, name):
+def find_article(request, pk_user):
     """Find an article from his author."""
-    user = get_object_or_404(User, pk=name)
+    user = get_object_or_404(User, pk=pk_user)
     articles = Article.objects\
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
+    
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version) 
+
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr': user,
+        'articles': article_versions, 'usr': user,
     })
 
 
