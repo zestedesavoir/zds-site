@@ -49,6 +49,7 @@
         <h2>
             {% block headline %}
                 Validation des articles
+                ({{ validations|length }})
             {% endblock %}
         </h2>
 
@@ -72,7 +73,7 @@
                                     </a>
                                     <br>
                                     {% if validation.article.subcategory.all %}
-                                        Catégorie{{ validation.article.subcategory.all|pluralize }} : 
+                                        Catégories : 
                                         {% for subcategory in validation.article.subcategory.all %}
                                             {% if not forloop.first %}
                                                 -

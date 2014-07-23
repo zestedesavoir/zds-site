@@ -31,6 +31,7 @@
                 {% elif request.GET.type == "orphan" %}
                     / Non-reservés
                 {% endif %}
+                ({{ validations|length }})
             {% endblock %}
         </h1>
 
@@ -61,7 +62,7 @@
                                     </a>
                                     <br>
                                     {% if validation.tutorial.subcategory.all %}
-                                        Catégorie{{ validation.article.subcategory.all|pluralize }} : 
+                                        Catégories : 
                                         {% for subcategory in validation.tutorial.subcategory.all %}
                                             {% if not forloop.first %}
                                                 -
