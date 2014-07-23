@@ -976,8 +976,9 @@ class Extract(models.Model):
             chapter = tutorial_version["chapter"]
             if "extracts" in chapter:
                 for extract in chapter["extracts"]:
-                    path_ext = extract["text"]
-                    break
+                    if extract["pk"] == self.pk:
+                        path_ext = extract["text"]
+                        break
 
         if path_ext:
             return get_blob(repo.commit(sha).tree, path_ext)
