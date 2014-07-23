@@ -1048,8 +1048,6 @@
     }
 
     .member-item {
-        margin-right: 7px;
-
         .avatar {
             margin-top: -2px;
             height: 20px;
@@ -1057,9 +1055,16 @@
             border: 1px solid #CCC;
         }
 
+        .avatar + span {
+            padding-left: 3px;
+        }
+
         &:hover .avatar {
             border-color: #999;
         }
+    }
+    .member-item + .member-item {
+        margin-left: 7px;
     }
     .authors .member-item {
         margin-right: 0;
@@ -2368,10 +2373,6 @@ table {
             .message-helpful {
                 color: #48A200;
                 text-indent: 20px;
-            }
-
-            .member-item {
-                margin: 0;
             }
 
             textarea {

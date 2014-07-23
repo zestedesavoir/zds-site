@@ -12,13 +12,11 @@
             itemprop="author"
         {% endif %}
     >{% spaceless %}
-    	{% if avatar %}
-        	<img src="{{ profile.get_avatar_url }}" alt="" class="avatar" itemprop="image">
-    	{% endif %}
-    	
-        <span itemprop="name">
-        	{{ member.username }}
-        </span>
+        {% if avatar %}
+            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar" itemprop="image">
+        {% endif %}
+
+        <span itemprop="name">{{ member.username }}</span>
 
         {% if info %}
             <span class="info">({{ info }})</span>

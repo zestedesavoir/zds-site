@@ -47,9 +47,8 @@
                     <thead>
                         <tr>
                             <th>Titre</th>
-                            <th width="8%">Catégorie(s)</th>
-                            <th width="8%">Auteur(s)</th>
-                            <th width="8%">Proposé</th>
+                            <th width="15%">Auteur(s)</th>
+                            <th width="10%">Proposé</th>
                             <th width="24%">Statut</th>
                         </tr>
                     </thead>
@@ -60,13 +59,19 @@
                                     <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
                                         {{ validation.tutorial.title }}
                                     </a>
-                                </td>
-                                <td>
-                                    {% for subcategory in validation.tutorial.subcategory.all %}
-                                        <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">
-                                            {{ subcategory.title }}
-                                        </a>
-                                    {% endfor %}
+                                    <br>
+                                    {% if validation.tutorial.subcategory.all %}
+                                        Catégories : 
+                                        {% for subcategory in validation.tutorial.subcategory.all %}
+                                            {% if not forloop.first %}
+                                                -
+                                            {% endif %}
+                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                                {{ subcategory.title }}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <em>Aucune catégorie</em>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% for author in validation.tutorial.authors.all %}
@@ -74,7 +79,7 @@
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <span>{{ validation.date_proposition|format_date|capfirst }}</span>
+                                    <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
