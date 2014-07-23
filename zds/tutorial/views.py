@@ -1926,6 +1926,7 @@ def edit_extract(request):
 
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+
     if request.method == "POST":
         data = request.POST
         if content_has_changed([extract.get_path()], data["last_hash"]):
@@ -2895,7 +2896,6 @@ def MEP(tutorial, sha):
         get_url_images(md_file_contenu, tutorial.get_prod_path())
 
         # convert to out format
-
         out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
         if md_file_contenu is not None:
             out_file.write(markdown_to_out(md_file_contenu.encode("utf-8")))
