@@ -117,18 +117,30 @@ def details(request, user_name):
     fchart = os.path.join(img_path, "mod-{}.svg".format(str(usr.pk)))
     dot_chart.render_to_file(fchart)
     my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
-        "-pubdate").filter(authors__in=[usr]).all()
+        "-pubdate").filter(authors__in=[usr]).all()[:5]
     my_tutorials = \
         Tutorial.objects.filter(sha_public__isnull=False) \
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
-                  ).all()
+                  ).all()[:5]
+    
+    my_tuto_versions = []
+    for my_tutorial in my_tutorials:
+        mandata = my_tutorial.load_json_for_public()
+        mandata = my_tutorial.load_dic(mandata)
+        my_tuto_versions.append(mandata)
+    my_article_versions = []
+    for my_article in my_articles:
+        article_version = my_article.load_json_for_public()
+        article_version = my_article.load_dic(article_version)
+        my_article_versions.append(article_version)
+
     my_topics = \
         Topic.objects\
         .filter(author=usr)\
         .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
         .prefetch_related("author")\
-        .order_by("-pubdate").all()
+        .order_by("-pubdate").all()[:5]
 
     form = OldTutoForm(profile)
     oldtutos = []
@@ -142,9 +154,9 @@ def details(request, user_name):
         "usr": usr,
         "profile": profile,
         "bans": bans,
-        "articles": my_articles[:5],
-        "tutorials": my_tutorials[:5],
-        "topics": my_topics[:5],
+        "articles": my_article_versions,
+        "tutorials": my_tuto_versions,
+        "topics": my_topics,
         "form": form,
         "old_tutos": oldtutos,
     })

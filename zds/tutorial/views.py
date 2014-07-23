@@ -89,7 +89,13 @@ def index(request):
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-    return render_template("tutorial/index.html", {"tutorials": tutorials, "tag": tag})
+    
+    tuto_versions = []
+    for tutorial in tutorials:
+        mandata = tutorial.load_json_for_public()
+        mandata = tutorial.load_dic(mandata)
+        tuto_versions.append(mandata)
+    return render_template("tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
 
 # Staff actions.
@@ -219,10 +225,6 @@ def history(request, tutorial_pk, tutorial_slug):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
-    # Make sure the URL is well-formed
-
-    if not tutorial_slug == slugify(tutorial.title):
-        return redirect(tutorial.get_absolute_url())
     repo = Repo(tutorial.get_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
@@ -1924,6 +1926,7 @@ def edit_extract(request):
 
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+
     if request.method == "POST":
         data = request.POST
         if content_has_changed([extract.get_path()], data["last_hash"]):
@@ -2082,20 +2085,33 @@ def find_tuto(request, pk_user):
         type = request.GET["type"]
     except KeyError:
         type = None
-    u = get_object_or_404(User, pk=pk_user)
+    display_user = get_object_or_404(User, pk=pk_user)
     if type == "beta":
         tutorials = Tutorial.objects.all().filter(
-            authors__in=[u],
+            authors__in=[display_user],
             sha_beta__isnull=False).exclude(sha_beta="").order_by("-pubdate")
+        
+        tuto_versions = []
+        for tutorial in tutorials:
+            mandata = tutorial.load_json_for_public(sha=tutorial.sha_beta)
+            mandata = tutorial.load_dic(mandata)
+            tuto_versions.append(mandata)
+
         return render_template("tutorial/member/beta.html",
-                               {"tutorials": tutorials, "usr": u})
+                               {"tutorials": tuto_versions, "usr": display_user})
     else:
         tutorials = Tutorial.objects.all().filter(
-            authors__in=[u],
+            authors__in=[display_user],
             sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
+        
+        tuto_versions = []
+        for tutorial in tutorials:
+            mandata = tutorial.load_json_for_public()
+            mandata = tutorial.load_dic(mandata)
+            tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/online.html", {"tutorials": tutorials,
-                                                               "usr": u})
+        return render_template("tutorial/member/online.html", {"tutorials": tuto_versions,
+                                                               "usr": display_user})
 
 
 def upload_images(images, tutorial):
@@ -2880,7 +2896,6 @@ def MEP(tutorial, sha):
         get_url_images(md_file_contenu, tutorial.get_prod_path())
 
         # convert to out format
-
         out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
         if md_file_contenu is not None:
             out_file.write(markdown_to_out(md_file_contenu.encode("utf-8")))
