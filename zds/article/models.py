@@ -154,11 +154,12 @@ class Article(models.Model):
         article_version['sha_draft'] = self.sha_draft
         article_version['sha_validation'] = self.sha_validation
         article_version['sha_public'] = self.sha_public
+        article_version['get_last_reaction'] = self.get_last_reaction
         article_version['get_reaction_count'] = self.get_reaction_count
         article_version['get_absolute_url'] = reverse('zds.article.views.view', 
                                                       args=[self.pk, self.slug])
         article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online', 
-                                                             args=[self.pk,slugify(article_version['title'])])
+                                                             args=[self.pk, slugify(article_version['title'])])
         
         return article_version
         
