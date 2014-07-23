@@ -72,7 +72,7 @@
     {% if tutorial.in_beta and tutorial.sha_beta == version %}
         <div class="content-wrapper">
             <div class="alert-box warning">
-                Attention, cette version du tutoriel est en <strong>BÊTA</strong> !
+                Cette version du tutoriel est en <strong>BÊTA</strong> !
             </div>
         </div>
     {% endif %}
@@ -118,7 +118,7 @@
 
         {% if tuto_version.conclusion and tuto_version.conclusion != "None" %}
             {{ tuto_version.conclusion|emarkdown }}
-        {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
+        {% else %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>

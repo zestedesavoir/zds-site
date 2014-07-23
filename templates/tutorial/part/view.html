@@ -32,7 +32,7 @@
     {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
         <div class="content-wrapper">
             <div class="alert-box warning">
-                Attention, cette version du tutoriel est en BETA !
+                Cette version du tutoriel est en <strong>BÊTA</strong> !
             </div>
         </div>
     {% endif %}
@@ -43,7 +43,7 @@
 {% block content %}
     {% if part.intro and part.intro != "None" %}
         {{ part.intro|emarkdown }}
-    {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
+    {% else %}
         <p class="ico-after warning">
             Il n'y a pas d'introduction.
         </p>
@@ -90,7 +90,7 @@
 
     {% if part.conclu and part.conclu != "None" %}
         {{ part.conclu|emarkdown }}
-    {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
+    {% else %}
         <p class="ico-after warning">
             Il n'y a pas de conclusion.
         </p>
@@ -109,6 +109,7 @@
         </a>
     {% endif %}
 {% endblock %}
+
 
 
 {% block sidebar_actions %}
@@ -195,6 +196,8 @@
         {% endif %}
     {% endif %}
 {% endblock %}
+
+
 
 {% block sidebar_blocks %}
     {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}
