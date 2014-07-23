@@ -1774,9 +1774,11 @@
         }
     }
 
+    .content-wrapper.comment-author,
     .comment-author {
         background: #EEE;
         padding: 7px 15px;
+        margin-bottom: 20px;
 
         blockquote {
             margin: 10px 0;
