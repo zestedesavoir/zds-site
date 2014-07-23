@@ -5,6 +5,7 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse
+from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 try:
     import ujson as json_reader
 except:
@@ -45,12 +46,14 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
+from zds.forum.models import Forum, Topic
 from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
 from zds.utils.mps import send_mp
+from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
@@ -599,14 +602,78 @@ def modify_tutorial(request):
             if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
                 tutorial.sha_beta = tutorial.sha_draft
                 tutorial.save()
+
+                topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+                if topic is None:
+                    msg = \
+                        (u'Bonjour à tous,\n\n'
+                        u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                        u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                        u'sur la forme, afin de proposer en validation un texte de qualité.'
+                        u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                        u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                        u'\n\nMerci d\'avance pour votre aide'.format(
+                            naturaltime(tutorial.create_at),
+                            tutorial.title,
+                            settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
+                    create_topic(author = request.user,
+                                 forum = forum,
+                                 title = u"[beta][tutoriel]{0}".format(tutorial.title),
+                                 subtitle = u"{}".format(tutorial.description),
+                                 text = msg,
+                                 key = tutorial.pk
+                                 )
+                else:
+                    msg = \
+                        (u'Bonjour, !\n\n'
+                        u'La beta du tutoriel est de nouveau active.'
+                        u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                        u'\n\nMerci pour vos relectures'.format(tutorial.title,
+                            settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    unlock_topic(topic)
+                    send_post(topic, msg)
+                
                 messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
             else:
                 messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
             return redirect(tutorial.get_absolute_url_beta())
         elif "update_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
+
+                topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+                if topic is None:
+                    msg = \
+                        (u'Bonjour à tous,\n\n'
+                        u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                        u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                        u'sur la forme, afin de proposer en validation un texte de qualité.'
+                        u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                        u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                        u'\n\nMerci d\'avance pour votre aide'.format(
+                            naturaltime(tutorial.create_at),
+                            tutorial.title,
+                            settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
+                    create_topic(author = request.user,
+                                 forum = forum,
+                                 title = u"[beta][tutoriel]{0}".format(tutorial.title),
+                                 subtitle = u"{}".format(tutorial.description),
+                                 text = msg,
+                                 key = tutorial.pk
+                                 )
+                else:
+                    msg = \
+                        (u'Bonjour, !\n\n'
+                        u'La beta du tutoriel a été mise à jour.'
+                        u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                        u'\n\nMerci pour vos relectures'.format(tutorial.title,
+                            settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    unlock_topic(topic)
+                    send_post(topic, msg)
+
                 messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
             else:
                 messages.error(request, u"Impossible de mettre à jour la BETA sur ce tutoriel.")
@@ -614,6 +681,13 @@ def modify_tutorial(request):
         elif "desactiv_beta" in request.POST:
             tutorial.sha_beta = None
             tutorial.save()
+            topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+            if topic is not None:
+                msg = \
+                    (u'Désactivation de la beta du tutoriel  {}'
+                    u'\n\nPour plus d\'information envoyez moi un MP'.format(tutorial.title))
+                lock_topic(topic)
+                send_post(topic, msg)
             messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
             return redirect(tutorial.get_absolute_url())
 

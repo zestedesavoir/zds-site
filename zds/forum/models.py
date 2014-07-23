@@ -157,6 +157,8 @@ class Topic(models.Model):
         null=True,
         blank=True,
         db_index=True)
+    
+    key = models.IntegerField('cle', null=True, blank=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
