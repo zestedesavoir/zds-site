@@ -10,36 +10,40 @@
         {% endcaptureas %}
     {% endif %}
 
-    <a href="{{ link }}">
-        {% if article.image %}
+    {% if article.image %}
+        <a href="{{ link }}" tabindex="-1">
             <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
-        {% endif %}
+        </a>
+    {% endif %}
 
-        <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
-            <h3 itemprop="itemListElement">{{ article.title }}</h3>
-            <p class="article-metadata">
-                {% if article.sha_public %}
-                    {{ article.pubdate|format_date|capfirst }}
-                    -
-                    <a href="
-                        {% if article.last_read_reaction %}
-                            {{ article.last_read_reaction.get_absolute_url }}
-                        {% else %}
-                            {{ article.get_absolute_url_online }}#reactions
-                        {% endif %}
-                    ">
-                        {% if article.get_reaction_count == 0 %}
-                            Aucune réaction
-                        {% else %}
-                            {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
-                        {% endif %}
-                    </a>
-                {% elif article.sha_validation %}
-                    En validation
-                {% else %}
-                    Brouillon
-                {% endif %}
-            </p>
-        </div>
-    </a>
+    <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
+        <h3 itemprop="itemListElement">
+            <a href="{{ link }}">
+                {{ article.title }}
+            </a>
+        </h3>
+        <p class="article-metadata">
+            {% if article.sha_public %}
+                {{ article.pubdate|format_date|capfirst }}
+                -
+                <a href="
+                    {% if article.last_read_reaction %}
+                        {{ article.last_read_reaction.get_absolute_url }}
+                    {% else %}
+                        {{ article.get_absolute_url_online }}#reactions
+                    {% endif %}
+                ">
+                    {% if article.get_reaction_count == 0 %}
+                        Aucune réaction
+                    {% else %}
+                        {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
+                    {% endif %}
+                </a>
+            {% elif article.sha_validation %}
+                En validation
+            {% else %}
+                Brouillon
+            {% endif %}
+        </p>
+    </div>
 </article>
