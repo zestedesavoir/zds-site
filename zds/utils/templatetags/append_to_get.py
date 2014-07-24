@@ -38,7 +38,7 @@ class AppendGetNode(template.Node):
             for (key, value) in get.items():
                 if str(value):
                     for v in value:
-                        path += "&".join(["{0}={1}".format(key, str(v))])
+                        path += u"&".join(["{0}={1}".format(key, str(v))])
         
         return path
 
