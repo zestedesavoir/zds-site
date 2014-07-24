@@ -19,7 +19,7 @@
             <h3 itemprop="itemListElement">{{ article.title }}</h3>
             <p class="article-metadata">
                 {% if article.sha_public %}
-                    Publié {{ article.pubdate|format_date:True }}
+                    {{ article.pubdate|format_date|capfirst }}
                     -
                     <a href="
                         {% if article.last_read_reaction %}
