@@ -73,6 +73,7 @@ class UserGalleryForm(forms.Form):
         choices=(
             ('R', "En mode lecture"),
             ('W', "En mode écriture"),
+            ('O', "En mode propriétaire"),
         ),
         required=True,
         widget=forms.RadioSelect,

@@ -73,7 +73,7 @@ def new_gallery(request):
 
             userg = UserGallery()
             userg.gallery = gal
-            userg.mode = "W"
+            userg.mode = "O"
             userg.user = request.user
             userg.save()
             return redirect(gal.get_absolute_url())
@@ -105,7 +105,7 @@ def modify_gallery(request):
                 free_galleries.append(g_pk)
         
         perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
-                                           user=request.user, mode="W").count()
+                                           user=request.user, mode__in=['W', 'O']).count()
 
         # Check that the user has the RW right on each gallery
 
@@ -139,7 +139,11 @@ def modify_gallery(request):
         try:
             gal_mode = UserGallery.objects.get(gallery=gallery,
                                                user=request.user)
-            if gal_mode.mode != "W":
+            if gal_mode.mode not in ['W', 'O']:
+                raise PermissionDenied
+
+            # only owners can add other owners
+            if gal_mode.mode != 'O' and request.POST['mode'] == 'O':
                 raise PermissionDenied
         except:
             raise PermissionDenied
