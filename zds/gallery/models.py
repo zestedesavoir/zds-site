@@ -28,7 +28,8 @@ class UserGallery(models.Model):
     gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     MODE_CHOICES = (
         ('R', 'Lecture'),
-        ('W', 'Ecriture')
+        ('W', 'Ecriture'),
+        ('O', 'Propriétaire'),
     )
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default='R')
 
@@ -42,6 +43,9 @@ class UserGallery(models.Model):
 
     def is_read(self):
         return self.mode == 'R'
+
+    def is_owner(self):
+        return self.mode == 'O'
 
     def get_images(self):
         return Image.objects.all()\
