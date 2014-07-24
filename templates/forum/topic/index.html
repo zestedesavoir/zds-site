@@ -103,9 +103,9 @@
             {% endif %}
 
             {% if forloop.first and nb = 1 %}
-                {% set True as answer_schema %}
-            {% else %}
                 {% set False as answer_schema %}
+            {% else %}
+                {% set True as answer_schema %}
             {% endif %}
 
             {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
