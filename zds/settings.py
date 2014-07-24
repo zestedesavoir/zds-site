@@ -272,7 +272,11 @@ SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
 FOLLOWED_TOPICS_PER_PAGE = 21
 
+#username of the bot who send MP
 BOT_ACCOUNT = 'admin'
+
+#primary key of beta forum
+BETA_FORUM_ID = 1
 
 PANDOC_LOC = ''
 # LOG PATH FOR PANDOC LOGGING
