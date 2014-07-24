@@ -183,13 +183,11 @@ class Tutorial(models.Model):
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
-                                                     args=[self.pk, slugify(mandata["title"])])
+        self.title = mandata['title']
+
+        mandata['get_absolute_url_online'] = self.get_absolute_url_online()
         mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
         mandata['get_absolute_url'] = self.get_absolute_url()
-        mandata['get_introduction_online'] = self.get_introduction_online()
-        mandata['get_conclusion_online'] = self.get_conclusion_online()
-
         mandata['slug'] = slugify(mandata['title'])
         mandata['pk'] = self.pk
         mandata['on_line'] = self.on_line
@@ -203,13 +201,17 @@ class Tutorial(models.Model):
         mandata['have_pdf'] = self.have_pdf()
         mandata['have_epub'] = self.have_epub()
 
+        if self.on_line() :
+            mandata['get_introduction_online'] = self.get_introduction_online()
+            mandata['get_conclusion_online'] = self.get_conclusion_online()
+
         return mandata
 
     def load_json_for_public(self, sha=None):
         if sha is None:
             sha = self.sha_public
         repo = Repo(self.get_path())
-        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
 
         return data
