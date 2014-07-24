@@ -183,7 +183,7 @@ def edit_image(request, gal_pk, img_pk):
     # Check if user can edit image
     try:
         permission = UserGallery.objects.get(user=request.user, gallery=gal)
-        if permission.mode != 'W':
+        if permission.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -248,7 +248,8 @@ def delete_image(request):
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
 
         # Only allow RW users to modify images
-        if gal_mode.mode != "W":
+
+        if gal_mode.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -274,7 +275,7 @@ def new_image(request, gal_pk):
     # check if the user can upload new image in this gallery
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        if gal_mode.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied

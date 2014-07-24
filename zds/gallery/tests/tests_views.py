@@ -447,7 +447,31 @@ class EditImageViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
+       
+        # the same with owner mode
+        self.user_gallery1.mode = 'O'
+        self.user_gallery1.save()
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.edit_image',
+                        args=[self.gallery.pk, self.image.pk]
+                    ),
+                    {
+                        'title': 'edit title',
+                        'legend': 'dit legend',
+                        'slug': 'edit-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+        self.assertEqual(200, response.status_code)
+        image_test = Image.objects.get(pk=self.image.pk)
+        self.assertEqual('edit title', image_test.title)
         image_test.delete()
+
 
     def test_access_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -540,6 +564,28 @@ class ModifyImageTest(TestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(0, Image.objects.filter(pk=self.image1.pk).count())
+        
+    def test_success_delete_image_owner_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        # owner mode
+        self.user_gallery1.mode = 'O'
+        self.user_gallery1.save()
+
+        response = self.client.post(
+                reverse('zds.gallery.views.modify_image'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'delete': '',
+                    'image': self.image1.pk
+                },
+                follow=True,
+        )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(0, Image.objects.filter(pk=self.image1.pk).count())
+
 
     def test_success_delete_list_images_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -584,7 +630,7 @@ class NewImageViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
         self.profile3 = ProfileFactory()
-        self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery, mode='W')
+        self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery, mode='O')
         self.user_gallery2 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery, mode='R')
 
     def test_denies_anonymous(self):
@@ -616,6 +662,34 @@ class NewImageViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(self.gallery.get_images()))
         self.gallery.get_images()[0].delete()
+        
+    def test_success_new_image_owner_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        self.user_gallery1.mode = 'O'
+        self.user_gallery1.save()
+
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.new_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'title': 'Test title',
+                        'legend': 'Test legend',
+                        'slug': 'test-slug',
+                        'physical': fp
+                    },
+                    follow=True
+            )
+        
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(self.gallery.get_images()))
+        self.gallery.get_images()[0].delete()
+
 
     def test_fail_new_image_with_read_permission(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
