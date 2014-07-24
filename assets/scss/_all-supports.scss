@@ -2429,8 +2429,8 @@ table {
                         }
                     }
                 }
-                .upvote,
-                .downvote {
+                span.upvote,
+                span.downvote {
                     &:not(.has-vote) {
                         border-bottom: none;
                         opacity: .5;
