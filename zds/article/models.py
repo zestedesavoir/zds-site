@@ -154,7 +154,7 @@ class Article(models.Model):
         article_version['sha_draft'] = self.sha_draft
         article_version['sha_validation'] = self.sha_validation
         article_version['sha_public'] = self.sha_public
-        article_version['get_last_reaction'] = self.get_last_reaction
+        article_version['last_read_reaction'] = self.last_read_reaction
         article_version['get_reaction_count'] = self.get_reaction_count
         article_version['get_absolute_url'] = reverse('zds.article.views.view', 
                                                       args=[self.pk, self.slug])
@@ -225,8 +225,8 @@ class Article(models.Model):
                 .select_related()\
                 .filter(article=self, user=get_current_user())\
                 .latest('reaction__pubdate').reaction
-        except Reaction.DoesNotExist:
-            return self.first_post()
+        except:
+            return self.first_reaction()
     
     def first_unread_reaction(self):
         """Return the first reaction the user has unread."""
