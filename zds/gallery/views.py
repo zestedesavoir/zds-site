@@ -124,53 +124,57 @@ def modify_gallery(request):
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
         return redirect(reverse("zds.gallery.views.gallery_list"))
-    elif "adduser" in request.POST:
+    return redirect(gallery.get_absolute_url())
 
-        # Gallery-specific actions
+@login_required
+@can_write_and_read_now
+def manage_user(request):
+  
+    # Gallery user management
 
-        try:
-            gal_pk = request.POST["gallery"]
-        except KeyError:
-            raise Http404
-        gallery = get_object_or_404(Gallery, pk=gal_pk)
+    try:
+        gal_pk = request.POST["gallery"]
+    except KeyError:
+        raise Http404
+    gallery = get_object_or_404(Gallery, pk=gal_pk)
 
-        # Disallow actions to read-only members
-
-        try:
-            gal_mode = UserGallery.objects.get(gallery=gallery,
-                                               user=request.user)
-            if gal_mode.mode not in ['W', 'O']:
-                raise PermissionDenied
-
-            # only owners can add other owners
-            if gal_mode.mode != 'O' and request.POST['mode'] == 'O':
-                raise PermissionDenied
-        except:
+    # only owner can manage users
+    # others users get a 403 befor doing anything
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+        if gal_mode.mode != 'O':
             raise PermissionDenied
-        form = UserGalleryForm(request.POST)
-        if form.is_valid():
-            user = get_object_or_404(User, username=request.POST["user"])
+    except:
+        raise PermissionDenied
 
-            # If a user is already in a user gallery, we don't add him.
+    form = UserGalleryForm(request.POST)
+    if form.is_valid():
 
-            galleries = UserGallery.objects.filter(gallery=gallery,
-                                                   user=user).all()
-            if galleries.count() > 0:
-                return redirect(gallery.get_absolute_url())
+        action = request.POST["action"]
+        user = get_object_or_404(User, username=request.POST["user"])
+
+        gallery_mode = UserGallery.objects.filter(gallery=gallery,user=user)
+
+        if len(gallery_mode) > 0:
+            if action == "remove":
+                # remove user from gallery
+                gallery_mode[0].delete()
+                messages.success(request, "L'utilisateur a bien été supprimé de la galerie.")
+            else:
+                # change mode
+                gallery_mode[0].mode = action
+                gallery_mode[0].save()
+        else:
+            # user not registered for this gallery, so we add him
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
-            ug.mode = request.POST["mode"]
+            ug.mode = request.POST["action"]
             ug.save()
-        else:
-            return render_template("gallery/gallery/details.html", {
-                "gallery": gallery,
-                "gallery_mode": gal_mode,
-                "images": gallery.get_images(),
-                "form": form,
-            })
-    return redirect(gallery.get_absolute_url())
+    else:
+        messages.error(request, "La galerie n'a pas été mise à jour!")
 
+    return redirect(gallery.get_absolute_url())
 
 @login_required
 @can_write_and_read_now

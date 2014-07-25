@@ -234,149 +234,6 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(0, Image.objects.all().count())
 
 
-    def test_fail_add_user_with_read_permission(self):
-        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        # gallery nonexistent
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': 89,
-                }
-        )
-        self.assertEqual(404, response.status_code)
-
-        # try to add an user with write permission
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile2.user.username,
-                    'mode': 'W',
-                }
-        )
-        self.assertEqual(403, response.status_code)
-
-    def test_fail_add_owner_with_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        # try to add an user with write permission
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile2.user.username,
-                    'mode': 'O',
-                }
-        )
-        self.assertEqual(403, response.status_code)
-
-
-    def test_fail_add_user_already_has_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        # Same permission : read
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile2.user.username,
-                    'mode': 'R',
-                },
-                follow=True
-        )
-        self.assertEqual(200, response.status_code)
-        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
-        self.assertEqual(1, len(permissions))
-        self.assertEqual('R', permissions[0].mode)
-
-        # try to add write permission to an user
-        # who has already an read permission
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile2.user.username,
-                    'mode': 'W',
-                },
-                follow=True
-        )
-        self.assertEqual(200, response.status_code)
-        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
-        self.assertEqual(1, len(permissions))
-        self.assertEqual('R', permissions[0].mode)
-
-    def test_success_add_user_read_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile3.user.username,
-                    'mode': 'R',
-                },
-                follow=True
-        )
-        self.assertEqual(200, response.status_code)
-        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
-        self.assertEqual(1, len(permissions))
-        self.assertEqual('R', permissions[0].mode)
-
-    def test_success_add_user_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile3.user.username,
-                    'mode': 'W',
-                },
-                follow=True
-        )
-        self.assertEqual(200, response.status_code)
-        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
-        self.assertEqual(1, len(permissions))
-        self.assertEqual('W', permissions[0].mode)
-
-    def test_success_add_user_owner_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
-        self.assertTrue(login_check)
-
-        # change profile1 to owner mode
-        self.user_gallery1.mode = 'O'
-        self.user_gallery1.save()
-
-        response = self.client.post(
-                reverse('zds.gallery.views.modify_gallery'),
-                {
-                    'adduser': '',
-                    'gallery': self.gallery1.pk,
-                    'user': self.profile3.user.username,
-                    'mode': 'O',
-                },
-                follow=True
-        )
-        self.assertEqual(200, response.status_code)
-        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
-        self.assertEqual(1, len(permissions))
-        self.assertEqual('O', permissions[0].mode)
-
-
-
 class EditImageViewTest(TestCase):
 
     def setUp(self):
@@ -759,3 +616,161 @@ class NewImageViewTest(TestCase):
             )
 
         self.assertEqual(404, response.status_code)
+        
+
+class ManageUserViewTest(TestCase):
+
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
+        self.profile3 = ProfileFactory()
+        self.gallery1 = GalleryFactory()
+        self.gallery2 = GalleryFactory()
+        self.image1 = ImageFactory(gallery=self.gallery1)
+        self.image2 = ImageFactory(gallery=self.gallery1)
+        self.image3 = ImageFactory(gallery=self.gallery2)
+        self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery1, mode='O')
+        self.user_gallery2 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery2, mode='W')
+        self.user_gallery3 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery1, mode='R')
+        self.user_gallery3 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery2, mode='R')
+
+    def tearDown(self):
+        self.image1.delete()
+        self.image2.delete()
+        self.image3.delete()
+
+    def test_fail_add_user_with_read_permission(self):
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        # gallery nonexistent
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': 89,
+                }
+        )
+        self.assertEqual(404, response.status_code)
+
+        # try to add an user with write permission
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile2.user.username,
+                    'action': 'W',
+                }
+        )
+        self.assertEqual(403, response.status_code)
+
+    def test_fail_add_user_with_write_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        # try to add an user with write permission
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery2.pk,
+                    'user': self.profile2.user.username,
+                    'action': 'O',
+                }
+        )
+        self.assertEqual(403, response.status_code)
+
+    def test_success_add_user_read_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        
+        # change profile1 to owner mode
+        self.user_gallery1.mode = 'O'
+        self.user_gallery1.save()
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile3.user.username,
+                    'action': 'R',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('R', permissions[0].mode)
+
+    def test_success_add_user_write_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        
+        # change profile1 to owner mode
+        self.user_gallery1.mode = 'O'
+        self.user_gallery1.save()
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile3.user.username,
+                    'action': 'W',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('W', permissions[0].mode)
+
+    def test_success_add_user_owner_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile3.user.username,
+                    'action': 'O',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('O', permissions[0].mode)
+
+    def test_success_change_user_permission(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile2.user.username,
+                    'action': 'R',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('R', permissions[0].mode)
+
+    def test_success_remove_user(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile2.user.username,
+                    'action': 'remove',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
+        self.assertEqual(0, len(permissions))
