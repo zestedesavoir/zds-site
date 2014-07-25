@@ -774,3 +774,21 @@ class ManageUserViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         permissions = UserGallery.objects.filter(user=self.profile2.user, gallery=self.gallery1)
         self.assertEqual(0, len(permissions))
+        
+    def test_fail_user_himself(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+                reverse('zds.gallery.views.manage_user'),
+                {
+                    'gallery': self.gallery1.pk,
+                    'user': self.profile1.user.username,
+                    'action': 'remove',
+                },
+                follow=True
+        )
+        self.assertEqual(200, response.status_code)
+        permissions = UserGallery.objects.filter(user=self.profile1.user, gallery=self.gallery1)
+        self.assertEqual(1, len(permissions))
+        self.assertEqual('O', permissions[0].mode)

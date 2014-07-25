@@ -158,8 +158,14 @@ def manage_user(request):
         if len(gallery_mode) > 0:
             if action == "remove":
                 # remove user from gallery
-                gallery_mode[0].delete()
-                messages.success(request, "L'utilisateur a bien été supprimé de la galerie.")
+                if request.user == user:
+                    messages.error(request, "Vous ne pouvez pas vous supprimer de la galerie.\
+                        Si vous souhaitez quitter cette dernière, vous pouvez supprimer \
+                        la galerie ou bien promure un utilisateur au rang de propriétaire qui\
+                        vous supprimera à son tour.")
+                else:
+                    gallery_mode[0].delete()
+                    messages.success(request, "L'utilisateur a bien été supprimé de la galerie.")
             else:
                 # change mode
                 gallery_mode[0].mode = action

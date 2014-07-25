@@ -30,6 +30,13 @@
 
 
 {% block new_btn %}
+    {% if gallery_mode.is_owner %}
+        <a href="#add-user-modal" class="new-btn open-modal ico-after gear blue">Gérer un utilisateur</a>
+        <div id="add-user-modal" class="modal modal-big">
+            {% crispy form %}
+        </div>
+    {% endif %}
+
     {% if gallery_mode.is_write or gallery_mode.is_owner %}
         <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
             Ajouter une image
@@ -57,15 +64,6 @@
                     {% include "misc/member_item.part.html" with member=u.user avatar=True %}
                 </li>
             {% endfor %}
-
-            {% if gallery_mode.is_write or gallery_mode.is_owner %}
-                <li>
-                    <a href="#add-user-modal" class="open-modal ico-after more blue">Ajouter un utilisateur</a>
-                    <div id="add-user-modal" class="modal modal-big">
-                        {% crispy form %}
-                    </div>
-                </li>
-            {% endif %}
         </ul>
     </div>
     

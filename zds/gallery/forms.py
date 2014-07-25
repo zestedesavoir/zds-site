@@ -92,7 +92,7 @@ class UserGalleryForm(forms.Form):
             Field('action'),
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
-            StrictButton('Ajouter', type='submit'),
+            StrictButton('Valider', type='submit'),
         )
 
     def clean(self):
