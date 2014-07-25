@@ -13,7 +13,7 @@ from zds.utils.models import CommentLike, CommentDislike, Alert
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
-from zds.forum.views import get_tag_by_title
+from zds.forum.views import get_tag_by_title, get_topics
 
 class ForumMemberTests(TestCase):
 
@@ -971,3 +971,27 @@ class ForumGuestTests(TestCase):
                     slugify(topic1.title)]),
             follow=True)
         self.assertEqual(result.status_code, 200)
+
+    def test_filter_topic(self):
+        """Test filters for solved topic or not"""
+        user1 = ProfileFactory().user
+        topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        topic_solved = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=False)
+        topic_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
+        topic_solved_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=True)
+
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=False)), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=False)[0], topic)
+
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=True)), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=True)[0], topic_solved)
+
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=False)), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=False)[0], topic_sticky)
+
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)[0], topic_solved_sticky)
+        
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 2)
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 2)
+        
