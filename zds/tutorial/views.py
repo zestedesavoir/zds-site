@@ -663,12 +663,14 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    mandata = tutorial.load_dic(mandata=mandata, sha=sha)
 
     # If it's a small tutorial, fetch its chapter
 
     if tutorial.type == "MINI":
         if "chapter" in mandata:
             chapter = mandata["chapter"]
+            chapter["pk"] = tutorial.get_chapter().pk
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
             chapter["intro"] = get_blob(repo.commit(sha).tree,
@@ -722,7 +724,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
-        "tutorial": tutorial,
+        "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
         "version": sha,
