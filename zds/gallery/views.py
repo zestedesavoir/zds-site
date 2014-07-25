@@ -107,7 +107,7 @@ def modify_gallery(request):
         perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
                                            user=request.user, mode='O').count()
 
-        # Check that the user has the RW right on each gallery
+        # Check that the user has the owner right on each gallery
 
         if perms < len(free_galleries):
             raise PermissionDenied
