@@ -57,10 +57,10 @@ def details(request, cat_slug, forum_slug):
     if "filter" in request.GET:
         filter = request.GET["filter"]
         if request.GET["filter"] == "solve":
-        	sticky_topics = Topic.objects.filter(forum__pk=forum.pk,is_sticky=True,is_solved=True)\
-        						.order_by("-last_message__pubdate")\
-        						.prefetch_related("author", "last_message", "tags")\
-        						.all()
+            sticky_topics = Topic.objects.filter(forum__pk=forum.pk,is_sticky=True,is_solved=True)\
+                                    .order_by("-last_message__pubdate")\
+                                    .prefetch_related("author", "last_message", "tags")\
+                                    .all()
             topics = Topic.objects.filter(
                 forum__pk=forum.pk,
                 is_sticky=False,
@@ -69,10 +69,10 @@ def details(request, cat_slug, forum_slug):
                 "last_message",
                 "tags").all()
         else:
-        	sticky_topics = Topic.objects.filter(forum__pk=forum.pk,is_sticky=True,is_solved=False)\
-        						.order_by("-last_message__pubdate")\
-        						.prefetch_related("author", "last_message", "tags")\
-        						.all()
+            sticky_topics = Topic.objects.filter(forum__pk=forum.pk,is_sticky=True,is_solved=False)\
+                                    .order_by("-last_message__pubdate")\
+                                    .prefetch_related("author", "last_message", "tags")\
+                                    .all()
             topics = Topic.objects.filter(
                 forum__pk=forum.pk,
                 is_sticky=False,
@@ -83,9 +83,9 @@ def details(request, cat_slug, forum_slug):
     else:
         filter = None
         sticky_topics = Topic.objects.filter(forum__pk=forum.pk,is_sticky=True)\
-        						.order_by("-last_message__pubdate")\
-        						.prefetch_related("author", "last_message", "tags")\
-        						.all()
+                                    .order_by("-last_message__pubdate")\
+                                    .prefetch_related("author", "last_message", "tags")\
+                                    .all()
         topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=False) .order_by(
             "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
 
