@@ -26,7 +26,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag
+    mark_read, TopicFollowed, sub_tag, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -1028,21 +1028,3 @@ def complete_topic(request):
     the_data = json.dumps(suggestions)
 
     return HttpResponse(the_data, content_type='application/json')
-
-def get_topics(forum_pk, is_sticky, is_solved=None):
-    if is_solved is not None:
-        return Topic.objects.filter(
-                    forum__pk=forum_pk,
-                    is_sticky=is_sticky,
-                    is_solved=is_solved).order_by("-last_message__pubdate").prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags").all()
-    else:
-        return Topic.objects.filter(
-                    forum__pk=forum_pk,
-                    is_sticky=is_sticky).order_by("-last_message__pubdate").prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags").all()
-

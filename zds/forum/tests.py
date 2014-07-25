@@ -13,7 +13,8 @@ from zds.utils.models import CommentLike, CommentDislike, Alert
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
-from zds.forum.views import get_tag_by_title, get_topics
+from zds.forum.views import get_tag_by_title
+from zds.forum.models import get_topics
 
 class ForumMemberTests(TestCase):
 
