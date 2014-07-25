@@ -105,7 +105,7 @@ def modify_gallery(request):
                 free_galleries.append(g_pk)
         
         perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
-                                           user=request.user, mode__in=['W', 'O']).count()
+                                           user=request.user, mode='O').count()
 
         # Check that the user has the RW right on each gallery
 

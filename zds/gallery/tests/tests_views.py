@@ -185,7 +185,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
-    def test_success_delete_multi_write_permission(self):
+    def test_fail_delete_multi_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
@@ -201,10 +201,10 @@ class ModifyGalleryViewTest(TestCase):
                 },
                 follow=True
         )
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(0, Gallery.objects.all().count())
-        self.assertEqual(0, UserGallery.objects.all().count())
-        self.assertEqual(0, Image.objects.all().count())
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(3, UserGallery.objects.all().count())
+        self.assertEqual(3, Image.objects.all().count())
 		
     def test_success_delete_multi_owner_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
@@ -213,6 +213,8 @@ class ModifyGalleryViewTest(TestCase):
         # change to owner mode
         self.user_gallery1.mode = 'O'
         self.user_gallery1.save()
+        self.user_gallery2.mode = 'O'
+        self.user_gallery2.save()
 
         self.assertEqual(2, Gallery.objects.all().count())
         self.assertEqual(3, UserGallery.objects.all().count())
