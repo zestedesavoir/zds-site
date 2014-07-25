@@ -576,7 +576,7 @@ class ModifyImageTest(TestCase):
         self.user_gallery1.save()
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.gallery1.pk,
                     'delete': '',
