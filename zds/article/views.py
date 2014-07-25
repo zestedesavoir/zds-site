@@ -467,7 +467,7 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Désolé **{0}**, ton zeste **{1}** '
+                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
                     u'surement être faite pour l’améliorer et repasser la '
@@ -480,7 +480,7 @@ def modify(request):
                         article.title,
                         validation.validator.username,
                         validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator)
+                        validation.comment_validator))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
