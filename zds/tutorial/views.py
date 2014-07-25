@@ -300,7 +300,7 @@ def reject_tutorial(request):
                 u'pas passé l’étape de validation. Mais ne désespère pas, '
                 u'certaines corrections peuvent surement être faite pour '
                 u'l’améliorer et repasser la validation plus tard. '
-                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé `{4}`'
+                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé\n\n`{4}`\n\n'
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
                 u'semble injuste ou manque de clarté.'.format(
