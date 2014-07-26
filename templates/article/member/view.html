@@ -95,7 +95,7 @@
         </ul>
     </div>
 
-    {% if user in article.authors.all or perms.article.change_article %}
+    {% if user in authors.all or perms.article.change_article %}
         {% if article.sha_validation != None %}
             {% if validation.validator == None %}
                 <p class="content-wrapper alert-box alert">

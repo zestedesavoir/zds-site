@@ -41,10 +41,10 @@
         Accepté {{ validation.date_validation|format_date:True }}
         {% if validation.comment_validator %}
             -
-            <a href="#view-comment-validator-{{ validation.version }}" class="open-modal">
+            <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 Commentaire du validateur
             </a>
-            <div class="modal modal-big" id="view-comment-validator-{{ validation.version }}" data-modal-close="Fermer">
+            <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
                     {{ validation.comment_validator }}
                 </p>
@@ -54,10 +54,10 @@
         Rejeté {{ validation.date_validation|format_date:True }}
         {% if validation.comment_validator %}
             -
-            <a href="#view-comment-validator-{{ validation.version }}" class="open-modal">
+            <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 Motif du rejet
             </a>
-            <div class="modal modal-big" id="view-comment-validator-{{ validation.version }}" data-modal-close="Fermer">
+            <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
                     {{ validation.comment_validator }}
                 </p>
