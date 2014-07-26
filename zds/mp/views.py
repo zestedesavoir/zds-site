@@ -190,18 +190,19 @@ def new(request):
                 'form': form,
             })
     else:
+        dest = None
         if 'username' in request.GET:
-            try:
-                # check that username in url is in the database
-                dest = User.objects.get(
-                    username=request.GET['username']).username
-            except:
-                dest = None
-        else:
-            dest = None
+            destList = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    destList.append(User.objects.get(username=username).username)
+                except:
+                    pass
+            dest = ', '.join(destList)
 
         form = PrivateTopicForm(initial={
-            'participants': dest
+            'participants': dest,
         })
         return render_template('mp/topic/new.html', {
             'form': form,
