@@ -39,6 +39,25 @@ class MPTests(TestCase):
         # Check username in new MP page
         self.assertContains(result, user2.username)
 
+    def test_mp_multiple_users_from_link(self):
+        """Test: Send a MP to multiple users by link."""
+        # Users to send the MP
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
+
+        # Test if user is correctly added to the MP
+        result = self.client.get(
+            reverse('zds.mp.views.new') +
+            '?username={0}&username={1}'.format(
+                user2.username,
+                user3.username
+            ),
+        )
+
+        # Check username in new MP page
+        self.assertContains(result, user2.username)
+        self.assertContains(result, user3.username)
+
     def test_view_mp(self):
         """check mp is readable."""
         ptopic1 = PrivateTopicFactory(author=self.user1)
