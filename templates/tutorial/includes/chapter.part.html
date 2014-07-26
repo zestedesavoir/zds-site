@@ -7,7 +7,7 @@
     {% if not chapter.type = 'MINI' %}
         {% if chapter.intro and chapter.intro != "None" %}
             {{ chapter.intro|emarkdown }}
-        {% else %}
+        {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
@@ -112,7 +112,7 @@
     {% if not chapter.type = 'MINI' %}
         {% if chapter.conclu and chapter.conclu != "None" %}
             {{ chapter.conclu|emarkdown }}
-        {% else %}
+        {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>
