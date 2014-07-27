@@ -334,7 +334,8 @@ class ChangeUserForm(forms.Form):
             attrs={
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
-        )
+        ),
+        error_messages = {'invalid': u'Veuillez entrer une adresse email valide.',}
     )
 
     def __init__(self, *args, **kwargs):
