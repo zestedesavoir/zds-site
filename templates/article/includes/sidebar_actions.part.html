@@ -1,7 +1,13 @@
 {% if user in authors.all or perms.article.change_article %}
-    <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
-        Éditer
-    </a>
+    {% if article.sha_draft = version %}
+        <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
+            Éditer
+        </a>
+    {% else %}
+        <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+            Version brouillon
+        </a>
+    {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
         <h3>Gestion</h3>

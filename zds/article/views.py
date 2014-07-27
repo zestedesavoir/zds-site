@@ -110,8 +110,7 @@ def view(request, article_pk, article_slug):
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version = article.load_dic(article_version)
 
-    validation = Validation.objects.filter(article__pk=article.pk,
-                                            version=sha)\
+    validation = Validation.objects.filter(article__pk=article.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
 
