@@ -305,6 +305,18 @@
                         Historique validation
                     </a>
                 </li>
+                <li>
+                    <a  href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}"
+                        class="ico-after cite blue"
+                    >
+                        Envoyer un MP 
+                        {% if tutorial.authors.all|length > 1 %}
+                            aux auteurs
+                        {% else %}
+                            à l'auteur
+                        {% endif %}
+                    </a>
+                </li>
 
                 {% if tutorial.on_line %}
                     <li>

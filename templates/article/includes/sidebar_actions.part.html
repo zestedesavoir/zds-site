@@ -99,13 +99,25 @@
                     Historique de validation
                 </a>
             </li>
+            <li>
+                <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
+                    class="ico-after cite blue"
+                >
+                    Envoyer un MP 
+                    {% if authors.all|length > 1 %}
+                        aux auteurs
+                    {% else %}
+                        à l'auteur
+                    {% endif %}
+                </a>
+            </li>
 
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}
                     <li>
                         <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="ico-after lock blue">
+                            <button type="submit" class="ico-after lock blue unread">
                                 Réserver
                             </button>
                         </form>
