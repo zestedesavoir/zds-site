@@ -312,7 +312,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             post.author.username,
             post.topic.title,

@@ -466,12 +466,12 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Désolé **{0}**, ton zeste **{1}** '
+                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'surement être faite pour l’améliorer et repasser la '
+                    u'sûrement être faites pour l’améliorer et repasser la '
                     u'validation plus tard. Voici le message que [{2}]({3}), '
-                    u'ton validateur t\'a laissé\n\n`{4}`\n\nN\'hésite pas a '
+                    u'ton validateur t\'a laissé\n\n> {4}\n\nN\'hésite pas a '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
@@ -479,7 +479,7 @@ def modify(request):
                         article.title,
                         validation.validator.username,
                         validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator)
+                        validation.comment_validator))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
@@ -960,8 +960,8 @@ def solve_alert(request):
     msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
     u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
     u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-    u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
-    u'la modération vous remercie'.format(
+    u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+    u'la modération vous remercie !'.format(
         alert.author.username,
         reaction.author.username,
         reaction.article.title,
