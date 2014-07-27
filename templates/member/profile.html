@@ -123,7 +123,7 @@
     {% if old_tutos and perms.member.change_profile %}
         <hr class="clearfix" />
         <section class="full-content-wrapper without-margin">
-            <h2 id="anciens-tutos-sdz">Anciens Tutos SdZ</h2>
+            <h2 id="anciens-tutoriels-sdz">Anciens tutoriels SdZ</h2>
             <table>
                 <thead>
                     <tr>
@@ -208,31 +208,48 @@
                     Social
                 </a>
             </li>
-            <li>
-                <a href="#signature">
-                    Signature
-                </a>
-            </li>
-            <li>
-                <a href="#derniers-sujets">
-                    Derniers sujets
-                </a>
-            </li>
-            <li>
-                <a href="#derniers-tutoriels">
-                    Derniers tutoriels
-                </a>
-            </li>
-            <li>
-                <a href="#derniers-articles">
-                    Derniers articles
-                </a>
-            </li>
-            <li>
-                <a href="#biographie">
-                    Biographie
-                </a>
-            </li>
+            {% if profile.sign %}
+                <li>
+                    <a href="#signature">
+                        Signature
+                    </a>
+                </li>
+            {% endif %}
+            {% if topics %}
+                <li>
+                    <a href="#derniers-sujets">
+                        Derniers sujets
+                    </a>
+                </li>
+            {% endif %}
+            {% if tutorials %}
+                <li>
+                    <a href="#derniers-tutoriels">
+                        Derniers tutoriels
+                    </a>
+                </li>
+            {% endif %}
+            {% if articles %}
+                <li>
+                    <a href="#derniers-articles">
+                        Derniers articles
+                    </a>
+                </li>
+            {% endif %}
+            {% if profile.biography %}
+                <li>
+                    <a href="#biographie">
+                        Biographie
+                    </a>
+                </li>
+            {% endif %}
+            {% if old_tutos and perms.member.change_profile %}
+                <li>
+                    <a href="#anciens-tutoriels-sdz">
+                        Anciens tutoriels SdZ
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 
