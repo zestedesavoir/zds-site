@@ -601,16 +601,16 @@ def modify_tutorial(request):
                              .format(author.username))
             return redirect(redirect_url)
         elif "activ_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
                 messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
             else:
                 messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
             return redirect(tutorial.get_absolute_url_beta())
         elif "update_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
                 messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
             else:

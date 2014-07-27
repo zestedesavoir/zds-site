@@ -230,7 +230,7 @@
         {% if not tutorial.in_beta %}
             <li>
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
-                    Activer la bêta
+                    Mettre cette version en bêta
                 </a>
                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
                     {% csrf_token %}
@@ -238,7 +238,8 @@
                     <input type="hidden" name="activ_beta">
                     <input type="hidden" name="version" value="{{ version }}">
                     <p>
-                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta du tutoriel 
+                        "<em>{{ tutorial.title }}</em>" dans la version que vous voyez actuellement ?
                     </p>
                     <button type="submit">
                         Confirmer
@@ -248,8 +249,13 @@
         {% else %}
             {% if tutorial.sha_beta != version %}
                 <li>
+                    <a href="{{ tutorial.get_absolute_url }}?version={{ tutorial.sha_beta }}" class="ico-after view blue">
+                        Voir <span class="wide">la version</span> en bêta
+                    </a>
+                </li>
+                <li>
                     <a href="#update-beta" class="open-modal ico-after beta blue">
-                        Mettre à jour la bêta
+                        Mettre à jour la bêta avec cette version
                     </a>
                     <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="update-beta">
                         {% csrf_token %}
@@ -257,12 +263,19 @@
                         <input type="hidden" name="update_beta">
                         <input type="hidden" name="version" value="{{ version }}">
                         <p>
-                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                            "<em>{{ tutorial.title }}</em>" dans la version que vous voyez actuellement ?
                         </p>
                         <button type="submit">
                             Confirmer
                         </button>
                     </form>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="ico-after beta disabled">
+                        Cette version est déjà en bêta
+                    </span>
                 </li>
             {% endif %}
             <li>
@@ -275,7 +288,7 @@
                     <input type="hidden" name="desactiv_beta">
                     <input type="hidden" name="version" value="{{ version }}">
                     <p>
-                        Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta sur le tutoriel "<em>{{ tutorial.title }}</em>" ?
+                        Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta du tutoriel "<em>{{ tutorial.title }}</em>" ?
                     </p>
                     <button type="submit">
                         Confirmer
