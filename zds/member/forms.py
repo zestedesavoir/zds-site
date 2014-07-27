@@ -152,28 +152,29 @@ class RegisterForm(forms.Form):
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
         
-        if username.strip() == '':
-            msg = u'Le nom d\'utilisateur ne peut-être vide'
-            self._errors['username'] = self.error_class([msg])
-        elif User.objects.filter(username=username).count() > 0:
-            msg = u'Ce nom d\'utilisateur est déjà utilisé'
-            self._errors['username'] = self.error_class([msg])
-        # Forbid the use of comma in the username
-        elif username is not None and "," in username:
-            msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
-            self._errors['username'] = self.error_class([msg])
-        elif username != username.strip():
-            msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
-            self._errors['username'] = self.error_class([msg])
+        if username is not None :
+            if username.strip() == '':
+                msg = u'Le nom d\'utilisateur ne peut-être vide'
+                self._errors['username'] = self.error_class([msg])
+            elif User.objects.filter(username=username).count() > 0:
+                msg = u'Ce nom d\'utilisateur est déjà utilisé'
+                self._errors['username'] = self.error_class([msg])
+            # Forbid the use of comma in the username
+            elif username is not None and "," in username:
+                msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
+                self._errors['username'] = self.error_class([msg])
+            elif username != username.strip():
+                msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
+                self._errors['username'] = self.error_class([msg])
 
-        # Check that password != username
-        if password == username:
-            msg = u'Le mot de passe doit être différent du pseudo'
-            self._errors['password'] = self.error_class([msg])
-            if 'password' in cleaned_data:
-                del cleaned_data['password']
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
+            # Check that password != username
+            if password == username:
+                msg = u'Le mot de passe doit être différent du pseudo'
+                self._errors['password'] = self.error_class([msg])
+                if 'password' in cleaned_data:
+                    del cleaned_data['password']
+                if 'password_confirm' in cleaned_data:
+                    del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
         if email:
@@ -363,16 +364,13 @@ class ChangeUserForm(forms.Form):
         email_new = cleaned_data.get('email_new')
 
         if username_new is not None:
-            if username_new.strip() != '':
+            if username_new != '':
                 if User.objects.filter(username=username_new.strip()).count() >= 1:
                     self._errors['username_new'] = self.error_class(
                         [u'Ce nom d\'utilisateur est déjà utilisé'])
-            else:
-                self._errors['username_new'] = self.error_class(
-                        [u'Le nom d\'utilisateur ne peut-être vide'])
-            if username_new != username_new.strip():
-                msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
-                self._errors['username_new'] = self.error_class([msg])
+                elif username_new != username_new.strip():
+                    msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
+                    self._errors['username_new'] = self.error_class([msg])
 
         if email_new is not None:
             if email_new.strip() != '':
