@@ -164,7 +164,7 @@ def new(request):
 
             # Retrieve all participants of the MP.
             ctrl = []
-            list_part = data['participants'].replace(',', ' ').split()
+            list_part = data['participants'].split(",")
             for part in list_part:
                 part = part.strip()
                 if part == '':
