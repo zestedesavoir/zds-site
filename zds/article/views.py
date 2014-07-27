@@ -600,11 +600,12 @@ def modify(request):
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
-            #delete old pending validation
+            # Delete old pending validation
             Validation.objects.filter(article__pk=article_pk,
                                       status__in=['PENDING','PENDING_V'])\
                                       .delete()
 
+            # Create new validation
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
