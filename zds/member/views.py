@@ -496,7 +496,7 @@ def settings_user(request):
         if form.is_valid():
             old = User.objects.filter(pk=request.user.pk).all()[0]
             if form.data["username_new"]:
-                old.username = form.data["username_new"].strip()
+                old.username = form.data["username_new"]
             elif form.data["email_new"]:
                 if form.data["email_new"].strip() != "":
                     old.email = form.data["email_new"]
@@ -587,7 +587,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             data = form.data
-            user = User.objects.create_user(data["username"].strip(), data["email"],
+            user = User.objects.create_user(data["username"], data["email"],
                                             data["password"])
             user.is_active = False
             user.save()
