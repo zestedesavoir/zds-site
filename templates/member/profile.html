@@ -176,71 +176,127 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
         <h3>Activité</h3>
 
-        <h4>Tutoriels</h4>
-        <ul>
-            <li class="inactive">
-                <span>
-                    En cours de rédaction
-                    <span class="count">{{ profile.get_draft_tutos.count }}</span>
-                </span>
-            </li>
-            <li class="inactive">
-                <span>
-                    En cours de validation
-                    <span class="count">{{ profile.get_validate_tutos.count }}</span>
-                </span>
-            </li>
-            <li>
-                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
-                    En version bêta
-                    <span class="count">{{ profile.get_beta_tutos.count }}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
-                    En ligne
-                    <span class="count">{{ profile.get_public_tutos.count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_draft_tutos.count > 0 %}
+            <h4>Tutoriels</h4>
+            <ul>
+                {% if profile.get_public_tutos.count > 0 %}
+                    <li>
+                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                            En ligne
+                            <span class="count">{{ profile.get_public_tutos.count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.get_beta_tutos.count > 0 %}
+                    <li>
+                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                            En version bêta
+                            <span class="count">{{ profile.get_beta_tutos.count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.user == user %}
+                    {% if profile.get_validate_tutos.count > 0 %}
+                        <li>
+                            <a href="{% url "zds.member.views.tutorials" %}?type=validate">
+                                En cours de validation
+                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if profile.get_draft_tutos.count > 0 %}    
+                        <li>
+                            <a href="{% url "zds.member.views.tutorials" %}?type=draft">
+                                En cours de rédaction
+                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if profile.get_validate_tutos.count > 0 %}
+                        <li class="inactive">
+                            <span>
+                                En cours de validation
+                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                    {% if profile.get_draft_tutos.count > 0 %}
+                        <li class="inactive">
+                            <span>
+                                En cours de rédaction
+                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
 
-        <h4>Articles</h4>
-        <ul>
-            <li class="inactive">
-                <span>
-                    En cours de rédaction
-                    <span class="count">{{ profile.get_draft_articles.count }}</span>
-                </span>
-            </li>
-            <li class="inactive">
-                <span>
-                    En attente de validation
-                    <span class="count">{{ profile.get_validate_articles.count }}</span>
-                </span>
-            </li>
-            <li>
-                <a href="{% url "zds.article.views.find_article" usr.pk %}">
-                    En ligne
-                    <span class="count">{{ profile.get_public_articles.count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_draft_articles.count > 0 %}
+            <h4>Articles</h4>
+            <ul>
+                <li>
+                    <a href="{% url "zds.article.views.find_article" usr.pk %}">
+                        En ligne
+                        <span class="count">{{ profile.get_public_articles.count }}</span>
+                    </a>
+                </li>
+                {% if profile.user == user %}
+                    <li>
+                        <a href="{% url "zds.member.views.articles" %}?type=validate">
+                            En attente de validation
+                            <span class="count">{{ profile.get_validate_articles.count }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "zds.member.views.articles" %}?type=draft">
+                            En cours de rédaction
+                            <span class="count">{{ profile.get_draft_articles.count }}</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="inactive">
+                        <span>
+                            En attente de validation
+                            <span class="count">{{ profile.get_validate_articles.count }}</span>
+                        </span>
+                    </li>
+                    <li class="inactive">
+                        <span>
+                            En cours de rédaction
+                            <span class="count">{{ profile.get_draft_articles.count }}</span>
+                        </span>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
 
-        <h4>Forums</h4>
-        <ul>
-            <li>
-                <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
-                    Sujets créés
-                    <span class="count">{{ profile.get_topic_count }}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{% url "zds.forum.views.find_post" usr.pk %}">
-                    Messages postés
-                    <span class="count">{{ profile.get_post_count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_post_count > 0 %}
+            <h4>Forums</h4>
+            <ul>
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
+                        Sujets créés
+                        <span class="count">{{ profile.get_topic_count }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.forum.views.find_post" usr.pk %}">
+                        Messages postés
+                        <span class="count">{{ profile.get_post_count }}</span>
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
+
+        {% if profile.get_draft_tutos.count == 0 and profile.get_draft_articles.count == 0 and profile.get_post_count == 0 %}
+            <ul>
+                <li class="inactive">
+                    <span>Aucune activité</span>
+                </li>
+            </ul>
+        {% endif %}
     </div>
 
     {% if perms.member.change_profile %}
