@@ -155,7 +155,7 @@ class RegisterForm(forms.Form):
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
         # Forbid the use of comma in the username
-        elif "," in username:
+        elif username is not None and "," in username:
             msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
             self._errors['username'] = self.error_class([msg])
         
