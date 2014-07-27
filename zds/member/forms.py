@@ -50,6 +50,11 @@ class LoginForm(forms.Form):
         label='Identifiant',
         max_length=User._meta.get_field('username').max_length,
         required=True,
+        widget=forms.TextInput(
+            attrs={
+                'autofocus': ''
+            }
+        )
     )
 
     password = forms.CharField(
