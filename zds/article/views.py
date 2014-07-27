@@ -787,7 +787,10 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'RESERVED'
         validation.save()
-        return redirect(validation.article.get_absolute_url())
+        return redirect(
+            validation.article.get_absolute_url() +
+            '?version=' + validation.version
+        )
 
 
 @login_required
