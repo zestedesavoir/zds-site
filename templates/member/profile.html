@@ -58,7 +58,7 @@
         <hr class="clearfix" />
 
 
-        <ul id="social" class="member-social">
+        <ul class="member-social">
             {% if profile.show_email and user.is_authenticated %}
                 <li>
                     E-mail : {{ usr.email|obfuscate_mailto }}
@@ -201,11 +201,6 @@
             <li>
                 <a href="#infos-generales">
                     Informations générales
-                </a>
-            </li>
-            <li>
-                <a href="#social">
-                    Social
                 </a>
             </li>
             {% if profile.sign %}
