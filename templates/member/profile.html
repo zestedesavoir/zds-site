@@ -274,7 +274,7 @@
                     {% if profile.get_validate_tutos.count > 0 %}
                         <li>
                             <a href="{% url "zds.member.views.tutorials" %}?type=validate">
-                                En cours de validation
+                                En validation
                                 <span class="count">{{ profile.get_validate_tutos.count }}</span>
                             </a>
                         </li>
@@ -282,7 +282,7 @@
                     {% if profile.get_draft_tutos.count > 0 %}    
                         <li>
                             <a href="{% url "zds.member.views.tutorials" %}?type=draft">
-                                En cours de rédaction
+                                En rédaction
                                 <span class="count">{{ profile.get_draft_tutos.count }}</span>
                             </a>
                         </li>
@@ -291,7 +291,7 @@
                     {% if profile.get_validate_tutos.count > 0 %}
                         <li class="inactive">
                             <span>
-                                En cours de validation
+                                En validation
                                 <span class="count">{{ profile.get_validate_tutos.count }}</span>
                             </span>
                         </li>
@@ -299,7 +299,7 @@
                     {% if profile.get_draft_tutos.count > 0 %}
                         <li class="inactive">
                             <span>
-                                En cours de rédaction
+                                En rédaction
                                 <span class="count">{{ profile.get_draft_tutos.count }}</span>
                             </span>
                         </li>
@@ -320,26 +320,26 @@
                 {% if profile.user == user %}
                     <li>
                         <a href="{% url "zds.member.views.articles" %}?type=validate">
-                            En attente de validation
+                            En validation
                             <span class="count">{{ profile.get_validate_articles.count }}</span>
                         </a>
                     </li>
                     <li>
                         <a href="{% url "zds.member.views.articles" %}?type=draft">
-                            En cours de rédaction
+                            En rédaction
                             <span class="count">{{ profile.get_draft_articles.count }}</span>
                         </a>
                     </li>
                 {% else %}
                     <li class="inactive">
                         <span>
-                            En attente de validation
+                            En validation
                             <span class="count">{{ profile.get_validate_articles.count }}</span>
                         </span>
                     </li>
                     <li class="inactive">
                         <span>
-                            En cours de rédaction
+                            En rédaction
                             <span class="count">{{ profile.get_draft_articles.count }}</span>
                         </span>
                     </li>
@@ -382,13 +382,13 @@
             <ul>
                 <li class="inactive">
                     <span>
-                        Nombre de messages modérés
+                        Messages modérés
                         <span class="count">{{ profile.get_invisible_posts_count }}</span>
                     </span>
                 </li>
                 <li class="inactive">
                     <span>
-                        Nombre d'alertes actives
+                        Alertes actives
                         <span class="count">{{ profile.get_alerts_posts_count }}</span>
                     </span>
                 </li>
