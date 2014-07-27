@@ -360,8 +360,9 @@ class ChangeUserForm(forms.Form):
         username_new = cleaned_data.get('username_new')
         email_new = cleaned_data.get('email_new')
 
+        username = username_new.strip()
         if username_new is not None:
-            if username_new.strip() != '':
+            if username_new != '':
                 if User.objects.filter(username=username_new).count() >= 1:
                     self._errors['username_new'] = self.error_class(
                         [u'Ce nom d\'utilisateur est déjà utilisé'])
