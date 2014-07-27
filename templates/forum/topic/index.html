@@ -140,6 +140,7 @@
             <form action="{% url "zds.forum.views.edit" %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
+                <input type="hidden" name="page" value="{{ nb }}">
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
@@ -158,6 +159,7 @@
         <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="page" value="{{ nb }}">
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
@@ -174,6 +176,7 @@
         <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="page" value="{{ nb }}">
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
@@ -199,6 +202,7 @@
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
             			{% csrf_token %}
 
@@ -216,6 +220,7 @@
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
             			{% csrf_token %}
 
