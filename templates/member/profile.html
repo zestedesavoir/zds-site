@@ -25,47 +25,67 @@
 
 {% block content_out %}
     <section class="content-col-2">
-        <h1>
+        <h1 id="infos-generales">
             Profil de {{ usr.username }}
         </h1>
 
-        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+        <div class="member-card">
+            <div class="member-avatar">
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
 
-        {% include 'misc/badge.part.html' with member=usr %}
+                {% include 'misc/badge.part.html' with member=usr %}
+            </div>
 
-        <p>
-            Inscrit {{ usr.date_joined|format_date }}
-        </p>
-        <p>
-            Dernière connexion {{ usr.last_login|format_date }}
-        </p>
-        {% if perms.member.show_ip %}
-            <p>
-                Dernière IP : {{ profile.last_ip_address }}
-            </p>
-            <p>
-                Ville : {{ profile.get_city }}
-            </p>
-        {% endif %}
+            <ul class="member-infos">
+                <li>
+                    Inscrit {{ usr.date_joined|format_date:True }}
+                </li>
+                <li>
+                    Dernière connexion {{ usr.last_login|format_date:True }}
+                </li>
+                {% if perms.member.show_ip %}
+                    <li>
+                        Dernière IP : {{ profile.last_ip_address }}
+                    </li>
+                    <li>
+                        {{ profile.get_city }}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
 
-        {% if profile.show_email and user.is_authenticated %}
-            <p>
-                E-mail : <span class="fi-mail">{{ usr.email|obfuscate_mailto }}</span>
-            </p>
-        {% endif %}
+
+        <hr class="clearfix" />
+
+
+        <ul id="social" class="member-social">
+            {% if profile.show_email and user.is_authenticated %}
+                <li>
+                    E-mail : {{ usr.email|obfuscate_mailto }}
+                </li>
+            {% endif %}
+
+            {% if profile.site %}
+                <li>
+                    Site web : <a href="{{ profile.site }}">{{ profile.site }}</a>
+                </li>
+            {% endif %}
+        </ul>
+
 
         {% if profile.sign %}
-            <h3>Signature</h3>
+            <h2 id="signature">Signature</h2>
             {{ profile.sign|emarkdown }}
         {% endif %}
 
 
         {% if topics %}
-            <h2>Derniers sujets créés</h2>
-            {% for topic in topics %}
-                <h4><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></h4>
-                <h5>{{ topic.subtitle }}</h5>
-            {% endfor %}
+            <h2 id="derniers-sujets">Derniers sujets créés</h2>
+            <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+                {% for topic in topics %}
+                    {% include "forum/includes/topic_row.part.html" %}
+                {% endfor %}
+            </div>
         {% endif %}
     </section>
 
@@ -73,7 +93,7 @@
 
     <section class="content-col-2 tutorial-list">
         {% if tutorials %}
-            <h2 class="ico-after ico-tutorials">Derniers tutoriels</h2>
+            <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">Derniers tutoriels</h2>
             {% for tutorial in tutorials %}
                 {% include 'tutorial/includes/tutorial_item.part.html' %}
             {% endfor %}
@@ -81,7 +101,7 @@
 
 
         {% if articles %}
-            <h2 class="ico-after ico-articles">Derniers articles</h2>
+            <h2 class="ico-after ico-articles" id="derniers-artilces">Derniers articles</h2>
             {% for article in articles %}
                 {% include 'article/includes/article_item.part.html' %}
             {% endfor %}
@@ -91,8 +111,9 @@
 
 
     {% if profile.biography %}
-        <section class="full-content-wrapper">
-            <h2>Biographie</h2>
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin">
+            <h2 id="biographie">Biographie</h2>
             {{ profile.biography|emarkdown }}
         </section>
     {% endif %}
@@ -100,8 +121,9 @@
 
 
     {% if old_tutos and perms.member.change_profile %}
-        <section class="full-content-wrapper">
-            <h2>Anciens Tutos SdZ</h2>
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin">
+            <h2 id="anciens-tutos-sdz">Anciens Tutos SdZ</h2>
             <table>
                 <thead>
                     <tr>
@@ -172,6 +194,47 @@
             </ul>
         </div>
     {% endif %}
+
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Accès rapide">
+        <h3>Accès rapide</h3>
+        <ul>
+            <li>
+                <a href="#infos-generales">
+                    Informations générales
+                </a>
+            </li>
+            <li>
+                <a href="#social">
+                    Social
+                </a>
+            </li>
+            <li>
+                <a href="#signature">
+                    Signature
+                </a>
+            </li>
+            <li>
+                <a href="#derniers-sujets">
+                    Derniers sujets
+                </a>
+            </li>
+            <li>
+                <a href="#derniers-tutoriels">
+                    Derniers tutoriels
+                </a>
+            </li>
+            <li>
+                <a href="#derniers-articles">
+                    Derniers articles
+                </a>
+            </li>
+            <li>
+                <a href="#biographie">
+                    Biographie
+                </a>
+            </li>
+        </ul>
+    </div>
 
     <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
         <h3>Activité</h3>

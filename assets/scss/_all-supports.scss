@@ -138,9 +138,6 @@
     background: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
 
-    &.oldie {
-        width: 240px;
-    }
     &:hover,
     &:focus {
         opacity: .7;
@@ -2186,21 +2183,6 @@ table {
                 width: 58px;
             }
         }
-        .badge {
-            display: block;
-            width: 60px;
-            height: 25px;
-            line-height: 25px;
-            text-align: center;
-            text-transform: uppercase;
-            color: #EEE;
-            text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
-            background: #777;
-
-            &.staff {
-                background: #48a200;
-            }
-        }
         .user-metadata {
             width: 60px;
             height: 25px;
@@ -2595,6 +2577,51 @@ table {
 form.topic-message {
     margin-top: 50px;
 }
+
+.badge {
+    display: block;
+    width: 60px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    text-transform: uppercase;
+    color: #EEE;
+    text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
+    background: #777;
+
+    &.staff {
+        background: #48a200;
+    }
+}
+
+
+
+
+
+/* ==============
+    ALL: Main / Profile
+   ============== */
+
+.member-card {
+    .member-avatar {
+        float: left;
+        width: 60px;
+    }
+    .member-infos {
+        float: left;
+        list-style: none;
+        margin: 0;
+        padding-left: 15px;
+    }
+}
+
+.member-social {
+    list-style: none;
+    margin: 15px 0 0;
+    padding: 0;
+}
+
+
 
 
 

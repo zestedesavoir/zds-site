@@ -109,8 +109,8 @@ class Profile(models.Model):
                     'GeoLiteCityv6.dat'))
         geo = gic.record_by_addr(self.last_ip_address)
 
-        return u'{0} ({1}) : {2}'.format(
-            geo['city'], geo['postal_code'], geo['country_name'])
+        return u'{0}, {1}'.format(
+            geo['city'], geo['country_name'])
 
     def get_avatar_url(self):
         """Avatar URL (using custom URL or Gravatar)"""
