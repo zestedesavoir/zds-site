@@ -711,8 +711,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                     cpt_e += 1
                 cpt_c += 1
             cpt_p += 1
-    validation = Validation.objects.filter(tutorial__pk=tutorial.pk,
-                                           version=sha)\
+    validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
     formAskValidation = AskValidationForm()
