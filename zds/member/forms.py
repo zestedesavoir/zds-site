@@ -151,14 +151,18 @@ class RegisterForm(forms.Form):
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
-        if User.objects.filter(username=username).count() > 0:
+        username = username.strip();
+        
+        if username == '':
+            msg = u'Le nom d\'utilisateur ne peut-être vide'
+            self._errors['username'] = self.error_class([msg])
+        elif User.objects.filter(username=username).count() > 0:
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
         # Forbid the use of comma in the username
         elif username is not None and "," in username:
             msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
             self._errors['username'] = self.error_class([msg])
-        
 
         # Check that password != username
         if password == username:
@@ -360,6 +364,9 @@ class ChangeUserForm(forms.Form):
                 if User.objects.filter(username=username_new).count() >= 1:
                     self._errors['username_new'] = self.error_class(
                         [u'Ce nom d\'utilisateur est déjà utilisé'])
+            else:
+                self._errors['username_new'] = self.error_class(
+                        [u'Le nom d\'utilisateur ne peut-être vide'])
 
         if email_new is not None:
             if email_new.strip() != '':
