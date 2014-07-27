@@ -17,6 +17,9 @@
             <span class="article-metadata">
                 {% if tutorial.subcategory %}
                     {% for category in tutorial.subcategory.all %}
+                        {% if not forloop.first %}
+                            -
+                        {% endif %}
                         {{ category.title }}                                    
                     {% endfor %}
                 {% endif %}

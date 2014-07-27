@@ -110,8 +110,7 @@ def view(request, article_pk, article_slug):
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version = article.load_dic(article_version)
 
-    validation = Validation.objects.filter(article__pk=article.pk,
-                                            version=sha)\
+    validation = Validation.objects.filter(article__pk=article.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
 
@@ -588,7 +587,7 @@ def modify(request):
                     validation.version)
 
     # User actions
-    if request.user in article.authors.all():
+    if request.user in article.authors.all() or request.user.has_perm('article.change_article'):
         if 'delete' in data:
             if article.authors.count() == 1:
                 article.delete()
@@ -599,7 +598,13 @@ def modify(request):
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST and article.sha_validation is None:
+        elif 'pending' in request.POST:
+            # Delete old pending validation
+            Validation.objects.filter(article__pk=article_pk,
+                                      status__in=['PENDING','PENDING_V'])\
+                                      .delete()
+
+            # Create new validation
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
@@ -782,7 +787,10 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'RESERVED'
         validation.save()
-        return redirect(validation.article.get_absolute_url())
+        return redirect(
+            validation.article.get_absolute_url() +
+            '?version=' + validation.version
+        )
 
 
 @login_required

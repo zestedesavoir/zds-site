@@ -49,6 +49,7 @@
                 <th>Version</th>
                 <th width="10%">Diff.</th>
                 <th width="15%">Auteur</th>
+                <th width="12%">Bêta</th>
             </tr>
         </thead>
         <tbody>
@@ -57,11 +58,13 @@
                     <td>
                         {% if tutorial.sha_validation = log.newhexsha %}
                             Validation
-                        {% elif tutorial.sha_beta = log.newhexsha %}
+                        {% endif %}
+                        {% if tutorial.sha_beta = log.newhexsha %}
                             Beta
-                        {% elif tutorial.sha_draft =  log.newhexsha %}
-                            Draft 
-                        {% endif%}
+                        {% endif %}
+                        {% if tutorial.sha_draft = log.newhexsha %}
+                            Draft
+                        {% endif %}
                     </td>
                     <td>
                         {{ log.time.0|humane_time }}
@@ -84,6 +87,47 @@
                                 <em>Inconnu</em>
                             {% endif %}
                         {% endwith %}
+                    </td>
+                    <td>
+                        {% if not tutorial.sha_beta = log.newhexsha %}
+                            {% if not tutorial.sha_beta %}
+                                <a href="#activ-beta" class="open-modal">
+                                    Activer
+                                </a>
+                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                                    <input type="hidden" name="activ_beta">
+                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                    <p>
+                                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel 
+                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="#activ-beta" class="open-modal">
+                                    Mettre à jour
+                                </a>
+                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                                    <input type="hidden" name="update_beta">
+                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                    <p>
+                                        Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <em>En bêta</em>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

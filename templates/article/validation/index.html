@@ -49,18 +49,18 @@
         <h2>
             {% block headline %}
                 Validation des articles
+                ({{ validations|length }})
             {% endblock %}
         </h2>
 
         {% block content %}
             {% if validations %}
-                <table>
+                <table class="fullwidth">
                     <thead>
                         <tr>
                             <th>Titre</th>
-                            <th width="8%">Catégorie(s)</th>
-                            <th width="8%">Auteur(s)</th>
-                            <th width="8%">Proposé</th>
+                            <th width="10%">Auteur(s)</th>
+                            <th width="10%">Proposé</th>
                             <th width="24%">Statut</th>
                         </tr>
                     </thead>
@@ -71,15 +71,19 @@
                                     <a href="{% url "zds.article.views.view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >
                                         {{ validation.article.title }}
                                     </a>
-                                </td>
-                                <td>
-                                    {% for tag in validation.article.subcategory.all %}
-                                        <p>
-                                            <a href="{% url "zds.article.views.list_validation" %}?subcategory={{subcategory.pk}}">
-                                                {{ tag.title }}
-                                            </a>
-                                        <p>
-                                    {% endfor %}
+                                    <br>
+                                    {% if validation.article.subcategory.all %}
+                                        Catégories : 
+                                        {% for subcategory in validation.article.subcategory.all %}
+                                            {% if not forloop.first %}
+                                                -
+                                            {% endif %}
+                                            <a href="{% url "zds.article.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                                {{ subcategory.title }}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <em>Aucune catégorie</em>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% for author in validation.article.authors.all %}
@@ -87,7 +91,7 @@
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <span>{{ validation.date_proposition|format_date|capfirst }}</span>
+                                    <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
