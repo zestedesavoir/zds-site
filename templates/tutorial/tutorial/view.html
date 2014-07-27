@@ -274,24 +274,22 @@
                 <a href="#ask-validation" class="open-modal ico-after tick green">
                     Demander la validation
                 </a>
-                <div id="ask-validation" class="modal modal-medium">
-                    {% crispy formAskValidation %}
-                </div>
-            </li>
-        {% elif tutorial.sha_validation != version %}
-            <li>
-                <a href="#ask-validation" class="open-modal ico-after tick green">
-                    Mettre à jour la version en validation
-                </a>
-                <div id="ask-validation" class="modal modal-medium">
-                    {% crispy formAskValidation %}
-                </div>
             </li>
         {% else %}
+            {% if tutorial.sha_validation != version %}
+                <li>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">
+                        Mettre à jour la version en validation
+                    </a>
+                </li>
+            {% endif %}
             <li class="inactive">
                 <span class="ico-after tick disabled">En attente de validation</span>
             </li>
         {% endif %}
+        <div id="ask-validation" class="modal modal-medium">
+            {% crispy formAskValidation %}
+        </div>
      {% endif %}
 {% endblock %}
 

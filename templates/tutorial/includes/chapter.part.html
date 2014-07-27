@@ -5,7 +5,7 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro and chapter.intro != "None" %}
+        {% if chapter.intro and chapter.intro != None %}
             {{ chapter.intro|emarkdown }}
         {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
@@ -13,6 +13,8 @@
             </p>
         {% endif %}
     {% endif %}
+    
+    <hr />
 
     {% if extracts %}
         <ul>
@@ -110,7 +112,7 @@
     <hr />
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.conclu and chapter.conclu != "None" %}
+        {% if chapter.conclu and chapter.conclu != None %}
             {{ chapter.conclu|emarkdown }}
         {% elif not tutorial.in_beta %}
             <p class="ico-after warning">

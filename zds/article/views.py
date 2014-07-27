@@ -588,7 +588,7 @@ def modify(request):
                     validation.version)
 
     # User actions
-    if request.user in article.authors.all():
+    if request.user in article.authors.all() or request.user.has_perm('article.change_article'):
         if 'delete' in data:
             if article.authors.count() == 1:
                 article.delete()
@@ -599,7 +599,12 @@ def modify(request):
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST and article.sha_validation is None:
+        elif 'pending' in request.POST:
+            #delete old pending validation
+            Validation.objects.filter(article__pk=article_pk,
+                                      status__in=['PENDING','PENDING_V'])\
+                                      .delete()
+
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
