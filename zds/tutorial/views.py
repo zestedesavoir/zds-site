@@ -189,7 +189,10 @@ def reservation(request, validation_pk):
         messages.info(request,
                       u"Le tutoriel a bien été \
                       réservé par {0}.".format(request.user.username))
-        return redirect(validation.tutorial.get_absolute_url())
+        return redirect(
+            validation.tutorial.get_absolute_url() +
+            "?version=" + validation.version
+        )
 
 
 
