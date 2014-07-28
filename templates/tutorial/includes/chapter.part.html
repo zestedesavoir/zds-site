@@ -5,14 +5,16 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro and chapter.intro != "None" %}
+        {% if chapter.intro and chapter.intro != None %}
             {{ chapter.intro|emarkdown }}
-        {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
+        {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
         {% endif %}
     {% endif %}
+    
+    <hr />
 
     {% if extracts %}
         <ul>
@@ -46,7 +48,7 @@
                     <p>
                         Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract.title }}</em> ?
                     </p>
-                    <input type="hidden" name="extract" value="{{ extract.pk }}" />
+                    <input type="hidden" name="extract" value="{{ extract.pk }}">
                     {% csrf_token %}
                     <button type="submit" name="delete">
                         Confirmer
@@ -68,18 +70,18 @@
                         <option disabled>&mdash; Déplacer avant</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:-1 != extract.position_in_chapter %}
-                            <option value="{{ extract_mv.position_in_chapter }}">
-                                Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
-                            </option>
+                                <option value="{{ extract_mv.position_in_chapter }}">
+                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                </option>
                             {% endif %}
                         {% endfor %}
 
                         <option disabled>&mdash; Déplacer après</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:1 != extract.position_in_chapter %}
-                            <option value="{{ extract_mv.position_in_chapter }}">
-                                Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
-                            </option>
+                                <option value="{{ extract_mv.position_in_chapter }}">
+                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                </option>
                             {% endif %}
                         {% endfor %}
                     </select>
@@ -110,9 +112,9 @@
     <hr />
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.conclu and chapter.conclu != "None" %}
+        {% if chapter.conclu and chapter.conclu != None %}
             {{ chapter.conclu|emarkdown }}
-        {% elif not tutorial.in_beta or tutorial.sha_beta != version %} 
+        {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>

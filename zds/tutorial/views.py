@@ -189,7 +189,10 @@ def reservation(request, validation_pk):
         messages.info(request,
                       u"Le tutoriel a bien été \
                       réservé par {0}.".format(request.user.username))
-        return redirect(validation.tutorial.get_absolute_url())
+        return redirect(
+            validation.tutorial.get_absolute_url() +
+            "?version=" + validation.version
+        )
 
 
 
@@ -598,16 +601,16 @@ def modify_tutorial(request):
                              .format(author.username))
             return redirect(redirect_url)
         elif "activ_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
                 messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
             else:
                 messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
             return redirect(tutorial.get_absolute_url_beta())
         elif "update_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
                 messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
             else:
@@ -711,8 +714,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                     cpt_e += 1
                 cpt_c += 1
             cpt_p += 1
-    validation = Validation.objects.filter(tutorial__pk=tutorial.pk,
-                                           version=sha)\
+    validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
     formAskValidation = AskValidationForm()

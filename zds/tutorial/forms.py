@@ -408,7 +408,11 @@ class ValidForm(forms.Form):
             }
         )
     )
-    is_major = forms.BooleanField(label='Version majeure ?', required=False)
+    is_major = forms.BooleanField(
+        label='Version majeure ?',
+        required=False,
+        initial=True
+    )
     source = forms.CharField(
         label='Source originale',
         required=False,
