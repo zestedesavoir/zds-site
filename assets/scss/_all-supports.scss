@@ -2984,7 +2984,9 @@ form.topic-message {
         }
     }
     &.modal-big {
-        height: 300px;
+        top: 25%;
+        height: 600px;
+        max-width: 800px;
         margin: -150px auto 0;
     }
 }
