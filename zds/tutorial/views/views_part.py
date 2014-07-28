@@ -272,9 +272,6 @@ def view_part(
     for part in parts:
         part = load_data_part(tutorial=mandata, man_level=part)
         part["position_in_tutorial"] = cpt_p
-        if part_pk == str(part["pk"]):
-            part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
-            part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
         cpt_c = 1
         for chapter in part["chapters"]:
             chapter = load_data_chapter(part=part, man_level=chapter)
@@ -286,7 +283,10 @@ def view_part(
                 ext["position_in_chapter"] = cpt_e
                 cpt_e += 1
             cpt_c += 1
-        final_part = part
+        if part_pk == str(part["pk"]):
+            part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
+            part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
+            final_part = part
         cpt_p += 1
     # if part can't find
     if final_part is None:
