@@ -18,30 +18,26 @@
 
 
 {% block headline %}
-    {% with authors=tutorial.authors.all %}
-        <h1 {% if chapter.image %}class="illu"{% endif %}>
-            {% if chapter.image %}
-                <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
-            {% endif %}
-            {{ chapter.title }}
-        </h1>
-
-        {% if tutorial.licence %}
-            <p class="license">
-                {{ tutorial.licence }}
-            </p>
+    <h1 {% if chapter.image %}class="illu"{% endif %}>
+        {% if chapter.image %}
+            <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
+        {{ chapter.title }}
+    </h1>
 
-        {% include 'tutorial/includes/tags_authors.part.html' %}
-
+    {% if tutorial.licence %}
+        <p class="license">
+            {{ tutorial.licence }}
+        </p>
+    {% endif %}
         {% if tutorial.in_beta %}
             <div class="content-wrapper">
                 <div class="alert-box warning">
                     Attention, cette version du tutoriel est en BETA !
                 </div>
             </div>
-        {% endif %}
-    {% endwith %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 

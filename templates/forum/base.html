@@ -73,6 +73,7 @@
                                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                                         <input type="hidden" name="nb" value="{{ nb }}">
+                                        <input type="hidden" name="page" value="{{ nb }}">
                                         <input type="hidden" name="follow" value="1">
                                         {% csrf_token %}
 

@@ -26,7 +26,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag
+    mark_read, TopicFollowed, sub_tag, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -54,30 +54,18 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
     if not forum.can_read(request.user):
         raise PermissionDenied
-    sticky_topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=True).order_by(
-        "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
     if "filter" in request.GET:
         filter = request.GET["filter"]
-        if request.GET["filter"] == "solve":
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+        if filter == "solve":
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=True)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=True)
         else:
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=False).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=False)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=False)
     else:
         filter = None
-        topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=False) .order_by(
-            "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
+        sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True)
+        topics = get_topics(forum_pk=forum.pk, is_sticky=False)
 
     # Paginator
 
@@ -211,7 +199,7 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-		
+        
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
@@ -324,7 +312,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             post.author.username,
             post.topic.title,
@@ -885,7 +873,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         if request.GET["filter"] == "solve":
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -895,7 +882,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=False).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -904,8 +890,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 .all()
     else:
         filter = None
-        topics = Topic.objects.filter(tags__in=[tag], is_sticky=False) .order_by(
-            "-last_message__pubdate")\
+        topics = Topic.objects.filter(tags__in=[tag]).order_by("-last_message__pubdate")\
             .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
             .prefetch_related("author", "last_message", "tags").all()
     # Paginator

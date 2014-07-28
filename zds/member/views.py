@@ -224,37 +224,29 @@ def modify_profile(request, user_pk):
         # send register message
 
         if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = \
-                u"""Bonjour **{0}**,
-
-**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.
-
-Ce qui signifie que {2}
-
-Le motif de votre sanction est :
-
-`{3}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'**Bonne Nouvelle**, la sanction qui '
+                   u'pesait sur vous a été levée par **{1}**.\n\n'
+                   u'Ce qui signifie que {2}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {3}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            detail,
+                            ban.text))
         else:
-            msg = \
-                u"""Bonjour **{0}**,
-
-Vous avez été santionné par **{1}**.
-
-La sanction est de type *{2}*, ce qui signifie que {3}
-
-Le motif de votre sanction est :
-
-`{4}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, ban.type, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'Vous avez été santionné par **{1}**.\n\n'
+                   u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {4}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            ban.type,
+                            detail,
+                            ban.text))
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
             bot,
