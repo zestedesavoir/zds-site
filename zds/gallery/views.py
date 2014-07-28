@@ -161,7 +161,7 @@ def manage_user(request):
                 if request.user == user:
                     messages.error(request, "Vous ne pouvez pas vous supprimer de la galerie.\
                         Si vous souhaitez quitter cette dernière, vous pouvez supprimer \
-                        la galerie ou bien promure un utilisateur au rang de propriétaire qui\
+                        la galerie ou bien élever un utilisateur au rang de propriétaire qui\
                         vous supprimera à son tour.")
                 else:
                     gallery_mode[0].delete()
