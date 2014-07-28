@@ -133,15 +133,9 @@
 
         {% endif %}
 
-<<<<<<< HEAD
         {% if tuto_version.get_conclusion and tuto_version.get_conclusion != "None" %}
             {{ tuto_version.get_conclusion|emarkdown }}
         {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
-=======
-        {% if tuto_version.conclusion and tuto_version.conclusion != "None" %}
-            {{ tuto_version.conclusion|emarkdown }}
-        {% elif not tutorial.in_beta %}
->>>>>>> refs/remotes/origin/master
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>
@@ -153,26 +147,13 @@
 
 {% block sidebar_new %}
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
-<<<<<<< HEAD
-        {% if not tutorial.is_mini %}
-            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
-                Ajouter une partie
-            </a>
-        {% else %}
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
-                Ajouter un extrait
-            </a>
-        {% endif %}
-
-=======
->>>>>>> refs/remotes/origin/master
         {% if tutorial.sha_draft = version %}
             {% if not tutorial.is_mini %}
                 <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
                     Ajouter une partie
                 </a>
             {% else %}
-                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
+                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
                     Ajouter un extrait
                 </a>
             {% endif %}
