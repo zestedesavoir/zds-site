@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from email.utils import parseaddr
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
@@ -55,17 +57,14 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         label='Mot magique',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
 
-    remember = forms.MultipleChoiceField(
-        label='',
-        choices=(
-            ('remember', "Connexion automatique"),
-        ),
-        initial='remember',
-        widget=forms.CheckboxSelectMultiple,
+    remember = forms.BooleanField(
+        label='Connexion automatique',
+        initial=True,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -180,10 +179,10 @@ class RegisterForm(forms.Form):
                         self._errors['email'] = self.error_class([msg])
                         break
 
-        # Check that the email is unique
-        if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre adresse courriel est déjà utilisée'
-            self._errors['email'] = self.error_class([msg])
+            # Check that the email is unique
+            if User.objects.filter(email=email).count() > 0:
+                msg = u'Votre adresse courriel est déjà utilisée'
+                self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
 
@@ -250,9 +249,8 @@ class MiniProfileForm(forms.Form):
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
+
 # update extra information about user
-
-
 class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
@@ -305,9 +303,8 @@ class ProfileForm(MiniProfileForm):
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
+
 # to update email/username
-
-
 class ChangeUserForm(forms.Form):
 
     username_new = forms.CharField(
@@ -358,23 +355,21 @@ class ChangeUserForm(forms.Form):
         if username_new is not None:
             if username_new.strip() != '':
                 if User.objects.filter(username=username_new).count() >= 1:
-                    self._errors['username_new'] = self.error_class(
-                        [u'Ce nom d\'utilisateur est déjà utilisé'])
+                    self._errors['username_new'] = self.error_class([u'Ce nom d\'utilisateur est déjà utilisé'])
 
         if email_new is not None:
             if email_new.strip() != '':
                 if User.objects.filter(email=email_new).count() >= 1:
-                    self._errors['email_new'] = self.error_class(
-                        [u'Votre adresse courriel est déjà utilisée'])
-            # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT,
-                                   'forbidden_email_providers.txt'), 'r') as fh:
-                for provider in fh:
-                    if provider.strip() in email_new:
-                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
-                        self._errors['email_new'] = self.error_class([msg])
-                        break
-
+                    self._errors['email_new'] = self.error_class([u'Votre adresse courriel est déjà utilisée'])
+                else:
+                    # Chech if email provider is authorized
+                    with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+                        for provider in fh:
+                            if provider.strip() in email_new:
+                                msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                                self._errors['email_new'] = self.error_class([msg])
+                                break
+            
         return cleaned_data
 
 
@@ -383,18 +378,21 @@ class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
         label='Nouveau mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_old = forms.CharField(
         label='Mot de passe actuel',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmer le nouveau mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
@@ -447,16 +445,6 @@ class ChangePasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
-        # Check that the password is at least MIN_PASSWORD_LENGTH
-        if len(password_new) < MIN_PASSWORD_LENGTH:
-            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
-            self._errors['password_new'] = self.error_class([msg])
-            if 'password_new' in cleaned_data:
-                del cleaned_data['password_new']
-
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
-
         # Check that password != username
         if password_new == self.user.username:
             msg = u'Le mot de passe doit être différent de votre pseudo'
@@ -469,9 +457,8 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
+
 # Reset the password
-
-
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label='Nom d\'utilisateur',
@@ -510,11 +497,13 @@ class NewPasswordForm(forms.Form):
     password = forms.CharField(
         label='Mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
         label='Confirmation',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
@@ -546,16 +535,6 @@ class NewPasswordForm(forms.Form):
             self._errors['password'] = self.error_class([''])
             self._errors['password_confirm'] = self.error_class([msg])
 
-            if 'password' in cleaned_data:
-                del cleaned_data['password']
-
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
-
-        # Check that the password is at least MIN_PASSWORD_LENGTH
-        if len(password) < MIN_PASSWORD_LENGTH:
-            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
-            self._errors['password'] = self.error_class([msg])
             if 'password' in cleaned_data:
                 del cleaned_data['password']
 
