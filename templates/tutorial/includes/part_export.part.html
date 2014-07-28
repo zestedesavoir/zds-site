@@ -20,7 +20,7 @@
             <ul>
                 {% for chapter in chapters %}
                     <li>
-                        <a href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"><h2>Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</h2></a>
+                        <a href="{{chapter.get_absolute_url_online}}"><h2>Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}</h2></a>
                         <ul>
                             {% for extract in chapter.extracts %}
                             <li>

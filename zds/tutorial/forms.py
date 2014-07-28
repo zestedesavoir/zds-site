@@ -6,7 +6,7 @@ from django.conf import settings
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
-    ButtonHolder, Hidden
+    ButtonHolder, Hidden, HTML
 from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
@@ -39,6 +39,16 @@ class FormWithTitle(forms.Form):
 
         return cleaned_data
 
+
+def get_explication_licence():
+    licences = Licence.objects.all()
+    text =u"<ul>"
+    for licence in licences:
+        text=text+u"<li><strong>{}</strong> : {}</li>".format(licence.title, licence.description)
+    
+    text =text+u"</ul>"
+
+    return text
 
 class TutorialForm(FormWithTitle):
 
@@ -105,12 +115,30 @@ class TutorialForm(FormWithTitle):
             Field('title'),
             Field('description'),
             Field('type'),
+            HTML(u"<div><a href='#help-tutorial' class='open-modal'>Cliquez pour comprendre les types de tutoriels</a>"
+                 u"<div id='help-tutorial' class='modal modal-big'>"
+                 u"<h3>Les mini tutoriels</h3>"
+                 u"<p>Un minituto est un format de tutoriel adapté au contenu léger. Fonctionnellement il s'agit d'un "
+                 u"tutoriel qui ne contient qu'un seul chapitre (structure de niveau 2) mais peut contenir un ou "
+                 u"plusieurs extraits.</p>"
+                 u"<h3>Les big tutoriels</h3>"
+                 u"<p>Un bigtuto, est un tutoriel dans lequel on peut "
+                 u"avoir plusieurs parties, chaque partie pouvant contenir plusieurs chapitres et chaque "
+                 u"chapitre pouvant à leur tour contenir plusieurs extraits. "
+                 u"Ce format est adapté aux tutoriels donc le contenu "
+                 u"est assez conséquent, et demande beaucoup de structuration.</p>"
+                 u"</div>"
+                 u"</div>"),
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            HTML(u"<div><a href='#help-licence' class='open-modal'>Cliquez pour comprendre les licences</a>"
+                 u"<div id='help-licence' class='modal modal-big'>"
+                 u"<h2>Explication des licences</h2> {} </div>"
+                 u"</div>".format(get_explication_licence())),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
@@ -170,7 +198,7 @@ class PartForm(FormWithTitle):
 class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
-        label=u'Selectionnez le logo du tutoriel '
+        label=u'Selectionnez le logo du chapitre '
               u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
         required=False
     )

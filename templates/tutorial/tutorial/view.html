@@ -86,7 +86,7 @@
         {% endif %}
     {% endif %}
 
-    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+    {% if tutorial.in_beta %}
         <div class="content-wrapper">
             <div class="alert-box warning">
                 Cette version du tutoriel est en <strong>BÊTA</strong> !
@@ -98,10 +98,10 @@
 
 
 {% block content %}
-    {% with tuto_version=tutorial|repo_tuto:version %}
-        {% if tuto_version.introduction and tuto_version.introduction != "None" %}
-            {{ tuto_version.introduction|emarkdown }}
-        {% elif not tutorial.in_beta %}
+    {% with tuto_version=tutorial %}
+        {% if tuto_version.get_introduction and tuto_version.get_introduction != "None" %}
+            {{ tuto_version.get_introduction|emarkdown }}
+        {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
             <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
@@ -133,9 +133,9 @@
 
         {% endif %}
 
-        {% if tuto_version.conclusion and tuto_version.conclusion != "None" %}
-            {{ tuto_version.conclusion|emarkdown }}
-        {% elif not tutorial.in_beta %}
+        {% if tuto_version.get_conclusion and tuto_version.get_conclusion != "None" %}
+            {{ tuto_version.get_conclusion|emarkdown }}
+        {% elif not tutorial.in_beta or tutorial.sha_beta != version %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>
@@ -153,7 +153,7 @@
                     Ajouter une partie
                 </a>
             {% else %}
-                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
+                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
                     Ajouter un extrait
                 </a>
             {% endif %}

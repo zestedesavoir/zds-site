@@ -301,9 +301,9 @@ def reject_tutorial(request):
             msg = (
                 u'Désolé **{0}**, ton zeste **{1}** n\'a malheureusement '
                 u'pas passé l’étape de validation. Mais ne désespère pas, '
-                u'certaines corrections peuvent surement être faite pour '
+                u'certaines corrections peuvent sûrement être faites pour '
                 u'l’améliorer et repasser la validation plus tard. '
-                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé `{4}`'
+                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé\n\n> {4}\n\n'
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
                 u'semble injuste ou manque de clarté.'.format(
@@ -666,12 +666,14 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    mandata = tutorial.load_dic(mandata=mandata, sha=sha)
 
     # If it's a small tutorial, fetch its chapter
 
     if tutorial.type == "MINI":
         if "chapter" in mandata:
             chapter = mandata["chapter"]
+            chapter["pk"] = tutorial.get_chapter().pk
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
             chapter["intro"] = get_blob(repo.commit(sha).tree,
@@ -724,7 +726,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
-        "tutorial": tutorial,
+        "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
         "version": sha,
@@ -3087,7 +3089,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             note.author.username,
             note.tutorial.title,

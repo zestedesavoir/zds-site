@@ -29,7 +29,7 @@
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
-    {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
+    {% if part.tutorial.in_beta %}
         <div class="content-wrapper">
             <div class="alert-box warning">
                 Cette version du tutoriel est en <strong>BÊTA</strong> !
@@ -176,23 +176,6 @@
                     <button type="submit">Déplacer</button>
                 </form>
             </li>
-            <li>
-                <a href="#delete-part" class="open-modal ico-after cross red">
-                    Supprimer la partie
-                </a>
-
-                <form action="{% url "zds.tutorial.views.modify_part" %}" method="post" id="delete-part" class="modal modal-medium">
-                    <p>
-                        Attention, vous vous apprêtez à supprimer définitivement la partie "<em>{{ part.title }}</em>".
-                    </p>
-                    <input type="hidden" name="part" value="{{ part.pk }}">
-
-                    {% csrf_token %}
-                    <button type="submit" name="delete">
-                        Confirmer
-                    </button>
-                </form>
-            </li>
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -200,5 +183,32 @@
 
 
 {% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}
+    {% include "tutorial/includes/summary.part.html" %}
+
+    {% if part %}
+        {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+                <h3>Suppression</h3>
+                <ul>
+                    <li>
+                        <a href="#delete-part" class="open-modal ico-after cross red">
+                            Supprimer la partie
+                        </a>
+
+                        <form action="{% url "zds.tutorial.views.modify_part" %}" method="post" id="delete-part" class="modal modal-medium">
+                            <p>
+                                Attention, vous vous apprêtez à supprimer définitivement la partie "<em>{{ part.title }}</em>".
+                            </p>
+                            <input type="hidden" name="part" value="{{ part.pk }}">
+
+                            {% csrf_token %}
+                            <button type="submit" name="delete">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    {% endif %}
 {% endblock %}
