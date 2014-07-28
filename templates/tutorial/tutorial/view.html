@@ -147,23 +147,14 @@
 
 {% block sidebar_new %}
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
-        {% if not tutorial.is_mini %}
-            <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
-                Ajouter une partie
-            </a>
-        {% else %}
-            <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
-                Ajouter un extrait
-            </a>
-        {% endif %}
-
         {% if tutorial.sha_draft = version %}
             {% if not tutorial.is_mini %}
                 <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
                     Ajouter une partie
                 </a>
             {% else %}
-                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.chapter.pk }}" class="ico-after more blue new-btn">                    Ajouter un extrait
+                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
+                    Ajouter un extrait
                 </a>
             {% endif %}
 
