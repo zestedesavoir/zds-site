@@ -170,7 +170,7 @@ class PartForm(FormWithTitle):
 class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
-        label=u'Selectionnez le logo du tutoriel '
+        label=u'Selectionnez le logo du chapitre '
               u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
         required=False
     )

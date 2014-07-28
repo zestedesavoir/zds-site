@@ -15,9 +15,9 @@
                         <h3>
                             <a href="
                                 {% if online %}
-                                    {% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}
+                                    {{chapter.get_absolute_url_online}}
                                 {% else %}
-                                    {% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}{% if version %}?version={{ version }}{% endif %}
+                                    {{chapter.get_absolute_url}}
                                 {% endif %}
                             ">
                                 Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}
