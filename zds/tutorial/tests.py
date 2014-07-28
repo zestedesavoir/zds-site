@@ -1079,6 +1079,12 @@ class BigTutorialTests(TestCase):
                     c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 404)
+        
+        #check that home page is alive.
+        result = self.client.get(
+            reverse('zds.pages.views.home'),
+        )
+        self.assertEqual(result.status_code, 200)
 
     def test_conflict_does_not_destroy(self):
         """tests that simultaneous edition does not conflict"""
@@ -2658,6 +2664,8 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             200)
+        
+        
 
     def test_workflow_tuto(self):
         """Test workflow of mini tutorial."""
@@ -2791,6 +2799,12 @@ class MiniTutorialTests(TestCase):
             follow=True)
 
         self.assertEqual(Extract.objects.filter(chapter__tutorial=tuto).count(), 2)
+
+        #check that home page is alive.
+        result = self.client.get(
+            reverse('zds.pages.views.home'),
+        )
+        self.assertEqual(result.status_code, 200)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):

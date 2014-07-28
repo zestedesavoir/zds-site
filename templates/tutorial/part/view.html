@@ -29,7 +29,7 @@
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
-    {% if part.tutorial.in_beta and part.tutorial.sha_beta == version %}
+    {% if part.tutorial.in_beta %}
         <div class="content-wrapper">
             <div class="alert-box warning">
                 Cette version du tutoriel est en <strong>BÊTA</strong> !
@@ -200,5 +200,5 @@
 
 
 {% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}
+    {% include "tutorial/includes/summary.part.html" %}
 {% endblock %}

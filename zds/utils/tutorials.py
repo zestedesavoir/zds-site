@@ -6,8 +6,20 @@ import os
 from django.template import Context
 from django.template.loader import get_template
 from git import *
+from django.core.urlresolvers import reverse
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+import json as json_writer
 
 from zds.utils import slugify
+
+BIG_STRUCTURE = ['parts','chapters','extracts']
+MINI_STRUCTURE = ['chapter','extracts']
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -107,7 +119,7 @@ def get_blob(tree, chemin):
         return None
 
 
-def export_tutorial_to_md(tutorial):
+def export_tutorial_to_md(tutorial, sha):
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
@@ -138,7 +150,7 @@ def export_tutorial_to_md(tutorial):
     tuto['slug'] = tutorial.slug
 
     # find the good manifest file
-    mandata = tutorial.load_json(online=True)
+    mandata = tutorial.load_json(sha=sha)
 
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
@@ -289,4 +301,163 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # we can do it now
     setattr(obj, position_f, new_pos)
 
+def read_tree(tree, level, target_level, target_value, target_leaf, structure):
+    """
+    Recursive function which returns content of tree depending on the type of tree
+    """
+    
+    if level == None:
+        if target_level in tree:
+            return tree[target_leaf]
+    if level in tree:
+        for elt in tree[level]:    
 
+            if level==target_level:
+                if elt["pk"] == target_value:
+                    return elt[target_leaf]
+            else:
+                l = structure.index(level)
+                if len(structure) > l+1:
+                    next_level = structure[l+1]
+                    final_path = read_tree(elt, next_level, target_level, target_value, target_leaf, structure)
+                    if final_path is not None:
+                        return final_path
+                else:
+                    return None
+    return None
+    
+def get_content(obj_top, level, obj_level, path_obj_fn, type, sha=None):
+    """
+    Returns type of content related to commit hash
+    By default, if the hash commit is not specified,
+    considering that this is the hash commit of draft version. 
+    
+    obj_top : means the highest in the hierarchy queryset object (often tutorial)
+    level : means starting json attribute from the top
+    obj_level : means object which are analyse
+    path_obj_fn : function which give path of obj_top
+    type : means type of content, like "introduction", "conclusion" or "text"
+    sha : means hash commit of the content
+
+    Example for get introduction of chapter:
+    
+    get_content(obj_top=tutorial,
+                level="chapter",
+                obj_level=chapter,
+                path_obj_fn="get_path",
+                type="introduction",
+                sha=sha)
+    """
+
+    # find hash code
+    if sha is None:
+        sha = getattr(obj_top, "sha_draft")
+    repo = Repo(getattr(obj_top, path_obj_fn)())
+
+    if getattr(obj_top, "is_mini")():
+        structure = MINI_STRUCTURE
+    else:
+        structure = BIG_STRUCTURE
+
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tutorial_version = json_reader.loads(manifest)
+    
+    if level == "tutorial":
+        path = read_tree(tutorial_version,
+                         level = None,
+                         target_level = type,
+                         target_value = None,
+                         target_leaf = type,
+                         structure=structure)
+    elif level == "part":
+        path = read_tree(tutorial_version,
+                         level = "parts",
+                         target_level = "parts",
+                         target_value = getattr(obj_level, "pk"),
+                         target_leaf = type,
+                         structure = structure)
+    elif level == "chapter":
+        if not getattr(obj_top, "is_mini")():
+            path = read_tree(tutorial_version,
+                             level = "parts",
+                             target_level = "chapters",
+                             target_value = getattr(obj_level, "pk"),
+                             target_leaf = type,
+                             structure = structure)
+        else:
+            path = read_tree(tutorial_version,
+                             level = "chapter",
+                             target_level = "chapter",
+                             target_value = getattr(obj_level, "pk"),
+                             target_leaf = type,
+                             structure = structure)
+    else:
+        if not getattr(obj_top, "is_mini")():
+            path = read_tree(tutorial_version,
+                             level = "parts",
+                             target_level = "extracts",
+                             target_value = getattr(obj_level, "pk"),
+                             target_leaf = type,
+                             structure = structure)
+        else:
+            path = read_tree(tutorial_version,
+                             level = "chapter",
+                             target_level = "extracts",
+                             target_value = getattr(obj_level, "pk"),
+                             target_leaf = type,
+                             structure = structure)
+    if path:
+        return get_blob(repo.commit(sha).tree, path)        
+    else:
+        return None
+
+def load_data_part(tutorial, man_level):
+        
+        man_level["tutorial"] = tutorial
+        man_level["path"] = tutorial["get_path"]
+        man_level["slug"] = slugify(man_level['title'])
+        if tutorial["is_big"]:
+            man_level["type"] = "BIG"
+        else:
+            man_level["type"] = "MINI"
+        
+        man_level["get_absolute_url"] = reverse(
+            "zds.tutorial.views.view_part",
+            args=[
+                tutorial["pk"],
+                tutorial["slug"],
+                man_level["pk"],
+                man_level["slug"]])
+
+        if tutorial["on_line"]:
+            man_level["get_absolute_url_online"] = reverse(
+                "zds.tutorial.views.view_part_online",
+                args=[
+                    tutorial["pk"],
+                    tutorial["slug"],
+                    man_level["pk"],
+                    man_level["slug"]])
+        return man_level
+
+def load_data_chapter(part, man_level):
+        
+        man_level["part"] = part
+        man_level["path"] = part["path"]
+        man_level["type"] = part["type"]
+        man_level["slug"] = slugify(man_level['title'])
+        man_level["get_absolute_url"] = part["get_absolute_url"] \
+                + "{0}/{1}/".format(man_level["pk"], man_level["slug"])
+        if part["tutorial"]["on_line"]:
+            man_level["get_absolute_url_online"] = part["get_absolute_url_online"] \
+            + "{0}/{1}/".format(man_level["pk"], man_level["slug"])
+        
+        return man_level
+
+def load_data_extract(chapter, man_level):
+        
+        man_level["chapter"] = chapter
+        man_level["path"] = chapter["path"]
+        man_level["type"] = chapter["type"]
+        man_level["slug"] = slugify(man_level['title'])
+        
+        return man_level

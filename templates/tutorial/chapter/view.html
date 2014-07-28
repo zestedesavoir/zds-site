@@ -31,12 +31,11 @@
         </p>
     {% endif %}
 
-    {% include 'tutorial/includes/tags_authors.part.html' %}
-
-    {% if tutorial.in_beta and tutorial.sha_beta == version %}
-        <div class="content-wrapper">
-            <div class="alert-box warning">
-                Cette version du tutoriel est en <strong>BÊTA</strong> !
+        {% if tutorial.in_beta %}
+            <div class="content-wrapper">
+                <div class="alert-box warning">
+                    Attention, cette version du tutoriel est en BETA !
+                </div>
             </div>
         </div>
     {% endif %}

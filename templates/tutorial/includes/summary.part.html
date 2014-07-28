@@ -4,10 +4,10 @@
 
 
 
-<div class="mobile-menu-bloc {% if not tutorial.type == 'MINI' %}accordeon{% endif %}" data-title="Sommaire du tutoriel">
+<div class="mobile-menu-bloc {% if not tutorial.is_mini %}accordeon{% endif %}" data-title="Sommaire du tutoriel">
     <h3>Sommaire</h3>
 
-    {% if tutorial.type == 'MINI' %}
+    {% if tutorial.is_mini %}
         {# Small tutorial #}
         {% if chapter.extracts %}
             <ol>
@@ -31,14 +31,14 @@
         {% endif %}
     {% else %}
         {# Large tutorial #}
-        {% if tutorial.get_parts %}
-            {% for part in tutorial.get_parts %}
+        {% if tutorial.parts %}
+            {% for part in tutorial.parts %}
                 <h4 data-num="{{ part.position_in_tutorial|roman }}">
                     <a class="mobile-menu-link"
                         {% if online %}
-                            href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.pk part.slug %}"
+                            href="{{part.get_absolute_url_online}}"
                         {% else %}
-                            href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}"{% if version %}?version={{ version }}{% endif %}
+                            href="{{part.get_absolute_url}}"
                         {% endif %}
                     >
                         {{ part.title }}
@@ -46,13 +46,13 @@
                 </h4>
                 
                 <ol>
-                    {% for chapter in part.get_chapters %}
+                    {% for chapter in part.chapters %}
                         <li {% if chapter_current.pk == chapter.pk %}class="current"{% endif %}>
                             <a data-num="{{ chapter.position_in_part }}"
                                 {% if online %}
-                                    href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"
+                                    href="{{chapter.get_absolute_url_online}}"
                                 {% else %}
-                                    href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"{% if version %}?version={{ version }}{% endif %}
+                                    href="{{chapter.get_absolute_url}}"
                                 {% endif %}
                                 class="mobile-menu-link mobile-menu-sublink {% if chapter_current.pk = chapter.pk %}unread{% endif %}"
                             >
@@ -67,7 +67,7 @@
                                                 {% if online %}
                                                     href="{% url "view-chapter-url-online" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{  extract.title|slugify }}"
                                                 {% else %}
-                                                    href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}"{% if version %}?version={{ version }}{% endif %}
+                                                    href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}{% if version %}?version={{ version }}{% endif %}""
                                                 {% endif %}
                                             >
                                                 {{ extract.title }}

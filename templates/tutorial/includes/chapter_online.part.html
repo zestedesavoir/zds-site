@@ -3,7 +3,7 @@
 
 
 {% with extracts=chapter.extracts %}
-    {% if not chapter.type = 'MINI' %}
+    {% if not chapter.is_mini %}
         {% if chapter.intro and chapter.intro != "None" %}
             {{ chapter.intro|safe }}
         {% endif %}
@@ -32,7 +32,7 @@
         {% endif %}
     {% endfor %}
 
-    {% if not chapter.type = 'MINI' %}
+    {% if not chapter.is_mini %}
         {% if chapter.conclu%}
             {{ chapter.conclu|safe }}
         {% endif %}
