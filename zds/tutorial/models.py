@@ -181,7 +181,8 @@ class Tutorial(models.Model):
     def load_data(self, mandata, sha=None, public=False):
         fns = ['is_big', 'is_mini', 'have_markdown','have_html','have_pdf','have_epub',
                'get_introduction_online', 'get_conclusion_online', 'get_path']
-        attrs = ['pk','authors','subcategory','image','pubdate', 'update','source']
+        attrs = ['pk','authors','subcategory','image','pubdate', 'update','source',
+                 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public']
         #load functions in tree
         for fn in fns: mandata[fn]=getattr(self,fn)()
         #load attributes in tree

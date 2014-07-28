@@ -146,32 +146,26 @@
     {% include "tutorial/includes/summary.part.html" with tutorial=tutorial chapter_current=chapter %}
 
     {% if chapter.part %}
-        {% if user in tutorial.authors.all %}
+        {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
                 <h3>Suppression</h3>
                 <ul>
-                    {% if not tutorial.on_line %}
-                        <li>
-                            <a href="#delete-chapter" class="open-modal ico-after cross red">
-                                Supprimer le chapitre
-                            </a>
-                            <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="post" id="delete-chapter" class="modal modal-medium">
-                                <p>
-                                    Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
-                                </p>
-                                <input type="hidden" name="chapter" value="{{ chapter.pk }}">
+                    <li>
+                        <a href="#delete-chapter" class="open-modal ico-after cross red">
+                            Supprimer le chapitre
+                        </a>
+                        <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="post" id="delete-chapter" class="modal modal-medium">
+                            <p>
+                                Attention, vous vous apprêtez à supprimer définitivement le chapitre "<em>{{ chapter.title }}</em>".
+                            </p>
+                            <input type="hidden" name="chapter" value="{{ chapter.pk }}">
 
-                                {% csrf_token %}
-                                <button type="submit" name="delete">
-                                    Confirmer
-                                </button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li class="inactive">
-                            <span>Impossible car publié</span>
-                        </li>
-                    {% endif %}
+                            {% csrf_token %}
+                            <button type="submit" name="delete">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         {% endif %}
