@@ -907,6 +907,7 @@ def upgrade_profile(request, user_pk):
                 messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
             else:
                 user.is_superuser = False
+                messages.success(request, u'{0} n\'est maintenant plus super-utilisateur'.format(user.username))
         
         user.save()
     
