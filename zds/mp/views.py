@@ -211,7 +211,8 @@ def new(request):
                     destList.append(User.objects.get(username=username).username)
                 except:
                     pass
-            dest = ', '.join(destList)
+            if len(destList) > 0:
+                dest = ', '.join(destList)
 
         form = PrivateTopicForm(initial={
             'participants': dest,
