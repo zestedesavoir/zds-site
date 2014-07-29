@@ -169,6 +169,26 @@
                         </div>
                     </li>
                 {% endif %}
+                {% if perms.member.super_user %}
+                    <li>
+                        <a href="#link-promo-{{ profile.pk }}" class="open-modal ico-after gear blue">
+                            Promouvoir
+                        </a>
+                        <form action="{% url "zds.member.views.upgrade_profile" profile.user.pk %}" method="post" id="link-promo-{{ profile.pk }}" class="modal modal-medium">
+                            <p>
+                                Quelles sont les droit de ce membre ?
+                            </p>
+                            {% with status=usr|state %}
+                                <label class="checkbox"><input type="checkbox" name="staff-check" value="isstaff" {% for group in usr.groups.all %}{% if 'staff' == group.name %} checked="checked" {% endif %}{% endfor %}>Staff</label>
+                            {% endwith %}
+                            <label class="checkbox"><input type="checkbox" name="superuser-check" value="issuperuser" {% if usr.is_superuser %} checked="checked" {% endif %}>Super User</label>
+                            {% csrf_token %}
+                            <button type="submit" name="ban">
+                                Confirmer
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}

@@ -7,8 +7,8 @@ import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User, Group, Permission, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
@@ -876,3 +876,27 @@ def remove_oldtuto(request):
                      u'au membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
+
+
+@require_POST
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def upgrade_profile(request, user_pk):
+    """ Manage the admin right of user. Only super user can access """
+    
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    user = profile.user
+    if request.method == "POST":
+        staff_group = Group.objects.get(name='staff')
+        if request.POST.get('staff-check', False) == "isstaff":
+            user.groups.add(staff_group)
+        else:
+            user.groups.remove(staff_group)
+
+        user.is_superuser = False
+        if request.POST.get('superuser-check', False) == "issuperuser":
+            user.is_superuser = True
+        
+        user.save()
+        
+    return redirect(profile.get_absolute_url())
