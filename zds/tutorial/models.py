@@ -183,10 +183,19 @@ class Tutorial(models.Model):
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
+        mandata['get_absolute_url_online'] = reverse(
+                'zds.tutorial.views.view_tutorial_online',
+                 args=[self.pk, slugify(mandata["title"])]
+            )
+
+        mandata['get_absolute_url_beta'] = reverse(
+                'zds.tutorial.views.view_tutorial', args=[
+                self.pk, slugify(self.title)
+            ]) + '?version=' + self.sha_beta
+
+        mandata['get_absolute_url'] = reverse('zds.tutorial.views.view_tutorial',
                                                      args=[self.pk, slugify(mandata["title"])])
-        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
-        mandata['get_absolute_url'] = self.get_absolute_url()
+
         mandata['get_introduction_online'] = self.get_introduction_online()
         mandata['get_conclusion_online'] = self.get_conclusion_online()
 
@@ -209,7 +218,7 @@ class Tutorial(models.Model):
         if sha is None:
             sha = self.sha_public
         repo = Repo(self.get_path())
-        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
 
         return data
@@ -262,16 +271,20 @@ class Tutorial(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
+        if self.on_line() :
+            intro = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.introduction +
+                    '.html'),
+                "r")
+            intro_contenu = intro.read()
+            intro.close()
 
-        return intro_contenu.decode('utf-8')
+            return intro_contenu.decode('utf-8')
+
+        else :
+            return None
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -290,16 +303,20 @@ class Tutorial(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+        if self.on_line() :
+            conclu = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.conclusion +
+                    '.html'),
+                "r")
+            conclu_contenu = conclu.read()
+            conclu.close()
 
-        return conclu_contenu.decode('utf-8')
+            return conclu_contenu.decode('utf-8')
+
+        else :
+            return None
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
