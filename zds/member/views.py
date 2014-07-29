@@ -887,16 +887,25 @@ def upgrade_profile(request, user_pk):
     profile = get_object_or_404(Profile, user__pk=user_pk)
     user = profile.user
     if request.method == "POST":
+        
         staff_group = Group.objects.get(name='staff')
         if request.POST.get('staff-check', False) == "isstaff":
             user.groups.add(staff_group)
+            messages.success(request, u'{0} est maintenant staff'.format(user.username))
         else:
             user.groups.remove(staff_group)
+            messages.success(request, u'{0} n\'est maintenant plus staff'.format(user.username))
 
-        user.is_superuser = False
         if request.POST.get('superuser-check', False) == "issuperuser":
             user.is_superuser = True
+            messages.success(request, u'{0} est maintenant super-utilisateur'.format(user.username))
+        else:
+            if user.is_superuser:
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+            else:
+                user.is_superuser = False
+                messages.success(request, u'{0} n\'est maintenant plus super-utilisateur'.format(user.username))
         
         user.save()
-        
+    
     return redirect(profile.get_absolute_url())
