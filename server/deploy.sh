@@ -28,6 +28,8 @@ git checkout -b $1
 
 # Compute front stuff
 source /usr/local/nvm/nvm.sh
+npm update
+npm update bower gulp -g
 gulp pack
 
 # Update application data
