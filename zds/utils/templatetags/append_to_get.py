@@ -27,14 +27,13 @@ class AppendGetNode(template.Node):
             
     def render(self, context):
         get = context['request'].GET.copy()
-        
         path = context['request'].META['PATH_INFO']
         
         if len(get):
             path += "?"
-            for (key, value) in get.items():
-                for v in get.getlist(key):
-                    path += "&" + u"{0}={1}".format(key, str(v))
+            for (key, v) in get.items():
+                for value in get.getlist(key):
+                    path += u"&{0}={1}".format(key, value)
         
         return path
 
