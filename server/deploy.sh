@@ -19,17 +19,24 @@ if [ "$#" -ne 1 ]; then
 fi
 cd /opt/zdsenv/ZesteDeSavoir/
 
+# Maintenance mode
+sudo rm /etc/nginx/sites-enabled/zestedesavoir
+sudo ln -s /etc/nginx/sites-available/zds-maintenance /etc/nginx/sites-enabled/zds-maintenance
+sudo service nginx reload
+
 # Switch to new tag
 git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
 git fetch
-# -b is required to have version data in footer
+# Checkout the tag
+git checkout $1
+# Create a branch with the same name - required to have version data in footer
 git checkout -b $1
 
 # Compute front stuff
 source /usr/local/nvm/nvm.sh
 npm update
-npm update bower gulp -g
+sudo npm update bower gulp -g
 gulp pack
 
 # Update application data
@@ -40,3 +47,8 @@ deactivate
 
 # Restart zds
 sudo supervisorctl restart zds
+
+# Exit maintenance mode
+sudo rm /etc/nginx/sites-enabled/zds-maintenance
+sudo ln -s /etc/nginx/sites-available/zestedesavoir /etc/nginx/sites-enabled/zestedesavoir
+sudo service nginx reload
