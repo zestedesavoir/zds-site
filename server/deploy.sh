@@ -35,7 +35,7 @@ git checkout -b $1
 
 # Compute front stuff
 source /usr/local/nvm/nvm.sh
-npm update
+sudo npm update
 sudo npm update bower gulp -g
 gulp pack
 
