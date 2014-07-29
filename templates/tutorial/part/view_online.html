@@ -8,17 +8,46 @@
 
 
 
+{% block meta_image %}{% spaceless %}
+    {% if tutorial.image %}
+        {{ tutorial.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorial/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
-    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ part.tutorial.get_absolute_url_online }}" itemprop="url">
+            <span itemprop="title">{{ part.tutorial.title }}</span>
+        </a>
+    </li>
     <li>{{ part.title }}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h2>
+    <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
+        {% if tutorial.image %}
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+        {% endif %}
         {{ part.title }}
-    </h2>
+    </h1>
+
+    {% if tutorial.licence %}
+        <span class="license" itemprop="license">
+            Licence {{ tutorial.licence }}
+        </span>
+    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 {% endblock %}

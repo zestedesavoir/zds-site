@@ -60,7 +60,7 @@ sitemaps = {
         priority=0.7
     ),
     'topics': GenericSitemap(
-        {'queryset': Topic.objects.filter(is_locked=False), 'date_field': 'pubdate'},
+        {'queryset': Topic.objects.filter(is_locked=False, forum__group__isnull=True), 'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
     ),
@@ -79,7 +79,6 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^pages/', include('zds.pages.urls')),
                        url(r'^galerie/', include('zds.gallery.urls')),
-                       url(r'^teasing/', include('zds.newsletter.urls')),
                        url(r'^rechercher/', include('zds.search.urls')),
                        url(r'^munin/', include('zds.munin.urls')),
 

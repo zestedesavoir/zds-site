@@ -1,6 +1,7 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load captureas %}
+{% load date %}
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load set %}
@@ -13,21 +14,64 @@
 
 
 
+{% block meta_image %}{% spaceless %}
+    {% if article.image %}
+        {{ article.image.article_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    <meta property="og:type" content="article">
+
+    {% if article.pubdate %}
+        <meta property="og:article:published_time" content="{{ article.pubdate|date:"c" }}">
+    {% endif %}
+
+    <meta property="og:article:section" content="Articles">
+    {% for tag in tags.all %}
+        <meta property="og:article:tag" content="{{ tag.title }}">
+    {% endfor %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li>{{ article.title }}</li>
 {% endblock %}
 
 
 
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/Article"
+{% endblock %}
+
+
+
 {% block headline %}
-    <h1 {% if article.image %}class="illu"{% endif %}>
+    <h1 {% if article.image %}class="illu"{% endif %} itemprop="name">
         {% if article.image %}
-            <img src="{{ article.image.article_illu.url }}" alt="">
+            <img src="{{ article.image.article_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ article.title }}
     </h1>
+    
+    {% if article.licence %}
+        <span class="license" itemprop="license">
+            {{ article.licence }}
+        </span>
+    {% endif %}
 
-    <ul class="taglist">
+    {% if article.description %}
+        <h2 class="subtitle">
+            {{ article.description }}
+        </h2>
+    {% endif %}
+
+    <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
                 <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
@@ -36,17 +80,104 @@
             </li>
         {% endfor %}
     </ul>
+
+    <span class="pubdate">
+        Publié 
+        <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+            {{ article.pubdate|format_date }}
+        </time>
+    </span>
     
     <div class="authors">
-        <span class="authors-label">Contributeurs : </span>
+        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
-                    {% include "misc/member_item.part.html" with avatar=True %}
+                    {% include "misc/member_item.part.html" with avatar=True author=True %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+{% endblock %}
+
+
+
+{% block article_content_schema %}
+    itemprop="articleBody"
+{% endblock %}
+
+
+
+{% block content %}
+    {{ article.txt|safe }}
+
+ 
+    {% include "article/includes/pager.part.html" %}
+{% endblock %}
+
+
+
+{% block content_after %}
+    <h3 class="comments-title" id="reactions">
+        {% if article.get_reaction_count > 0 %}
+            <span itemprop="commentCount">
+                {{ article.get_reaction_count }}
+            </span>
+            réaction{{ article.get_reaction_count|pluralize }}
+        {% else %}
+            Aucune réaction
+        {% endif %}
+    </h3>
+
+
+    {% include "misc/pagination.part.html" with position="top" topic=article is_online=True anchor="reactions" %}
+
+
+    {% for message in reactions %}
+        {% captureas form_action %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}
+        {% endcaptureas %}
+
+        {% captureas edit_link %}
+            {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas upvote_link %}
+            {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas downvote_link %}
+            {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas alert_solve_link %}
+            {% url "zds.article.views.solve_alert" %}
+        {% endcaptureas %}
+
+        {% if forloop.first and nb > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
+        {% endif %}
+
+
+        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article comment_schema=True %}
+    {% endfor %}
+
+
+    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" %}
+
+
+    
+    {% captureas form_action %}
+        {% url 'zds.article.views.answer' %}?article={{ article.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user topic=article %}
 {% endblock %}
 
 
@@ -107,69 +238,4 @@
             </li>
         </ul>
     </div>
-{% endblock %}
-
-
-
-{% block content %}
-    {{ article.txt|safe }}
-
-
-    {% include "article/includes/pager.part.html" %}
-{% endblock %}
-
-
-
-{% block content_after %}
-    <h3 class="reactions-title">Réactions</h3>
-
-
-    {% include "misc/pagination.part.html" with position="top" topic=article is_online=True %}
-
-
-    {% for message in reactions %}
-        {% captureas form_action %}
-            {% url "zds.article.views.answer" %}?article={{ article.pk }}
-        {% endcaptureas %}
-
-        {% captureas edit_link %}
-            {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas cite_link %}
-            {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas upvote_link %}
-            {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas alert_solve_link %}
-            {% url "zds.article.views.solve_alert" %}
-        {% endcaptureas %}
-
-        {% if forloop.first and nb > 1 %}
-            {% set True as is_repeated_message %}
-        {% else %}
-            {% set False as is_repeated_message %}
-        {% endif %}
-
-
-        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article %}
-    {% endfor %}
-
-
-    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True %}
-
-
-    
-    {% captureas form_action %}
-        {% url 'zds.article.views.answer' %}?article={{ article.pk }}
-    {% endcaptureas %}
-
-    {% include "misc/message_form.html" with member=user topic=article %}
 {% endblock %}

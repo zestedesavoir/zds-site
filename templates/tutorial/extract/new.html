@@ -23,13 +23,15 @@
 
 
 {% block headline %}
-    <h2>Nouvel extrait</h2>
+    <h1>Nouvel extrait</h1>
 
-    {% if chapter.part %}
-        <h3 class="subtitle">{{ chapter.title }}</h3>
-    {% else %}
-        <h3 class="subtitle">{{ chapter.tutorial.title }}</h3>
-    {% endif %}
+    <h2 class="subtitle">
+        {% if chapter.part %}
+            {{ chapter.title }}
+        {% else %}
+            {{ chapter.tutorial.title }}
+        {% endif %}
+    </h2>
 {% endblock %}
 
 

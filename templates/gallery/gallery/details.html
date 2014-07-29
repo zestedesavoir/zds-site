@@ -65,7 +65,7 @@
         </ul>
     </div>
     
-    <form id="form" name="form" method="post" action="{% url "zds.gallery.views.modify_image" %}">
+    <form id="form" name="form" method="post" action="{% url "zds.gallery.views.delete_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
         <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
         <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">

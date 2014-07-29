@@ -2,12 +2,13 @@
 
 import os
 import shutil
-
+import HTMLParser
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import html
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
@@ -18,7 +19,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
-
+from zds.utils.misc import compute_hash
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
@@ -113,6 +114,7 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
+        self.bigtuto = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
 
@@ -475,7 +477,7 @@ class BigTutorialTests(TestCase):
     
     def test_workflow_tuto(self):
         """Test workflow of tutorial."""
-
+        
         # logout before
         self.client.logout()
         # login with simple member
@@ -501,31 +503,59 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Tutorial.objects.all().count(), 2)
         tuto = Tutorial.objects.last()
-        #add part
+        #add part 1
         result = self.client.post(
             reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
             {
                 'title': u"Partie 1",
-                'introduction':"Présentation",
-                'conclusion': "",
+                'introduction':u"Présentation",
+                'conclusion': u"Fin de la présentation",
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 1)
         p1 = Part.objects.filter(tutorial=tuto).last()
-        #add part
+        
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Présentation")
+        self.assertContains(response=result, text = u"Fin de la présentation")
+        
+        #add part 2
         result = self.client.post(
             reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
             {
                 'title': u"Partie 2",
-                'introduction':"Analyse",
-                'conclusion': "",
+                'introduction': u"Analyse",
+                'conclusion': u"Fin de l'analyse",
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 2)
         p2 = Part.objects.filter(tutorial=tuto).last()
-        #add part
+        self.assertEqual(u"Analyse", p2.get_introduction())
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Analyse")
+        self.assertContains(response=result, text = u"Fin de l'analyse")
+
+        #add part 3
         result = self.client.post(
             reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
             {
@@ -537,49 +567,111 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
         p3 = Part.objects.filter(tutorial=tuto).last()
-        #add chapter
+        
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p3.pk,
+                    p3.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Expérimentation")
+        self.assertContains(response=result, text = u"C'est terminé")
+
+        #add chapter 1 for part 2
         result = self.client.post(
             reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 1",
                 'introduction':"Mon premier chapitre",
-                'conclusion': "",
+                'conclusion': "Fin de mon premier chapitre",
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
         self.assertEqual(Chapter.objects.filter(part=p2).count(), 1)
         self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        c1 = Chapter.objects.filter(part=p2).last()
         
-        #add chapter
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c1.pk,
+                    c1.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Mon premier chapitre")
+        self.assertContains(response=result, text = u"Fin de mon premier chapitre")
+
+        #add chapter 2 for part 2
         result = self.client.post(
             reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 2",
-                'introduction':"Mon deuxième chapitre",
-                'conclusion': "",
+                'introduction': u"Mon deuxième chapitre",
+                'conclusion':u"Fin de mon deuxième chapitre",
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
         self.assertEqual(Chapter.objects.filter(part=p2).count(), 2)
         self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        c2 = Chapter.objects.filter(part=p2).last()
         
-        #add chapter
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c2.pk,
+                    c2.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Mon deuxième chapitre")
+        self.assertContains(response=result, text = u"Fin de mon deuxième chapitre")
+        
+        #add chapter 3 for part 2
         result = self.client.post(
             reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 2",
-                'introduction':"Mon troisième chapitre homonyme",
-                'conclusion': "",
+                'introduction': u"Mon troisième chapitre homonyme",
+                'conclusion': u"Fin de mon troisième chapitre",
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Chapter.objects.filter(part=p1).count(), 0)
         self.assertEqual(Chapter.objects.filter(part=p2).count(), 3)
         self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        c3 = Chapter.objects.filter(part=p2).last()
         
-        #add chapter
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Mon troisième chapitre homonyme")
+        self.assertContains(response=result, text = u"Fin de mon troisième chapitre")
+        
+        #add chapter 4 for part 1
         result = self.client.post(
             reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
             {
@@ -592,6 +684,507 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Chapter.objects.filter(part=p1).count(), 1)
         self.assertEqual(Chapter.objects.filter(part=p2).count(), 3)
         self.assertEqual(Chapter.objects.filter(part=p3).count(), 0)
+        c4 = Chapter.objects.filter(part=p1).last()
+        
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug,
+                    c4.pk,
+                    c4.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Mon premier chapitre d'une autre partie")
+        
+        # add extract 1 of chapter 3
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c3.pk),
+            {
+                'title': u"Extrait 1",
+                'text':"Prune",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=c3).count(), 1)
+        e1 = Extract.objects.filter(chapter=c3).last()
+
+        # add extract 2 of chapter 3
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c3.pk),
+            {
+                'title': u"Extrait 2",
+                'text':"Citron",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=c3).count(), 2)
+        e2 = Extract.objects.filter(chapter=c3).last()
+
+        # add extract 3 of chapter 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c2.pk),
+            {
+                'title': u"Extrait 3",
+                'text':"Kiwi",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=c2).count(), 1)
+        e3 = Extract.objects.filter(chapter=c2).last()
+
+        #check content edit part
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Présentation")
+        self.assertContains(response=result, text = u"Fin de la présentation")
+        
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Analyse")
+        self.assertContains(response=result, text = "Fin de l&#39;analyse")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Expérimentation")
+        self.assertContains(response=result, text = u"est terminé")
+        
+        #check content edit chapter
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 1")
+        self.assertContains(response=result, text = u"Mon premier chapitre")
+        self.assertContains(response=result, text = u"Fin de mon premier chapitre")
+        
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 2")
+        self.assertContains(response=result, text = u"Mon deuxième chapitre")
+        self.assertContains(response=result, text = u"Fin de mon deuxième chapitre")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 2")
+        self.assertContains(response=result, text = u"Mon troisième chapitre homonyme")
+        self.assertContains(response=result, text = u"Fin de mon troisième chapitre")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c4.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 1")
+        self.assertContains(response=result, text = u"Mon premier chapitre d&#39;une autre partie")
+
+        #check content edit extract
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 1")
+        self.assertContains(response=result, text = u"Prune")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 2")
+        self.assertContains(response=result, text = u"Citron")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 3")
+        self.assertContains(response=result, text = u"Kiwi")
+
+        #edit part 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
+            {
+                'title': u"Partie 2 : edition de titre",
+                'introduction': u"Expérimentation : edition d'introduction",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
+            },
+            follow=True)
+        self.assertContains(response=result, text = u"Partie 2 : edition de titre")
+        self.assertContains(response=result, text = u"Expérimentation : edition d'introduction")
+        self.assertContains(response=result, text = u"C'est terminé : edition de conlusion")
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
+
+        #edit chapter 3
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c3.pk),
+            {
+                'title': u"Chapitre 3 : edition de titre",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c3.get_path(),"introduction.md"),
+				    os.path.join(c3.get_path(),"conclusion.md")])
+            },
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 3 : edition de titre")
+        self.assertContains(response=result, text = u"Edition d'introduction")
+        self.assertContains(response=result, text = u"Edition de conlusion")
+        self.assertEqual(Chapter.objects.filter(part=p2.pk).count(), 3)
+        p2 = Part.objects.filter(pk=p2.pk).first()
+
+        #edit part 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
+            {
+                'title': u"Partie 2 : seconde edition de titre",
+                'introduction': u"Expérimentation : seconde edition d'introduction",
+                'conclusion': u"C'est terminé : seconde edition de conlusion",
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
+                    os.path.join(p2.tutorial.get_path(), p2.conclusion)])
+            },
+            follow=True)
+        self.assertContains(response=result, text = u"Partie 2 : seconde edition de titre")
+        self.assertContains(response=result, text = u"Expérimentation : seconde edition d'introduction")
+        self.assertContains(response=result, text = u"C'est terminé : seconde edition de conlusion")
+        self.assertEqual(Part.objects.filter(tutorial=tuto).count(), 3)
+        
+        #edit chapter 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c2.pk),
+            {
+                'title': u"Chapitre 2 : edition de titre",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": compute_hash([os.path.join(c2.get_path(),"introduction.md"),
+				    os.path.join(c2.get_path(),"conclusion.md")])
+            },
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 2 : edition de titre")
+        self.assertContains(response=result, text = u"Edition d'introduction")
+        self.assertContains(response=result, text = u"Edition de conlusion")
+        self.assertEqual(Chapter.objects.filter(part=p2.pk).count(), 3)
+
+        #edit extract 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(e2.pk),
+            {
+                'title': u"Extrait 2 : edition de titre",
+                'text': u"Agrume",
+                "last_hash": compute_hash([os.path.join(e2.get_path())])
+            },
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 2 : edition de titre")
+        self.assertContains(response=result, text = u"Agrume")
+
+        #check content edit part
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Présentation")
+        self.assertContains(response=result, text = u"Fin de la présentation")
+        
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Partie 2 : seconde edition de titre")
+        self.assertContains(response=result, text = "Expérimentation : seconde edition d&#39;introduction")
+        self.assertContains(response=result, text = "C&#39;est terminé : seconde edition de conlusion")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_part')+"?partie={}".format(p3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Expérimentation")
+        self.assertContains(response=result, text = u"est terminé")
+        
+        #check content edit chapter
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 1")
+        self.assertContains(response=result, text = u"Mon premier chapitre")
+        self.assertContains(response=result, text = u"Fin de mon premier chapitre")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 2 : edition de titre")
+        self.assertContains(response=result, text = u"Edition d&#39;introduction")
+        self.assertContains(response=result, text = u"Edition de conlusion")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 3 : edition de titre")
+        self.assertContains(response=result, text = u"Edition d&#39;introduction")
+        self.assertContains(response=result, text = u"Edition de conlusion")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_chapter')+"?chapitre={}".format(c4.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Chapitre 1")
+        self.assertContains(response=result, text = u"Mon premier chapitre d&#39;une autre partie")
+
+        #check content edit extract
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e1.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 1")
+        self.assertContains(response=result, text = u"Prune")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e2.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 2 : edition de titre")
+        self.assertContains(response=result, text = u"Agrume")
+
+        result = self.client.get(
+            reverse('zds.tutorial.views.edit_extract')+"?extrait={}".format(e3.pk),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 3")
+        self.assertContains(response=result, text = u"Kiwi")
+        
+        #move chapter 1 against 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_chapter'),
+            {
+                'chapter': c1.pk,
+                'move_target': c2.position_in_part,
+            },
+            follow=True)
+        #move part 1 against 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_part'),
+            {
+                'part': p1.pk,
+                'move_target': p2.position_in_tutorial,
+            },
+            follow=True)
+        self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 4)
+        
+        # ask public tutorial
+        tuto = Tutorial.objects.get(pk=tuto.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'version': tuto.sha_draft,
+                'source': '',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # logout before
+        self.client.logout()
+        # login with staff member
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve tutorial
+        validation = Validation.objects.filter(
+            tutorial__pk=tuto.pk).last()
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+
+        #delete part 1
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_part'),
+            {
+                'part': p1.pk,
+                'delete': "OK",
+            },
+            follow=True)
+        #delete chapter 3
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_chapter'),
+            {
+                'chapter': c3.pk,
+                'delete': "OK",
+            },
+            follow=True)
+        self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
+        self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
+        
+        # ask public tutorial
+        tuto = Tutorial.objects.get(pk=tuto.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'version': tuto.sha_draft,
+                'source': '',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.filter(
+            tutorial__pk=tuto.pk).last()
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        #check view online delete part and chapter
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+    def test_conflict_does_not_destroy(self):
+        """tests that simultaneous edition does not conflict"""
+        sub = SubCategory()
+        sub.title = "toto"
+        sub.save()
+       	# logout before
+        self.client.logout()
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # test tuto
+        (introduction_path, conclusion_path) =(os.path.join(self.bigtuto.get_path(),"introduction.md"), os.path.join(self.bigtuto.get_path(),"conclusion.md"))
+        hash = compute_hash([introduction_path, conclusion_path])
+        self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial')+'?tutoriel={0}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': "nouvelle description",
+                'subcategory': [sub.pk],
+                'introduction': self.bigtuto.get_introduction() +" un essai",
+                'conclusion': self.bigtuto.get_conclusion(),
+                'last_hash': hash 
+            }, follow= True)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial')+'?tutoriel={0}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': "nouvelle description",
+                'subcategory': [sub.pk],
+                'introduction': self.bigtuto.get_introduction() +" conflictual",
+                'conclusion': self.bigtuto.get_conclusion(),
+                'last_hash': hash 
+            }, follow= False)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
+
+        # test parts
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': u"Partie 2",
+                'introduction': u"Analyse",
+                'conclusion': u"Fin de l'analyse",
+            },
+            follow=False)
+        p1 = Part.objects.last()
+        hash = compute_hash([os.path.join(p1.tutorial.get_path(), p1.introduction),
+                    os.path.join(p1.tutorial.get_path(), p1.conclusion)])        
+        self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Partie 2 : edition de titre",
+                'introduction': u"Expérimentation : edition d'introduction",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": hash
+            },
+            follow=False)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Partie 2 : edition de titre",
+                'introduction': u"Expérimentation : edition d'introduction conflit",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                "last_hash": hash
+            },
+            follow=False)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
+
+        # test chapter
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
+            {
+                'title': u"Chapitre 1",
+                'introduction':"Mon premier chapitre",
+                'conclusion': "Fin de mon premier chapitre",
+            },
+            follow=False)
+        c1 = Chapter.objects.last()
+        hash = compute_hash([os.path.join(c1.get_path(),"introduction.md"),
+		    os.path.join(c1.get_path(),"conclusion.md")])
+        self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            {
+                'title': u"Chapitre 3 : edition de titre",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": hash
+            },
+            follow=True)
+        conflict_result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            {
+                'title': u"Chapitre 3 : edition de titre",
+                'introduction': u"Edition d'introduction conflict",
+                'conclusion': u"Edition de conlusion",
+                "last_hash": hash
+            },
+            follow=True)
+        self.assertEqual(conflict_result.status_code, 200)
+        self.assertContains(response=conflict_result, text = u"nouvelle version")
 
     def test_url_for_member(self):
         """Test simple get request by simple member."""
@@ -936,7 +1529,7 @@ class BigTutorialTests(TestCase):
         # Delete the image of the bigtuto.
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.bigtuto.gallery.pk,
                     'delete_multi': '',
@@ -1117,6 +1710,32 @@ class BigTutorialTests(TestCase):
             self.client.get(url).status_code,
             200)
 
+    def test_gallery_tuto_change_name(self):
+        """
+        Test if the gallery attached to a tutorial change its name when the tuto
+        has the name changed.
+        """
+
+        newtitle = u"The New Title"
+        response = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': newtitle,
+                'subcategory': self.subcat.pk,
+                'introduction': self.bigtuto.introduction,
+                'description': self.bigtuto.description,
+                'conclusion': self.bigtuto.conclusion,
+                'last_hash': compute_hash([os.path.join(self.bigtuto.get_path(),"introduction.md"),
+					    os.path.join(self.bigtuto.get_path(),"conclusion.md")])
+            },
+            follow=True)
+
+        tuto = Tutorial.objects.filter(pk=self.bigtuto.pk).first()
+        self.assertEqual(tuto.title, newtitle)
+        self.assertEqual(tuto.gallery.title, tuto.title)
+        self.assertEqual(tuto.gallery.slug, tuto.slug)
+
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
@@ -1150,6 +1769,8 @@ class MiniTutorialTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
+
+        self.subcat = SubCategoryFactory()
 
         self.minituto = MiniTutorialFactory()
         self.minituto.authors.add(self.user_author)
@@ -1198,6 +1819,8 @@ class MiniTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.minituto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(self.minituto.on_line(), True)
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
@@ -1759,7 +2382,7 @@ class MiniTutorialTests(TestCase):
         # Delete the image of the minituto.
 
         response = self.client.post(
-                reverse('zds.gallery.views.modify_image'),
+                reverse('zds.gallery.views.delete_image'),
                 {
                     'gallery': self.minituto.gallery.pk,
                     'delete_multi': '',
@@ -1795,6 +2418,8 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
+					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
                 follow=False
         )
@@ -1812,6 +2437,8 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
+					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
                 follow=False
         )
@@ -2031,6 +2658,139 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             200)
+
+    def test_workflow_tuto(self):
+        """Test workflow of mini tutorial."""
+
+        # logout before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+        
+        #add new mini tuto
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_tutorial'),
+            {
+                'title': u"Introduction à l'algèbre",
+                'description': "Perçer les mystère de boole",
+                'introduction':"Bienvenue dans le monde binaires",
+                'conclusion': "",
+                'type': "MINI",
+                'subcategory': self.subcat.pk,
+            },
+            follow=False)
+        
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 2)
+        tuto = Tutorial.objects.last()
+        chapter = Chapter.objects.filter(tutorial__pk=tuto.pk).first()
+        
+        #add extract 1
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            {
+                'title': u"Extrait 1",
+                'text': u"Introduisons notre premier extrait",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=chapter).count(), 1)
+        e1 = Extract.objects.filter(chapter=chapter).last()
+
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[
+                    tuto.pk,
+                    tuto.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 1")
+        self.assertContains(response=result, text = u"Introduisons notre premier extrait")
+        
+        #add extract 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            {
+                'title': u"Extrait 2",
+                'text': u"Introduisons notre deuxième extrait",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=chapter).count(), 2)
+        e2 = Extract.objects.filter(chapter=chapter).last()
+
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[
+                    tuto.pk,
+                    tuto.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 2")
+        self.assertContains(response=result, text = u"Introduisons notre deuxième extrait")
+
+        #add extract 3
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            {
+                'title': u"Extrait 3",
+                'text': u"Introduisons notre troisième extrait",
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Extract.objects.filter(chapter=chapter).count(), 3)
+        e3 = Extract.objects.filter(chapter=chapter).last()
+
+        #check view offline
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[
+                    tuto.pk,
+                    tuto.slug]),
+            follow=True)
+        self.assertContains(response=result, text = u"Extrait 3")
+        self.assertContains(response=result, text = u"Introduisons notre troisième extrait")
+        
+        #edit extract 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(e2.pk),
+            {
+                'title': u"Extrait 2 : edition de titre",
+                'text': u"Edition d'introduction",
+                "last_hash": compute_hash([e2.get_path()])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(response=result, text = u"Extrait 2 : edition de titre")
+        self.assertContains(response=result, text = u"Edition d'introduction")
+        self.assertEqual(Extract.objects.filter(chapter__tutorial=tuto).count(), 3)
+        
+        #move extract 1 against 2
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': e1.pk,
+                'move_target': e2.position_in_chapter,
+            },
+            follow=True)
+
+        #delete extract 1
+        result = self.client.post(
+            reverse('zds.tutorial.views.modify_extract'),
+            {
+                'extract': e1.pk,
+                'delete': "OK",
+            },
+            follow=True)
+
+        self.assertEqual(Extract.objects.filter(chapter__tutorial=tuto).count(), 2)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):

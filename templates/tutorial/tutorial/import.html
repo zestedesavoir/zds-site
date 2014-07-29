@@ -24,13 +24,26 @@
 
 
 {% block content %}
+    <p>
+        Vous êtes l'auteur d'un cours sur le SdZ ? Nous l'avons récupéré pour vous ! Il est disponible hors-ligne et n'attend plus que votre accord pour être publié. Il vous suffit d'en faire la demande à un membre du Staff via le forum ou directement par MP.
+    </p>
+    
+
     <h3>Envoi de fichiers .tuto</h3>
+    <p>
+        <strong>Attention</strong>, le fichier attendu n'est pas un .tuto du Site du Zéro, mais un format intermédiaire qui contient du Markdown et non du zCode. Contactez un membre du Staff pour demander la conversion de votre fichier.
+    </p>
+    <p>
+        Le fichier zip est celui qui contient les ressources de votre tutoriel. Il est également issu du convertisseur Markdown > zCode.
+    </p>
     {% crispy form %}
 
-    <hr>
 
     {% if old_tutos %}
         <h3>Récupérer un tutoriel du Site du Zéro</h3>
+        <p>
+            Ci-dessous se trouve la liste des tutoriels que vous aviez rédigé sur le Site du Zéro et que nous avons récupéré. Vous pouvez les importer pour continuer leur rédaction et les soumettre à la validation. Si vous pensez qu'il en manque un, vous pouvez contacter un membre du Staff.
+        </p>
         <table>
             <thead>
                 <tr>

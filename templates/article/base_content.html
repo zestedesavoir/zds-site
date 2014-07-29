@@ -3,7 +3,7 @@
 
 
 {% block title_base %}
-    &#183; Articles
+    &bull; Articles
 {% endblock %}
 
 
@@ -15,7 +15,11 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{% url "zds.article.views.index" %}" itemprop="url">
+            <span itemprop="title">Articles</span>
+        </a>
+    </li>
 {% endblock %}
 
 

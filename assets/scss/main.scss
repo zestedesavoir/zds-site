@@ -1,13 +1,10 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    All styles for *Zeste de Savoir* website
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
-
-//@import "compass";
-//@import "compass/css3/user-interface";
 
 
 
@@ -49,21 +46,14 @@ $font-serif-active: "Merriweather", $font-serif;
 $font-monospace-active: "Source Code Pro", $font-monospace;
 
 
-/**
- * Custom mixins
- */
-@mixin sprite-pos($_item, $retina: false){
-    @if($retina == false){
-        background-position: nth($_item, 1) nth($_item, 2);
-    } @else {
-        background-position: round(nth($_item, 1)/ 2) round(nth($_item, 2)/ 2);
-    }
-}
+
+
 
 /**
  * Import external mixins
  */
 @import "mixins/display-flex";
+@import "mixins/sprite-pos";
 
 /**
  * Import sprite

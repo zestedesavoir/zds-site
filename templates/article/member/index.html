@@ -3,7 +3,7 @@
 
 
 {% block title_base %}
-    &#183; Mes articles
+    &bull; Articles
 {% endblock %}
 
 
@@ -14,22 +14,69 @@
 
 
 
+{% block breadcrumb %}
+    {% if request.GET.type == "public" %}
+        <li>Publiés</li>
+    {% elif request.GET.type == "draft" %}
+        <li>Brouillons</li>
+    {% else %}
+        <li>Tous mes articles</li>
+    {% endif %}
+{% endblock %}
+
+
+
 {% block title %}
     Mes Articles
+    {% if request.GET.type == "public" %}
+        / Publiés
+    {% elif request.GET.type == "draft" %}
+        / Brouillons
+    {% endif %}
 {% endblock %}
 
 
 
 {% block headline %}
     Mes Articles
+    {% if request.GET.type == "public" %}
+        / Publiés
+    {% elif request.GET.type == "draft" %}
+        / Brouillons
+    {% endif %}
 {% endblock %}
 
 
 
-{% block sidebar_filter %}
-    <li><a href="{% url "zds.member.views.articles" %}">Tous</a></li>
-    <li><a href="{% url "zds.member.views.articles" %}?type=public">Publiés</a></li>
-    <li><a href="{% url "zds.member.views.articles" %}?type=draft">Brouillons</a><li>
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        <a href="{% url "zds.article.views.new" %}" class="ico-after more blue new-btn">
+            Nouvel article
+        </a>
+
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
+            <h3>Filtres</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.member.views.articles" %}?type=public" class="ico-after tick green {% if request.GET.type == "public" %}unread{% endif %}">
+                        Publiés
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.member.views.articles" %}?type=draft" class="ico-after tick {% if request.GET.type == "draft" %}unread{% endif %}">
+                        Brouillons
+                    </a>
+                </li>
+                {% if request.GET.type %}
+                    <li>
+                        <a href="{% url "zds.member.views.articles" %}" class="ico-after cross">
+                            Annuler le filtre
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </aside>
 {% endblock %}
 
 

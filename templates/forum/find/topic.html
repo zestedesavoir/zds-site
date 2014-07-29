@@ -12,7 +12,7 @@
 
 
 {% block headline %}
-    <h2 class="box forum">Sujets crées par "{{ usr.username }}""</h2>
+    Sujets crées par "{{ usr.username }}"
 {% endblock %}
 
 
@@ -21,7 +21,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.forum.views.find_topic" usr.username %}">Sujets crées</a></li>
+    <li><a href="{% url "zds.forum.views.find_topic" usr.pk %}">Sujets crées</a></li>
     <li>Recherche</li>
 {% endblock %}
 
@@ -30,33 +30,39 @@
 {% block content %}
     {% include "misc/pagination.part.html" with position="top" %}
 
-    <table>
-        <thead>
-            <tr>
-                <th width="15%">Sujet</th>
-                <th width="10%">Quand</th>
-                <th width="30%">Extrait</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for topic in topics %}
-            <tr>
-                <td>
-                    <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
-                    <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
-                        {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
-                    </div>
-                </td>
-                <td>
-                    {{ topic.pubdate|format_date }}
-                </td>
-                <td>
-                    {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% if topics %}
+        <table>
+            <thead>
+                <tr>
+                    <th width="15%">Sujet</th>
+                    <th width="10%">Quand</th>
+                    <th width="30%">Extrait</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for topic in topics %}
+                <tr>
+                    <td>
+                        <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
+                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
+                            {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {{ topic.pubdate|format_date }}
+                    </td>
+                    <td>
+                        {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            Aucun sujet n'a été créé par {{ usr.username }}.
+        </p>
+    {% endif %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
 {% endblock %}

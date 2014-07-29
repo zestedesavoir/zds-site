@@ -15,8 +15,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render_to_response
+from django.shortcuts import redirect, get_object_or_404
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -116,22 +117,31 @@ def details(request, user_name):
     fchart = os.path.join(img_path, "mod-{}.svg".format(str(usr.pk)))
     dot_chart.render_to_file(fchart)
     my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
-        "-pubdate").filter(authors__in=[usr]).all()
+        "-pubdate").filter(authors__in=[usr]).all()[:5]
     my_tutorials = \
         Tutorial.objects.filter(sha_public__isnull=False) \
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
-                  ).all()
-    my_topics = Topic.objects.filter(author__pk=usr.pk).order_by("-pubdate"
-                                                                 ).all()
-    tops = []
-    for top in my_topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
-            if len(tops) >= 5:
-                break
+                  ).all()[:5]
+    
+    my_tuto_versions = []
+    for my_tutorial in my_tutorials:
+        mandata = my_tutorial.load_json_for_public()
+        mandata = my_tutorial.load_dic(mandata)
+        my_tuto_versions.append(mandata)
+    my_article_versions = []
+    for my_article in my_articles:
+        article_version = my_article.load_json_for_public()
+        article_version = my_article.load_dic(article_version)
+        my_article_versions.append(article_version)
+
+    my_topics = \
+        Topic.objects\
+        .filter(author=usr)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
+        .prefetch_related("author")\
+        .order_by("-pubdate").all()[:5]
+
     form = OldTutoForm(profile)
     oldtutos = []
     if profile.sdz_tutorial:
@@ -144,9 +154,9 @@ def details(request, user_name):
         "usr": usr,
         "profile": profile,
         "bans": bans,
-        "articles": my_articles[:5],
-        "tutorials": my_tutorials[:5],
-        "topics": tops,
+        "articles": my_article_versions,
+        "tutorials": my_tuto_versions,
+        "topics": my_topics,
         "form": form,
         "old_tutos": oldtutos,
     })
@@ -214,37 +224,29 @@ def modify_profile(request, user_pk):
         # send register message
 
         if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = \
-                u"""Bonjour **{0}**,
-
-**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.
-
-Ce qui signifie que {2}
-
-Le motif de votre sanction est :
-
-`{3}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'**Bonne Nouvelle**, la sanction qui '
+                   u'pesait sur vous a été levée par **{1}**.\n\n'
+                   u'Ce qui signifie que {2}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {3}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            detail,
+                            ban.text))
         else:
-            msg = \
-                u"""Bonjour **{0}**,
-
-Vous avez été santionné par **{1}**.
-
-La sanction est de type *{2}*, ce qui signifie que {3}
-
-Le motif de votre sanction est :
-
-`{4}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, ban.type, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'Vous avez été santionné par **{1}**.\n\n'
+                   u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {4}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            ban.type,
+                            detail,
+                            ban.text))
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
             bot,
@@ -361,8 +363,7 @@ def settings_mini_profile(request, user_name):
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -371,8 +372,7 @@ def settings_mini_profile(request, user_name):
             "sign": profile.sign,
         })
         c = {"form": form, "profile": profile}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -411,8 +411,7 @@ def settings_profile(request):
                              "Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = ProfileForm(initial={
             "biography": profile.biography,
@@ -425,8 +424,7 @@ def settings_profile(request):
             "sign": profile.sign,
         })
         c = {"form": form}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -471,13 +469,11 @@ def settings_account(request):
                 messages.error(request, "Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
-            return render_to_response("member/settings/account.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/account.html", c)
     else:
         form = ChangePasswordForm(request.user)
         c = {"form": form}
-        return render_to_response("member/settings/account.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/account.html", c)
 
 
 @can_write_and_read_now
@@ -499,13 +495,11 @@ def settings_user(request):
             old.save()
             return redirect(old.profile.get_absolute_url())
         else:
-            return render_to_response("member/settings/user.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/user.html", c)
     else:
         form = ChangeUserForm()
         c = {"form": form}
-        return render_to_response("member/settings/user.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/user.html", c)
 
 
 

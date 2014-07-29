@@ -1,18 +1,23 @@
 {% extends "article/base_content.html" %}
 {% load emarkdown %}
 {% load profile %}
+{% load date %}
 {% load thumbnail %}
 
 
 
 {% block title_base %}
-    &#183; Mes articles
+    &bull; Articles
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% if user in authors.all %}
+        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% else %}
+        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    {% endif %}
 {% endblock %}
 
 
@@ -42,6 +47,18 @@
         {% endif %}
         {{ article.title }}
     </h1>
+    
+    {% if article.licence %}
+        <span class="license">
+            Licence {{ article.licence }}
+        </span>
+    {% endif %}
+
+    {% if article.description %}
+        <h2 class="subtitle">
+            {{ article.description }}
+        </h2>
+    {% endif %}
 
     <ul class="taglist">
         {% for tag in tags.all %}
@@ -52,9 +69,18 @@
             </li>
         {% endfor %}
     </ul>
+
+    {% if article.sha_public %}
+        <span class="pubdate">
+            Publié 
+            <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
+                {{ article.pubdate|format_date }}
+            </time>
+        </span>
+    {% endif %}
     
     <div class="authors">
-        <span class="authors-label">Contributeurs : </span>
+        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
@@ -68,16 +94,54 @@
             </li>
         </ul>
     </div>
+
+    {% if user in authors.all or perms.article.change_article %}
+        {% if article.sha_validation != None %}
+            {% if validation.version == version %}
+                {% if validation.validator == None %}
+                    <p class="content-wrapper alert-box alert">
+                        Cet article est en attente d'un validateur
+                    </p>
+                {% else %}
+                    <p class="content-wrapper alert-box info">
+                        L'article est en cours de validation par
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+                {% if validation.comment_authors %}
+                    <div class="content-wrapper comment-author">
+                        <p>
+                            Le message suivant a été laissé à destination des validateurs :
+                        </p>
+
+                        <blockquote>
+                            {{ validation.comment_authors }}
+                        </blockquote>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if validation.validator == None %}
+                    <p class="content-wrapper alert-box alert">
+                        <a href="{{ article.get_absolute_url }}?version={{ validation.version }}">
+                            Une autre version de cet article</a>
+                        est en attente d'un validateur
+                    </p>
+                {% else %}
+                    <p class="content-wrapper alert-box info">
+                        <a href="{{ article.get_absolute_url }}?version={{ validation.version }}">
+                            Une autre version de cet article</a>
+                        est en cours de validation par
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block content %}
-    <h3>Description</h3>
-    <p>
-        {{ article.description }}
-    </p>
-    <hr>
     <div>
         {{ article.txt|emarkdown }}
     </div>

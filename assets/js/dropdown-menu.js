@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Dropdown menu open/close
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function($){
@@ -23,6 +23,9 @@
             dropdownMouseDown = false;
         })
         .on("click", function(e){
+            if(($(this).parents(".header-menu-list").length > 0 && parseInt($("html").css("width")) < 960))
+                return true;
+
             e.preventDefault();
             e.stopPropagation();
 

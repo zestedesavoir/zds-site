@@ -166,7 +166,7 @@ def new(request):
 
             # Retrieve all participants of the MP.
             ctrl = []
-            list_part = data['participants'].replace(',', ' ').split()
+            list_part = data['participants'].split(",")
             for part in list_part:
                 part = part.strip()
                 if part == '':
@@ -202,18 +202,19 @@ def new(request):
                 'form': form,
             })
     else:
+        dest = None
         if 'username' in request.GET:
-            try:
-                # check that username in url is in the database
-                dest = User.objects.get(
-                    username=request.GET['username']).username
-            except:
-                dest = None
-        else:
-            dest = None
+            destList = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    destList.append(User.objects.get(username=username).username)
+                except:
+                    pass
+            dest = ', '.join(destList)
 
         form = PrivateTopicForm(initial={
-            'participants': dest
+            'participants': dest,
         })
         return render_template('mp/topic/new.html', {
             'form': form,
@@ -362,9 +363,10 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 post_cite.author.username,
+                settings.SITE_URL,
                 post_cite.get_absolute_url())
 
         form = PrivatePostForm(g_topic, request.user, initial={

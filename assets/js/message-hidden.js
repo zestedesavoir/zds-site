@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Toggle message content for staff
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function($){

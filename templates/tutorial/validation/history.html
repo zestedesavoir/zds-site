@@ -1,5 +1,6 @@
 {% extends "tutorial/validation/index.html" %}
 {% load date %}
+{% load captureas %}
 
 
 
@@ -44,9 +45,23 @@
                     <tr>
                         <td>
                             {{ validation.date_proposition|format_date|capfirst }}
+                            {% if validation.comment_authors %}
+                                <br>
+                                <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
+                                    Message laissé à la validation
+                                </a>
+                                <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
+                                    <p>
+                                        {{ validation.comment_authors }}
+                                    </p>
+                                </div>
+                            {% endif %}
                         </td>
                         <td>
-                            {% include "tutorial/includes/validation.part.html" %}
+                            {% captureas reservation_url %}
+                                {% url "zds.tutorial.views.reservation" validation.pk %}
+                            {% endcaptureas %}
+                            {% include "misc/validation.part.html" %}
                         </td>
                     </tr>
                 {% endfor %}

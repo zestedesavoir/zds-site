@@ -38,7 +38,7 @@
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">Participants :</span>
+                            <span class="topic-members-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
@@ -51,7 +51,7 @@
                 {% endwith %}
                 <p class="topic-answers">
                     {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
+                        {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
                     {% endif %}
                 </p>
                 <p class="topic-last-answer">

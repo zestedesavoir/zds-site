@@ -13,6 +13,28 @@
 
 
 
+{% block description %}
+    {{ tutorial.description }}
+{% endblock %}
+
+
+
+{% block meta_image %}{% spaceless %}
+    {% if tutorial.image %}
+        {{ tutorial.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorial/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
 {% block breadcrumb %}
     <li>{{ tutorial.title }}</li>
 {% endblock %}
@@ -20,20 +42,26 @@
 
 
 {% block headline %}
-    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+    <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="">
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ tutorial.title }}
     </h1>
 
-    {% if tutorial.description %}
-        <h3 class="subtitle">
-            {{ tutorial.description }}
-        </h3>
+    {% if tutorial.licence %}
+        <span class="license" itemprop="license">
+            Licence {{ tutorial.licence }}
+        </span>
     {% endif %}
 
-    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=tutorial %}
+    {% if tutorial.description %}
+        <h2 class="subtitle" itemprop="description">
+            {{ tutorial.description }}
+        </h2>
+    {% endif %}
+
+    {% include "tutorial/includes/tags_authors.part.html" with tutorial=tutorial %}
 {% endblock %}
 
 
@@ -76,10 +104,19 @@
 
 
 {% block content_after %}
-    <h2 class="reactions-title">Commentaires</h2>
+    <h3 class="comments-title" id="comments">
+        {% if tutorial.get_note_count > 0 %}
+            <span itemprop="commentCount">
+                {{ tutorial.get_note_count }}
+            </span>
+            commentaire{{ tutorial.get_note_count|pluralize }}
+        {% else %}
+            Aucun commentaire
+        {% endif %}
+    </h3>
 
 
-    {% include "misc/pagination.part.html" with position="top" topic=tutorial is_online=True %}
+    {% include "misc/pagination.part.html" with position="top" topic=tutorial is_online=True anchor="comments" %}
 
 
     {% for message in notes %}
@@ -110,11 +147,11 @@
         {% endif %}
 
 
-        {% include "misc/message.part.html" with perms_change=perms.tutorial.change_note topic=tutorial %}
+        {% include "misc/message.part.html" with perms_change=perms.tutorial.change_note topic=tutorial comment_schema=True %}
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial is_online=True %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial is_online=True anchor="comments" %}
 
 
     

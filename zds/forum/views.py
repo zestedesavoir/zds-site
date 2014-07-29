@@ -26,7 +26,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag
+    mark_read, TopicFollowed, sub_tag, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -54,30 +54,18 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
     if not forum.can_read(request.user):
         raise PermissionDenied
-    sticky_topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=True).order_by(
-        "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
     if "filter" in request.GET:
         filter = request.GET["filter"]
-        if request.GET["filter"] == "solve":
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+        if filter == "solve":
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=True)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=True)
         else:
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=False).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=False)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=False)
     else:
         filter = None
-        topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=False) .order_by(
-            "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
+        sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True)
+        topics = get_topics(forum_pk=forum.pk, is_sticky=False)
 
     # Paginator
 
@@ -109,14 +97,17 @@ def cat_details(request, cat_slug):
     
     category = get_object_or_404(Category, slug=cat_slug)
     
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
+    forums_pub = Forum.objects\
+                    .filter(group__isnull=True, category__pk=category.pk)\
+                    .select_related("category").all()
     if request.user.is_authenticated():
-        forums_prv = Forum.objects.filter(group__isnull=False).select_related("category").all()
-        out = []
-        for forum in forums_prv:
-            if forum.can_read(request.user):
-                out.append(forum.pk)
-        forums = forums_pub|forums_prv.exclude(pk__in=out)
+        forums_prv = Forum.objects\
+                    .filter(group__isnull=False, \
+                            group__in=request.user.groups.all(), \
+                            category__pk=category.pk)\
+                    .select_related("category")\
+                    .all()
+        forums = forums_pub|forums_prv
     else :
         forums = forums_pub
 
@@ -208,7 +199,7 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-		
+        
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
@@ -321,7 +312,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             post.author.username,
             post.topic.title,
@@ -876,12 +867,12 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
     tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
         return redirect(reverse("zds.forum.views.index"))
+    u = request.user
     if "filter" in request.GET:
         filter = request.GET["filter"]
         if request.GET["filter"] == "solve":
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -891,7 +882,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=False).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -900,8 +890,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 .all()
     else:
         filter = None
-        topics = Topic.objects.filter(tags__in=[tag], is_sticky=False) .order_by(
-            "-last_message__pubdate")\
+        topics = Topic.objects.filter(tags__in=[tag]).order_by("-last_message__pubdate")\
             .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
             .prefetch_related("author", "last_message", "tags").all()
     # Paginator
@@ -930,16 +919,15 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
 
-    u = get_object_or_404(User, pk=user_pk)
+    displayed_user = get_object_or_404(User, pk=user_pk)
     topics = \
         Topic.objects\
-        .filter(author=u)\
-        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
+        .filter(author=displayed_user)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
         .prefetch_related("author")\
         .order_by("-pubdate").all()
 
     # Paginator
-
     paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
     page = request.GET.get("page")
     try:
@@ -954,34 +942,32 @@ def find_topic(request, user_pk):
 
     return render_template("forum/find/topic.html", {
         "topics": shown_topics,
-        "usr": u,
+        "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
     })
 
 
-
 def find_post(request, user_pk):
     """Finds all posts of a user."""
 
-    u = get_object_or_404(User, pk=user_pk)
+    displayed_user = get_object_or_404(User, pk=user_pk)
+    user = request.user
     
-    if request.user.has_perm("forum.change_post"):
+    if user.has_perm("forum.change_post"):
         posts = \
-            Post.objects.filter(author=u)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            Post.objects.filter(author=displayed_user)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
     else:
         posts = \
-            Post.objects.filter(author=u)\
+            Post.objects.filter(author=displayed_user)\
             .filter(is_visible=True)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=u.groups.all()))\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
             .prefetch_related("author").order_by("-pubdate").all()
 
-
     # Paginator
-
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page = request.GET.get("page")
     try:
@@ -996,14 +982,13 @@ def find_post(request, user_pk):
 
     return render_template("forum/find/post.html", {
         "posts": shown_posts,
-        "usr": u,
+        "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
     })
 
 
 @login_required
-
 def followed_topics(request):
     followed_topics = request.user.get_profile().get_followed_topics()
 

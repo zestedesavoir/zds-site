@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from math import ceil
+from git import Repo
 import os
 import string
 import uuid
@@ -25,13 +26,9 @@ from django.utils import timezone
 
 from zds.utils import get_current_user
 from zds.utils import slugify
-from zds.utils.articles import export_article
-from zds.utils.models import SubCategory, Comment
+from zds.utils.articles import export_article, get_blob
+from zds.utils.models import SubCategory, Comment, Licence
 from django.core.urlresolvers import reverse
-
-
-IMAGE_MAX_WIDTH = 480
-IMAGE_MAX_HEIGHT = 100
 
 
 def image_path(instance, filename):
@@ -88,6 +85,10 @@ class Article(models.Model):
                                       verbose_name='Derniere réaction')
     is_locked = models.BooleanField('Est verrouillé', default=False)
 
+    licence = models.ForeignKey(Licence,
+                                verbose_name='Licence',
+                                blank=True, null=True, db_index=True)
+
     def __unicode__(self):
         return self.title
 
@@ -137,6 +138,31 @@ class Article(models.Model):
         else:
             return None
 
+    def load_json_for_public(self):
+        repo = Repo(self.get_path())
+        manarticle = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        data = json_reader.loads(manarticle)
+
+        return data
+
+    def load_dic(self, article_version):
+        article_version['pk'] = self.pk
+        article_version['slug'] = slugify(article_version['title'])
+        article_version['image'] = self.image
+        article_version['pubdate'] = self.pubdate
+        article_version['is_locked'] = self.is_locked
+        article_version['sha_draft'] = self.sha_draft
+        article_version['sha_validation'] = self.sha_validation
+        article_version['sha_public'] = self.sha_public
+        article_version['last_read_reaction'] = self.last_read_reaction
+        article_version['get_reaction_count'] = self.get_reaction_count
+        article_version['get_absolute_url'] = reverse('zds.article.views.view', 
+                                                      args=[self.pk, self.slug])
+        article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online', 
+                                                             args=[self.pk, slugify(article_version['title'])])
+        
+        return article_version
+        
     def dump_json(self, path=None):
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
@@ -199,8 +225,8 @@ class Article(models.Model):
                 .select_related()\
                 .filter(article=self, user=get_current_user())\
                 .latest('reaction__pubdate').reaction
-        except Reaction.DoesNotExist:
-            return self.first_post()
+        except:
+            return self.first_reaction()
     
     def first_unread_reaction(self):
         """Return the first reaction the user has unread."""

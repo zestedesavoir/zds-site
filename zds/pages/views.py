@@ -29,20 +29,14 @@ def home(request):
     tutos = []
     for tuto in get_last_tutorials():
         data = tuto.load_json_for_public()
-        data['pk'] = tuto.pk
-        data['image'] = tuto.image
-        data['gallery'] = tuto.gallery
-        data['pubdate'] = tuto.pubdate
-        data['update'] = tuto.update
-        data['subcategory'] = tuto.subcategory
-        data['get_absolute_url_online'] = reverse(
-            'zds.tutorial.views.view_tutorial_online',
-            args=[
-                tuto.pk,
-                slugify(
-                    data['title'])])
-
+        data = tuto.load_dic(data)
         tutos.append(data)
+    
+    articles = []
+    for article in get_last_articles():
+        data = article.load_json_for_public()
+        data = article.load_dic(data)
+        articles.append(data)
 
     try:
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
@@ -51,9 +45,8 @@ def home(request):
         quote = u'Zeste de Savoir, la connaissance pour tous et sans pépins !'
 
     return render_template('home.html', {
-        'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
-        'last_articles': get_last_articles(),
+        'last_articles': articles,
         'quote': quote,
     })
 
