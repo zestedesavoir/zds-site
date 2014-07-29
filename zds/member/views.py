@@ -31,7 +31,7 @@ from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic
+from zds.forum.models import Topic, follow
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -894,17 +894,19 @@ def upgrade_profile(request, user_pk):
             messages.success(request, u'{0} est maintenant staff'.format(user.username))
         else:
             user.groups.remove(staff_group)
+            topics_staff = Topic.objects.filter(topicfollowed__user=user, forum__group=staff_group)
+            for topic in topics_staff:
+                follow(topic, user)
             messages.success(request, u'{0} n\'est maintenant plus staff'.format(user.username))
 
         if request.POST.get('superuser-check', False) == "issuperuser":
             user.is_superuser = True
             messages.success(request, u'{0} est maintenant super-utilisateur'.format(user.username))
         else:
-            if user.is_superuser:
+            if user == request.user:
                 messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
             else:
                 user.is_superuser = False
-                messages.success(request, u'{0} n\'est maintenant plus super-utilisateur'.format(user.username))
         
         user.save()
     
