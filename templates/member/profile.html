@@ -176,7 +176,7 @@
                         </a>
                         <form action="{% url "zds.member.views.upgrade_profile" profile.user.pk %}" method="post" id="link-promo-{{ profile.pk }}" class="modal modal-medium">
                             <p>
-                                Quelles sont les droit de ce membre ?
+                                Quels sont les droits de ce membre ?
                             </p>
                             {% with status=usr|state %}
                                 <label class="checkbox"><input type="checkbox" name="staff-check" value="isstaff" {% for group in usr.groups.all %}{% if 'staff' == group.name %} checked="checked" {% endif %}{% endfor %}>Staff</label>
