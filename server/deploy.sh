@@ -3,6 +3,10 @@
 # Zeste de Savoir deployment script
 #
 # Deploys specified version of Zeste de Savoir
+#
+# Usage:
+# - This script must be run by zds user
+# - This script has exactly 1 parameter: the tag name to deploy
 
 if [ "$(whoami)" != "zds" ]; then
 	echo "This script must be run by zds user" >&2
@@ -28,7 +32,7 @@ gulp pack
 
 # Update application data
 source ../bin/activate
-pip install --upgrade -r requirements.txt
+pip install --upgrade --use-mirrors -r requirements.txt
 python manage.py migrate
 deactivate
 
