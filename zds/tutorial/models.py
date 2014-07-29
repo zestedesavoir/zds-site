@@ -182,35 +182,42 @@ class Tutorial(models.Model):
             settings.REPO_PATH_PROD,
             str(self.pk) + '_' + slugify(data['title']))
 
-    def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = reverse(
-                'zds.tutorial.views.view_tutorial_online',
-                 args=[self.pk, slugify(mandata["title"])]
-            )
-
-        mandata['get_absolute_url_beta'] = reverse(
-                'zds.tutorial.views.view_tutorial', args=[
-                self.pk, slugify(self.title)
-            ]) + '?version=' + self.sha_beta
-
-        mandata['get_absolute_url'] = reverse('zds.tutorial.views.view_tutorial',
-                                                     args=[self.pk, slugify(mandata["title"])])
-
-        mandata['get_introduction_online'] = self.get_introduction_online()
-        mandata['get_conclusion_online'] = self.get_conclusion_online()
-
+    def load_dic(self, mandata, sha=None,public=False):
+        fns = ['is_big', 'is_mini', 'have_markdown','have_html','have_pdf','have_epub',
+       'get_introduction_online', 'get_conclusion_online', 'get_path']
+        attrs = ['pk','authors','subcategory','image','pubdate', 'update','source',
+             'sha_draft', 'sha_beta', 'sha_validation', 'sha_public']
+        #load functions in tree
+        for fn in fns: mandata[fn]=getattr(self,fn)()
+        #load attributes in tree
+        for attr in attrs: mandata[attr]=getattr(self,attr)
+        # general information
         mandata['slug'] = slugify(mandata['title'])
-        mandata['pk'] = self.pk
-        mandata['on_line'] = self.on_line
-        mandata['authors'] = self.authors
-        mandata['subcategory'] = self.subcategory
-        mandata['image'] = self.image
-        mandata['pubdate'] = self.pubdate
-        mandata['source'] = self.source
-        mandata['have_markdown'] = self.have_markdown()
-        mandata['have_html'] = self.have_html()
-        mandata['have_pdf'] = self.have_pdf()
-        mandata['have_epub'] = self.have_epub()
+
+        #draft informations
+        mandata['get_absolute_url'] = reverse('zds.tutorial.views.view_tutorial',
+                                          args=[self.pk, mandata['slug']])
+        if not public:
+            mandata['get_introduction'] = self.get_introduction(sha)
+            mandata['get_conclusion'] = self.get_conclusion(sha)
+
+        # beta information
+        if self.in_beta():
+            mandata['get_absolute_url_beta'] = reverse('zds.tutorial.views.view_tutorial',
+                                               args=[self.pk, mandata['slug']])\
+                                              +'?version=' +self.sha_beta
+        else:
+            mandata['get_absolute_url_beta'] = reverse('zds.tutorial.views.view_tutorial',
+                                               args=[self.pk, mandata['slug']])
+        mandata['in_beta'] = self.in_beta() and self.sha_beta == sha
+
+        #validations informations
+        mandata['in_validation'] = self.in_validation() and self.sha_validation == sha
+            
+        #online informations
+        mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
+                                                 args=[self.pk, mandata['slug']])
+        mandata['on_line'] = self.on_line() and self.sha_public == sha
 
         return mandata
 

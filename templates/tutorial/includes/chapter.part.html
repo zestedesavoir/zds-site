@@ -1,8 +1,6 @@
 {% load emarkdown %}
 {% load repo_reader %}
 
-
-
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
         {% if chapter.intro and chapter.intro != None %}
