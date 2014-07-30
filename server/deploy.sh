@@ -24,6 +24,9 @@ sudo rm /etc/nginx/sites-enabled/zestedesavoir
 sudo ln -s /etc/nginx/sites-available/zds-maintenance /etc/nginx/sites-enabled/zds-maintenance
 sudo service nginx reload
 
+# Delete old branch if exists
+git checkout prod
+git branch -D $1
 # Switch to new tag
 git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
@@ -35,8 +38,8 @@ git checkout -b $1
 
 # Compute front stuff
 source /usr/local/nvm/nvm.sh
-sudo npm update
-sudo npm update bower gulp -g
+sudo npm -q update
+sudo npm -q update bower gulp -g
 gulp pack
 
 # Update application data
@@ -52,3 +55,7 @@ sudo supervisorctl restart zds
 sudo rm /etc/nginx/sites-enabled/zds-maintenance
 sudo ln -s /etc/nginx/sites-available/zestedesavoir /etc/nginx/sites-enabled/zestedesavoir
 sudo service nginx reload
+
+# Display current branch and commit
+git status
+echo "Commit deployé : `git rev-parse HEAD`"
