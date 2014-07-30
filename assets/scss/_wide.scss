@@ -477,6 +477,10 @@
     .full-content-wrapper {
         margin: 0 0 0 4%;
 
+        &.without-margin {
+            margin: 0;
+        }
+
         .content-wrapper {
             max-width: none;
             margin: 0;
