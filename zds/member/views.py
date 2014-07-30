@@ -278,6 +278,10 @@ def tutorials(request):
     profile = request.user.profile
     if type == "draft":
         user_tutorials = profile.get_draft_tutos()
+    elif type == "beta":
+        user_tutorials = profile.get_beta_tutos()
+    elif type == "validate":
+        user_tutorials = profile.get_validate_tutos()
     elif type == "public":
         user_tutorials = profile.get_public_tutos()
     else:
@@ -305,6 +309,8 @@ def articles(request):
     profile = request.user.profile
     if type == "draft":
         user_articles = profile.get_draft_articles()
+    if type == "validate":
+        user_articles = profile.get_validate_articles()
     elif type == "public":
         user_articles = profile.get_public_articles()
     else:
