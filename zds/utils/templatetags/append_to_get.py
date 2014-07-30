@@ -28,6 +28,9 @@ class AppendGetNode(template.Node):
     def render(self, context):
         get = context['request'].GET.copy()
         path = context['request'].META['PATH_INFO']
+
+        for key in self.dict_pairs:
+            get[key] = self.dict_pairs[key].resolve(context)
         
         if len(get):
             path += "?"
