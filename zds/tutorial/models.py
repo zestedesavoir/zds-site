@@ -191,8 +191,10 @@ class Tutorial(models.Model):
             'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public']
 
         #load functions and attributs in tree
-        for fn in fns: mandata[fn]=getattr(self,fn)()
-        for attr in attrs: mandata[attr]=getattr(self,attr)
+        for fn in fns: 
+            mandata[fn]=getattr(self,fn)()
+        for attr in attrs: 
+            mandata[attr]=getattr(self,attr)
 
         # general information
         mandata['slug'] = slugify(mandata['title'])
@@ -201,19 +203,19 @@ class Tutorial(models.Model):
             and self.sha_validation == sha
         mandata['on_line'] = self.on_line() and self.sha_public == sha
 
-        #url :
+        #url:
         mandata['get_absolute_url'] = reverse(
                 'zds.tutorial.views.view_tutorial',
                 args=[self.pk, mandata['slug']]
             )
 
-        if self.in_beta() :
+        if self.in_beta():
             mandata['get_absolute_url_beta'] = reverse(
                     'zds.tutorial.views.view_tutorial',
                     args=[self.pk, mandata['slug']]
                ) + '?version=' + self.sha_beta
 
-        else :
+        else:
             mandata['get_absolute_url_beta'] = reverse(
                     'zds.tutorial.views.view_tutorial',
                     args=[self.pk, mandata['slug']]
@@ -224,20 +226,17 @@ class Tutorial(models.Model):
                 args=[self.pk, mandata['slug']]
             )
 
-        return mandata
-
-    def load_introduction_and_conclusion(self, mandata, sha=None, public=False) :
+    def load_introduction_and_conclusion(self, mandata, sha=None, public=False):
         '''Explicitly load introduction and conclusion to avoid useless disk
-        access in load_dic()'''
+        access in load_dic()
+        '''
 
-        if not public :
-            mandata['get_introduction'] = self.get_introduction(sha)
-            mandata['get_conclusion'] = self.get_conclusion(sha)
-        else :
+        if public:
             mandata['get_introduction_online'] = self.get_introduction_online()
             mandata['get_conclusion_online'] = self.get_conclusion_online()
-
-        return mandata
+        else:
+            mandata['get_introduction'] = self.get_introduction(sha)
+            mandata['get_conclusion'] = self.get_conclusion(sha)
         
 
     def load_json_for_public(self, sha=None):
@@ -265,8 +264,6 @@ class Tutorial(models.Model):
             json_data.close()
 
             return data
-        else:
-            return None
 
     def dump_json(self, path=None):
         if path is None:
@@ -293,11 +290,9 @@ class Tutorial(models.Model):
 
         if path_tuto:
             return get_blob(repo.commit(sha).tree, path_tuto)
-        else:
-            return None
 
     def get_introduction_online(self):
-        if self.on_line() :
+        if self.on_line():
             intro = open(
                 os.path.join(
                     self.get_prod_path(),
@@ -308,9 +303,6 @@ class Tutorial(models.Model):
             intro.close()
 
             return intro_contenu.decode('utf-8')
-
-        else :
-            return None
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -325,11 +317,9 @@ class Tutorial(models.Model):
 
         if path_tuto:
             return get_blob(repo.commit(sha).tree, path_tuto)
-        else:
-            return None
 
     def get_conclusion_online(self):
-        if self.on_line() :
+        if self.on_line():
             conclu = open(
                 os.path.join(
                     self.get_prod_path(),
@@ -340,9 +330,6 @@ class Tutorial(models.Model):
             conclu.close()
 
             return conclu_contenu.decode('utf-8')
-
-        else :
-            return None
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

@@ -1016,6 +1016,8 @@ class BigTutorialTests(TestCase):
                 follow=False
         )
         self.assertEqual(302, response.status_code)
+        sha_beta = Tutorial.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
 
         #delete part 1
         result = self.client.post(
@@ -1069,7 +1071,7 @@ class BigTutorialTests(TestCase):
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_draft),
+                    p1.slug]) + '?version={}'.format(sha_beta),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -1082,7 +1084,7 @@ class BigTutorialTests(TestCase):
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_draft),
+                    c3.slug]) + '?version={}'.format(sha_beta),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -1200,7 +1202,7 @@ class BigTutorialTests(TestCase):
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_draft),
+                    p1.slug]) + '?version={}'.format(sha_beta),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -1213,7 +1215,7 @@ class BigTutorialTests(TestCase):
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_draft),
+                    c3.slug]) + '?version={}'.format(sha_beta),
             follow=True)
         self.assertEqual(result.status_code, 200)
 

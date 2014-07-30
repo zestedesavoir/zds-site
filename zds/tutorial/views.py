@@ -93,7 +93,7 @@ def index(request):
     tuto_versions = []
     for tutorial in tutorials:
         mandata = tutorial.load_json_for_public()
-        mandata = tutorial.load_dic(mandata)
+        tutorial.load_dic(mandata)
         tuto_versions.append(mandata)
     return render_template("tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
@@ -666,8 +666,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
-    mandata = tutorial.load_dic(mandata, sha)
-    mandata = tutorial.load_introduction_and_conclusion(mandata, sha)
+    tutorial.load_dic(mandata, sha)
+    tutorial.load_introduction_and_conclusion(mandata, sha)
     
     #print mandata
 
@@ -757,8 +757,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata, sha=tutorial.sha_public)
-    mandata = tutorial.load_introduction_and_conclusion(mandata, public=True)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
+    tutorial.load_introduction_and_conclusion(mandata, public=True)
     mandata["update"] = tutorial.update
     mandata["get_note_count"] = tutorial.get_note_count()
 
@@ -1171,7 +1171,7 @@ def view_part_online(
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata, sha=tutorial.sha_public)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
 
     mandata["get_parts"] = mandata["parts"]
@@ -1523,7 +1523,7 @@ def view_chapter_online(
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata, sha=tutorial.sha_public)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
 
     mandata['get_parts'] = mandata["parts"]
@@ -2102,7 +2102,7 @@ def find_tuto(request, pk_user):
         tuto_versions = []
         for tutorial in tutorials:
             mandata = tutorial.load_json_for_public(sha=tutorial.sha_beta)
-            mandata = tutorial.load_dic(mandata, sha=tutorial.sha_beta)
+            tutorial.load_dic(mandata, sha=tutorial.sha_beta)
             tuto_versions.append(mandata)
 
         return render_template("tutorial/member/beta.html",
@@ -2115,7 +2115,7 @@ def find_tuto(request, pk_user):
         tuto_versions = []
         for tutorial in tutorials:
             mandata = tutorial.load_json_for_public()
-            mandata = tutorial.load_dic(mandata)
+            tutorial.load_dic(mandata)
             tuto_versions.append(mandata)
 
         return render_template("tutorial/member/online.html", {"tutorials": tuto_versions,
