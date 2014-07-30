@@ -183,6 +183,8 @@ class Tutorial(models.Model):
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata, sha=None):
+        '''fill mandata with informations form database model'''
+
         fns = ['is_big', 'is_mini', 'have_markdown','have_html','have_pdf',
             'have_epub', 'get_path']
         attrs = ['pk','authors','subcategory','image','pubdate', 'update',
@@ -225,8 +227,10 @@ class Tutorial(models.Model):
         return mandata
 
     def load_introduction_and_conclusion(self, mandata, sha=None, public=False) :
+        '''Explicitly load introduction and conclusion to avoid useless disk
+        access in load_dic()'''
 
-        if not public:
+        if not public :
             mandata['get_introduction'] = self.get_introduction(sha)
             mandata['get_conclusion'] = self.get_conclusion(sha)
         else :
