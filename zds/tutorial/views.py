@@ -567,7 +567,7 @@ def modify_tutorial(request):
             ug = UserGallery()
             ug.user = author
             ug.gallery = tutorial.gallery
-            ug.mode = "W"
+            ug.mode = "O"
             ug.save()
             messages.success(request,
                              u'L\'auteur {0} a bien été ajouté à la rédaction '
@@ -914,7 +914,7 @@ def add_tutorial(request):
 
             userg = UserGallery()
             userg.gallery = gal
-            userg.mode = "W"  # write mode
+            userg.mode = "O"  # owner mode
             userg.user = request.user
             userg.save()
             tutorial.gallery = gal
@@ -2196,7 +2196,7 @@ def import_content(
 
         userg = UserGallery()
         userg.gallery = gal
-        userg.mode = "W"  # write mode
+        userg.mode = "O"  # owner mode
         userg.user = request.user
         userg.save()
         tutorial.gallery = gal
@@ -2352,7 +2352,7 @@ def import_content(
 
         userg = UserGallery()
         userg.gallery = gal
-        userg.mode = "W"  # write mode
+        userg.mode = "O"  # owner mode
         userg.user = request.user
         userg.save()
         tutorial.gallery = gal

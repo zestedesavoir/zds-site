@@ -35,12 +35,21 @@ class UserGalleryTest(TestCase):
 
         self.assertTrue(self.user_gallery.is_write())
         self.assertFalse(self.user_gallery.is_read())
+        self.assertFalse(self.user_gallery.is_owner())
 
     def test_is_read(self):
         self.user_gallery.mode = 'R'
 
         self.assertFalse(self.user_gallery.is_write())
         self.assertTrue(self.user_gallery.is_read())
+        self.assertFalse(self.user_gallery.is_owner())
+        
+    def test_is_owner(self):
+        self.user_gallery.mode = 'O'
+
+        self.assertFalse(self.user_gallery.is_write())
+        self.assertFalse(self.user_gallery.is_read())
+        self.assertTrue(self.user_gallery.is_owner())
 
     def test_get_images(self):
         self.assertEqual(2, len(self.user_gallery.get_images()))

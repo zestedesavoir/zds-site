@@ -73,7 +73,7 @@ def new_gallery(request):
 
             userg = UserGallery()
             userg.gallery = gal
-            userg.mode = "W"
+            userg.mode = "O"
             userg.user = request.user
             userg.save()
             return redirect(gal.get_absolute_url())
@@ -105,9 +105,9 @@ def modify_gallery(request):
                 free_galleries.append(g_pk)
         
         perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
-                                           user=request.user, mode="W").count()
+                                           user=request.user, mode='O').count()
 
-        # Check that the user has the RW right on each gallery
+        # Check that the user has the owner right on each gallery
 
         if perms < len(free_galleries):
             raise PermissionDenied
@@ -124,49 +124,63 @@ def modify_gallery(request):
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
         return redirect(reverse("zds.gallery.views.gallery_list"))
-    elif "adduser" in request.POST:
+    return redirect(gallery.get_absolute_url())
 
-        # Gallery-specific actions
+@login_required
+@can_write_and_read_now
+def manage_user(request):
+  
+    # Gallery user management
 
-        try:
-            gal_pk = request.POST["gallery"]
-        except KeyError:
-            raise Http404
-        gallery = get_object_or_404(Gallery, pk=gal_pk)
+    try:
+        gal_pk = request.POST["gallery"]
+    except KeyError:
+        raise Http404
+    gallery = get_object_or_404(Gallery, pk=gal_pk)
 
-        # Disallow actions to read-only members
-
-        try:
-            gal_mode = UserGallery.objects.get(gallery=gallery,
-                                               user=request.user)
-            if gal_mode.mode != "W":
-                raise PermissionDenied
-        except:
+    # only owner can manage users
+    # others users get a 403 befor doing anything
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gallery, user=request.user)
+        if gal_mode.mode != 'O':
             raise PermissionDenied
-        form = UserGalleryForm(request.POST)
-        if form.is_valid():
-            user = get_object_or_404(User, username=request.POST["user"])
+    except:
+        raise PermissionDenied
 
-            # If a user is already in a user gallery, we don't add him.
+    form = UserGalleryForm(request.POST)
+    if form.is_valid():
 
-            galleries = UserGallery.objects.filter(gallery=gallery,
-                                                   user=user).all()
-            if galleries.count() > 0:
-                return redirect(gallery.get_absolute_url())
+        action = request.POST["action"]
+        user = get_object_or_404(User, username=request.POST["user"])
+
+        gallery_mode = UserGallery.objects.filter(gallery=gallery,user=user)
+
+        if len(gallery_mode) > 0:
+            if action == "remove":
+                # remove user from gallery
+                if request.user == user:
+                    messages.error(request, "Vous ne pouvez pas vous supprimer de la galerie.\
+                        Si vous souhaitez quitter cette dernière, vous pouvez supprimer \
+                        la galerie ou bien élever un utilisateur au rang de propriétaire qui\
+                        vous supprimera à son tour.")
+                else:
+                    gallery_mode[0].delete()
+                    messages.success(request, "L'utilisateur a bien été supprimé de la galerie.")
+            else:
+                # change mode
+                gallery_mode[0].mode = action
+                gallery_mode[0].save()
+        else:
+            # user not registered for this gallery, so we add him
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
-            ug.mode = request.POST["mode"]
+            ug.mode = request.POST["action"]
             ug.save()
-        else:
-            return render_template("gallery/gallery/details.html", {
-                "gallery": gallery,
-                "gallery_mode": gal_mode,
-                "images": gallery.get_images(),
-                "form": form,
-            })
-    return redirect(gallery.get_absolute_url())
+    else:
+        messages.error(request, "La galerie n'a pas été mise à jour!")
 
+    return redirect(gallery.get_absolute_url())
 
 @login_required
 @can_write_and_read_now
@@ -179,7 +193,7 @@ def edit_image(request, gal_pk, img_pk):
     # Check if user can edit image
     try:
         permission = UserGallery.objects.get(user=request.user, gallery=gal)
-        if permission.mode != 'W':
+        if permission.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -244,7 +258,8 @@ def delete_image(request):
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
 
         # Only allow RW users to modify images
-        if gal_mode.mode != "W":
+
+        if gal_mode.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -270,7 +285,7 @@ def new_image(request, gal_pk):
     # check if the user can upload new image in this gallery
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        if gal_mode.mode not in ['W', 'O']:
             raise PermissionDenied
     except:
         raise PermissionDenied

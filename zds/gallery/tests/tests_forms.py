@@ -48,7 +48,7 @@ class UserGalleryFormTest(TestCase):
     def test_valid_user_gallery_form(self):
         data = {
             'user': self.profile,
-            'mode': 'R'
+            'action': 'R'
         }
         form = UserGalleryForm(data=data)
 
@@ -57,7 +57,7 @@ class UserGalleryFormTest(TestCase):
     def test_invalid_user_gallery_form_noexist_user(self):
         data = {
             'user': 'hello',
-            'mode': 'W'
+            'action': 'W'
         }
         form = UserGalleryForm(data=data)
 

@@ -68,11 +68,13 @@ class UserGalleryForm(forms.Form):
         )
     )
 
-    mode = forms.ChoiceField(
+    action = forms.ChoiceField(
         label='',
         choices=(
             ('R', "En mode lecture"),
             ('W', "En mode écriture"),
+            ('O', "En mode propriétaire"),
+            ('remove', "Supprimer"),
         ),
         required=True,
         widget=forms.RadioSelect,
@@ -82,15 +84,15 @@ class UserGalleryForm(forms.Form):
         super(UserGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
-        self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
+        self.helper.form_action = reverse('zds.gallery.views.manage_user')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('user', autocomplete='off'),
-            Field('mode'),
+            Field('action'),
             Hidden('gallery', '{{ gallery.pk }}'),
             Hidden('adduser', 'True'),
-            StrictButton('Ajouter', type='submit'),
+            StrictButton('Valider', type='submit'),
         )
 
     def clean(self):

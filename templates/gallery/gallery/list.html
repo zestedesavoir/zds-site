@@ -28,7 +28,7 @@
                     <input
                         name="items"
                         type="checkbox"
-                        {% if not gallery.is_write %}
+                        {% if not gallery.is_owner %}
                             disabled="true"
                         {% endif %}
                         value="{{ gallery.gallery.pk }}"
