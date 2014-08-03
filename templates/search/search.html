@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load date %}
 {% load emarkdown %}
-{% load htmltotext %}
 {% load model_name %}
 {% load highlight %}
 
@@ -70,37 +69,37 @@
                                         <div class="topic-title">
                                             {% highlight result.object.title with query html_tag "mark" %}
                                         </div>
-                                {% elif result.object.get_introduction_online %}
-                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                        <div class="topic-title">
-                                            {% highlight result.object.title with query html_tag "mark" %}
-                                        </div>
                                 {% elif result.object.get_text_online %}
                                     <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
                                         <div class="topic-title">
                                             {% highlight result.object.title with query html_tag "mark" %}
                                         </div>
-                                {% else %}
+                                {% elif result.object.topic %}
                                     <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
                                         <div class="topic-title">
                                             {% highlight result.object.topic.title with query html_tag "mark" %}
                                         </div>
+                                {% else %}
+                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                        <div class="topic-title">
+                                            {% highlight result.object.title with query html_tag "mark" %}
+                                        </div>
                                 {% endif %}
                                         <div class="topic-subtitle">
                                             {% if result.object.first_post %}
-                                                {% with text=result.object.first_post.text|emarkdown|htmltotext|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% elif result.object.get_introduction_online %}
-                                                {% with text=result.object.get_introduction_online|htmltotext|safe %}
+                                                {% with text=result.object.first_post.text|emarkdown|striptags|safe %}
                                                     {% highlight text with query html_tag "mark" %}
                                                 {% endwith %}
                                             {% elif result.object.get_text_online %}
-                                                {% with text=result.object.get_text_online|htmltotext|safe %}
+                                                {% with text=result.object.get_text_online|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% elif result.object.topic %}
+                                                {% with text=result.object.text|emarkdown|striptags|safe %}
                                                     {% highlight text with query html_tag "mark" %}
                                                 {% endwith %}
                                             {% else %}
-                                                {% with text=result.object.text|emarkdown|htmltotext|safe %}
+                                                {% with text=result.object.get_introduction_online|striptags|safe %}
                                                     {% highlight text with query html_tag "mark" %}
                                                 {% endwith %}
                                             {% endif %}
