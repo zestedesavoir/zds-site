@@ -164,7 +164,7 @@ class RegisterForm(forms.Form):
                 msg = u'Ce nom d\'utilisateur est déjà utilisé'
                 self._errors['username'] = self.error_class([msg])
             # Forbid the use of comma in the username
-            elif username is not None and "," in username:
+            elif "," in username:
                 msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
                 self._errors['username'] = self.error_class([msg])
             elif username != username.strip():
@@ -372,6 +372,10 @@ class ChangeUserForm(forms.Form):
                         [u'Ce nom d\'utilisateur est déjà utilisé'])
                 elif username_new != username_new.strip():
                     msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
+                    self._errors['username_new'] = self.error_class([msg])
+                # Forbid the use of comma in the username
+                elif "," in username_new:
+                    msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
                     self._errors['username_new'] = self.error_class([msg])
 
         if email_new is not None:

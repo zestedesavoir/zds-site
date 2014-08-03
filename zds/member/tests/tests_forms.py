@@ -182,6 +182,17 @@ class RegisterFormTest(TestCase):
         }
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
+    
+    def test_pseudo_coma_register_form(self):
+        testuser = ProfileFactory()
+        data = {
+            'email': 'test@gmail.com',
+            'username': 'Ze,Tester',
+            'password': 'ZePassword',
+            'password_confirm': 'ZePassword'
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
 
 
 class MiniProfileFormTest(TestCase):
@@ -326,6 +337,15 @@ class ChangeUserFormTest(TestCase):
         testuser = ProfileFactory()
         data = {
             'username_new': '  ZeTester  ',
+            'email_new': ''
+        }
+        form = ChangeUserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_pseudo_coma_register_form(self):
+        testuser = ProfileFactory()
+        data = {
+            'username_new': 'Ze,Tester',
             'email_new': ''
         }
         form = ChangeUserForm(data=data)
