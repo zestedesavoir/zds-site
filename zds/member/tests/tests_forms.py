@@ -171,6 +171,17 @@ class RegisterFormTest(TestCase):
         }
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
+    
+    def test_pseudo_espaces_register_form(self):
+        testuser = ProfileFactory()
+        data = {
+            'email': 'test@gmail.com',
+            'username': '  ZeTester  ',
+            'password': 'ZePassword',
+            'password_confirm': 'ZePassword'
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
 
 
 class MiniProfileFormTest(TestCase):
@@ -311,6 +322,14 @@ class ChangeUserFormTest(TestCase):
         form = ChangeUserForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_pseudo_espaces_register_form(self):
+        testuser = ProfileFactory()
+        data = {
+            'username_new': '  ZeTester  ',
+            'email_new': ''
+        }
+        form = ChangeUserForm(data=data)
+        self.assertFalse(form.is_valid())
 
 class ChangePasswordFormTest(TestCase):
     """ Check the form to change the password """
