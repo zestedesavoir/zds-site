@@ -38,7 +38,7 @@ from git import *
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
-    ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
+    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -53,7 +53,7 @@ from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
+from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 
 def render_chapter_form(chapter):
@@ -2405,31 +2405,46 @@ def local_import(request):
 @login_required
 def import_tuto(request):
     if request.method == "POST":
-        form = ImportForm(request.POST, request.FILES)
-
-        # check extension
-
-        if "file" in request.FILES:
-            filename = str(request.FILES["file"])
-            ext = filename.split(".")[-1]
-            if ext == "tuto":
-                import_content(request, request.FILES["file"],
-                               request.FILES["images"], "")
+        # for import tuto
+        if "import-tuto" in request.POST:
+            form = ImportForm(request.POST, request.FILES)
+            form_archive = ImportArchiveForm(user=request.user)
+            if "file" in request.FILES:
+                filename = str(request.FILES["file"])
+                ext = filename.split(".")[-1]
+                if ext == "tuto":
+                    import_content(request, request.FILES["file"],
+                                   request.FILES["images"], "")
+                else:
+                    raise Http404
+            return redirect(reverse("zds.member.views.tutorials"))
+        elif "import-archive" in request.POST:
+            form = ImportForm()
+            form_archive = ImportArchiveForm(request.user, request.POST, request.FILES)
+            (check, reason) = import_archive(request)
+            if not check:
+                messages.error(request, reason)
             else:
-                raise Http404
-        return redirect(reverse("zds.member.views.tutorials"))
+                messages.success(request, reason)
+                return redirect(reverse("zds.member.views.tutorials"))
+        
+        
     else:
         form = ImportForm()
-        profile = get_object_or_404(Profile, user=request.user)
-        oldtutos = []
-        if profile.sdz_tutorial:
-            olds = profile.sdz_tutorial.strip().split(":")
-        else:
-            olds = []
-        for old in olds:
-            oldtutos.append(get_info_old_tuto(old))
+        form_archive = ImportArchiveForm(user=request.user)
+    
+    profile = get_object_or_404(Profile, user=request.user)
+    oldtutos = []
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(":")
+    else:
+        olds = []
+    for old in olds:
+        oldtutos.append(get_info_old_tuto(old))
     return render_template(
-        "tutorial/tutorial/import.html", {"form": form, "old_tutos": oldtutos})
+        "tutorial/tutorial/import.html", {"form": form,
+                                          "form_archive":form_archive,
+                                          "old_tutos": oldtutos})
 
 
 # Handling repo

@@ -6,8 +6,11 @@ import os
 from django.template import Context
 from django.template.loader import get_template
 from git import *
+import tarfile
 
 from zds.utils import slugify
+from zds.utils.models import Licence
+
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -289,4 +292,136 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # we can do it now
     setattr(obj, position_f, new_pos)
 
+def check_json(data, tutorial):
+    from zds.tutorial.models import Tutorial, Part, Chapter, Extract
+    if "title" not in data:
+        return (False, u"Le tutoriel que vous souhaitez importer manque de titre")
+    if "type" not in data:
+        return (False, u"Les métadonnées du tutoriel à importer ne nous permettent pas de connaître son type")
+    elif tutorial.is_mini():
+        if data["type"] == "BIG":
+            return (False, u"Vous essayez d'importer un big tutoriel dans un mini tutoriel")
+        elif "chapter" not in data:
+            return (False, u"La structure de vos métadonnées est incohérente")
+        elif "extracts" not in data["chapter"]:
+            return (False, u"La structure de vos extraits est incohérente")
+        else:
+            for extract in data["chapter"]["extracts"]:
+                if "pk" not in extract or "title" not in extract or "text" not in extract:
+                    return (False, u"Un de vos extraits est mal renseigné")
+                elif not Extract.objects.filter(pk=extract["pk"]).exists():
+                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
+                elif not Extract.objects.filter(pk=extract["pk"], chapter__tutorial__pk=tutorial.pk).exists():
+                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} »".format(extract["title"]))
+    elif tutorial.is_big():
+        if data["type"] == "MINI":
+            return (False, u"Vous essayez d'importer un mini tutoriel dans un big tutoriel")
+        elif "parts" not in data:
+            return (False, u"La structure de vos métadonnées est incohérente")
+        else:
+            for part in data["parts"]:
+                if "pk" not in part or "title" not in part:
+                    return (False, u"La structure de vos parties est incohérente")
+                elif not Part.objects.filter(pk=part["pk"]).exists():
+                    return (False, u"La partie « {} » n'existe pas dans notre base".format(part["title"]))
+                elif not Part.objects.filter(pk=part["pk"], tutorial__pk=tutorial.pk).exists():
+                    return (False, u"La partie « {} » n'est pas dans le tutoriel à modifier ".format(part["title"]))
+                if "chapters" in part:
+                    for chapter in part["chapters"]:
+                        if "pk" not in chapter or "title" not in chapter:
+                            return (False, u"La structure de vos chapitres est incohérente")
+                        elif not Chapter.objects.filter(pk=chapter["pk"]).exists():
+                            return (False, u"Le chapitre « {} » n'existe pas dans notre base".format(chapter["title"]))
+                        elif not Chapter.objects.filter(pk=chapter["pk"], part__tutorial__pk=tutorial.pk).exists():
+                            return (False, u"Le chapitre « {} » n'est pas dans le tutoriel a modifier".format(chapter["title"]))
+                        elif "extracts" in chapter:
+                            for extract in chapter["extracts"]:
+                                if "pk" not in extract or "title" not in extract or "text" not in extract:
+                                    return (False, u"Un de vos extraits est mal renseigné")
+                                elif not Extract.objects.filter(pk=extract["pk"]).exists():
+                                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
+                                elif not Extract.objects.filter(pk=extract["pk"], chapter__part__tutorial__pk=tutorial.pk).exists():
+                                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(extract["title"]))
+    return (True, None)
 
+def import_archive(request):
+    from django.core.files import File
+    from zds.tutorial.models import Tutorial
+    import zipfile
+    import shutil
+    import os
+    try:
+        import ujson as json_reader
+    except:
+        try:
+            import simplejson as json_reader
+        except:
+            import json as json_reader
+    
+    archive = request.FILES["file"]
+    tutorial = Tutorial.objects.get(pk=request.POST["tutorial"])
+    ext = str(archive).split(".")[-1]
+    if ext=="zip":
+        zfile = zipfile.ZipFile(archive, "a")
+        for i in zfile.namelist():
+            ph = i[i.index(os.sep)+1:]
+            if ph=="manifest.json":
+                json_data = zfile.read(i)
+                mandata = json_reader.loads(json_data)
+                (check, reason) = check_json(mandata, tutorial)
+                if not check:
+                    return (check, reason)
+                tutorial.title = mandata['title']
+                if "description" in mandata:
+                    tutorial.description = mandata['description']
+                if "introduction" in mandata:
+                    tutorial.introduction = mandata['introduction']
+                if "conclusion" in mandata:
+                    tutorial.conclusion = mandata['conclusion']
+                if "licence" in mandata:
+                    tutorial.licence = Licence.objects.filter(code=json["licence"]).all()[0]
+                old_path = tutorial.get_path()
+                tutorial.save()
+                new_path = tutorial.get_path()
+                shutil.move(old_path, new_path)
+        
+                break
+        #delete old file
+        for filename in os.listdir(tutorial.get_path()) :
+            if not filename.startswith('.'):
+                mf = os.path.join(tutorial.get_path(), filename)
+                if os.path.isfile(mf):
+                    os.remove(mf)
+                elif os.path.isdir(mf):
+                    shutil.rmtree(mf) 
+        #copy new file
+        for i in zfile.namelist():
+            ph = i[i.index(os.sep)+1:]
+            if ph!="":
+                ph_dest = os.path.join(tutorial.get_path(), ph)
+                try:
+                    data = zfile.read(i)
+                    fp = open(ph_dest, "wb")
+                    fp.write(data)
+                    fp.close()
+                except IOError:
+                    try:
+                        os.makedirs(ph_dest)
+                    except:
+                        pass
+        zfile.close()
+        # save in git
+        repo = Repo(tutorial.get_path())
+        index = repo.index
+        index.add(["."])
+        msg = "Import du tutoriel"
+        
+        aut_user = str(request.user.pk)
+        aut_email = str(request.user.email)
+        if aut_email is None or aut_email.strip() == "": aut_email = "inconnu@zestedesavoir.com"
+        com = index.commit( msg.encode("utf-8"),
+                            author=Actor(aut_user, aut_email),
+                            committer=Actor(aut_user, aut_email))
+        tutorial.sha_draft = com.hexsha
+        tutorial.save()
+    return (True, u"Le tutoriel {} a été importé avec succès".format(tutorial.title))

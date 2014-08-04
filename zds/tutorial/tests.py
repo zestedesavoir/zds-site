@@ -474,7 +474,7 @@ class BigTutorialTests(TestCase):
                           self.chapter2_1.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
-    
+
     def test_workflow_tuto(self):
         """Test workflow of tutorial."""
         
