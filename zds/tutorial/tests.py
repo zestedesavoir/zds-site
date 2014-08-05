@@ -399,7 +399,8 @@ class BigTutorialTests(TestCase):
                         'tuto',
                         'temps-reel-avec-irrlicht',
                         'images.zip'),
-                    'r')},
+                    'r'),
+                'import-tuto': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -2139,7 +2140,8 @@ class MiniTutorialTests(TestCase):
                         'tuto',
                         'temps-reel-avec-irrlicht',
                         'images.zip'),
-                    'r')},
+                    'r'),
+                'import-tuto': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
