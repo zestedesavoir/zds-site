@@ -2121,7 +2121,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(Note.objects.get(pk=note3.pk).dislike, 0)
 
     def test_import_tuto(self):
-        """Test import of big tuto."""
+        """Test import of mini tuto."""
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
             {
@@ -2130,15 +2130,15 @@ class MiniTutorialTests(TestCase):
                         settings.SITE_ROOT,
                         'fixtures',
                         'tuto',
-                        'temps-reel-avec-irrlicht',
-                        'temps-reel-avec-irrlicht.tuto'),
+                        'securisez-vos-mots-de-passe-avec-lastpass',
+                        'securisez-vos-mots-de-passe-avec-lastpass.tuto'),
                     'r'),
                 'images': open(
                     os.path.join(
                         settings.SITE_ROOT,
                         'fixtures',
                         'tuto',
-                        'temps-reel-avec-irrlicht',
+                        'securisez-vos-mots-de-passe-avec-lastpass',
                         'images.zip'),
                     'r'),
                 'import-tuto': "importer"},
