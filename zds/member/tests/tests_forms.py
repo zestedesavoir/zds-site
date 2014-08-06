@@ -416,6 +416,7 @@ class ChangePasswordFormTest(TestCase):
         self.assertFalse(form.is_valid())
     
     def test_match_pseudo_change_password_form(self):
+        self.user1.user.username = "LongName"
         data = {
             'password_old': self.oldpassword,
             'password_new': self.user1.user.username,
