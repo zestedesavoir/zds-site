@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group, Permission, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
@@ -26,19 +26,18 @@ import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm
+    OldTutoForm, PromoteMemberForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic
+from zds.forum.models import Topic, follow
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
-
 
 
 def index(request):
@@ -882,3 +881,64 @@ def remove_oldtuto(request):
                      u'au membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
+
+
+@login_required
+def settings_promote(request, user_pk):
+    """ Manage the admin right of user. Only super user can access """
+
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    user = profile.user
+    
+    if request.method == "POST":
+        form = PromoteMemberForm(request.POST)
+        data = dict(form.data.iterlists())
+        
+        groups = Group.objects.all()
+        staff_group = Group.objects.get(id=settings.STAFFGROUPID)
+        if 'groups' in data:
+            for group in groups:
+                if unicode(group.id) in data['groups']:
+                    user.groups.add(group)
+                    messages.success(request, u'{0} est maintenant {1}'.format(user.username, group.name))
+                else:
+                    user.groups.remove(group)
+                    messages.warning(request, u'{0} n\'est maintenant plus {1}'.format(user.username, group.name))
+            if u'settings.STAFFGROUPID' not in data['groups']:
+                topics_staff = Topic.objects.filter(topicfollowed__user=user, forum__group=staff_group)
+                for topic in topics_staff:
+                    follow(topic, user)
+        else:
+            for group in groups:
+                user.groups.remove(group)
+                messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'.format(user.username))
+            topics_staff = Topic.objects.filter(topicfollowed__user=user, forum__group=staff_group)
+            for topic in topics_staff:
+                follow(topic, user)
+        
+        if 'superuser' in data and data['superuser'] == "on":
+            user.is_superuser = True
+            messages.success(request, u'{0} est maintenant super-utilisateur'.format(user.username))
+        else:
+            if user == request.user:
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+            else:
+                user.is_superuser = False
+                messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'.format(user.username))
+
+        user.save()
+        
+        return redirect(profile.get_absolute_url())
+
+    form = PromoteMemberForm(initial={'superuser': user.is_superuser,
+                                      'groups': user.groups.all()
+                                     })
+    
+    return render_template('member/settings/promote.html', {
+        "usr": user,
+        "profile": profile,
+        "form": form
+        })
