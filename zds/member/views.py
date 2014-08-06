@@ -896,40 +896,76 @@ def settings_promote(request, user_pk):
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
         data = dict(form.data.iterlists())
-        print data
+
         groups = Group.objects.all()
-        staff_group = Group.objects.get(id=settings.STAFFGROUPID)
+        usergroups = user.groups.all()
+        
         if 'groups' in data:
             for group in groups:
                 if unicode(group.id) in data['groups']:
-                    user.groups.add(group)
-                    messages.success(request, u'{0} est maintenant {1}'.format(user.username, group.name))
+                    if group not in usergroups:
+                        user.groups.add(group)
+                        messages.success(request, u'{0} appartient maintenant au groupe {1}'
+                                                    .format(user.username, group.name))
                 else:
-                    user.groups.remove(group)
-                    messages.warning(request, u'{0} n\'est maintenant plus {1}'.format(user.username, group.name))
-            if u'settings.STAFFGROUPID' not in data['groups']:
-                topics_staff = Topic.objects.filter(topicfollowed__user=user, forum__group=staff_group)
-                for topic in topics_staff:
-                    follow(topic, user)
+                    if group in usergroups:
+                        user.groups.remove(group)
+                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
+                                                    .format(user.username, group.name))
+                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                               forum__group=group)
+                        for topic in topics_followed:
+                            follow(topic, user)
         else:
-            for group in groups:
-                user.groups.remove(group)
-                messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'.format(user.username))
-            topics_staff = Topic.objects.filter(topicfollowed__user=user, forum__group=staff_group)
-            for topic in topics_staff:
-                follow(topic, user)
+            for group in usergroups:
+                topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                       forum__group=group)
+                for topic in topics_followed:
+                    follow(topic, user)
+            user.groups.clear()
+            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
+                                        .format(user.username))
         
         if 'superuser' in data and u'on' in data['superuser']:
-            user.is_superuser = True
-            messages.success(request, u'{0} est maintenant super-utilisateur'.format(user.username))
+            if not user.is_superuser:
+                user.is_superuser = True
+                messages.success(request, u'{0} est maintenant super-utilisateur'
+                                            .format(user.username))
         else:
             if user == request.user:
                 messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
             else:
-                user.is_superuser = False
-                messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'.format(user.username))
+                if user.is_superuser:
+                    user.is_superuser = False
+                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
+                                                .format(user.username))
 
         user.save()
+        
+        usergroups = user.groups.all()
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = (u'Bonjour {0},\n\n'
+               u'Un administrateur vient de modifier les groupes '
+               u'auxquels vous appartenez.  \n'.format(user.username))
+        if len(usergroups) > 0:
+            msg += u'Voici la liste des groupes dont vous faites dorénavant partis :\n\n'
+            for group in usergroups:
+                msg += u'* {0}\n'.format(group.name)
+        else:
+            msg += u'* Vous ne faites partis d\'aucun groupe'
+        msg += u'\n\n'
+        if user.is_superuser:
+            msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                    u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+        send_mp(
+            bot,
+            [user],
+            u'Modification des groupes',
+            u'',
+            msg,
+            True,
+            True,
+        )
         
         return redirect(profile.get_absolute_url())
 
