@@ -896,7 +896,7 @@ def settings_promote(request, user_pk):
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
         data = dict(form.data.iterlists())
-        
+        print data
         groups = Group.objects.all()
         staff_group = Group.objects.get(id=settings.STAFFGROUPID)
         if 'groups' in data:
@@ -919,7 +919,7 @@ def settings_promote(request, user_pk):
             for topic in topics_staff:
                 follow(topic, user)
         
-        if 'superuser' in data and data['superuser'] == "on":
+        if 'superuser' in data and u'on' in data['superuser']:
             user.is_superuser = True
             messages.success(request, u'{0} est maintenant super-utilisateur'.format(user.username))
         else:
