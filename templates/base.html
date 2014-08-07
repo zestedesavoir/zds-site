@@ -489,7 +489,7 @@
                         {% captureas schema %}
                             {% block schema %}{% endblock %}
                         {% endcaptureas %}
-                        <section class="content-wrapper" {{ schema }}>
+                        <section class="content-wrapper" {{ schema|safe }}>
                             <h1 {% if schema %}itemprop="name"{% endif %}>
                                 {% block headline %}{% endblock %}
                             </h1>
