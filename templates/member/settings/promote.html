@@ -1,0 +1,33 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+   Pseudo et e-mail
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
+    <li>Gestion des groupes</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Gestion des groupes
+{% endblock %}
+
+
+
+{% block content %}
+    {% if perms.member.super_user %}
+        {% crispy form %}
+    {% else %}
+        <p>
+            Vous n'avez pas les droits suffisants pour régler ces paramètres.
+        </p>
+    {% endif %}
+{% endblock %}

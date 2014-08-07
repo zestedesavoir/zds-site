@@ -4,7 +4,7 @@ import os
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 
 from email.utils import parseaddr
@@ -573,3 +573,28 @@ class NewPasswordForm(forms.Form):
                 del cleaned_data['password_confirm']
 
         return cleaned_data
+
+
+class PromoteMemberForm(forms.Form):
+    groups = forms.ModelMultipleChoiceField(
+        label="Groupe de l'utilisateur",
+        queryset=Group.objects.all(),
+        required=False,
+    )
+    
+    superuser = forms.BooleanField(
+        label="Super-user",
+        required=False,    
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(PromoteMemberForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('groups'),
+            Field('superuser'),
+            StrictButton('Valider', type='submit'),
+        )

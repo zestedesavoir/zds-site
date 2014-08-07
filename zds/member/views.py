@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group, Permission, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
@@ -26,19 +26,18 @@ import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm
+    OldTutoForm, PromoteMemberForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic
+from zds.forum.models import Topic, follow
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
-
 
 
 def index(request):
@@ -882,3 +881,100 @@ def remove_oldtuto(request):
                      u'au membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
+
+
+@login_required
+def settings_promote(request, user_pk):
+    """ Manage the admin right of user. Only super user can access """
+
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    user = profile.user
+    
+    if request.method == "POST":
+        form = PromoteMemberForm(request.POST)
+        data = dict(form.data.iterlists())
+
+        groups = Group.objects.all()
+        usergroups = user.groups.all()
+        
+        if 'groups' in data:
+            for group in groups:
+                if unicode(group.id) in data['groups']:
+                    if group not in usergroups:
+                        user.groups.add(group)
+                        messages.success(request, u'{0} appartient maintenant au groupe {1}'
+                                                    .format(user.username, group.name))
+                else:
+                    if group in usergroups:
+                        user.groups.remove(group)
+                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
+                                                    .format(user.username, group.name))
+                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                               forum__group=group)
+                        for topic in topics_followed:
+                            follow(topic, user)
+        else:
+            for group in usergroups:
+                topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                       forum__group=group)
+                for topic in topics_followed:
+                    follow(topic, user)
+            user.groups.clear()
+            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
+                                        .format(user.username))
+        
+        if 'superuser' in data and u'on' in data['superuser']:
+            if not user.is_superuser:
+                user.is_superuser = True
+                messages.success(request, u'{0} est maintenant super-utilisateur'
+                                            .format(user.username))
+        else:
+            if user == request.user:
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+            else:
+                if user.is_superuser:
+                    user.is_superuser = False
+                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
+                                                .format(user.username))
+
+        user.save()
+        
+        usergroups = user.groups.all()
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = (u'Bonjour {0},\n\n'
+               u'Un administrateur vient de modifier les groupes '
+               u'auxquels vous appartenez.  \n'.format(user.username))
+        if len(usergroups) > 0:
+            msg += u'Voici la liste des groupes dont vous faites dorénavant partis :\n\n'
+            for group in usergroups:
+                msg += u'* {0}\n'.format(group.name)
+        else:
+            msg += u'* Vous ne faites partis d\'aucun groupe'
+        msg += u'\n\n'
+        if user.is_superuser:
+            msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                    u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+        send_mp(
+            bot,
+            [user],
+            u'Modification des groupes',
+            u'',
+            msg,
+            True,
+            True,
+        )
+        
+        return redirect(profile.get_absolute_url())
+
+    form = PromoteMemberForm(initial={'superuser': user.is_superuser,
+                                      'groups': user.groups.all()
+                                     })
+    
+    return render_template('member/settings/promote.html', {
+        "usr": user,
+        "profile": profile,
+        "form": form
+        })
