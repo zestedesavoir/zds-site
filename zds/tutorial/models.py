@@ -193,7 +193,7 @@ class Tutorial(models.Model):
 
         #load functions and attributs in tree
         for fn in fns: 
-            mandata[fn]=getattr(self,fn)()
+            mandata[fn]=getattr(self,fn)
         for attr in attrs: 
             mandata[attr]=getattr(self,attr)
 
