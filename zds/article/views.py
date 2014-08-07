@@ -288,6 +288,25 @@ def edit(request):
 
     json = article.load_json()
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            form = ArticleForm(initial={
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory'), 
+                'licence': request.POST['licence']
+            })
+            return render_template('article/member/edit.html', {
+                'article': article,
+                'text': request.POST['text'],
+                'form': form
+            })
+
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             # Update article with data.
