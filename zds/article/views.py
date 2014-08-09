@@ -291,15 +291,18 @@ def edit(request):
         # Using the "preview button"
         if 'preview' in request.POST:
             image = None
+            licence = None
             if 'image' in request.FILES:
                 image = request.FILES['image']
+            if 'licence' in request.POST:
+                licence = request.POST['licence']
             form = ArticleForm(initial={
                 'title': request.POST['title'],
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
                 'subcategory': request.POST.getlist('subcategory'), 
-                'licence': request.POST['licence']
+                'licence': licence
             })
             return render_template('article/member/edit.html', {
                 'article': article,
