@@ -3,8 +3,6 @@
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
-Les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez.
-
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
 Assurez vous que les dépendances suivantes soient résolues :
@@ -15,10 +13,34 @@ Assurez vous que les dépendances suivantes soient résolues :
 - pip : `easy_install pip`
 - libxml2-dev : `apt-get install libxml2-dev`
 - python-lxml : `apt-get install python-lxml`
-- libxslt-dev (peut être appelée libxslt1-dev sur certains OS comme ubuntu
+- libxslt-dev (peut être appelée libxslt1-dev sur certaines distributions comme Ubuntu)
 - libz-dev (peut être libz1g-dev sur système 64bits)
-- python-sqlparse
+- python-sqlparse : `apt-get install python-sqlparse`
 - libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : `apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev`
+
+Ou, en une ligne,
+
+```console
+apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+easy_install pip
+```
+
+## Instalation et configuration de `virtualenv`
+
+(cette étape n'est pas obligatoire, mais fortement conseillée)
+
+```console
+pip install virtualenv
+virtualenv zdsenv
+```
+
+**À chaque fois** que vous souhaitez travailler dans votre environement, activez le via la commande suivante :
+
+```console
+source zdsenv/bin/activate
+```
+
+Une documentation plus complète de cet outil [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 ## Front ou Back ?
 
@@ -27,51 +49,10 @@ Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
 
 Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
 
-## Installer et configurer `virtualenv`
-
-(cette étape n'est pas obligatoire, mais fortement conseillée)
-
-Si vous désirez employer un environement virtuel python de dévellopement, installez `virtualenv` et `virtualenvwrapper`. Dans cet environement, vous pourrez ensuite installer différents packages via `pip` sans qu'ils ne soient installés dans votre environement python principal. Cela permet, par exemple, de travailler avec différentes version de Django ou encore d'installer les dépendances sans vous inquiéter de créer des conflits dans d'autres projets.
-
-L'installation ce fait grâce aux commandes suivantes :
-
-```console
-pip install virtualenv
-pip install virtualenvwrapper
-```
-
-Exécutez ensuite les commandes suivantes, afin de configurer les deux outils :
-
-```console
-mkdir ~/.virtualenvs
-echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bashrc && export WORKON_HOME=$HOME/.virtualenvs
-echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc && source /usr/local/bin/virtualenvwrapper.sh
-```
-
-Créez ensuite votre environement virtuel grâce à 
-
-```console
-mkvirtualenv zdsenv
-```
-
-**À chaque fois** que vous souhaiter travailler dans votre environement (que ce soit pour installer des packages ou exécuter Django), employez la commande suivante :
-
-```console
-workon zdsenv
-```
-
-À noter que `workon` supporte l'auto-complétion. Pour ensuite le quitter, il suffira d'employer :
-
-```console
-deactivate
-```
-
-Une documentation plus complète de ces deux outils [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
-
 
 ## Lancer ZdS
 
-Une fois dans votre environnement python (`workon zdsenv` si vous utilisez virtualenvwrapper), lancez l'installation complète :
+Une fois dans votre environnement python (`source zdsenv/bin/activate` si `virtualenv`), lancez l'installation complète :
 
 ```console
 pip install --upgrade -r requirements.txt
