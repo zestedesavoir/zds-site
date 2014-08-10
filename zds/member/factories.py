@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from django.contrib.auth.models import User, Permission
 import factory
 
@@ -92,3 +94,15 @@ class StaffProfileFactory(factory.DjangoModelFactory):
             self.user.username.lower())
 
     sign = 'Please look my flavour'
+
+
+class NonAsciiUserFactory(UserFactory):
+    FACTORY_FOR = User
+
+    username = factory.Sequence(lambda n: u'ïéàçÊÀ{0}'.format(n))
+
+
+class NonAsciiProfileFactory(ProfileFactory):
+    FACTORY_FOR = Profile
+
+    user = factory.SubFactory(NonAsciiUserFactory)

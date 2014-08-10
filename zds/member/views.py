@@ -507,7 +507,6 @@ def settings_user(request):
         return render_template("member/settings/user.html", c)
 
 
-
 def login_view(request):
     """Log in user."""
 
@@ -556,8 +555,9 @@ def login_view(request):
             messages.error(request,
                            "Les identifiants fournis ne sont pas valides")
     form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view") \
-        + "?next=" + str(next_page)
+    form.helper.form_action = reverse("zds.member.views.login_view")
+    if next_page is not None:
+        form.helper.form_action += "?next=" + next_page
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
