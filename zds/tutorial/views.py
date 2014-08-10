@@ -679,7 +679,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
             chapter["pk"] = Chapter.objects.get(tutorial=tutorial).pk
-            #print('pk:',chapter['pk'])
             chapter["intro"] = get_blob(repo.commit(sha).tree,
                                         "introduction.md")
             chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
