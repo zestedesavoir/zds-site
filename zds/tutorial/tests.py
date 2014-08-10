@@ -6,7 +6,7 @@ import HTMLParser
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.utils import html
 
@@ -20,7 +20,6 @@ from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
-
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
 @override_settings(
@@ -1004,6 +1003,21 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
+            
+        # then active the beta on tutorial :
+        sha_draft = Tutorial.objects.get(pk=tuto.pk).sha_draft
+        response = self.client.post(
+                reverse('zds.tutorial.views.modify_tutorial'),
+                {
+                    'tutorial': tuto.pk,
+                    'activ_beta': True,
+                    'version': sha_draft
+                },
+                follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = Tutorial.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
 
         #delete part 1
         result = self.client.post(
@@ -1023,6 +1037,81 @@ class BigTutorialTests(TestCase):
             follow=True)
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
         self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
+
+        #check view delete part and chapter (draft version)
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        #deleted part and section HAVE TO be accessible on beta (get 200)
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]) + '?version={}'.format(sha_beta),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]) + '?version={}'.format(sha_beta),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        #deleted part and section HAVE TO be accessible online (get 200)
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part_online',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter_online',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
         
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
@@ -1055,7 +1144,7 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
-        #check view online delete part and chapter
+        #check view delete part and chapter (draft version, get 404)
         result = self.client.get(
             reverse(
                 'zds.tutorial.views.view_part',
@@ -1079,6 +1168,56 @@ class BigTutorialTests(TestCase):
                     c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 404)
+
+        #deleted part and section no longer accessible online (get 404)
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part_online',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter_online',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 404)
+
+        #deleted part and section still accessible on beta (get 200)
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_part',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p1.pk,
+                    p1.slug]) + '?version={}'.format(sha_beta),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse(
+                'zds.tutorial.views.view_chapter',
+                args=[
+                    tuto.pk,
+                    tuto.slug,
+                    p2.pk,
+                    p2.slug,
+                    c3.pk,
+                    c3.slug]) + '?version={}'.format(sha_beta),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
 
     def test_conflict_does_not_destroy(self):
         """tests that simultaneous edition does not conflict"""
@@ -1548,12 +1687,32 @@ class BigTutorialTests(TestCase):
 
         # logout before
         self.client.logout()
-        # first, login with author :
+
+        # check if acess to page with beta tutorial (with guest)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
+
+        # then, login with author :
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
                 password='hostel77'),
             True)
+
+        # check if acess to page with beta tutorial (with author)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
+        
         # then active the beta on tutorial :
         sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
@@ -1566,6 +1725,15 @@ class BigTutorialTests(TestCase):
                 follow=False
         )
         self.assertEqual(302, response.status_code)
+
+        # check if acess to page with beta tutorial (with author)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
         # test beta :
         self.assertEqual(
             Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta, 
@@ -1581,12 +1749,28 @@ class BigTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             302)
-        # test access for random user (get 200)
+        # check if acess to page with beta tutorial (with guest, get 200)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
+        # test tutorial acess for random user
         self.assertEqual(
             self.client.login(
                 username=self.user.username,
                 password='hostel77'),
             True)
+        # check if acess to page with beta tutorial (with random user, get 200)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        # test access (get 200)
         self.assertEqual(
             self.client.get(url).status_code,
             200)
@@ -2498,6 +2682,16 @@ class MiniTutorialTests(TestCase):
 
         # logout before
         self.client.logout()
+
+        # check if acess to page with beta tutorial (with guest)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
+
         # first, login with author :
         self.assertEqual(
             self.client.login(
@@ -2516,6 +2710,15 @@ class MiniTutorialTests(TestCase):
                 follow=False
         )
         self.assertEqual(302, response.status_code)
+
+        # check if acess to page with beta tutorial (with author)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
         # test beta :
         self.assertEqual(
             Tutorial.objects.get(pk=self.minituto.pk).sha_beta, 
@@ -2540,6 +2743,15 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             200)
+
+        # check if acess to page with beta tutorial (with random user)
+        response = self.client.get(
+                reverse(
+                    'zds.tutorial.views.find_tuto', 
+                    args=[self.user_author.pk]
+                ) + '?type=beta'
+        )
+        self.assertEqual(200, response.status_code)
         
         # then modify tutorial
         self.assertEqual(

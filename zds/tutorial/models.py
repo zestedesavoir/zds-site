@@ -182,34 +182,73 @@ class Tutorial(models.Model):
             settings.REPO_PATH_PROD,
             str(self.pk) + '_' + slugify(data['title']))
 
-    def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
-                                                     args=[self.pk, slugify(mandata["title"])])
-        mandata['get_absolute_url_beta'] = self.get_absolute_url_beta()
-        mandata['get_absolute_url'] = self.get_absolute_url()
-        mandata['get_introduction_online'] = self.get_introduction_online()
-        mandata['get_conclusion_online'] = self.get_conclusion_online()
+    def load_dic(self, mandata, sha=None):
+        '''fill mandata with informations from database model'''
 
+        fns = [
+            'is_big', 'is_mini', 'have_markdown','have_html', 'have_pdf', 
+            'have_epub', 'get_path'
+            ]
+
+        attrs = [
+            'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update',
+            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            ]
+
+        #load functions and attributs in tree
+        for fn in fns: 
+            mandata[fn] = getattr(self,fn)
+        for attr in attrs: 
+            mandata[attr] = getattr(self,attr)
+
+        # general information
         mandata['slug'] = slugify(mandata['title'])
-        mandata['pk'] = self.pk
-        mandata['on_line'] = self.on_line
-        mandata['authors'] = self.authors
-        mandata['subcategory'] = self.subcategory
-        mandata['image'] = self.image
-        mandata['pubdate'] = self.pubdate
-        mandata['source'] = self.source
-        mandata['have_markdown'] = self.have_markdown()
-        mandata['have_html'] = self.have_html()
-        mandata['have_pdf'] = self.have_pdf()
-        mandata['have_epub'] = self.have_epub()
+        mandata['in_beta'] = self.in_beta() and self.sha_beta == sha
+        mandata['in_validation'] = self.in_validation() \
+            and self.sha_validation == sha
+        mandata['on_line'] = self.on_line() and self.sha_public == sha
 
-        return mandata
+        #url:
+        mandata['get_absolute_url'] = reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[self.pk, mandata['slug']]
+            )
+
+        if self.in_beta():
+            mandata['get_absolute_url_beta'] = reverse(
+                    'zds.tutorial.views.view_tutorial',
+                    args=[self.pk, mandata['slug']]
+               ) + '?version=' + self.sha_beta
+
+        else:
+            mandata['get_absolute_url_beta'] = reverse(
+                    'zds.tutorial.views.view_tutorial',
+                    args=[self.pk, mandata['slug']]
+                )
+
+        mandata['get_absolute_url_online'] = reverse(
+                'zds.tutorial.views.view_tutorial_online',
+                args=[self.pk, mandata['slug']]
+            )
+
+    def load_introduction_and_conclusion(self, mandata, sha=None, public=False):
+        '''Explicitly load introduction and conclusion to avoid useless disk
+        access in load_dic()
+        '''
+
+        if public:
+            mandata['get_introduction_online'] = self.get_introduction_online()
+            mandata['get_conclusion_online'] = self.get_conclusion_online()
+        else:
+            mandata['get_introduction'] = self.get_introduction(sha)
+            mandata['get_conclusion'] = self.get_conclusion(sha)
+        
 
     def load_json_for_public(self, sha=None):
         if sha is None:
             sha = self.sha_public
         repo = Repo(self.get_path())
-        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
 
         return data
@@ -230,8 +269,6 @@ class Tutorial(models.Model):
             json_data.close()
 
             return data
-        else:
-            return None
 
     def dump_json(self, path=None):
         if path is None:
@@ -258,20 +295,19 @@ class Tutorial(models.Model):
 
         if path_tuto:
             return get_blob(repo.commit(sha).tree, path_tuto)
-        else:
-            return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
+        if self.on_line():
+            intro = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.introduction +
+                    '.html'),
+                "r")
+            intro_contenu = intro.read()
+            intro.close()
 
-        return intro_contenu.decode('utf-8')
+            return intro_contenu.decode('utf-8')
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -286,20 +322,19 @@ class Tutorial(models.Model):
 
         if path_tuto:
             return get_blob(repo.commit(sha).tree, path_tuto)
-        else:
-            return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+        if self.on_line():
+            conclu = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.conclusion +
+                    '.html'),
+                "r")
+            conclu_contenu = conclu.read()
+            conclu.close()
 
-        return conclu_contenu.decode('utf-8')
+            return conclu_contenu.decode('utf-8')
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
