@@ -965,7 +965,11 @@ def add_tutorial(request):
             )
             return redirect(tutorial.get_absolute_url())
     else:
-        form = TutorialForm()
+        form = TutorialForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+            )
     return render_template("tutorial/tutorial/new.html", {"form": form})
 
 

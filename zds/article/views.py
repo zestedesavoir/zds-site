@@ -263,7 +263,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+            )
 
     return render_template('article/member/new.html', {
         'form': form
