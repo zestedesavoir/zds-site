@@ -15,6 +15,10 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Topic
 
+    def index_queryset(self, using=None):
+        # Index only public topics
+        return self.get_model().objects.filter(forum__group=None)
+
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -24,3 +28,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Post
+
+    def index_queryset(self, using=None):
+        # Index only public posts
+        return self.get_model().objects.filter(topic__forum__group=None)
