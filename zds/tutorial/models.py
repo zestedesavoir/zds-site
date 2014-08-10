@@ -183,19 +183,23 @@ class Tutorial(models.Model):
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata, sha=None):
-        '''fill mandata with informations form database model'''
+        '''fill mandata with informations from database model'''
 
-        fns = [u'is_big', u'is_mini', u'have_markdown',u'have_html', 
-            u'have_pdf', u'have_epub', u'get_path']
-        attrs = [u'pk',u'authors',u'subcategory',u'image',u'pubdate', u'update',
-            u'source', u'sha_draft', u'sha_beta', u'sha_validation', 
-            u'sha_public']
+        fns = [
+            'is_big', 'is_mini', 'have_markdown','have_html', 'have_pdf', 
+            'have_epub', 'get_path'
+            ]
+
+        attrs = [
+            'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update',
+            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            ]
 
         #load functions and attributs in tree
         for fn in fns: 
-            mandata[fn]=getattr(self,fn)
+            mandata[fn] = getattr(self,fn)
         for attr in attrs: 
-            mandata[attr]=getattr(self,attr)
+            mandata[attr] = getattr(self,attr)
 
         # general information
         mandata['slug'] = slugify(mandata['title'])

@@ -150,7 +150,7 @@
                     Ajouter une partie
                 </a>
             {% else %}
-                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ tutorial.get_chapter.pk }}" class="ico-after more blue new-btn">
+                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
                     Ajouter un extrait
                 </a>
             {% endif %}
