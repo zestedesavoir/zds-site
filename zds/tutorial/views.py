@@ -2774,6 +2774,7 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = ur"(!\[.*?\]\()(.+?)(\))"
+    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 
@@ -2786,8 +2787,7 @@ def get_url_images(md_text, pt):
             parse_object = urlparse(img[1])
 
             # if link is http type
-
-            if parse_object.scheme in ("http", "https", "ftp") or \
+            if parse_object.scheme in ["http", "https", "ftp"] or \
             parse_object.netloc[:3]=="www" or \
             parse_object.path[:3]=="www":
                 (filepath, filename) = os.path.split(parse_object.path)
@@ -2795,20 +2795,23 @@ def get_url_images(md_text, pt):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
-
-                urlretrieve(img[1], os.path.abspath(os.path.join(pt, "images",
-                                                                 filename)))
-                ext = filename.split(".")[-1]
-
-                # if image is gif, convert to png
-
-                if ext == "gif":
-                    im = ImagePIL.open(os.path.join(pt, img[1]))
-                    im.save(os.path.join(pt, filename.split(".")[0] + ".png"))
+                down_path=os.path.abspath(os.path.join(pt, "images", filename))
+                urlretrieve(img[1], down_path)
+                try:
+                    ext = filename.split(".")[-1]
+                    im = ImagePIL.open(down_path)
+                    # if image is gif, convert to png
+                    if ext == "gif":
+                        im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                except IOError:
+                    ext = filename.split(".")[-1]
+                    im = ImagePIL.open(unknow_path)
+                    if ext == "gif":
+                        im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                    else:
+                        im.save(os.path.join(pt, "images", filename))
             else:
-
                 # relative link
-
                 srcfile = settings.SITE_ROOT + img[1]
                 if os.path.isfile(srcfile):
                     dstroot = pt + img[1]
@@ -2816,13 +2819,19 @@ def get_url_images(md_text, pt):
                     if not os.path.exists(dstdir):
                         os.makedirs(dstdir)
                     shutil.copy(srcfile, dstroot)
-                    ext = dstroot.split(".")[-1]
-    
-                    # if image is gif, convert to png
-    
-                    if ext == "gif":
+                    try:
+                        ext = dstroot.split(".")[-1]
                         im = ImagePIL.open(dstroot)
-                        im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = dstroot.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(dstroot))
 
 
 def sub_urlimg(g):
