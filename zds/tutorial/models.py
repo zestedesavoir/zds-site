@@ -187,7 +187,7 @@ class Tutorial(models.Model):
 
         fns = [
             'is_big', 'is_mini', 'have_markdown','have_html', 'have_pdf', 
-            'have_epub', 'get_path'
+            'have_epub', 'get_path', 'in_beta', 'in_validation', 'on_line'
             ]
 
         attrs = [
@@ -203,10 +203,10 @@ class Tutorial(models.Model):
 
         # general information
         mandata['slug'] = slugify(mandata['title'])
-        mandata['in_beta'] = self.in_beta() and self.sha_beta == sha
-        mandata['in_validation'] = self.in_validation() \
+        mandata['is_beta'] = self.in_beta() and self.sha_beta == sha
+        mandata['is_validation'] = self.in_validation() \
             and self.sha_validation == sha
-        mandata['on_line'] = self.on_line() and self.sha_public == sha
+        mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
         #url:
         mandata['get_absolute_url'] = reverse(
