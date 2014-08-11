@@ -57,10 +57,10 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.introduction), "w")
-        f.write(contenu)
+        f.write(contenu.encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.conclusion), "w")
-        f.write(contenu)
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
@@ -100,10 +100,10 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
                 ensure_ascii=False).encode('utf-8'))
         file.close()
         file = open(os.path.join(path, tuto.introduction), "w")
-        file.write(contenu)
+        file.write(contenu.encode('utf-8'))
         file.close()
         file = open(os.path.join(path, tuto.conclusion), "w")
-        file.write(contenu)
+        file.write(contenu.encode('utf-8'))
         file.close()
 
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
@@ -134,11 +134,11 @@ class PartFactory(factory.DjangoModelFactory):
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
-        f.write(contenu)
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add([part.introduction])
         f = open(os.path.join(tutorial.get_path(), part.conclusion), "w")
-        f.write(contenu)
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add([part.conclusion])
 
@@ -212,14 +212,14 @@ class ChapterFactory(factory.DjangoModelFactory):
                     part.tutorial.get_path(),
                     chapter.introduction),
                 "w")
-            f.write(contenu)
+            f.write(contenu.encode('utf-8'))
             f.close()
             f = open(
                 os.path.join(
                     part.tutorial.get_path(),
                     chapter.conclusion),
                 "w")
-            f.write(contenu)
+            f.write(contenu.encode('utf-8'))
             f.close()
             part.tutorial.save()
             repo = Repo(part.tutorial.get_path())
