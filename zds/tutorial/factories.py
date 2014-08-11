@@ -17,7 +17,7 @@ import factory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
-from zds.utils.models import SubCategory 
+from zds.utils.models import SubCategory, Licence 
 from zds.utils.tutorials import export_tutorial
 
 
@@ -290,3 +290,14 @@ class SubCategoryFactory(factory.DjangoModelFactory):
 
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
+    
+class LicenceFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Licence
+    
+    code = u'Licence bidon'
+    title = u'Licence bidon'
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
+        return licence
