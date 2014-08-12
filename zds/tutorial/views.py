@@ -628,6 +628,21 @@ def modify_tutorial(request):
 
 
 # Tutorials.
+def fetch_extracts(tutorial, chapter, fetch_txt=True, online=False, tree=None):
+   position = 1
+   path = tutorial.get_prod_path () if online else tutorial.get_path()
+   for ext in chapter["extracts"]:
+       ext["position_in_chapter"] = position
+       ext["path"] = path
+       if fetch_txt:
+           if not online:
+               assert tree
+               ext["txt"] = get_blob(tree, ext["text"])
+           else:
+                text = open(os.path.join(path, ext["text"]+".html"), "r")
+                ext["txt"] = text.read()
+                text.close()
+       position += 1
 
 
 @login_required
@@ -664,7 +679,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     # Load the tutorial.
 
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
 
     # If it's a small tutorial, fetch its chapter
@@ -674,16 +690,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
-            chapter["intro"] = get_blob(repo.commit(sha).tree,
-                                        "introduction.md")
-            chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
-                                         )
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_path()
-                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                cpt += 1
+            chapter["intro"] = get_blob(tree, "introduction.md")
+            chapter["conclu"] = get_blob(tree, "conclusion.md")
+            fetch_extracts(tutorial, chapter, fetch_txt=True,
+                           online=False, tree=tree)
         else:
             chapter = None
     else:
@@ -705,13 +715,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, fetch_txt=True,
+                               online=False, tree=tree)
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
@@ -773,15 +778,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                                        mandata["conclusion"] + ".html"), "r")
             chapter["conclu"] = conclu.read()
             conclu.close()
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
-                ext["txt"] = text.read()
-                text.close()
-                cpt += 1
+            fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
         else:
             chapter = None
     else:
@@ -803,12 +800,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=False)
                 cpt_c += 1
             part["get_chapters"] = part["chapters"]
             cpt_p += 1
@@ -1105,7 +1097,8 @@ def view_part(
     # find the good manifest file
 
     repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
     find = False
@@ -1117,10 +1110,8 @@ def view_part(
             part["path"] = tutorial.get_path()
             part["slug"] = slugify(part["title"])
             part["position_in_tutorial"] = cpt_p
-            part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"
-                                                                 ])
-            part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"
-                                                                  ])
+            part["intro"] = get_blob(tree, part["introduction"])
+            part["conclu"] = get_blob(tree, part["conclusion"])
             cpt_c = 1
             for chapter in part["chapters"]:
                 chapter["part"] = part
@@ -1129,12 +1120,8 @@ def view_part(
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, fetch_txt=False,
+                               online=False, tree=tree)
                 cpt_c += 1
             final_part = part
             break
@@ -1200,12 +1187,7 @@ def view_part_online(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             if part_slug == slugify(part["title"]):
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_prod_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=False)
             cpt_c += 1
         part["get_chapters"] = part["chapters"]
         cpt_p += 1
@@ -1433,7 +1415,8 @@ def view_chapter(
     # find the good manifest file
 
     repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
     cpt_p = 1
@@ -1463,18 +1446,10 @@ def view_chapter(
                 + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
-                chapter["intro"] = get_blob(repo.commit(sha).tree,
-                                            chapter["introduction"])
-                chapter["conclu"] = get_blob(repo.commit(sha).tree,
-                                             chapter["conclusion"])
-                
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                chapter["intro"] = get_blob(tree, chapter["introduction"])
+                chapter["conclu"] = get_blob(tree, chapter["conclusion"])
+                fetch_extracts(tutorial, chapter, fetch_txt=True,
+                               online=False, tree=tree)
             chapter_tab.append(chapter)
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
@@ -1570,16 +1545,7 @@ def view_chapter_online(
                     "r")
                 chapter["conclu"] = conclu.read()
                 conclu.close()
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    text = open(os.path.join(tutorial.get_prod_path(),
-                                             ext["text"] + ".html"), "r")
-                    ext["txt"] = text.read()
-                    text.close()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
             else:
                 intro = None
                 conclu = None
