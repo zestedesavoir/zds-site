@@ -628,6 +628,20 @@ def modify_tutorial(request):
 
 
 # Tutorials.
+def fetch_extracts(tutorial, chapter, online=False, fetch_txt=True):
+   position = 1
+   path = tutorial.get_prod_path () if online else tutorial.get_path()
+   for ext in chapter["extracts"]:
+       ext["position_in_chapter"] = position
+       ext["path"] = path
+       if fetch_txt:
+           if not online:
+               ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
+           else:
+                text = open(os.path.join(path, ext["text"]+".html"), "r")
+                ext["txt"] = text.read()
+                text.close()
+       position += 1
 
 
 @login_required
@@ -678,12 +692,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                         "introduction.md")
             chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
                                          )
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_path()
-                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                cpt += 1
+            fetch_extracts(tutorial, chapter, online=False, fetch_txt=True)
         else:
             chapter = None
     else:
@@ -705,13 +714,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                fetch_extracts(tutorial, online=False, fetch_txt=True)
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
@@ -773,15 +776,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                                        mandata["conclusion"] + ".html"), "r")
             chapter["conclu"] = conclu.read()
             conclu.close()
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
-                ext["txt"] = text.read()
-                text.close()
-                cpt += 1
+            fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
         else:
             chapter = None
     else:
@@ -803,12 +798,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=False, fetch_txt=False)
                 cpt_c += 1
             part["get_chapters"] = part["chapters"]
             cpt_p += 1
@@ -1129,12 +1119,7 @@ def view_part(
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=False, fetch_txt=False)
                 cpt_c += 1
             final_part = part
             break
@@ -1200,12 +1185,7 @@ def view_part_online(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             if part_slug == slugify(part["title"]):
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_prod_path()
-                    cpt_e += 1
+                fetch_extract(tutorial, chapter, online=True, fetch_txt=False)
             cpt_c += 1
         part["get_chapters"] = part["chapters"]
         cpt_p += 1
@@ -1467,14 +1447,7 @@ def view_chapter(
                                             chapter["introduction"])
                 chapter["conclu"] = get_blob(repo.commit(sha).tree,
                                              chapter["conclusion"])
-                
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=False, fetch_txt=True)
             chapter_tab.append(chapter)
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
@@ -1570,16 +1543,7 @@ def view_chapter_online(
                     "r")
                 chapter["conclu"] = conclu.read()
                 conclu.close()
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    text = open(os.path.join(tutorial.get_prod_path(),
-                                             ext["text"] + ".html"), "r")
-                    ext["txt"] = text.read()
-                    text.close()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
             else:
                 intro = None
                 conclu = None
