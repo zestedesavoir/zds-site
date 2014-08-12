@@ -2698,77 +2698,33 @@ def download(request):
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
-def download_markdown(request):
-    """Download a markdown tutorial."""
+
+def download_format(request, file_ext, mimetype):
+    """Download a speciic format for a tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".md") 
+    filename = tutorial.slug+'.'+file_ext
+    phy_path = os.path.join(tutorial.get_prod_path(), filename)
+    if not os.path.isfile(phy_path):
+        raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/txt")
+        mimetype=mimetype)
     response["Content-Disposition"] = \
-        "attachment; filename={0}.md".format(tutorial.slug)
+        "attachment; filename={0}".format(filename)
     return response
 
-
+def download_markdown(request):
+    return download_format(request, "md", "application/txt")
 
 def download_html(request):
-    """Download a pdf tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".html")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="text/html")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.html".format(tutorial.slug)
-    return response
-
-
+    return download_format(request, "html", "text/html")
 
 def download_pdf(request):
-    """Download a pdf tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".pdf")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="application/pdf")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.pdf".format(tutorial.slug)
-    return response
-
-
+    return download_format(request, "pdf", "application/pdf")
 
 def download_epub(request):
-    """Download an epub tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".epub")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="application/epub")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.epub".format(tutorial.slug)
-    return response
+    return download_format(request, "epub", "application/epub")
 
 
 def get_url_images(md_text, pt):
