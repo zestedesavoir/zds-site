@@ -2855,16 +2855,19 @@ def markdown_to_out(md_text):
                   md_text)
 
 
-def MEP(tutorial, sha):
-    (output, err) = (None, None)
-    repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    tutorial_version = json_reader.loads(manifest)
+def clear_prod_path(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         try:
             shutil.rmtree(tutorial.get_prod_path())
         except:
             shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
+
+def MEP(tutorial, sha):
+    (output, err) = (None, None)
+    repo = Repo(tutorial.get_path())
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tutorial_version = json_reader.loads(manifest)
+    clear_prod_path(tutorial)
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
     repo.head.reset(commit = sha, index=True, working_tree=True)
     
@@ -2957,12 +2960,7 @@ def MEP(tutorial, sha):
 
 
 def UNMEP(tutorial):
-    if os.path.isdir(tutorial.get_prod_path()):
-        try:
-            shutil.rmtree(tutorial.get_prod_path())
-        except:
-            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
-
+    clear_prod_path(tutorial)
 
 @can_write_and_read_now
 @login_required
