@@ -11,6 +11,8 @@ import string
 import uuid
 from easy_thumbnails.fields import ThumbnailerImageField
 
+from zds.utils import misc
+
 try:
     import ujson as json_reader
 except:
@@ -177,11 +179,7 @@ class Article(models.Model):
 
     def get_text(self):
         path = os.path.join(self.get_path(), self.text)
-        txt = open(path, "r")
-        txt_contenu = txt.read()
-        txt.close()
-
-        return txt_contenu.decode('utf-8')
+        return misc.read_path(path, utf8=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

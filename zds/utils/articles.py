@@ -4,6 +4,8 @@ from collections import OrderedDict
 
 from git import *
 
+from zds.utils import misc
+
 import os
 
 
@@ -24,8 +26,7 @@ def export_article(article):
 def get_blob(tree, chemin):
     for bl in tree.blobs:
         if os.path.abspath(bl.path) == os.path.abspath(chemin):
-            data = bl.data_stream.read()
-            return data.decode('utf-8')
+            return misc.read_blob(bl)
     if len(tree.trees) > 0:
         for tr in tree.trees:
             result = get_blob(tr, chemin)
