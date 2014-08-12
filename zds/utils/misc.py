@@ -57,3 +57,15 @@ def has_changed(instance, field, manager='objects'):
     manager = getattr(instance.__class__, manager)
     old = getattr(manager.get(pk=instance.pk), field)
     return not getattr(instance, field) == old
+
+def read_path(path, utf8=False, binary=False):
+    fd = open(path, 'rb' if binary else 'r')
+    content = fd.read()
+    fd.close()
+    if utf8:
+        content = content.decode('utf-8')
+    return content
+
+def read_blob(blob):
+    ds = blob.data_stream
+    return ds.read().decode('utf-8')

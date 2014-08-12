@@ -31,8 +31,7 @@ from git import *
 
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
-from zds.utils import render_template
-from zds.utils import slugify
+from zds.utils import render_template, slugify, misc
 from zds.utils.articles import *
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
@@ -129,11 +128,9 @@ def view_online(request, article_pk, article_slug):
 
     # Load the article.
     article_version = article.load_json_for_public()
-    txt = open(os.path.join(article.get_path(),
-                            article_version['text'] + '.html'),
-               "r")
-    article_version['txt'] = txt.read()
-    txt.close()
+    txt = os.path.join(article.get_path(),
+                       article_version['text'] + '.html')
+    article_version['txt'] = misc.read_path(txt)
     article_version = article.load_dic(article_version)
 
     # If the user is authenticated
@@ -439,10 +436,7 @@ def download(request):
     repo.archive(open(ph + ".tar", 'w'))
 
     response = HttpResponse(
-        open(
-            ph +
-            ".tar",
-            'rb').read(),
+        misc.read_path(ph+".tar", binary=True),
         mimetype='application/tar')
     response[
         'Content-Disposition'] = 'attachment; filename={0}.tar' \

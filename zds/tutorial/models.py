@@ -20,7 +20,7 @@ from django.utils import timezone
 from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
-from zds.utils import slugify, get_current_user
+from zds.utils import slugify, get_current_user, misc
 from zds.utils.models import SubCategory, Licence, Comment
 from zds.utils.tutorials import get_blob, export_tutorial
 
@@ -262,16 +262,10 @@ class Tutorial(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
-
-        return intro_contenu.decode('utf-8')
+        intro = os.path.join(
+            self.get_prod_path(),
+            self.introduction+'.html')
+        return misc.read_path(intro, utf8=True)
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -290,16 +284,10 @@ class Tutorial(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-
-        return conclu_contenu.decode('utf-8')
+        conclu = os.path.join(
+            self.get_prod_path(),
+            self.conclusion+'.html')
+        return misc.read_path(conclu, utf8=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -566,16 +554,10 @@ class Part(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
-
-        return intro_contenu.decode('utf-8')
+        intro = os.path.join(
+            self.tutorial.get_prod_path(),
+            self.introduction + '.html')
+        return misc.read_path(intro, utf8=True)
 
     def get_conclusion(self, sha=None):
 
@@ -600,16 +582,10 @@ class Part(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-
-        return conclu_contenu.decode('utf-8')
+        conclu = os.path.join(
+            self.tutorial.get_prod_path(),
+            self.conclusion + '.html')
+        return misc.read_path(conclu, utf8=True)
 
     def update_children(self):
         self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
@@ -790,11 +766,7 @@ class Chapter(models.Model):
                     '.html')
 
             if os.path.isfile(path):
-                intro = open(path, "r")
-                intro_contenu = intro.read()
-                intro.close()
-
-                return intro_contenu.decode('utf-8')
+                return misc.read_path(path, utf8=True)
             else:
                 return None
         else:
@@ -845,15 +817,9 @@ class Chapter(models.Model):
                     '.html')
 
             if os.path.isfile(path):
-                conclu = open(path, "r")
-                conclu_contenu = conclu.read()
-                conclu.close()
-
-                return conclu_contenu.decode('utf-8')
+                return misc.read_path(path, utf8=True)
             else:
                 return None
-
-            return conclu_contenu.decode('utf-8')
         else:
             return None
 
@@ -986,7 +952,6 @@ class Extract(models.Model):
             return None
 
     def get_text_online(self):
-
         if self.chapter.tutorial:
             path = os.path.join(
                 self.chapter.tutorial.get_prod_path(),
@@ -999,11 +964,7 @@ class Extract(models.Model):
                 '.html')
 
         if os.path.isfile(path):
-            text = open(path, "r")
-            text_contenu = text.read()
-            text.close()
-
-            return text_contenu.decode('utf-8')
+            return misc.read_path(path, utf8=True)
         else:
             return None
 

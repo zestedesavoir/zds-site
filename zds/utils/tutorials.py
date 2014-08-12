@@ -7,7 +7,7 @@ from django.template import Context
 from django.template.loader import get_template
 from git import *
 
-from zds.utils import slugify
+from zds.utils import slugify, misc
 
 # Export-to-dict functions
 def export_chapter(chapter, export_all=True):
@@ -93,8 +93,7 @@ def get_blob(tree, chemin):
     for bl in tree.blobs:
         try:
             if os.path.abspath(bl.path) == os.path.abspath(chemin):
-                data = bl.data_stream.read()
-                return data.decode('utf-8')
+                return misc.read_blob(bl)
         except:
             return ""
     if len(tree.trees) > 0:
@@ -113,19 +112,11 @@ def export_tutorial_to_md(tutorial):
     parts = None
     tuto = OrderedDict()
 
-    i = open(
-        os.path.join(
-            tutorial.get_prod_path(),
-            tutorial.introduction),
-        "r")
-    i_contenu = i.read()
-    i.close()
-    tuto['intro'] = i_contenu
+    i = os.path.join(tutorial.get_prod_path(), tutorial.introduction)
+    tuto['intro'] = misc.read_path(i)
 
-    c = open(os.path.join(tutorial.get_prod_path(), tutorial.conclusion), "r")
-    c_contenu = c.read()
-    c.close()
-    tuto['conclu'] = c_contenu
+    c = os.path.join(tutorial.get_prod_path(), tutorial.conclusion)
+    tuto['conclu'] = misc.read_path(c)
 
     tuto['image'] = tutorial.image
     tuto['title'] = tutorial.title
@@ -146,31 +137,22 @@ def export_tutorial_to_md(tutorial):
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_prod_path()
             chapter['type'] = 'MINI'
-            intro = open(
-                os.path.join(
+            intro = os.path.join(
+                tutorial.get_prod_path(),
+                mandata['introduction'])
+            chapter['intro'] = misc.read_path(intro)
+            conclu = os.path.join(
                     tutorial.get_prod_path(),
-                    mandata['introduction']),
-                "r")
-            chapter['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    mandata['conclusion']),
-                "r")
-            chapter['conclu'] = conclu.read()
-            conclu.close()
+                    mandata['conclusion'])
+            chapter['conclu'] = misc.read_path(conclu)
             cpt = 1
             for ext in chapter['extracts']:
                 ext['position_in_chapter'] = cpt
                 ext['path'] = tutorial.get_prod_path()
-                text = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        ext['text']),
-                    "r")
-                ext['txt'] = text.read()
-                text.close()
+                text = os.path.join(
+                    tutorial.get_prod_path(),
+                    ext['text'])
+                ext['txt'] = misc.read_path(text)
                 cpt += 1
         else:
             chapter = None
@@ -182,20 +164,14 @@ def export_tutorial_to_md(tutorial):
             part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
-            intro = open(
-                os.path.join(
+            intro = os.path.join(
                     tutorial.get_prod_path(),
-                    part['introduction']),
-                "r")
-            part['intro'] = intro.read()
-            intro.close()
-            conclu = open(
-                os.path.join(
-                    tutorial.get_prod_path(),
-                    part['conclusion']),
-                "r")
-            part['conclu'] = conclu.read()
-            conclu.close()
+                    part['introduction'])
+            part['intro'] = misc.read_path(intro)
+            conclu = os.path.join(
+                tutorial.get_prod_path(),
+                part['conclusion'])
+            part['conclu'] = misc.read_path(conclu)
 
             cpt_c = 1
             for chapter in part['chapters']:
@@ -205,31 +181,23 @@ def export_tutorial_to_md(tutorial):
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['introduction']),
-                    "r")
-                chapter['intro'] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter['conclusion']),
-                    "r")
-                chapter['conclu'] = conclu.read()
+                intro = os.path.join(
+                    tutorial.get_prod_path(),
+                    chapter['introduction'])
+                chapter['intro'] = read_text(intro)
+                conclu = os.path.join(
+                    tutorial.get_prod_path(),
+                    chapter['conclusion'])
+                chapter['conclu'] = read_text(conclu)
                 cpt_e = 1
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
                     ext['path'] = tutorial.get_path()
-                    text = open(
-                        os.path.join(
-                            tutorial.get_prod_path(),
-                            ext['text']),
-                        "r")
-                    ext['txt'] = text.read()
-                    text.close()
+                    text = os.path.join(
+                        tutorial.get_prod_path(),
+                        ext['text'])
+                    ext['txt'] = read_text(text)
                     cpt_e += 1
                 cpt_c += 1
 

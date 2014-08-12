@@ -5,7 +5,7 @@ from django import template
 
 from git import *
 
-from zds.utils import slugify
+from zds.utils import slugify, misc
 
 
 register = template.Library()
@@ -22,13 +22,13 @@ def repo_tuto(tutorial, sha=None):
         bls = repo.commit(sha).tree.blobs
         for bl in bls:
             if bl.path == 'introduction.md':
-                intro = bl.data_stream.read()
+                intro = misc.read_blob(bl)
             if bl.path == 'conclusion.md':
-                conclu = bl.data_stream.read()
+                conclu = misc.read_blob(bl)
 
         return {
-            'introduction': intro.decode('utf-8'),
-            'conclusion': conclu.decode('utf-8')}
+            'introduction': intro,
+            'conclusion': conclu}
 
 
 @register.filter('repo_part')
@@ -41,13 +41,13 @@ def repo_part(part, sha=None):
         bls = repo.commit(sha).tree.blobs
         for bl in bls:
             if bl.path == 'introduction.md':
-                intro = bl.data_stream.read()
+                intro = misc.read_blob(bl)
             if bl.path == 'conclusion.md':
-                conclu = bl.data_stream.read()
+                conclu = misc.read_blob(bl)
 
         return {
-            'introduction': intro.decode('utf-8'),
-            'conclusion': conclu.decode('utf-8')}
+            'introduction': intro,
+            'conclusion': conclu}
 
 
 @register.filter('repo_chapter')
@@ -63,12 +63,12 @@ def repo_chapter(chapter, sha=None):
             bls = repo.commit(sha).tree.blobs
             for bl in bls:
                 if bl.path == 'introduction.md':
-                    intro = bl.data_stream.read()
+                    intro = misc.read_blob(bl)
                 if bl.path == 'conclusion.md':
-                    conclu = bl.data_stream.read()
+                    conclu = misc.read_blob(bl)
             return {
-                'introduction': intro.decode('utf-8'),
-                'conclusion': conclu.decode('utf-8')}
+                'introduction': intro,
+                'conclusion': conclu}
 
 
 @register.filter('repo_extract')
@@ -81,16 +81,14 @@ def repo_extract(extract, sha=None):
 
         for bl in bls_e:
             if bl.path == slugify(extract['title']) + '.md':
-                text = bl.data_stream.read()
-                return {'text': text.decode('utf-8')}
+                text = misc.read_blob(bl)
+                return {'text': text}
     return {'text': ''}
 
 
 @register.filter('repo_blob')
 def repo_blob(blob):
-    contenu = blob.data_stream.read()
-
-    return contenu.decode('utf-8')
+    return misc.read_blob(blob)
 
 
 @register.filter('diff_text')

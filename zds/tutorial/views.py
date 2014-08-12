@@ -45,8 +45,7 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
-from zds.utils import render_template
-from zds.utils import slugify
+from zds.utils import render_template, slugify, misc
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
@@ -638,9 +637,8 @@ def fetch_extracts(tutorial, chapter, online=False, fetch_txt=True):
            if not online:
                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
            else:
-                text = open(os.path.join(path, ext["text"]+".html"), "r")
-                ext["txt"] = text.read()
-                text.close()
+                text = os.path.join(path, ext["text"] + ".html")
+                ext["txt"] = misc.read_path(text)
        position += 1
 
 
@@ -768,14 +766,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_prod_path()
             chapter["type"] = "MINI"
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      mandata["introduction"] + ".html"), "r")
-            chapter["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       mandata["conclusion"] + ".html"), "r")
-            chapter["conclu"] = conclu.read()
-            conclu.close()
+            intro = os.path.join(tutorial.get_prod_path(),
+                                 mandata["introduction"] + ".html")
+            chapter["intro"] = misc.read_path(intro)
+            conclu = os.path.join(tutorial.get_prod_path(),
+                                       mandata["conclusion"] + ".html")
+            chapter["conclu"] = misc.read_path(conclu)
             fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
         else:
             chapter = None
@@ -1167,14 +1163,12 @@ def view_part_online(
         part["position_in_tutorial"] = cpt_p
         if part_pk == str(part["pk"]):
             find = True
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      part["introduction"] + ".html"), "r")
-            part["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       part["conclusion"] + ".html"), "r")
-            part["conclu"] = conclu.read()
-            conclu.close()
+            intro = os.path.join(tutorial.get_prod_path(),
+                                 part["introduction"] + ".html")
+            part["intro"] = misc.read_path(intro)
+            conclu = os.path.join(tutorial.get_prod_path(),
+                                  part["conclusion"] + ".html")
+            part["conclu"] = misc.read_path(conclu)
             final_part=part
         cpt_c = 1
         for chapter in part["chapters"]:
@@ -1527,22 +1521,14 @@ def view_chapter_online(
                 "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["introduction"] +
-                        ".html"),
-                    "r")
-                chapter["intro"] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["conclusion"] +
-                        ".html"),
-                    "r")
-                chapter["conclu"] = conclu.read()
-                conclu.close()
+                intro = os.path.join(
+                    tutorial.get_prod_path(),
+                    chapter["introduction"] + ".html")
+                chapter["intro"] = misc.read_path(intro)
+                conclu = os.path.join(
+                    tutorial.get_prod_path(),
+                    chapter["conclusion"] + ".html")
+                chapter["conclu"] = misc.read_path(conclu)
                 fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
             else:
                 intro = None
@@ -2653,7 +2639,7 @@ def download(request):
     ph = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", "w"))
-    response = HttpResponse(open(ph + ".tar", "rb").read(),
+    response = HttpResponse(read_path(ph + ".tar", binary=True),
                             mimetype="application/tar")
     response["Content-Disposition"] = \
         "attachment; filename={0}.tar".format(tutorial.slug)
@@ -2672,7 +2658,7 @@ def download_format(request, file_ext, mimetype):
     if not os.path.isfile(phy_path):
         raise Http404
     response = HttpResponse(
-        open(phy_path, "rb").read(),
+        misc.read_path(phy_path, binary=True),
         mimetype=mimetype)
     response["Content-Disposition"] = \
         "attachment; filename={0}".format(filename)
