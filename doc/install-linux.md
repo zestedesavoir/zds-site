@@ -38,6 +38,20 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## Tester ses changements
+
+Après avoir modifié le code du backend, vous pouvez vérifier que les tests unitaires fonctionnent toujours avec la commande
+
+```console
+python manage.py test
+```
+
+Si vous n'avez modifié qu'une partie du backent (par exemple le sous-répertoire `zds/tutorial` seulement), vous pouvez gagner du temps en lançant les tests sur cette partie seulement:
+
+```console
+python manage.py test zds/tutorial
+```
+
 ## Aller plus loin
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX, Pandoc et les polices Microsoft. Ce qui revient à lancer les commmandes suivantes :
