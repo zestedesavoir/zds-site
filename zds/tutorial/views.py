@@ -637,8 +637,8 @@ def fetch_extracts(tutorial, chapter, online=False, fetch_txt=True):
            if not online:
                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
            else:
-                text = os.path.join(path, ext["text"] + ".html")
-                ext["txt"] = misc.read_path(text)
+               txt = tutorial.get_prod_file(ext["text"])
+               ext["txt"] = misc.read_path(txt)
        position += 1
 
 
@@ -766,11 +766,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_prod_path()
             chapter["type"] = "MINI"
-            intro = os.path.join(tutorial.get_prod_path(),
-                                 mandata["introduction"] + ".html")
+            intro = tutorial.get_prod_file(mandata["introduction"])
             chapter["intro"] = misc.read_path(intro)
-            conclu = os.path.join(tutorial.get_prod_path(),
-                                       mandata["conclusion"] + ".html")
+            conclu = tutorial.get_prod_file(mandata["conclusion"])
             chapter["conclu"] = misc.read_path(conclu)
             fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
         else:
@@ -1163,11 +1161,9 @@ def view_part_online(
         part["position_in_tutorial"] = cpt_p
         if part_pk == str(part["pk"]):
             find = True
-            intro = os.path.join(tutorial.get_prod_path(),
-                                 part["introduction"] + ".html")
+            intro = tutorial.get_prod_file(part["introduction"])
             part["intro"] = misc.read_path(intro)
-            conclu = os.path.join(tutorial.get_prod_path(),
-                                  part["conclusion"] + ".html")
+            conclu = tutorial.get_prod_file(part["conclusion"])
             part["conclu"] = misc.read_path(conclu)
             final_part=part
         cpt_c = 1
@@ -1521,13 +1517,9 @@ def view_chapter_online(
                 "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
-                intro = os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter["introduction"] + ".html")
+                intro = tutorial.get_prod_file(chapter["introduction"])
                 chapter["intro"] = misc.read_path(intro)
-                conclu = os.path.join(
-                    tutorial.get_prod_path(),
-                    chapter["conclusion"] + ".html")
+                conclu = tutorial.get_prod_file(chapter["conclusion"])
                 chapter["conclu"] = misc.read_path(conclu)
                 fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
             else:

@@ -182,6 +182,9 @@ class Tutorial(models.Model):
             settings.REPO_PATH_PROD,
             str(self.pk) + '_' + slugify(data['title']))
 
+    def get_prod_file(self, basename, ext='html'):
+        return os.path.join(self.get_prod_path(), basename+'.'+ext)
+
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
                                                      args=[self.pk, slugify(mandata["title"])])
