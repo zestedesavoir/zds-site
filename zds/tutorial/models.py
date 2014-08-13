@@ -746,9 +746,7 @@ class Chapter(models.Model):
         if not self.introduction:
             return None
 
-        path = os.path.join(
-            self.parent.get_path(),
-            self.introduction +'.html')
+        path = self.parent.get_prod_file(self.introduction)
 
         if not os.path.isfile(path):
             return None
@@ -785,8 +783,7 @@ class Chapter(models.Model):
     def get_conclusion_online(self):
         if not self.conclusion:
             return None
-        path = os.path.join(self.parent().get_path(),
-                            self.conclusion + '.html')
+        path = self.parent().get_prod_file(self.conclusion)
 
         if not os.path.isfile(path):
             return None
