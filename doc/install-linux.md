@@ -31,7 +31,7 @@ easy_install pip
 
 ```console
 pip install virtualenv
-virtualenv zdsenv
+virtualenv zdsenv --python=python2
 ```
 
 **À chaque fois** que vous souhaitez travailler dans votre environement, activez le via la commande suivante :
