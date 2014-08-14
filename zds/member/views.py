@@ -48,6 +48,8 @@ def index(request):
         members = User.objects.filter(username__icontains=q)[:20]
         results = []
         for member in members:
+            if request.user.is_authenticated() and member.username == request.user.username:
+                continue
             member_json = {}
             member_json['id'] = member.pk
             member_json['label'] = member.username
