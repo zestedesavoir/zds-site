@@ -4,7 +4,7 @@ from collections import OrderedDict
 from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
-from urlparse import urlparse
+from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
 except:
@@ -2782,9 +2782,11 @@ def get_url_images(md_text, pt):
         imgs = re.findall(regex, md_text)
         for img in imgs:
 
-            # decompose images
-
+            # decompose images 
             parse_object = urlparse(img[1])
+            if parse_object.query!='':
+                resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
+                parse_object = urlparse(resp["u"][0])
 
             # if link is http type
             if parse_object.scheme in ["http", "https", "ftp"] or \
@@ -2838,6 +2840,9 @@ def sub_urlimg(g):
     start = g.group("start")
     url = g.group("url")
     parse_object = urlparse(url)
+    if parse_object.query!='':
+        resp = parse_qs(urlparse(url).query, keep_blank_values=True)
+        parse_object = urlparse(resp["u"][0])
     (filepath, filename) = os.path.split(parse_object.path)
     ext = filename.split(".")[-1]
     if ext == "gif":
