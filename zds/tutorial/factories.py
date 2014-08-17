@@ -29,6 +29,7 @@ u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/i
 u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)'
 u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)'
 u'Une image de type wikipedia qui fait tomber des tests ![](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)'
+u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)'
 u'\n Attention les tests ne doivent pas crasher '
 u'qu\'un sujet abandonné !')
             

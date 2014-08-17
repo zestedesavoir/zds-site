@@ -2781,12 +2781,13 @@ def get_url_images(md_text, pt):
     if md_text is not None:
         imgs = re.findall(regex, md_text)
         for img in imgs:
-
+            real_url=img[1]
             # decompose images 
-            parse_object = urlparse(img[1])
+            parse_object = urlparse(real_url)
             if parse_object.query!='':
                 resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
-                parse_object = urlparse(resp["u"][0])
+                real_url = resp["u"][0]
+                parse_object = urlparse(real_url)
 
             # if link is http type
             if parse_object.scheme in ["http", "https", "ftp"] or \
@@ -2798,25 +2799,28 @@ def get_url_images(md_text, pt):
 
                 # download image
                 down_path=os.path.abspath(os.path.join(pt, "images", filename))
-                urlretrieve(img[1], down_path)
                 try:
-                    ext = filename.split(".")[-1]
-                    im = ImagePIL.open(down_path)
-                    # if image is gif, convert to png
-                    if ext == "gif":
-                        im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                    urlretrieve(real_url, down_path)                    
+                    try:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(down_path)
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(pt, "images", filename))
                 except IOError:
-                    ext = filename.split(".")[-1]
-                    im = ImagePIL.open(unknow_path)
-                    if ext == "gif":
-                        im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
-                    else:
-                        im.save(os.path.join(pt, "images", filename))
+                    pass
             else:
                 # relative link
-                srcfile = settings.SITE_ROOT + img[1]
+                srcfile = settings.SITE_ROOT + real_url
                 if os.path.isfile(srcfile):
-                    dstroot = pt + img[1]
+                    dstroot = pt + real_url
                     dstdir = os.path.dirname(dstroot)
                     if not os.path.exists(dstdir):
                         os.makedirs(dstdir)
@@ -2844,27 +2848,31 @@ def sub_urlimg(g):
         resp = parse_qs(urlparse(url).query, keep_blank_values=True)
         parse_object = urlparse(resp["u"][0])
     (filepath, filename) = os.path.split(parse_object.path)
-    ext = filename.split(".")[-1]
-    if ext == "gif":
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename.split(".")[0] + ".png")
+    if filename!='':
+        mark= g.group("mark")
+        ext = filename.split(".")[-1]
+        if ext == "gif":
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename.split(".")[0] + ".png")
+            else:
+                url = (url.split(".")[0])[1:] + ".png"
         else:
-            url = (url.split(".")[0])[1:] + ".png"
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename)
+            else:
+                url = url[1:]
+        end = g.group("end")
+        return start + mark+ url + end
     else:
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename)
-        else:
-            url = url[1:]
-    end = g.group("end")
-    return start + url + end
-
+        return start
+    
 
 def markdown_to_out(md_text):
-    return re.sub(ur"(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
+    return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 
