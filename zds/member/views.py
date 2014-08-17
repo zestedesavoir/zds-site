@@ -45,20 +45,21 @@ def index(request):
 
     if request.is_ajax():
         q = request.GET.get('q', '')
-        members = User.objects.filter(username__icontains=q)[:20]
+        if request.user.is_authenticated() :
+            members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
+        else:
+            members = User.objects.filter(username__icontains=q)[:20]
         results = []
-        for member in members:
-            if request.user.is_authenticated() and member.pk == request.user.pk:
-                continue
+        for member in members:\
             member_json = {}
             member_json['id'] = member.pk
             member_json['label'] = member.username
             member_json['value'] = member.username
             results.append(member_json)
         data = json.dumps(results)
-
+        
         mimetype = "application/json"
-
+        
         return HttpResponse(data, mimetype)
 
     else:
