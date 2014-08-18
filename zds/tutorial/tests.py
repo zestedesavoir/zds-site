@@ -2,6 +2,9 @@
 
 import os
 import shutil
+import tarfile
+import zipfile
+from urllib import urlretrieve
 import HTMLParser
 from django.conf import settings
 from django.core import mail
@@ -20,6 +23,8 @@ from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
+from django.conf.global_settings import MEDIA_ROOT
+from django.test.client import RequestFactory
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
@@ -37,6 +42,7 @@ class BigTutorialTests(TestCase):
 
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
+        self.factory = RequestFactory()
         self.mas = ProfileFactory().user
         settings.BOT_ACCOUNT = self.mas.username
 
@@ -119,6 +125,75 @@ class BigTutorialTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
+
+    def test_import_archive(self):
+        #create temporary data directory
+        temp = os.path.join(SITE_ROOT, "temp")
+        
+        # download tar
+        if not os.path.isdir(temp):
+            os.makedirs(temp, mode=0777)
+        tarpath = os.path.join(MEDIA_ROOT, "temp", self.bigtuto.get_phy_slug()+".tar")
+        result = self.client.get(
+            reverse('zds.tutorial.views.download')+"?tutoriel={}".format(str(self.bigtuto.pk)),
+            follow=False)
+        
+        save_path=os.path.join(settings.REPO_PATH, self.bigtuto.get_phy_slug()+".tar")
+        shutil.copy(save_path, tarpath)
+        tar = tarfile.open(tarpath)
+        tar.extractall(path=os.path.join(temp, self.bigtuto.get_phy_slug()))
+        tar.close()
+        
+        self.assertTrue(os.path.isdir(os.path.join(temp, self.bigtuto.get_phy_slug())))
+        
+        # update markdown files
+        up_intro_tfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), self.bigtuto.introduction), "a")
+        up_intro_tfile.write(u"preuve de modification de l'introduction")
+        up_intro_tfile.close()
+        up_conclu_tfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), self.bigtuto.conclusion), "a")
+        up_conclu_tfile.write(u"preuve de modification de la conclusion")
+        up_conclu_tfile.close()
+        parts = Part.objects.filter(tutorial__pk=self.bigtuto.pk)
+        for part in parts:
+            up_intro_pfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), part.introduction), "a")
+            up_intro_pfile.write(u"preuve de modification de l'introduction")
+            up_intro_pfile.close()
+            up_conclu_pfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), part.conclusion), "a")
+            up_conclu_pfile.write(u"preuve de modification de la conclusion")
+            up_conclu_pfile.close()
+            chapters = Chapter.objects.filter(part__pk=part.pk)
+            for chapter in chapters:
+                up_intro_cfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), chapter.introduction), "a")
+                up_intro_cfile.write(u"preuve de modification de l'introduction")
+                up_intro_cfile.close()
+                up_conclu_cfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), chapter.conclusion), "a")
+                up_conclu_cfile.write(u"preuve de modification de la conclusion")
+                up_conclu_cfile.close()
+
+        # zip directory
+        shutil.make_archive(os.path.join(temp, self.bigtuto.get_phy_slug()),
+                            "zip",
+                            os.path.join(temp, self.bigtuto.get_phy_slug()))
+        
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")))
+        
+        # import zip archive
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")),
+                    'r'),
+                'tutorial': self.bigtuto.pk,
+                'import-archive': "importer"},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 1)
+        
+        #delete temporary data directory
+        shutil.rmtree(temp)
 
     def test_add_note(self):
         """To test add note for tutorial."""
@@ -1826,6 +1901,59 @@ class MiniTutorialTests(TestCase):
 
         mail.outbox = []
 
+    def test_import_archive(self):
+        #create temporary data directory
+        temp = os.path.join(SITE_ROOT, "temp")
+        
+        # download tar
+        if not os.path.isdir(temp):
+            os.makedirs(temp, mode=0777)
+        tarpath = os.path.join(MEDIA_ROOT, "temp", self.minituto.get_phy_slug()+".tar")
+        result = self.client.get(
+            reverse('zds.tutorial.views.download')+"?tutoriel={}".format(str(self.minituto.pk)),
+            follow=False)
+        
+        save_path=os.path.join(settings.REPO_PATH, self.minituto.get_phy_slug()+".tar")
+        shutil.copy(save_path, tarpath)
+        tar = tarfile.open(tarpath)
+        tar.extractall(path=os.path.join(temp, self.minituto.get_phy_slug()))
+        tar.close()
+        
+        self.assertTrue(os.path.isdir(os.path.join(temp, self.minituto.get_phy_slug())))
+        
+        # update markdown files
+        up_intro_tfile = open(os.path.join(temp, self.minituto.get_phy_slug(), self.minituto.introduction), "a")
+        up_intro_tfile.write(u"preuve de modification de l'introduction")
+        up_intro_tfile.close()
+        up_conclu_tfile = open(os.path.join(temp, self.minituto.get_phy_slug(), self.minituto.conclusion), "a")
+        up_conclu_tfile.write(u"preuve de modification de la conclusion")
+        up_conclu_tfile.close()
+
+        # zip directory
+        shutil.make_archive(os.path.join(temp, self.minituto.get_phy_slug()),
+                            "zip",
+                            os.path.join(temp, self.minituto.get_phy_slug()))
+        
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
+        
+        # import zip archive
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        os.path.join(temp, self.minituto.get_phy_slug()+".zip")),
+                    'r'),
+                'tutorial': self.minituto.pk,
+                'import-archive': "importer"},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Tutorial.objects.all().count(), 1)
+        
+        #delete temporary data directory
+        shutil.rmtree(temp)
+        
     def add_test_extract_named_introduction(self):
         """test the use of an extract named introduction"""
 
