@@ -19,6 +19,11 @@ group_prefix_re = [
     re.compile( ".*" ),           # catch strange entries
 ]
 
+
+def can_profile(request):
+    return (settings.DEBUG or (request.user is not None and request.user.is_superuser)) and 'prof' in request.GET
+
+
 class ProfileMiddleware(object):
     """
     Displays hotshot profiling for any view.
@@ -31,13 +36,14 @@ class ProfileMiddleware(object):
 
     WARNING: It uses hotshot profiler which is not thread safe.
     """
+
     def process_request(self, request):
-        if (settings.DEBUG or request.user.is_superuser) and 'prof' in request.GET:
+        if can_profile(request):
             self.tmpfile = tempfile.mktemp()
             self.prof = hotshot.Profile(self.tmpfile)
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
-        if (settings.DEBUG or request.user.is_superuser) and 'prof' in request.GET:
+        if can_profile(request):
             return self.prof.runcall(callback, request, *callback_args, **callback_kwargs)
 
     def get_group(self, file):
@@ -88,7 +94,7 @@ class ProfileMiddleware(object):
 
     def process_response(self, request, response):
         try:
-            if (settings.DEBUG or request.user.is_superuser) and 'prof' in request.GET:
+            if can_profile(request):
                 self.prof.close()
 
                 out = StringIO.StringIO()
