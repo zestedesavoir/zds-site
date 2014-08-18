@@ -4,7 +4,7 @@ from collections import OrderedDict
 from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
-from urlparse import urlparse
+from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
 except:
@@ -2780,20 +2780,23 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = ur"(!\[.*?\]\()(.+?)(\))"
+    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 
     if md_text is not None:
         imgs = re.findall(regex, md_text)
         for img in imgs:
-
-            # decompose images
-
-            parse_object = urlparse(img[1])
+            real_url=img[1]
+            # decompose images 
+            parse_object = urlparse(real_url)
+            if parse_object.query!='':
+                resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
+                real_url = resp["u"][0]
+                parse_object = urlparse(real_url)
 
             # if link is http type
-
-            if parse_object.scheme in ("http", "https", "ftp") or \
+            if parse_object.scheme in ["http", "https", "ftp"] or \
             parse_object.netloc[:3]=="www" or \
             parse_object.path[:3]=="www":
                 (filepath, filename) = os.path.split(parse_object.path)
@@ -2801,62 +2804,81 @@ def get_url_images(md_text, pt):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
-
-                urlretrieve(img[1], os.path.abspath(os.path.join(pt, "images",
-                                                                 filename)))
-                ext = filename.split(".")[-1]
-
-                # if image is gif, convert to png
-
-                if ext == "gif":
-                    im = ImagePIL.open(os.path.join(pt, img[1]))
-                    im.save(os.path.join(pt, filename.split(".")[0] + ".png"))
+                down_path=os.path.abspath(os.path.join(pt, "images", filename))
+                try:
+                    urlretrieve(real_url, down_path)                    
+                    try:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(down_path)
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(pt, "images", filename))
+                except IOError:
+                    pass
             else:
-
                 # relative link
-
-                srcfile = settings.SITE_ROOT + img[1]
+                srcfile = settings.SITE_ROOT + real_url
                 if os.path.isfile(srcfile):
-                    dstroot = pt + img[1]
+                    dstroot = pt + real_url
                     dstdir = os.path.dirname(dstroot)
                     if not os.path.exists(dstdir):
                         os.makedirs(dstdir)
                     shutil.copy(srcfile, dstroot)
-                    ext = dstroot.split(".")[-1]
-    
-                    # if image is gif, convert to png
-    
-                    if ext == "gif":
+                    try:
+                        ext = dstroot.split(".")[-1]
                         im = ImagePIL.open(dstroot)
-                        im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = dstroot.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(dstroot))
 
 
 def sub_urlimg(g):
     start = g.group("start")
     url = g.group("url")
     parse_object = urlparse(url)
+    if parse_object.query!='':
+        resp = parse_qs(urlparse(url).query, keep_blank_values=True)
+        parse_object = urlparse(resp["u"][0])
     (filepath, filename) = os.path.split(parse_object.path)
-    ext = filename.split(".")[-1]
-    if ext == "gif":
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename.split(".")[0] + ".png")
+    if filename!='':
+        mark= g.group("mark")
+        ext = filename.split(".")[-1]
+        if ext == "gif":
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename.split(".")[0] + ".png")
+            else:
+                url = (url.split(".")[0])[1:] + ".png"
         else:
-            url = (url.split(".")[0])[1:] + ".png"
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename)
+            else:
+                url = url[1:]
+        end = g.group("end")
+        return start + mark+ url + end
     else:
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename)
-        else:
-            url = url[1:]
-    end = g.group("end")
-    return start + url + end
-
+        return start
+    
 
 def markdown_to_out(md_text):
-    return re.sub(ur"(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
+    return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 
