@@ -363,6 +363,7 @@ def import_archive(request):
     ext = str(archive).split(".")[-1]
     if ext=="zip":
         zfile = zipfile.ZipFile(archive, "a")
+        json_here = False
         for i in zfile.namelist():
             ph = i
             if ph=="manifest.json":
@@ -384,8 +385,10 @@ def import_archive(request):
                 tutorial.save()
                 new_path = tutorial.get_path()
                 shutil.move(old_path, new_path)
-        
+                json_here = True
                 break
+        if not json_here:
+            return (False, u"L'archive n'a pas pu être importée car le fichier manifest.json (fichier de métadonnées est introuvable).")
         #delete old file
         for filename in os.listdir(tutorial.get_path()) :
             if not filename.startswith('.'):
@@ -424,4 +427,7 @@ def import_archive(request):
                             committer=Actor(aut_user, aut_email))
         tutorial.sha_draft = com.hexsha
         tutorial.save()
-    return (True, u"Le tutoriel {} a été importé avec succès".format(tutorial.title))
+
+        return (True, u"Le tutoriel {} a été importé avec succès".format(tutorial.title))
+    else:
+        return (False, u"L'archive n'a pas pu être importée car elle n'est pas au format zip")
