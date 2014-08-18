@@ -364,7 +364,7 @@ def import_archive(request):
     if ext=="zip":
         zfile = zipfile.ZipFile(archive, "a")
         for i in zfile.namelist():
-            ph = i[i.index(os.sep)+1:]
+            ph = i
             if ph=="manifest.json":
                 json_data = zfile.read(i)
                 mandata = json_reader.loads(json_data)
@@ -396,7 +396,7 @@ def import_archive(request):
                     shutil.rmtree(mf) 
         #copy new file
         for i in zfile.namelist():
-            ph = i[i.index(os.sep)+1:]
+            ph = i
             if ph!="":
                 ph_dest = os.path.join(tutorial.get_path(), ph)
                 try:

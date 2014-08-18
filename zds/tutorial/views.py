@@ -2705,7 +2705,7 @@ def download(request):
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", "w"))
     response = HttpResponse(open(ph + ".tar", "rb").read(),
-                            mimetype="application/tar")
+                            content_type="application/tar")
     response["Content-Disposition"] = \
         "attachment; filename={0}.tar".format(tutorial.slug)
     return response
@@ -2723,7 +2723,7 @@ def download_markdown(request):
                 ".md") 
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/txt")
+        content_type="application/txt")
     response["Content-Disposition"] = \
         "attachment; filename={0}.md".format(tutorial.slug)
     return response
@@ -2742,7 +2742,7 @@ def download_html(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="text/html")
+        content_type="text/html")
     response["Content-Disposition"] = \
         "attachment; filename={0}.html".format(tutorial.slug)
     return response
@@ -2761,7 +2761,7 @@ def download_pdf(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/pdf")
+        content_type="application/pdf")
     response["Content-Disposition"] = \
         "attachment; filename={0}.pdf".format(tutorial.slug)
     return response
@@ -2780,7 +2780,7 @@ def download_epub(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/epub")
+        content_type="application/epub")
     response["Content-Disposition"] = \
         "attachment; filename={0}.epub".format(tutorial.slug)
     return response
