@@ -275,6 +275,11 @@ class Tag(models.Model):
     def __unicode__(self):
         """Textual Link Form."""
         return u"{0}".format(self.title)
+    
+    def get_absolute_url(self):
+        return reverse('zds.forum.views.find_topic_by_tag',
+           kwargs={'tag_pk': self.pk,
+                   'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.title = smart_text(self.title).lower()
