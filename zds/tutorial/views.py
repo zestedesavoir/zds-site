@@ -1112,6 +1112,8 @@ def view_part(
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    tutorial.load_dic(mandata, sha=sha)
+
     parts = mandata["parts"]
     find = False
     cpt_p = 1
@@ -1150,7 +1152,7 @@ def view_part(
         raise Http404
     
     return render_template("tutorial/part/view.html",
-                           {"tutorial": tutorial,
+                           {"tutorial": mandata,
                             "part": final_part,
                             "version": sha})
 
@@ -1440,6 +1442,8 @@ def view_chapter(
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    tutorial.load_dic(mandata, sha=sha)
+
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -1497,7 +1501,7 @@ def view_chapter(
                     < len(chapter_tab) else None)
     
     return render_template("tutorial/chapter/view.html", {
-        "tutorial": tutorial,
+        "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,

@@ -33,7 +33,7 @@
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
 
-    {% if tutorial.in_beta and tutorial.sha_beta == version %}
+    {% if tutorial.is_beta %}
         <div class="content-wrapper">
             <div class="alert-box warning">
                 Cette version du tutoriel est en <strong>BÊTA</strong> !
