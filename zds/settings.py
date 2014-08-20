@@ -113,6 +113,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+    'zds.middlewares.profile.ProfileMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
