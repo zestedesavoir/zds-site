@@ -151,9 +151,13 @@ def topic(request, topic_pk, topic_slug):
     # The category list is needed to move threads
 
     categories = Category.objects.all()
-    try:
-        page_nbr = int(request.GET["page"])
-    except:
+    if "page" in request.GET:
+        try:
+            page_nbr = int(request.GET["page"])
+        except:
+            # problem in variable format
+            raise Http404
+    else:
         page_nbr = 1
     try:
         posts = paginator.page(page_nbr)
@@ -234,6 +238,7 @@ def new(request):
     try:
         forum_pk = request.GET["forum"]
     except:
+        # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
     if not forum.can_read(request.user):
@@ -345,6 +350,7 @@ def move_topic(request):
     try:
         topic_pk = request.GET["sujet"]
     except:
+        # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
     if not forum.can_read(request.user):
@@ -375,11 +381,17 @@ def edit(request):
     try:
         topic_pk = request.POST["topic"]
     except:
+        # problem in variable format
         raise Http404
-    try:
-        page = int(request.POST["page"])
-    except:
+    if "page" in request.POST:
+        try:
+            page = int(request.POST["page"])
+        except:
+            #problem in vairable format
+            raise Http404
+    else:
         page = 1
+
     data = request.POST
     resp = {}
     g_topic = get_object_or_404(Topic, pk=topic_pk)
@@ -410,6 +422,7 @@ def edit(request):
             try:
                 forum_pk = int(request.POST["move_target"])
             except:
+                # problem in variable format
                 raise Http404
             forum = get_object_or_404(Forum, pk=forum_pk)
             g_topic.forum = forum
@@ -433,6 +446,7 @@ def answer(request):
     try:
         topic_pk = request.GET["sujet"]
     except:
+        # problem in variable format
         raise Http404
 
     # Retrieve current topic.
@@ -590,6 +604,7 @@ def edit_post(request):
     try:
         post_pk = request.GET["message"]
     except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
     if not post.topic.forum.can_read(request.user):
@@ -716,6 +731,7 @@ def useful_post(request):
     try:
         post_pk = request.GET["message"]
     except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
 
@@ -742,6 +758,7 @@ def unread_post(request):
     try:
         post_pk = request.GET["message"]
     except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
 
@@ -776,6 +793,7 @@ def like_post(request):
     try:
         post_pk = request.GET["message"]
     except:
+        # problem in variable format
         raise Http404
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
@@ -823,6 +841,7 @@ def dislike_post(request):
     try:
         post_pk = request.GET["message"]
     except:
+        # problem in variable format
         raise Http404
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
