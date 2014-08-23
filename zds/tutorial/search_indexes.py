@@ -39,8 +39,9 @@ class PartIndex(indexes.SearchIndex, indexes.Indexable):
 class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
-    part = indexes.CharField(model_attr='part')
-    tutorial = indexes.CharField(model_attr='tutorial')
+    # A Chapter belongs to a Part (big-tuto) **or** a Tutorial (mini-tuto)
+    part = indexes.CharField(model_attr='part', null=True)
+    tutorial = indexes.CharField(model_attr='tutorial', null=True)
 
     def get_model(self):
         return Chapter
