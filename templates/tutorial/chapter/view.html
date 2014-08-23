@@ -144,7 +144,7 @@
     {% include "tutorial/includes/summary.part.html" with tutorial=tutorial chapter_current=chapter %}
 
     {% if chapter.part %}
-        {% if user in tutorial.authors.all %}
+        {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
                 <h3>Suppression</h3>
                 <ul>
