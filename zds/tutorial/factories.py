@@ -20,7 +20,19 @@ from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
 from zds.utils.models import SubCategory, Licence 
 from zds.utils.tutorials import export_tutorial
 
-
+contenu = (
+u'Ceci est un contenu de tutoriel utile et à tester un peu partout'
+u'Ce contenu ira aussi bien dans les introductions, que dans les conclusions et les extraits '
+u'le gros intéret étant qu\'il renferme des images pour tester l\'execution coté pandoc '
+u'Exemple d\'image ![Ma pepite souris](http://blog.science-infuse.fr/public/souris.jpg)'
+u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/inv_souris.jpg)'
+u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)'
+u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)'
+u'Une image de type wikipedia qui fait tomber des tests ![](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)'
+u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)'
+u'\n Attention les tests ne doivent pas crasher '
+u'qu\'un sujet abandonné !')
+            
 class BigTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
 
@@ -47,10 +59,10 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.introduction), "w")
-        f.write(u'Test')
+        f.write(contenu.encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.conclusion), "w")
-        f.write(u'Test')
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
@@ -90,10 +102,10 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
                 ensure_ascii=False).encode('utf-8'))
         file.close()
         file = open(os.path.join(path, tuto.introduction), "w")
-        file.write(u'Test')
+        file.write(contenu.encode('utf-8'))
         file.close()
         file = open(os.path.join(path, tuto.conclusion), "w")
-        file.write(u'Test')
+        file.write(contenu.encode('utf-8'))
         file.close()
 
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
@@ -124,11 +136,11 @@ class PartFactory(factory.DjangoModelFactory):
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
-        f.write(u'Test')
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add([part.introduction])
         f = open(os.path.join(tutorial.get_path(), part.conclusion), "w")
-        f.write(u'Test')
+        f.write(contenu.encode('utf-8'))
         f.close()
         repo.index.add([part.conclusion])
 
@@ -202,14 +214,14 @@ class ChapterFactory(factory.DjangoModelFactory):
                     part.tutorial.get_path(),
                     chapter.introduction),
                 "w")
-            f.write(u'Test')
+            f.write(contenu.encode('utf-8'))
             f.close()
             f = open(
                 os.path.join(
                     part.tutorial.get_path(),
                     chapter.conclusion),
                 "w")
-            f.write(u'Test')
+            f.write(contenu.encode('utf-8'))
             f.close()
             part.tutorial.save()
             repo = Repo(part.tutorial.get_path())

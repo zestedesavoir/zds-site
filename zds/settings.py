@@ -1,15 +1,6 @@
 # coding: utf-8
 
-import locale
 import os
-import platform
-
-
-# Python is platform-independent...or is it?
-if platform.system() == "Windows":
-    locale.setlocale(locale.LC_TIME, 'fra')
-else:
-    locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -51,7 +42,7 @@ USE_I18N = True
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
@@ -122,6 +113,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
+    'zds.middlewares.profile.ProfileMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'

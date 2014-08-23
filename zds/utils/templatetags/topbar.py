@@ -54,3 +54,9 @@ def top_categories_tuto(user):
         else:
             cats[key] = [csc.subcategory]
     return cats
+
+
+@register.filter('auth_forum')
+def auth_forum(forum, user):
+    return forum.can_read(user)
+
