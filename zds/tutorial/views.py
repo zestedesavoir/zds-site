@@ -905,7 +905,7 @@ def add_tutorial(request):
             else:
                 tutorial.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
-                    )
+                )
 
             # add create date
 
@@ -973,7 +973,7 @@ def add_tutorial(request):
             initial={
                 'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
                 }
-            )
+        )
     return render_template("tutorial/tutorial/new.html", {"form": form})
 
 
@@ -1028,7 +1028,7 @@ def edit_tutorial(request):
             else:
                 tutorial.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
-                    )
+                )
 
             # add MAJ date
 
@@ -1078,7 +1078,7 @@ def edit_tutorial(request):
         else:
             licence = Licence.objects.get(
                         pk=settings.DEFAULT_LICENCE_PK
-                        )
+            )
         form = TutorialForm(initial={
             "title": json["title"],
             "type": json["type"],

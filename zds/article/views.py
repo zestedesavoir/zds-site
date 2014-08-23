@@ -256,7 +256,7 @@ def new(request):
             else:
                 article.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
-                    )
+                )
 
             article.save()
 
@@ -271,7 +271,7 @@ def new(request):
             initial={
                 'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
                 }
-            )
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -317,7 +317,7 @@ def edit(request):
                 else:
                     article.licence = Licence.objects.get(
                         pk=settings.DEFAULT_LICENCE_PK
-                        )
+                    )
             
 
             article.save()
@@ -340,7 +340,7 @@ def edit(request):
         else:
             licence = Licence.objects.get(
                         pk=settings.DEFAULT_LICENCE_PK
-                        )
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
