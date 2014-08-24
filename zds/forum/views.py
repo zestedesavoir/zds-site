@@ -387,7 +387,7 @@ def edit(request):
         try:
             page = int(request.POST["page"])
         except:
-            #problem in vairable format
+            #problem in variable format
             raise Http404
     else:
         page = 1
