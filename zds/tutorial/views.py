@@ -902,6 +902,10 @@ def add_tutorial(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
+            else:
+                tutorial.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             # add create date
 
@@ -965,7 +969,11 @@ def add_tutorial(request):
             )
             return redirect(tutorial.get_absolute_url())
     else:
-        form = TutorialForm()
+        form = TutorialForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
     return render_template("tutorial/tutorial/new.html", {"form": form})
 
 
@@ -1017,6 +1025,10 @@ def edit_tutorial(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
+            else:
+                tutorial.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             # add MAJ date
 
@@ -1064,7 +1076,9 @@ def edit_tutorial(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = TutorialForm(initial={
             "title": json["title"],
             "type": json["type"],

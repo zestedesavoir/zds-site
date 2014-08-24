@@ -253,6 +253,10 @@ def new(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 article.licence = lc
+            else:
+                article.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             article.save()
 
@@ -263,7 +267,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -307,7 +315,9 @@ def edit(request):
                     lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                     article.licence = lc
                 else:
-                    article.licence = None
+                    article.licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+                    )
             
 
             article.save()
@@ -328,7 +338,9 @@ def edit(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],

@@ -92,7 +92,8 @@ class TutorialForm(FormWithTitle):
     licence = forms.ModelChoiceField(
         label="Licence de votre publication",
         queryset=Licence.objects.all(),
-        required=False,
+        required=True,
+        empty_label=None
     )
 
     def __init__(self, *args, **kwargs):

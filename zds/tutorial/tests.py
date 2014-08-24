@@ -15,7 +15,7 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFacto
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory, SubCategoryFactory
+    ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.utils.models import SubCategory, Licence, Alert
@@ -43,10 +43,14 @@ class BigTutorialTests(TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
         self.subcat = SubCategoryFactory()
+        
+        self.licence = LicenceFactory()
+        self.licence.save()
 
         self.bigtuto = BigTutorialFactory()
         self.bigtuto.authors.add(self.user_author)
         self.bigtuto.gallery = GalleryFactory()
+        self.bigtuto.licence = self.licence
         self.bigtuto.save()
 
         self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
@@ -495,6 +499,7 @@ class BigTutorialTests(TestCase):
                 'introduction':"Bienvenue dans le monde binaires",
                 'conclusion': "",
                 'type': "BIG",
+                'licence' : self.licence.pk,
                 'subcategory': self.subcat.pk,
             },
             follow=False)
@@ -1243,6 +1248,7 @@ class BigTutorialTests(TestCase):
                 'subcategory': [sub.pk],
                 'introduction': self.bigtuto.get_introduction() +" un essai",
                 'conclusion': self.bigtuto.get_conclusion(),
+                'licence' : self.bigtuto.licence.pk,
                 'last_hash': hash 
             }, follow= True)
         conflict_result = self.client.post(
@@ -1253,6 +1259,7 @@ class BigTutorialTests(TestCase):
                 'subcategory': [sub.pk],
                 'introduction': self.bigtuto.get_introduction() +" conflictual",
                 'conclusion': self.bigtuto.get_conclusion(),
+                'licence' : self.bigtuto.licence.pk,
                 'last_hash': hash 
             }, follow= False)
         self.assertEqual(conflict_result.status_code, 200)
@@ -1909,6 +1916,7 @@ class BigTutorialTests(TestCase):
                 'introduction': self.bigtuto.introduction,
                 'description': self.bigtuto.description,
                 'conclusion': self.bigtuto.conclusion,
+                'licence' : self.bigtuto.licence.pk,
                 'last_hash': compute_hash([os.path.join(self.bigtuto.get_path(),"introduction.md"),
 					    os.path.join(self.bigtuto.get_path(),"conclusion.md")])
             },
@@ -1919,6 +1927,149 @@ class BigTutorialTests(TestCase):
         self.assertEqual(tuto.gallery.title, tuto.title)
         self.assertEqual(tuto.gallery.slug, tuto.slug)
 
+    def test_workflow_licence(self):
+        '''Ensure the behavior of licence on mini-tutorials'''
+
+        # create a new licence
+        new_licence = LicenceFactory(code='CC_BY', title='Creative Commons BY')
+        new_licence = Licence.objects.get(pk=new_licence.pk)
+
+        # check value first
+        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        
+        # get value wich does not change (speed up test)
+        introduction = self.bigtuto.get_introduction()
+        conclusion = self.bigtuto.get_conclusion()
+        hash = compute_hash([
+                    os.path.join(self.bigtuto.get_path(),"introduction.md"),
+				    os.path.join(self.bigtuto.get_path(),"conclusion.md")
+				    ])
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertTrue(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77')
+        )
+
+        # change licence (get 302) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': self.bigtuto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tuto.licence.pk, self.licence.pk)
+        self.assertEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], new_licence.code)
+
+        # then logout ...
+        self.client.logout()
+        # ... and login with staff
+        self.assertTrue(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77')
+        )
+
+        # change licence back to old one (get 302, staff can change licence) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': self.bigtuto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : self.licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
+
+        # then logout ...
+        self.client.logout()
+
+        # change licence (get 302, redirection to login page) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': self.bigtuto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change (normaly, nothing has) :
+        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+        
+        # login with random user
+        self.assertTrue(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77')
+        )
+
+        # change licence (get 403, random user cannot edit bigtuto if not in
+        # authors list) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.bigtuto.pk),
+            {
+                'title': self.bigtuto.title,
+                'description': self.bigtuto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # test change (normaly, nothing has) :
+        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON (normaly, nothing has) :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
@@ -1955,10 +2106,14 @@ class MiniTutorialTests(TestCase):
         self.staff = StaffProfileFactory().user
 
         self.subcat = SubCategoryFactory()
+        
+        self.licence = LicenceFactory()
+        self.licence.save()
 
         self.minituto = MiniTutorialFactory()
         self.minituto.authors.add(self.user_author)
         self.minituto.gallery = GalleryFactory()
+        self.minituto.licence = self.licence
         self.minituto.save()
 
         self.chapter = ChapterFactory(
@@ -2602,6 +2757,7 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'licence' : self.minituto.licence.pk,
                     'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
 					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
@@ -2621,6 +2777,7 @@ class MiniTutorialTests(TestCase):
                     'subcategory': [sub.pk],
                     'introduction': self.minituto.get_introduction(),
                     'conclusion': self.minituto.get_conclusion(),
+                    'licence' : self.minituto.licence.pk,
                     'last_hash': compute_hash([os.path.join(self.minituto.get_path(),"introduction.md"),
 					    os.path.join(self.minituto.get_path(),"conclusion.md")])
                 },
@@ -2892,6 +3049,7 @@ class MiniTutorialTests(TestCase):
                 'introduction':"Bienvenue dans le monde binaires",
                 'conclusion': "",
                 'type': "MINI",
+                'licence' : self.licence.pk,
                 'subcategory': self.subcat.pk,
             },
             follow=False)
@@ -3003,6 +3161,150 @@ class MiniTutorialTests(TestCase):
             follow=True)
 
         self.assertEqual(Extract.objects.filter(chapter__tutorial=tuto).count(), 2)
+
+    def test_workflow_licence(self):
+        '''Ensure the behavior of licence on mini-tutorials'''
+
+        # create a new licence
+        new_licence = LicenceFactory(code='CC_BY', title='Creative Commons BY')
+        new_licence = Licence.objects.get(pk=new_licence.pk)
+
+        # check value first
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        
+        # get value wich does not change (speed up test)
+        introduction = self.minituto.get_introduction()
+        conclusion = self.minituto.get_conclusion()
+        hash = compute_hash([
+                    os.path.join(self.minituto.get_path(),"introduction.md"),
+				    os.path.join(self.minituto.get_path(),"conclusion.md")
+				    ])
+
+        # logout before
+        self.client.logout()
+        # login with author
+        self.assertTrue(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77')
+        )
+
+        # change licence (get 302) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.minituto.pk),
+            {
+                'title': self.minituto.title,
+                'description': self.minituto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertNotEqual(tuto.licence.pk, self.licence.pk)
+        self.assertEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], new_licence.code)
+
+        # then logout ...
+        self.client.logout()
+        # ... and login with staff
+        self.assertTrue(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77')
+        )
+
+        # change licence back to old one (get 302, staff can change licence) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.minituto.pk),
+            {
+                'title': self.minituto.title,
+                'description': self.minituto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : self.licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change :
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
+
+        # then logout ...
+        self.client.logout()
+
+        # change licence (get 302, redirection to login page) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.minituto.pk),
+            {
+                'title': self.minituto.title,
+                'description': self.minituto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test change (normaly, nothing has) :
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+        
+        # login with random user
+        self.assertTrue(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77')
+        )
+
+        # change licence (get 403, random user cannot edit minituto if not in
+        # authors list) :
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_tutorial') + 
+                '?tutoriel={}'.format(self.minituto.pk),
+            {
+                'title': self.minituto.title,
+                'description': self.minituto.description,
+                'introduction': introduction,
+                'conclusion': conclusion,
+                'subcategory': self.subcat.pk,
+                'licence' : new_licence.pk,
+                'last_hash': hash
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # test change (normaly, nothing has) :
+        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertEqual(tuto.licence.pk, self.licence.pk)
+        self.assertNotEqual(tuto.licence.pk, new_licence.pk)
+
+        # test change in JSON (normaly, nothing has) :
+        json = tuto.load_json()
+        self.assertEquals(json['licence'], self.licence.code)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
