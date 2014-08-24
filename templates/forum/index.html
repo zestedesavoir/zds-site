@@ -37,7 +37,7 @@
     <div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
         <meta itemprop="itemListOrder" content="Unordered">
 
-        {% for title, forums in categories.items %}
+        {% for title, forums in categories.categories.items %}
             <h2 class="group-title content-wrapper">
                 {{ title }}
             </h2>
