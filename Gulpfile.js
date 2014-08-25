@@ -26,8 +26,8 @@ var paths = {
 };
 
 gulp.task("clean", function() {
-  return gulp.src(["dist/*"])
-    .pipe($.clean());
+  return gulp.src(["dist/*"], { read: false })
+    .pipe($.rimraf());
 });
 
 gulp.task("script", ["test"], function() {
@@ -43,8 +43,8 @@ gulp.task("script", ["test"], function() {
 });
 
 gulp.task("clean-errors", function() {
-  return gulp.src(["errors/css/*"])
-    .pipe($.clean());
+  return gulp.src(["errors/css/*"], { read: false })
+    .pipe($.rimraf());
 });
 
 gulp.task("errors", ["clean-errors"], function() {
