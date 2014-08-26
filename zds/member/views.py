@@ -84,20 +84,25 @@ def index(request):
             "nb": page,
         })
 
-@can_write_and_read_now
+@can_read_now
 @login_required
 @transaction.atomic
 def unregister(request):
     """allow members to unregister"""
-	anonymous = get_object_or_404(User, username="anonymous")
+    anonymous = get_object_or_404(User, username="anonymous")
     external = get_object_or_404(User, username="Auteur externe")
     current = request.user
     for tuto in request.user.profile.get_tutos():
-        if tuto.authors.count() == 1:
+        if tuto.pubdate is None :
+            Tutorial.remove(tuto)
+        if tuto.authors.count() == 1 :
             tuto.authors.add(external)
+            tuto.editor = current.username
             tuto.save()
-    for article in request.user.profile.get_articles():
-        if article.authors.count() == 1:
+    for article in request.user.profile.get_articles() :
+        if article.pubdate is None :
+            Article.remove(article)
+        if article.authors.count() == 1 :
             article.authors.add(external)
             article.save()
     for message in Post.objects.filter(author = request.user):
@@ -106,7 +111,7 @@ def unregister(request):
     for topic in Topic.objects.filter(author = request.user):
         topic.author = anonymous
 		topic.save()
-    logout_user(current.username)
+    logout(request)
     User.objects.filter(pk = current.pk).remove()
 
 def details(request, user_name):
