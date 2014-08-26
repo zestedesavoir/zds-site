@@ -84,7 +84,7 @@ def index(request):
             "nb": page,
         })
 
-@can_read_now
+
 @login_required
 @transaction.atomic
 def unregister(request):
