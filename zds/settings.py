@@ -248,6 +248,11 @@ SERVE = False
 # Max size image upload (in bytes)
 IMAGE_MAX_SIZE = 1024 * 1024
 
+# Constant for anonymisation
+
+ANONYMOUS_USER_PK = 5
+EXTERNAL_USER_PK = 6
+
 # git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
