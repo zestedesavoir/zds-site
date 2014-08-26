@@ -297,9 +297,13 @@ def answer(request):
                 post.privatetopic = g_topic
                 post.author = request.user
                 post.text = data['text']
-                post.text_html = emarkdown(data['text'])
                 post.pubdate = datetime.now()
                 post.position_in_topic = g_topic.get_post_count() + 1
+                # need a unique id (footnotes), we will use post.pk, we need to save first
+                post.text_html = 'tmp'
+                post.save()
+                # parse markdown and then save again (with unique_id=post.pk)
+                post.text_html = emarkdown(data["text"], post.pk)
                 post.save()
 
                 g_topic.last_message = post
@@ -434,7 +438,7 @@ def edit_post(request):
 
         # The user just sent data, handle them
         post.text = request.POST['text']
-        post.text_html = emarkdown(request.POST['text'])
+        post.text_html = emarkdown(request.POST['text'], post.pk)
         post.update = datetime.now()
         post.save()
 

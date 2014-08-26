@@ -100,7 +100,7 @@
 {% block content %}
     {% with tuto_version=tutorial|repo_tuto:version %}
         {% if tuto_version.introduction and tuto_version.introduction != "None" %}
-            {{ tuto_version.introduction|emarkdown }}
+            {{ tuto_version.introduction|emarkdown:"intro" }}
         {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas d'introduction.
@@ -134,7 +134,7 @@
         {% endif %}
 
         {% if tuto_version.conclusion and tuto_version.conclusion != "None" %}
-            {{ tuto_version.conclusion|emarkdown }}
+            {{ tuto_version.conclusion|emarkdown:"conclu" }}
         {% elif not tutorial.in_beta %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
@@ -263,7 +263,7 @@
                         <input type="hidden" name="update_beta">
                         <input type="hidden" name="version" value="{{ version }}">
                         <p>
-                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
                             "<em>{{ tutorial.title }}</em>" dans la version que vous voyez actuellement ?
                         </p>
                         <button type="submit">

@@ -66,12 +66,12 @@ def index(request):
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     return render_template('article/index.html', {
         'articles': article_versions,
@@ -214,7 +214,7 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory'), 
+                'subcategory': request.POST.getlist('subcategory'),
                 'licence': request.POST['licence']
             })
             return render_template('article/member/new.html', {
@@ -301,7 +301,7 @@ def edit(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory'), 
+                'subcategory': request.POST.getlist('subcategory'),
                 'licence': licence
             })
             return render_template('article/member/edit.html', {
@@ -330,7 +330,7 @@ def edit(request):
                     article.licence = lc
                 else:
                     article.licence = None
-            
+
 
             article.save()
 
@@ -371,12 +371,12 @@ def find_article(request, pk_user):
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     # Paginator
     return render_template('article/find.html', {
@@ -918,10 +918,14 @@ def answer(request):
                 reaction.article = article
                 reaction.author = request.user
                 reaction.text = data['text']
-                reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
                 reaction.position = article.get_reaction_count() + 1
                 reaction.ip_address = get_client_ip(request)
+                # need a unique id (footnotes), we will use reaction.pk, we need to save first
+                reaction.text_html = 'tmp'
+                reaction.save()
+                # parse markdown and then save again (with unique_id=reaction.pk)
+                reaction.text_html = emarkdown(data["text"], '-'.join(('com', str(reaction.pk))))
                 reaction.save()
 
                 article.last_reaction = reaction
@@ -1082,7 +1086,7 @@ def edit_reaction(request):
             # The user just sent data, handle them
             if request.POST['text'].strip() != '':
                 reaction.text = request.POST['text']
-                reaction.text_html = emarkdown(request.POST['text'])
+                reaction.text_html = emarkdown(request.POST['text'], '-'.join(('com', str(reaction.pk))))
                 reaction.update = datetime.now()
                 reaction.editor = request.user
 

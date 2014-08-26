@@ -45,11 +45,18 @@ def humane_time(t, conf={}):
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text):
+def emarkdown(text, unique_id=None):
     try:
-        return mark_safe(
-            get_markdown_instance(
-                Inline=False).convert(text).encode('utf-8'))
+        md = get_markdown_instance(Inline=False).convert(text).encode('utf-8')
+
+        if unique_id is not None:
+            if not isinstance(unique_id, str):
+                unique_id = str(unique_id)
+            # Hack to avoid double replacement of "fn" (while handling "fnref")
+            md = md.replace("fnref", "fanref" + "-" + unique_id)  # hack 1/2
+            md = md.replace("fn", "fn" + "-" + unique_id)
+            md = md.replace("fan", "fn")  # hack 2/2
+        return mark_safe(md)
     except:
         return mark_safe(u'<div class="error ico-after"><p>Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
 
