@@ -84,33 +84,49 @@ def index(request):
             "nb": page,
         })
 
-@can_read_now
+
 @login_required
 @transaction.atomic
 def unregister(request):
     """allow members to unregister"""
-    anonymous = get_object_or_404(User, username="anonymous")
-    external = get_object_or_404(User, username="Auteur externe")
+    anonymous = get_object_or_404(User, pk=ANONYMOUS_USER_PK)
+    external = get_object_or_404(User, pk=EXTERNAL_USER_PK)
     current = request.user
     for tuto in request.user.profile.get_tutos():
-        if tuto.pubdate is None :
-            Tutorial.remove(tuto)
-        if tuto.authors.count() == 1 :
-            tuto.authors.add(external)
-            tuto.editor = current.username
-            tuto.save()
-    for article in request.user.profile.get_articles() :
-        if article.pubdate is None :
-            Article.remove(article)
-        if article.authors.count() == 1 :
-            article.authors.add(external)
-            article.save()
-    for message in Post.objects.filter(author = request.user):
+
+        if tuto.authors.count() == 1:
+
+            if tuto.pubdate is None:
+                Tutorial.remove(tuto)
+            else:
+                tuto.authors.add(external)
+                tuto.editor = current.username
+                tuto.authors.remove(current)
+                tuto.save()
+    for article in request.user.profile.get_articles():
+        if article.authors.count() == 1:
+            if article.pubdate is None:
+                article.remove(tuto)
+            else:
+                article.authors.add(external)
+                article.editor = current.username
+        article.authors.remove(current)
+        article.save()
+    for message in Post.objects.filter(author = current):
         message.author = anonymous
         message.save()
-    for topic in Topic.objects.filter(author = request.user):
+    for topic in Topic.objects.filter(author = current):
         topic.author = anonymous
-		topic.save()
+        topic.save()
+    for topic in PrivateTopic.objects(author = current):
+        topic.author = anonymous
+        topic.save()
+    for message in PrivatePost.objects.filter(author = current):
+        message.author = anonymous
+        message.save()
+    for gallery in UserGallery.objects.filter(user = current):
+        gallery.user = anonymous
+        gallery.save()
     logout(request)
     User.objects.filter(pk = current.pk).remove()
 
