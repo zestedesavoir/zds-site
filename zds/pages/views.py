@@ -31,7 +31,7 @@ def home(request):
         data = tuto.load_json_for_public()
         data = tuto.load_dic(data)
         tutos.append(data)
-    
+
     articles = []
     for article in get_last_articles():
         data = article.load_json_for_public()
@@ -100,6 +100,9 @@ def assoc_subscribe(request):
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
+
+            # reset the form after successfull validation
+            form = AssocSubscribeForm()
         return render_template("pages/assoc_subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})
