@@ -52,6 +52,22 @@
         username: ïtrema
         password: pbkdf2_sha256$12000$FssznaRHkjFK$8GvNM2oqOIHRNNr4G+8s+cbk6LIYXaxGOsI1Hh6cswI=
         is_superuser: False
+-   model: auth.user
+    pk: 5
+    fields:
+        first_name: Anonymous
+        last_name: User
+        username: anonymous
+        password: pbkdf2_sha256$12000$FssznaRHkjFK$8GvNM2oqOIHRNNr4G+8s+cbk6LIYXaxGOsI1Hh6cswI=
+        is_superuser: False
+-   model: auth.user
+    pk: 6
+    fields:
+        first_name: Auteur externe
+        last_name: User
+        username: Auteur externe
+        password: pbkdf2_sha256$12000$FssznaRHkjFK$8GvNM2oqOIHRNNr4G+8s+cbk6LIYXaxGOsI1Hh6cswI=
+        is_superuser: False
 -   model: member.Profile
     pk: 1
     fields:
