@@ -215,8 +215,8 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories=user|top_categories %}
-                                            {% for title, forums in categories.items %}
+                                        {% with top=user|top_categories %}
+                                            {% for title, forums in top.categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
@@ -228,6 +228,18 @@
                                                     </ul>
                                                 </li>
                                             {% endfor %}
+                                            {% if top.tags %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        Tags les plus utilisés
+                                                    </li>
+                                                    {% for tag in top.tags %}
+                                                        <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>

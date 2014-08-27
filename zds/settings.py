@@ -261,6 +261,9 @@ REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 
+# Constant for tags
+TOP_TAG_MAX = 2
+
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
