@@ -22,6 +22,15 @@
                 <li><a href="{% url "zds.member.views.settings_profile" %}">Mon profil</a></li>
                 <li><a href="{% url "zds.member.views.settings_account" %}">Compte</a></li>
                 <li><a href="{% url "zds.member.views.settings_user" %}">Pseudo et courriel</a></li>
+                <li>
+                    <form 
+                        method="post"
+                        action="{% url "zds.member.views.logout_view" %}"
+                    >
+                        {% csrf_token %}
+                        <button type="submit">Déconnexion</button>
+                    </form>
+                </li>
             </ul>
         </div>
     </aside>

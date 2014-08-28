@@ -13,11 +13,12 @@ from zds.member.models import Profile
 
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import Tutorial, Validation
 from zds.article.factories import ArticleFactory
 from zds.article.models import Article
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
+from zds.article.models import Validation as ArticleValidation
 
 class MemberTests(TestCase):
 
@@ -32,6 +33,7 @@ class MemberTests(TestCase):
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
+        self.staff = StaffProfileFactory().user
 
     def test_login(self):
         """To test user login."""
@@ -120,6 +122,61 @@ class MemberTests(TestCase):
         writingTutorial2.authors.add(user.user)
         writingTutorial2.authors.add(user2.user)
         writingTutorial2.save()
+        self.client.login(username=self.staff.username, password="hostel77")
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': publishedTutorialAlone.pk,
+                'text': u'Ce tuto est excellent',
+                'version': publishedTutorialAlone.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=publishedTutorialAlone.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # publish tutorial
+        pub = self.client.post(
+        reverse('zds.tutorial.views.valid_tutorial'),
+           {
+               'tutorial': publishedTutorialAlone.pk,
+               'text': u'Ce tuto est excellent',
+               'is_major': True,
+               'source': 'http://zestedesavoir.com',
+           },
+           follow=False)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': publishedTutorial2.pk,
+                'text': u'Ce tuto est excellent',
+                'version': publishedTutorial2.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=publishedTutorial2.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # publish tutorial
+        pub = self.client.post(
+        reverse('zds.tutorial.views.valid_tutorial'),
+           {
+               'tutorial': publishedTutorial2.pk,
+               'text': u'Ce tuto est excellent',
+               'is_major': True,
+               'source': 'http://zestedesavoir.com',
+           },
+           follow=False)
         # same thing for articles
         publishedArticleAlone = ArticleFactory()
         publishedArticleAlone.authors.add(user.user)
@@ -128,8 +185,8 @@ class MemberTests(TestCase):
         publishedArticle2 = ArticleFactory()
         publishedArticle2.authors.add(user.user)
         publishedArticle2.authors.add(user2.user)
-        publishedArticle2.pubdate = datetime.now()
         publishedArticle2.save()
+
         writingArticleAlone = ArticleFactory()
         writingArticleAlone.authors.add(user.user)
         writingArticleAlone.save()
@@ -137,6 +194,81 @@ class MemberTests(TestCase):
         writingArticle2.authors.add(user.user)
         writingArticle2.authors.add(user2.user)
         writingArticle2.save()
+        # ask public article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticleAlone.pk,
+                'comment': u'Valides moi ce bébé',
+                'pending': 'Demander validation',
+                'version': publishedArticleAlone.sha_draft,
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # reserve tutorial
+        validation = ArticleValidation.objects.get(
+            article__pk=publishedArticleAlone.pk)
+        pub = self.client.post(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticleAlone.pk,
+                'comment-v': u'Cet article est excellent',
+                'valid-article': 'Demander validation',
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # ask public article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticle2.pk,
+                'comment': u'Valides moi ce bébé',
+                'pending': 'Demander validation',
+                'version': publishedArticle2.sha_draft,
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # reserve tutorial
+        validation = ArticleValidation.objects.get(
+            article__pk=publishedArticle2.pk)
+        pub = self.client.post(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticle2.pk,
+                'comment-v': u'Cet article est excellent',
+                'valid-article': 'Demander validation',
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
         # about posts and topics
         authoredTopic = TopicFactory(author=user.user, forum=self.forum11)
         answeredTopic = TopicFactory(author=user2.user, forum=self.forum11)
