@@ -99,7 +99,7 @@ def unregister(request):
     current = request.user
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
-        if tuto.pubdate is None and tuto.authors.count() == 1:
+        if not tuto.on_line() and tuto.authors.count() == 1:
             Tutorial.objects.filter(pk = tuto.pk).delete()
         else:
             if tuto.authors.count() == 1:
@@ -108,7 +108,7 @@ def unregister(request):
             tuto.save()
     for article in request.user.profile.get_articles():
          # we delete article only if not published with only one author
-        if article.pubdate is None and article.authors.count() == 1:
+        if not article.on_line() and article.authors.count() == 1:
             Article.objects.filter(pk = article.pk).delete()
         else:
             if article.authors.count() == 1:
