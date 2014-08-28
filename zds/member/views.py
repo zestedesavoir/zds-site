@@ -89,9 +89,11 @@ def index(request):
 
 
 @login_required
+@require_POST
 @transaction.atomic
 def unregister(request):
     """allow members to unregister"""
+
     anonymous = get_object_or_404(User, username = ANONYMOUS_USER)
     external = get_object_or_404(User, username = EXTERNAL_USER)
     current = request.user
