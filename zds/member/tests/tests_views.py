@@ -7,13 +7,15 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from datetime import datetime
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
 from zds.member.models import Profile
 
 from zds.member.models import TokenRegister, Ban
-
+from zds.tutorial.factories import MiniTutorialFactory
+from zds.tutorial.models import Tutorial
 
 class MemberTests(TestCase):
 
@@ -22,6 +24,8 @@ class MemberTests(TestCase):
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
         settings.BOT_ACCOUNT = self.mas.user.username
+        self.anonymous = UserFactory(username="anonymous", password="anything")
+        self.external = UserFactory(username="Auteur externe", password="anything")
 
     def test_login(self):
         """To test user login."""
@@ -76,6 +80,56 @@ class MemberTests(TestCase):
 
         self.assertTrue(User.objects.get(username='firm1').is_active)
 
+    def test_unregister(self):
+        """Tests that unregistering user is working"""
+        user = ProfileFactory()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
+        user = ProfileFactory()
+        user2 = ProfileFactory()
+        # first case : a published tutorial with only one author
+        publishedTutorialAlone = MiniTutorialFactory()
+        publishedTutorialAlone.authors.add(user.user)
+        publishedTutorialAlone.pubdate = datetime.now()#must see how to publish more properly
+        publishedTutorialAlone.save()
+        # second case : a published tutorial with two authors
+        publishedTutorial2 = MiniTutorialFactory()
+        publishedTutorial2.authors.add(user.user)
+        publishedTutorial2.authors.add(user2.user)
+        publishedTutorial2.pubdate = datetime.now()
+        publishedTutorial2.save()
+        # third case : a private tutorial with only one author
+        writingTutorialAlone = MiniTutorialFactory()
+        writingTutorialAlone.authors.add(user.user)
+        writingTutorialAlone.save()
+        # fourth case : a private tutorial with at least two authors
+        writingTutorial2 = MiniTutorialFactory()
+        writingTutorial2.authors.add(user.user)
+        writingTutorial2.authors.add(user2.user)
+        writingTutorial2.save()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(publishedTutorialAlone.authors.count(), 1)
+        self.assertEqual(publishedTutorialAlone.authors.first().username, "Auteur externe")
+        self.assertEqual(publishedTutorial2.authors.count(), 1)
+        self.assertEqual(publishedTutorial2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
+        self.assertEqual(writingTutorial2.authors.count(), 1)
+        self.assertEqual(writingTutorial2.authors.filter(username="Auteur externe").count(), 0)
+    
     def test_sanctions(self):
         """Test various sanctions."""
 
@@ -206,3 +260,5 @@ class MemberTests(TestCase):
                                  follow=False)
         self.assertEqual(result.status_code, 200)
 
+    def tearDown(self):
+        Profile.objects.all().delete()
