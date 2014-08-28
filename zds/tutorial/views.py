@@ -45,8 +45,7 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
-from zds.utils import render_template
-from zds.utils import slugify
+from zds.utils import render_template, slugify, misc
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
@@ -628,6 +627,20 @@ def modify_tutorial(request):
 
 
 # Tutorials.
+def fetch_extracts(tutorial, chapter, fetch_txt=True, online=False, tree=None):
+   position = 1
+   path = tutorial.get_prod_path () if online else tutorial.get_path()
+   for ext in chapter["extracts"]:
+       ext["position_in_chapter"] = position
+       ext["path"] = path
+       if fetch_txt:
+           if not online:
+               assert tree
+               ext["txt"] = get_blob(tree, ext["text"])
+           else:
+               txt = tutorial.get_prod_file(ext["text"])
+               ext["txt"] = misc.read_path(txt)
+       position += 1
 
 
 @login_required
@@ -664,7 +677,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     # Load the tutorial.
 
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
 
     # If it's a small tutorial, fetch its chapter
@@ -674,16 +688,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
-            chapter["intro"] = get_blob(repo.commit(sha).tree,
-                                        "introduction.md")
-            chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
-                                         )
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_path()
-                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                cpt += 1
+            chapter["intro"] = get_blob(tree, "introduction.md")
+            chapter["conclu"] = get_blob(tree, "conclusion.md")
+            fetch_extracts(tutorial, chapter, fetch_txt=True,
+                           online=False, tree=tree)
         else:
             chapter = None
     else:
@@ -705,13 +713,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, fetch_txt=True,
+                               online=False, tree=tree)
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
@@ -765,23 +768,11 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_prod_path()
             chapter["type"] = "MINI"
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      mandata["introduction"] + ".html"), "r")
-            chapter["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       mandata["conclusion"] + ".html"), "r")
-            chapter["conclu"] = conclu.read()
-            conclu.close()
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
-                ext["txt"] = text.read()
-                text.close()
-                cpt += 1
+            intro = tutorial.get_prod_file(mandata["introduction"])
+            chapter["intro"] = misc.read_path(intro)
+            conclu = tutorial.get_prod_file(mandata["conclusion"])
+            chapter["conclu"] = misc.read_path(conclu)
+            fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
         else:
             chapter = None
     else:
@@ -803,12 +794,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=False)
                 cpt_c += 1
             part["get_chapters"] = part["chapters"]
             cpt_p += 1
@@ -1105,22 +1091,21 @@ def view_part(
     # find the good manifest file
 
     repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
-    find = False
+    found = False
     cpt_p = 1
     for part in parts:
         if part_pk == str(part["pk"]):
-            find = True
+            found = True
             part["tutorial"] = tutorial
             part["path"] = tutorial.get_path()
             part["slug"] = slugify(part["title"])
             part["position_in_tutorial"] = cpt_p
-            part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"
-                                                                 ])
-            part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"
-                                                                  ])
+            part["intro"] = get_blob(tree, part["introduction"])
+            part["conclu"] = get_blob(tree, part["conclusion"])
             cpt_c = 1
             for chapter in part["chapters"]:
                 chapter["part"] = part
@@ -1129,19 +1114,15 @@ def view_part(
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, fetch_txt=False,
+                               online=False, tree=tree)
                 cpt_c += 1
             final_part = part
             break
         cpt_p += 1
     
-    # if part can't find
-    if not find:
+    # if part can't be found
+    if not found:
         raise Http404
     
     return render_template("tutorial/part/view.html",
@@ -1174,22 +1155,18 @@ def view_part_online(
     parts = mandata["parts"]
     cpt_p = 1
     final_part= None
-    find = False
+    found = False
     for part in parts:
         part["tutorial"] = mandata
         part["path"] = tutorial.get_path()
         part["slug"] = slugify(part["title"])
         part["position_in_tutorial"] = cpt_p
         if part_pk == str(part["pk"]):
-            find = True
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      part["introduction"] + ".html"), "r")
-            part["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       part["conclusion"] + ".html"), "r")
-            part["conclu"] = conclu.read()
-            conclu.close()
+            found = True
+            intro = tutorial.get_prod_file(part["introduction"])
+            part["intro"] = misc.read_path(intro)
+            conclu = tutorial.get_prod_file(part["conclusion"])
+            part["conclu"] = misc.read_path(conclu)
             final_part=part
         cpt_c = 1
         for chapter in part["chapters"]:
@@ -1200,18 +1177,13 @@ def view_part_online(
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
             if part_slug == slugify(part["title"]):
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_prod_path()
-                    cpt_e += 1
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=False)
             cpt_c += 1
         part["get_chapters"] = part["chapters"]
         cpt_p += 1
 
-    # if part can't find
-    if not find:
+    # if part can't be found
+    if not found:
         raise Http404
     
     return render_template("tutorial/part/view_online.html", {"part": final_part})
@@ -1433,14 +1405,15 @@ def view_chapter(
     # find the good manifest file
 
     repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tree = repo.commit(sha).tree
+    manifest = get_blob(tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
     chapter_tab = []
     final_position = 0
-    find = False
+    found = False
     for part in parts:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
@@ -1462,19 +1435,11 @@ def view_chapter(
             chapter["get_absolute_url"] = part["get_absolute_url"] \
                 + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
-                find = True
-                chapter["intro"] = get_blob(repo.commit(sha).tree,
-                                            chapter["introduction"])
-                chapter["conclu"] = get_blob(repo.commit(sha).tree,
-                                             chapter["conclusion"])
-                
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
+                found = True
+                chapter["intro"] = get_blob(tree, chapter["introduction"])
+                chapter["conclu"] = get_blob(tree, chapter["conclusion"])
+                fetch_extracts(tutorial, chapter, fetch_txt=True,
+                               online=False, tree=tree)
             chapter_tab.append(chapter)
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
@@ -1482,8 +1447,8 @@ def view_chapter(
             cpt_c += 1
         cpt_p += 1
     
-    # if chapter can't find
-    if not find:
+    # if chapter can't be found
+    if not found:
         raise Http404
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position
@@ -1529,7 +1494,7 @@ def view_chapter_online(
     chapter_tab = []
     final_position = 0
     
-    find = False
+    found = False
     for part in parts:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
@@ -1553,33 +1518,12 @@ def view_chapter_online(
             chapter["get_absolute_url_online"] = part[
                 "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
-                find = True
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["introduction"] +
-                        ".html"),
-                    "r")
-                chapter["intro"] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["conclusion"] +
-                        ".html"),
-                    "r")
-                chapter["conclu"] = conclu.read()
-                conclu.close()
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    text = open(os.path.join(tutorial.get_prod_path(),
-                                             ext["text"] + ".html"), "r")
-                    ext["txt"] = text.read()
-                    text.close()
-                    cpt_e += 1
+                found = True
+                intro = tutorial.get_prod_file(chapter["introduction"])
+                chapter["intro"] = misc.read_path(intro)
+                conclu = tutorial.get_prod_file(chapter["conclusion"])
+                chapter["conclu"] = misc.read_path(conclu)
+                fetch_extracts(tutorial, chapter, online=True, fetch_txt=True)
             else:
                 intro = None
                 conclu = None
@@ -1590,8 +1534,8 @@ def view_chapter_online(
             cpt_c += 1
         cpt_p += 1
     
-    # if chapter can't find
-    if not find:
+    # if chapter can't be found
+    if not found:
         raise Http404
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
@@ -2689,7 +2633,7 @@ def download(request):
     ph = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
     repo = Repo(ph)
     repo.archive(open(ph + ".tar", "w"))
-    response = HttpResponse(open(ph + ".tar", "rb").read(),
+    response = HttpResponse(read_path(ph + ".tar", binary=True),
                             mimetype="application/tar")
     response["Content-Disposition"] = \
         "attachment; filename={0}.tar".format(tutorial.slug)
@@ -2698,77 +2642,33 @@ def download(request):
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
-def download_markdown(request):
-    """Download a markdown tutorial."""
+
+def download_format(request, file_ext, mimetype):
+    """Download a speciic format for a tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".md") 
+    filename = tutorial.slug+'.'+file_ext
+    phy_path = os.path.join(tutorial.get_prod_path(), filename)
+    if not os.path.isfile(phy_path):
+        raise Http404
     response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="application/txt")
+        misc.read_path(phy_path, binary=True),
+        mimetype=mimetype)
     response["Content-Disposition"] = \
-        "attachment; filename={0}.md".format(tutorial.slug)
+        "attachment; filename={0}".format(filename)
     return response
 
-
+def download_markdown(request):
+    return download_format(request, "md", "application/txt")
 
 def download_html(request):
-    """Download a pdf tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".html")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="text/html")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.html".format(tutorial.slug)
-    return response
-
-
+    return download_format(request, "html", "text/html")
 
 def download_pdf(request):
-    """Download a pdf tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".pdf")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="application/pdf")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.pdf".format(tutorial.slug)
-    return response
-
-
+    return download_format(request, "pdf", "application/pdf")
 
 def download_epub(request):
-    """Download an epub tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".epub")
-    if not os.path.isfile(phy_path):
-        raise Http404
-    response = HttpResponse(
-        open(phy_path, "rb").read(),
-        mimetype="application/epub")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.epub".format(tutorial.slug)
-    return response
+    return download_format(request, "epub", "application/epub")
 
 
 def get_url_images(md_text, pt):
@@ -2855,16 +2755,19 @@ def markdown_to_out(md_text):
                   md_text)
 
 
-def MEP(tutorial, sha):
-    (output, err) = (None, None)
-    repo = Repo(tutorial.get_path())
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    tutorial_version = json_reader.loads(manifest)
+def clear_prod_path(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         try:
             shutil.rmtree(tutorial.get_prod_path())
         except:
             shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
+
+def MEP(tutorial, sha):
+    (output, err) = (None, None)
+    repo = Repo(tutorial.get_path())
+    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+    tutorial_version = json_reader.loads(manifest)
+    clear_prod_path(tutorial)
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
     repo.head.reset(commit = sha, index=True, working_tree=True)
     
@@ -2957,12 +2860,7 @@ def MEP(tutorial, sha):
 
 
 def UNMEP(tutorial):
-    if os.path.isdir(tutorial.get_prod_path()):
-        try:
-            shutil.rmtree(tutorial.get_prod_path())
-        except:
-            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
-
+    clear_prod_path(tutorial)
 
 @can_write_and_read_now
 @login_required

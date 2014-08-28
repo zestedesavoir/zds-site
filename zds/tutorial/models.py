@@ -20,7 +20,7 @@ from django.utils import timezone
 from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
-from zds.utils import slugify, get_current_user
+from zds.utils import slugify, get_current_user, misc
 from zds.utils.models import SubCategory, Licence, Comment
 from zds.utils.tutorials import get_blob, export_tutorial
 
@@ -182,6 +182,9 @@ class Tutorial(models.Model):
             settings.REPO_PATH_PROD,
             str(self.pk) + '_' + slugify(data['title']))
 
+    def get_prod_file(self, basename, ext='html'):
+        return os.path.join(self.get_prod_path(), basename+'.'+ext)
+
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = reverse('zds.tutorial.views.view_tutorial_online',
                                                      args=[self.pk, slugify(mandata["title"])])
@@ -262,16 +265,8 @@ class Tutorial(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
-
-        return intro_contenu.decode('utf-8')
+        intro = self.get_prod_file(self.introduction)
+        return misc.read_path(intro, utf8=True)
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -290,16 +285,8 @@ class Tutorial(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-
-        return conclu_contenu.decode('utf-8')
+        conclu = self.get_prod_file(self.conclusion)
+        return misc.read_path(conclu, utf8=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -383,22 +370,18 @@ class Tutorial(models.Model):
         if chapter:
             chapter.update_children()
 
+    def have_format(self, file_ext):
+        return os.path.isfile(
+            self.get_prod_file(self.slug, ext=file_ext))
+
     def have_markdown(self):
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".md"))
+        return self.have_format("md")
     def have_html(self):
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".html"))
+        return self.have_format("html")
     def have_pdf(self):
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".pdf"))
+        return self.have_format("pdf")
     def have_epub(self):
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".epub"))
+        return self.have_format("epub")
 
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
@@ -538,10 +521,14 @@ class Part(models.Model):
             .filter(part=self).order_by('position_in_part')
 
     def get_path(self, relative=False):
-        if relative:
-            return self.get_phy_slug()
-        else:
-            return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
+        return os.path.join(self.tutorial.get_path(relative),
+                            self.get_phy_slug())
+
+    def get_prod_path(self):
+        return self.tutorial.get_prod_path()
+
+    def get_prod_file(self, basename, ext='html'):
+        return os.path.join(self.get_prod_path(), basename+'.'+ext)
 
     def get_introduction(self, sha=None):
         
@@ -566,16 +553,8 @@ class Part(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
-
-        return intro_contenu.decode('utf-8')
+        intro = self.get_prod_file(self.introduction)
+        return misc.read_path(intro, utf8=True)
 
     def get_conclusion(self, sha=None):
 
@@ -600,16 +579,8 @@ class Part(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
-
-        return conclu_contenu.decode('utf-8')
+        conclu = self.get_prod_file(self.conclusion)
+        return misc.read_path(conclu, utf8=True)
 
     def update_children(self):
         self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
@@ -708,7 +679,17 @@ class Chapter(models.Model):
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
 
+
+    def get_parent(self):
+        """Parent structure,
+           either tutorial (for mini-tutos) or part (for big-tutos)"""
+        if self.tutorial:
+            return self.tutorial
+        else:
+            return self.part
+
     def get_tutorial(self):
+        """Putorial ancestor"""
         if self.part:
             return self.part.tutorial
         return self.tutorial
@@ -728,29 +709,14 @@ class Chapter(models.Model):
                         position += 1
         self.position_in_tutorial = position
 
-    def get_path(self, relative=False):
-        if relative:
-            if self.tutorial:
-                chapter_path = self.get_phy_slug()
-            else:
-                chapter_path = os.path.join(self.part.get_phy_slug(), self.get_phy_slug())
-        else:
-            if self.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
-            else:
-                chapter_path = os.path.join(settings.REPO_PATH,
-                                            self.part.tutorial.get_phy_slug(),
-                                            self.part.get_phy_slug(),
-                                            self.get_phy_slug())
 
-        return chapter_path
+    def get_path(self, relative=False):
+        return os.path.join(self.get_parent().get_path(relative),
+                            self.get_phy_slug())
 
     def get_introduction(self, sha=None):
 
-        if self.tutorial:
-            tutorial = self.tutorial
-        else:
-            tutorial = self.part.tutorial        
+        tutorial = self.get_tutorial()
         repo = Repo(tutorial.get_path())
 
         # find hash code
@@ -777,35 +743,18 @@ class Chapter(models.Model):
             return None
 
     def get_introduction_online(self):
-        if self.introduction:
-            if self.tutorial:
-                path = os.path.join(
-                    self.tutorial.get_path(),
-                    self.introduction +
-                    '.html')
-            else:
-                path = os.path.join(
-                    self.part.tutorial.get_path(),
-                    self.introduction +
-                    '.html')
-
-            if os.path.isfile(path):
-                intro = open(path, "r")
-                intro_contenu = intro.read()
-                intro.close()
-
-                return intro_contenu.decode('utf-8')
-            else:
-                return None
-        else:
+        if not self.introduction:
             return None
 
-    def get_conclusion(self, sha=None):
+        path = self.parent.get_prod_file(self.introduction)
 
-        if self.tutorial:
-            tutorial = self.tutorial
-        else:
-            tutorial = self.part.tutorial        
+        if not os.path.isfile(path):
+            return None
+
+        return misc.read_path(path, utf8=True)
+
+    def get_conclusion(self, sha=None):
+        tutorial = self.get_tutorial()
         repo = Repo(tutorial.get_path())
 
         # find hash code
@@ -832,38 +781,20 @@ class Chapter(models.Model):
             return None
 
     def get_conclusion_online(self):
-        if self.conclusion:
-            if self.tutorial:
-                path = os.path.join(
-                    self.tutorial.get_path(),
-                    self.conclusion +
-                    '.html')
-            else:
-                path = os.path.join(
-                    self.part.tutorial.get_path(),
-                    self.conclusion +
-                    '.html')
+        if not self.conclusion:
+            return None
+        path = self.parent().get_prod_file(self.conclusion)
 
-            if os.path.isfile(path):
-                conclu = open(path, "r")
-                conclu_contenu = conclu.read()
-                conclu.close()
-
-                return conclu_contenu.decode('utf-8')
-            else:
-                return None
-
-            return conclu_contenu.decode('utf-8')
-        else:
+        if not os.path.isfile(path):
             return None
 
+        return misc.read_path(path, utf8=True)
+
     def update_children(self):
-        if self.part:
-            self.introduction = os.path.join(self.part.get_phy_slug(), self.get_phy_slug(), "introduction.md")
-            self.conclusion = os.path.join(self.part.get_phy_slug(), self.get_phy_slug(), "conclusion.md")
-        else:
-            self.introduction = os.path.join("introduction.md")
-            self.conclusion = os.path.join("conclusion.md")
+        self.introduction = os.path.join(self.get_path(relative=True),
+                                         "introduction.md")
+        self.conclusion = os.path.join(self.get_path(relative=True),
+                                       "conclusion.md")
         self.save()
 
         for extract in self.get_extracts():
@@ -904,24 +835,16 @@ class Extract(models.Model):
             slugify(self.title)
         )
 
-    def get_path(self, relative=False):
-        if relative:
-            if self.chapter.tutorial:
-                chapter_path = ''
-            else:
-                chapter_path = os.path.join(
-                    self.chapter.part.get_phy_slug(),
-                    self.chapter.get_phy_slug())
-        else:
-            if self.chapter.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_phy_slug())
-            else:
-                chapter_path = os.path.join(settings.REPO_PATH,
-                                            self.chapter.part.tutorial.get_phy_slug(),
-                                            self.chapter.part.get_phy_slug(),
-                                            self.chapter.get_phy_slug())
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + slugify(self.title)
 
-        return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
+    def get_path(self, relative=False):
+        if self.chapter.tutorial:
+            chapter_path = self.chapter.tutorial.get_path(relative)
+        else:
+            chapter_path = self.chapter.get_path(relative)
+
+        return os.path.join(chapter_path, self.get_phy_slug()) + '.md'
 
     def get_prod_path(self):
 
@@ -942,12 +865,15 @@ class Extract(models.Model):
                 for chapter in part["chapters"]:
                     for ext in chapter["extracts"]:
                         if ext['pk'] == self.pk:
-                            chapter_path = os.path.join(settings.REPO_PATH_PROD,
-                                                        str(mandata['pk']) + '_' + slugify(mandata['title']),
-                                                        str(part['pk']) + "_" + slugify(part['title']),
-                                                        str(chapter['pk']) + "_" + slugify(chapter['title']),
-                                                        str(ext['pk']) + "_" + slugify(ext['title'])) \
-                                                        + '.md.html'
+                            return os.path.join(settings.REPO_PATH_PROD,
+                                                str(mandata['pk']) + '_' + slugify(mandata['title']),
+                                                str(part['pk']) + "_" + slugify(part['title']),
+                                                str(chapter['pk']) + "_" + slugify(chapter['title']),
+                                                str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                                + '.md.html'
+
+    def get_prod_file(self, basename, ext='html'):
+        return os.path.join(self.get_prod_path(), basename+'.'+ext)
 
     def get_text(self, sha=None):
         
@@ -986,26 +912,12 @@ class Extract(models.Model):
             return None
 
     def get_text_online(self):
+        path = self.chapter.get_parent().get_prod_file(self.text)
 
-        if self.chapter.tutorial:
-            path = os.path.join(
-                self.chapter.tutorial.get_prod_path(),
-                self.text +
-                '.html')
-        else:
-            path = os.path.join(
-                self.chapter.part.tutorial.get_prod_path(),
-                self.text +
-                '.html')
-
-        if os.path.isfile(path):
-            text = open(path, "r")
-            text_contenu = text.read()
-            text.close()
-
-            return text_contenu.decode('utf-8')
-        else:
+        if not os.path.isfile(path):
             return None
+
+        return misc.read_path(path, utf8=True)
 
 class Validation(models.Model):
 
