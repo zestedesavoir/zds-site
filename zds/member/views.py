@@ -95,8 +95,8 @@ def unregister(request):
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
         if tuto.pubdate is None and tuto.authors.count() == 1:
-                Tutorial.remove(tuto)
-        else
+            Tutorial.remove(tuto)
+        else:
             if tuto.authors.count() == 1:
                 tuto.authors.add(external)
                 tuto.editor = current.username
@@ -112,9 +112,10 @@ def unregister(request):
                 article.editor = current.username
             article.authors.remove(current)
             article.save()
+    # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author = current):
         message.author = anonymous
-		message.editor = anonymous.username
+        message.editor = anonymous.username
         message.save()
     for message in PrivatePost.objects.filter(author = current):
         message.author = anonymous
