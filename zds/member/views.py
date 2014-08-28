@@ -21,6 +21,10 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER
+from zds.utils.models import Comment
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.gallery.models import UserGallery
 import json
 import pygal
 
@@ -38,7 +42,6 @@ from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
-
 
 def index(request):
     """Displays the list of registered users."""
@@ -89,27 +92,25 @@ def index(request):
 @transaction.atomic
 def unregister(request):
     """allow members to unregister"""
-    anonymous = get_object_or_404(User, pk=ANONYMOUS_USER_PK)
-    external = get_object_or_404(User, pk=EXTERNAL_USER_PK)
+    anonymous = get_object_or_404(User, username = ANONYMOUS_USER)
+    external = get_object_or_404(User, username = EXTERNAL_USER)
     current = request.user
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
         if tuto.pubdate is None and tuto.authors.count() == 1:
-            Tutorial.remove(tuto)
+            Tutorial.objects.filter(pk = tuto.pk).delete()
         else:
             if tuto.authors.count() == 1:
                 tuto.authors.add(external)
-                tuto.editor = current.username
             tuto.authors.remove(current)
             tuto.save()
     for article in request.user.profile.get_articles():
          # we delete article only if not published with only one author
         if article.pubdate is None and article.authors.count() == 1:
-            article.remove(article)
+            Article.objects.filter(pk = article.pk).delete()
         else:
             if article.authors.count() == 1:
                 article.authors.add(external)
-                article.editor = current.username
             article.authors.remove(current)
             article.save()
     # all messages anonymisation (forum, article and tutorial posts)
@@ -120,7 +121,7 @@ def unregister(request):
     for message in PrivatePost.objects.filter(author = current):
         message.author = anonymous
         message.save()
-    for topic in PrivateTopic.objects(author = current):
+    for topic in PrivateTopic.objects.filter(author = current):
         topic.editor = anonymous.username
         topic.author = anonymous
         topic.save()
@@ -131,8 +132,8 @@ def unregister(request):
         gallery.user = anonymous
         gallery.save()
     logout(request)
-    User.objects.filter(pk = current.pk).remove()
-	
+    User.objects.filter(pk = current.pk).delete()
+    return redirect(reverse("zds.pages.views.home"))
 
 def details(request, user_name):
     """Displays details about a profile."""
