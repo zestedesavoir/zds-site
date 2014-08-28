@@ -16,6 +16,10 @@ from zds.member.models import Profile
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory
 from zds.tutorial.models import Tutorial
+from zds.article.factories import ArticleFactory
+from zds.article.models import Article
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.models import Topic, Post
 
 class MemberTests(TestCase):
 
@@ -26,6 +30,10 @@ class MemberTests(TestCase):
         settings.BOT_ACCOUNT = self.mas.user.username
         self.anonymous = UserFactory(username="anonymous", password="anything")
         self.external = UserFactory(username="Auteur externe", password="anything")
+        self.category1 = CategoryFactory(position=1)
+        self.forum11 = ForumFactory(
+            category=self.category1,
+            position_in_category=1)
 
     def test_login(self):
         """To test user login."""
@@ -114,6 +122,30 @@ class MemberTests(TestCase):
         writingTutorial2.authors.add(user.user)
         writingTutorial2.authors.add(user2.user)
         writingTutorial2.save()
+        # same thing for articles
+        publishedArticleAlone = ArticleFactory()
+        publishedArticleAlone.authors.add(user.user)
+        publishedArticleAlone.pubdate = datetime.now()
+        publishedArticleAlone.save()
+        publishedArticle2 = ArticleFactory()
+        publishedArticle2.authors.add(user.user)
+        publishedArticle2.authors.add(user2.user)
+        publishedArticle2.pubdate = datetime.now()
+        publishedArticle2.save()
+        writingArticleAlone = ArticleFactory()
+        writingArticleAlone.authors.add(user.user)
+        writingArticleAlone.save()
+        writingArticle2 = MiniTutorialFactory()
+        writingArticle2.authors.add(user.user)
+        writingArticle2.authors.add(user2.user)
+        writingArticle2.save()
+        # about posts and topics
+        authoredTopic = TopicFactory(author=user.user, forum=self.forum11)
+        answeredTopic = TopicFactory(author=user2.user, forum=self.forum11)
+        answer = PostFactory(topic=answeredTopic, author=user.user, position=2)
+        editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
+        editedAnswer.editor = user.user
+        editedAnswer.save()
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
@@ -129,6 +161,16 @@ class MemberTests(TestCase):
         self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
         self.assertEqual(writingTutorial2.authors.count(), 1)
         self.assertEqual(writingTutorial2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(publishedArticleAlone.authors.count(), 1)
+        self.assertEqual(publishedArticleAlone.authors.first().username, "Auteur externe")
+        self.assertEqual(publishedArticle2.authors.count(), 1)
+        self.assertEqual(publishedArticle2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(Article.objects.filter(pk=writingArticleAlone.pk).count(), 0)
+        self.assertEqual(writingArticle2.authors.count(), 1)
+        self.assertEqual(writingArticle2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
     
     def test_sanctions(self):
         """Test various sanctions."""
