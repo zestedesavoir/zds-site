@@ -71,6 +71,7 @@ def assoc_subscribe(request):
             context = {
                 'full_name': data['full_name'],
                 'email': data['email'],
+                'naissance': data['naissance'],
                 'adresse': data['adresse'],
                 'justification': data['justification'],
                 'username': user.username,

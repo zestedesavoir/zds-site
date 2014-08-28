@@ -4,6 +4,7 @@ Le membre {{ username }} demande à adhérer à Zeste de Savoir !
 
 Identité : {{ full_name }}
 Adresse courriel : {{ email }}
+Date de naissance : {{ naissance }}
 Adresse :
 {{ adresse }}
 Raison de cette demande :

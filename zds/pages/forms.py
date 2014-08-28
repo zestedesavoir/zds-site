@@ -23,6 +23,11 @@ class AssocSubscribeForm(forms.Form):
         required=True,
     )
 
+    naissance = forms.CharField(
+        label=u'Date de naissance',
+        required=True,
+    )
+
     adresse = forms.CharField(
         label=u'Adresse',
         required=True,
@@ -53,6 +58,7 @@ class AssocSubscribeForm(forms.Form):
         self.helper.layout = Layout(
             Field('full_name'),
             Field('email'),
+            Field('naissance'),
             Field('adresse'),
             Field('justification'),
             ButtonHolder(
