@@ -421,7 +421,15 @@
                                                 <a href="{% url "zds.article.views.list_validation" %}">Validation des articles</a>
                                             </li>
                                         {% endif %}
-
+                                        <li>
+                                            <form 
+                                                method="post"
+                                                action="{% url "zds.member.views.unregister" %}"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit">Se désinscrire</button>
+                                            </form>
+                                        </li>
                                         <li>
                                             <form 
                                                 method="post"
