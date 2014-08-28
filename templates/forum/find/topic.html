@@ -44,7 +44,7 @@
                 <tr>
                     <td>
                         <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
-                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
+                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
                             {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
                         </div>
                     </td>
@@ -52,7 +52,7 @@
                         {{ topic.pubdate|format_date }}
                     </td>
                     <td>
-                        {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
+                        {{ topic.first_post.text|truncatechars:200|emarkdown:topic.pk|striptags }}
                     </td>
                 </tr>
                 {% endfor %}

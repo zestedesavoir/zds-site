@@ -56,7 +56,7 @@
 
         {% if profile.sign %}
             <h3>Signature</h3>
-            {{ profile.sign|emarkdown }}
+            {{ profile.sign|emarkdown:"sign" }}
         {% endif %}
 
 
@@ -93,7 +93,7 @@
     {% if profile.biography %}
         <section class="full-content-wrapper">
             <h2>Biographie</h2>
-            {{ profile.biography|emarkdown }}
+            {{ profile.biography|emarkdown:"bio" }}
         </section>
     {% endif %}
 

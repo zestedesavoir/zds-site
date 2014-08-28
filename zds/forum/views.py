@@ -94,9 +94,9 @@ def details(request, cat_slug, forum_slug):
 
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
-    
+
     category = get_object_or_404(Category, slug=cat_slug)
-    
+
     forums_pub = Forum.objects\
                     .filter(group__isnull=True, category__pk=category.pk)\
                     .select_related("category").all()
@@ -199,7 +199,7 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-        
+
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
@@ -213,7 +213,7 @@ def get_tag_by_title(title):
                 current_tag = u""
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
-                
+
         elif ((char != u"[" and char.strip()!="") or not continue_parsing_tags):
             continue_parsing_tags = False
             current_title = current_title + char
@@ -276,10 +276,14 @@ def new(request):
             post.topic = n_topic
             post.author = request.user
             post.text = data["text"]
-            post.text_html = emarkdown(request.POST["text"])
             post.pubdate = datetime.now()
             post.position = 1
             post.ip_address = get_client_ip(request)
+            # need a unique id (footnotes), we will use post.pk, we need to save first
+            post.text_html = 'tmp'
+            post.save()
+            # parse markdown and then save again (with unique_id=post.pk)
+            post.text_html = emarkdown(request.POST["text"], post.pk)
             post.save()
             n_topic.last_message = post
             n_topic.save()
@@ -492,11 +496,16 @@ def answer(request):
                 post.topic = g_topic
                 post.author = request.user
                 post.text = data["text"]
-                post.text_html = emarkdown(data["text"])
                 post.pubdate = datetime.now()
                 post.position = g_topic.get_post_count() + 1
                 post.ip_address = get_client_ip(request)
+                # need a unique id (footnotes), we will use post.pk, we need to save first
+                post.text_html = 'tmp'
                 post.save()
+                # parse markdown and then save again (with unique_id=post.pk)
+                post.text_html = emarkdown(data["text"], post.pk)
+                post.save()
+
                 g_topic.last_message = post
                 g_topic.save()
                 #Send mail
@@ -664,7 +673,7 @@ def edit_post(request):
 
             if request.POST["text"].strip() != "":
                 post.text = request.POST["text"]
-                post.text_html = emarkdown(request.POST["text"])
+                post.text_html = emarkdown(request.POST["text"], post.pk)
                 post.update = datetime.now()
                 post.editor = request.user
 
@@ -953,7 +962,7 @@ def find_post(request, user_pk):
 
     displayed_user = get_object_or_404(User, pk=user_pk)
     user = request.user
-    
+
     if user.has_perm("forum.change_post"):
         posts = \
             Post.objects.filter(author=displayed_user)\

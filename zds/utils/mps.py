@@ -32,14 +32,18 @@ def send_mp(
     for part in users:
         n_topic.participants.add(part)
 
-    # Addi the first message
+    # Add the first message
     post = PrivatePost()
     post.privatetopic = n_topic
     post.author = author
     post.text = text
-    post.text_html = emarkdown(text)
     post.pubdate = datetime.now()
     post.position_in_topic = 1
+    # need a unique id (footnotes), we will use post.pk, we need to save first
+    post.text_html = 'tmp'
+    post.save()
+    # parse markdown and then save again (with unique_id=post.pk)
+    post.text_html = emarkdown(text, post.pk)
     post.save()
 
     n_topic.last_message = post

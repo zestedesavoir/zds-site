@@ -28,7 +28,7 @@ class LastPostsFeedRSS(Feed):
 
     def item_description(self, item):
         # TODO: Use cached Markdown when implemented
-        return emarkdown(item.text)
+        return emarkdown(item.text, item.pk)
 
     def item_author_name(self, item):
         return item.author.username
