@@ -33,3 +33,4 @@ https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.9.zip
 flake8
 autopep8
 easy-thumbnails
+sphinx
