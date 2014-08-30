@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from datetime import datetime
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
@@ -27,8 +28,8 @@ class MemberTests(TestCase):
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
         settings.BOT_ACCOUNT = self.mas.user.username
-        self.anonymous = UserFactory(username="anonymous", password="anything")
-        self.external = UserFactory(username="Auteur externe", password="anything")
+        self.anonymous = UserFactory(username=ANONYMOUS_USER, password="anything")
+        self.external = UserFactory(username=EXTERNAL_USER, password="anything")
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
@@ -285,19 +286,19 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(publishedTutorialAlone.authors.count(), 1)
-        self.assertEqual(publishedTutorialAlone.authors.first().username, "Auteur externe")
+        self.assertEqual(publishedTutorialAlone.authors.first().username, EXTERNAL_USER)
         self.assertEqual(publishedTutorial2.authors.count(), 1)
-        self.assertEqual(publishedTutorial2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(publishedTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
         self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
         self.assertEqual(writingTutorial2.authors.count(), 1)
-        self.assertEqual(writingTutorial2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(writingTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
         self.assertEqual(publishedArticleAlone.authors.count(), 1)
-        self.assertEqual(publishedArticleAlone.authors.first().username, "Auteur externe")
+        self.assertEqual(publishedArticleAlone.authors.first().username, EXTERNAL_USER)
         self.assertEqual(publishedArticle2.authors.count(), 1)
-        self.assertEqual(publishedArticle2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(publishedArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
         self.assertEqual(Article.objects.filter(pk=writingArticleAlone.pk).count(), 0)
         self.assertEqual(writingArticle2.authors.count(), 1)
-        self.assertEqual(writingArticle2.authors.filter(username="Auteur externe").count(), 0)
+        self.assertEqual(writingArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
