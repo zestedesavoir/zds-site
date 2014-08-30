@@ -118,7 +118,8 @@ def unregister(request):
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author = current):
         message.author = anonymous
-        message.editor = anonymous
+        if message.editor is not None:
+            message.editor = anonymous
         message.save()
     for message in PrivatePost.objects.filter(author = current):
         message.author = anonymous
