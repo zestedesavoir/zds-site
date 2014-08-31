@@ -135,8 +135,15 @@ def unregister(request):
         topic.save()
     TopicFollowed.objects.filter(user = current).delete()
     for gallery in UserGallery.objects.filter(user = current):
-        gallery.user = anonymous
-        gallery.save()
+        if gallery.gallery.get_users().count() == 1:
+            anonymousGalery = UserGalery()
+            anonymousGalery.user = anonymous
+            anonymousGalery.mode = "R"
+            anonymousGalery.gallery = gallery.gallery
+            anonymousGalery.save()
+        else:
+            gallery.delete()
+
     logout(request)
     User.objects.filter(pk = current.pk).delete()
     return redirect(reverse("zds.pages.views.home"))
