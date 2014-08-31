@@ -127,12 +127,13 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(author = current):
         topic.author = anonymous
         topic.save()
-    for topic in PrivateTopic.objects.filter(current in participants):
+    for topic in PrivateTopic.objects.filter(participants__in =[current]):
         topic.participants.remove(current)
         topic.save()
     for topic in Topic.objects.filter(author = current):
         topic.author = anonymous
         topic.save()
+    TopicFollowed.objects.filter(user = current).delete()
     for gallery in UserGallery.objects.filter(user = current):
         gallery.user = anonymous
         gallery.save()
