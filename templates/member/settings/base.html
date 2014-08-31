@@ -22,15 +22,16 @@
                 <li><a href="{% url "zds.member.views.settings_profile" %}">Mon profil</a></li>
                 <li><a href="{% url "zds.member.views.settings_account" %}">Compte</a></li>
                 <li><a href="{% url "zds.member.views.settings_user" %}">Pseudo et courriel</a></li>
-                <li>
+				<li>
                     <form 
                         method="post"
-                        action="{% url "zds.member.views.logout_view" %}"
+                        action="{% url "zds.member.views.unregister" %}"
                     >
                         {% csrf_token %}
-                        <button type="submit">Déconnexion</button>
+                        <button type="submit">Se désinscrire</button>
                     </form>
                 </li>
+
             </ul>
         </div>
     </aside>
