@@ -35,7 +35,7 @@ from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic, follow
+from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -118,7 +118,7 @@ def unregister(request):
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author = current):
         message.author = anonymous
-        if message.editor is not None:
+        if message.editor is not None and message.editor.username == current.username:
             message.editor = anonymous
         message.save()
     for message in PrivatePost.objects.filter(author = current):
@@ -127,9 +127,13 @@ def unregister(request):
     for topic in PrivateTopic.objects.filter(author = current):
         topic.author = anonymous
         topic.save()
+    for topic in PrivateTopic.objects.filter(participants__in =[current]):
+        topic.participants.remove(current)
+        topic.save()
     for topic in Topic.objects.filter(author = current):
         topic.author = anonymous
         topic.save()
+    TopicFollowed.objects.filter(user = current).delete()
     for gallery in UserGallery.objects.filter(user = current):
         gallery.user = anonymous
         gallery.save()

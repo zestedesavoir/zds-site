@@ -436,12 +436,12 @@
                                         <li>
                                             <form 
                                                 method="post"
-                                                action="{% url "zds.member.views.unregister" %}"
+                                                action="{% url "zds.member.views.logout_view" %}"
                                             >
                                                 {% csrf_token %}
-                                                <button type="submit">Se désinscrire</button>
-                                            </form>
-                                        </li>
+                                                <button type="submit">Déconnexion</button>
+                                             </form>
+                                        </li> 
 
                                     </ul>
                                 </div>
