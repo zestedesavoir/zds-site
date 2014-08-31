@@ -106,13 +106,11 @@ class MemberTests(TestCase):
         # first case : a published tutorial with only one author
         publishedTutorialAlone = MiniTutorialFactory()
         publishedTutorialAlone.authors.add(user.user)
-        publishedTutorialAlone.pubdate = datetime.now()#must see how to publish more properly
         publishedTutorialAlone.save()
         # second case : a published tutorial with two authors
         publishedTutorial2 = MiniTutorialFactory()
         publishedTutorial2.authors.add(user.user)
         publishedTutorial2.authors.add(user2.user)
-        publishedTutorial2.pubdate = datetime.now()
         publishedTutorial2.save()
         # third case : a private tutorial with only one author
         writingTutorialAlone = MiniTutorialFactory()
@@ -214,7 +212,7 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
 
-        # reserve tutorial
+        # reserve article
         validation = ArticleValidation.objects.get(
             article__pk=publishedArticleAlone.pk)
         pub = self.client.post(
@@ -251,7 +249,7 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
 
-        # reserve tutorial
+        # reserve article
         validation = ArticleValidation.objects.get(
             article__pk=publishedArticle2.pk)
         pub = self.client.post(
