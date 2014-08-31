@@ -4,7 +4,7 @@
 Installation
 ==================
 
-ZesteDeSavoir est un site internet communautaire codé à l'aide du framework Django 1.6 et de Python 2.7
+Zeste de Savoir est un site internet communautaire codé à l'aide du framework Django 1.6 et de Python 2.7
 
 Lien du site : `zestedesavoir <http://www.zestedesavoir.com>`_
 
