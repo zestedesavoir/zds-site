@@ -35,7 +35,7 @@ from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic, follow
+from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
