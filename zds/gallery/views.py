@@ -11,13 +11,19 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-from zds.gallery.forms import ImageForm, UpdateImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
+from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.tutorial.models import Tutorial
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
 
+from django.core.files import File
+from zds.tutorial.models import Tutorial
+import zipfile
+import shutil
+import os
+from django.db import transaction
 
 
 @login_required
@@ -295,5 +301,73 @@ def new_image(request, gal_pk):
                                                               "gallery": gal})
     else:
         form = ImageForm(initial={"new_image": True})  # A empty, unbound form
+        return render_template("gallery/image/new.html", {"form": form,
+                                                          "gallery": gal})
+
+@can_write_and_read_now
+@login_required
+@transaction.atomic
+def import_image(request, gal_pk):
+    """Create images from zip archive."""
+    
+    gal = get_object_or_404(Gallery, pk=gal_pk)
+    
+    try:
+        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        if gal_mode.mode != 'W':
+            raise PermissionDenied
+    except:
+        raise PermissionDenied
+    
+    #if request is POST
+    if request.method == "POST":
+        form = ArchiveImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            archive = request.FILES["file"]
+            temp = os.path.join(settings.SITE_ROOT, "temp")
+            if not os.path.exists(temp):
+                os.makedirs(temp)
+            zfile = zipfile.ZipFile(archive, "a")
+            for i in zfile.namelist():
+                ph_temp = os.path.abspath(os.path.join(temp, i))
+                (dirname, filename) = os.path.split(i)
+                if filename.strip() == "":
+                    if not os.path.exists(ph_temp):
+                        os.makedirs(ph_temp)
+                    continue
+                data = zfile.read(i)
+                fp = open(ph_temp, "wb")
+                fp.write(data)
+                fp.close()
+                title = os.path.basename(i)
+                # if size is too large don't save
+                if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
+                    messages.error(request, u"L'image {} n'a pas pu être importée dans la galérie car elle est beaucoup trop lourde".format(title))
+                    continue
+                 
+                f = File(open(ph_temp, "rb"))
+                f.name = title
+                # create picture in database
+                pic = Image()
+                pic.gallery = gal
+                pic.title = title
+                pic.pubdate = datetime.now()
+                pic.physical = f
+                pic.save()
+                f.close()
+
+            zfile.close()
+            
+            if os.path.exists(temp):
+                shutil.rmtree(temp)
+    
+            # Redirect to the newly uploaded gallery
+            return redirect(reverse("zds.gallery.views.gallery_details",
+                                    args=[gal.pk, gal.slug]))
+        else:
+            return render_template("gallery/image/new.html", {"form": form,
+                                                              "gallery": gal})
+    else:
+        form = ArchiveImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
                                                           "gallery": gal})
