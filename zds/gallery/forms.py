@@ -171,6 +171,20 @@ class ArchiveImageForm(forms.Form):
                 u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
+    
+    def clean(self):
+        cleaned_data = super(ArchiveImageForm, self).clean()
+
+        file = cleaned_data.get('file')
+        extension=file.name.split('.')[-1]
+        
+        if extension != "zip":
+            self._errors['file'] = self.error_class(
+                [u"Le champ n'accepte que les fichiers zip"])
+            if 'file' in cleaned_data:
+                del cleaned_data['file']
+
+        return cleaned_data
 
 
 class UpdateImageForm(ImageForm):
