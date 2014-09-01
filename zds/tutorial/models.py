@@ -403,7 +403,7 @@ class Tutorial(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_notes and last_user_notes[0] == self.get_last_note():
+        if last_user_notes and last_user_notes[0] == self.last_note:
             last_user_note = last_user_notes[0]
             t = timezone.now() - last_user_note.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:

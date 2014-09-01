@@ -891,17 +891,18 @@ def answer(request):
     if article.antispam(request.user):
         raise PermissionDenied
 
-    # Retrieve 3 last reactions of the currenta article.
-    reactions = Reaction.objects\
-        .filter(article=article)\
-        .order_by('-pubdate')[:3]
-
     # If there is a last reaction for the article, we save his pk.
     # Otherwise, we save 0.
     if article.last_reaction:
         last_reaction_pk = article.last_reaction.pk
     else:
         last_reaction_pk = 0
+    
+    # Retrieve lasts reactions of the current topic.
+    reactions = Reaction.objects.filter(article=article) \
+    .prefetch_related() \
+    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
+
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -917,6 +918,7 @@ def answer(request):
                 'article': article,
                 'last_reaction_pk': last_reaction_pk,
                 'newreaction': newreaction,
+                'reactions': reactions,
                 'form': form
             })
 
@@ -945,6 +947,7 @@ def answer(request):
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
+                    'reactions': reactions,
                     'form': form
                 })
 

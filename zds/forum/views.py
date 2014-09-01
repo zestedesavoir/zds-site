@@ -466,13 +466,10 @@ def answer(request):
         raise PermissionDenied
     last_post_pk = g_topic.last_message.pk
 
-    # Retrieve 10 last posts of the current topic.
-
-    posts = \
-        Post.objects.filter(topic=g_topic) \
-        .prefetch_related() \
-        .order_by("-pubdate"
-                  )[:10]
+    # Retrieve last posts of the current topic.
+    posts = Post.objects.filter(topic=g_topic) \
+    .prefetch_related() \
+    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new post on the topic.
 
@@ -483,8 +480,7 @@ def answer(request):
         # Using the « preview button », the « more » button or new post
 
         if "preview" in data or newpost:
-            form = PostForm(g_topic, request.user, initial={"text": data["text"
-                                                                         ]})
+            form = PostForm(g_topic, request.user, initial={"text": data["text"]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
             return render_template("forum/post/new.html", {
