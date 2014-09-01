@@ -9,13 +9,9 @@ from . import views
 urlpatterns = patterns('',
 
                        # Feeds
-                       url(r'^flux/messages/rss/$',
-                           feeds.LastPostsFeedRSS(),
-                           name='post-feed-rss'),
-                       url(r'^flux/messages/atom/$',
-                           feeds.LastPostsFeedATOM(),
-                           name='post-feed-atom'),
-
+                       url(r'^flux/messages/rss/$', feeds.LastPostsFeedRSS(), name='post-feed-rss'),
+                       url(r'^flux/messages/atom/$', feeds.LastPostsFeedATOM(), name='post-feed-atom'),
+                       
                        url(r'^flux/sujets/rss/$',
                            feeds.LastTopicsFeedRSS(),
                            name='topic-feed-rss'),

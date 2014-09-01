@@ -25,3 +25,10 @@
 	    {% include "forum/includes/forums.part.html" %}
 	</div>
 {% endblock %}
+
+{% block feeds_rss %}
+    <li><a href="{% url "post-feed-rss" %}" class="ico-after rss blue">Nouveaux messages (RSS)</a></li>
+    <li><a href="{% url "post-feed-atom" %}" class="ico-after rss blue">Nouveaux messages (ATOM)</a></li>
+    <li><a href="{% url "topic-feed-rss" %}" class="ico-after rss blue">Nouveaux sujets (RSS)</a></li>
+    <li><a href="{% url "topic-feed-atom" %}" class="ico-after rss blue">Nouveaux sujets (ATOM)</a></li>
+{% endblock %}
