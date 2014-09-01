@@ -136,11 +136,11 @@ def unregister(request):
     TopicFollowed.objects.filter(user = current).delete()
     for gallery in UserGallery.objects.filter(user = current):
         if gallery.gallery.get_users().count() == 1:
-            anonymousGalery = UserGalery()
-            anonymousGalery.user = anonymous
-            anonymousGalery.mode = "R"
-            anonymousGalery.gallery = gallery.gallery
-            anonymousGalery.save()
+            anonymousGallery = UserGallery()
+            anonymousGallery.user = external
+            anonymousGallery.mode = "w"
+            anonymousGallery.gallery = gallery.gallery
+            anonymousGallery.save()
         else:
             gallery.delete()
 
