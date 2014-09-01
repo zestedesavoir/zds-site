@@ -17,6 +17,8 @@
 {% block breadcrumb %}
     {% if request.GET.type == "public" %}
         <li>Publiés</li>
+    {% elif request.GET.type == "validate" %}
+        <li>En validation</li>
     {% elif request.GET.type == "draft" %}
         <li>Brouillons</li>
     {% else %}
@@ -30,6 +32,8 @@
     Mes Articles
     {% if request.GET.type == "public" %}
         / Publiés
+    {% elif request.GET.type == "validate" %}
+        / En validation
     {% elif request.GET.type == "draft" %}
         / Brouillons
     {% endif %}
@@ -41,6 +45,8 @@
     Mes Articles
     {% if request.GET.type == "public" %}
         / Publiés
+    {% elif request.GET.type == "validate" %}
+        / En validation
     {% elif request.GET.type == "draft" %}
         / Brouillons
     {% endif %}
@@ -63,7 +69,12 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "zds.member.views.articles" %}?type=draft" class="ico-after tick {% if request.GET.type == "draft" %}unread{% endif %}">
+                    <a href="{% url "zds.member.views.articles" %}?type=validate" class="ico-after tick {% if request.GET.type == "validate" %}unread{% endif %}">
+                        En validation
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.member.views.articles" %}?type=draft" class="ico-after edit {% if request.GET.type == "draft" %}unread{% endif %}">
                         Brouillons
                     </a>
                 </li>

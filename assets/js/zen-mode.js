@@ -8,7 +8,7 @@
     "use strict";
 
     if($(".article-content").length > 0){
-        $(".content-container .taglist + .authors").before($("<button/>", {
+        $(".content-container .taglist ~ .authors").before($("<button/>", {
             "class": "btn btn-grey ico-after view open-zen-mode",
             "text": "Lecture zen",
             "click": function(e){

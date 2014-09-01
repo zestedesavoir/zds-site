@@ -380,7 +380,7 @@ def import_archive(request):
                 if "conclusion" in mandata:
                     tutorial.conclusion = mandata['conclusion']
                 if "licence" in mandata:
-                    tutorial.licence = Licence.objects.filter(code=json["licence"]).all()[0]
+                    tutorial.licence = Licence.objects.filter(code=mandata["licence"]).all()[0]
                 old_path = tutorial.get_path()
                 tutorial.save()
                 new_path = tutorial.get_path()

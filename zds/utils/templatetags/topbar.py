@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from django import template
-
-from zds.forum.models import Category as fCategory, Forum
+from django.conf import settings
+from django.db.models import Count
+import itertools
+from zds.forum.models import Category as fCategory, Forum, Topic
 from zds.tutorial.models import Tutorial
-from zds.utils.models import Category, SubCategory, CategorySubCategory
+from zds.utils.models import Category, SubCategory, CategorySubCategory, Tag
 
 
 register = template.Library()
@@ -31,8 +33,31 @@ def top_categories(user):
         else:
             cats[key] = [forum]
     
-    return cats
+    topics = Topic.objects.filter(forum__in=forums)
+    tgs = Topic.objects\
+        .values('tags', 'pk')\
+        .distinct()\
+        .filter(forum__in=forums, tags__isnull=False)
+    
+    #for tg in tgs:
+    #    print tg
+    cts = {}
+    for key, group in itertools.groupby(tgs, lambda item: item["tags"]):
+        for thing in group:
+            if key in cts: cts[key]+=1
+            else: cts[key]=1
 
+    cpt=0
+    top_tag =[]
+    sort_list = reversed(sorted(cts.iteritems(), key=lambda (k,v): (v,k)))
+    for key, value in sort_list:
+        top_tag.append(key)
+        cpt+=1
+        if cpt >=settings.TOP_TAG_MAX : break
+    
+    tags=Tag.objects.filter(pk__in=top_tag)
+    
+    return {"tags":tags, "categories":cats}
 
 @register.filter('top_categories_tuto')
 def top_categories_tuto(user):
@@ -54,3 +79,9 @@ def top_categories_tuto(user):
         else:
             cats[key] = [csc.subcategory]
     return cats
+
+
+@register.filter('auth_forum')
+def auth_forum(forum, user):
+    return forum.can_read(user)
+

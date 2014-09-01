@@ -17,6 +17,7 @@ def get_markdown_instance(Inline=False):
     # Generate parser
     md = markdown.Markdown(extensions=(zdsext,),
                            safe_mode = 'escape',
+                           inline = Inline,
                            # Protect use of html by escape it
                            enable_attributes = False,
                            # Disable the conversion of attributes.

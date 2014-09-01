@@ -253,6 +253,10 @@ def new(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 article.licence = lc
+            else:
+                article.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             article.save()
 
@@ -263,7 +267,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -288,6 +296,28 @@ def edit(request):
 
     json = article.load_json()
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            licence = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            if 'licence' in request.POST:
+                licence = request.POST['licence']
+            form = ArticleForm(initial={
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory'), 
+                'licence': licence
+            })
+            return render_template('article/member/edit.html', {
+                'article': article,
+                'text': request.POST['text'],
+                'form': form
+            })
+
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             # Update article with data.
@@ -307,7 +337,9 @@ def edit(request):
                     lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                     article.licence = lc
                 else:
-                    article.licence = None
+                    article.licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+                    )
             
 
             article.save()
@@ -328,7 +360,9 @@ def edit(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],

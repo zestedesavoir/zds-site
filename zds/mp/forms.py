@@ -47,11 +47,12 @@ class PrivateTopicForm(forms.Form):
         )
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, username, *args, **kwargs):
         super(PrivateTopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+        self.username = username
 
         self.helper.layout = Layout(
             Field('participants', autocomplete='off'),
@@ -77,6 +78,9 @@ class PrivateTopicForm(forms.Form):
                 if User.objects.filter(username=receiver.strip()).count() == 0 and receiver.strip() != '':
                     self._errors['participants'] = self.error_class(
                         [u'Un des participants saisi est introuvable'])
+                elif receiver.strip() == self.username:
+                    self._errors['participants'] = self.error_class(
+                        [u'Vous ne pouvez pas vous écrire à vous-même !'])
 
         if title is not None and title.strip() == '':
             self._errors['title'] = self.error_class(

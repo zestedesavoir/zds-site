@@ -290,7 +290,11 @@
         if(parseInt($("html").css("width")) < 960 && !disableMobileMenu){
             var $newBtns = $(".sidebar .new-btn:not(.mobile-btn-imported)");
             if($newBtns.length > 0){
-                var $prevElem = $("#content > .content-wrapper, #content > .full-content-wrapper").find("h1, h2");
+                var $prevElem = $("#content")
+                    .find("> .content-wrapper, > .full-content-wrapper, > .content-col-2")
+                    .first()
+                    .find("h1, h2")
+                    .first();
                 if($prevElem.next(".license").length > 0)
                     $prevElem = $prevElem.next(".license");
                 if($prevElem.next(".subtitle").length > 0)
