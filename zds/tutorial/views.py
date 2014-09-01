@@ -459,18 +459,43 @@ def ask_validation(request):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
+    old_validation = Validation.objects.filter(tutorial__pk=tutorial_pk,
+                              status__in=['PENDING_V']).first()
+    if old_validation is not None:
+        old_validator = old_validation.validator
+        old_reserve_date = old_validation.date_reserve
+    else:
+        old_validator = None
+        old_reserve_date = None
     #delete old pending validation
     Validation.objects.filter(tutorial__pk=tutorial_pk,
                               status__in=['PENDING','PENDING_V'])\
                               .delete()
     # We create and save validation object of the tutorial.
     
-    
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
     validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
+    if old_validator is not None:
+        validation.validator = old_validator
+        validation.date_reserve
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = \
+            (u'Bonjour {0},'
+            u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
+            u'Pour retrouver les modifications qui ont été faites, je t\'invite à'
+            u'consulter l\'historique des versions'
+            u'\n\n> Merci'.format(old_validator.username, tutorial.title))
+        send_mp(
+            bot,
+            [old_validator],
+            u"Mise à jour de tuto : {0}".format(tutorial.title),
+            "En validation",
+            msg,
+            False,
+        )
     validation.save()
     validation.tutorial.source=request.POST["source"]
     validation.tutorial.sha_validation = request.POST["version"]
