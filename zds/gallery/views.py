@@ -342,7 +342,7 @@ def import_image(request, gal_pk):
                 title = os.path.basename(i)
                 # if size is too large don't save
                 if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
-                    messages.error(request, u"L'image {} n'a pas pu être importée dans la galérie car elle est beaucoup trop lourde".format(title))
+                    messages.error(request, u"L'image {} n'a pas pu être importée dans la galerie car elle est beaucoup trop lourde".format(title))
                     continue
                  
                 f = File(open(ph_temp, "rb"))
