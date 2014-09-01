@@ -29,7 +29,7 @@ def home(request):
     tutos = []
     for tuto in get_last_tutorials():
         data = tuto.load_json_for_public()
-        data = tuto.load_dic(data)
+        tuto.load_dic(data)
         tutos.append(data)
     
     articles = []
