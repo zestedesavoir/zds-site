@@ -482,6 +482,10 @@ class BigTutorialTests(TestCase):
     def test_workflow_tuto(self):
         """Test workflow of tutorial."""
         
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         # logout before
         self.client.logout()
         # login with simple member
@@ -3037,6 +3041,10 @@ class MiniTutorialTests(TestCase):
 
     def test_workflow_tuto(self):
         """Test workflow of mini tutorial."""
+        
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
 
         # logout before
         self.client.logout()

@@ -547,7 +547,6 @@ def modify_tutorial(request):
         raise Http404
     tutorial_pk = request.POST["tutorial"]
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
     # User actions
 
     if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
@@ -607,7 +606,6 @@ def modify_tutorial(request):
             if "version" in request.POST:
                 tutorial.sha_beta = request.POST['version']
                 tutorial.save()
-
                 topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
                 if topic is None:
                     msg = \
@@ -622,6 +620,7 @@ def modify_tutorial(request):
                             tutorial.title,
                             settings.SITE_URL + tutorial.get_absolute_url_beta()))
                     forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
+                    
                     create_topic(author = request.user,
                                  forum = forum,
                                  title = u"[beta][tutoriel]{0}".format(tutorial.title),
@@ -742,8 +741,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha)
     tutorial.load_introduction_and_conclusion(mandata, sha)
-    
-    #print mandata
 
     # If it's a small tutorial, fetch its chapter
 
