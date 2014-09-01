@@ -943,6 +943,15 @@ def settings_promote(request, user_pk):
                     messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
                                                 .format(user.username))
 
+        if 'activation' in data and u'on' in data['activation']:
+            user.is_active = True
+            messages.success(request, u'{0} est maintenant activé'
+                                        .format(user.username))
+        else:
+            user.is_active = False
+            messages.warning(request, u'{0} est désactivé'
+                                        .format(user.username))
+
         user.save()
         
         usergroups = user.groups.all()
@@ -973,7 +982,8 @@ def settings_promote(request, user_pk):
         return redirect(profile.get_absolute_url())
 
     form = PromoteMemberForm(initial={'superuser': user.is_superuser,
-                                      'groups': user.groups.all()
+                                      'groups': user.groups.all(),
+                                      'activation': user.is_active
                                      })
     
     return render_template('member/settings/promote.html', {
