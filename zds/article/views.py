@@ -55,20 +55,26 @@ def index(request):
         tag = None
 
     if tag is None:
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False).exclude(sha_public="")\
             .order_by('-pubdate')\
             .all()
     else:
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all articles in the subcategory specified.
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
+    
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version) 
 
     return render_template('article/index.html', {
-        'articles': article,
+        'articles': article_versions,
         'tag': tag,
     })
 
@@ -82,10 +88,6 @@ def view(request, article_pk, article_slug):
     if request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
             raise PermissionDenied
-
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
 
     # Retrieve sha given by the user. This sha must to be exist.
     # If it doesn't exist, we take draft version of the article.
@@ -105,20 +107,10 @@ def view(request, article_pk, article_slug):
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
     article_version = json_reader.loads(manifest)
-    article_version['txt'] = get_blob(
-        repo.commit(sha).tree,
-        article_version['text'])
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['pubdate'] = article.pubdate
-    article_version['sha_draft'] = article.sha_draft
-    article_version['sha_validation'] = article.sha_validation
-    article_version['sha_public'] = article.sha_public
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
+    article_version = article.load_dic(article_version)
 
-    validation = Validation.objects.filter(article__pk=article.pk,
-                                            version=sha)\
+    validation = Validation.objects.filter(article__pk=article.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
 
@@ -135,28 +127,14 @@ def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url_online())
-
     # Load the article.
-    article_version = article.load_json()
-    txt = open(
-        os.path.join(
-            article.get_path(),
-            article_version['text'] +
-            '.html'),
-        "r")
+    article_version = article.load_json_for_public()
+    txt = open(os.path.join(article.get_path(),
+                            article_version['text'] + '.html'),
+               "r")
     article_version['txt'] = txt.read()
     txt.close()
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['pubdate'] = article.pubdate
-    article_version['is_locked'] = article.is_locked
-    article_version['get_reaction_count'] = article.get_reaction_count
-    article_version['get_absolute_url'] = article.get_absolute_url()
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version = article.load_dic(article_version)
 
     # If the user is authenticated
     if request.user.is_authenticated():
@@ -275,6 +253,10 @@ def new(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 article.licence = lc
+            else:
+                article.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             article.save()
 
@@ -285,7 +267,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -310,6 +296,28 @@ def edit(request):
 
     json = article.load_json()
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            licence = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            if 'licence' in request.POST:
+                licence = request.POST['licence']
+            form = ArticleForm(initial={
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory'), 
+                'licence': licence
+            })
+            return render_template('article/member/edit.html', {
+                'article': article,
+                'text': request.POST['text'],
+                'form': form
+            })
+
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             # Update article with data.
@@ -329,7 +337,9 @@ def edit(request):
                     lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                     article.licence = lc
                 else:
-                    article.licence = None
+                    article.licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+                    )
             
 
             article.save()
@@ -350,7 +360,9 @@ def edit(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
@@ -364,16 +376,23 @@ def edit(request):
     })
 
 
-def find_article(request, name):
+def find_article(request, pk_user):
     """Find an article from his author."""
-    user = get_object_or_404(User, pk=name)
+    user = get_object_or_404(User, pk=pk_user)
     articles = Article.objects\
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
+    
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version) 
+
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr': user,
+        'articles': article_versions, 'usr': user,
     })
 
 
@@ -481,12 +500,12 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Désolé **{0}**, ton zeste **{1}** '
+                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'surement être faite pour l’améliorer et repasser la '
+                    u'sûrement être faites pour l’améliorer et repasser la '
                     u'validation plus tard. Voici le message que [{2}]({3}), '
-                    u'ton validateur t\'a laissé\n\n`{4}`\n\nN\'hésite pas a '
+                    u'ton validateur t\'a laissé\n\n> {4}\n\nN\'hésite pas a '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
@@ -494,7 +513,7 @@ def modify(request):
                         article.title,
                         validation.validator.username,
                         validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator)
+                        validation.comment_validator))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
@@ -602,7 +621,7 @@ def modify(request):
                     validation.version)
 
     # User actions
-    if request.user in article.authors.all():
+    if request.user in article.authors.all() or request.user.has_perm('article.change_article'):
         if 'delete' in data:
             if article.authors.count() == 1:
                 article.delete()
@@ -613,7 +632,13 @@ def modify(request):
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST and article.sha_validation is None:
+        elif 'pending' in request.POST:
+            # Delete old pending validation
+            Validation.objects.filter(article__pk=article_pk,
+                                      status__in=['PENDING','PENDING_V'])\
+                                      .delete()
+
+            # Create new validation
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
@@ -796,7 +821,10 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'RESERVED'
         validation.save()
-        return redirect(validation.article.get_absolute_url())
+        return redirect(
+            validation.article.get_absolute_url() +
+            '?version=' + validation.version
+        )
 
 
 @login_required
@@ -966,8 +994,8 @@ def solve_alert(request):
     msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
     u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
     u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-    u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
-    u'la modération vous remercie'.format(
+    u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+    u'la modération vous remercie !'.format(
         alert.author.username,
         reaction.author.username,
         reaction.article.title,

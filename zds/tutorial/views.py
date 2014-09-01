@@ -4,8 +4,8 @@ from collections import OrderedDict
 from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
-from urlparse import urlparse
 from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
 except:
@@ -92,7 +92,13 @@ def index(request):
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-    return render_template("tutorial/index.html", {"tutorials": tutorials, "tag": tag})
+    
+    tuto_versions = []
+    for tutorial in tutorials:
+        mandata = tutorial.load_json_for_public()
+        tutorial.load_dic(mandata)
+        tuto_versions.append(mandata)
+    return render_template("tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
 
 # Staff actions.
@@ -186,7 +192,10 @@ def reservation(request, validation_pk):
         messages.info(request,
                       u"Le tutoriel a bien été \
                       réservé par {0}.".format(request.user.username))
-        return redirect(validation.tutorial.get_absolute_url())
+        return redirect(
+            validation.tutorial.get_absolute_url() +
+            "?version=" + validation.version
+        )
 
 
 
@@ -222,10 +231,6 @@ def history(request, tutorial_pk, tutorial_slug):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
-    # Make sure the URL is well-formed
-
-    if not tutorial_slug == slugify(tutorial.title):
-        return redirect(tutorial.get_absolute_url())
     repo = Repo(tutorial.get_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
@@ -299,9 +304,9 @@ def reject_tutorial(request):
             msg = (
                 u'Désolé **{0}**, ton zeste **{1}** n\'a malheureusement '
                 u'pas passé l’étape de validation. Mais ne désespère pas, '
-                u'certaines corrections peuvent surement être faite pour '
+                u'certaines corrections peuvent sûrement être faites pour '
                 u'l’améliorer et repasser la validation plus tard. '
-                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé `{4}`'
+                u'Voici le message que [{2}]({3}), ton validateur t\'a laissé\n\n> {4}\n\n'
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
                 u'semble injuste ou manque de clarté.'.format(
@@ -599,8 +604,8 @@ def modify_tutorial(request):
                              .format(author.username))
             return redirect(redirect_url)
         elif "activ_beta" in request.POST:
-            if "version" in request.POST and tutorial.sha_draft == request.POST['version'] :
-                tutorial.sha_beta = tutorial.sha_draft
+            if "version" in request.POST:
+                tutorial.sha_beta = request.POST['version']
                 tutorial.save()
 
                 topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
@@ -735,14 +740,19 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    tutorial.load_dic(mandata, sha)
+    tutorial.load_introduction_and_conclusion(mandata, sha)
+    
+    #print mandata
 
     # If it's a small tutorial, fetch its chapter
 
     if tutorial.type == "MINI":
-        if "chapter" in mandata:
+        if 'chapter' in mandata:
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
+            chapter["pk"] = Chapter.objects.get(tutorial=tutorial).pk
             chapter["intro"] = get_blob(repo.commit(sha).tree,
                                         "introduction.md")
             chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
@@ -783,18 +793,18 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                     cpt_e += 1
                 cpt_c += 1
             cpt_p += 1
-    validation = Validation.objects.filter(tutorial__pk=tutorial.pk,
-                                           version=sha)\
+    validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
-    formAskValidation = AskValidationForm()
     if tutorial.source:
+        formAskValidation = AskValidationForm(initial={"source": tutorial.source})
         formValid = ValidForm(initial={"source": tutorial.source})
     else:
+        formAskValidation = AskValidationForm()
         formValid = ValidForm()
     formReject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
-        "tutorial": tutorial,
+        "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
         "version": sha,
@@ -823,7 +833,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
+    tutorial.load_introduction_and_conclusion(mandata, public=True)
     mandata["update"] = tutorial.update
     mandata["get_note_count"] = tutorial.get_note_count()
 
@@ -966,6 +977,10 @@ def add_tutorial(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
+            else:
+                tutorial.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             # add create date
 
@@ -1029,7 +1044,11 @@ def add_tutorial(request):
             )
             return redirect(tutorial.get_absolute_url())
     else:
-        form = TutorialForm()
+        form = TutorialForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
     return render_template("tutorial/tutorial/new.html", {"form": form})
 
 
@@ -1081,6 +1100,10 @@ def edit_tutorial(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
+            else:
+                tutorial.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             # add MAJ date
 
@@ -1128,7 +1151,9 @@ def edit_tutorial(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = TutorialForm(initial={
             "title": json["title"],
             "type": json["type"],
@@ -1176,6 +1201,8 @@ def view_part(
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    tutorial.load_dic(mandata, sha=sha)
+
     parts = mandata["parts"]
     find = False
     cpt_p = 1
@@ -1214,7 +1241,7 @@ def view_part(
         raise Http404
     
     return render_template("tutorial/part/view.html",
-                           {"tutorial": tutorial,
+                           {"tutorial": mandata,
                             "part": final_part,
                             "version": sha})
 
@@ -1236,7 +1263,7 @@ def view_part_online(
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
 
     mandata["get_parts"] = mandata["parts"]
@@ -1484,10 +1511,7 @@ def view_chapter(
 ):
     """View chapter."""
 
-    chapter = get_object_or_404(Chapter, pk=chapter_pk,
-                                part__pk=part_pk,
-                                part__tutorial__pk=tutorial_pk)
-    tutorial = chapter.get_tutorial()
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     
     try:
         sha = request.GET["version"]
@@ -1507,6 +1531,8 @@ def view_chapter(
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
+    tutorial.load_dic(mandata, sha=sha)
+
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -1521,7 +1547,7 @@ def view_chapter(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = tutorial
         for chapter in part["chapters"]:
@@ -1564,7 +1590,7 @@ def view_chapter(
                     < len(chapter_tab) else None)
     
     return render_template("tutorial/chapter/view.html", {
-        "tutorial": tutorial,
+        "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
@@ -1591,7 +1617,7 @@ def view_chapter_online(
     # find the good manifest file
 
     mandata = tutorial.load_json_for_public()
-    mandata = tutorial.load_dic(mandata)
+    tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
 
     mandata['get_parts'] = mandata["parts"]
@@ -1610,7 +1636,7 @@ def view_chapter_online(
             args=[
                 tutorial.pk,
                 tutorial.slug,
-                part_pk,
+                part["pk"],
                 part["slug"]])
         part["tutorial"] = mandata
         part["position_in_tutorial"] = cpt_p
@@ -1998,28 +2024,33 @@ def edit_extract(request):
 
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+
     if request.method == "POST":
         data = request.POST
-        if content_has_changed([extract.get_path()], data["last_hash"]):
-            form = form = ExtractForm(initial={
-                "title": extract.title,
-                "text": extract.get_text()})
-            return render_template("tutorial/extract/edit.html", 
-                {
-                     "extract": extract,
-                     "last_hash": compute_hash([extract.get_path()]),
-                     "new_version":True,
-                     "form": form
-                })
         # Using the « preview button »
 
         if "preview" in data:
-            form = ExtractForm(initial={"title": data["title"],
-                                        "text": data["text"]})
+            form = ExtractForm(initial={
+                                           "title": data["title"],
+                                           "text": data["text"]
+                                       })
             return render_template("tutorial/extract/edit.html",
-                                   {"extract": extract, "form": form})
+                                   {
+                                       "extract": extract, "form": form,
+                                       "last_hash": compute_hash([extract.get_path()])
+                                   })
         else:
-
+            if content_has_changed([extract.get_path()], data["last_hash"]):
+                form = ExtractForm(initial={
+                    "title": extract.title,
+                    "text": extract.get_text()})
+                return render_template("tutorial/extract/edit.html", 
+                    {
+                         "extract": extract,
+                         "last_hash": compute_hash([extract.get_path()]),
+                         "new_version":True,
+                         "form": form
+                    })
             # Edit extract.
 
             form = ExtractForm(request.POST)
@@ -2156,20 +2187,33 @@ def find_tuto(request, pk_user):
         type = request.GET["type"]
     except KeyError:
         type = None
-    u = get_object_or_404(User, pk=pk_user)
+    display_user = get_object_or_404(User, pk=pk_user)
     if type == "beta":
         tutorials = Tutorial.objects.all().filter(
-            authors__in=[u],
+            authors__in=[display_user],
             sha_beta__isnull=False).exclude(sha_beta="").order_by("-pubdate")
+        
+        tuto_versions = []
+        for tutorial in tutorials:
+            mandata = tutorial.load_json_for_public(sha=tutorial.sha_beta)
+            tutorial.load_dic(mandata, sha=tutorial.sha_beta)
+            tuto_versions.append(mandata)
+
         return render_template("tutorial/member/beta.html",
-                               {"tutorials": tutorials, "usr": u})
+                               {"tutorials": tuto_versions, "usr": display_user})
     else:
         tutorials = Tutorial.objects.all().filter(
-            authors__in=[u],
+            authors__in=[display_user],
             sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
+        
+        tuto_versions = []
+        for tutorial in tutorials:
+            mandata = tutorial.load_json_for_public()
+            tutorial.load_dic(mandata)
+            tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/online.html", {"tutorials": tutorials,
-                                                               "usr": u})
+        return render_template("tutorial/member/online.html", {"tutorials": tuto_versions,
+                                                               "usr": display_user})
 
 
 def upload_images(images, tutorial):
@@ -2829,20 +2873,23 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = ur"(!\[.*?\]\()(.+?)(\))"
+    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 
     if md_text is not None:
         imgs = re.findall(regex, md_text)
         for img in imgs:
-
-            # decompose images
-
-            parse_object = urlparse(img[1])
+            real_url=img[1]
+            # decompose images 
+            parse_object = urlparse(real_url)
+            if parse_object.query!='':
+                resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
+                real_url = resp["u"][0]
+                parse_object = urlparse(real_url)
 
             # if link is http type
-
-            if parse_object.scheme in ("http", "https", "ftp") or \
+            if parse_object.scheme in ["http", "https", "ftp"] or \
             parse_object.netloc[:3]=="www" or \
             parse_object.path[:3]=="www":
                 (filepath, filename) = os.path.split(parse_object.path)
@@ -2850,62 +2897,81 @@ def get_url_images(md_text, pt):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
-
-                urlretrieve(img[1], os.path.abspath(os.path.join(pt, "images",
-                                                                 filename)))
-                ext = filename.split(".")[-1]
-
-                # if image is gif, convert to png
-
-                if ext == "gif":
-                    im = ImagePIL.open(os.path.join(pt, img[1]))
-                    im.save(os.path.join(pt, filename.split(".")[0] + ".png"))
+                down_path=os.path.abspath(os.path.join(pt, "images", filename))
+                try:
+                    urlretrieve(real_url, down_path)                    
+                    try:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(down_path)
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = filename.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(pt, "images", filename))
+                except IOError:
+                    pass
             else:
-
                 # relative link
-
-                srcfile = settings.SITE_ROOT + img[1]
+                srcfile = settings.SITE_ROOT + real_url
                 if os.path.isfile(srcfile):
-                    dstroot = pt + img[1]
+                    dstroot = pt + real_url
                     dstdir = os.path.dirname(dstroot)
                     if not os.path.exists(dstdir):
                         os.makedirs(dstdir)
                     shutil.copy(srcfile, dstroot)
-                    ext = dstroot.split(".")[-1]
-    
-                    # if image is gif, convert to png
-    
-                    if ext == "gif":
+                    try:
+                        ext = dstroot.split(".")[-1]
                         im = ImagePIL.open(dstroot)
-                        im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        # if image is gif, convert to png
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                    except IOError:
+                        ext = dstroot.split(".")[-1]
+                        im = ImagePIL.open(unknow_path)
+                        if ext == "gif":
+                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        else:
+                            im.save(os.path.join(dstroot))
 
 
 def sub_urlimg(g):
     start = g.group("start")
     url = g.group("url")
     parse_object = urlparse(url)
+    if parse_object.query!='':
+        resp = parse_qs(urlparse(url).query, keep_blank_values=True)
+        parse_object = urlparse(resp["u"][0])
     (filepath, filename) = os.path.split(parse_object.path)
-    ext = filename.split(".")[-1]
-    if ext == "gif":
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename.split(".")[0] + ".png")
+    if filename!='':
+        mark= g.group("mark")
+        ext = filename.split(".")[-1]
+        if ext == "gif":
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename.split(".")[0] + ".png")
+            else:
+                url = (url.split(".")[0])[1:] + ".png"
         else:
-            url = (url.split(".")[0])[1:] + ".png"
+            if parse_object.scheme in ("http", "https") or \
+            parse_object.netloc[:3]=="www" or \
+            parse_object.path[:3]=="www":
+                url = os.path.join("images", filename)
+            else:
+                url = url[1:]
+        end = g.group("end")
+        return start + mark+ url + end
     else:
-        if parse_object.scheme in ("http", "https") or \
-        parse_object.netloc[:3]=="www" or \
-        parse_object.path[:3]=="www":
-            url = os.path.join("images", filename)
-        else:
-            url = url[1:]
-    end = g.group("end")
-    return start + url + end
-
+        return start
+    
 
 def markdown_to_out(md_text):
-    return re.sub(ur"(?P<start>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
+    return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 
@@ -2954,7 +3020,6 @@ def MEP(tutorial, sha):
         get_url_images(md_file_contenu, tutorial.get_prod_path())
 
         # convert to out format
-
         out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
         if md_file_contenu is not None:
             out_file.write(markdown_to_out(md_file_contenu.encode("utf-8")))
@@ -3143,7 +3208,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             note.author.username,
             note.tutorial.title,

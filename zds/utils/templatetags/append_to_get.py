@@ -8,7 +8,6 @@ Decorator to facilitate template tag creation
 def easy_tag(func):
     """deal with the repetitive parts of parsing template tags"""
     def inner(parser, token):
-        #print token
         try:
             return func(*token.split_contents())
         except TypeError:
@@ -28,17 +27,16 @@ class AppendGetNode(template.Node):
             
     def render(self, context):
         get = context['request'].GET.copy()
+        path = context['request'].META['PATH_INFO']
 
         for key in self.dict_pairs:
             get[key] = self.dict_pairs[key].resolve(context)
         
-        path = context['request'].META['PATH_INFO']
-        
-        #print "&".join(["%s=%s" % (key, value) for (key, value) in get.items() if value])
-        
         if len(get):
-            path += "?%s" % "&".join(["%s=%s" % (key, str(value)) for (key, value) in get.items() if str(value)])
-        
+            path += "?"
+            for (key, v) in get.items():
+                for value in get.getlist(key):
+                    path += u"&{0}={1}".format(key, value)
         
         return path
 

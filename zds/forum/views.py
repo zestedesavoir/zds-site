@@ -26,7 +26,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag
+    mark_read, TopicFollowed, sub_tag, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -54,30 +54,18 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
     if not forum.can_read(request.user):
         raise PermissionDenied
-    sticky_topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=True).order_by(
-        "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
     if "filter" in request.GET:
         filter = request.GET["filter"]
-        if request.GET["filter"] == "solve":
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+        if filter == "solve":
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=True)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=True)
         else:
-            topics = Topic.objects.filter(
-                forum__pk=forum.pk,
-                is_sticky=False,
-                is_solved=False).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags").all()
+            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=False)
+            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=False)
     else:
         filter = None
-        topics = Topic.objects.filter(forum__pk=forum.pk, is_sticky=False) .order_by(
-            "-last_message__pubdate").prefetch_related("author", "last_message", "tags").all()
+        sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True)
+        topics = get_topics(forum_pk=forum.pk, is_sticky=False)
 
     # Paginator
 
@@ -163,9 +151,13 @@ def topic(request, topic_pk, topic_slug):
     # The category list is needed to move threads
 
     categories = Category.objects.all()
-    try:
-        page_nbr = int(request.GET["page"])
-    except KeyError:
+    if "page" in request.GET:
+        try:
+            page_nbr = int(request.GET["page"])
+        except:
+            # problem in variable format
+            raise Http404
+    else:
         page_nbr = 1
     try:
         posts = paginator.page(page_nbr)
@@ -211,7 +203,7 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-		
+        
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
@@ -245,7 +237,8 @@ def new(request):
 
     try:
         forum_pk = request.GET["forum"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
     if not forum.can_read(request.user):
@@ -324,7 +317,7 @@ def solve_alert(request):
         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
         u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
         u'et il vous a laissé le message suivant :'
-        u'\n\n`{5}`\n\nToute l\'équipe de la modération vous remercie'.format(
+        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
             alert.author.username,
             post.author.username,
             post.topic.title,
@@ -356,7 +349,8 @@ def move_topic(request):
         raise PermissionDenied
     try:
         topic_pk = request.GET["sujet"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
     if not forum.can_read(request.user):
@@ -386,12 +380,18 @@ def edit(request):
 
     try:
         topic_pk = request.POST["topic"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
-    try:
-        page = int(request.POST["page"])
-    except KeyError:
+    if "page" in request.POST:
+        try:
+            page = int(request.POST["page"])
+        except:
+            #problem in variable format
+            raise Http404
+    else:
         page = 1
+
     data = request.POST
     resp = {}
     g_topic = get_object_or_404(Topic, pk=topic_pk)
@@ -421,7 +421,8 @@ def edit(request):
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
-            except KeyError:
+            except:
+                # problem in variable format
                 raise Http404
             forum = get_object_or_404(Forum, pk=forum_pk)
             g_topic.forum = forum
@@ -444,7 +445,8 @@ def answer(request):
 
     try:
         topic_pk = request.GET["sujet"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
 
     # Retrieve current topic.
@@ -601,7 +603,8 @@ def edit_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
     if not post.topic.forum.can_read(request.user):
@@ -727,7 +730,8 @@ def useful_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
 
@@ -753,7 +757,8 @@ def unread_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
 
@@ -787,7 +792,8 @@ def like_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
@@ -834,7 +840,8 @@ def dislike_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except KeyError:
+    except:
+        # problem in variable format
         raise Http404
     resp = {}
     post = get_object_or_404(Post, pk=post_pk)
@@ -885,7 +892,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         if request.GET["filter"] == "solve":
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -895,7 +901,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_sticky=False,
                 is_solved=False).order_by("-last_message__pubdate").prefetch_related(
                 "author",
                 "last_message",
@@ -904,8 +909,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
                 .all()
     else:
         filter = None
-        topics = Topic.objects.filter(tags__in=[tag], is_sticky=False) .order_by(
-            "-last_message__pubdate")\
+        topics = Topic.objects.filter(tags__in=[tag]).order_by("-last_message__pubdate")\
             .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
             .prefetch_related("author", "last_message", "tags").all()
     # Paginator

@@ -446,3 +446,22 @@ def get_last_topics(user):
         if cpt > 5:
             break
     return tops
+
+def get_topics(forum_pk, is_sticky, is_solved=None):
+    """ Get topics according to parameters """
+
+    if is_solved is not None:
+        return Topic.objects.filter(
+                    forum__pk=forum_pk,
+                    is_sticky=is_sticky,
+                    is_solved=is_solved).order_by("-last_message__pubdate").prefetch_related(
+                    "author",
+                    "last_message",
+                    "tags").all()
+    else:
+        return Topic.objects.filter(
+                    forum__pk=forum_pk,
+                    is_sticky=is_sticky).order_by("-last_message__pubdate").prefetch_related(
+                    "author",
+                    "last_message",
+                    "tags").all()

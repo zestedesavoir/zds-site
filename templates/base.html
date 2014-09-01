@@ -55,7 +55,7 @@
     {# OpenGraph #}
     <meta property="og:site_name" content="Zeste de Savoir">
     <meta property="og:title" content="{{ title|safe }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="http://zestedesavoir.com{{ request.path }}">
     <meta property="og:language" content="fr_FR">
     <meta property="og:image:url" content="http://{{ meta_image }}">
     <meta property="og:image:secure_url" content="https://{{ meta_image }}">
@@ -67,7 +67,7 @@
     {# Twitter cards #}
     <meta property="twitter:domain" content="http://zestedesavoir.com/">
     <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:url" content="http://zestedesavoir.com{{ request.path }}">
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">
     <meta property="twitter:site" content="@ZesteDeSavoir">
@@ -215,8 +215,8 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories=user|top_categories %}
-                                            {% for title, forums in categories.items %}
+                                        {% with top=user|top_categories %}
+                                            {% for title, forums in top.categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
@@ -228,6 +228,18 @@
                                                     </ul>
                                                 </li>
                                             {% endfor %}
+                                            {% if top.tags %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        Tags les plus utilisés
+                                                    </li>
+                                                    {% for tag in top.tags %}
+                                                        <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>
@@ -412,13 +424,13 @@
 
                                         {% if perms.tutorial.change_tutorial %}
                                             <li>
-                                                <a href="{% url "zds.tutorial.views.list_validation" %}">Administration des tutoriels</a>
+                                                <a href="{% url "zds.tutorial.views.list_validation" %}">Validation des tutoriels</a>
                                             </li>
                                         {% endif %}
 
                                         {% if perms.article.change_article %}
                                             <li>
-                                                <a href="{% url "zds.article.views.list_validation" %}">Administration des articles</a>
+                                                <a href="{% url "zds.article.views.list_validation" %}">Validation des articles</a>
                                             </li>
                                         {% endif %}
 
@@ -489,7 +501,7 @@
                         {% captureas schema %}
                             {% block schema %}{% endblock %}
                         {% endcaptureas %}
-                        <section class="content-wrapper" {{ schema }}>
+                        <section class="content-wrapper" {{ schema|safe }}>
                             <h1 {% if schema %}itemprop="name"{% endif %}>
                                 {% block headline %}{% endblock %}
                             </h1>
@@ -571,6 +583,6 @@
             messageStyle: "none",
         });
     </script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>

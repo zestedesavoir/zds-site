@@ -89,10 +89,10 @@
                     <span class="article-metadata">
                         {{ article.pubdate|format_date|capfirst }} -
                         <a href="
-                            {% if article.get_reaction_count == 0 %}
-                                {{ link }}#reactions
+                            {% if article.last_read_reaction %}
+                                {{ article.last_read_reaction.get_absolute_url }}
                             {% else %}
-                                {{ article.get_last_reaction.get_absolute_url }}
+                                {{ article.get_absolute_url_online }}#reactions
                             {% endif %}
                         ">
                             {% if article.get_reaction_count == 0 %}

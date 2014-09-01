@@ -182,30 +182,73 @@ class Tutorial(models.Model):
             settings.REPO_PATH_PROD,
             str(self.pk) + '_' + slugify(data['title']))
 
-    def load_dic(self, mandata):
-        mandata['get_absolute_url_online'] = self.get_absolute_url_online()
-        mandata['get_absolute_url'] = self.get_absolute_url()
-        mandata['get_introduction_online'] = self.get_introduction_online()
-        mandata['get_conclusion_online'] = self.get_conclusion_online()
+    def load_dic(self, mandata, sha=None):
+        '''fill mandata with informations from database model'''
 
+        fns = [
+            'is_big', 'is_mini', 'have_markdown','have_html', 'have_pdf', 
+            'have_epub', 'get_path', 'in_beta', 'in_validation', 'on_line'
+            ]
+
+        attrs = [
+            'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update',
+            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            ]
+
+        #load functions and attributs in tree
+        for fn in fns: 
+            mandata[fn] = getattr(self,fn)
+        for attr in attrs: 
+            mandata[attr] = getattr(self,attr)
+
+        # general information
         mandata['slug'] = slugify(mandata['title'])
-        mandata['pk'] = self.pk
-        mandata['on_line'] = self.on_line
-        mandata['authors'] = self.authors
-        mandata['subcategory'] = self.subcategory
-        mandata['image'] = self.image
-        mandata['pubdate'] = self.pubdate
-        mandata['source'] = self.source
-        mandata['have_markdown'] = self.have_markdown()
-        mandata['have_html'] = self.have_html()
-        mandata['have_pdf'] = self.have_pdf()
-        mandata['have_epub'] = self.have_epub()
+        mandata['is_beta'] = self.in_beta() and self.sha_beta == sha
+        mandata['is_validation'] = self.in_validation() \
+            and self.sha_validation == sha
+        mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
-        return mandata
+        #url:
+        mandata['get_absolute_url'] = reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[self.pk, mandata['slug']]
+            )
 
-    def load_json_for_public(self):
+        if self.in_beta():
+            mandata['get_absolute_url_beta'] = reverse(
+                    'zds.tutorial.views.view_tutorial',
+                    args=[self.pk, mandata['slug']]
+               ) + '?version=' + self.sha_beta
+
+        else:
+            mandata['get_absolute_url_beta'] = reverse(
+                    'zds.tutorial.views.view_tutorial',
+                    args=[self.pk, mandata['slug']]
+                )
+
+        mandata['get_absolute_url_online'] = reverse(
+                'zds.tutorial.views.view_tutorial_online',
+                args=[self.pk, mandata['slug']]
+            )
+
+    def load_introduction_and_conclusion(self, mandata, sha=None, public=False):
+        '''Explicitly load introduction and conclusion to avoid useless disk
+        access in load_dic()
+        '''
+
+        if public:
+            mandata['get_introduction_online'] = self.get_introduction_online()
+            mandata['get_conclusion_online'] = self.get_conclusion_online()
+        else:
+            mandata['get_introduction'] = self.get_introduction(sha)
+            mandata['get_conclusion'] = self.get_conclusion(sha)
+        
+
+    def load_json_for_public(self, sha=None):
+        if sha is None:
+            sha = self.sha_public
         repo = Repo(self.get_path())
-        mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
+        mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
 
         return data
@@ -226,8 +269,6 @@ class Tutorial(models.Model):
             json_data.close()
 
             return data
-        else:
-            return None
 
     def dump_json(self, path=None):
         if path is None:
@@ -241,44 +282,59 @@ class Tutorial(models.Model):
         json_data.write(data.encode('utf-8'))
         json_data.close()
 
-    def get_introduction(self):
-        path = os.path.join(self.get_path(), self.introduction)
-        intro = open(path, "r")
-        intro_contenu = intro.read()
-        intro.close()
+    def get_introduction(self, sha=None):
+        # find hash code
+        if sha is None:
+            sha = self.sha_draft
+        repo = Repo(self.get_path())
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "introduction" in tutorial_version:
+            path_tuto = tutorial_version["introduction"]
 
-        return intro_contenu.decode('utf-8')
+        if path_tuto:
+            return get_blob(repo.commit(sha).tree, path_tuto)
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
+        if self.on_line():
+            intro = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.introduction +
+                    '.html'),
+                "r")
+            intro_contenu = intro.read()
+            intro.close()
 
-        return intro_contenu.decode('utf-8')
+            return intro_contenu.decode('utf-8')
 
-    def get_conclusion(self):
-        conclu = open(os.path.join(self.get_path(), self.conclusion), "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+    def get_conclusion(self, sha=None):
+        # find hash code
+        if sha is None:
+            sha = self.sha_draft
+        repo = Repo(self.get_path())
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "introduction" in tutorial_version:
+            path_tuto = tutorial_version["conclusion"]
 
-        return conclu_contenu.decode('utf-8')
+        if path_tuto:
+            return get_blob(repo.commit(sha).tree, path_tuto)
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+        if self.on_line():
+            conclu = open(
+                os.path.join(
+                    self.get_prod_path(),
+                    self.conclusion +
+                    '.html'),
+                "r")
+            conclu_contenu = conclu.read()
+            conclu.close()
 
-        return conclu_contenu.decode('utf-8')
+            return conclu_contenu.decode('utf-8')
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -522,16 +578,27 @@ class Part(models.Model):
         else:
             return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
 
-    def get_introduction(self):
-        intro = open(
-            os.path.join(
-                self.tutorial.get_path(),
-                self.introduction),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
+    def get_introduction(self, sha=None):
+        
+        tutorial = self.tutorial
 
-        return intro_contenu.decode('utf-8')
+        # find hash code
+        if sha is None:
+            sha = tutorial.sha_draft
+        repo = Repo(tutorial.get_path())
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "parts" in tutorial_version:
+            for part in tutorial_version["parts"]:
+                if part["pk"] == self.pk:
+                    path_part = part["introduction"]
+                    break
+
+        if path_part:
+            return get_blob(repo.commit(sha).tree, path_part)
+        else:
+            return None
 
     def get_introduction_online(self):
         intro = open(
@@ -545,16 +612,27 @@ class Part(models.Model):
 
         return intro_contenu.decode('utf-8')
 
-    def get_conclusion(self):
-        conclu = open(
-            os.path.join(
-                self.tutorial.get_path(),
-                self.conclusion),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+    def get_conclusion(self, sha=None):
 
-        return conclu_contenu.decode('utf-8')
+        tutorial = self.tutorial
+
+        # find hash code
+        if sha is None:
+            sha = tutorial.sha_draft
+        repo = Repo(tutorial.get_path())
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "parts" in tutorial_version:
+            for part in tutorial_version["parts"]:
+                if part["pk"] == self.pk:
+                    path_part = part["conclusion"]
+                    break
+
+        if path_part:
+            return get_blob(repo.commit(sha).tree, path_part)
+        else:
+            return None
 
     def get_conclusion_online(self):
         conclu = open(
@@ -702,25 +780,34 @@ class Chapter(models.Model):
 
         return chapter_path
 
-    def get_introduction(self):
-        if self.introduction:
-            if self.tutorial:
-                path = os.path.join(
-                    self.tutorial.get_path(),
-                    self.introduction)
-            else:
-                path = os.path.join(
-                    self.part.tutorial.get_path(),
-                    self.introduction)
+    def get_introduction(self, sha=None):
 
-            if os.path.isfile(path):
-                intro = open(path, "r")
-                intro_contenu = intro.read()
-                intro.close()
+        if self.tutorial:
+            tutorial = self.tutorial
+        else:
+            tutorial = self.part.tutorial        
+        repo = Repo(tutorial.get_path())
 
-                return intro_contenu.decode('utf-8')
-            else:
-                return None
+        # find hash code
+        if sha is None:
+            sha = tutorial.sha_draft
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "parts" in tutorial_version:
+            for part in tutorial_version["parts"]:
+                if "chapters" in part:
+                    for chapter in part["chapters"]:
+                        if chapter["pk"] == self.pk:
+                            path_chap = chapter["introduction"]
+                            break 
+        if "chapter" in tutorial_version:
+            chapter = tutorial_version["chapter"]
+            if chapter["pk"] == self.pk:
+                path_chap = chapter["introduction"]
+
+        if path_chap:
+            return get_blob(repo.commit(sha).tree, path_chap)
         else:
             return None
 
@@ -748,23 +835,34 @@ class Chapter(models.Model):
         else:
             return None
 
-    def get_conclusion(self):
-        if self.conclusion:
-            if self.tutorial:
-                path = os.path.join(self.tutorial.get_path(), self.conclusion)
-            else:
-                path = os.path.join(
-                    self.part.tutorial.get_path(),
-                    self.conclusion)
+    def get_conclusion(self, sha=None):
 
-            if os.path.isfile(path):
-                conclu = open(path, "r")
-                conclu_contenu = conclu.read()
-                conclu.close()
+        if self.tutorial:
+            tutorial = self.tutorial
+        else:
+            tutorial = self.part.tutorial        
+        repo = Repo(tutorial.get_path())
 
-                return conclu_contenu.decode('utf-8')
-            else:
-                return None
+        # find hash code
+        if sha is None:
+            sha = tutorial.sha_draft
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "parts" in tutorial_version:
+            for part in tutorial_version["parts"]:
+                if "chapters" in part:
+                    for chapter in part["chapters"]:
+                        if chapter["pk"] == self.pk:
+                            path_chap = chapter["conclusion"]
+                            break 
+        if "chapter" in tutorial_version:
+            chapter = tutorial_version["chapter"]
+            if chapter["pk"] == self.pk:
+                path_chap = chapter["conclusion"]
+
+        if path_chap:
+            return get_blob(repo.commit(sha).tree, path_chap)
         else:
             return None
 
@@ -802,7 +900,9 @@ class Chapter(models.Model):
             self.introduction = os.path.join("introduction.md")
             self.conclusion = os.path.join("conclusion.md")
         self.save()
+
         for extract in self.get_extracts():
+            extract.text = extract.get_path(relative=True)
             extract.save()
 
 class Extract(models.Model):
@@ -884,20 +984,39 @@ class Extract(models.Model):
                                                         str(ext['pk']) + "_" + slugify(ext['title'])) \
                                                         + '.md.html'
 
-    def get_text(self):
+    def get_text(self, sha=None):
+        
         if self.chapter.tutorial:
-            path = os.path.join(self.chapter.tutorial.get_path(), self.text)
+            tutorial = self.chapter.tutorial
         else:
-            path = os.path.join(
-                self.chapter.part.tutorial.get_path(),
-                self.text)
+            tutorial = self.chapter.part.tutorial        
+        repo = Repo(tutorial.get_path())
 
-        if os.path.isfile(path):
-            text = open(path, "r")
-            text_contenu = text.read()
-            text.close()
+        # find hash code
+        if sha is None:
+            sha = tutorial.sha_draft
+        
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        tutorial_version = json_reader.loads(manifest)
+        if "parts" in tutorial_version:
+            for part in tutorial_version["parts"]:
+                if "chapters" in part:
+                    for chapter in part["chapters"]:
+                        if "extracts" in chapter:
+                            for extract in chapter["extracts"]:
+                                if extract["pk"] == self.pk:
+                                    path_ext = extract["text"]
+                                    break 
+        if "chapter" in tutorial_version:
+            chapter = tutorial_version["chapter"]
+            if "extracts" in chapter:
+                for extract in chapter["extracts"]:
+                    if extract["pk"] == self.pk:
+                        path_ext = extract["text"]
+                        break
 
-            return text_contenu.decode('utf-8')
+        if path_ext:
+            return get_blob(repo.commit(sha).tree, path_ext)
         else:
             return None
 
