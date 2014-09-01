@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group, Permission, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
@@ -26,12 +26,12 @@ import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm
+    OldTutoForm, PromoteMemberForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic
+from zds.forum.models import Topic, follow
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -40,13 +40,15 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 
 
-
 def index(request):
     """Displays the list of registered users."""
 
     if request.is_ajax():
         q = request.GET.get('q', '')
-        members = User.objects.filter(username__icontains=q)[:20]
+        if request.user.is_authenticated() :
+            members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
+        else:
+            members = User.objects.filter(username__icontains=q)[:20]
         results = []
         for member in members:
             member_json = {}
@@ -55,9 +57,9 @@ def index(request):
             member_json['value'] = member.username
             results.append(member_json)
         data = json.dumps(results)
-
+        
         mimetype = "application/json"
-
+        
         return HttpResponse(data, mimetype)
 
     else:
@@ -127,12 +129,12 @@ def details(request, user_name):
     my_tuto_versions = []
     for my_tutorial in my_tutorials:
         mandata = my_tutorial.load_json_for_public()
-        mandata = my_tutorial.load_dic(mandata)
+        my_tutorial.load_dic(mandata)
         my_tuto_versions.append(mandata)
     my_article_versions = []
     for my_article in my_articles:
         article_version = my_article.load_json_for_public()
-        article_version = my_article.load_dic(article_version)
+        my_article.load_dic(article_version)
         my_article_versions.append(article_version)
 
     my_topics = \
@@ -224,37 +226,29 @@ def modify_profile(request, user_pk):
         # send register message
 
         if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = \
-                u"""Bonjour **{0}**,
-
-**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.
-
-Ce qui signifie que {2}
-
-Le motif de votre sanction est :
-
-`{3}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'**Bonne Nouvelle**, la sanction qui '
+                   u'pesait sur vous a été levée par **{1}**.\n\n'
+                   u'Ce qui signifie que {2}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {3}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            detail,
+                            ban.text))
         else:
-            msg = \
-                u"""Bonjour **{0}**,
-
-Vous avez été santionné par **{1}**.
-
-La sanction est de type *{2}*, ce qui signifie que {3}
-
-Le motif de votre sanction est :
-
-`{4}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, ban.type, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'Vous avez été santionné par **{1}**.\n\n'
+                   u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {4}\n\n'
+                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                    .format(ban.user,
+                            ban.moderator,
+                            ban.type,
+                            detail,
+                            ban.text))
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
             bot,
@@ -286,6 +280,10 @@ def tutorials(request):
     profile = request.user.profile
     if type == "draft":
         user_tutorials = profile.get_draft_tutos()
+    elif type == "beta":
+        user_tutorials = profile.get_beta_tutos()
+    elif type == "validate":
+        user_tutorials = profile.get_validate_tutos()
     elif type == "public":
         user_tutorials = profile.get_public_tutos()
     else:
@@ -313,6 +311,8 @@ def articles(request):
     profile = request.user.profile
     if type == "draft":
         user_articles = profile.get_draft_articles()
+    if type == "validate":
+        user_articles = profile.get_validate_articles()
     elif type == "public":
         user_articles = profile.get_public_articles()
     else:
@@ -510,7 +510,6 @@ def settings_user(request):
         return render_template("member/settings/user.html", c)
 
 
-
 def login_view(request):
     """Log in user."""
 
@@ -559,8 +558,9 @@ def login_view(request):
             messages.error(request,
                            "Les identifiants fournis ne sont pas valides")
     form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view") \
-        + "?next=" + str(next_page)
+    form.helper.form_action = reverse("zds.member.views.login_view")
+    if next_page is not None:
+        form.helper.form_action += "?next=" + next_page
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
@@ -884,3 +884,100 @@ def remove_oldtuto(request):
                      u'au membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
+
+
+@login_required
+def settings_promote(request, user_pk):
+    """ Manage the admin right of user. Only super user can access """
+
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    user = profile.user
+    
+    if request.method == "POST":
+        form = PromoteMemberForm(request.POST)
+        data = dict(form.data.iterlists())
+
+        groups = Group.objects.all()
+        usergroups = user.groups.all()
+        
+        if 'groups' in data:
+            for group in groups:
+                if unicode(group.id) in data['groups']:
+                    if group not in usergroups:
+                        user.groups.add(group)
+                        messages.success(request, u'{0} appartient maintenant au groupe {1}'
+                                                    .format(user.username, group.name))
+                else:
+                    if group in usergroups:
+                        user.groups.remove(group)
+                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
+                                                    .format(user.username, group.name))
+                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                               forum__group=group)
+                        for topic in topics_followed:
+                            follow(topic, user)
+        else:
+            for group in usergroups:
+                topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                       forum__group=group)
+                for topic in topics_followed:
+                    follow(topic, user)
+            user.groups.clear()
+            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
+                                        .format(user.username))
+        
+        if 'superuser' in data and u'on' in data['superuser']:
+            if not user.is_superuser:
+                user.is_superuser = True
+                messages.success(request, u'{0} est maintenant super-utilisateur'
+                                            .format(user.username))
+        else:
+            if user == request.user:
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+            else:
+                if user.is_superuser:
+                    user.is_superuser = False
+                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
+                                                .format(user.username))
+
+        user.save()
+        
+        usergroups = user.groups.all()
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = (u'Bonjour {0},\n\n'
+               u'Un administrateur vient de modifier les groupes '
+               u'auxquels vous appartenez.  \n'.format(user.username))
+        if len(usergroups) > 0:
+            msg += u'Voici la liste des groupes dont vous faites dorénavant partis :\n\n'
+            for group in usergroups:
+                msg += u'* {0}\n'.format(group.name)
+        else:
+            msg += u'* Vous ne faites partis d\'aucun groupe'
+        msg += u'\n\n'
+        if user.is_superuser:
+            msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                    u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+        send_mp(
+            bot,
+            [user],
+            u'Modification des groupes',
+            u'',
+            msg,
+            True,
+            True,
+        )
+        
+        return redirect(profile.get_absolute_url())
+
+    form = PromoteMemberForm(initial={'superuser': user.is_superuser,
+                                      'groups': user.groups.all()
+                                     })
+    
+    return render_template('member/settings/promote.html', {
+        "usr": user,
+        "profile": profile,
+        "form": form
+        })

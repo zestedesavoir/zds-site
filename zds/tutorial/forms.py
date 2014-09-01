@@ -92,7 +92,8 @@ class TutorialForm(FormWithTitle):
     licence = forms.ModelChoiceField(
         label="Licence de votre publication",
         queryset=Licence.objects.all(),
-        required=False,
+        required=True,
+        empty_label=None
     )
 
     def __init__(self, *args, **kwargs):
@@ -408,7 +409,11 @@ class ValidForm(forms.Form):
             }
         )
     )
-    is_major = forms.BooleanField(label='Version majeure ?', required=False)
+    is_major = forms.BooleanField(
+        label='Version majeure ?',
+        required=False,
+        initial=True
+    )
     source = forms.CharField(
         label='Source originale',
         required=False,

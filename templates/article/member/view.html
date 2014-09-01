@@ -50,7 +50,7 @@
     
     {% if article.licence %}
         <span class="license">
-            Licence {{ article.licence }}
+            {{ article.licence }}
         </span>
     {% endif %}
 
@@ -95,20 +95,46 @@
         </ul>
     </div>
 
-    {% if perms.article.change_article and article.sha_validation != None %}
-        <p class="content-wrapper alert-box info">
-            Cet article est en attente de validation
-        </p>
-        {% if validation.comment_authors %}
-            <div class="content-wrapper comment-author">
-                <p>
-                    Le message suivant a été laissé à destination des validateurs : 
-                </p>
+    {% if user in authors.all or perms.article.change_article %}
+        {% if article.sha_validation != None %}
+            {% if validation.version == version %}
+                {% if validation.validator == None %}
+                    <p class="content-wrapper alert-box alert">
+                        Cet article est en attente d'un validateur
+                    </p>
+                {% else %}
+                    <p class="content-wrapper alert-box info">
+                        L'article est en cours de validation par
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+                {% if validation.comment_authors %}
+                    <div class="content-wrapper comment-author">
+                        <p>
+                            Le message suivant a été laissé à destination des validateurs :
+                        </p>
 
-                <blockquote>
-                    {{ validation.comment_authors }}
-                </blockquote>
-            </div>
+                        <blockquote>
+                            {{ validation.comment_authors }}
+                        </blockquote>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if validation.validator == None %}
+                    <p class="content-wrapper alert-box alert">
+                        <a href="{{ article.get_absolute_url }}?version={{ validation.version }}">
+                            Une autre version de cet article</a>
+                        est en attente d'un validateur
+                    </p>
+                {% else %}
+                    <p class="content-wrapper alert-box info">
+                        <a href="{{ article.get_absolute_url }}?version={{ validation.version }}">
+                            Une autre version de cet article</a>
+                        est en cours de validation par
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+            {% endif %}
         {% endif %}
     {% endif %}
 {% endblock %}

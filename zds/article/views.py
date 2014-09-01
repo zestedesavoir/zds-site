@@ -110,8 +110,7 @@ def view(request, article_pk, article_slug):
     article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
     article_version = article.load_dic(article_version)
 
-    validation = Validation.objects.filter(article__pk=article.pk,
-                                            version=sha)\
+    validation = Validation.objects.filter(article__pk=article.pk)\
                                     .order_by("-date_proposition")\
                                     .first()
 
@@ -254,6 +253,10 @@ def new(request):
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 article.licence = lc
+            else:
+                article.licence = Licence.objects.get(
+                    pk=settings.DEFAULT_LICENCE_PK
+                )
 
             article.save()
 
@@ -264,7 +267,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                }
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -308,7 +315,9 @@ def edit(request):
                     lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                     article.licence = lc
                 else:
-                    article.licence = None
+                    article.licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+                    )
             
 
             article.save()
@@ -329,7 +338,9 @@ def edit(request):
         if "licence" in json:
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
-            licence = None
+            licence = Licence.objects.get(
+                        pk=settings.DEFAULT_LICENCE_PK
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
@@ -467,12 +478,12 @@ def modify(request):
 
                 # send feedback
                 for author in article.authors.all():
-                    msg = u'Désolé **{0}**, ton zeste **{1}** '
+                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'surement être faite pour l’améliorer et repasser la '
+                    u'sûrement être faites pour l’améliorer et repasser la '
                     u'validation plus tard. Voici le message que [{2}]({3}), '
-                    u'ton validateur t\'a laissé\n\n`{4}`\n\nN\'hésite pas a '
+                    u'ton validateur t\'a laissé\n\n> {4}\n\nN\'hésite pas a '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
@@ -480,7 +491,7 @@ def modify(request):
                         article.title,
                         validation.validator.username,
                         validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator)
+                        validation.comment_validator))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
@@ -588,7 +599,7 @@ def modify(request):
                     validation.version)
 
     # User actions
-    if request.user in article.authors.all():
+    if request.user in article.authors.all() or request.user.has_perm('article.change_article'):
         if 'delete' in data:
             if article.authors.count() == 1:
                 article.delete()
@@ -599,7 +610,13 @@ def modify(request):
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST and article.sha_validation is None:
+        elif 'pending' in request.POST:
+            # Delete old pending validation
+            Validation.objects.filter(article__pk=article_pk,
+                                      status__in=['PENDING','PENDING_V'])\
+                                      .delete()
+
+            # Create new validation
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
@@ -782,7 +799,10 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'RESERVED'
         validation.save()
-        return redirect(validation.article.get_absolute_url())
+        return redirect(
+            validation.article.get_absolute_url() +
+            '?version=' + validation.version
+        )
 
 
 @login_required
@@ -952,8 +972,8 @@ def solve_alert(request):
     msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
     u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
     u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-    u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
-    u'la modération vous remercie'.format(
+    u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+    u'la modération vous remercie !'.format(
         alert.author.username,
         reaction.author.username,
         reaction.article.title,

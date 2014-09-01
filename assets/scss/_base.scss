@@ -189,3 +189,9 @@ nav {
 .clearfix {
     *zoom: 1;
 }
+
+hr.clearfix {
+    clear: both;
+    height: 0;
+    border: none;
+}

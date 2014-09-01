@@ -250,7 +250,7 @@
                     content: "Quitter la ";
                 }
 
-                .reactions-title,
+                .comments-title,
                 .pagination:not(.pagination-chapter),
                 .topic-message {
                     display: none;
@@ -476,6 +476,10 @@
     .content-wrapper,
     .full-content-wrapper {
         margin: 0 0 0 4%;
+
+        &.without-margin {
+            margin: 0;
+        }
 
         .content-wrapper {
             max-width: none;

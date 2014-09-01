@@ -1,7 +1,13 @@
 {% if user in authors.all or perms.article.change_article %}
-    <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
-        Éditer
-    </a>
+    {% if article.sha_draft = version %}
+        <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
+            Éditer
+        </a>
+    {% else %}
+        <a href="{{ article.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+            Version brouillon
+        </a>
+    {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Gestion">
         <h3>Gestion</h3>
@@ -60,23 +66,30 @@
 
             {% if article.sha_validation = None %}
                 <li>
-                    <a href="#valid" class="open-modal ico-after tick green">Demander la validation</a>
-                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="valid">
-                        <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"></textarea>
-
-                        <input type="hidden" name="article" value="{{ article.pk }}">
-                        <input type="hidden" name="version" value="{{ version }}">
-                        {% csrf_token %}
-                        <button type="submit" name="pending">
-                            Confirmer
-                        </button>
-                    </form>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">Demander la validation</a>
                 </li>
             {% else %}
+                {% if article.sha_validation != version %}
+                    <li>
+                        <a href="#ask-validation" class="open-modal ico-after tick green">
+                            Mettre à jour la version en validation
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="inactive">
-                    <span class="ico-after tick">En attente de validation</span>
+                    <span class="ico-after tick disabled">En attente de validation</span>
                 </li>
             {% endif %}
+            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="ask-validation">
+                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"></textarea>
+
+                <input type="hidden" name="article" value="{{ article.pk }}">
+                <input type="hidden" name="version" value="{{ version }}">
+                {% csrf_token %}
+                <button type="submit" name="pending">
+                    Confirmer
+                </button>
+            </form>
         </ul>
     </div>
 {% endif %}
@@ -92,13 +105,25 @@
                     Historique de validation
                 </a>
             </li>
+            <li>
+                <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
+                    class="ico-after cite blue"
+                >
+                    Envoyer un MP 
+                    {% if authors.all|length > 1 %}
+                        aux auteurs
+                    {% else %}
+                        à l'auteur
+                    {% endif %}
+                </a>
+            </li>
 
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}
                     <li>
                         <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="ico-after lock blue">
+                            <button type="submit" class="ico-after lock blue unread">
                                 Réserver
                             </button>
                         </form>
@@ -198,7 +223,7 @@
                 </li>
             {% else %}
                 <li class="inactive">
-                    <span class="disabled">Impossible, car en publié</span>
+                    <span class="disabled ico-after cross">Impossible, car publié</span>
                 </li>
             {% endif %}
         </ul>

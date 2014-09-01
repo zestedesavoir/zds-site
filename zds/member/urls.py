@@ -33,6 +33,8 @@ urlpatterns = patterns('',
                            'zds.member.views.settings_account'),
                        url(r'^parametres/user/$',
                            'zds.member.views.settings_user'),
+                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$',
+                           'zds.member.views.settings_promote'),
 
                        url(r'^connexion/$',
                            'zds.member.views.login_view'),

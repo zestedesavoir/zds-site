@@ -44,6 +44,14 @@
         username: user
         password: pbkdf2_sha256$10000$w5hhXcOg2pIT$gluvdmTKlbOJDpo9U/C3pWJOmOytbXX2N38j2iplNcM=
         is_superuser: False
+-   model: auth.user
+    pk: 4
+    fields:
+        first_name: ïtrema
+        last_name: User
+        username: ïtrema
+        password: pbkdf2_sha256$12000$FssznaRHkjFK$8GvNM2oqOIHRNNr4G+8s+cbk6LIYXaxGOsI1Hh6cswI=
+        is_superuser: False
 -   model: member.Profile
     pk: 1
     fields:
@@ -58,4 +66,9 @@
     pk: 3
     fields:
         user: 3
+        last_ip_address: 192.168.0.1
+-   model: member.Profile
+    pk: 4
+    fields:
+        user: 4
         last_ip_address: 192.168.0.1

@@ -4,8 +4,10 @@ import os
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+
+from email.utils import parseaddr
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -50,22 +52,24 @@ class LoginForm(forms.Form):
         label='Identifiant',
         max_length=User._meta.get_field('username').max_length,
         required=True,
+        widget=forms.TextInput(
+            attrs={
+                'autofocus': ''
+            }
+        )
     )
 
     password = forms.CharField(
         label='Mot magique',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
 
-    remember = forms.MultipleChoiceField(
-        label='',
-        choices=(
-            ('remember', "Connexion automatique"),
-        ),
-        initial='remember',
-        widget=forms.CheckboxSelectMultiple,
+    remember = forms.BooleanField(
+        label='Connexion automatique',
+        initial=True,
     )
 
     def __init__(self, next=None, *args, **kwargs):
@@ -151,18 +155,30 @@ class RegisterForm(forms.Form):
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
-        if User.objects.filter(username=username).count() > 0:
-            msg = u'Ce nom d\'utilisateur est déjà utilisé'
-            self._errors['username'] = self.error_class([msg])
+        
+        if username is not None :
+            if username.strip() == '':
+                msg = u'Le nom d\'utilisateur ne peut-être vide'
+                self._errors['username'] = self.error_class([msg])
+            elif User.objects.filter(username=username).count() > 0:
+                msg = u'Ce nom d\'utilisateur est déjà utilisé'
+                self._errors['username'] = self.error_class([msg])
+            # Forbid the use of comma in the username
+            elif "," in username:
+                msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
+                self._errors['username'] = self.error_class([msg])
+            elif username != username.strip():
+                msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
+                self._errors['username'] = self.error_class([msg])
 
-        # Check that password != username
-        if password == username:
-            msg = u'Le mot de passe doit être différent du pseudo'
-            self._errors['password'] = self.error_class([msg])
-            if 'password' in cleaned_data:
-                del cleaned_data['password']
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
+            # Check that password != username
+            if password == username:
+                msg = u'Le mot de passe doit être différent du pseudo'
+                self._errors['password'] = self.error_class([msg])
+                if 'password' in cleaned_data:
+                    del cleaned_data['password']
+                if 'password_confirm' in cleaned_data:
+                    del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
         if email:
@@ -175,10 +191,10 @@ class RegisterForm(forms.Form):
                         self._errors['email'] = self.error_class([msg])
                         break
 
-        # Check that the email is unique
-        if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre adresse courriel est déjà utilisée'
-            self._errors['email'] = self.error_class([msg])
+            # Check that the email is unique
+            if User.objects.filter(email=email).count() > 0:
+                msg = u'Votre adresse courriel est déjà utilisée'
+                self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
 
@@ -241,13 +257,12 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton('Editer le profil', type='submit'),
+                StrictButton('Éditer le profil', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
+
 # update extra information about user
-
-
 class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
@@ -300,9 +315,8 @@ class ProfileForm(MiniProfileForm):
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
+
 # to update email/username
-
-
 class ChangeUserForm(forms.Form):
 
     username_new = forms.CharField(
@@ -325,7 +339,8 @@ class ChangeUserForm(forms.Form):
             attrs={
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
-        )
+        ),
+        error_messages = {'invalid': u'Veuillez entrer une adresse email valide.',}
     )
 
     def __init__(self, *args, **kwargs):
@@ -351,25 +366,31 @@ class ChangeUserForm(forms.Form):
         email_new = cleaned_data.get('email_new')
 
         if username_new is not None:
-            if username_new.strip() != '':
-                if User.objects.filter(username=username_new).count() >= 1:
+            if username_new != '':
+                if User.objects.filter(username=username_new.strip()).count() >= 1:
                     self._errors['username_new'] = self.error_class(
                         [u'Ce nom d\'utilisateur est déjà utilisé'])
+                elif username_new != username_new.strip():
+                    msg = u'Le nom d\'utilisateur ne peut commencer/finir par des espaces'
+                    self._errors['username_new'] = self.error_class([msg])
+                # Forbid the use of comma in the username
+                elif "," in username_new:
+                    msg = u'Le nom d\'utilisateur ne peut contenir de virgules'
+                    self._errors['username_new'] = self.error_class([msg])
 
         if email_new is not None:
             if email_new.strip() != '':
                 if User.objects.filter(email=email_new).count() >= 1:
-                    self._errors['email_new'] = self.error_class(
-                        [u'Votre adresse courriel est déjà utilisée'])
-            # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT,
-                                   'forbidden_email_providers.txt'), 'r') as fh:
-                for provider in fh:
-                    if provider.strip() in email_new:
-                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
-                        self._errors['email_new'] = self.error_class([msg])
-                        break
-
+                    self._errors['email_new'] = self.error_class([u'Votre adresse courriel est déjà utilisée'])
+                else:
+                    # Chech if email provider is authorized
+                    with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+                        for provider in fh:
+                            if provider.strip() in email_new:
+                                msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                                self._errors['email_new'] = self.error_class([msg])
+                                break
+            
         return cleaned_data
 
 
@@ -378,18 +399,21 @@ class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
         label='Nouveau mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_old = forms.CharField(
         label='Mot de passe actuel',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmer le nouveau mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
@@ -442,16 +466,6 @@ class ChangePasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
-        # Check that the password is at least MIN_PASSWORD_LENGTH
-        if len(password_new) < MIN_PASSWORD_LENGTH:
-            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
-            self._errors['password_new'] = self.error_class([msg])
-            if 'password_new' in cleaned_data:
-                del cleaned_data['password_new']
-
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
-
         # Check that password != username
         if password_new == self.user.username:
             msg = u'Le mot de passe doit être différent de votre pseudo'
@@ -464,9 +478,8 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
+
 # Reset the password
-
-
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label='Nom d\'utilisateur',
@@ -505,11 +518,13 @@ class NewPasswordForm(forms.Form):
     password = forms.CharField(
         label='Mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
         label='Confirmation',
         max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
@@ -547,16 +562,6 @@ class NewPasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
-        # Check that the password is at least MIN_PASSWORD_LENGTH
-        if len(password) < MIN_PASSWORD_LENGTH:
-            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
-            self._errors['password'] = self.error_class([msg])
-            if 'password' in cleaned_data:
-                del cleaned_data['password']
-
-            if 'password_confirm' in cleaned_data:
-                del cleaned_data['password_confirm']
-
         # Check that password != username
         if password == self.username:
             msg = u'Le mot de passe doit être différent de votre pseudo'
@@ -568,3 +573,28 @@ class NewPasswordForm(forms.Form):
                 del cleaned_data['password_confirm']
 
         return cleaned_data
+
+
+class PromoteMemberForm(forms.Form):
+    groups = forms.ModelMultipleChoiceField(
+        label="Groupe de l'utilisateur",
+        queryset=Group.objects.all(),
+        required=False,
+    )
+    
+    superuser = forms.BooleanField(
+        label="Super-user",
+        required=False,    
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(PromoteMemberForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('groups'),
+            Field('superuser'),
+            StrictButton('Valider', type='submit'),
+        )
