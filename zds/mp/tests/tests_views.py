@@ -323,8 +323,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
-        participants = self.profile1.user.username\
-            + ',' + self.profile2.user.username
+        participants = self.profile2.user.username
 
         response = self.client.post(
             reverse('zds.mp.views.new'),
