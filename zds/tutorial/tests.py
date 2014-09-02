@@ -1002,11 +1002,11 @@ class BigTutorialTests(TestCase):
 	old_validator = self.staff
 
 	# logout staff before
-        self.staff.logout()
+        self.client.logout()
         # login with simple member
         self.assertEqual(
             self.client.login(
-                username=self.client.username,
+                username=self.user.username,
                 password='hostel77'),
             True)
 
