@@ -20,7 +20,6 @@ from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
 from django.utils.importlib import import_module
 
-
 class Profile(models.Model):
 
     """Represents an user profile."""
@@ -267,6 +266,16 @@ class TokenRegister(models.Model):
         """Textual forum of a profile."""
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
+def save_profile(backend, user, response, *args, **kwargs):
+    profile = Profile.objects.filter(user=user).first()
+    if profile is None:
+        profile = Profile(user=user,
+                          show_email=False,
+                          show_sign=True,
+                          hover_or_click=True,
+                          email_for_answer=False)
+        profile.last_ip_address = "0.0.0.0"
+        profile.save()
 
 class Ban(models.Model):
 

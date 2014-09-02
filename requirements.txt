@@ -1,7 +1,7 @@
 # Implicit dependencies (facutlative dependencies of dependencies)
 pysolr==3.2.0
 pygments==1.6
-
+python-social-auth==0.1.26
 # Explicit dependencies (references in code)
 django==1.6.8
 coverage==3.7.1
@@ -19,6 +19,7 @@ pygeoip==0.3.1
 pillow==2.6.1
 https://github.com/zestedesavoir/GitPython/archive/0.3.2-RC1.z2.zip
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.10.zip
+<<<<<<< HEAD
 easy-thumbnails==2.2
 
 # Development tools
