@@ -29,7 +29,7 @@ install:
 
   # Add fonts
   - sudo wget -P /usr/share/fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
-  - unzip /usr/share/fonts/truetype/Merriweather.zip -d /usr/share/fonts/truetype/Merriweather/
+  - sudo unzip /usr/share/fonts/truetype/Merriweather.zip -d /usr/share/fonts/truetype/Merriweather/
   - sudo chmod a+r /usr/share/fonts/truetype/Merriweather/*.ttf
   - sudo fc-cache -f -v
 
