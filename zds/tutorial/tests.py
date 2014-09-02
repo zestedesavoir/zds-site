@@ -106,6 +106,7 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.first_validator = self.staff
 
         # publish tutorial
         pub = self.client.post(
@@ -970,6 +971,7 @@ class BigTutorialTests(TestCase):
         
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
+        
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
             {
@@ -980,7 +982,11 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-
+        
+        # old validator stay
+	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
+	self.assertEqual(self.first_validator, validation.validator)
+	
         # logout before
         self.client.logout()
         # login with staff member
