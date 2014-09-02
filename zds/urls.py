@@ -80,6 +80,8 @@ urlpatterns = patterns('',
                        url(r'^pages/', include('zds.pages.urls')),
                        url(r'^galerie/', include('zds.gallery.urls')),
                        url(r'^rechercher/', include('zds.search.urls')),
+                       url('', include('social.apps.django_app.urls', namespace='social')),
+                       url('', include('django.contrib.auth.urls', namespace='auth')),
                        url(r'^munin/', include('zds.munin.urls')),
                        ('^munin/', include('munin.urls')),
 
