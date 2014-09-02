@@ -3,6 +3,7 @@
 import os
 import shutil
 import HTMLParser
+from django.db.models import Q
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -1000,6 +1001,9 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(pub.status_code, 302)
 	old_validator = self.staff
+	old_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
 
 	# logout staff before
         self.client.logout()
@@ -1025,7 +1029,12 @@ class BigTutorialTests(TestCase):
 	# old validator stay
 	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
 	self.assertEqual(old_validator, validation.validator)
-
+	
+	#new MP for staff
+	new_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
+	self.assertEqual((new_mps_count-old_mps_count), 1)
 	# logout before
         self.client.logout()
         # login with staff member
