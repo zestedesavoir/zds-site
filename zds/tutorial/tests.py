@@ -982,10 +982,6 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        
-        # old validator stay
-	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
-	self.assertEqual(self.first_validator, validation.validator)
 	
         # logout before
         self.client.logout()
@@ -1003,6 +999,41 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+	old_validator = self.staff
+
+	# logout staff before
+        self.staff.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.client.username,
+                password='hostel77'),
+            True)
+
+	# ask public tutorial again
+	pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Nouvelle demande de publication',
+                'version': tuto.sha_draft,
+                'source': 'www.zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+	# old validator stay
+	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
+	self.assertEqual(old_validator, validation.validator)
+
+	# logout before
+        self.client.logout()
+        # login with staff member
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
 
         # publish tutorial
         pub = self.client.post(
