@@ -633,7 +633,7 @@ def modify(request):
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
-            old_validation = Validation.objects.filter(tutorial__pk=tutorial_pk,
+            old_validation = Validation.objects.filter(article__pk=article_pk,
                               status__in=['PENDING_V']).first()
             if old_validation is not None:
                 old_validator = old_validation.validator
