@@ -257,7 +257,7 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton('Éditer le profil', type='submit'),
+                StrictButton(u'Éditer le profil', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
@@ -311,7 +311,7 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton('Editer mon profil', type='submit'),
+                StrictButton('Éditer mon profil', type='submit'),
                 HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
