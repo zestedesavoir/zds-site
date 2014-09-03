@@ -491,7 +491,7 @@ def add_participant(request):
 
     try:
         # user_pk or user_username ?
-        part = User.objects.get(username=request.POST['user_pk'])
+        part = User.objects.get(username__exact=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
