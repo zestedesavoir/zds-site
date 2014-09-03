@@ -47,8 +47,15 @@
 
         <p>
             Code markdown pour insérer cette image : <br>
-            Taille normale : <input type="text" value="![{{ image.legend }}]({{ image.physical.content.url }})" readonly onclick="this.select()">
-            Miniature : <input type="text" value="![{{ image.legend }}]({{ image.physical.gallery.url }})" readonly onclick="this.select()">
+
+            Taille normale :
+            <input type="text" value="![{{ image.legend }}]({{ image.physical.content.url }})" readonly onclick="this.select()"> <br>
+
+            Miniature :
+            <input type="text" value="![{{ image.legend }}]({{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
+
+            Miniature + lien vers taille noramle :
+            <input type="text" value="[![{{ image.legend }}]({{ image.physical.gallery.url }})]({{ image.physical.content.url }})" readonly onclick="this.select()">
         </p>
         
         {% crispy as_avatar_form %}
