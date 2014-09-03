@@ -37,7 +37,7 @@
         </p>
         <p>
             <a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}" class="btn btn-facebook">Connexion Facebook</a>
-            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" class="btn btn-gplus">Connexion Google Plus</a>
+            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" class="btn btn-gplus">Connexion Google+</a>
             <a href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}" class="btn btn-twitter">Connexion Twitter</a>
         </p>
         {% crispy form %}
