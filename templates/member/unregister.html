@@ -3,25 +3,25 @@
     <li>Supression de compte</li>
 {% endblock %}
 {% block content_out %}
-    <p>Attention {pseudo}, vous etes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu'implique cette action qui ne peut-être annule :</p>
+    <p>Attention {{user.username}}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu'implique cette action qui ne peut-être annulée :</p>
     <ul>
         <li>Tous vos MP seront perdus</li>
-        <li>Tous vos messages de forums seront anonymises</li>
-        <li>Votre compte et tout ses détails seront supprimes. Cela signifie que l'adresse email ({user.email}) sera efface du système et votre pseudo ({user.username}) sera libéré et utilisable par un autre membre.</li>
-        <li>Vos tutoriel et articles non publies (brouillon ou beta) seront supprime sans possibilité de recuperation (sauf si d'autres auteurs sont présents lors de la rédaction)</li>
+        <li>Tous vos messages de forums seront anonymisés</li>
+        <li>Votre compte et tout ses détails seront supprimés. Cela signifie que l'adresse email ({{user.email}}) sera effacée du système et votre pseudo ({{user.username}}) sera libéré et utilisable par un autre membre.</li>
+        <li>Vos tutoriels et articles non publiés (brouillon ou beta) seront supprimés sans possibilité de recuperation (sauf si d'autres auteurs sont présents lors de la rédaction)</li>
         <li>Vos tutoriels et articles publies seront :
             <ul>
-                <li>Si vous étiez seul, place sous la gouvernance du compte "Auteur Externe" (sauf demande contraire de votre part a un membre du staff AVANT votre désinscription)</li>
+                <li>Si vous étiez seul, placés sous la gouvernance du compte "Auteur Externe" (sauf demande contraire de votre part a un membre du staff AVANT votre désinscription)</li>
                 <li>Si vous étiez plusieurs auteurs, vous quitterez le groupe de redacteur. Les autres pourront continuer alors sans vous.</li>
             </ul>
         </li>
     </ul>
-    <p>Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton "Me désinscrire" ci-dessous. Sinon il n'est pas encore trop tard…</p>
+    <p>Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton "Se désinscrire" ci-dessous. Sinon il n'est pas encore trop tard…</p>
     <form 
         method="post"
         action="{% url "zds.member.views.unregister" %}"
     >
         {% csrf_token %}
-        <button type="submit">Se désinscrire</button>
+        <button type="submit" class="btn btn-cancel">Se désinscrire</button>
     </form>
 {% endblock %}
