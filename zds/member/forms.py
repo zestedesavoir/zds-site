@@ -85,7 +85,6 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
 
@@ -132,7 +131,6 @@ class RegisterForm(forms.Form):
             Field('email'),
             ButtonHolder(
                 Submit('submit', 'Valider mon inscription'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
     def clean(self):
@@ -257,8 +255,7 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton(u'Éditer le profil', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton(u'Enregistrer les modifications', type='submit'),
             ))
 
 
@@ -311,8 +308,7 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton(u'Éditer mon profil', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton(u'Enregistrer les modifications', type='submit'),
             ))
 
 
@@ -353,8 +349,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton('Enregistrer les modifications', type='submit'),
             ),
         )
 
@@ -430,8 +425,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton('Enregistrer les modifications', type='submit'),
             )
         )
 
@@ -497,7 +491,6 @@ class ForgotPasswordForm(forms.Form):
             Field('username'),
             ButtonHolder(
                 StrictButton('Envoyer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -540,7 +533,6 @@ class NewPasswordForm(forms.Form):
             Field('password_confirm'),
             ButtonHolder(
                 StrictButton('Envoyer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
