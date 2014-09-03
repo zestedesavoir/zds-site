@@ -25,6 +25,8 @@ var paths = {
   sprite: "assets/images/sprite@2x/*.png"
 };
 
+
+
 gulp.task("clean", function() {
   return gulp.src(["dist/*"], { read: false })
     .pipe($.rimraf());
@@ -144,7 +146,7 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.styles_path, ["stylesheet"]);
   gulp.watch(paths.errors_path, ["errors"]);
-  gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
+  gulp.watch(paths.sprite, ["stylesheet"]); // stylesheet task already lauch sprite
 
   gulp.watch("dist/*/**", function(file) {
     var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
@@ -172,8 +174,8 @@ gulp.task("pack", ["build"], function() {
     .pipe(gulp.dest("dist/"));
 });
 
-gulp.task("travis", ["test"]);
 
+gulp.task("travis", ["pack"]);
 
 gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts"]);
 
