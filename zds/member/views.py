@@ -87,6 +87,10 @@ def index(request):
             "nb": page,
         })
 
+@login_required
+def warning_unregister(request):
+    """displays a warning page showing what will happen when user unregisters"""
+    return render_template("member/unregister.html",{"user":request.user})
 
 @login_required
 @require_POST
