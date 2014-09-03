@@ -85,12 +85,12 @@
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     Signaler
                                 </a>
-                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
+                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-big">
                                     {% csrf_token %}
-                                    <p>
+                                    <label for="signal-message-{{ message.id }}-field">
                                         Pour quelle raison signalez-vous ce message ?
-                                    </p>
-                                    <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title ="Minimum 3 caractères pour signaler">
+                                    </label>
+                                    <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title="Minimum 3 caractères pour signaler" rows="5"></textarea>
 
                                     <button type="submit" name="signal_message">
                                         Signaler
