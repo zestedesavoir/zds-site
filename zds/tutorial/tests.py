@@ -614,6 +614,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 1",
                 'introduction': u"Présentation",
                 'conclusion': u"Fin de la présentation",
+                'msg_commit': u"Initialisation de ma partie 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -640,6 +641,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2",
                 'introduction': u"Analyse",
                 'conclusion': u"Fin de l'analyse",
+                'msg_commit': u"Initialisation de ma partie 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -666,6 +668,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2",
                 'introduction': "Expérimentation",
                 'conclusion': "C'est terminé",
+                'msg_commit': u"Initialisation de ma partie 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -692,6 +695,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre",
                 'conclusion': "Fin de mon premier chapitre",
+                'msg_commit': u"Initialisation du chapitre 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -722,6 +726,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2",
                 'introduction': u"Mon deuxième chapitre",
                 'conclusion': u"Fin de mon deuxième chapitre",
+                'msg_commit': u"Initialisation du chapitre 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -752,6 +757,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2",
                 'introduction': u"Mon troisième chapitre homonyme",
                 'conclusion': u"Fin de mon troisième chapitre",
+                'msg_commit': u"Initialisation du chapitre 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -782,6 +788,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre d'une autre partie",
                 'conclusion': "",
+                'msg_commit': u"Initialisation du chapitre 4"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -810,6 +817,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 1",
                 'text': "Prune",
+                'msg_commit': u"Initialisation de l'extrait 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -822,6 +830,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 2",
                 'text': "Citron",
+                'msg_commit': u"Initialisation de l'extrait 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -834,6 +843,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 3",
                 'text': "Kiwi",
+                'msg_commit': u"Initialisation de l'extrait 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -913,6 +923,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
+                'msg_commit': u"Mise à jour de la partie",
                 "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
                                            os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
@@ -929,8 +940,9 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
-                "last_hash": compute_hash([os.path.join(c3.get_path(), "introduction.md"),
-                                           os.path.join(c3.get_path(), "conclusion.md")])
+                'msg_commit': u"Mise à jour du chapitre",
+                "last_hash": compute_hash([os.path.join(c3.get_path(),"introduction.md"),
+				    os.path.join(c3.get_path(),"conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 3 : edition de titre")
@@ -946,6 +958,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
+                'msg_commit': u"2nd Màj de la partie 2",
                 "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
                                            os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
@@ -962,8 +975,10 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
-                "last_hash": compute_hash([os.path.join(c2.get_path(), "introduction.md"),
-                                           os.path.join(c2.get_path(), "conclusion.md")])
+                'msg_commit': u"MàJ du chapitre 2",
+                "last_hash": compute_hash([
+                    os.path.join(c2.get_path(), "introduction.md"),
+                    os.path.join(c2.get_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2 : edition de titre")
