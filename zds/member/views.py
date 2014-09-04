@@ -104,7 +104,7 @@ def unregister(request):
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
         if not tuto.on_line() and tuto.authors.count() == 1:
-            Tutorial.objects.filter(pk = tuto.pk).delete()
+            tuto.delete_entity_and_tree()
         else:
             if tuto.authors.count() == 1:
                 tuto.authors.add(external)
@@ -113,7 +113,7 @@ def unregister(request):
     for article in request.user.profile.get_articles():
          # we delete article only if not published with only one author
         if not article.on_line() and article.authors.count() == 1:
-            Article.objects.filter(pk = article.pk).delete()
+            article.delete_entity_and_tree()
         else:
             if article.authors.count() == 1:
                 article.authors.add(external)
