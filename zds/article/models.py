@@ -9,6 +9,8 @@ from git import Repo
 import os
 import string
 import uuid
+import shutil
+
 from easy_thumbnails.fields import ThumbnailerImageField
 
 try:
@@ -91,6 +93,12 @@ class Article(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def delete_entity_and_tree(self, using=None):
+        shutil.rmtree(self.get_path(),0)
+        if self.on_line():
+            shutil.rmtree(self.get_prod_path())
+        super.delete()
 
     def get_absolute_url(self):
         return reverse('zds.article.views.view',
