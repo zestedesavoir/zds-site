@@ -60,6 +60,17 @@ class ArticleForm(forms.Form):
         required=True,
         empty_label=None
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ArticleForm, self).__init__(*args, **kwargs)
@@ -74,6 +85,7 @@ class ArticleForm(forms.Form):
             Field('subcategory'),
             Field('licence'),
             CommonLayoutEditor(),
+            Field('msg_commit'),
         )
 
     def clean(self):

@@ -358,7 +358,8 @@ def edit(request):
                              new_slug_path=new_slug,
                              article=article,
                              text=data['text'],
-                             action='maj')
+                             action='maj',
+                             msg=request.POST["msg_commit"])
 
             return redirect(article.get_absolute_url())
     else:
@@ -407,7 +408,8 @@ def maj_repo_article(
         new_slug_path=None,
         article=None,
         text=None,
-        action=None):
+        action=None,
+        msg = None,):
 
     if action == 'del':
         shutil.rmtree(old_slug_path)
@@ -416,11 +418,11 @@ def maj_repo_article(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = 'Modification de l\'article'
+            msg = u"Modification de l'article : {}".format(article.title)
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = 'Creation de l\'article'
+            msg = u"Création de l'article : {}".format(article.title)
 
         repo = Repo(new_slug_path)
         index = repo.index
@@ -438,7 +440,7 @@ def maj_repo_article(
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
-        com = index.commit(msg.encode('utf-8'),
+        com = index.commit(msg,
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email)
                            )
