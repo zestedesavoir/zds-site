@@ -49,7 +49,7 @@ class OldTutoForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label='Identifiant',
+        label='Nom d\'utilisateur',
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -60,7 +60,7 @@ class LoginForm(forms.Form):
     )
 
     password = forms.CharField(
-        label='Mot magique',
+        label='Mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -68,7 +68,7 @@ class LoginForm(forms.Form):
     )
 
     remember = forms.BooleanField(
-        label='Connexion automatique',
+        label='Se souvenir de moi',
         initial=True,
     )
 
@@ -85,7 +85,6 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
 
