@@ -592,6 +592,10 @@
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 
+    .alert-box-text {
+        display: block;
+    }
+
     .close-alert-box {
         display: block;
         position: absolute;
