@@ -255,7 +255,7 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton(u'Enregistrer les modifications', type='submit'),
+                StrictButton(u'Enregistrer', type='submit'),
             ))
 
 
@@ -308,7 +308,7 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton(u'Enregistrer les modifications', type='submit'),
+                StrictButton(u'Enregistrer', type='submit'),
             ))
 
 
@@ -349,7 +349,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                StrictButton('Enregistrer les modifications', type='submit'),
+                StrictButton('Enregistrer', type='submit'),
             ),
         )
 
@@ -425,7 +425,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton('Enregistrer les modifications', type='submit'),
+                StrictButton('Enregistrer', type='submit'),
             )
         )
 
