@@ -2024,7 +2024,8 @@
         }
 
         // Code inline
-        p code {
+        p code,
+        li code {
             color: #A00;
             background: #EEE;
             border: 1px solid #CCC;
