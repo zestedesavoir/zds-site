@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from math import ceil
+import shutil
 try:
     import ujson as json_reader
 except:
@@ -284,7 +285,7 @@ class Tutorial(models.Model):
         if sha is None:
             sha = self.sha_draft
         repo = Repo(self.get_path())
-
+                
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "introduction" in tutorial_version:
@@ -332,6 +333,12 @@ class Tutorial(models.Model):
             conclu.close()
 
             return conclu_contenu.decode('utf-8')
+
+    def delete_entity_and_tree(self, using=None):
+        shutil.rmtree(self.get_path(),0)
+        if self.on_line():
+            shutil.rmtree(self.get_prod_path())
+        super.delete()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
