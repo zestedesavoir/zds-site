@@ -80,7 +80,7 @@
                     </div>
                     <div class="topic-description">
                         <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
-                            <img src="{{ img.physical.url }}"
+                            <img src="{{ img.physical.gallery.url }}"
                                  data-caption="{{ img.title }}"
                                  alt="{{ img.title }}"
                                  class="topic-image"

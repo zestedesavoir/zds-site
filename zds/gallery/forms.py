@@ -135,8 +135,6 @@ class ImageForm(forms.Form):
             Field('physical'),
             ButtonHolder(
                 StrictButton('Ajouter', type='submit'),
-                HTML('<a class="btn btn-cancel" '
-                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
 
@@ -167,8 +165,6 @@ class UpdateImageForm(ImageForm):
             Field('physical'),
             ButtonHolder(
                 StrictButton(u'Mettre à jour', type='submit'),
-                HTML('<a class="btn btn-cancel" '
-                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
 
