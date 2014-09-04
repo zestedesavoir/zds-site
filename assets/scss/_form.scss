@@ -108,17 +108,12 @@
             }
         }
     }
-    input[type=submit],
+    [type=submit],
     button,
     .btn {
         height: 40px;
         line-height: 40px;
         cursor: pointer;
-    }
-
-    [type=submit],
-    button,
-    .btn {
         color: #DDD;
         padding: 0 15px;
         border: none;
@@ -126,23 +121,24 @@
         text-decoration: none;
         margin-left: 1px;
         outline: none;
+        text-shadow: rgba(0, 0, 0, .25) 0 0 2px;
     }
     [type=submit],
     .btn-submit {
         color: #FFF;
-        background: #084561;
+        background: $upvote-green;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: #396A81;
+            background: lighten($upvote-green, 5%);
         }
     }
     .btn-cancel {
-        background: #c0392b;
+        background: $downvote-red;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: #e74c3c;
+            background: lighten($downvote-red, 7%);
         }
     }
     .btn-grey {
@@ -165,6 +161,10 @@
         display: block;
         display: inline-block;
         margin-top: 8px;
+    }
+
+    .buttonHolder {
+        margin-top: 25px;
     }
 }
 
