@@ -485,7 +485,7 @@ def ask_validation(request):
         msg = \
             (u'Bonjour {0},'
             u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
-            u'Pour retrouver les modifications qui ont été faites, je t\'invite à'
+            u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
             u'consulter l\'historique des versions'
             u'\n\n> Merci'.format(old_validator.username, tutorial.title))
         send_mp(
