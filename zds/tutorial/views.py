@@ -1128,7 +1128,7 @@ def add_tutorial(request):
                 tuto=tutorial,
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
-                action="add",
+                action="add"
             )
             return redirect(tutorial.get_absolute_url())
     else:
@@ -1443,6 +1443,7 @@ def add_part(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="add",
+                msg=request.POST["msg_commit"]
             )
             if "submit_continue" in request.POST:
                 form = PartForm()
@@ -1487,7 +1488,8 @@ def modify_part(request):
                       old_slug_path=new_slug_path,
                       new_slug_path=new_slug_path,
                       tuto=part.tutorial,
-                      action="maj")
+                      action="maj",
+                      msg=u"Déplacement de la partie : {} ".format(part.title))
     elif "delete" in request.POST:
         # Delete all chapters belonging to the part
 
@@ -1573,6 +1575,7 @@ def edit_part(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="maj",
+                msg=request.POST["msg_commit"]
             )
             return redirect(part.get_absolute_url())
     else:
@@ -1859,6 +1862,7 @@ def add_chapter(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="add",
+                msg=request.POST["msg_commit"]
             )
             if "submit_continue" in request.POST:
                 form = ChapterForm()
@@ -1911,8 +1915,8 @@ def modify_chapter(request):
                       old_slug_path=new_slug_path,
                       new_slug_path=new_slug_path,
                       part=chapter.part,
-                      action="maj")
-
+                      action="maj",
+                      msg=u"Déplacement du chapitre : {}".format(chapter.title))
         messages.info(request, u"Le chapitre a bien été déplacé.")
     elif "delete" in data:
         old_pos = chapter.position_in_part
@@ -2033,6 +2037,7 @@ def edit_chapter(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="maj",
+                msg=request.POST["msg_commit"]
             )
             return redirect(chapter.get_absolute_url())
     else:
@@ -2090,7 +2095,8 @@ def add_extract(request):
                 extract.save()
                 maj_repo_extract(request, new_slug_path=extract.get_path(),
                                  extract=extract, text=data["text"],
-                                 action="add")
+                                 action="add",
+                                 msg=request.POST["msg_commit"])
                 return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm()
@@ -2169,6 +2175,7 @@ def edit_extract(request):
                     extract=extract,
                     text=data["text"],
                     action="maj",
+                    msg=request.POST["msg_commit"]
                 )
                 return redirect(extract.get_absolute_url())
     else:
@@ -2246,7 +2253,8 @@ def modify_extract(request):
                          old_slug_path=new_slug_path,
                          new_slug_path=new_slug_path,
                          chapter=chapter,
-                         action="maj")
+                         action="maj",
+                         msg=u"Déplacement de l'extrait : {}".format(extract.title))
         return redirect(extract.get_absolute_url())
     raise Http404
 
@@ -2623,6 +2631,7 @@ def maj_repo_tuto(
     introduction=None,
     conclusion=None,
     action=None,
+    msg=None,
 ):
 
     if action == "del":
@@ -2632,12 +2641,13 @@ def maj_repo_tuto(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = "Modification du tutoriel"
+            msg = u"Modification du tutoriel : {}".format(tuto.title)
+                
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = "Creation du tutoriel"
+            msg = u"Création du tutoriel : {}".format(tuto.title)
         repo = Repo(new_slug_path)
         index = repo.index
         man_path = os.path.join(new_slug_path, "manifest.json")
@@ -2658,7 +2668,7 @@ def maj_repo_tuto(
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(
-            msg.encode("utf-8"),
+            msg,
             author=Actor(
                 aut_user,
                 aut_email),
@@ -2677,23 +2687,23 @@ def maj_repo_part(
     introduction=None,
     conclusion=None,
     action=None,
+    msg=None,
 ):
 
     repo = Repo(part.tutorial.get_path())
     index = repo.index
-    msg = "repo partie"
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = "Suppresion de la partie "
+        msg = u"Suppresion de la partie : {}".format(part.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-                msg = "Modification de la partie "
+            msg = u"Modification de la partie {} : {}".format(part.title, msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = "Creation de la partie "
+            msg = u"Création de la partie {} : {}".format(part.title, msg)
         index.add([part.get_phy_slug()])
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
@@ -2714,7 +2724,7 @@ def maj_repo_part(
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['litteral_name'])
     com_part = index.commit(
-        msg.encode("utf-8"),
+        msg,
         author=Actor(
             aut_user,
             aut_email),
@@ -2734,6 +2744,7 @@ def maj_repo_chapter(
     introduction=None,
     conclusion=None,
     action=None,
+    msg=None,
 ):
 
     if chapter.tutorial:
@@ -2743,19 +2754,18 @@ def maj_repo_chapter(
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
     index = repo.index
-    msg = "repo chapitre"
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = "Suppresion du chapitre"
+        msg = u"Suppresion du chapitre : {}".format(chapter.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = "Modification du chapitre"
+            msg = u"Modification du chapitre {} : {}".format(chapter.title, msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = "Creation du chapitre"
+            msg = u"Création du chapitre {} : {}".format(chapter.title, msg)
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
             intro.write(smart_str(introduction).strip())
@@ -2782,7 +2792,7 @@ def maj_repo_chapter(
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ch = index.commit(
-        msg.encode("utf-8"),
+        msg,
         author=Actor(
             aut_user,
             aut_email),
@@ -2805,6 +2815,7 @@ def maj_repo_extract(
     extract=None,
     text=None,
     action=None,
+    msg=None,
 ):
 
     if extract.chapter.tutorial:
@@ -2818,7 +2829,7 @@ def maj_repo_extract(
     chap = extract.chapter
 
     if action == "del":
-        msg = "Suppression de l'exrait "
+        msg = u"Suppression de l'exrait : {}".format(extract.title)
         extract.delete()
         if old_slug_path:
             os.remove(old_slug_path)
@@ -2826,12 +2837,11 @@ def maj_repo_extract(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = "Modification de l'exrait "
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg = "Mise a jour de l'exrait "
+        msg = u"Mise à jour de l'exrait {} : {}".format(extract.title, msg)
 
     # update manifest
 
@@ -2849,7 +2859,7 @@ def maj_repo_extract(
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ex = index.commit(
-        msg.encode("utf-8"),
+        msg,
         author=Actor(
             aut_user,
             aut_email),
