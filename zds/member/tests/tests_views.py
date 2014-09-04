@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import urllib
-
+import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
@@ -118,6 +118,7 @@ class MemberTests(TestCase):
         writingTutorialAlone = MiniTutorialFactory()
         writingTutorialAlone.authors.add(user.user)
         writingTutorialAlone.save()
+        writingTutorialAlonePath = writingTutorialAlone.get_path()
         # fourth case : a private tutorial with at least two authors
         writingTutorial2 = MiniTutorialFactory()
         writingTutorial2.authors.add(user.user)
@@ -302,7 +303,8 @@ class MemberTests(TestCase):
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
-    
+        self.assertFalse(os.path.exists(writingTutorialAlonePath))
+
     def test_sanctions(self):
         """Test various sanctions."""
 

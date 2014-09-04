@@ -340,7 +340,7 @@ class Tutorial(models.Model):
         shutil.rmtree(self.get_path(),0)
         if self.on_line():
             shutil.rmtree(self.get_prod_path())
-        super.delete()
+        self.delete()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
