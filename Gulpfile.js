@@ -97,7 +97,9 @@ gulp.task("sprite", function() {
         return output;
       }
     }));
-  sprite.img.pipe(gulp.dest("dist/images"));
+  sprite.img
+    .pipe($.imagemin({ optimisationLevel: 3, progressive: true, interlaced: true }))
+    .pipe(gulp.dest("dist/images"));
   sprite.css.pipe(gulp.dest(paths.styles.sass));
   return sprite.css;
 });
