@@ -3,6 +3,7 @@
 import os
 import shutil
 import HTMLParser
+from django.db.models import Q
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -106,6 +107,7 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.first_validator = self.staff
 
         # publish tutorial
         pub = self.client.post(
@@ -970,6 +972,7 @@ class BigTutorialTests(TestCase):
         
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
+        
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
             {
@@ -980,7 +983,7 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-
+	
         # logout before
         self.client.logout()
         # login with staff member
@@ -997,6 +1000,49 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+	old_validator = self.staff
+	old_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
+
+	# logout staff before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+	# ask public tutorial again
+	pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Nouvelle demande de publication',
+                'version': tuto.sha_draft,
+                'source': 'www.zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+	# old validator stay
+	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
+	self.assertEqual(old_validator, validation.validator)
+	
+	#new MP for staff
+	new_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
+	self.assertEqual((new_mps_count-old_mps_count), 1)
+	# logout before
+        self.client.logout()
+        # login with staff member
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
 
         # publish tutorial
         pub = self.client.post(
