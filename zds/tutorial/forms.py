@@ -98,6 +98,17 @@ class TutorialForm(FormWithTitle):
         required=True,
         empty_label=None
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
@@ -147,6 +158,17 @@ class PartForm(FormWithTitle):
             }
         )
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(PartForm, self).__init__(*args, **kwargs)
@@ -158,6 +180,7 @@ class PartForm(FormWithTitle):
             Field('title'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Field('msg_commit'),
             Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
@@ -194,6 +217,17 @@ class ChapterForm(FormWithTitle):
             }
         )
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ChapterForm, self).__init__(*args, **kwargs)
@@ -206,6 +240,7 @@ class ChapterForm(FormWithTitle):
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Field('msg_commit'),
             Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
@@ -232,6 +267,17 @@ class EmbdedChapterForm(forms.Form):
         required=False,
         widget=forms.Textarea
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -244,6 +290,7 @@ class EmbdedChapterForm(forms.Form):
                 Field('image'),
                 Field('introduction', css_class='md-editor'),
                 Field('conclusion', css_class='md-editor'),
+                Field('msg_commit'),
                 Hidden('last_hash', '{{ last_hash }}'),
             ),
             ButtonHolder(
@@ -264,6 +311,17 @@ class ExtractForm(FormWithTitle):
             }
         )
     )
+    
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtractForm, self).__init__(*args, **kwargs)
@@ -274,7 +332,8 @@ class ExtractForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Hidden('last_hash', '{{ last_hash }}'),
-            CommonLayoutEditor()
+            CommonLayoutEditor(),
+            Field('msg_commit'),
         )
 
 
