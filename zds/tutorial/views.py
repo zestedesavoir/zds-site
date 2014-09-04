@@ -1443,7 +1443,7 @@ def add_part(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="add",
-                msg=request.POST["msg_commit"]
+                msg=request.POST.get('msg_commit', None)
             )
             if "submit_continue" in request.POST:
                 form = PartForm()
@@ -1575,7 +1575,7 @@ def edit_part(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="maj",
-                msg=request.POST["msg_commit"]
+                msg=request.POST.get('msg_commit', None)
             )
             return redirect(part.get_absolute_url())
     else:
@@ -1862,7 +1862,7 @@ def add_chapter(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="add",
-                msg=request.POST["msg_commit"]
+                msg=request.POST.get('msg_commit', None)
             )
             if "submit_continue" in request.POST:
                 form = ChapterForm()
@@ -2037,7 +2037,7 @@ def edit_chapter(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="maj",
-                msg=request.POST["msg_commit"]
+                msg=request.POST.get('msg_commit', None)
             )
             return redirect(chapter.get_absolute_url())
     else:
@@ -2096,7 +2096,7 @@ def add_extract(request):
                 maj_repo_extract(request, new_slug_path=extract.get_path(),
                                  extract=extract, text=data["text"],
                                  action="add",
-                                 msg=request.POST["msg_commit"])
+                                 msg=request.POST.get('msg_commit', None))
                 return redirect(extract.get_absolute_url())
     else:
         form = ExtractForm()
@@ -2175,7 +2175,7 @@ def edit_extract(request):
                     extract=extract,
                     text=data["text"],
                     action="maj",
-                    msg=request.POST["msg_commit"]
+                    msg=request.POST.get('msg_commit', None)
                 )
                 return redirect(extract.get_absolute_url())
     else:
