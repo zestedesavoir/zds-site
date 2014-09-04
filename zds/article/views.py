@@ -359,7 +359,7 @@ def edit(request):
                              article=article,
                              text=data['text'],
                              action='maj',
-                             msg=request.POST["msg_commit"])
+                             msg=request.POST.get('msg_commit', None))
 
             return redirect(article.get_absolute_url())
     else:
