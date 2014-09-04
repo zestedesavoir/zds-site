@@ -659,11 +659,11 @@ def modify(request):
                 validation.date_reserve
                 bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                 msg = \
-                    (u'Bonjour {0},'
-                    u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation, '
-                    u'Pour retrouver les modifications qui ont été faites, je t\'invite à'
+                    (u'Bonjour {0},\n\n'
+                    u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
+                    u'pour retrouver les modifications qui ont été faites, je t\'invite à'
                     u'consulter l\'historique des versions'
-                    u'\n\n> Merci'.format(old_validator.username, article.title))
+                    u'\n\nMerci'.format(old_validator.username, article.title))
                 send_mp(
                     bot,
                     [old_validator],
