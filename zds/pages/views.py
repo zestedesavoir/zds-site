@@ -69,14 +69,10 @@ def assoc_subscribe(request):
             user = request.user
             data = form.data
             context = {
-                'first_name': data['first_name'],
-                'surname': data['surname'],
+                'full_name': data['full_name'],
                 'email': data['email'],
+                'naissance': data['naissance'],
                 'adresse': data['adresse'],
-                'adresse_complement': data['adresse_complement'],
-                'code_postal': data['code_postal'],
-                'ville': data['ville'],
-                'pays': data['pays'],
                 'justification': data['justification'],
                 'username': user.username,
                 'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
@@ -96,7 +92,7 @@ def assoc_subscribe(request):
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
-                messages.success(request, "Votre demande d'adhésion a bien été envoyée et va être étudiée.")
+                messages.success(request, u"Votre demande d'adhésion a bien été envoyée et va être étudiée.")
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
