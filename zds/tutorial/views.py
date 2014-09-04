@@ -578,11 +578,12 @@ def modify_tutorial(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n'
-                u'Tu peux retrouver ce tutoriel en cliquant sur le lien "En rédaction" du menu "Tutoriels" sur la page de ton profil.\n\n'
+                u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu "Tutoriels" sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
                 author.username,
                 tutorial.title,
-                settings.SITE_URL + tutorial.get_absolute_url_online())
+                settings.SITE_URL + tutorial.get_absolute_url_online(),
+                settings.SITE_URL + reverse("zds.member.views.tutorials"))
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(

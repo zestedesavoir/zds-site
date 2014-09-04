@@ -667,11 +667,12 @@ def modify(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
-                u'Tu peux retrouver cet article en cliquant sur le lien "En rédaction" du menu "Articles" sur la page de ton profil.\n\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu "Articles" sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
                 author.username,
                 article.title,
-                settings.SITE_URL + article.get_absolute_url_online())
+                settings.SITE_URL + article.get_absolute_url_online(),
+                settings.SITE_URL + reverse("zds.member.views.articles"))
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
