@@ -251,6 +251,13 @@ def export_tutorial_to_md(tutorial):
     return contenu_html
 
 
+def get_sep(msg):
+    """
+    Handle separator for commit msg
+    """
+    if msg is None or msg == "":
+        return ":"
+
 def move(obj, new_pos, position_f, parent_f, children_fn):
     """Move an object and reorder other objects affected by moving.
 
