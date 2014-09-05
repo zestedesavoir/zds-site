@@ -1,7 +1,5 @@
-.. Zeste De Savoir documentation master file, created by
-   sphinx-quickstart on Sat Aug 30 12:10:30 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Fichier d'entrée de la documentation de Zeste De Savoir, crée par
+   sphinx-quickstart le Samedi 30 Août 2014 à 12:10:30.
 
 Documentation de Zeste De Savoir
 ===========================================
