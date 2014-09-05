@@ -1,5 +1,5 @@
 =============
-Les galléries
+Les galleries
 =============
 
 A venir
