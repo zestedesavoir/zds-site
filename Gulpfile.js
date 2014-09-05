@@ -5,7 +5,7 @@ var gulp = require("gulp"),
     mainBowerFiles = require('main-bower-files');
 
 var paths = {
-  scripts: "assets/js/**",
+  scripts: ["assets/js/**", "!assets/js/_**"],
   images: "assets/images/**",
   smileys: "assets/smileys/**",
   errors_main: "errors/scss/main.scss",
@@ -25,9 +25,11 @@ var paths = {
   sprite: "assets/images/sprite@2x/*.png"
 };
 
+
+
 gulp.task("clean", function() {
-  return gulp.src(["dist/*"])
-    .pipe($.clean());
+  return gulp.src(["dist/*"], { read: false })
+    .pipe($.rimraf());
 });
 
 gulp.task("script", ["test"], function() {
@@ -43,8 +45,8 @@ gulp.task("script", ["test"], function() {
 });
 
 gulp.task("clean-errors", function() {
-  return gulp.src(["errors/css/*"])
-    .pipe($.clean());
+  return gulp.src(["errors/css/*"], { read: false })
+    .pipe($.rimraf());
 });
 
 gulp.task("errors", ["clean-errors"], function() {
@@ -95,7 +97,9 @@ gulp.task("sprite", function() {
         return output;
       }
     }));
-  sprite.img.pipe(gulp.dest("dist/images"));
+  sprite.img
+    .pipe($.imagemin({ optimisationLevel: 3, progressive: true, interlaced: true }))
+    .pipe(gulp.dest("dist/images"));
   sprite.css.pipe(gulp.dest(paths.styles.sass));
   return sprite.css;
 });
@@ -117,11 +121,13 @@ gulp.task("smileys", function() {
 });
 
 gulp.task("vendors", function() {
-  return gulp.src(mainBowerFiles())
+  var vendors = mainBowerFiles();
+  vendors.push("assets/js/_**");
+
+  return gulp.src(vendors)
     .pipe($.newer("dist/js/vendors.js"))
     .pipe($.flatten()) // remove folder structure
     .pipe($.size({ title: "vendors", showFiles: true }))
-    .pipe(gulp.dest("dist/js/vendors"))
     .pipe($.concat("vendors.js"))
     .pipe($.size({ title: "vendors.js" }))
     .pipe(gulp.dest("dist/js"))
@@ -144,7 +150,7 @@ gulp.task("watch", function(cb) {
   gulp.watch(paths.images, ["images"]);
   gulp.watch(paths.styles_path, ["stylesheet"]);
   gulp.watch(paths.errors_path, ["errors"]);
-  gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
+  gulp.watch(paths.sprite, ["stylesheet"]); // stylesheet task already lauch sprite
 
   gulp.watch("dist/*/**", function(file) {
     var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
@@ -172,8 +178,8 @@ gulp.task("pack", ["build"], function() {
     .pipe(gulp.dest("dist/"));
 });
 
-gulp.task("travis", ["test"]);
 
+gulp.task("travis", ["pack"]);
 
 gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts"]);
 

@@ -592,6 +592,10 @@
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 
+    .alert-box-text {
+        display: block;
+    }
+
     .close-alert-box {
         display: block;
         position: absolute;
@@ -2024,7 +2028,8 @@
         }
 
         // Code inline
-        p code {
+        p code,
+        li code {
             color: #A00;
             background: #EEE;
             border: 1px solid #CCC;
@@ -2600,7 +2605,7 @@ form.topic-message {
     background: #777;
 
     &.staff {
-        background: #48a200;
+        background: $upvote-green;
     }
 }
 

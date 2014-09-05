@@ -633,6 +633,14 @@ def modify(request):
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
+            old_validation = Validation.objects.filter(article__pk=article_pk,
+                              status__in=['PENDING_V']).first()
+            if old_validation is not None:
+                old_validator = old_validation.validator
+                old_reserve_date = old_validation.date_reserve
+            else:
+                old_validator = None
+                old_reserve_date = None
             # Delete old pending validation
             Validation.objects.filter(article__pk=article_pk,
                                       status__in=['PENDING','PENDING_V'])\
@@ -645,6 +653,25 @@ def modify(request):
             validation.date_proposition = datetime.now()
             validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
+            
+            if old_validator is not None:
+                validation.validator = old_validator
+                validation.date_reserve
+                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                msg = \
+                    (u'Bonjour {0},\n\n'
+                    u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
+                    u'pour retrouver les modifications qui ont été faites, je t\'invite à'
+                    u'consulter l\'historique des versions'
+                    u'\n\nMerci'.format(old_validator.username, article.title))
+                send_mp(
+                    bot,
+                    [old_validator],
+                    u"Mise à jour d'article : {0}".format(article.title),
+                    "En validation",
+                    msg,
+                    False,
+                )
 
             validation.save()
 
