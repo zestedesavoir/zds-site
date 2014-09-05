@@ -107,6 +107,8 @@ def interventions_topics(user):
 
     for top in topics_never_read:
         content = top.topic.first_unread_post()
+        if content is None:
+            content = top.topic.last_message
         posts_unread.append({'pubdate':content.pubdate, 'author':content.author, 'title':top.topic.title, 'url':content.get_absolute_url()})
 
     posts_unread.sort(cmp = comp)    

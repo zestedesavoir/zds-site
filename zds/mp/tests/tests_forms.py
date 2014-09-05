@@ -24,7 +24,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile2.user.username, data=data)
 
         self.assertTrue(form.is_valid())
 
@@ -37,7 +37,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -49,7 +49,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm('', data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -62,7 +62,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(' ', data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -74,7 +74,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -87,7 +87,7 @@ class PrivateTopicFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -99,7 +99,7 @@ class PrivateTopicFormTest(TestCase):
             'subtitle': 'Test subtitle',
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
 
         self.assertFalse(form.is_valid())
 
@@ -112,7 +112,7 @@ class PrivateTopicFormTest(TestCase):
             'text': ' '
         }
 
-        form = PrivateTopicForm(data=data)
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
 
         self.assertFalse(form.is_valid())
 

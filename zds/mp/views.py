@@ -149,17 +149,18 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(initial={
-                'participants': request.POST['participants'],
-                'title': request.POST['title'],
-                'subtitle': request.POST['subtitle'],
-                'text': request.POST['text'],
-            })
+            form = PrivateTopicForm(request.user.username, 
+                initial={
+                    'participants': request.POST['participants'],
+                    'title': request.POST['title'],
+                    'subtitle': request.POST['subtitle'],
+                    'text': request.POST['text'],
+                })
             return render_template('mp/topic/new.html', {
                 'form': form,
             })
 
-        form = PrivateTopicForm(request.POST)
+        form = PrivateTopicForm(request.user.username, request.POST)
 
         if form.is_valid():
             data = form.data
@@ -214,9 +215,10 @@ def new(request):
             if len(destList) > 0:
                 dest = ', '.join(destList)
 
-        form = PrivateTopicForm(initial={
-            'participants': dest,
-        })
+        form = PrivateTopicForm(username=request.user.username,
+                                initial={
+                                    'participants': dest,
+                                })
         return render_template('mp/topic/new.html', {
             'form': form,
         })

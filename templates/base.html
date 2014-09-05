@@ -501,7 +501,7 @@
                         {% captureas schema %}
                             {% block schema %}{% endblock %}
                         {% endcaptureas %}
-                        <section class="content-wrapper" {{ schema }}>
+                        <section class="content-wrapper" {{ schema|safe }}>
                             <h1 {% if schema %}itemprop="name"{% endif %}>
                                 {% block headline %}{% endblock %}
                             </h1>
@@ -565,8 +565,7 @@
         <script src="/static/js/vendors.js"></script>
         <script src="/static/js/main.js"></script>
     {% else %}
-        <script src="/static/js/vendors.min.js"></script>
-        <script src="/static/js/main.min.js"></script>
+        <script src="/static/js/all.min.js"></script>
     {% endif %}
 
 
@@ -579,10 +578,10 @@
                 displayMath: [['$$','$$']],
                 processEscapes: true,
             },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
             messageStyle: "none",
         });
     </script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>
