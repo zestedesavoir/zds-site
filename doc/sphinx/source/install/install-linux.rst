@@ -23,6 +23,33 @@ Assurez vous que les dépendances suivantes soient résolues :
 - python-sqlparse
 - libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : `apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev`
 
+Ou, en une ligne,
+
+.. sourcecode:: bash
+
+    apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+    easy_install pip
+
+Instalation et configuration de `virtualenv`
+===========================================
+
+(cette étape n'est pas obligatoire, mais fortement conseillée)
+
+.. sourcecode:: bash
+
+    pip install virtualenv
+    virtualenv zdsenv --python=python2
+
+
+**À chaque fois** que vous souhaitez travailler dans votre environement, activez le via la commande suivante :
+
+.. sourcecode:: bash
+
+    source zdsenv/bin/activate
+
+
+Une documentation plus complète de cet outil [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+
 Front ou Back ?
 ===============
 
@@ -47,7 +74,7 @@ Une fois dans votre environnement python (`source ../bin/activate` si vous utili
 Aller plus loin
 ===============
 
-Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX, Pandoc et les polices Microsoft. Ce qui revient à lancer les commmandes suivantes :
+Pour faire fonctionner ZdS dans son ensemble (ceci n'est pas obligatoire) vous pouvez installer les outils LateX, Pandoc et les polices Microsoft. Ce qui revient à lancer les commmandes suivantes :
 
 .. sourcecode:: bash
 
