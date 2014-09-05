@@ -2470,12 +2470,17 @@ def import_tuto(request):
         elif "import-archive" in request.POST:
             form = ImportForm()
             form_archive = ImportArchiveForm(request.user, request.POST, request.FILES)
-            (check, reason) = import_archive(request)
-            if not check:
-                messages.error(request, reason)
+            if form_archive.is_valid():
+                (check, reason) = import_archive(request)
+                if not check:
+                    messages.error(request, reason)
+                else:
+                    messages.success(request, reason)
+                    return redirect(reverse("zds.member.views.tutorials"))
             else:
-                messages.success(request, reason)
-                return redirect(reverse("zds.member.views.tutorials"))
+                return render_template("tutorial/tutorial/import.html",
+                                       {"form": form,
+                                        "form_archive":form_archive})
         
         
     else:

@@ -292,7 +292,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # we can do it now
     setattr(obj, position_f, new_pos)
 
-def check_json(data, tutorial):
+def check_json(data, tutorial, zip):
     from zds.tutorial.models import Tutorial, Part, Chapter, Extract
     if "title" not in data:
         return (False, u"Le tutoriel que vous souhaitez importer manque de titre")
@@ -313,6 +313,17 @@ def check_json(data, tutorial):
                     return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
                 elif not Extract.objects.filter(pk=extract["pk"], chapter__tutorial__pk=tutorial.pk).exists():
                     return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} »".format(extract["title"]))
+                try:
+                    info = zip.getinfo(extract["text"])
+                except KeyError:
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(extract["text"], extract["title"]))
+        subs = ["introduction", "conclusion"]
+        for sub in subs:
+            if sub in data:
+                try:
+                    info = zip.getinfo(data[sub])
+                except KeyError:
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(data["title"], data[sub]))
     elif tutorial.is_big():
         if data["type"] == "MINI":
             return (False, u"Vous essayez d'importer un mini tutoriel dans un big tutoriel")
@@ -342,6 +353,31 @@ def check_json(data, tutorial):
                                     return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
                                 elif not Extract.objects.filter(pk=extract["pk"], chapter__part__tutorial__pk=tutorial.pk).exists():
                                     return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(extract["title"]))
+                                try:
+                                    info = zip.getinfo(extract["text"])
+                                except KeyError:
+                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(extract["text"], extract["title"]))
+                        subs = ["introduction", "conclusion"]
+                        for sub in subs:
+                            if sub in chapter:
+                                try:
+                                    info = zip.getinfo(chapter[sub])
+                                except KeyError:
+                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le chapitre « {} » ne se trouve pas dans votre zip'.format(chapter["title"], chapter[sub]))
+                subs = ["introduction", "conclusion"]
+                for sub in subs:
+                    if sub in part:
+                        try:
+                            info = zip.getinfo(part[sub])
+                        except KeyError:
+                            return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour la partie « {} » ne se trouve pas dans votre zip'.format(part["title"], part[sub]))
+        subs = ["introduction", "conclusion"]
+        for sub in subs:
+            if sub in data:
+                try:
+                    info = zip.getinfo(data[sub])
+                except KeyError:
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(data["title"], data[sub]))
     return (True, None)
 
 def import_archive(request):
@@ -369,7 +405,8 @@ def import_archive(request):
             if ph=="manifest.json":
                 json_data = zfile.read(i)
                 mandata = json_reader.loads(json_data)
-                (check, reason) = check_json(mandata, tutorial)
+                ck_zip = zipfile.ZipFile(archive, "r")
+                (check, reason) = check_json(mandata, tutorial, ck_zip)
                 if not check:
                     return (check, reason)
                 tutorial.title = mandata['title']
@@ -389,6 +426,11 @@ def import_archive(request):
                 break
         if not json_here:
             return (False, u"L'archive n'a pas pu être importée car le fichier manifest.json (fichier de métadonnées est introuvable).")
+        
+        # init git
+        repo = Repo(tutorial.get_path())
+        index = repo.index
+        
         #delete old file
         for filename in os.listdir(tutorial.get_path()) :
             if not filename.startswith('.'):
@@ -407,18 +449,16 @@ def import_archive(request):
                     fp = open(ph_dest, "wb")
                     fp.write(data)
                     fp.close()
+                    index.add([ph])
                 except IOError:
                     try:
                         os.makedirs(ph_dest)
                     except:
                         pass
         zfile.close()
-        # save in git
-        repo = Repo(tutorial.get_path())
-        index = repo.index
-        index.add(["."])
-        msg = "Import du tutoriel"
         
+        # save in git
+        msg = "Import du tutoriel"
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "": aut_email = "inconnu@zestedesavoir.com"
@@ -427,6 +467,7 @@ def import_archive(request):
                             committer=Actor(aut_user, aut_email))
         tutorial.sha_draft = com.hexsha
         tutorial.save()
+        tutorial.update_children()
 
         return (True, u"Le tutoriel {} a été importé avec succès".format(tutorial.title))
     else:
