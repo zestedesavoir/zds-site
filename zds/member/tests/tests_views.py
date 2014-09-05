@@ -8,7 +8,9 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from datetime import datetime
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
+from shutil import rmtree
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT, MEDIA_ROOT, REPO_PATH, REPO_ARTICLE_PATH,\
+    REPO_PATH_PROD
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
@@ -448,3 +450,7 @@ class MemberTests(TestCase):
 
     def tearDown(self):
         Profile.objects.all().delete()
+        rmtree(REPO_ARTICLE_PATH)
+        rmtree(REPO_PATH_PROD)
+        rmtree(REPO_PATH)
+        rmtree(MEDIA_ROOT)
