@@ -314,7 +314,6 @@ class MemberTests(TestCase):
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(),0)
-        self.assertEqual(PrivatePost.objects.filter(editor__username=user.user.username).count(),0)
         self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(),0)
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
 
