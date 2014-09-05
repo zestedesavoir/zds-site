@@ -132,6 +132,10 @@ class BigTutorialTests(TestCase):
         mail.outbox = []
 
     def test_import_archive(self):
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
         #create temporary data directory
         temp = os.path.join(SITE_ROOT, "temp")
         
