@@ -2287,6 +2287,10 @@ class MiniTutorialTests(TestCase):
         mail.outbox = []
 
     def test_import_archive(self):
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
         #create temporary data directory
         temp = os.path.join(SITE_ROOT, "temp")
         
@@ -2320,7 +2324,6 @@ class MiniTutorialTests(TestCase):
                             os.path.join(temp, self.minituto.get_phy_slug()))
         
         self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
-        
         # import zip archive
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
