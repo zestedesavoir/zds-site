@@ -89,11 +89,6 @@
         user: 4
         last_ip_address: 192.168.0.1
 -   model: member.Profile
-    pk: 4
-    fields:
-        user: 4
-        last_ip_address: 192.168.0.1
--   model: member.Profile
     pk: 5
     fields:
         user: 5

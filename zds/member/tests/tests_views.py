@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
 from datetime import datetime
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
@@ -22,6 +23,16 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.article.models import Validation as ArticleValidation
 
+@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
+@override_settings(
+REPO_PATH_PROD=os.path.join(
+SITE_ROOT,
+'tutoriels-public-test'))
+@override_settings(
+REPO_ARTICLE_PATH=os.path.join(
+SITE_ROOT,
+'articles-data-test'))
 class MemberTests(TestCase):
 
     def setUp(self):
