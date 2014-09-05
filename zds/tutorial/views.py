@@ -57,7 +57,7 @@ from zds.utils.mps import send_mp
 from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, import_archive
+from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, get_sep, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 
 
@@ -2622,7 +2622,6 @@ def import_tuto(request):
 
 
 # Handling repo
-
 def maj_repo_tuto(
     request,
     old_slug_path=None,
@@ -2699,11 +2698,12 @@ def maj_repo_part(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = u"Modification de la partie {} : {}".format(part.title, msg)
+            
+            msg = u"Modification de la partie {} {} {}".format(part.title, get_sep(msg), msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création de la partie {} : {}".format(part.title, msg)
+            msg = u"Création de la partie {} {} {}".format(part.title, get_sep(msg), msg)
         index.add([part.get_phy_slug()])
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
@@ -2761,11 +2761,11 @@ def maj_repo_chapter(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = u"Modification du chapitre {} : {}".format(chapter.title, msg)
+            msg = u"Modification du chapitre {} {} {}".format(chapter.title, get_sep(msg), msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création du chapitre {} : {}".format(chapter.title, msg)
+            msg = u"Création du chapitre {} {} {}".format(chapter.title, get_sep(msg), msg)
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
             intro.write(smart_str(introduction).strip())
@@ -2841,7 +2841,7 @@ def maj_repo_extract(
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg = u"Mise à jour de l'exrait {} : {}".format(extract.title, msg)
+        msg = u"Mise à jour de l'exrait {} {} {}".format(extract.title, get_sep(msg), msg)
 
     # update manifest
 
