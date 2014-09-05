@@ -13,7 +13,7 @@ from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
 from zds.member.models import Profile
-
+from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory
 from zds.tutorial.models import Tutorial, Validation
@@ -192,7 +192,6 @@ class MemberTests(TestCase):
         # same thing for articles
         publishedArticleAlone = ArticleFactory()
         publishedArticleAlone.authors.add(user.user)
-        publishedArticleAlone.pubdate = datetime.now()
         publishedArticleAlone.save()
         publishedArticle2 = ArticleFactory()
         publishedArticle2.authors.add(user.user)
@@ -313,6 +312,8 @@ class MemberTests(TestCase):
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
+        self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(),0)
+        self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(),0)
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
 
     def test_sanctions(self):
