@@ -19,6 +19,7 @@ import os.path
 import re
 import shutil
 import zipfile
+import tempfile
 
 from PIL import Image as ImagePIL
 from django.conf import settings
@@ -2841,7 +2842,7 @@ def download(request):
     elif request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_article'):
             raise PermissionDenied # Only authors can download draft version
-    zip_path = os.path.join('/tmp/',tutorial.slug+'.zip')
+    zip_path = os.path.join(tempfile.gettempdir(),tutorial.slug+'.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()

@@ -14,6 +14,7 @@ import json as json_writer
 import os
 import shutil
 import zipfile
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -461,7 +462,7 @@ def download(request):
     elif request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
             raise PermissionDenied # Only authors can download draft version
-    zip_path = os.path.join('/tmp/',article.slug+'.zip')
+    zip_path = os.path.join(tempfile.gettempdir(),article.slug+'.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
