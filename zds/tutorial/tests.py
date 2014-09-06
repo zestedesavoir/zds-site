@@ -11,6 +11,7 @@ from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.utils import html
 
+from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
@@ -483,6 +484,10 @@ class BigTutorialTests(TestCase):
     def test_workflow_tuto(self):
         """Test workflow of tutorial."""
         
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         # logout before
         self.client.logout()
         # login with simple member
@@ -1737,7 +1742,9 @@ class BigTutorialTests(TestCase):
 
     def test_workflow_beta_tuto(self) :
         "Ensure the behavior of the beta version of tutorials"
-
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
         # logout before
         self.client.logout()
 
@@ -2883,6 +2890,10 @@ class MiniTutorialTests(TestCase):
     def test_workflow_beta_tuto(self) :
         "Ensure the behavior of the beta version of tutorials"
 
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         # logout before
         self.client.logout()
 
@@ -3076,6 +3087,10 @@ class MiniTutorialTests(TestCase):
 
     def test_workflow_tuto(self):
         """Test workflow of mini tutorial."""
+        
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
 
         # logout before
         self.client.logout()

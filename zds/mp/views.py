@@ -265,12 +265,12 @@ def answer(request):
     if not g_topic.author == request.user \
             and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
-
-    # Retrieve 3 last posts of the currenta topic.
-    posts = PrivatePost.objects\
-        .filter(privatetopic=g_topic)\
-        .order_by('-pubdate')[:3]
+    
     last_post_pk = g_topic.last_message.pk
+    # Retrieve last posts of the current private topic.    
+    posts = PrivatePost.objects.filter(privatetopic=g_topic) \
+    .prefetch_related() \
+    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -285,6 +285,7 @@ def answer(request):
             return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
+                'posts': posts,
                 'newpost': newpost,
                 'form': form,
             })
@@ -352,6 +353,7 @@ def answer(request):
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
+                    'posts': posts,
                     'form': form,
                 })
 
@@ -491,7 +493,7 @@ def add_participant(request):
 
     try:
         # user_pk or user_username ?
-        part = User.objects.get(username=request.POST['user_pk'])
+        part = User.objects.get(username__exact=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
