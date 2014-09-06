@@ -2829,6 +2829,7 @@ def insert_into_zip(zip_file, git_tree):
         for subtree in git_tree.trees:
             insert_into_zip(zip_file, subtree)
 
+
 def download(request):
     """Download a tutorial."""
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])

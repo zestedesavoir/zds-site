@@ -13,6 +13,7 @@ except:
 import json as json_writer
 import os
 import shutil
+import zipfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -440,26 +441,32 @@ def maj_repo_article(
         article.sha_draft = com.hexsha
         article.save()
 
+def insert_into_zip(zip_file, git_tree):
+    """recursively add files from a git_tree to a zip archive"""
+    for blob in git_tree.blobs: # first, add files :
+        zip_file.writestr(blob.path, blob.data_stream.read())
+    if len(git_tree.trees) is not 0: # then, recursively add dirs :
+        for subtree in git_tree.trees:
+            insert_into_zip(zip_file, subtree)
+
 
 def download(request):
-    """Download an article."""
-
-    article = get_object_or_404(Article, pk=request.GET['article'])
-
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
-    repo = Repo(ph)
-    repo.archive(open(ph + ".tar", 'w'))
-
-    response = HttpResponse(
-        open(
-            ph +
-            ".tar",
-            'rb').read(),
-        mimetype='application/tar')
-    response[
-        'Content-Disposition'] = 'attachment; filename={0}.tar' \
-        .format(article.slug)
-
+    """Download a tutorial."""
+    article = get_object_or_404(Article, pk=request.GET["article"])
+    repo_path = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
+    repo = Repo(repo_path)
+    sha = article.sha_draft
+    if 'online' in request.GET and article.sha_public is not None:
+        sha = article.sha_public
+    git_tree = repo.commit(sha).tree
+    zip_path = os.path.join('/tmp/',article.slug+'.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    insert_into_zip(zip_file, git_tree)
+    zip_file.close()
+    response = HttpResponse(open(zip_path , "rb").read(),
+                            content_type="application/zip")
+    response["Content-Disposition"] = \
+        "attachment; filename={0}.zip".format(article.slug)
     return response
 
 # Validation
