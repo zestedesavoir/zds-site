@@ -66,12 +66,12 @@ def index(request):
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     return render_template('article/index.html', {
         'articles': article_versions,
@@ -214,7 +214,7 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory'), 
+                'subcategory': request.POST.getlist('subcategory'),
                 'licence': request.POST['licence']
             })
             return render_template('article/member/new.html', {
@@ -309,7 +309,7 @@ def edit(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory'), 
+                'subcategory': request.POST.getlist('subcategory'),
                 'licence': licence
             })
             return render_template('article/member/edit.html', {
@@ -340,7 +340,6 @@ def edit(request):
                     article.licence = Licence.objects.get(
                         pk=settings.DEFAULT_LICENCE_PK
                     )
-            
 
             article.save()
 
@@ -383,12 +382,12 @@ def find_article(request, pk_user):
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     # Paginator
     return render_template('article/find.html', {
@@ -653,7 +652,7 @@ def modify(request):
             validation.date_proposition = datetime.now()
             validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
-            
+
             if old_validator is not None:
                 validation.validator = old_validator
                 validation.date_reserve
@@ -701,6 +700,30 @@ def modify(request):
                 u'la rédaction de l\'article.'.format(
                     author.username))
 
+            # send msg to new author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Articles" sur la page de ton profil.\n\n'
+                u'Tu peux maintenant commencer à rédiger !'.format(
+                author.username,
+                article.title,
+                settings.SITE_URL + article.get_absolute_url(),
+                settings.SITE_URL + reverse("zds.member.views.articles"))
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Ajout en tant qu'auteur : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
@@ -723,6 +746,27 @@ def modify(request):
                 request,
                 u'L\'auteur {0} a bien été retiré de l\'article.'.format(
                     author.username))
+
+            # send msg to removed author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
+                author.username,
+                article.title,
+                settings.SITE_URL + article.get_absolute_url())
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Suppression des auteurs : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
 
             return redirect(redirect_url)
 
