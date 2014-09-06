@@ -155,11 +155,6 @@
             </div>
         {% endif %}
 
-        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
-            <h3>Flux</h3>
-            <ul>
-                {% block feeds_rss %}{% endblock %}
-            </ul>
-        </div>
+        {% block feeds_rss %} {% endblock %}
     </aside>
 {% endblock %}
