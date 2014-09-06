@@ -3069,6 +3069,11 @@ def answer(request):
     last_note_pk = 0
     if tutorial.last_note:
         last_note_pk = tutorial.last_note.pk
+    
+    # Retrieve lasts notes of the current tutorial.
+    notes = Note.objects.filter(tutorial=tutorial) \
+    .prefetch_related() \
+    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new note on the tutorial.
 
@@ -3085,6 +3090,7 @@ def answer(request):
                 "tutorial": tutorial,
                 "last_note_pk": last_note_pk,
                 "newnote": newnote,
+                "notes": notes,
                 "form": form,
             })
         else:
@@ -3111,12 +3117,12 @@ def answer(request):
                     "tutorial": tutorial,
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
+                    "notes": notes,
                     "form": form,
                 })
     else:
 
         # Actions from the editor render to answer.html.
-
         text = ""
 
         # Using the quote button
