@@ -467,6 +467,7 @@ def download(request):
                             content_type="application/zip")
     response["Content-Disposition"] = \
         "attachment; filename={0}.zip".format(article.slug)
+    os.remove(zip_path) # TODO: caching (at least for the public version?)
     return response
 
 # Validation
