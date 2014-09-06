@@ -2837,7 +2837,7 @@ def download(request):
     repo_path = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
     repo = Repo(repo_path)
     sha = tutorial.sha_draft
-    if 'online' in request.GET and tutorial.sha_public is not None:
+    if 'online' in request.GET and tutorial.on_line():
         sha = tutorial.sha_public
     elif request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_article'):

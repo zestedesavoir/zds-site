@@ -457,7 +457,7 @@ def download(request):
     repo_path = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
-    if 'online' in request.GET and article.sha_public is not None:
+    if 'online' in request.GET and article.on_line():
         sha = article.sha_public
     elif request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
