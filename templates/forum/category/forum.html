@@ -11,7 +11,9 @@
     {% endif %}
 {% endblock %}
 
-
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" with param="?forum=" value=forum.pk %}
+{% endblock %}
 
 {% block breadcrumb %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
