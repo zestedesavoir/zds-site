@@ -458,10 +458,9 @@ def download(request):
     sha = article.sha_draft
     if 'online' in request.GET and article.sha_public is not None:
         sha = article.sha_public
-    git_tree = repo.commit(sha).tree
     zip_path = os.path.join('/tmp/',article.slug+'.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
-    insert_into_zip(zip_file, git_tree)
+    insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
     response = HttpResponse(open(zip_path , "rb").read(),
                             content_type="application/zip")
