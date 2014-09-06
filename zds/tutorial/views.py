@@ -2838,13 +2838,16 @@ def download(request):
     sha = tutorial.sha_draft
     if 'online' in request.GET and tutorial.sha_public is not None:
         sha = tutorial.sha_public
+    elif request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_article'):
+            raise PermissionDenied # Only authors can download draft version
     zip_path = os.path.join('/tmp/',tutorial.slug+'.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
     response = HttpResponse(open(zip_path , "rb").read(), content_type="application/zip")
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(tutorial.slug)
-    os.remove(zip_path) # TODO: caching (at least for the public version?)
+    os.remove(zip_path)
     return response
 
 
