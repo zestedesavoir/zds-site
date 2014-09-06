@@ -67,7 +67,13 @@ def lock_topic(topic):
     topic.is_locked = True
     topic.save()
 
-def unlock_topic(topic):
+def unlock_topic(topic, msg):
     topic.is_locked = False
+    main = Post.objects.filter(topic__pk=topic.pk, position=1).first()
+    main.text = msg
+    main.text_html = emarkdown(msg)
+    main.editor = topic.author
+    main.update = datetime.now()
+    main.save()
     topic.save()
     
