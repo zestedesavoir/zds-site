@@ -255,7 +255,7 @@ def get_sep(msg):
     """
     Handle separator for commit msg
     """
-    if msg is None or msg == "":
+    if msg is None or msg.strip() == "":
         return ":"
 
 def move(obj, new_pos, position_f, parent_f, children_fn):

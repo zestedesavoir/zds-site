@@ -2640,13 +2640,13 @@ def maj_repo_tuto(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = u"Modification du tutoriel : {}".format(tuto.title)
+            msg = u"Modification du tutoriel : '{}'".format(tuto.title)
                 
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = u"Création du tutoriel : {}".format(tuto.title)
+            msg = u"Création du tutoriel : '{}'".format(tuto.title)
         repo = Repo(new_slug_path)
         index = repo.index
         man_path = os.path.join(new_slug_path, "manifest.json")
@@ -2693,17 +2693,17 @@ def maj_repo_part(
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = u"Suppresion de la partie : {}".format(part.title)
+        msg = u"Suppresion de la partie : '{}'".format(part.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             
-            msg = u"Modification de la partie {} {} {}".format(part.title, get_sep(msg), msg)
+            msg = u"Modification de la partie '{}' {} {}".format(part.title, get_sep(msg), msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création de la partie {} {} {}".format(part.title, get_sep(msg), msg)
+            msg = u"Création de la partie '{}' {} {}".format(part.title, get_sep(msg), msg)
         index.add([part.get_phy_slug()])
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
@@ -2756,16 +2756,16 @@ def maj_repo_chapter(
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = u"Suppresion du chapitre : {}".format(chapter.title)
+        msg = u"Suppresion du chapitre : '{}'".format(chapter.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = u"Modification du chapitre {} {} {}".format(chapter.title, get_sep(msg), msg)
+            msg = u"Modification du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création du chapitre {} {} {}".format(chapter.title, get_sep(msg), msg)
+            msg = u"Création du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg)
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
             intro.write(smart_str(introduction).strip())
@@ -2829,7 +2829,7 @@ def maj_repo_extract(
     chap = extract.chapter
 
     if action == "del":
-        msg = u"Suppression de l'exrait : {}".format(extract.title)
+        msg = u"Suppression de l'extrait : '{}'".format(extract.title)
         extract.delete()
         if old_slug_path:
             os.remove(old_slug_path)
@@ -2841,7 +2841,7 @@ def maj_repo_extract(
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg = u"Mise à jour de l'exrait {} {} {}".format(extract.title, get_sep(msg), msg)
+        msg = u"Mise à jour de l'extrait '{}' {} {}".format(extract.title, get_sep(msg), msg)
 
     # update manifest
 
