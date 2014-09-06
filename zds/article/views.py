@@ -652,7 +652,7 @@ def modify(request):
             validation.date_proposition = datetime.now()
             validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
-            
+
             if old_validator is not None:
                 validation.validator = old_validator
                 validation.date_reserve
@@ -705,11 +705,12 @@ def modify(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
-                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu "Articles" sur la page de ton profil.\n\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Articles" sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
                 author.username,
                 article.title,
-                settings.SITE_URL + article.get_absolute_url_online(),
+                settings.SITE_URL + article.get_absolute_url(),
                 settings.SITE_URL + reverse("zds.member.views.articles"))
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
@@ -750,10 +751,11 @@ def modify(request):
 
             msg = (
                 u'Bonjour **{0}**,\n\n'
-                u'Tu as été supprimé des auteurs de l\'article [{1}]({2}).\n'.format(
+                u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
                 author.username,
                 article.title,
-                settings.SITE_URL + article.get_absolute_url_online())
+                settings.SITE_URL + article.get_absolute_url())
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(

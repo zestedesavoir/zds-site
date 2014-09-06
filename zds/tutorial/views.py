@@ -603,11 +603,12 @@ def modify_tutorial(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n'
-                u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu "Tutoriels" sur la page de ton profil.\n\n'
+                u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Tutoriels" sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
                 author.username,
                 tutorial.title,
-                settings.SITE_URL + tutorial.get_absolute_url_online(),
+                settings.SITE_URL + tutorial.get_absolute_url(),
                 settings.SITE_URL + reverse("zds.member.views.tutorials"))
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
@@ -653,10 +654,11 @@ def modify_tutorial(request):
 
             msg = (
                 u'Bonjour **{0}**,\n\n'
-                u'Tu as été supprimé des auteurs du tutoriel [{1}]({2}).\n'.format(
+                u'Tu as été supprimé des auteurs du tutoriel [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
                 author.username,
                 tutorial.title,
-                settings.SITE_URL + tutorial.get_absolute_url_online())
+                settings.SITE_URL + tutorial.get_absolute_url())
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
@@ -738,7 +740,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha)
     tutorial.load_introduction_and_conclusion(mandata, sha)
-    
+
     #print mandata
 
     # If it's a small tutorial, fetch its chapter
@@ -2877,7 +2879,7 @@ def get_url_images(md_text, pt):
         imgs = re.findall(regex, md_text)
         for img in imgs:
             real_url=img[1]
-            # decompose images 
+            # decompose images
             parse_object = urlparse(real_url)
             if parse_object.query!='':
                 resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
@@ -2895,7 +2897,7 @@ def get_url_images(md_text, pt):
                 # download image
                 down_path=os.path.abspath(os.path.join(pt, "images", filename))
                 try:
-                    urlretrieve(real_url, down_path)                    
+                    urlretrieve(real_url, down_path)
                     try:
                         ext = filename.split(".")[-1]
                         im = ImagePIL.open(down_path)
@@ -2965,7 +2967,7 @@ def sub_urlimg(g):
         return start + mark+ url + end
     else:
         return start
-    
+
 
 def markdown_to_out(md_text):
     return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
