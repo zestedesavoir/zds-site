@@ -462,10 +462,8 @@ def download(request):
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
-    response = HttpResponse(open(zip_path , "rb").read(),
-                            content_type="application/zip")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.zip".format(article.slug)
+    response = HttpResponse(open(zip_path , "rb").read(), content_type="application/zip")
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(article.slug)
     os.remove(zip_path) # TODO: caching (at least for the public version?)
     return response
 
