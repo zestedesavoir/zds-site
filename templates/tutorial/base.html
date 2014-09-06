@@ -92,7 +92,7 @@
                     {% endif %}
 
                     <li>
-                        <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                        <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}{% if tutorial.is_on_line %}&online{% endif %}" class="ico-after download blue">
                             Archive
                         </a>
                     </li>

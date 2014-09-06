@@ -2821,17 +2821,31 @@ def maj_repo_extract(
 
 
 
+def insert_into_zip(zip_file, git_tree):
+    """recursively add files from a git_tree to a zip archive"""
+    for blob in git_tree.blobs: # first, add files :
+        zip_file.writestr(blob.path, blob.data_stream.read())
+    if len(git_tree.trees) is not 0: # then, recursively add dirs :
+        for subtree in git_tree.trees:
+            insert_into_zip(zip_file, subtree)
+
 def download(request):
     """Download a tutorial."""
-
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    ph = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
-    repo = Repo(ph)
-    repo.archive(open(ph + ".tar", "w"))
-    response = HttpResponse(open(ph + ".tar", "rb").read(),
-                            mimetype="application/tar")
+    repo_path = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
+    repo = Repo(repo_path)
+    sha = tutorial.sha_draft
+    if 'online' in request.GET and tutorial.sha_public is not None:
+        sha = tutorial.sha_public
+    git_tree = repo.commit(sha).tree
+    zip_path = os.path.join('/tmp/',tutorial.slug+'.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    insert_into_zip(zip_file, git_tree)
+    zip_file.close()
+    response = HttpResponse(open(zip_path , "rb").read(),
+                            content_type="application/zip")
     response["Content-Disposition"] = \
-        "attachment; filename={0}.tar".format(tutorial.slug)
+        "attachment; filename={0}.zip".format(tutorial.slug)
     return response
 
 
