@@ -393,7 +393,7 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 'placeholder': 'Commentaire pour votre demande.',
                 'rows': '3'
@@ -431,7 +431,7 @@ class ValidForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 'placeholder': 'Commentaire de publication.',
                 'rows': '2'
@@ -474,7 +474,7 @@ class RejectForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 'placeholder': 'Commentaire de rejet.',
                 'rows': '6'
