@@ -691,7 +691,7 @@ def modify_tutorial(request):
                 else:
                     msg_up = \
                         (u'Bonjour, !\n\n'
-                        u'La beta du tutoriel est de nouveau active.'
+                        u'La beta du tutoriel a été mise à jour.'
                         u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                         u'\n\nMerci pour vos relectures'.format(tutorial.title,
                             settings.SITE_URL + tutorial.get_absolute_url_beta()))
