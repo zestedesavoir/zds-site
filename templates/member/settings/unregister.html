@@ -1,4 +1,4 @@
-{% extends "member/base.html" %}
+{% extends "member/settings/base.html" %}
 
 
 
@@ -9,6 +9,12 @@
 
 
 {% block title %}
+    Désinscription
+{% endblock %}
+
+
+
+{% block headline %}
     Désinscription
 {% endblock %}
 
@@ -47,9 +53,12 @@
 
     <p>
         Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton "Me désinscrire" ci-dessous. Sinon il n'est pas encore trop tard...
+    </p>
 
+    <p>
         <a href="#unregister" class="open-modal btn btn-cancel">Me désinscrire</a>
     </p>
+    
     <form
         method="post"
         action="{% url "zds.member.views.unregister" %}"
@@ -61,6 +70,6 @@
         </p>
 
         {% csrf_token %}
-        <button type="submit" class="btn">Me désinscrire</button>
+        <button type="submit">Me désinscrire</button>
     </form>
 {% endblock %}
