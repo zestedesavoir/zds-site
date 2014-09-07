@@ -64,7 +64,7 @@ pip install --upgrade -r requirements.txt
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-python manage.py loaddata fixtures/users.yaml fixtures/forums.yaml fixtures/topics.yaml fixtures/mps.yaml fixtures/categories.yaml fixtures/licences.yaml
+python manage.py loaddata fixtures/*.yaml
 
 ```
 
