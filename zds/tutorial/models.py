@@ -336,6 +336,8 @@ class Tutorial(models.Model):
 
     def delete_entity_and_tree(self, using=None):
         shutil.rmtree(self.get_path(),0)
+        if self.gallery is not None :
+            self.gallery.delete()
         if self.on_line():
             shutil.rmtree(self.get_prod_path())
         self.delete()
