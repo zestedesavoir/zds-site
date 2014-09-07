@@ -25,7 +25,7 @@ apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt
 easy_install pip
 ```
 
-## Instalation et configuration de `virtualenv`
+## Installation et configuration de `virtualenv`
 
 (cette étape n'est pas obligatoire, mais fortement conseillée)
 
