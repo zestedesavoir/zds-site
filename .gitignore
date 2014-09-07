@@ -92,6 +92,11 @@ local.properties
 #############
 .idea/
 
+#############
+## Sphinx
+#############
+
+build/
 
 #############
 ## OS detritus
@@ -109,3 +114,9 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+
+#############
+## Gedit
+#############
+
+*.*~
