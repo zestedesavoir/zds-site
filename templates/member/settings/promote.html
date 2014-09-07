@@ -22,11 +22,5 @@
 
 
 {% block content %}
-    {% if perms.member.super_user %}
-        {% crispy form %}
-    {% else %}
-        <p>
-            Vous n'avez pas les droits suffisants pour régler ces paramètres.
-        </p>
-    {% endif %}
+    {% crispy form %}
 {% endblock %}
