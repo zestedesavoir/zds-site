@@ -2840,7 +2840,7 @@ def download(request):
     if 'online' in request.GET and tutorial.on_line():
         sha = tutorial.sha_public
     elif request.user not in tutorial.authors.all():
-        if not request.user.has_perm('tutorial.change_article'):
+        if not request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied # Only authors can download draft version
     zip_path = os.path.join(tempfile.gettempdir(),tutorial.slug+'.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
