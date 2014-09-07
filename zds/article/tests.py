@@ -578,7 +578,7 @@ class ArticleTests(TestCase):
         draft_manifest= json_reader.loads(draft_zip.read('manifest.json'))
         self.assertNotEqual(online_manifest['title'], article_title) # title has not changed in online version
 
-        self.assertNotEqual(online_zip.read(online_manifest['text']), article_content)  # content is good in draft
+        self.assertNotEqual(online_zip.read(online_manifest['text']), article_content)
         self.assertEqual(draft_zip.read(draft_manifest['text']), article_content)  # content is good in draft
 
         draft_zip.close()
@@ -587,7 +587,7 @@ class ArticleTests(TestCase):
         # then logout and test access
         self.client.logout()
 
-        # public cannot access to draft version of tutorial
+        # public cannot access to draft version of article
         result = self.client.get(
             reverse('zds.article.views.download') +
             '?article={0}'.format(
@@ -609,7 +609,7 @@ class ArticleTests(TestCase):
                 password='hostel77'),
             True)
 
-        # cannot access to draft version of tutorial (if not author or staff)
+        # cannot access to draft version of article (if not author or staff)
         result = self.client.get(
             reverse('zds.article.views.download') +
             '?article={0}'.format(
@@ -632,7 +632,7 @@ class ArticleTests(TestCase):
                 password='hostel77'),
             True)
 
-        # staff can access to draft version of tutorial
+        # staff can access to draft version of article
         result = self.client.get(
             reverse('zds.article.views.download') +
             '?article={0}'.format(
