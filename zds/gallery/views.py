@@ -331,11 +331,14 @@ def import_image(request, gal_pk):
             for i in zfile.namelist():
                 ph_temp = os.path.abspath(os.path.join(temp, i))
                 (dirname, filename) = os.path.split(i)
+                #if directory doesn't exist, created on
+                if not os.path.exists(os.path.dirname(ph_temp)):
+                    os.makedirs(os.path.dirname(ph_temp))
+                #if file is directory, don't create file
                 if filename.strip() == "":
-                    if not os.path.exists(ph_temp):
-                        os.makedirs(ph_temp)
                     continue
                 data = zfile.read(i)
+                # create file for image
                 fp = open(ph_temp, "wb")
                 fp.write(data)
                 fp.close()
