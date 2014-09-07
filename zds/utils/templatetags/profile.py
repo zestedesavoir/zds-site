@@ -29,13 +29,6 @@ def user(pk):
     return user
 
 
-@register.filter('mode')
-def mode(mode):
-    if mode == 'W':
-        return 'pencil'
-    else:
-        return 'eye'
-
 
 @register.filter('state')
 def state(user):
