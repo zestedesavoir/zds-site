@@ -149,6 +149,42 @@ class ImageForm(forms.Form):
         return cleaned_data
 
 
+class ArchiveImageForm(forms.Form):
+    file = forms.FileField(
+        label='Sélectionnez l\'archive contenant les images à charger',
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ArchiveImageForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'clearfix'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('file'),
+            ButtonHolder(
+                StrictButton('Importer', type='submit'),
+                HTML('<a class="btn btn-cancel" '
+                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+            ),
+        )
+    
+    def clean(self):
+        cleaned_data = super(ArchiveImageForm, self).clean()
+
+        file = cleaned_data.get('file')
+        extension=file.name.split('.')[-1]
+        
+        if extension != "zip":
+            self._errors['file'] = self.error_class(
+                [u"Le champ n'accepte que les fichiers zip"])
+            if 'file' in cleaned_data:
+                del cleaned_data['file']
+
+        return cleaned_data
+
+
 class UpdateImageForm(ImageForm):
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)

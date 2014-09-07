@@ -616,3 +616,39 @@ class NewImageViewTest(TestCase):
             )
 
         self.assertEqual(404, response.status_code)
+
+    def test_import_images_in_gallery(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'archive-gallery.zip'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.import_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'file': fp
+                    },
+                    follow=False
+            )
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+
+    def test_denies_import_images_in_gallery(self):
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+        
+        with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'archive-gallery.zip'), 'r') as fp:
+            response = self.client.post(
+                    reverse(
+                        'zds.gallery.views.import_image',
+                        args=[self.gallery.pk]
+                    ),
+                    {
+                        'file': fp
+                    },
+                    follow=True
+            )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 0)
