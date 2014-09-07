@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
@@ -347,7 +348,11 @@ def import_image(request, gal_pk):
                 if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
                     messages.error(request, u"L'image {} n'a pas pu être importée dans la galerie car elle est beaucoup trop lourde".format(title))
                     continue
-                 
+                # if it's not an image, pass
+                try:
+                    im = ImagePIL.open(ph_temp)
+                except IOError:
+                    continue
                 f = File(open(ph_temp, "rb"))
                 f.name = title
                 # create picture in database
