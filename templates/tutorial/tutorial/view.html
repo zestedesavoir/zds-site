@@ -318,7 +318,7 @@
                 <span class="ico-after tick disabled">En attente de validation</span>
             </li>
         {% endif %}
-        <div id="ask-validation" class="modal modal-medium">
+        <div id="ask-validation" class="modal modal-big">
             {% crispy formAskValidation %}
         </div>
     {% endif %}
@@ -392,7 +392,7 @@
                             </li>
                             <li>
                                 <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
-                                <div class="modal modal-small" id="reject">
+                                <div class="modal modal-big" id="reject">
                                     {% crispy formReject %}
                                 </div>
                             </li>
