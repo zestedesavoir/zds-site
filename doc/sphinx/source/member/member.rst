@@ -10,7 +10,9 @@ L'inscription d'un membre se déroule en deux phases :
 - le membre crée son compte et fournit un pseudo, un mot de passe et une adresse mail.
 - un mail de confirmation est envoyé avec un jeton qui permettra d'activer le compte.
 
-Attention, les virgules ne sont pas autorisées dans le pseudonyme
+.. attention::
+
+    les virgules ne sont pas autorisées dans le pseudonyme
 
 
 Désinscription
@@ -39,5 +41,39 @@ __________________________________
           - si le tutoriel/article est publié*, il passe sur le compte "Auteur externe", une demande expresse sera nécessaire au retrait complet de ses contenus ;
           - si le tutoriel/article n'est pas publié (brouillon, bêta, validation) il est supprimé ainsi que la galerie associée.
 
+
+Les membres dans les environnement de test et de développement
+==============================================================
+
+Afin de faciliter les procédures de tests en local, plusieurs utilisateurs ont été créés avec leurs profiles.
+
+- user/user : Utilisateur normal
+- staff/staff : Utilisateur avec les droits d'un staff
+- admin/admin : Utilisateur avec les droits d'un staff et d'un admin
+- anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums
+- Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
+
+Pour que ces membres soient ajoutés à la base de données, il vous faudra exécuter la commande, à la racine du site
+
+.. sourcecode:: bash
+
+    python manage.py loaddata fixtures/users.yaml
+
+.. attention::
+
+    Les utilisateurs `anonymous` et `Auteur externe` **doivent** être présents dans la base de données.
+
+
+Le cas des utilisateurs `anonymous` et `Auteur externe` est particulier car ils permettent le processus d'anonymisation en cas de désinscription ou de demande expresse du membre.
+
+Ces derniers sont totalement paramétrables dans le fichiers `zds/settings.py`.
+Pour changer le *username* (nom d'utilisateur) considéré comme `anonymous` ou `Auteur externe`, agissez sur ces constantes :
+
+.. soucecode:: python
+
+# Constant for anonymisation
+
+ANONYMOUS_USER = "anonymous"
+EXTERNAL_USER = "Auteur externe"
 
 
