@@ -7,6 +7,7 @@
         {% else %}
             {{ tutorial.get_absolute_url_online }}
         {% endif %}
+        title="{{ tutorial.title }}"
     ">
         {% if tutorial.image.physical.tutorial_illu.url %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
