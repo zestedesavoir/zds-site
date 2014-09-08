@@ -125,8 +125,17 @@ def unregister(request):
         if message.editor is not None and message.editor.username == current.username:
             message.editor = anonymous
         message.save()
+    for message in PrivatePost.objects.filter(author = current):
+        message.author = anonymous
+        message.save()
+    # in case current has been moderator in his old day
+    for message in Comment.objects.filter(editor = current):
+        message.editor = anonymous
+        message.save()
     for topic in PrivateTopic.objects.filter(participants__in =[current]):
         topic.participants.remove(current)
+        if topic.author.username == current.username:
+            topic.author=anonymous
         topic.save()
     for topic in Topic.objects.filter(author = current):
         topic.author = anonymous

@@ -12,7 +12,7 @@ from shutil import rmtree
 from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
-from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
+from zds.mp.factories import  PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
@@ -288,6 +288,13 @@ class MemberTests(TestCase):
         editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
         editedAnswer.editor = user.user
         editedAnswer.save()
+        privateTopic = PrivateTopicFactory(author=user.user)
+        privateTopic.participants.add(user2.user)
+        privateTopic.participants.add(user.user)
+        privateTopic.save()
+
+        PrivatePostFactory(author=user.user, privatetopic=privateTopic, position_in_topic=1)
+        a = privateTopic.participants.count()
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
@@ -316,6 +323,9 @@ class MemberTests(TestCase):
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(),0)
         self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(),0)
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
+        self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
+        self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
+        self.assertEqual(privateTopic.participants.count(), 1)
 
     def test_sanctions(self):
         """Test various sanctions."""
@@ -439,6 +449,7 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, 'Ban Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
+
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
