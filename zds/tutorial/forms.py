@@ -96,6 +96,27 @@ class TutorialForm(FormWithTitle):
         empty_label=None
     )
 
+    need_writer = forms.BooleanField(
+        label=u"Je cherche un auteur pour m'aider à rédiger",
+        required=False,
+    )
+
+    need_proofreader = forms.BooleanField(
+        label=u"Je cherche un correcteur pour m'aider à corriger les fautes",
+        required=False,
+    )
+
+    need_illustrator = forms.BooleanField(
+        label=u"Je cherche un dessinateur pour m'aider à illustrer",
+        required=False,
+    )
+
+    need_newwriter = forms.BooleanField(
+        label=u"Je cherche quelqu'un pour reprendre ce tutoriel",
+        required=False,
+    )
+
+
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -112,6 +133,10 @@ class TutorialForm(FormWithTitle):
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            Field('need_writer'),
+            Field('need_proofreader'),
+            Field('need_illustrator'),
+            Field('need_newwriter'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),

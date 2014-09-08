@@ -1057,6 +1057,7 @@ def add_tutorial(request):
             tutorial.introduction = "introduction.md"
             tutorial.conclusion = "conclusion.md"
             tutorial.images = "images"
+
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
@@ -1064,6 +1065,30 @@ def add_tutorial(request):
                 tutorial.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
                 )
+
+            if "need_writer" in data and \
+               data["need_writer"] == "on":
+                tutorial.need_writer = True
+            else:
+                tutorial.need_writer = False
+            
+            if "need_proofreader" in data and \
+               data["need_proofreader"] == "on":
+                tutorial.need_proofreader = True
+            else:
+                tutorial.need_proofreader = False
+            
+            if "need_illustrator" in data and \
+               data["need_illustrator"] == "on":
+                tutorial.need_illustrator = True
+            else:
+                tutorial.need_illustrator = False
+            
+            if "need_newwriter" in data and \
+               data["need_newwriter"] == "on":
+                tutorial.need_newwriter = True
+            else:
+                tutorial.need_newwriter = False
 
             # add create date
 
@@ -1169,7 +1194,10 @@ def edit_tutorial(request):
                     "subcategory": tutorial.subcategory.all(),
                     "introduction": tutorial.get_introduction(),
                     "conclusion": tutorial.get_conclusion(),
-
+                    "need_writer": tutorial.need_writer,
+                    "need_proofreader": tutorial.need_proofreader,
+                    "need_illustrator": tutorial.need_illustrator,
+                    "need_newwriter": tutorial.need_newwriter,
                 })
                 return render_template("tutorial/tutorial/edit.html",
                                        {
@@ -1188,6 +1216,30 @@ def edit_tutorial(request):
                     pk=settings.DEFAULT_LICENCE_PK
                 )
 
+            if "need_writer" in data and \
+               data["need_writer"] == "on":
+                tutorial.need_writer = True
+            else:
+                tutorial.need_writer = False
+            
+            if "need_proofreader" in data and \
+               data["need_proofreader"] == "on":
+                tutorial.need_proofreader = True
+            else:
+                tutorial.need_proofreader = False
+            
+            if "need_illustrator" in data and \
+               data["need_illustrator"] == "on":
+                tutorial.need_illustrator = True
+            else:
+                tutorial.need_illustrator = False
+            
+            if "need_newwriter" in data and \
+               data["need_newwriter"] == "on":
+                tutorial.need_newwriter = True
+            else:
+                tutorial.need_newwriter = False
+            
             # add MAJ date
 
             tutorial.update = datetime.now()
@@ -1245,6 +1297,10 @@ def edit_tutorial(request):
             "subcategory": tutorial.subcategory.all(),
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
+            "need_writer": tutorial.need_writer,
+            "need_proofreader": tutorial.need_proofreader,
+            "need_illustrator": tutorial.need_illustrator,
+            "need_newwriter": tutorial.need_newwriter,
         })
     return render_template("tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})

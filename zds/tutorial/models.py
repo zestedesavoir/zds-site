@@ -109,6 +109,15 @@ class Tutorial(models.Model):
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
 
+    need_writer = models.BooleanField('Cherche redacteur',
+                                      default=False)
+    need_proofreader = models.BooleanField('Cherche correcteur',
+                                           default=False)
+    need_illustrator = models.BooleanField('Cherche illustrateur',
+                                           default=False)
+    need_newwriter = models.BooleanField('Cherche repreneur',
+                                         default=False)
+
     def __unicode__(self):
         return self.title
 
