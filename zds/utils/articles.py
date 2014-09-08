@@ -2,8 +2,6 @@
 
 from collections import OrderedDict
 
-from git import *
-
 import os
 
 

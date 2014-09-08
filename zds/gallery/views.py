@@ -12,9 +12,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
-from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, GalleryForm, UserGalleryForm, ImageAsAvatarForm
+from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
+    GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
-from zds.tutorial.models import Tutorial
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
@@ -34,7 +34,6 @@ def gallery_list(request):
     galleries = UserGallery.objects.all().filter(user=request.user)
     return render_template("gallery/gallery/list.html",
                            {"galleries": galleries})
-
 
 
 @login_required
@@ -101,16 +100,19 @@ def modify_gallery(request):
 
     if "delete_multi" in request.POST:
         l = request.POST.getlist("items")
-        
+
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
         for g_pk in l:
             if Tutorial.objects.filter(gallery__pk=g_pk).exists():
                 gallery = Gallery.objects.get(pk=g_pk)
-                messages.error(request, "La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant".format(gallery.title))
+                messages.error(
+                    request,
+                    "La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant".format(
+                        gallery.title))
             else:
                 free_galleries.append(g_pk)
-        
+
         perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
                                            user=request.user, mode="W").count()
 
@@ -200,8 +202,10 @@ def edit_image(request, gal_pk, img_pk):
         if form.is_valid():
             if "physical" in request.FILES:
                 if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
-                    messages.error(request, "Votre image est beaucoup trop lourde, réduisez sa taille à moins de {} \
-                    <abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE/1024)))
+                    messages.error(request, u"Votre image est beaucoup trop lourde, "
+                                            u"réduisez sa taille à moins de {} "
+                                            u"<abbr title=\"kibioctet\">Kio</abbr> "
+                                            u"avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE / 1024)))
                 else:
                     img.title = request.POST["title"]
                     img.legend = request.POST["legend"]
@@ -305,22 +309,23 @@ def new_image(request, gal_pk):
         return render_template("gallery/image/new.html", {"form": form,
                                                           "gallery": gal})
 
+
 @can_write_and_read_now
 @login_required
 @transaction.atomic
 def import_image(request, gal_pk):
     """Create images from zip archive."""
-    
+
     gal = get_object_or_404(Gallery, pk=gal_pk)
-    
+
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
         if gal_mode.mode != 'W':
             raise PermissionDenied
     except:
         raise PermissionDenied
-    
-    #if request is POST
+
+    # if request is POST
     if request.method == "POST":
         form = ArchiveImageForm(request.POST, request.FILES)
         if form.is_valid():
@@ -332,10 +337,10 @@ def import_image(request, gal_pk):
             for i in zfile.namelist():
                 ph_temp = os.path.abspath(os.path.join(temp, i))
                 (dirname, filename) = os.path.split(i)
-                #if directory doesn't exist, created on
+                # if directory doesn't exist, created on
                 if not os.path.exists(os.path.dirname(ph_temp)):
                     os.makedirs(os.path.dirname(ph_temp))
-                #if file is directory, don't create file
+                # if file is directory, don't create file
                 if filename.strip() == "":
                     continue
                 data = zfile.read(i)
@@ -346,11 +351,14 @@ def import_image(request, gal_pk):
                 title = os.path.basename(i)
                 # if size is too large don't save
                 if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
-                    messages.error(request, u"L'image {} n'a pas pu être importée dans la galerie car elle est beaucoup trop lourde".format(title))
+                    messages.error(
+                        request,
+                        u"L'image {} n'a pas pu être importée dans la gallerie"
+                        u" car elle est beaucoup trop lourde".format(title))
                     continue
                 # if it's not an image, pass
                 try:
-                    im = ImagePIL.open(ph_temp)
+                    ImagePIL.open(ph_temp)
                 except IOError:
                     continue
                 f = File(open(ph_temp, "rb"))
@@ -365,10 +373,10 @@ def import_image(request, gal_pk):
                 f.close()
 
             zfile.close()
-            
+
             if os.path.exists(temp):
                 shutil.rmtree(temp)
-    
+
             # Redirect to the newly uploaded gallery
             return redirect(reverse("zds.gallery.views.gallery_details",
                                     args=[gal.pk, gal.slug]))

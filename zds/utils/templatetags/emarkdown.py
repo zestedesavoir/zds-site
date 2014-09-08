@@ -52,7 +52,9 @@ def emarkdown(text):
             get_markdown_instance(
                 Inline=False).convert(text).encode('utf-8'))
     except:
-        return mark_safe(u'<div class="error ico-after"><p>Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
+        return mark_safe(
+            u'<div class="error ico-after"><p>Une erreur est survenue '
+            u'dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
 
 
 @register.filter(needs_autoescape=False)

@@ -3,12 +3,9 @@
 from difflib import HtmlDiff
 from django import template
 
-from git import *
-
-from zds.utils import slugify
-
 
 register = template.Library()
+
 
 @register.filter('repo_blob')
 def repo_blob(blob):

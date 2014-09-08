@@ -5,11 +5,12 @@ from datetime import datetime
 import os
 from django.template import Context
 from django.template.loader import get_template
-from git import *
 
 from zds.utils import slugify
 
 # Export-to-dict functions
+
+
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
     '''
@@ -263,7 +264,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     """
     old_pos = getattr(obj, position_f)
     objects = getattr(getattr(obj, parent_f), children_fn)()
-    
+
     # Check that asked new position is correct
     if not 1 <= new_pos <= objects.count():
         raise ValueError('Can\'t move object to position {0}'.format(new_pos))
@@ -288,5 +289,3 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # All objects have been updated except the current one we want to move, so
     # we can do it now
     setattr(obj, position_f, new_pos)
-
-

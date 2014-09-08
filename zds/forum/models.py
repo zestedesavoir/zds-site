@@ -129,6 +129,7 @@ class Forum(models.Model):
                 return False
         return True
 
+
 class Topic(models.Model):
 
     """A thread, containing posts."""
@@ -157,7 +158,7 @@ class Topic(models.Model):
         null=True,
         blank=True,
         db_index=True)
-    
+
     key = models.IntegerField('cle', null=True, blank=True)
 
     def __unicode__(self):
@@ -195,7 +196,7 @@ class Topic(models.Model):
             .order_by('pubdate')\
             .first()
 
-    def add_tags(self,tag_collection):
+    def add_tags(self, tag_collection):
         for tag in tag_collection:
             tag_title = smart_text(tag.strip().lower())
             current_tag = Tag.objects.filter(title=tag_title).first()
@@ -246,7 +247,6 @@ class Topic(models.Model):
             user = get_current_user()
 
         return TopicFollowed.objects.filter(topic=self, user=user).exists()
-
 
     def is_email_followed(self, user=None):
         """Check if the topic is currently email followed by the user.
@@ -382,7 +382,7 @@ def follow(topic, user=None):
     """Toggle following of a topic for an user."""
     ret = None
     if user is None:
-        user=get_current_user()
+        user = get_current_user()
     try:
         existing = TopicFollowed.objects.get(
             topic=topic, user=user
@@ -404,14 +404,15 @@ def follow(topic, user=None):
         ret = False
     return ret
 
+
 def follow_by_email(topic, user=None):
     """Toggle following of a topic for an user."""
     ret = None
     if user is None:
-        user=get_current_user()
+        user = get_current_user()
     try:
         existing = TopicFollowed.objects.get(
-            topic=topic, \
+            topic=topic,
             user=user
         )
     except TopicFollowed.DoesNotExist:
@@ -422,7 +423,7 @@ def follow_by_email(topic, user=None):
         t = TopicFollowed(
             topic=topic,
             user=user,
-            email = True
+            email=True
         )
         t.save()
         ret = True
@@ -447,21 +448,22 @@ def get_last_topics(user):
             break
     return tops
 
+
 def get_topics(forum_pk, is_sticky, is_solved=None):
     """ Get topics according to parameters """
 
     if is_solved is not None:
         return Topic.objects.filter(
-                    forum__pk=forum_pk,
-                    is_sticky=is_sticky,
-                    is_solved=is_solved).order_by("-last_message__pubdate").prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags").all()
+            forum__pk=forum_pk,
+            is_sticky=is_sticky,
+            is_solved=is_solved).order_by("-last_message__pubdate").prefetch_related(
+            "author",
+            "last_message",
+            "tags").all()
     else:
         return Topic.objects.filter(
-                    forum__pk=forum_pk,
-                    is_sticky=is_sticky).order_by("-last_message__pubdate").prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags").all()
+            forum__pk=forum_pk,
+            is_sticky=is_sticky).order_by("-last_message__pubdate").prefetch_related(
+            "author",
+            "last_message",
+            "tags").all()

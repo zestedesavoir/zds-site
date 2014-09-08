@@ -10,7 +10,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.utils.forms import CommonLayoutModalText
 from zds.gallery.models import Gallery, Image
 
 
@@ -104,6 +103,7 @@ class UserGalleryForm(forms.Form):
 
         return cleaned_data
 
+
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
@@ -144,8 +144,9 @@ class ImageForm(forms.Form):
         physical = cleaned_data.get('physical')
 
         if physical is not None and physical.size > settings.IMAGE_MAX_SIZE:
-            self._errors['physical'] = self.error_class([u'Votre image est trop lourde, la limite autorisée est de : {0} Ko'
-                                                                                     .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
+            self._errors['physical'] = self.error_class(
+                [u'Votre image est trop lourde, la limite autorisée '
+                 u'est de : {0} Ko' .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
         return cleaned_data
 
 
@@ -166,16 +167,16 @@ class ArchiveImageForm(forms.Form):
             ButtonHolder(
                 StrictButton('Importer', type='submit'),
                 HTML('<a class="btn btn-cancel" '
-                u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+                     u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
             ),
         )
-    
+
     def clean(self):
         cleaned_data = super(ArchiveImageForm, self).clean()
 
         file = cleaned_data.get('file')
-        extension=file.name.split('.')[-1]
-        
+        extension = file.name.split('.')[-1]
+
         if extension != "zip":
             self._errors['file'] = self.error_class(
                 [u"Le champ n'accepte que les fichiers zip"])
@@ -186,6 +187,7 @@ class ArchiveImageForm(forms.Form):
 
 
 class UpdateImageForm(ImageForm):
+
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
 
@@ -204,8 +206,11 @@ class UpdateImageForm(ImageForm):
             ),
         )
 
+
 class ImageAsAvatarForm(forms.Form):
+
     """"Form to add current image as avatar"""
+
     def __init__(self, *args, **kwargs):
         super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()

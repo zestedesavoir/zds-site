@@ -95,7 +95,7 @@ Avant de faire une Pull Request (PR), vérifiez que votre code passe tous les te
 
 ```console
 python manage.py test
-flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
+flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
 ```
 
 Pour le front :
