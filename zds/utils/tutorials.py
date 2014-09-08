@@ -5,14 +5,15 @@ from datetime import datetime
 import os
 from django.template import Context
 from django.template.loader import get_template
-from git import *
-import tarfile
 
+from git import Repo, Actor
 from zds.utils import slugify
 from zds.utils.models import Licence
 
 
 # Export-to-dict functions
+
+
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
     '''
@@ -266,7 +267,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     """
     old_pos = getattr(obj, position_f)
     objects = getattr(getattr(obj, parent_f), children_fn)()
-    
+
     # Check that asked new position is correct
     if not 1 <= new_pos <= objects.count():
         raise ValueError('Can\'t move object to position {0}'.format(new_pos))
@@ -292,6 +293,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
     # we can do it now
     setattr(obj, position_f, new_pos)
 
+
 def check_json(data, tutorial, zip):
     from zds.tutorial.models import Tutorial, Part, Chapter, Extract
     if "title" not in data:
@@ -316,14 +318,18 @@ def check_json(data, tutorial, zip):
                 try:
                     info = zip.getinfo(extract["text"])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(extract["text"], extract["title"]))
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                   u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(
+                            extract["text"], extract["title"]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
                 try:
                     info = zip.getinfo(data[sub])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(data["title"], data[sub]))
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                   u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                            data["title"], data[sub]))
     elif tutorial.is_big():
         if data["type"] == "MINI":
             return (False, u"Vous essayez d'importer un mini tutoriel dans un big tutoriel")
@@ -334,9 +340,11 @@ def check_json(data, tutorial, zip):
                 if "pk" not in part or "title" not in part:
                     return (False, u"La structure de vos parties est incohérente")
                 elif not Part.objects.filter(pk=part["pk"]).exists():
-                    return (False, u"La partie « {} » n'existe pas dans notre base".format(part["title"]))
+                    return (False, u"La partie « {} » n'existe pas dans notre base".format(
+                        part["title"]))
                 elif not Part.objects.filter(pk=part["pk"], tutorial__pk=tutorial.pk).exists():
-                    return (False, u"La partie « {} » n'est pas dans le tutoriel à modifier ".format(part["title"]))
+                    return (False, u"La partie « {} » n'est pas dans le tutoriel à modifier ".format(
+                        part["title"]))
                 if "chapters" in part:
                     for chapter in part["chapters"]:
                         if "pk" not in chapter or "title" not in chapter:
@@ -344,41 +352,54 @@ def check_json(data, tutorial, zip):
                         elif not Chapter.objects.filter(pk=chapter["pk"]).exists():
                             return (False, u"Le chapitre « {} » n'existe pas dans notre base".format(chapter["title"]))
                         elif not Chapter.objects.filter(pk=chapter["pk"], part__tutorial__pk=tutorial.pk).exists():
-                            return (False, u"Le chapitre « {} » n'est pas dans le tutoriel a modifier".format(chapter["title"]))
+                            return (False, u"Le chapitre « {} » n'est pas dans le tutoriel a modifier".format(
+                                chapter["title"]))
                         elif "extracts" in chapter:
                             for extract in chapter["extracts"]:
                                 if "pk" not in extract or "title" not in extract or "text" not in extract:
                                     return (False, u"Un de vos extraits est mal renseigné")
                                 elif not Extract.objects.filter(pk=extract["pk"]).exists():
-                                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
-                                elif not Extract.objects.filter(pk=extract["pk"], chapter__part__tutorial__pk=tutorial.pk).exists():
-                                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(extract["title"]))
+                                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(
+                                        extract["title"]))
+                                elif not Extract.objects.filter(pk=extract["pk"],
+                                                                chapter__part__tutorial__pk=tutorial.pk).exists():
+                                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(
+                                        extract["title"]))
                                 try:
                                     info = zip.getinfo(extract["text"])
                                 except KeyError:
-                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(extract["text"], extract["title"]))
+                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                                   u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.
+                                            format(extract["text"], extract["title"]))
                         subs = ["introduction", "conclusion"]
                         for sub in subs:
                             if sub in chapter:
                                 try:
                                     info = zip.getinfo(chapter[sub])
                                 except KeyError:
-                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le chapitre « {} » ne se trouve pas dans votre zip'.format(chapter["title"], chapter[sub]))
+                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                                   u'pour le chapitre « {} » ne se trouve pas dans votre zip'
+                                            .format(chapter["title"], chapter[sub]))
                 subs = ["introduction", "conclusion"]
                 for sub in subs:
                     if sub in part:
                         try:
                             info = zip.getinfo(part[sub])
                         except KeyError:
-                            return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour la partie « {} » ne se trouve pas dans votre zip'.format(part["title"], part[sub]))
+                            return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                           u'pour la partie « {} » ne se trouve pas dans votre zip'.format(
+                                    part["title"], part[sub]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
                 try:
                     info = zip.getinfo(data[sub])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(data["title"], data[sub]))
+                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
+                                   u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                            data["title"], data[sub]))
     return (True, None)
+
 
 def import_archive(request):
     from django.core.files import File
@@ -397,12 +418,12 @@ def import_archive(request):
     archive = request.FILES["file"]
     tutorial = Tutorial.objects.get(pk=request.POST["tutorial"])
     ext = str(archive).split(".")[-1]
-    if ext=="zip":
+    if ext == "zip":
         zfile = zipfile.ZipFile(archive, "a")
         json_here = False
         for i in zfile.namelist():
             ph = i
-            if ph=="manifest.json":
+            if ph == "manifest.json":
                 json_data = zfile.read(i)
                 mandata = json_reader.loads(json_data)
                 ck_zip = zipfile.ZipFile(archive, "r")
@@ -425,14 +446,15 @@ def import_archive(request):
                 json_here = True
                 break
         if not json_here:
-            return (False, u"L'archive n'a pas pu être importée car le fichier manifest.json (fichier de métadonnées est introuvable).")
+            return (False, u"L'archive n'a pas pu être importée car le "
+                           u"fichier manifest.json (fichier de métadonnées est introuvable).")
         
         # init git
         repo = Repo(tutorial.get_path())
         index = repo.index
         
         #delete old file
-        for filename in os.listdir(tutorial.get_path()) :
+        for filename in os.listdir(tutorial.get_path()):
             if not filename.startswith('.'):
                 mf = os.path.join(tutorial.get_path(), filename)
                 if os.path.isfile(mf):
@@ -442,7 +464,7 @@ def import_archive(request):
         #copy new file
         for i in zfile.namelist():
             ph = i
-            if ph!="":
+            if ph != "":
                 ph_dest = os.path.join(tutorial.get_path(), ph)
                 try:
                     data = zfile.read(i)
@@ -461,10 +483,11 @@ def import_archive(request):
         msg = "Import du tutoriel"
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
-        if aut_email is None or aut_email.strip() == "": aut_email = "inconnu@zestedesavoir.com"
-        com = index.commit( msg.encode("utf-8"),
-                            author=Actor(aut_user, aut_email),
-                            committer=Actor(aut_user, aut_email))
+        if aut_email is None or aut_email.strip() == "":
+            aut_email = "inconnu@zestedesavoir.com"
+        com = index.commit(msg.encode("utf-8"),
+                           author=Actor(aut_user, aut_email),
+                           committer=Actor(aut_user, aut_email))
         tutorial.sha_draft = com.hexsha
         tutorial.save()
         tutorial.update_children()

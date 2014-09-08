@@ -64,7 +64,7 @@ pip install --upgrade -r requirements.txt
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-python manage.py loaddata fixtures/users.yaml fixtures/forums.yaml fixtures/topics.yaml fixtures/mps.yaml fixtures/categories.yaml fixtures/licences.yaml
+python manage.py loaddata fixtures/*.yaml
 
 ```
 
@@ -81,13 +81,21 @@ Cela va créer plusieurs entitées :
 * 3 catégories et 2 sous-catégories
 
 
+### Génération de la documentation complète
+
+La documenation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site.
+
+Pour générer la documentation rendez vous dans le répertoire `zds-site/doc/sphinx` depuis votre terminal, et lancez la commande `make html`.
+
+Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/sphinx/build/html/index.html`
+
 ### Conseils de developpement
 
 Avant de faire une Pull Request (PR), vérifiez que votre code passe tous les tests unitaires et qu'il est compatible [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) en exécutant les commandes suivantes, pour le back :
 
 ```console
 python manage.py test
-flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
+flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
 ```
 
 Pour le front :

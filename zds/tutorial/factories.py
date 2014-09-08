@@ -2,14 +2,6 @@
 
 from datetime import datetime
 from git.repo import Repo
-try:
-    import ujson as json_reader
-except:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
-
 import json as json_writer
 import os
 
@@ -17,22 +9,24 @@ import factory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
-from zds.utils.models import SubCategory, Licence 
+from zds.utils.models import SubCategory, Licence
 from zds.utils.tutorials import export_tutorial
 
 contenu = (
-u'Ceci est un contenu de tutoriel utile et à tester un peu partout'
-u'Ce contenu ira aussi bien dans les introductions, que dans les conclusions et les extraits '
-u'le gros intéret étant qu\'il renferme des images pour tester l\'execution coté pandoc '
-u'Exemple d\'image ![Ma pepite souris](http://blog.science-infuse.fr/public/souris.jpg)'
-u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/inv_souris.jpg)'
-u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)'
-u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)'
-u'Une image de type wikipedia qui fait tomber des tests ![](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)'
-u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)'
-u'\n Attention les tests ne doivent pas crasher '
-u'qu\'un sujet abandonné !')
-            
+    u'Ceci est un contenu de tutoriel utile et à tester un peu partout'
+    u'Ce contenu ira aussi bien dans les introductions, que dans les conclusions et les extraits '
+    u'le gros intéret étant qu\'il renferme des images pour tester l\'execution coté pandoc '
+    u'Exemple d\'image ![Ma pepite souris](http://blog.science-infuse.fr/public/souris.jpg)'
+    u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/inv_souris.jpg)'
+    u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)'
+    u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)'
+    u'Une image de type wikipedia qui fait tomber des tests ![](https://s.qwant.com/thumbr/?u=http%3A%2'
+    u'F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)'
+    u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)'
+    u'\n Attention les tests ne doivent pas crasher '
+    u'qu\'un sujet abandonné !')
+
+
 class BigTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
 
@@ -292,6 +286,7 @@ class NoteFactory(factory.DjangoModelFactory):
             tutorial.save()
         return note
 
+
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory
 
@@ -302,10 +297,11 @@ class SubCategoryFactory(factory.DjangoModelFactory):
 
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
-    
+
+
 class LicenceFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Licence
-    
+
     code = u'Licence bidon'
     title = u'Licence bidon'
 

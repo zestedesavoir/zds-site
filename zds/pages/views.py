@@ -14,12 +14,11 @@ from django.template.loader import get_template
 from zds import settings
 
 from zds.article.models import get_last_articles
-from zds.forum.models import get_last_topics
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template, slugify
+from zds.utils import render_template
 from zds.utils.models import Alert
 
 

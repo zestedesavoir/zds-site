@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Group, Permission, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
@@ -18,7 +18,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
-from django.template import Context, RequestContext
+from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 import json
@@ -45,7 +45,7 @@ def index(request):
 
     if request.is_ajax():
         q = request.GET.get('q', '')
-        if request.user.is_authenticated() :
+        if request.user.is_authenticated():
             members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
         else:
             members = User.objects.filter(username__icontains=q)[:20]
@@ -57,9 +57,9 @@ def index(request):
             member_json['value'] = member.username
             results.append(member_json)
         data = json.dumps(results)
-        
+
         mimetype = "application/json"
-        
+
         return HttpResponse(data, mimetype)
 
     else:
@@ -83,7 +83,6 @@ def index(request):
             "pages": paginator_range(page, paginator.num_pages),
             "nb": page,
         })
-
 
 
 def details(request, user_name):
@@ -125,7 +124,7 @@ def details(request, user_name):
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
                   ).all()[:5]
-    
+
     my_tuto_versions = []
     for my_tutorial in my_tutorials:
         mandata = my_tutorial.load_json_for_public()
@@ -181,7 +180,7 @@ def modify_profile(request, user_pk):
             ban.type = u"Lecture Seule"
             ban.text = request.POST["ls-text"]
             detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                u'commentaires d\'articles et de tutoriels.')
+                      u'commentaires d\'articles et de tutoriels.')
         if "ls-temp" in request.POST:
             ban.type = u"Lecture Seule Temporaire"
             ban.text = request.POST["ls-temp-text"]
@@ -190,8 +189,8 @@ def modify_profile(request, user_pk):
                 + timedelta(days=int(request.POST["ls-jrs"]), hours=0,
                             minutes=0, seconds=0)
             detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                u'commentaires d\'articles et de tutoriels pendant {0} jours.'
-                .format(request.POST["ls-jrs"]))
+                      u'commentaires d\'articles et de tutoriels pendant {0} jours.'
+                      .format(request.POST["ls-jrs"]))
         if "ban-temp" in request.POST:
             ban.type = u"Ban Temporaire"
             ban.text = request.POST["ban-temp-text"]
@@ -200,7 +199,7 @@ def modify_profile(request, user_pk):
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
             detail = (u'Vous ne pouvez plus vous connecter sur Zeste de Savoir '
-                u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
+                      u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
             logout_user(profile.user.username)
 
         if "ban" in request.POST:
@@ -214,7 +213,7 @@ def modify_profile(request, user_pk):
             ban.text = request.POST["unls-text"]
             profile.can_write = True
             detail = (u'Vous pouvez désormais poster sur les forums, dans les '
-                u'commentaires d\'articles et tutoriels.')
+                      u'commentaires d\'articles et tutoriels.')
         if "un-ban" in request.POST:
             ban.type = u"Autorisation de se connecter"
             ban.text = request.POST["unban-text"]
@@ -233,10 +232,10 @@ def modify_profile(request, user_pk):
                    u'Le motif de votre sanction est :\n\n'
                    u'> {3}\n\n'
                    u'Cordialement, L\'équipe Zeste de Savoir.'
-                    .format(ban.user,
-                            ban.moderator,
-                            detail,
-                            ban.text))
+                   .format(ban.user,
+                           ban.moderator,
+                           detail,
+                           ban.text))
         else:
             msg = (u'Bonjour **{0}**,\n\n'
                    u'Vous avez été santionné par **{1}**.\n\n'
@@ -244,11 +243,11 @@ def modify_profile(request, user_pk):
                    u'Le motif de votre sanction est :\n\n'
                    u'> {4}\n\n'
                    u'Cordialement, L\'équipe Zeste de Savoir.'
-                    .format(ban.user,
-                            ban.moderator,
-                            ban.type,
-                            detail,
-                            ban.text))
+                   .format(ban.user,
+                           ban.moderator,
+                           ban.type,
+                           detail,
+                           ban.text))
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         send_mp(
             bot,
@@ -260,7 +259,6 @@ def modify_profile(request, user_pk):
             direct=True,
         )
     return redirect(profile.get_absolute_url())
-
 
 
 @login_required
@@ -293,7 +291,6 @@ def tutorials(request):
                            {"tutorials": user_tutorials, "type": type})
 
 
-
 @login_required
 def articles(request):
     """Returns all articles of the authenticated user."""
@@ -320,22 +317,6 @@ def articles(request):
 
     return render_template("article/member/index.html",
                            {"articles": user_articles, "type": type})
-
-
-
-@login_required
-def actions(request):
-    """Show avaible actions for current user, like a customized homepage.
-
-    This may be very temporary.
-
-    """
-
-    # TODO: Seriously improve this page, and see if cannot be merged in
-    # zds.pages.views.home since it will be more coherent to give an enhanced
-    # homepage for registered users
-
-    return render_template("member/actions.html")
 
 
 # settings for public profile
@@ -489,7 +470,6 @@ def settings_account(request):
 def settings_user(request):
     """User's settings about his email."""
 
-    profile = request.user.profile
     if request.method == "POST":
         form = ChangeUserForm(request.POST)
         c = {"form": form}
@@ -599,10 +579,10 @@ def register_view(request):
 
             # Generate a valid token during one hour.
 
-            uuidToken = str(uuid.uuid4())
+            uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
-            token = TokenRegister(user=user, token=uuidToken,
+            token = TokenRegister(user=user, token=uuid_token,
                                   date_end=date_end)
             token.save()
 
@@ -628,7 +608,6 @@ def register_view(request):
     return render_template("member/register/index.html", {"form": form})
 
 
-
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -641,10 +620,10 @@ def forgot_password(request):
 
             # Generate a valid token during one hour.
 
-            uuidToken = str(uuid.uuid4())
+            uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
-            token = TokenForgotPassword(user=usr, token=uuidToken,
+            token = TokenForgotPassword(user=usr, token=uuid_token,
                                         date_end=date_end)
             token.save()
 
@@ -666,7 +645,6 @@ def forgot_password(request):
                                    {"form": form})
     form = ForgotPasswordForm()
     return render_template("member/forgot_password/index.html", {"form": form})
-
 
 
 def new_password(request):
@@ -831,7 +809,6 @@ def date_to_chart(posts):
     return lst
 
 
-
 @login_required
 @require_POST
 def add_oldtuto(request):
@@ -852,7 +829,6 @@ def add_oldtuto(request):
                      u'membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
-
 
 
 @login_required
@@ -896,26 +872,26 @@ def settings_promote(request, user_pk):
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
     user = profile.user
-    
+
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
         data = dict(form.data.iterlists())
 
         groups = Group.objects.all()
         usergroups = user.groups.all()
-        
+
         if 'groups' in data:
             for group in groups:
                 if unicode(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
                         messages.success(request, u'{0} appartient maintenant au groupe {1}'
-                                                    .format(user.username, group.name))
+                                         .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
                         messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
-                                                    .format(user.username, group.name))
+                                         .format(user.username, group.name))
                         topics_followed = Topic.objects.filter(topicfollowed__user=user,
                                                                forum__group=group)
                         for topic in topics_followed:
@@ -928,13 +904,13 @@ def settings_promote(request, user_pk):
                     follow(topic, user)
             user.groups.clear()
             messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
-                                        .format(user.username))
-        
+                             .format(user.username))
+
         if 'superuser' in data and u'on' in data['superuser']:
             if not user.is_superuser:
                 user.is_superuser = True
                 messages.success(request, u'{0} est maintenant super-utilisateur'
-                                            .format(user.username))
+                                 .format(user.username))
         else:
             if user == request.user:
                 messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
@@ -942,10 +918,10 @@ def settings_promote(request, user_pk):
                 if user.is_superuser:
                     user.is_superuser = False
                     messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
-                                                .format(user.username))
+                                     .format(user.username))
 
         user.save()
-        
+
         usergroups = user.groups.all()
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         msg = (u'Bonjour {0},\n\n'
@@ -970,15 +946,15 @@ def settings_promote(request, user_pk):
             True,
             True,
         )
-        
+
         return redirect(profile.get_absolute_url())
 
     form = PromoteMemberForm(initial={'superuser': user.is_superuser,
                                       'groups': user.groups.all()
-                                     })
-    
+                                      })
+
     return render_template('member/settings/promote.html', {
         "usr": user,
         "profile": profile,
         "form": form
-        })
+    })

@@ -415,12 +415,12 @@ class AskValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(), 
+            CommonLayoutModalText(),
             Field('source'),
             StrictButton(
                 'Confirmer',
                 type='submit'),
-            Hidden('tutorial', '{{ tutorial.pk }}'), 
+            Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'), )
 
 

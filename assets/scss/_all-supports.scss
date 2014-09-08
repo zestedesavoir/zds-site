@@ -134,13 +134,12 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
-    // TODO : Améliorer l'image du logo (prendre la version vecto et faire une image à fond transparent)
-    background: url('../images/logo.png') no-repeat center center;
+    background-image: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
 
     &:hover,
     &:focus {
-        opacity: .7;
+        background-color: $header-hover;
     }
 }
 

@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.contrib.auth import logout
 from django.core.exceptions import PermissionDenied
 
 

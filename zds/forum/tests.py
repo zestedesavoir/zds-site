@@ -9,12 +9,13 @@ from zds.utils import slugify
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentLike, CommentDislike, Alert
+from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
 from zds.forum.views import get_tag_by_title
-from zds.forum.models import get_topics
+from zds.forum.models import get_topics, Forum
+
 
 class ForumMemberTests(TestCase):
 
@@ -47,6 +48,29 @@ class ForumMemberTests(TestCase):
             username=self.user.username,
             password='hostel77')
         self.assertEqual(log, True)
+
+    def feed_rss_display(self):
+        """Test each rss feed feed"""
+        response = self.client.get(reverse('post-feed-rss'), follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            response = self.client.get(reverse('post-feed-rss') + "?forum={}".format(forum.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+
+        for tag in Tag.objects.all():
+            response = self.client.get(reverse('post-feed-rss') + "?tag={}".format(tag.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            for tag in Tag.objects.all():
+                response = self.client.get(
+                    reverse('post-feed-rss') +
+                    "?tag={}&forum={}".format(
+                        tag.pk,
+                        forum.pk),
+                    follow=False)
+                self.assertEqual(response.status_code, 200)
 
     def test_display(self):
         """Test forum display (full: root, category, forum) Topic display test
@@ -114,8 +138,6 @@ class ForumMemberTests(TestCase):
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
 
-
-
     def test_answer(self):
         """To test all aspects of answer."""
         user1 = ProfileFactory().user
@@ -176,7 +198,7 @@ class ForumMemberTests(TestCase):
             Post.objects.get(
                 pk=4).text,
             u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
-        
+
         # test antispam return 403
         result = self.client.post(
             reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
@@ -186,7 +208,6 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
-        
 
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by member."""
@@ -562,14 +583,13 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.filter(topic=topic1.pk).count(), 1)
 
     def test_add_tag(self):
-        
-        
+
         TagCSharp = TagFactory(title="C#")
-        
+
         TagC = TagFactory(title="C")
         self.assertEqual(TagCSharp.slug, TagC.slug)
         self.assertNotEqual(TagCSharp.title, TagC.title)
-        #post a topic with a tag
+        # post a topic with a tag
         result = self.client.post(
             reverse('zds.forum.views.new') + '?forum={0}'
             .format(self.forum12.pk),
@@ -579,16 +599,16 @@ class ForumMemberTests(TestCase):
              },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        
-        #test the topic is added to the good tag
-        
-        self.assertEqual( Topic.objects.filter(
-                tags__in=[TagCSharp])
-                .order_by("-last_message__pubdate").prefetch_related(
-                    "tags").count(), 1)
-        self.assertEqual( Topic.objects.filter(tags__in=[TagC])
-                .order_by("-last_message__pubdate").prefetch_related(
-                    "tags").count(), 0)
+
+        # test the topic is added to the good tag
+
+        self.assertEqual(Topic.objects.filter(
+            tags__in=[TagCSharp])
+            .order_by("-last_message__pubdate").prefetch_related(
+            "tags").count(), 1)
+        self.assertEqual(Topic.objects.filter(tags__in=[TagC])
+                         .order_by("-last_message__pubdate").prefetch_related(
+            "tags").count(), 0)
         topicWithConflictTags = TopicFactory(
             forum=self.forum11, author=self.user)
         topicWithConflictTags.title = u"[C][c][ c][C ]name"
@@ -675,6 +695,29 @@ class ForumGuestTests(TestCase):
             position_in_category=2)
         self.user = ProfileFactory().user
 
+    def feed_rss_display(self):
+        """Test each rss feed feed"""
+        response = self.client.get(reverse('post-feed-rss'), follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            response = self.client.get(reverse('post-feed-rss') + "?forum={}".format(forum.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+
+        for tag in Tag.objects.all():
+            response = self.client.get(reverse('post-feed-rss') + "?tag={}".format(tag.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            for tag in Tag.objects.all():
+                response = self.client.get(
+                    reverse('post-feed-rss') +
+                    "?tag={}&forum={}".format(
+                        tag.pk,
+                        forum.pk),
+                    follow=False)
+                self.assertEqual(response.status_code, 200)
+
     def test_display(self):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
@@ -742,35 +785,33 @@ class ForumGuestTests(TestCase):
 
     def test_tag_parsing(self):
         """test the tag parsing in nominal, limit and borns cases"""
-        (tags, title) = get_tag_by_title("[tag]title");
-        self.assertEqual(len(tags),1)
-        self.assertEqual(title,"title")
-        
-        (tags,title) = get_tag_by_title("[[tag1][tag2]]title")
-        self.assertEqual(len(tags),1)
-        self.assertEqual(tags[0],"[tag1][tag2]")
-        self.assertEqual(title,"title")
-        
-        (tags,title) = get_tag_by_title("[tag1][tag2]title")
-        self.assertEqual(len(tags),2)
-        self.assertEqual(tags[0],"tag1")
-        self.assertEqual(title,"title")
-        (tags,title) = get_tag_by_title("[tag1] [tag2]title")
-        self.assertEqual(len(tags),2)
-        self.assertEqual(tags[0],"tag1")
-        self.assertEqual(title,"title")
-        
+        (tags, title) = get_tag_by_title("[tag]title")
+        self.assertEqual(len(tags), 1)
+        self.assertEqual(title, "title")
 
-        (tags,title) = get_tag_by_title("[tag1][tag2]title[tag3]")
-        self.assertEqual(len(tags),2)
-        self.assertEqual(tags[0],"tag1")
-        self.assertEqual(title,"title[tag3]")
+        (tags, title) = get_tag_by_title("[[tag1][tag2]]title")
+        self.assertEqual(len(tags), 1)
+        self.assertEqual(tags[0], "[tag1][tag2]")
+        self.assertEqual(title, "title")
 
-        (tags,title) = get_tag_by_title("[tag1[][tag2]title")
-        self.assertEqual(len(tags),0)
-        self.assertEqual(title,"[tag1[][tag2]title")
-        
-        
+        (tags, title) = get_tag_by_title("[tag1][tag2]title")
+        self.assertEqual(len(tags), 2)
+        self.assertEqual(tags[0], "tag1")
+        self.assertEqual(title, "title")
+        (tags, title) = get_tag_by_title("[tag1] [tag2]title")
+        self.assertEqual(len(tags), 2)
+        self.assertEqual(tags[0], "tag1")
+        self.assertEqual(title, "title")
+
+        (tags, title) = get_tag_by_title("[tag1][tag2]title[tag3]")
+        self.assertEqual(len(tags), 2)
+        self.assertEqual(tags[0], "tag1")
+        self.assertEqual(title, "title[tag3]")
+
+        (tags, title) = get_tag_by_title("[tag1[][tag2]title")
+        self.assertEqual(len(tags), 0)
+        self.assertEqual(title, "[tag1[][tag2]title")
+
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by guest."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
@@ -975,7 +1016,7 @@ class ForumGuestTests(TestCase):
 
     def test_filter_topic(self):
         """Test filters for solved topic or not"""
-        user1 = ProfileFactory().user
+        ProfileFactory().user
         topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
         topic_solved = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=False)
         topic_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
@@ -992,7 +1033,6 @@ class ForumGuestTests(TestCase):
 
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)), 1)
         self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)[0], topic_solved_sticky)
-        
+
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 2)
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 2)
-        

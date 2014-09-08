@@ -3,10 +3,12 @@
 from django.conf.urls import patterns, url
 
 from . import views
-
+from . import feeds
 
 urlpatterns = patterns('',
                        # Viewing
+                       url(r'^flux/rss/$', feeds.LastTutorialsFeedRSS(), name='tutorial-feed-rss'),
+                       url(r'^flux/atom/$', feeds.LastTutorialsFeedATOM(), name='tutorial-feed-atom'),
 
                        # Current URLs
                        url(r'^recherche/(?P<pk_user>\d+)/$',

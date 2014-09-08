@@ -27,7 +27,6 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
-from django.db.models.query_utils import select_related_descend
 
 
 @login_required
@@ -149,13 +148,13 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(request.user.username, 
-                initial={
-                    'participants': request.POST['participants'],
-                    'title': request.POST['title'],
-                    'subtitle': request.POST['subtitle'],
-                    'text': request.POST['text'],
-                })
+            form = PrivateTopicForm(request.user.username,
+                                    initial={
+                                        'participants': request.POST['participants'],
+                                        'title': request.POST['title'],
+                                        'subtitle': request.POST['subtitle'],
+                                        'text': request.POST['text'],
+                                    })
             return render_template('mp/topic/new.html', {
                 'form': form,
             })
@@ -266,11 +265,11 @@ def answer(request):
             and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
-    # Retrieve 3 last posts of the currenta topic.
-    posts = PrivatePost.objects\
-        .filter(privatetopic=g_topic)\
-        .order_by('-pubdate')[:3]
     last_post_pk = g_topic.last_message.pk
+    # Retrieve last posts of the current private topic.
+    posts = PrivatePost.objects.filter(privatetopic=g_topic) \
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -285,6 +284,7 @@ def answer(request):
             return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
+                'posts': posts,
                 'newpost': newpost,
                 'form': form,
             })
@@ -352,6 +352,7 @@ def answer(request):
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
+                    'posts': posts,
                     'form': form,
                 })
 
@@ -491,7 +492,7 @@ def add_participant(request):
 
     try:
         # user_pk or user_username ?
-        part = User.objects.get(username=request.POST['user_pk'])
+        part = User.objects.get(username__exact=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,

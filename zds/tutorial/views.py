@@ -4,6 +4,7 @@ from collections import OrderedDict
 from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
@@ -14,10 +15,11 @@ except:
         import json as json_reader
 
 import json as json_writer
-import os.path
-import re
 import shutil
+import re
 import zipfile
+import os
+import tempfile
 
 from PIL import Image as ImagePIL
 from django.conf import settings
@@ -34,7 +36,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
-from git import *
+from git import Repo, Actor
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
@@ -45,16 +47,19 @@ from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
+from zds.forum.models import Forum, Topic
 from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
     SubCategory
 from zds.utils.mps import send_mp
+from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
+
 
 def render_chapter_form(chapter):
     if chapter.part:
@@ -66,6 +71,7 @@ def render_chapter_form(chapter):
         return \
             EmbdedChapterForm({"introduction": chapter.get_introduction(),
                                "conclusion": chapter.get_conclusion()})
+
 
 def index(request):
     """Display all public tutorials of the website."""
@@ -89,7 +95,7 @@ def index(request):
         tutorials = Tutorial.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-    
+
     tuto_versions = []
     for tutorial in tutorials:
         mandata = tutorial.load_json_for_public()
@@ -166,7 +172,6 @@ def list_validation(request):
                            {"validations": validations})
 
 
-
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
 @require_POST
@@ -195,7 +200,6 @@ def reservation(request, validation_pk):
         )
 
 
-
 @login_required
 def diff(request, tutorial_pk, tutorial_slug):
     try:
@@ -218,7 +222,6 @@ def diff(request, tutorial_pk, tutorial_slug):
     })
 
 
-
 @login_required
 def history(request, tutorial_pk, tutorial_slug):
     """History of the tutorial."""
@@ -233,7 +236,6 @@ def history(request, tutorial_pk, tutorial_slug):
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
     return render_template("tutorial/tutorial/history.html",
                            {"tutorial": tutorial, "logs": logs})
-
 
 
 @login_required
@@ -307,11 +309,11 @@ def reject_tutorial(request):
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
                 u'semble injuste ou manque de clarté.'.format(
-                author.username,
-                tutorial.title,
-                validation.validator.username,
-                settings.SITE_URL + validation.validator.profile.get_absolute_url(),
-                validation.comment_validator))
+                    author.username,
+                    tutorial.title,
+                    validation.validator.username,
+                    settings.SITE_URL + validation.validator.profile.get_absolute_url(),
+                    validation.comment_validator))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -326,8 +328,8 @@ def reject_tutorial(request):
                         + validation.version)
     else:
         messages.error(request,
-                    "Vous devez avoir réservé ce tutoriel "
-                    "pour pouvoir le refuser.")
+                       "Vous devez avoir réservé ce tutoriel "
+                       "pour pouvoir le refuser.")
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
 
@@ -351,7 +353,7 @@ def valid_tutorial(request):
         version=tutorial.sha_validation).latest("date_proposition")
 
     if request.user == validation.validator:
-        (output, err) = MEP(tutorial, tutorial.sha_validation)
+        (output, err) = mep(tutorial, tutorial.sha_validation)
         messages.info(request, output)
         messages.error(request, err)
         validation.comment_validator = request.POST["text"]
@@ -381,11 +383,11 @@ def valid_tutorial(request):
                 u'd\'apporter des corrections/compléments.'
                 u'Un Tutoriel vivant et à jour est bien plus lu '
                 u'qu\'un sujet abandonné !'.format(
-                author.username,
-                tutorial.title,
-                settings.SITE_URL + tutorial.get_absolute_url_online(),
-                validation.validator.username,
-                settings.SITE_URL + validation.validator.profile.get_absolute_url()))
+                    author.username,
+                    tutorial.title,
+                    settings.SITE_URL + tutorial.get_absolute_url_online(),
+                    validation.validator.username,
+                    settings.SITE_URL + validation.validator.profile.get_absolute_url()))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
@@ -400,8 +402,8 @@ def valid_tutorial(request):
                         + validation.version)
     else:
         messages.error(request,
-                    "Vous devez avoir réservé ce tutoriel "
-                    "pour pouvoir le valider.")
+                       "Vous devez avoir réservé ce tutoriel "
+                       "pour pouvoir le valider.")
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
 
@@ -416,7 +418,7 @@ def invalid_tutorial(request, tutorial_pk):
     # Retrieve current tutorial
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    UNMEP(tutorial)
+    un_mep(tutorial)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_public).latest("date_proposition")
@@ -460,19 +462,17 @@ def ask_validation(request):
             raise PermissionDenied
 
     old_validation = Validation.objects.filter(tutorial__pk=tutorial_pk,
-                              status__in=['PENDING_V']).first()
+                                               status__in=['PENDING_V']).first()
     if old_validation is not None:
         old_validator = old_validation.validator
-        old_reserve_date = old_validation.date_reserve
     else:
         old_validator = None
-        old_reserve_date = None
-    #delete old pending validation
+    # delete old pending validation
     Validation.objects.filter(tutorial__pk=tutorial_pk,
-                              status__in=['PENDING','PENDING_V'])\
-                              .delete()
+                              status__in=['PENDING', 'PENDING_V'])\
+        .delete()
     # We create and save validation object of the tutorial.
-    
+
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
@@ -484,10 +484,10 @@ def ask_validation(request):
         bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
         msg = \
             (u'Bonjour {0},'
-            u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
-            u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
-            u'consulter l\'historique des versions'
-            u'\n\n> Merci'.format(old_validator.username, tutorial.title))
+             u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
+             u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
+             u'consulter l\'historique des versions'
+             u'\n\n> Merci'.format(old_validator.username, tutorial.title))
         send_mp(
             bot,
             [old_validator],
@@ -497,7 +497,7 @@ def ask_validation(request):
             False,
         )
     validation.save()
-    validation.tutorial.source=request.POST["source"]
+    validation.tutorial.source = request.POST["source"]
     validation.tutorial.sha_validation = request.POST["version"]
     validation.tutorial.save()
     messages.success(request,
@@ -569,7 +569,6 @@ def modify_tutorial(request):
         raise Http404
     tutorial_pk = request.POST["tutorial"]
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
     # User actions
 
     if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
@@ -597,6 +596,31 @@ def modify_tutorial(request):
             messages.success(request,
                              u'L\'auteur {0} a bien été ajouté à la rédaction '
                              u'du tutoriel.'.format(author.username))
+
+            # send msg to new author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n'
+                u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Tutoriels" sur la page de ton profil.\n\n'
+                u'Tu peux maintenant commencer à rédiger !'.format(
+                    author.username,
+                    tutorial.title,
+                    settings.SITE_URL + tutorial.get_absolute_url(),
+                    settings.SITE_URL + reverse("zds.member.views.tutorials"))
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Ajout en tant qu'auteur : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
             redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
@@ -624,11 +648,85 @@ def modify_tutorial(request):
             messages.success(request,
                              u"L'auteur {0} a bien été retiré du tutoriel."
                              .format(author.username))
+
+            # send msg to removed author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été supprimé des auteurs du tutoriel [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
+                    author.username,
+                    tutorial.title,
+                    settings.SITE_URL + tutorial.get_absolute_url())
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Suppression des auteurs : {0}".format(tutorial.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+
             return redirect(redirect_url)
         elif "activ_beta" in request.POST:
             if "version" in request.POST:
                 tutorial.sha_beta = request.POST['version']
                 tutorial.save()
+                topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+                msg = \
+                    (u'Bonjour à tous,\n\n'
+                     u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                     u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                     u'sur la forme, afin de proposer en validation un texte de qualité.'
+                     u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                     u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                     u'\n\nMerci d\'avance pour votre aide'.format(
+                         naturaltime(tutorial.create_at),
+                         tutorial.title,
+                         settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                if topic is None:
+                    forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
+
+                    create_topic(author=request.user,
+                                 forum=forum,
+                                 title=u"[beta][tutoriel]{0}".format(tutorial.title),
+                                 subtitle=u"{}".format(tutorial.description),
+                                 text=msg,
+                                 key=tutorial.pk
+                                 )
+                    tp = Topic.objects.get(key=tutorial.pk)
+                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    private_mp = \
+                        (u'Bonjour {},\n\n'
+                         u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                         u'pourra le consulter afin de vous faire des retours '
+                         u'constructifs avant sa soumission en validation.\n\n'
+                         u'Un sujet dédié pour la beta de votre tutoriel a été '
+                         u'crée dans le forum et est accessible [ici]({})'.format(
+                             request.user.username,
+                             tutorial.title,
+                             settings.SITE_URL + tp.get_absolute_url()))
+                    send_mp(
+                        bot,
+                        [request.user],
+                        u"Tutoriel en beta : {0}".format(tutorial.title),
+                        "",
+                        private_mp,
+                        False,
+                    )
+                else:
+                    msg_up = \
+                        (u'Bonjour,\n\n'
+                         u'La beta du tutoriel est de nouveau active.'
+                         u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                         u'\n\nMerci pour vos relectures'.format(tutorial.title,
+                                                                 settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    unlock_topic(topic, msg)
+                    send_post(topic, msg_up)
+
                 messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
             else:
                 messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
@@ -637,6 +735,37 @@ def modify_tutorial(request):
             if "version" in request.POST:
                 tutorial.sha_beta = request.POST['version']
                 tutorial.save()
+                topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+                msg = \
+                    (u'Bonjour à tous,\n\n'
+                     u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                     u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                     u'sur la forme, afin de proposer en validation un texte de qualité.'
+                     u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                     u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                     u'\n\nMerci d\'avance pour votre aide'.format(
+                         naturaltime(tutorial.create_at),
+                         tutorial.title,
+                         settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                if topic is None:
+                    forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
+
+                    create_topic(author=request.user,
+                                 forum=forum,
+                                 title=u"[beta][tutoriel]{0}".format(tutorial.title),
+                                 subtitle=u"{}".format(tutorial.description),
+                                 text=msg,
+                                 key=tutorial.pk
+                                 )
+                else:
+                    msg_up = \
+                        (u'Bonjour, !\n\n'
+                         u'La beta du tutoriel a été mise à jour.'
+                         u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                         u'\n\nMerci pour vos relectures'.format(tutorial.title,
+                                                                 settings.SITE_URL + tutorial.get_absolute_url_beta()))
+                    unlock_topic(topic, msg)
+                    send_post(topic, msg_up)
                 messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
             else:
                 messages.error(request, u"Impossible de mettre à jour la BETA sur ce tutoriel.")
@@ -644,6 +773,13 @@ def modify_tutorial(request):
         elif "desactiv_beta" in request.POST:
             tutorial.sha_beta = None
             tutorial.save()
+            topic = Topic.objects.filter(key=tutorial.pk, forum__pk=settings.BETA_FORUM_ID).first()
+            if topic is not None:
+                msg = \
+                    (u'Désactivation de la beta du tutoriel  **{}**'
+                     u'\n\nPour plus d\'informations envoyez moi un MP'.format(tutorial.title))
+                lock_topic(topic)
+                send_post(topic, msg)
             messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
             return redirect(tutorial.get_absolute_url())
 
@@ -668,7 +804,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         sha = request.GET["version"]
     except KeyError:
         sha = tutorial.sha_draft
-    
+
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
 
     # Only authors of the tutorial and staff can view tutorial in offline.
@@ -676,7 +812,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     if request.user not in tutorial.authors.all() and not is_beta:
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
-
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -693,8 +828,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha)
     tutorial.load_introduction_and_conclusion(mandata, sha)
-    
-    #print mandata
 
     # If it's a small tutorial, fetch its chapter
 
@@ -745,26 +878,25 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
-                                    .order_by("-date_proposition")\
-                                    .first()
+        .order_by("-date_proposition")\
+        .first()
     if tutorial.source:
-        formAskValidation = AskValidationForm(initial={"source": tutorial.source})
-        formValid = ValidForm(initial={"source": tutorial.source})
+        form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
+        form_valid = ValidForm(initial={"source": tutorial.source})
     else:
-        formAskValidation = AskValidationForm()
-        formValid = ValidForm()
-    formReject = RejectForm()
+        form_ask_validation = AskValidationForm()
+        form_valid = ValidForm()
+    form_reject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
         "version": sha,
         "validation": validation,
-        "formAskValidation": formAskValidation,
-        "formValid": formValid,
-        "formReject": formReject,
+        "formAskValidation": form_ask_validation,
+        "formValid": form_valid,
+        "formReject": form_reject,
     })
-
 
 
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
@@ -997,8 +1129,8 @@ def add_tutorial(request):
     else:
         form = TutorialForm(
             initial={
-                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
-                }
+                'licence': Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+            }
         )
     return render_template("tutorial/tutorial/new.html", {"form": form})
 
@@ -1040,11 +1172,11 @@ def edit_tutorial(request):
 
                 })
                 return render_template("tutorial/tutorial/edit.html",
-                           {
-                               "tutorial": tutorial, "form": form,
-                               "last_hash": compute_hash([introduction, conclusion]),
-                               "new_version": True
-                           })        
+                                       {
+                                           "tutorial": tutorial, "form": form,
+                                           "last_hash": compute_hash([introduction, conclusion]),
+                                           "new_version": True
+                                       })
             old_slug = tutorial.get_path()
             tutorial.title = data["title"]
             tutorial.description = data["description"]
@@ -1082,7 +1214,7 @@ def edit_tutorial(request):
             tutorial.update_children()
 
             new_slug = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
-            
+
             maj_repo_tuto(
                 request,
                 old_slug_path=old_slug,
@@ -1103,7 +1235,7 @@ def edit_tutorial(request):
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
             licence = Licence.objects.get(
-                        pk=settings.DEFAULT_LICENCE_PK
+                pk=settings.DEFAULT_LICENCE_PK
             )
         form = TutorialForm(initial={
             "title": json["title"],
@@ -1118,7 +1250,6 @@ def edit_tutorial(request):
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
 
 # Parts.
-
 
 
 @login_required
@@ -1186,16 +1317,15 @@ def view_part(
             final_part = part
             break
         cpt_p += 1
-    
+
     # if part can't find
     if not find:
         raise Http404
-    
+
     return render_template("tutorial/part/view.html",
                            {"tutorial": mandata,
                             "part": final_part,
                             "version": sha})
-
 
 
 def view_part_online(
@@ -1220,7 +1350,7 @@ def view_part_online(
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
-    final_part= None
+    final_part = None
     find = False
     for part in parts:
         part["tutorial"] = mandata
@@ -1237,7 +1367,7 @@ def view_part_online(
                                        part["conclusion"] + ".html"), "r")
             part["conclu"] = conclu.read()
             conclu.close()
-            final_part=part
+            final_part = part
         cpt_c = 1
         for chapter in part["chapters"]:
             chapter["part"] = part
@@ -1260,7 +1390,7 @@ def view_part_online(
     # if part can't find
     if not find:
         raise Http404
-    
+
     return render_template("tutorial/part/view_online.html", {"part": final_part})
 
 
@@ -1296,7 +1426,7 @@ def add_part(request):
             part.introduction = os.path.join(part.get_phy_slug(), "introduction.md")
             part.conclusion = os.path.join(part.get_phy_slug(), "conclusion.md")
             part.save()
-            
+
             new_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
 
             maj_repo_part(
@@ -1343,14 +1473,14 @@ def modify_part(request):
 
         move(part, new_pos, "position_in_tutorial", "tutorial", "get_parts")
         part.save()
-        
+
         new_slug_path = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug())
-        
+
         maj_repo_tuto(request,
-                      old_slug_path = new_slug_path,
-                      new_slug_path = new_slug_path,
-                      tuto = part.tutorial,
-                      action = "maj")
+                      old_slug_path=new_slug_path,
+                      new_slug_path=new_slug_path,
+                      tuto=part.tutorial,
+                      action="maj")
     elif "delete" in request.POST:
         # Delete all chapters belonging to the part
 
@@ -1369,13 +1499,12 @@ def modify_part(request):
         new_slug_tuto_path = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug())
         # Actually delete the part
         part.delete()
-        
-        
+
         maj_repo_tuto(request,
-                      old_slug_path = new_slug_tuto_path,
-                      new_slug_path = new_slug_tuto_path,
-                      tuto = part.tutorial,
-                      action = "maj")
+                      old_slug_path=new_slug_tuto_path,
+                      new_slug_path=new_slug_tuto_path,
+                      tuto=part.tutorial,
+                      action="maj")
     return redirect(part.tutorial.get_absolute_url())
 
 
@@ -1400,17 +1529,17 @@ def edit_part(request):
         if form.is_valid():
             data = form.data
             # avoid collision
-            if content_has_changed([introduction, conclusion],data["last_hash"]):
+            if content_has_changed([introduction, conclusion], data["last_hash"]):
                 form = PartForm({"title": part.title,
-                         "introduction": part.get_introduction(),
-                         "conclusion": part.get_conclusion()})
-                return render_template("tutorial/part/edit.html", 
-                    {
-                         "part": part,
-                         "last_hash": compute_hash([introduction, conclusion]),
-                         "new_version":True,
-                         "form": form
-                    })
+                                 "introduction": part.get_introduction(),
+                                 "conclusion": part.get_conclusion()})
+                return render_template("tutorial/part/edit.html",
+                                       {
+                                           "part": part,
+                                           "last_hash": compute_hash([introduction, conclusion]),
+                                           "new_version": True,
+                                           "form": form
+                                       })
             # Update title and his slug.
 
             part.title = data["title"]
@@ -1422,9 +1551,9 @@ def edit_part(request):
             part.conclusion = os.path.join(part.get_phy_slug(), "conclusion.md")
             part.save()
             part.update_children()
-            
+
             new_slug = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
-            
+
             maj_repo_part(
                 request,
                 old_slug_path=old_slug,
@@ -1440,11 +1569,11 @@ def edit_part(request):
                          "introduction": part.get_introduction(),
                          "conclusion": part.get_conclusion()})
     return render_template("tutorial/part/edit.html",
-        {
-            "part": part,
-	        "last_hash": compute_hash([introduction, conclusion]),
-            "form": form
-        })
+                           {
+                               "part": part,
+                               "last_hash": compute_hash([introduction, conclusion]),
+                               "form": form
+                           })
 
 
 # Chapters.
@@ -1463,12 +1592,12 @@ def view_chapter(
     """View chapter."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    
+
     try:
         sha = request.GET["version"]
     except KeyError:
         sha = tutorial.sha_draft
-    
+
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
 
     # Only authors of the tutorial and staff can view tutorial in offline.
@@ -1516,7 +1645,7 @@ def view_chapter(
                                             chapter["introduction"])
                 chapter["conclu"] = get_blob(repo.commit(sha).tree,
                                              chapter["conclusion"])
-                
+
                 cpt_e = 1
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
@@ -1530,7 +1659,7 @@ def view_chapter(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
-    
+
     # if chapter can't find
     if not find:
         raise Http404
@@ -1539,7 +1668,7 @@ def view_chapter(
                     > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
-    
+
     return render_template("tutorial/chapter/view.html", {
         "tutorial": mandata,
         "chapter": final_chapter,
@@ -1547,7 +1676,6 @@ def view_chapter(
         "next": next_chapter,
         "version": sha,
     })
-
 
 
 def view_chapter_online(
@@ -1577,7 +1705,7 @@ def view_chapter_online(
     final_chapter = None
     chapter_tab = []
     final_position = 0
-    
+
     find = False
     for part in parts:
         cpt_c = 1
@@ -1638,14 +1766,14 @@ def view_chapter_online(
                 final_position = len(chapter_tab) - 1
             cpt_c += 1
         cpt_p += 1
-    
+
     # if chapter can't find
     if not find:
         raise Http404
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
-    
+
     return render_template("tutorial/chapter/view_online.html", {
         "chapter": final_chapter,
         "parts": parts,
@@ -1690,7 +1818,7 @@ def add_chapter(request):
                 img.pubdate = datetime.now()
                 img.save()
                 chapter.image = img
-            
+
             chapter.save()
             if chapter.tutorial:
                 chapter_path = os.path.join(
@@ -1701,12 +1829,15 @@ def add_chapter(request):
                 chapter.conclusion = os.path.join(chapter.get_phy_slug(),
                                                   "conclusion.md")
             else:
-                chapter_path = os.path.join(settings.REPO_PATH, 
+                chapter_path = os.path.join(settings.REPO_PATH,
                                             chapter.part.tutorial.get_phy_slug(),
-                                            chapter.part.get_phy_slug(), 
+                                            chapter.part.get_phy_slug(),
                                             chapter.get_phy_slug())
-                chapter.introduction = os.path.join(chapter.part.get_phy_slug(),chapter.get_phy_slug(),"introduction.md")
-                chapter.conclusion = os.path.join(chapter.part.get_phy_slug(),chapter.get_phy_slug(),"conclusion.md")
+                chapter.introduction = os.path.join(
+                    chapter.part.get_phy_slug(),
+                    chapter.get_phy_slug(),
+                    "introduction.md")
+                chapter.conclusion = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug(), "conclusion.md")
             chapter.save()
             maj_repo_chapter(
                 request,
@@ -1746,7 +1877,8 @@ def modify_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if request.user not in chapter.get_tutorial().authors.all() and not request.user.has_perm("tutorial.change_tutorial"):
+    if request.user not in chapter.get_tutorial().authors.all() and \
+            not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
     if "move" in data:
         try:
@@ -1759,25 +1891,25 @@ def modify_chapter(request):
         move(chapter, new_pos, "position_in_part", "part", "get_chapters")
         chapter.update_position_in_tutorial()
         chapter.save()
-        
+
         new_slug_path = os.path.join(settings.REPO_PATH, chapter.part.tutorial.get_phy_slug())
-        
+
         maj_repo_part(request,
-                      old_slug_path = new_slug_path,
-                      new_slug_path = new_slug_path,
-                      part = chapter.part,
-                      action = "maj")
-        
+                      old_slug_path=new_slug_path,
+                      new_slug_path=new_slug_path,
+                      part=chapter.part,
+                      action="maj")
+
         messages.info(request, u"Le chapitre a bien été déplacé.")
     elif "delete" in data:
         old_pos = chapter.position_in_part
         old_tut_pos = chapter.position_in_tutorial
-        
+
         if chapter.part:
             parent = chapter.part
         else:
             parent = chapter.tutorial
-        
+
         # Move other chapters first
 
         for tut_c in chapter.part.get_chapters():
@@ -1797,12 +1929,12 @@ def modify_chapter(request):
                 Chapter.objects.filter(position_in_tutorial__gt=old_tut_pos):
             tut_c.update_position_in_tutorial()
             tut_c.save()
-        
+
         maj_repo_part(request,
-                      old_slug_path = new_slug_path_part,
-                      new_slug_path = new_slug_path_part,
-                      part = chapter.part,
-                      action = "maj")
+                      old_slug_path=new_slug_path_part,
+                      new_slug_path=new_slug_path_part,
+                      part=chapter.part,
+                      action="maj")
         messages.info(request, u"Le chapitre a bien été supprimé.")
 
         return redirect(parent.get_absolute_url())
@@ -1825,14 +1957,14 @@ def edit_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if (big and request.user not in chapter.part.tutorial.authors.all() \
-            or small and request.user not in chapter.tutorial.authors.all())\
-         and not request.user.has_perm("tutorial.change_tutorial"):
+    if (big and request.user not in chapter.part.tutorial.authors.all()
+        or small and request.user not in chapter.tutorial.authors.all())\
+            and not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
     introduction = os.path.join(chapter.get_path(), "introduction.md")
     conclusion = os.path.join(chapter.get_path(), "conclusion.md")
     if request.method == "POST":
-        
+
         if chapter.part:
             form = ChapterForm(request.POST, request.FILES)
             gal = chapter.part.tutorial.gallery
@@ -1844,19 +1976,19 @@ def edit_chapter(request):
             # avoid collision
             if content_has_changed([introduction, conclusion], data["last_hash"]):
                 form = render_chapter_form(chapter)
-                return render_template("tutorial/part/edit.html", 
-                    {
-                         "chapter": chapter,
-                         "last_hash": compute_hash([introduction, conclusion]),
-                         "new_version":True,
-                         "form": form
-                    })
+                return render_template("tutorial/part/edit.html",
+                                       {
+                                           "chapter": chapter,
+                                           "last_hash": compute_hash([introduction, conclusion]),
+                                           "new_version": True,
+                                           "form": form
+                                       })
             chapter.title = data["title"]
-            
+
             old_slug = chapter.get_path()
             chapter.save()
             chapter.update_children()
-            
+
             if chapter.part:
                 if chapter.tutorial:
                     new_slug = os.path.join(settings.REPO_PATH, chapter.tutorial.get_phy_slug(), chapter.get_phy_slug())
@@ -1892,7 +2024,6 @@ def edit_chapter(request):
     return render_template("tutorial/chapter/edit.html", {"chapter": chapter,
                                                           "last_hash": compute_hash([introduction, conclusion]),
                                                           "form": form})
-
 
 
 @login_required
@@ -1982,9 +2113,9 @@ def edit_extract(request):
 
         if "preview" in data:
             form = ExtractForm(initial={
-                                           "title": data["title"],
-                                           "text": data["text"]
-                                       })
+                "title": data["title"],
+                "text": data["text"]
+            })
             return render_template("tutorial/extract/edit.html",
                                    {
                                        "extract": extract, "form": form,
@@ -1995,13 +2126,13 @@ def edit_extract(request):
                 form = ExtractForm(initial={
                     "title": extract.title,
                     "text": extract.get_text()})
-                return render_template("tutorial/extract/edit.html", 
-                    {
-                         "extract": extract,
-                         "last_hash": compute_hash([extract.get_path()]),
-                         "new_version":True,
-                         "form": form
-                    })
+                return render_template("tutorial/extract/edit.html",
+                                       {
+                                           "extract": extract,
+                                           "last_hash": compute_hash([extract.get_path()]),
+                                           "new_version": True,
+                                           "form": form
+                                       })
             # Edit extract.
 
             form = ExtractForm(request.POST)
@@ -2011,24 +2142,10 @@ def edit_extract(request):
                 extract.title = data["title"]
                 extract.text = extract.get_path(relative=True)
 
-                # Get path for mini-tuto
-
-                if extract.chapter.tutorial:
-                    chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.get_phy_slug())
-                    chapter_part = os.path.join(chapter_tutorial_path)
-                else:
-
-                    # Get path for big-tuto
-
-                    chapter_part_tutorial_path = \
-                        os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.get_phy_slug())
-                    chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.get_phy_slug())
-                    chapter_part = os.path.join(chapter_part_path, extract.chapter.get_phy_slug())
-
                 # Use path retrieve before and use it to create the new slug.
                 extract.save()
                 new_slug = extract.get_path()
-                
+
                 maj_repo_extract(
                     request,
                     old_slug_path=old_slug,
@@ -2041,12 +2158,12 @@ def edit_extract(request):
     else:
         form = ExtractForm({"title": extract.title,
                             "text": extract.get_text()})
-    return render_template("tutorial/extract/edit.html", 
-        {
-            "extract": extract,
-            "last_hash": compute_hash([extract.get_path()]),
-            "form": form
-        })
+    return render_template("tutorial/extract/edit.html",
+                           {
+                               "extract": extract,
+                               "last_hash": compute_hash([extract.get_path()]),
+                               "form": form
+                           })
 
 
 @can_write_and_read_now
@@ -2068,41 +2185,27 @@ def modify_extract(request):
                     - 1
                 extract_c.save()
 
-        # Get path for mini-tuto
-
-        if extract.chapter.tutorial:
-            chapter_tutorial_path = os.path.join(settings.REPO_PATH, extract.chapter.tutorial.get_phy_slug())
-            chapter_path = os.path.join(chapter_tutorial_path)
-        else:
-
-            # Get path for big-tuto
-
-            chapter_part_tutorial_path = os.path.join(
-                settings.REPO_PATH, extract.chapter.part.tutorial.get_phy_slug())
-            chapter_part_path = os.path.join(chapter_part_tutorial_path, extract.chapter.part.get_phy_slug())
-            chapter_path = os.path.join(chapter_part_path, extract.chapter.get_phy_slug())
-
         # Use path retrieve before and use it to create the new slug.
 
         old_slug = extract.get_path()
-        
+
         if extract.chapter.tutorial:
             new_slug_path_chapter = os.path.join(settings.REPO_PATH,
-                                         extract.chapter.tutorial.get_phy_slug())
+                                                 extract.chapter.tutorial.get_phy_slug())
         else:
             new_slug_path_chapter = os.path.join(settings.REPO_PATH,
-                                         chapter.part.tutorial.get_phy_slug(),
-                                         chapter.part.get_phy_slug(),
-                                         chapter.get_phy_slug())
+                                                 chapter.part.tutorial.get_phy_slug(),
+                                                 chapter.part.get_phy_slug(),
+                                                 chapter.get_phy_slug())
 
         maj_repo_extract(request, old_slug_path=old_slug, extract=extract,
                          action="del")
-        
+
         maj_repo_chapter(request,
-                         old_slug_path = new_slug_path_chapter,
-                         new_slug_path = new_slug_path_chapter,
-                         chapter = chapter,
-                         action = "maj")
+                         old_slug_path=new_slug_path_chapter,
+                         new_slug_path=new_slug_path_chapter,
+                         chapter=chapter,
+                         action="maj")
         return redirect(chapter.get_absolute_url())
     elif "move" in data:
         try:
@@ -2110,10 +2213,10 @@ def modify_extract(request):
         except ValueError:
             # Error, the user misplayed with the move button
             return redirect(extract.get_absolute_url())
-        
+
         move(extract, new_pos, "position_in_chapter", "chapter", "get_extracts")
         extract.save()
-        
+
         if extract.chapter.tutorial:
             new_slug_path = os.path.join(settings.REPO_PATH,
                                          extract.chapter.tutorial.get_phy_slug())
@@ -2124,13 +2227,12 @@ def modify_extract(request):
                                          chapter.get_phy_slug())
 
         maj_repo_chapter(request,
-                         old_slug_path = new_slug_path,
-                         new_slug_path = new_slug_path,
-                         chapter = chapter,
-                         action = "maj")
+                         old_slug_path=new_slug_path,
+                         new_slug_path=new_slug_path,
+                         chapter=chapter,
+                         action="maj")
         return redirect(extract.get_absolute_url())
     raise Http404
-
 
 
 def find_tuto(request, pk_user):
@@ -2143,7 +2245,7 @@ def find_tuto(request, pk_user):
         tutorials = Tutorial.objects.all().filter(
             authors__in=[display_user],
             sha_beta__isnull=False).exclude(sha_beta="").order_by("-pubdate")
-        
+
         tuto_versions = []
         for tutorial in tutorials:
             mandata = tutorial.load_json_for_public(sha=tutorial.sha_beta)
@@ -2156,7 +2258,7 @@ def find_tuto(request, pk_user):
         tutorials = Tutorial.objects.all().filter(
             authors__in=[display_user],
             sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
-        
+
         tuto_versions = []
         for tutorial in tutorials:
             mandata = tutorial.load_json_for_public()
@@ -2277,7 +2379,7 @@ def import_content(
             part.save()
             part.introduction = os.path.join(part.get_phy_slug(), "introduction.md")
             part.conclusion = os.path.join(part.get_phy_slug(), "conclusion.md")
-            part_path = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(),part.get_phy_slug())
+            part_path = os.path.join(settings.REPO_PATH, part.tutorial.get_phy_slug(), part.get_phy_slug())
             part.save()
             maj_repo_part(
                 request,
@@ -2480,9 +2582,7 @@ def import_tuto(request):
             else:
                 return render_template("tutorial/tutorial/import.html",
                                        {"form": form,
-                                        "form_archive":form_archive})
-        
-        
+                                        "form_archive": form_archive})
     else:
         form = ImportForm()
         form_archive = ImportArchiveForm(user=request.user)
@@ -2497,7 +2597,7 @@ def import_tuto(request):
         oldtutos.append(get_info_old_tuto(old))
     return render_template(
         "tutorial/tutorial/import.html", {"form": form,
-                                          "form_archive":form_archive,
+                                          "form_archive": form_archive,
                                           "old_tutos": oldtutos})
 
 
@@ -2596,7 +2696,7 @@ def maj_repo_part(
             conclu.write(smart_str(conclusion).strip())
             conclu.close()
             index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
-                                )])
+                                    )])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
     if aut_email is None or aut_email.strip() == "":
@@ -2645,14 +2745,14 @@ def maj_repo_chapter(
                 os.makedirs(new_slug_path, mode=0o777)
             msg = "Creation du chapitre"
         if introduction is not None:
-             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
-             intro.write(smart_str(introduction).strip())
-             intro.close()
+            intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
+            intro.write(smart_str(introduction).strip())
+            intro.close()
         if conclusion is not None:
             conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
             conclu.write(smart_str(conclusion).strip())
             conclu.close()
-        if ph != None:
+        if ph is not None:
             index.add([ph])
 
     # update manifest
@@ -2700,9 +2800,9 @@ def maj_repo_extract(
     else:
         repo = Repo(os.path.join(settings.REPO_PATH, extract.chapter.part.tutorial.get_phy_slug()))
     index = repo.index
-    
+
     chap = extract.chapter
-    
+
     if action == "del":
         msg = "Suppression de l'exrait "
         extract.delete()
@@ -2750,20 +2850,35 @@ def maj_repo_extract(
         chap.part.tutorial.save()
 
 
+def insert_into_zip(zip_file, git_tree):
+    """recursively add files from a git_tree to a zip archive"""
+    for blob in git_tree.blobs:  # first, add files :
+        zip_file.writestr(blob.path, blob.data_stream.read())
+    if len(git_tree.trees) is not 0:  # then, recursively add dirs :
+        for subtree in git_tree.trees:
+            insert_into_zip(zip_file, subtree)
+
 
 def download(request):
     """Download a tutorial."""
-
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
-    ph = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
-    repo = Repo(ph)
-    repo.archive(open(ph + ".tar", "w"))
-    response = HttpResponse(open(ph + ".tar", "rb").read(),
-                            content_type="application/tar")
-    response["Content-Disposition"] = \
-        "attachment; filename={0}.tar".format(tutorial.slug)
-    return response
 
+    repo_path = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
+    repo = Repo(repo_path)
+    sha = tutorial.sha_draft
+    if 'online' in request.GET and tutorial.on_line():
+        sha = tutorial.sha_public
+    elif request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied  # Only authors can download draft version
+    zip_path = os.path.join(tempfile.gettempdir(), tutorial.slug + '.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    insert_into_zip(zip_file, repo.commit(sha).tree)
+    zip_file.close()
+    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/zip")
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(tutorial.slug)
+    os.remove(zip_path)
+    return response
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
@@ -2772,9 +2887,9 @@ def download_markdown(request):
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".md") 
+        tutorial.get_prod_path(),
+        tutorial.slug +
+        ".md")
     response = HttpResponse(
         open(phy_path, "rb").read(),
         content_type="application/txt")
@@ -2783,15 +2898,14 @@ def download_markdown(request):
     return response
 
 
-
 def download_html(request):
     """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".html")
+        tutorial.get_prod_path(),
+        tutorial.slug +
+        ".html")
     if not os.path.isfile(phy_path):
         raise Http404
     response = HttpResponse(
@@ -2802,15 +2916,14 @@ def download_html(request):
     return response
 
 
-
 def download_pdf(request):
     """Download a pdf tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".pdf")
+        tutorial.get_prod_path(),
+        tutorial.slug +
+        ".pdf")
     if not os.path.isfile(phy_path):
         raise Http404
     response = HttpResponse(
@@ -2821,15 +2934,14 @@ def download_pdf(request):
     return response
 
 
-
 def download_epub(request):
     """Download an epub tutorial."""
 
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
-                tutorial.get_prod_path(),
-                tutorial.slug +
-                ".epub")
+        tutorial.get_prod_path(),
+        tutorial.slug +
+        ".epub")
     if not os.path.isfile(phy_path):
         raise Http404
     response = HttpResponse(
@@ -2851,26 +2963,26 @@ def get_url_images(md_text, pt):
     if md_text is not None:
         imgs = re.findall(regex, md_text)
         for img in imgs:
-            real_url=img[1]
-            # decompose images 
+            real_url = img[1]
+            # decompose images
             parse_object = urlparse(real_url)
-            if parse_object.query!='':
+            if parse_object.query != '':
                 resp = parse_qs(urlparse(img[1]).query, keep_blank_values=True)
                 real_url = resp["u"][0]
                 parse_object = urlparse(real_url)
 
             # if link is http type
             if parse_object.scheme in ["http", "https", "ftp"] or \
-            parse_object.netloc[:3]=="www" or \
-            parse_object.path[:3]=="www":
+                    parse_object.netloc[:3] == "www" or \
+                    parse_object.path[:3] == "www":
                 (filepath, filename) = os.path.split(parse_object.path)
                 if not os.path.isdir(os.path.join(pt, "images")):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
-                down_path=os.path.abspath(os.path.join(pt, "images", filename))
+                down_path = os.path.abspath(os.path.join(pt, "images", filename))
                 try:
-                    urlretrieve(real_url, down_path)                    
+                    urlretrieve(real_url, down_path)
                     try:
                         ext = filename.split(".")[-1]
                         im = ImagePIL.open(down_path)
@@ -2895,6 +3007,7 @@ def get_url_images(md_text, pt):
                     if not os.path.exists(dstdir):
                         os.makedirs(dstdir)
                     shutil.copy(srcfile, dstroot)
+
                     try:
                         ext = dstroot.split(".")[-1]
                         im = ImagePIL.open(dstroot)
@@ -2914,39 +3027,39 @@ def sub_urlimg(g):
     start = g.group("start")
     url = g.group("url")
     parse_object = urlparse(url)
-    if parse_object.query!='':
+    if parse_object.query != '':
         resp = parse_qs(urlparse(url).query, keep_blank_values=True)
         parse_object = urlparse(resp["u"][0])
     (filepath, filename) = os.path.split(parse_object.path)
-    if filename!='':
-        mark= g.group("mark")
+    if filename != '':
+        mark = g.group("mark")
         ext = filename.split(".")[-1]
         if ext == "gif":
             if parse_object.scheme in ("http", "https") or \
-            parse_object.netloc[:3]=="www" or \
-            parse_object.path[:3]=="www":
+                    parse_object.netloc[:3] == "www" or \
+                    parse_object.path[:3] == "www":
                 url = os.path.join("images", filename.split(".")[0] + ".png")
             else:
                 url = (url.split(".")[0])[1:] + ".png"
         else:
             if parse_object.scheme in ("http", "https") or \
-            parse_object.netloc[:3]=="www" or \
-            parse_object.path[:3]=="www":
+                    parse_object.netloc[:3] == "www" or \
+                    parse_object.path[:3] == "www":
                 url = os.path.join("images", filename)
             else:
                 url = url[1:]
         end = g.group("end")
-        return start + mark+ url + end
+        return start + mark + url + end
     else:
         return start
-    
+
 
 def markdown_to_out(md_text):
     return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 
-def MEP(tutorial, sha):
+def mep(tutorial, sha):
     (output, err) = (None, None)
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
@@ -2957,8 +3070,8 @@ def MEP(tutorial, sha):
         except:
             shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
-    repo.head.reset(commit = sha, index=True, working_tree=True)
-    
+    repo.head.reset(commit=sha, index=True, working_tree=True)
+
     # collect md files
 
     fichiers = []
@@ -3017,11 +3130,11 @@ def MEP(tutorial, sha):
     out_file.close()
 
     # define whether to log pandoc's errors
-    
+
     pandoc_debug_str = ""
     if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = " 2>&1 | tee -a "+settings.PANDOC_LOG
-    
+        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+
     # load pandoc
 
     os.chdir(tutorial.get_prod_path())
@@ -3029,7 +3142,7 @@ def MEP(tutorial, sha):
               + "pandoc --latex-engine=xelatex -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".html"+pandoc_debug_str)
+                                         tutorial.slug) + ".html" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
               + "--template=../../assets/tex/template.tex " + "-s " + "-S "
               + "-N " + "--toc " + "-V documentclass=scrbook "
@@ -3038,16 +3151,16 @@ def MEP(tutorial, sha):
               + "-V geometry:margin=1in "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug) + ".md "
               + "-o " + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".pdf"+pandoc_debug_str)
+              + ".pdf" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
               + os.path.join(tutorial.get_prod_path(), tutorial.slug)
               + ".md -o " + os.path.join(tutorial.get_prod_path(),
-                                         tutorial.slug) + ".epub"+pandoc_debug_str)
+                                         tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 
 
-def UNMEP(tutorial):
+def un_mep(tutorial):
     if os.path.isdir(tutorial.get_prod_path()):
         try:
             shutil.rmtree(tutorial.get_prod_path())
@@ -3090,6 +3203,11 @@ def answer(request):
     if tutorial.last_note:
         last_note_pk = tutorial.last_note.pk
 
+    # Retrieve lasts notes of the current tutorial.
+    notes = Note.objects.filter(tutorial=tutorial) \
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
+
     # User would like preview his post or post a new note on the tutorial.
 
     if request.method == "POST":
@@ -3105,6 +3223,7 @@ def answer(request):
                 "tutorial": tutorial,
                 "last_note_pk": last_note_pk,
                 "newnote": newnote,
+                "notes": notes,
                 "form": form,
             })
         else:
@@ -3131,12 +3250,12 @@ def answer(request):
                     "tutorial": tutorial,
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
+                    "notes": notes,
                     "form": form,
                 })
     else:
 
         # Actions from the editor render to answer.html.
-
         text = ""
 
         # Using the quote button
@@ -3176,16 +3295,16 @@ def solve_alert(request):
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = \
         (u'Bonjour {0},'
-        u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-        u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
-        u'et il vous a laissé le message suivant :'
-        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-            alert.author.username,
-            note.author.username,
-            note.tutorial.title,
-            settings.SITE_URL + note.get_absolute_url(),
-            request.user.username,
-            request.POST["text"],))
+         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+         u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
+         u'et il vous a laissé le message suivant :'
+         u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
+             alert.author.username,
+             note.author.username,
+             note.tutorial.title,
+             settings.SITE_URL + note.get_absolute_url(),
+             request.user.username,
+             request.POST["text"],))
     send_mp(
         bot,
         [alert.author],

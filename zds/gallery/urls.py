@@ -21,4 +21,6 @@ urlpatterns = patterns('',
                            'zds.gallery.views.delete_image'),
                        url(r'^image/editer/(?P<gal_pk>\d+)/(?P<img_pk>\d+)/$',
                            'zds.gallery.views.edit_image'),
+                       url(r'^image/importer/(?P<gal_pk>\d+)/$',
+                           'zds.gallery.views.import_image'),
                        )

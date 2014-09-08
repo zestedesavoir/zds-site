@@ -20,8 +20,6 @@ urlpatterns = patterns('',
                            'zds.member.views.tutorials'),
                        url(r'^articles/$',
                            'zds.member.views.articles'),
-                       url(r'^actions/$',
-                           'zds.member.views.actions'),
 
                        url(r'^parametres/profil/$',
                            'zds.member.views.settings_profile'),

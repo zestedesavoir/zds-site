@@ -3,13 +3,6 @@
 from datetime import datetime
 import factory
 from git.repo import Repo
-try:
-    import ujson as json_reader
-except:
-    try:
-        import simplejson as json_reader
-    except:
-        import json as json_reader
 
 import json as json_writer
 import os
@@ -71,9 +64,10 @@ class ReactionFactory(factory.DjangoModelFactory):
 class VaidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
 
+
 class LicenceFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Licence
-    
+
     code = u'GNU_GPL'
     title = u'GNU General Public License'
 
@@ -81,4 +75,3 @@ class LicenceFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
         return licence
-    

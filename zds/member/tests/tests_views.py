@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import urllib
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
@@ -9,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory
-from zds.member.forms import RegisterForm, ChangeUserForm, ChangePasswordForm
 from zds.member.models import Profile
 
 from zds.member.models import TokenRegister, Ban
@@ -202,7 +199,6 @@ class MemberTests(TestCase):
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
         result = self.client.get(reverse('zds.member.views.login_view') + '?next='
-                                        + reverse('zds.member.views.details', args=[user.user.username]),
+                                 + reverse('zds.member.views.details', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
-
