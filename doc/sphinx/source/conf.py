@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Zeste de Savoir'
-copyright = u'2014, firm1'
+copyright = u'2014, zestedesavoir'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -233,8 +233,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'zestedesavoir', u'Zeste de Savoir Documentation',
-     [u'firm1'], 1)
+    ('index', 'zestedesavoir', u'Documentation Zeste de Savoir',
+     [u'zestedesavoir'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -247,8 +247,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ZesteDeSavoir', u'Zeste de Savoir Documentation',
-   u'firm1', 'ZesteDeSavoir', 'Description en ligne du projet.',
+  ('index', 'ZesteDeSavoir', u'Documentation Zeste de Savoir',
+   u'zestedesavoir', 'ZesteDeSavoir', 'Description en ligne du projet.',
    'Miscellaneous'),
 ]
 
