@@ -137,61 +137,6 @@ def interventions_privatetopics(user):
     return {'unread': privatetopics_unread}
 
 
-@register.simple_tag(name='reads_topic')
-def reads_topic(topic, user):
-    if user.is_authenticated():
-        if never_read_topic(topic, user):
-            return ''
-        else:
-            return 'secondary'
-    else:
-        return ''
-
-
-@register.simple_tag(name='reads_article')
-def reads_article(article, user):
-    if user.is_authenticated():
-        if never_read_article(article, user):
-            return ''
-        else:
-            return 'secondary'
-    else:
-        return ''
-
-
-@register.simple_tag(name='reads_tutorial')
-def reads_tutorial(tutorial, user):
-    if user.is_authenticated():
-        if never_read_tutorial(tutorial, user):
-            return ''
-        else:
-            return 'secondary'
-    else:
-        return ''
-
-
-@register.filter(name='alerts_validation_tutos')
-def alerts_validation_tutos(user):
-    tutos = TutoValidation.objects.order_by('-date_proposition').all()
-    total = []
-    for tuto in tutos:
-        if tuto.is_pending():
-            total.append(tuto)
-
-    return {'total': len(total), 'alert': total[:5]}
-
-
-@register.filter(name='alerts_validation_articles')
-def alerts_validation_articles(user):
-    articles = ArticleValidation.objects.order_by('-date_proposition').all()
-    total = []
-    for article in articles:
-        if article.is_pending():
-            total.append(article)
-
-    return {'total': len(total), 'alert': total[:5]}
-
-
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total = []
