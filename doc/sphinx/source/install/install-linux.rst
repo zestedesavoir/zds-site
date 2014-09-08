@@ -11,17 +11,17 @@ Les commandes suivantes sont génériques et indépendantes de la distribution q
 
 Assurez vous que les dépendances suivantes soient résolues :
 
-- git : `apt-get install git`
+- git : ``apt-get install git``
 - python2.7
-- python-dev : `apt-get install python-dev`
-- easy_install : `apt-get install python-setuptools`
-- pip : `easy_install pip`
-- libxml2-dev : `apt-get install libxml2-dev`
-- python-lxml : `apt-get install python-lxml`
+- python-dev : ``apt-get install python-dev``
+- easy_install : ``apt-get install python-setuptools``
+- pip : :bash:`easy_install pip`
+- libxml2-dev : ``apt-get install libxml2-dev``
+- python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
-- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : `apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev`
+- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
 
 Ou, en une ligne,
 
@@ -48,20 +48,20 @@ Instalation et configuration de `virtualenv`
     source zdsenv/bin/activate
 
 
-Une documentation plus complète de cet outil [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+Une documentation plus complète de cet outil `est disponible ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
 Front ou Back ?
 ===============
 
 Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources `ici <http://zestedesavoir.com/static/pack.zip>`_
-Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
+Il faudra l'extraire dans le dossier ``dist/`` à la racine de votre projet.
 
 Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
 
 Lancer ZdS
 ===============
 
-Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
+Une fois dans votre environnement python (``source ../bin/activate`` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
 
 .. sourcecode:: bash
 
