@@ -132,6 +132,13 @@ def unregister(request):
     for message in Comment.objects.filter(editor = current):
         message.editor = anonymous
         message.save()
+    for topic in PrivateTopic.objects.filter(author=current):
+        topic.participants.remove(current)
+        if topic.participants.count() > 0:
+            topic.author = topic.participants.first()
+            topic.save()
+        else:
+            topic.delete()
     for topic in PrivateTopic.objects.filter(participants__in =[current]):
         topic.participants.remove(current)
         if topic.author.username == current.username:
