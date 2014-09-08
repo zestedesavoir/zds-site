@@ -291,11 +291,8 @@ class MemberTests(TestCase):
         editedAnswer.save()
         privateTopic = PrivateTopicFactory(author=user.user)
         privateTopic.participants.add(user2.user)
-        privateTopic.participants.add(user.user)
         privateTopic.save()
-
         PrivatePostFactory(author=user.user, privatetopic=privateTopic, position_in_topic=1)
-        a = privateTopic.participants.count()
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
