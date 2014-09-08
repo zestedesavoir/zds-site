@@ -136,13 +136,12 @@ def unregister(request):
         topic.participants.remove(current)
         if topic.participants.count() > 0:
             topic.author = topic.participants.first()
+            topic.participants.remove(topic.author)
             topic.save()
         else:
             topic.delete()
     for topic in PrivateTopic.objects.filter(participants__in =[current]):
         topic.participants.remove(current)
-        if topic.author.username == current.username:
-            topic.author=anonymous
         topic.save()
     for topic in Topic.objects.filter(author = current):
         topic.author = anonymous

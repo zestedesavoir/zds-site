@@ -323,7 +323,7 @@ class MemberTests(TestCase):
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
         self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
-        self.assertEqual(privateTopic.participants.count(), 1)
+
 
     def test_sanctions(self):
         """Test various sanctions."""
