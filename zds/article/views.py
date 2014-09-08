@@ -13,6 +13,8 @@ except:
 import json as json_writer
 import os
 import shutil
+import zipfile
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -66,12 +68,12 @@ def index(request):
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     return render_template('article/index.html', {
         'articles': article_versions,
@@ -214,7 +216,7 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory'), 
+                'subcategory': request.POST.getlist('subcategory'),
                 'licence': request.POST['licence']
             })
             return render_template('article/member/new.html', {
@@ -296,6 +298,28 @@ def edit(request):
 
     json = article.load_json()
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            licence = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            if 'licence' in request.POST:
+                licence = request.POST['licence']
+            form = ArticleForm(initial={
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory'),
+                'licence': licence
+            })
+            return render_template('article/member/edit.html', {
+                'article': article,
+                'text': request.POST['text'],
+                'form': form
+            })
+
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             # Update article with data.
@@ -318,7 +342,6 @@ def edit(request):
                     article.licence = Licence.objects.get(
                         pk=settings.DEFAULT_LICENCE_PK
                     )
-            
 
             article.save()
 
@@ -361,12 +384,12 @@ def find_article(request, pk_user):
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
-    
+
     article_versions = []
     for article in articles:
         article_version = article.load_json_for_public()
         article_version = article.load_dic(article_version)
-        article_versions.append(article_version) 
+        article_versions.append(article_version)
 
     # Paginator
     return render_template('article/find.html', {
@@ -418,26 +441,33 @@ def maj_repo_article(
         article.sha_draft = com.hexsha
         article.save()
 
+def insert_into_zip(zip_file, git_tree):
+    """recursively add files from a git_tree to a zip archive"""
+    for blob in git_tree.blobs: # first, add files :
+        zip_file.writestr(blob.path, blob.data_stream.read())
+    if len(git_tree.trees) is not 0: # then, recursively add dirs :
+        for subtree in git_tree.trees:
+            insert_into_zip(zip_file, subtree)
+
 
 def download(request):
     """Download an article."""
-
-    article = get_object_or_404(Article, pk=request.GET['article'])
-
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
-    repo = Repo(ph)
-    repo.archive(open(ph + ".tar", 'w'))
-
-    response = HttpResponse(
-        open(
-            ph +
-            ".tar",
-            'rb').read(),
-        mimetype='application/tar')
-    response[
-        'Content-Disposition'] = 'attachment; filename={0}.tar' \
-        .format(article.slug)
-
+    article = get_object_or_404(Article, pk=request.GET["article"])
+    repo_path = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
+    repo = Repo(repo_path)
+    sha = article.sha_draft
+    if 'online' in request.GET and article.on_line():
+        sha = article.sha_public
+    elif request.user not in article.authors.all():
+        if not request.user.has_perm('article.change_article'):
+            raise PermissionDenied # Only authors can download draft version
+    zip_path = os.path.join(tempfile.gettempdir(),article.slug+'.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    insert_into_zip(zip_file, repo.commit(sha).tree)
+    zip_file.close()
+    response = HttpResponse(open(zip_path , "rb").read(), content_type="application/zip")
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(article.slug)
+    os.remove(zip_path)
     return response
 
 # Validation
@@ -611,6 +641,14 @@ def modify(request):
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
+            old_validation = Validation.objects.filter(article__pk=article_pk,
+                              status__in=['PENDING_V']).first()
+            if old_validation is not None:
+                old_validator = old_validation.validator
+                old_reserve_date = old_validation.date_reserve
+            else:
+                old_validator = None
+                old_reserve_date = None
             # Delete old pending validation
             Validation.objects.filter(article__pk=article_pk,
                                       status__in=['PENDING','PENDING_V'])\
@@ -623,6 +661,25 @@ def modify(request):
             validation.date_proposition = datetime.now()
             validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
+
+            if old_validator is not None:
+                validation.validator = old_validator
+                validation.date_reserve
+                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                msg = \
+                    (u'Bonjour {0},\n\n'
+                    u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
+                    u'pour retrouver les modifications qui ont été faites, je t\'invite à'
+                    u'consulter l\'historique des versions'
+                    u'\n\nMerci'.format(old_validator.username, article.title))
+                send_mp(
+                    bot,
+                    [old_validator],
+                    u"Mise à jour d'article : {0}".format(article.title),
+                    "En validation",
+                    msg,
+                    False,
+                )
 
             validation.save()
 
@@ -652,6 +709,30 @@ def modify(request):
                 u'la rédaction de l\'article.'.format(
                     author.username))
 
+            # send msg to new author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Articles" sur la page de ton profil.\n\n'
+                u'Tu peux maintenant commencer à rédiger !'.format(
+                author.username,
+                article.title,
+                settings.SITE_URL + article.get_absolute_url(),
+                settings.SITE_URL + reverse("zds.member.views.articles"))
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Ajout en tant qu'auteur : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
@@ -674,6 +755,27 @@ def modify(request):
                 request,
                 u'L\'auteur {0} a bien été retiré de l\'article.'.format(
                     author.username))
+
+            # send msg to removed author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
+                author.username,
+                article.title,
+                settings.SITE_URL + article.get_absolute_url())
+            )
+            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            send_mp(
+                bot,
+                [author],
+                u"Suppression des auteurs : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
 
             return redirect(redirect_url)
 
@@ -869,17 +971,18 @@ def answer(request):
     if article.antispam(request.user):
         raise PermissionDenied
 
-    # Retrieve 3 last reactions of the currenta article.
-    reactions = Reaction.objects\
-        .filter(article=article)\
-        .order_by('-pubdate')[:3]
-
     # If there is a last reaction for the article, we save his pk.
     # Otherwise, we save 0.
     if article.last_reaction:
         last_reaction_pk = article.last_reaction.pk
     else:
         last_reaction_pk = 0
+    
+    # Retrieve lasts reactions of the current topic.
+    reactions = Reaction.objects.filter(article=article) \
+    .prefetch_related() \
+    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
+
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -895,6 +998,7 @@ def answer(request):
                 'article': article,
                 'last_reaction_pk': last_reaction_pk,
                 'newreaction': newreaction,
+                'reactions': reactions,
                 'form': form
             })
 
@@ -923,6 +1027,7 @@ def answer(request):
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
+                    'reactions': reactions,
                     'form': form
                 })
 

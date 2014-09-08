@@ -118,7 +118,7 @@
             selected = selected || this.selected;
             var input = this.$input.val();
             var lastChar = input.substr(-1);
-            if((lastChar === "," || lastChar === " " || selected === -1) && this.options.type === "multiple")
+            if((lastChar === "," || selected === -1) && this.options.type === "multiple")
                 return false;
 
             var completion = this.getFromCache(selected);
@@ -126,9 +126,9 @@
                 return false;
 
             if(this.options.type === "multiple") {
-                var lastSpace = input.replace(",", " ").lastIndexOf(" ");
-                if(lastSpace){
-                    input = input.substr(0, lastSpace + 1) + completion.value + ", ";
+                var lastComma = input.lastIndexOf(",");
+                if(lastComma !== -1){
+                    input = input.substr(0, lastComma + 2) + completion.value + ", ";
                     this.$input.val(input);
                 } else {
                     this.$input.val(completion.value + ", ");
@@ -148,9 +148,9 @@
         },
 
         extractWords: function(input){
-            input = input.replace(/ /g, ","); // Replace space with comas
+            //input = input.replace(/ /g, ","); // Replace space with comas
             var words = $.grep(
-                input.split(","),  // Remove empty
+                $.map(input.split(","), $.trim),  // Remove empty
                 function(e){
                     return e === "" || e === undefined;
                 },
@@ -162,8 +162,7 @@
 
         parseInput: function(input){
             if(this.options.type === "multiple") {
-                var lastChar = input.substr(-1);
-                if(lastChar === "," || lastChar === " ")
+                if(input.substr(-1) === "," || input.substr(-2) === ", ")
                     return false;
 
                 var words = this.extractWords(input);

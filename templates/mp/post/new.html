@@ -46,4 +46,20 @@
     {% if form.text.value %}
         {% include "misc/previsualization.part.html" with text=form.text.value %}
     {% endif %}
+
+    <hr />
+
+    <div class="content-wrapper">
+        {% for message in posts %}
+            {% captureas edit_link %}
+                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% captureas cite_link %}
+                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% endcaptureas %}
+
+            {% include "misc/message.part.html" %}
+        {% endfor %}
+    </div>
 {% endblock %}

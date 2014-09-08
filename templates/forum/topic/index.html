@@ -11,8 +11,6 @@
     {% if topic.is_solved %}[Résolu]{% endif %} {{ topic.title }}
 {% endblock %}
 
-
-
 {% block breadcrumb %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a href="{{ topic.forum.category.get_absolute_url }}" itemprop="url">

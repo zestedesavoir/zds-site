@@ -393,9 +393,8 @@ class AskValidationForm(forms.Form):
             StrictButton(
                 'Confirmer',
                 type='submit'),
-            Hidden(
-                'tutorial', '{{ tutorial.pk }}'), Hidden(
-                'version', '{{ version }}'), )
+            Hidden('tutorial', '{{ tutorial.pk }}'), 
+            Hidden('version', '{{ version }}'), )
 
 
 class ValidForm(forms.Form):

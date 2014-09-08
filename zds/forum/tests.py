@@ -9,12 +9,12 @@ from zds.utils import slugify
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentLike, CommentDislike, Alert
+from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 from django.core import mail
 
 from .models import Post, Topic, TopicFollowed, TopicRead
 from zds.forum.views import get_tag_by_title
-from zds.forum.models import get_topics
+from zds.forum.models import get_topics, Forum
 
 class ForumMemberTests(TestCase):
 
@@ -48,6 +48,25 @@ class ForumMemberTests(TestCase):
             password='hostel77')
         self.assertEqual(log, True)
 
+    def feed_rss_display(self):
+        """Test each rss feed feed"""
+        response = self.client.get(reverse('post-feed-rss'), follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            response = self.client.get(reverse('post-feed-rss')+"?forum={}".format(forum.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+        
+        for tag in Tag.objects.all():
+            response = self.client.get(reverse('post-feed-rss')+"?tag={}".format(tag.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+        
+        for forum in Forum.objects.all():
+            for tag in Tag.objects.all():
+                response = self.client.get(reverse('post-feed-rss')+"?tag={}&forum={}".format(tag.pk, forum.pk), follow=False)
+                self.assertEqual(response.status_code, 200)
+
+        
     def test_display(self):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
@@ -674,6 +693,24 @@ class ForumGuestTests(TestCase):
             category=self.category2,
             position_in_category=2)
         self.user = ProfileFactory().user
+
+    def feed_rss_display(self):
+        """Test each rss feed feed"""
+        response = self.client.get(reverse('post-feed-rss'), follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        for forum in Forum.objects.all():
+            response = self.client.get(reverse('post-feed-rss')+"?forum={}".format(forum.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+        
+        for tag in Tag.objects.all():
+            response = self.client.get(reverse('post-feed-rss')+"?tag={}".format(tag.pk), follow=False)
+            self.assertEqual(response.status_code, 200)
+        
+        for forum in Forum.objects.all():
+            for tag in Tag.objects.all():
+                response = self.client.get(reverse('post-feed-rss')+"?tag={}&forum={}".format(tag.pk, forum.pk), follow=False)
+                self.assertEqual(response.status_code, 200)
 
     def test_display(self):
         """Test forum display (full: root, category, forum) Topic display test

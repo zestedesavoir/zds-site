@@ -2,7 +2,19 @@
 
 import os
 import shutil
+import tempfile
+import zipfile
+
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
 import HTMLParser
+from django.db.models import Q
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -10,6 +22,7 @@ from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.utils import html
 
+from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
@@ -106,6 +119,7 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.first_validator = self.staff
 
         # publish tutorial
         pub = self.client.post(
@@ -481,6 +495,10 @@ class BigTutorialTests(TestCase):
     def test_workflow_tuto(self):
         """Test workflow of tutorial."""
         
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         # logout before
         self.client.logout()
         # login with simple member
@@ -970,6 +988,7 @@ class BigTutorialTests(TestCase):
         
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
+        
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
             {
@@ -980,7 +999,7 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-
+	
         # logout before
         self.client.logout()
         # login with staff member
@@ -997,6 +1016,49 @@ class BigTutorialTests(TestCase):
             reverse('zds.tutorial.views.reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
+	old_validator = self.staff
+	old_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
+
+	# logout staff before
+        self.client.logout()
+        # login with simple member
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+	# ask public tutorial again
+	pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': tuto.pk,
+                'text': u'Nouvelle demande de publication',
+                'version': tuto.sha_draft,
+                'source': 'www.zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+	# old validator stay
+	validation = Validation.objects.filter(tutorial__pk=tuto.pk).last()
+	self.assertEqual(old_validator, validation.validator)
+	
+	#new MP for staff
+	new_mps_count = PrivateTopic.objects\
+			.filter(Q(author=old_validator)|Q(participants__in=[old_validator]))\
+			.count()
+	self.assertEqual((new_mps_count-old_mps_count), 1)
+	# logout before
+        self.client.logout()
+        # login with staff member
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
 
         # publish tutorial
         pub = self.client.post(
@@ -1691,7 +1753,9 @@ class BigTutorialTests(TestCase):
 
     def test_workflow_beta_tuto(self) :
         "Ensure the behavior of the beta version of tutorials"
-
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
         # logout before
         self.client.logout()
 
@@ -2070,6 +2134,177 @@ class BigTutorialTests(TestCase):
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
         self.assertEquals(json['licence'], self.licence.code)
+
+    def test_workflow_archive_tuto(self):
+        """ensure the behavior of archive with a big tutorial"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # modify tutorial, add a new extract (NOTE: zipfile does not ensure UTF-8):
+        extract_content = u'Le contenu de l\'extrait'
+        extract_title = u'Un titre d\'extrait'
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter2_1.pk),
+            {
+            'title' : extract_title,
+            'text' : extract_content
+            })
+        self.assertEqual(result.status_code, 302)
+
+         # now, draft and public version are not the same
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.sha_draft, tutorial.sha_public)
+        # store extract
+        added_extract = Extract.objects.get(chapter=Chapter.objects.get(pk=self.chapter2_1.pk))
+
+        # fetch archives :
+        # 1. draft version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+        # 2. online version :
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
+        f = open(online_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        # note : path is "/2_ma-partie-no2/4_mon-chapitre-no4/"
+        # now check if modification are in draft version of archive and not in the public one
+        draft_zip = zipfile.ZipFile(draft_zip_path, 'r')
+        online_zip = zipfile.ZipFile(online_zip_path, 'r')
+
+        # first, test in manifest
+        online_manifest= json_reader.loads(online_zip.read('manifest.json'))
+        found = False
+        for part in online_manifest['parts']:
+            if part['pk'] == self.part2.pk:
+                for chapter in part['chapters']:
+                    if chapter['pk'] == self.chapter2_1.pk:
+                        for extract in chapter['extracts']:
+                            if extract['pk'] == added_extract.pk:
+                                found = True
+        self.assertFalse(found) # extract cannot exists in the online version
+
+        draft_manifest= json_reader.loads(draft_zip.read('manifest.json'))
+        extract_in_manifest = []
+        for part in draft_manifest['parts']:
+            if part['pk'] == self.part2.pk:
+                for chapter in part['chapters']:
+                    if chapter['pk'] == self.chapter2_1.pk:
+                        for extract in chapter['extracts']:
+                            if extract['pk'] == added_extract.pk:
+                                found = True
+                                extract_in_manifest = extract
+        self.assertTrue(found) # extract exists in draft version
+        self.assertEqual(extract_in_manifest['title'], extract_title)
+        #self.assertEqual(extract_in_manifest['text'], extract_content)
+
+        # and then, test the file directly :
+        found = True
+        try:
+            online_zip.getinfo(extract_in_manifest['text'])
+        except KeyError:
+            found=False
+        self.assertFalse(found) # extract cannot exists in the online version
+
+        found = True
+        try:
+            info = draft_zip.getinfo(extract_in_manifest['text'])
+        except KeyError:
+            found=False
+        self.assertTrue(found) # extract exists in the draft one
+        self.assertEqual(draft_zip.read(extract_in_manifest['text']), extract_content)  # content is good
+
+        draft_zip.close()
+        online_zip.close()
+
+        # then logout and test access
+        self.client.logout()
+
+        # public cannot access to draft version of tutorial
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # ... but can access to online version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # login with random user
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # cannot access to draft version of tutorial (if not author or staff)
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # but can access to online one
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.client.logout()
+
+        # login with staff user
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+
+        # staff can access to draft version of tutorial
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # ... and also to online version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # finally, clean up things:
+        os.remove(draft_zip_path)
+        os.remove(online_zip_path)
+
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
@@ -2837,6 +3072,10 @@ class MiniTutorialTests(TestCase):
     def test_workflow_beta_tuto(self) :
         "Ensure the behavior of the beta version of tutorials"
 
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         # logout before
         self.client.logout()
 
@@ -3030,6 +3269,10 @@ class MiniTutorialTests(TestCase):
 
     def test_workflow_tuto(self):
         """Test workflow of mini tutorial."""
+        
+        forum = ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
 
         # logout before
         self.client.logout()
@@ -3305,6 +3548,166 @@ class MiniTutorialTests(TestCase):
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
         self.assertEquals(json['licence'], self.licence.code)
+
+    def test_workflow_archive_tuto(self):
+        """ensure the behavior of archive with a mini tutorial"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # modify tutorial, add a new extract (NOTE: zipfile does not ensure UTF-8) :
+        extract_title = u'Un titre d\'extrait'
+        extract_content = u'To be or not to be, that\'s the question (extract of Hamlet)'
+        result = self.client.post(
+            reverse( 'zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+            {
+            'title' : extract_title,
+            'text' : extract_content
+            })
+        self.assertEqual(result.status_code, 302)
+
+         # now, draft and public version are not the same
+        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertNotEqual(tutorial.sha_draft, tutorial.sha_public)
+        # store extract
+        added_extract = Extract.objects.get(chapter=Chapter.objects.get(pk=self.chapter.pk))
+
+        # fetch archives :
+        # 1. draft version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+        # 2. online version :
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
+        f = open(online_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        # now check if modification are in draft version of archive and not in the public one
+        draft_zip = zipfile.ZipFile(draft_zip_path, 'r')
+        online_zip = zipfile.ZipFile(online_zip_path, 'r')
+
+        # first, test in manifest
+        online_manifest= json_reader.loads(online_zip.read('manifest.json'))
+        found = False
+        for extract in online_manifest['chapter']['extracts']:
+            if extract['pk'] == added_extract.pk:
+                found = True
+        self.assertFalse(found) # extract cannot exists in the online version
+
+        draft_manifest= json_reader.loads(draft_zip.read('manifest.json'))
+        extract_in_manifest = []
+        for extract in draft_manifest['chapter']['extracts']:
+            if extract['pk'] == added_extract.pk:
+                found = True
+                extract_in_manifest = extract
+        self.assertTrue(found) # extract exists in draft version
+        self.assertEqual(extract_in_manifest['title'], extract_title)
+
+        # and then, test the file directly :
+        found = True
+        try:
+            online_zip.getinfo(extract_in_manifest['text'])
+        except KeyError:
+            found=False
+        self.assertFalse(found) # extract cannot exists in the online version
+
+        found = True
+        try:
+            info = draft_zip.getinfo(extract_in_manifest['text'])
+        except KeyError:
+            found=False
+        self.assertTrue(found) # extract exists in the draft one
+        self.assertEqual(draft_zip.read(extract_in_manifest['text']), extract_content)  # content is good
+
+        draft_zip.close()
+        online_zip.close()
+
+        # then logout and test access
+        self.client.logout()
+
+        # public cannot access to draft version of tutorial
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # ... but can access to online version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # login with random user
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # cannot access to draft version of tutorial (if not author or staff)
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # but can access to online one
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.client.logout()
+
+        # login with staff user
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+
+        # staff can access to draft version of tutorial
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # ... and also to online version
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}&online'.format(
+                self.minituto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # finally, clean up things:
+        os.remove(draft_zip_path)
+        os.remove(online_zip_path)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):

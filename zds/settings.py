@@ -253,6 +253,9 @@ REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
 REPO_PATH_PROD = os.path.join(SITE_ROOT, 'tutoriels-public')
 REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 
+# Constant for tags
+TOP_TAG_MAX = 2
+
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
@@ -263,7 +266,11 @@ SPAM_LIMIT_SECONDS = 60 * 15
 SPAM_LIMIT_PARTICIPANT = 2
 FOLLOWED_TOPICS_PER_PAGE = 21
 
+#username of the bot who send MP
 BOT_ACCOUNT = 'admin'
+
+#primary key of beta forum
+BETA_FORUM_ID = 1
 
 PANDOC_LOC = ''
 # LOG PATH FOR PANDOC LOGGING

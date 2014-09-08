@@ -110,7 +110,7 @@ class Article(models.Model):
             '?article={0}'.format(self.pk)
 
     def on_line(self):
-        return self.sha_public is not None
+        return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def in_validation(self):
         return self.sha_validation is not None
