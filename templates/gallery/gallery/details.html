@@ -33,6 +33,9 @@
     <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
         Ajouter une image
     </a>
+    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="new-btn ico-after more blue">
+        Importer une archive
+    </a>
 {% endblock %}
 
 
@@ -80,7 +83,7 @@
                     </div>
                     <div class="topic-description">
                         <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
-                            <img src="{{ img.physical.url }}"
+                            <img src="{{ img.physical.gallery.url }}"
                                  data-caption="{{ img.title }}"
                                  alt="{{ img.title }}"
                                  class="topic-image"

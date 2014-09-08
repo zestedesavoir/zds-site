@@ -18,7 +18,13 @@ def send_mp(
         send_by_mail=True,
         leave=True,
         direct=False):
-    """Send MP at members."""
+    """
+    Send MP at members.
+
+    Most of the param are obvious, excepted :
+    * direct : send a mail directly without mp (ex : ban members who wont connect again)
+    * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
+    """
 
     # Creating the thread
     n_topic = PrivateTopic()

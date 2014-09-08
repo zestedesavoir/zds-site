@@ -64,7 +64,7 @@ pip install --upgrade -r requirements.txt
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-python manage.py loaddata fixtures/users.yaml fixtures/forums.yaml fixtures/topics.yaml fixtures/mps.yaml fixtures/categories.yaml fixtures/licences.yaml
+python manage.py loaddata fixtures/*.yaml
 
 ```
 
@@ -80,6 +80,14 @@ Cela va créer plusieurs entitées :
 * 1 message privé (MP) avec 3 participants
 * 3 catégories et 2 sous-catégories
 
+
+### Génération de la documentation complète
+
+La documenation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site.
+
+Pour générer la documentation rendez vous dans le répertoire `zds-site/doc/sphinx` depuis votre terminal, et lancez la commande `make html`.
+
+Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/sphinx/build/html/index.html`
 
 ### Conseils de developpement
 

@@ -88,5 +88,20 @@
                 </ul>
             {% endfor %}
         {% endwith %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+            <h3>Flux</h3>
+            <ul>
+                <li>
+                    <a href="{% url "tutorial-feed-rss" %}" class="ico-after rss blue">
+                        Nouveaux tutoriels (RSS)
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "tutorial-feed-atom" %}" class="ico-after rss blue">
+                        Nouveaux tutoriels (ATOM)
+                    </a>
+                </li>
+            </ul>
+        </div>
     </aside>
 {% endblock %}

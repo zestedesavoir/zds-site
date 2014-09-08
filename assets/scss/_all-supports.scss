@@ -134,13 +134,12 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
-    // TODO : Améliorer l'image du logo (prendre la version vecto et faire une image à fond transparent)
-    background: url('../images/logo.png') no-repeat center center;
+    background-image: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
 
     &:hover,
     &:focus {
-        opacity: .7;
+        background-color: $header-hover;
     }
 }
 
@@ -591,6 +590,10 @@
     margin: 0 0 15px 2%;
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
+
+    .alert-box-text {
+        display: block;
+    }
 
     .close-alert-box {
         display: block;
@@ -2024,7 +2027,8 @@
         }
 
         // Code inline
-        p code {
+        p code,
+        li code {
             color: #A00;
             background: #EEE;
             border: 1px solid #CCC;
@@ -2600,7 +2604,7 @@ form.topic-message {
     background: #777;
 
     &.staff {
-        background: #48a200;
+        background: $upvote-green;
     }
 }
 

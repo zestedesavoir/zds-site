@@ -5,7 +5,7 @@ var gulp = require("gulp"),
     mainBowerFiles = require('main-bower-files');
 
 var paths = {
-  scripts: "assets/js/**",
+  scripts: ["assets/js/**", "!assets/js/_**"],
   images: "assets/images/**",
   smileys: "assets/smileys/**",
   errors_main: "errors/scss/main.scss",
@@ -121,11 +121,13 @@ gulp.task("smileys", function() {
 });
 
 gulp.task("vendors", function() {
-  return gulp.src(mainBowerFiles())
+  var vendors = mainBowerFiles();
+  vendors.push("assets/js/_**");
+
+  return gulp.src(vendors)
     .pipe($.newer("dist/js/vendors.js"))
     .pipe($.flatten()) // remove folder structure
     .pipe($.size({ title: "vendors", showFiles: true }))
-    .pipe(gulp.dest("dist/js/vendors"))
     .pipe($.concat("vendors.js"))
     .pipe($.size({ title: "vendors.js" }))
     .pipe(gulp.dest("dist/js"))
