@@ -1,72 +1,73 @@
-Cette page détaille le _workflow_ utilisé sur Zeste de Savoir. Elle est là surtout pour satisfaire votre curiosité, à moins d'avoir les droits de faire une Mise En Production (MEP). La [page de contribution](CONTRIBUTING.md) devrait répondre à vos questions quant au processus de développement.
+Cette page dÃ©taille le _workflow_ utilisÃ© sur Zeste de Savoir. Elle est lÃ  surtout pour satisfaire votre curiositÃ©, Ã  moins d'avoir les droits de faire une Mise En Production (MEP). La [page de contribution](CONTRIBUTING.md) devrait rÃ©pondre Ã  vos questions quant au processus de dÃ©veloppement.
 
-Ce _workflow_ est très fortement basé sur le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/).
+Ce _workflow_ est trÃ¨s fortement basÃ© sur le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/).
 
-# _Workflow_ général
+# _Workflow_ gÃ©nÃ©ral
 
-L'idée générale est très simple :
+L'idÃ©e gÃ©nÃ©rale est trÃ¨s simple :
 
-- Le développement se fait sur la branche `dev`
+- Le dÃ©veloppement se fait sur la branche `dev`
 - La branche `prod` contient la version en production
-- Lorsqu'on juge qu'on a assez de matière pour un nouveau déploiement, on crée une branche dédiée (par exemple `release-v1.7`), qui est testée en pré-production et corrigée sur cette branche
-- En cas de bug ultra-urgent à corriger en production, on crée une branche spéciale
+- Lorsqu'on juge qu'on a assez de matiÃ¨re pour un nouveau dÃ©ploiement, on crÃ©e une branche dÃ©diÃ©e (par exemple `release-v1.7`), qui est testÃ©e en prÃ©-production et corrigÃ©e sur cette branche
+- En cas de bug ultra-urgent Ã  corriger en production, on crÃ©e une branche spÃ©ciale
 
-# _Workflow_ de développement
+# _Workflow_ de dÃ©veloppement
 
 ## Description
 
-1. Les arrivées fonctionnalités et corrections de gros bugs se font via des _Pull Requests_ (PR) depuis des _forks_.
-1. Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera accepté ; la règle est : une fonctionnalité ou une correction = une PR.
-1. Ces PR sont mergées dans la branche `dev` (appelée `develop` dans le git flow standard), après une _Quality Assurance_ (QA) légère. `dev` ne devrait contenir que des merge de PR, aucun commit direct.
-1. La branche `prod` (appelée `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
+1. Les arrivÃ©es fonctionnalitÃ©s et corrections de gros bugs se font via des _Pull Requests_ (PR) depuis des _forks_.
+2. Ces PR sont unitaires. Aucune PR qui corrige plusieurs problÃ¨mes ou apporte plusieurs fonctionnalitÃ© ne sera acceptÃ© ; la rÃ¨gle est : une fonctionnalitÃ© ou une correction = une PR.
+3. Ces PR sont mergÃ©es dans la branche `dev` (appelÃ©e `develop` dans le git flow standard), aprÃ¨s une _Quality Assurance_ (QA) lÃ©gÃ¨re.
+4. La branche `prod` (appelÃ©e `master` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre _commit_ dessus !
+5. Les branches du dÃ©pÃ´t principal (`dev`, `prod` et la branche de release) ne devraient contenir que des merge de PR, aucun commit direct.
 
-## Quelques précisions
+## Quelques prÃ©cisions
 
-**Où peut-on trouver les détails pratiques ?**
+**OÃ¹ peut-on trouver les dÃ©tails pratiques ?**
 
-Tous ces détails sont [dans la page de contribution](CONTRIBUTING.md). On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
+Tous ces dÃ©tails sont [dans la page de contribution](CONTRIBUTING.md). On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
 
-**Qu'est-ce qu'une "QA légère"** ?
+**Qu'est-ce qu'une "QA lÃ©gÃ¨re"** ?
 
-C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-tester l'intégralité du site. Concrètement, cela implique :
+C'est s'assurer que le code fait ce qu'il devrait sans passer des heures Ã  re-tester l'intÃ©gralitÃ© du site. ConcrÃ¨tement, cela implique :
 
 - Une revue de code
-- La vérification que des tests correspondants à la fonctionnalité ou à la correction sont présents, cohérents et passent
-- Des tests manuels dans le cas de fonctionnalités ou corrections complexes et/ou critiques (au cas par cas)
+- La vÃ©rification que des tests correspondants Ã  la fonctionnalitÃ© ou Ã  la correction sont prÃ©sents, cohÃ©rents et passent
+- Des tests manuels dans le cas de fonctionnalitÃ©s ou corrections complexes et/ou critiques (au cas par cas)
 
 # _Workflow_ de mise en production
 
 ## Description
 
-1. Quand on a assez de nouveautés dans `dev` (mais pas trop), on décide de faire une _release_. L'idée est de pouvoir vérifier et corriger les problèmes de cette _release_ rapidement, en moins de 2 semaines entre le lancement de la release et sa MEP.
-    1. Création d'une **nouvelle branche de release** du nom de la version (par exemple `release-v1.7`)
-	1. Déploiement de cette branche sur l'environnement de pré-production, avec un _dump_ de données de production
-	1. Tests les plus complets possibles sur ce nouvel environnement
-	1. Corrections éventuelles sur cette branche de _release_. Les corrections **ne sont pas remontées sur `dev`** au fur et à mesure. Cf ci-dessous pour les détails.
-1. Lorsqu'on a bien testé cette branche, on la met en production :
+1. Quand on a assez de nouveautÃ©s dans `dev` (mais pas trop), on dÃ©cide de faire une _release_. L'idÃ©e est de pouvoir vÃ©rifier et corriger les problÃ¨mes de cette _release_ rapidement, en moins de 2 semaines entre le lancement de la release et sa MEP.
+    1. CrÃ©ation d'une **nouvelle branche de release** du nom de la version (par exemple `release-v1.7`)
+	2. DÃ©ploiement de cette branche sur l'environnement de prÃ©-production, avec un _dump_ de donnÃ©es de production
+	3. Tests les plus complets possibles sur ce nouvel environnement
+	4. Corrections Ã©ventuelles sur cette branche de _release_. Les corrections **ne sont pas remontÃ©es sur `dev`** au fur et Ã  mesure. Cf ci-dessous pour les dÃ©tails.
+2. Lorsqu'on a bien testÃ© cette branche, on la met en production :
 	1. Merge de la branche de _release_ dans `dev`
-	1. Merge de la branche de _release_ dans `prod`
-	1. Tag avec la nouvelle version
-	1. Mise en production sur le serveur
-	1. Suppression de la branche de _release_, devenue inutile
+	2. Merge de la branche de _release_ dans `prod`
+	3. Tag avec la nouvelle version
+	4. Mise en production sur le serveur
+	5. Suppression de la branche de _release_, devenue inutile
 	
-Le temps maximum entre la création d'une branche de _release_ et sa mise en production est de **deux semaines**. Au-delà on considère qu'il y a trop de problèmes et qu'ils risquent de bloquer le développement :
+Le temps maximum entre la crÃ©ation d'une branche de _release_ et sa mise en production est de **deux semaines**. Au-delÃ  on considÃ¨re qu'il y a trop de problÃ¨mes et qu'ils risquent de bloquer le dÃ©veloppement :
 
 1. Merge des corrections de la branche de _release_ dans `dev`
-1. Pas de mise en production
-1. Suppression de la branche de _release_, devenue inutile
+2. Pas de mise en production
+3. Suppression de la branche de _release_, devenue inutile
 
-## En cas de problèmes sur la release
+## En cas de problÃ¨mes sur la release
 
-Vous l'avez lu : les corrections de `master` **ne sont pas remontées sur `dev`** au fur et à mesure. La raison est que ça prends du temps, de l'énergie et que ça fait beaucoup de merges croisés. Donc toutes les corrections sont remontées en même temps lors de la mise en production. Conséquences :
+Vous l'avez lu : les corrections de `master` **ne sont pas remontÃ©es sur `dev`** au fur et Ã  mesure. La raison est que Ã§a prends du temps, de l'Ã©nergie et que Ã§a fait beaucoup de merges croisÃ©s. Donc toutes les corrections sont remontÃ©es en mÃªme temps lors de la mise en production. ConsÃ©quences :
 
-- Si vous bossez sur `dev` pendant qu'une _release_ est en cours, pas la peine de corriger un bug déjà corrigé sur la _release_ : la PR serait refusée (pour cause de doublon).
-- Si un _gros_ problème est détecté sur la _release_ et qu'il est correctible en un temps raisonnable :
-	1. Il est corrigé sur la branche de _release_.
-	1. Les merges de PR sur `dev` qui impliquent un risque même vague de conflit sont bloqués.
-	1. S'il y a quand même un conflit (à cause d'une PR mergée sur `dev` avant la détection du problème), la personne qui règle le problème fournit 2 correctifs : un pour la branche de _release_ et un pour la branche de de `dev`.
+- Si vous bossez sur `dev` pendant qu'une _release_ est en cours, pas la peine de corriger un bug dÃ©jÃ  corrigÃ© sur la _release_ : la PR serait refusÃ©e (pour cause de doublon).
+- Si un _gros_ problÃ¨me est dÃ©tectÃ© sur la _release_ et qu'il est correctible en un temps raisonnable :
+	1. Il est corrigÃ© sur la branche de _release_.
+	2. Les merges de PR sur `dev` qui impliquent un risque mÃªme vague de conflit sont bloquÃ©s.
+	3. S'il y a quand mÃªme un conflit (Ã  cause d'une PR mergÃ©e sur `dev` avant la dÃ©tection du problÃ¨me), la personne qui rÃ¨gle le problÃ¨me fournit 2 correctifs : un pour la branche de _release_ et un pour la branche de de `dev`.
 	
-Ceci fonctionne bien si les développements sont de bonne qualité, donc avec peu de correctifs sur la branche de _release_ (idéalement aucun !)... les codes approximatifs et non testés seront donc refusés sans la moindre pitié !
+Ceci fonctionne bien si les dÃ©veloppements sont de bonne qualitÃ©, donc avec peu de correctifs sur la branche de _release_ (idÃ©alement aucun !)... les codes approximatifs et non testÃ©s seront donc refusÃ©s sans la moindre pitiÃ© !
 
 # Glossaire
 
