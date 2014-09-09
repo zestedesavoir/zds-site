@@ -47,7 +47,7 @@ Tous les détails sur le workflow se trouvent [sur la page dédiée](doc/workflo
     | Nouvelle Fonctionnalité ? | [oui|non]
     | Tickets concernés         | [Liste de tickets séparés par des virgules]
     ```
-* Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière.
+* Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière. Précisez tout particulièrement s'il est nécéssaire d'effectuer une action de gestion préalable, comme `python manage.py migrate`, `python manage.py loaddata fixture/*.yaml` ou `gulp build`.
 
 ## Les commits
 * Pour les commits, nous suivons le même ordre d'idée des standards Git, à savoir :
