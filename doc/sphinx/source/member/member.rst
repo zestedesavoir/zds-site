@@ -1,5 +1,5 @@
 ===========
-Les Membres
+Les membres
 ===========
 
 Inscription
@@ -7,53 +7,78 @@ Inscription
 
 L'inscription d'un membre se déroule en deux phases :
 
-- le membre crée son compte et fournit un pseudo, un mot de passe et une adresse mail.
-- un mail de confirmation est envoyé avec un jeton qui permettra d'activer le compte.
+- Le membre crée son compte et fournit un pseudo, un mot de passe et une adresse mail valide.
+- Un mail de confirmation est envoyé avec un jeton qui permettra d'activer le compte.
 
 .. attention::
 
-    les virgules ne sont pas autorisées dans le pseudonyme
+    - Les virgules ne sont pas autorisées dans le pseudonyme, qui ne peut également pas commencer ou finir par des espaces.
+    - Le mot de passe doit faire au moins 6 caractères.
 
 
 Désinscription
 ==============
 
-Interface utilisateur (front)
-_____________________________
+L'inscription se fait via l'interface utilisateur.
 
-- Lien de désinscription accessible via Paramètres (en en haut à droite de toute les pages sur l'avatar / roue dentée) puis Désinscription dans la barre latérale ;
-- Le lien mène alors vers une page expliquant les conséquences de sa désinscription avec un bouton rouge en bas de celle-ci ;
-- Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription.
+-  Le lien de désinscription est accessible via paramètres (``/membres/parametres/profil/``) puis “Se désinscrire” dans la barre
+   latérale (``/membres/desinscrire/attention``) :
 
-Effets de la désinscription (back)
-__________________________________
+   .. figure:: images/desinscription-1.png
+      :align:   center
 
-- Suppression du profil, libèrant le pseudo et l'adresse courriel pour les futures inscriptions ;
-- Le membre est déconnecté ;
-- Les données du membre sont anonymisées :
-     - messages du forum ayant comme pseudo "Anonyme" ;
-          - les sujets du forum restent ouverts mais ont comme auteur "Anonyme" ;
-          - les galeries non liées à un tutoriel sont données à "Auteur externe" (puisque l'image peut être considérée comme venant d'un "auteur") avec droit de lecture et d'écriture ;
-          - les MP sont anonymisés et le membre quitte les discussions auxquelles il participait ;
-     - les commentaires de tutoriels/articles ont comme pseudo "Anonyme" ;
-     - les articles et tutoriels suivent ces règles :
-          - si le tutoriel/article a été écrit par plusieurs personne; le membre est retiré de la liste des auteurs ;
-          - si le tutoriel/article est publié*, il passe sur le compte "Auteur externe", une demande expresse sera nécessaire au retrait complet de ses contenus ;
-          - si le tutoriel/article n'est pas publié (brouillon, bêta, validation) il est supprimé ainsi que la galerie associée.
+      Position du lien de désinscription dans les paramètres du membre (``/membres/parametres/profil/``)
+
+-  Le lien mène alors vers une page expliquant les conséquences de sa  désinscription. Il peut alors poursuivre via un bouton en bas de celle-ci :
+
+   .. figure:: images/desinscription-2.png
+      :align:   center
+
+      Bouton de confirmation
+
+
+-  Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
+
+   .. figure:: images/desinscription-3.png
+      :align:   center
+
+      La dernière étape
+
+
+Le clic sur "me désinscrire" entraîne alors une série d'action (qui sont **irréversibles**) :
+
+-  Suppression du profil, libèrant le pseudo et l’adresse courriel pour les futures inscriptions ;
+-  Le membre est déconnecté ;
+-  Les données du membre sont anonymisées :
+
+   -  le pseudo ``anonymous`` est employé :
+        -  pour les sujets du forum (qui, cependant, restent ouverts)
+        -  pour les messages des MP (le membre quitte les discussions auxquelles il participait) ;
+        -  pour les commentaires aux tutoriels et articles ;
+   -  les `galeries`_ non liées à un tutoriel sont données à ``Auteur externe`` (puisque l’image peut être considérée comme venant d’un “auteur”) avec droit de lecture et d’écriture ;
+   -  les `articles`_ et `tutoriels`_ suivent ces règles :
+
+      -  si le tutoriel/article a été écrit par plusieurs personnes : le membre est retiré de la liste des auteurs ;
+      -  si le tutoriel/article est *publié*, il passe sur le compte “Auteur externe”. Une demande expresse sera nécessaire au retrait complet de ces contenus ;
+      -  si le tutoriel/article n’est pas publié (brouillon, bêta, validation) il est supprimé, ainsi que la galerie qui lui est associée.
+
+.. _galeries: ../gallery/gallery.html
+.. _articles: ../article/article.html
+.. _tutoriels: ../tutorial/tutorial.html
 
 
 Les membres dans les environnement de test et de développement
 ==============================================================
 
-Afin de faciliter les procédures de tests en local, plusieurs utilisateurs ont été créés avec leurs profiles.
+Afin de faciliter les procédures de tests en local, plusieurs utilisateurs ont été créés via la fixture ``users.yaml`` :
 
 - user/user : Utilisateur normal
 - staff/staff : Utilisateur avec les droits d'un staff
 - admin/admin : Utilisateur avec les droits d'un staff et d'un admin
-- anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums
+- anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums, dans les commentaires d'articles et de tutoriels ainsi que dans les MPs
 - Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
 
-Pour que ces membres soient ajoutés à la base de données, il vous faudra exécuter la commande, à la racine du site
+Pour que ces membres soient ajoutés à la base de données, il est donc nécéssaire d'exécuter la commande, suivante, à la racine du site
 
 .. sourcecode:: bash
 
@@ -61,19 +86,18 @@ Pour que ces membres soient ajoutés à la base de données, il vous faudra exé
 
 .. attention::
 
-    Les utilisateurs `anonymous` et `Auteur externe` **doivent** être présents dans la base de données.
+    Les utilisateurs ``anonymous`` et ``Auteur externe`` **doivent** être présents dans la base de données pour le bon fonctionnement du site.
+    En effet, ils permettent le bon fonctionnement du processus d'anonymisation (voir `plus haut <#desinscription>`_)
+
+Les utilisateurs ``anonymous`` et ``Auteur externe`` sont totalement paramétrables dans le fichier ``zds/settings.py`` :
+pour changer le nom d'utilisateur (*username*) de ces comptes, agissez sur les constantes suivantes :
+
+.. sourcecode:: python
+
+    # Constant for anonymisation
+
+    ANONYMOUS_USER = "anonymous"
+    EXTERNAL_USER = "Auteur externe"
 
 
-Le cas des utilisateurs `anonymous` et `Auteur externe` est particulier car ils permettent le processus d'anonymisation en cas de désinscription ou de demande expresse du membre.
-
-Ces derniers sont totalement paramétrables dans le fichiers `zds/settings.py`.
-Pour changer le *username* (nom d'utilisateur) considéré comme `anonymous` ou `Auteur externe`, agissez sur ces constantes :
-
-.. soucecode:: python
-
-# Constant for anonymisation
-
-ANONYMOUS_USER = "anonymous"
-EXTERNAL_USER = "Auteur externe"
-
-
+Bien entendu, les comptes correspondants doivent exister dans la base de donnée.

@@ -43,6 +43,7 @@ from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 
+
 def index(request):
     """Displays the list of registered users."""
 
@@ -87,10 +88,12 @@ def index(request):
             "nb": page,
         })
 
+
 @login_required
 def warning_unregister(request):
     """displays a warning page showing what will happen when user unregisters"""
-    return render_template("member/settings/unregister.html",{"user":request.user})
+    return render_template("member/settings/unregister.html", {"user": request.user})
+
 
 @login_required
 @require_POST
@@ -98,8 +101,8 @@ def warning_unregister(request):
 def unregister(request):
     """allow members to unregister"""
 
-    anonymous = get_object_or_404(User, username = ANONYMOUS_USER)
-    external = get_object_or_404(User, username = EXTERNAL_USER)
+    anonymous = get_object_or_404(User, username=ANONYMOUS_USER)
+    external = get_object_or_404(User, username=EXTERNAL_USER)
     current = request.user
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
@@ -111,7 +114,7 @@ def unregister(request):
             tuto.authors.remove(current)
             tuto.save()
     for article in request.user.profile.get_articles():
-         # we delete article only if not published with only one author
+        # we delete article only if not published with only one author
         if not article.on_line() and article.authors.count() == 1:
             article.delete_entity_and_tree()
         else:
@@ -120,16 +123,16 @@ def unregister(request):
             article.authors.remove(current)
             article.save()
     # all messages anonymisation (forum, article and tutorial posts)
-    for message in Comment.objects.filter(author = current):
+    for message in Comment.objects.filter(author=current):
         message.author = anonymous
         if message.editor is not None and message.editor.username == current.username:
             message.editor = anonymous
         message.save()
-    for message in PrivatePost.objects.filter(author = current):
+    for message in PrivatePost.objects.filter(author=current):
         message.author = anonymous
         message.save()
     # in case current has been moderator in his old day
-    for message in Comment.objects.filter(editor = current):
+    for message in Comment.objects.filter(editor=current):
         message.editor = anonymous
         message.save()
     for topic in PrivateTopic.objects.filter(author=current):
@@ -140,14 +143,14 @@ def unregister(request):
             topic.save()
         else:
             topic.delete()
-    for topic in PrivateTopic.objects.filter(participants__in =[current]):
+    for topic in PrivateTopic.objects.filter(participants__in=[current]):
         topic.participants.remove(current)
         topic.save()
-    for topic in Topic.objects.filter(author = current):
+    for topic in Topic.objects.filter(author=current):
         topic.author = anonymous
         topic.save()
-    TopicFollowed.objects.filter(user = current).delete()
-    for gallery in UserGallery.objects.filter(user = current):
+    TopicFollowed.objects.filter(user=current).delete()
+    for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_users().count() == 1:
             anonymousGallery = UserGallery()
             anonymousGallery.user = external
@@ -158,8 +161,9 @@ def unregister(request):
             gallery.delete()
 
     logout(request)
-    User.objects.filter(pk = current.pk).delete()
+    User.objects.filter(pk=current.pk).delete()
     return redirect(reverse("zds.pages.views.home"))
+
 
 def details(request, user_name):
     """Displays details about a profile."""
