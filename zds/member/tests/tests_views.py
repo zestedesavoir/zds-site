@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -202,3 +202,82 @@ class MemberTests(TestCase):
                                  + reverse('zds.member.views.details', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
+
+    def test_promote_interface(self):
+        """Test promotion interface"""
+
+        tester = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        group = Group.objects.create(name="DummyGroup")
+
+        tester.user.is_active = False
+        tester.user.save()
+        staff.user.is_superuser = True
+        staff.user.save()
+
+        # tester shouldn't be able to connect
+        login_check = self.client.login(
+            username=tester.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, False)
+
+        # connect as staff (superuser)
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # give user rights and groups thanks to staff
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'groups': [group.id],
+                'superuser': "on",
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+
+        self.assertEqual(len(tester.user.groups.all()), 1)
+        self.assertTrue(tester.user.is_active)
+        self.assertTrue(tester.user.is_superuser)
+
+        # retract all right but not activation
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+
+        self.assertEqual(len(tester.user.groups.all()), 0)
+        self.assertTrue(tester.user.is_active)
+        self.assertFalse(tester.user.is_superuser)
+
+        # check that staff can't take away it's own super user rights
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': staff.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        staff = Profile.objects.get(id=staff.id)  # refresh
+        self.assertTrue(staff.user.is_superuser)  # still superuser !
+
+        # Finally, check that user can connect and can not access the interface
+        login_check = self.client.login(
+            username=tester.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': staff.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 403)  # forbidden !
