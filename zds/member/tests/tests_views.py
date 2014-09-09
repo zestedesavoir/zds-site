@@ -1,11 +1,13 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory
 from zds.member.models import Profile
 
@@ -202,3 +204,130 @@ class MemberTests(TestCase):
                                  + reverse('zds.member.views.details', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
+
+    def test_promote_interface(self):
+        """Test promotion interface"""
+
+        # create users (one regular and one staff and superuser)
+        tester = ProfileFactory()
+        staff = StaffProfileFactory()
+        tester.user.is_active = False
+        tester.user.save()
+        staff.user.is_superuser = True
+        staff.user.save()
+
+        # create groups
+        group = Group.objects.create(name="DummyGroup_1")
+        groupbis = Group.objects.create(name="DummyGroup_2")
+
+        # create Forums, Posts and subscribe member to them
+        category1 = CategoryFactory(position=1)
+        forum1 = ForumFactory(
+            category=category1,
+            position_in_category=1)
+        forum1.group.add(group)
+        forum1.save()
+        forum2 = ForumFactory(
+            category=category1,
+            position_in_category=2)
+        forum2.group.add(groupbis)
+        forum2.save()
+        forum3 = ForumFactory(
+            category=category1,
+            position_in_category=3)
+        topic1 = TopicFactory(forum=forum1, author=staff.user)
+        topic2 = TopicFactory(forum=forum2, author=staff.user)
+        topic3 = TopicFactory(forum=forum3, author=staff.user)
+
+        # LET THE TEST BEGIN !
+
+        # tester shouldn't be able to connect
+        login_check = self.client.login(
+            username=tester.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, False)
+
+        # connect as staff (superuser)
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # check that we can go through the page
+        result = self.client.get(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}), follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # give user rights and groups thanks to staff (but account still not activated)
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'groups': [group.id, groupbis.id],
+                'superuser': "on",
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+
+        self.assertEqual(len(tester.user.groups.all()), 2)
+        self.assertFalse(tester.user.is_active)
+        self.assertTrue(tester.user.is_superuser)
+
+        # Now our tester is going to follow one post in every forum (3)
+        TopicFollowed(topic=topic1, user=tester.user).save()
+        TopicFollowed(topic=topic2, user=tester.user).save()
+        TopicFollowed(topic=topic3, user=tester.user).save()
+
+        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 3)
+
+        # retract all right, keep one group only and activate account
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'groups': [group.id],
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+
+        self.assertEqual(len(tester.user.groups.all()), 1)
+        self.assertTrue(tester.user.is_active)
+        self.assertFalse(tester.user.is_superuser)
+        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 2)
+
+        # no groups specified
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': tester.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(id=tester.id)  # refresh
+        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 1)
+
+        # check that staff can't take away it's own super user rights
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': staff.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 302)
+        staff = Profile.objects.get(id=staff.id)  # refresh
+        self.assertTrue(staff.user.is_superuser)  # still superuser !
+
+        # Finally, check that user can connect and can not access the interface
+        login_check = self.client.login(
+            username=tester.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.settings_promote',
+                    kwargs={'user_pk': staff.user.id}),
+            {
+                'activation': "on"
+            }, follow=False)
+        self.assertEqual(result.status_code, 403)  # forbidden !
