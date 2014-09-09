@@ -12,7 +12,7 @@ from shutil import rmtree
 from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
-from zds.mp.factories import  PrivateTopicFactory, PrivatePostFactory
+from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
@@ -24,16 +24,11 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.article.models import Validation as ArticleValidation
 
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(
-REPO_PATH_PROD=os.path.join(
-SITE_ROOT,
-'tutoriels-public-test'))
-@override_settings(
-REPO_ARTICLE_PATH=os.path.join(
-SITE_ROOT,
-'articles-data-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
 class MemberTests(TestCase):
 
     def setUp(self):
@@ -155,14 +150,14 @@ class MemberTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         # publish tutorial
         pub = self.client.post(
-        reverse('zds.tutorial.views.valid_tutorial'),
-           {
-               'tutorial': publishedTutorialAlone.pk,
-               'text': u'Ce tuto est excellent',
-               'is_major': True,
-               'source': 'http://zestedesavoir.com',
-           },
-           follow=False)
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': publishedTutorialAlone.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
             {
@@ -182,14 +177,14 @@ class MemberTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         # publish tutorial
         pub = self.client.post(
-        reverse('zds.tutorial.views.valid_tutorial'),
-           {
-               'tutorial': publishedTutorial2.pk,
-               'text': u'Ce tuto est excellent',
-               'is_major': True,
-               'source': 'http://zestedesavoir.com',
-           },
-           follow=False)
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': publishedTutorial2.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
         # same thing for articles
         publishedArticleAlone = ArticleFactory()
         publishedArticleAlone.authors.add(user.user)
@@ -218,7 +213,6 @@ class MemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-
 
         login_check = self.client.login(
             username=self.staff.username,
@@ -284,7 +278,7 @@ class MemberTests(TestCase):
         # about posts and topics
         authoredTopic = TopicFactory(author=user.user, forum=self.forum11)
         answeredTopic = TopicFactory(author=user2.user, forum=self.forum11)
-        answer = PostFactory(topic=answeredTopic, author=user.user, position=2)
+        PostFactory(topic=answeredTopic, author=user.user, position=2)
         editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
         editedAnswer.editor = user.user
         editedAnswer.save()
@@ -317,12 +311,11 @@ class MemberTests(TestCase):
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
-        self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(),0)
-        self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(),0)
+        self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
         self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
-
 
     def test_sanctions(self):
         """Test various sanctions."""
@@ -446,7 +439,6 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, 'Ban Temporaire')
         self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
-
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
