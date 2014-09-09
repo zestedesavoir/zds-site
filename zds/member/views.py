@@ -937,11 +937,11 @@ def settings_promote(request, user_pk):
                u'Un administrateur vient de modifier les groupes '
                u'auxquels vous appartenez.  \n'.format(user.username))
         if len(usergroups) > 0:
-            msg += u'Voici la liste des groupes dont vous faites dorénavant partis :\n\n'
+            msg += u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'
             for group in usergroups:
                 msg += u'* {0}\n'.format(group.name)
         else:
-            msg += u'* Vous ne faites partis d\'aucun groupe'
+            msg += u'* Vous ne faites partie d\'aucun groupe'
         msg += u'\n\n'
         if user.is_superuser:
             msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
