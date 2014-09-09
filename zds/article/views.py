@@ -29,13 +29,13 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
-from git import *
+from git import Repo, Actor
 
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template
 from zds.utils import slugify
-from zds.utils.articles import *
+from zds.utils.articles import get_blob
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
     CommentDislike, Alert, Licence
@@ -113,8 +113,8 @@ def view(request, article_pk, article_slug):
     article_version = article.load_dic(article_version)
 
     validation = Validation.objects.filter(article__pk=article.pk)\
-                                    .order_by("-date_proposition")\
-                                    .first()
+        .order_by("-date_proposition")\
+        .first()
 
     return render_template('article/member/view.html', {
         'article': article_version,
@@ -271,8 +271,8 @@ def new(request):
     else:
         form = ArticleForm(
             initial={
-                'licence' : Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
-                }
+                'licence': Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+            }
         )
 
     return render_template('article/member/new.html', {
@@ -362,14 +362,14 @@ def edit(request):
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
             licence = Licence.objects.get(
-                        pk=settings.DEFAULT_LICENCE_PK
+                pk=settings.DEFAULT_LICENCE_PK
             )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
             'subcategory': article.subcategory.all(),
-            'licence' : licence
+            'licence': licence
         })
 
     return render_template('article/member/edit.html', {
@@ -441,11 +441,12 @@ def maj_repo_article(
         article.sha_draft = com.hexsha
         article.save()
 
+
 def insert_into_zip(zip_file, git_tree):
     """recursively add files from a git_tree to a zip archive"""
-    for blob in git_tree.blobs: # first, add files :
+    for blob in git_tree.blobs:  # first, add files :
         zip_file.writestr(blob.path, blob.data_stream.read())
-    if len(git_tree.trees) is not 0: # then, recursively add dirs :
+    if len(git_tree.trees) is not 0:  # then, recursively add dirs :
         for subtree in git_tree.trees:
             insert_into_zip(zip_file, subtree)
 
@@ -460,12 +461,12 @@ def download(request):
         sha = article.sha_public
     elif request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
-            raise PermissionDenied # Only authors can download draft version
-    zip_path = os.path.join(tempfile.gettempdir(),article.slug+'.zip')
+            raise PermissionDenied  # Only authors can download draft version
+    zip_path = os.path.join(tempfile.gettempdir(), article.slug + '.zip')
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
-    response = HttpResponse(open(zip_path , "rb").read(), content_type="application/zip")
+    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/zip")
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(article.slug)
     os.remove(zip_path)
     return response
@@ -509,19 +510,19 @@ def modify(request):
                 # send feedback
                 for author in article.authors.all():
                     msg = (u'Désolé **{0}**, ton zeste **{1}** '
-                    u'n\'a malheureusement pas passé l’étape de validation. '
-                    u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'sûrement être faites pour l’améliorer et repasser la '
-                    u'validation plus tard. Voici le message que [{2}]({3}), '
-                    u'ton validateur t\'a laissé\n\n> {4}\n\nN\'hésite pas a '
-                    u'lui envoyer un petit message pour discuter de la décision '
-                    u'ou demander plus de détail si tout cela te semble '
-                    u'injuste ou manque de clarté.'.format(
-                        author.username,
-                        article.title,
-                        validation.validator.username,
-                        validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator))
+                           u'n\'a malheureusement pas passé l’étape de validation. '
+                           u'Mais ne désespère pas, certaines corrections peuvent '
+                           u'sûrement être faites pour l’améliorer et repasser la '
+                           u'validation plus tard. Voici le message que [{2}]({3}), '
+                           u'ton validateur t\'a laissé\n\n> {4}\n\nN\'hésite pas a '
+                           u'lui envoyer un petit message pour discuter de la décision '
+                           u'ou demander plus de détail si tout cela te semble '
+                           u'injuste ou manque de clarté.'.format(
+                               author.username,
+                               article.title,
+                               validation.validator.username,
+                               validation.validator.profile.get_absolute_url(),
+                               validation.comment_validator))
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     send_mp(
                         bot,
@@ -539,8 +540,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                    "Vous devez avoir réservé cet article "
-                    "pour pouvoir le refuser.")
+                               "Vous devez avoir réservé cet article "
+                               "pour pouvoir le refuser.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -571,7 +572,7 @@ def modify(request):
         # A validatir would like to valid an article in validation. We
         # must update sha_public with the current sha of the validation.
         elif 'valid-article' in request.POST:
-            MEP(article, article.sha_validation)
+            mep(article, article.sha_validation)
             validation = Validation.objects\
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
@@ -621,8 +622,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                    "Vous devez avoir réservé cet article "
-                    "pour pouvoir le publier.")
+                               "Vous devez avoir réservé cet article "
+                               "pour pouvoir le publier.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -642,17 +643,15 @@ def modify(request):
         # current sha (version) of the article to his sha_validation.
         elif 'pending' in request.POST:
             old_validation = Validation.objects.filter(article__pk=article_pk,
-                              status__in=['PENDING_V']).first()
+                                                       status__in=['PENDING_V']).first()
             if old_validation is not None:
                 old_validator = old_validation.validator
-                old_reserve_date = old_validation.date_reserve
             else:
                 old_validator = None
-                old_reserve_date = None
             # Delete old pending validation
             Validation.objects.filter(article__pk=article_pk,
-                                      status__in=['PENDING','PENDING_V'])\
-                                      .delete()
+                                      status__in=['PENDING', 'PENDING_V'])\
+                .delete()
 
             # Create new validation
             validation = Validation()
@@ -668,10 +667,10 @@ def modify(request):
                 bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                 msg = \
                     (u'Bonjour {0},\n\n'
-                    u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
-                    u'pour retrouver les modifications qui ont été faites, je t\'invite à'
-                    u'consulter l\'historique des versions'
-                    u'\n\nMerci'.format(old_validator.username, article.title))
+                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
+                     u'pour retrouver les modifications qui ont été faites, je t\'invite à'
+                     u'consulter l\'historique des versions'
+                     u'\n\nMerci'.format(old_validator.username, article.title))
                 send_mp(
                     bot,
                     [old_validator],
@@ -717,10 +716,10 @@ def modify(request):
                 u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
                 u'"Articles" sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
-                author.username,
-                article.title,
-                settings.SITE_URL + article.get_absolute_url(),
-                settings.SITE_URL + reverse("zds.member.views.articles"))
+                    author.username,
+                    article.title,
+                    settings.SITE_URL + article.get_absolute_url(),
+                    settings.SITE_URL + reverse("zds.member.views.articles"))
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
@@ -762,9 +761,9 @@ def modify(request):
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
                 u'pourra plus y accéder.\n'.format(
-                author.username,
-                article.title,
-                settings.SITE_URL + article.get_absolute_url())
+                    author.username,
+                    article.title,
+                    settings.SITE_URL + article.get_absolute_url())
             )
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
@@ -933,7 +932,7 @@ def history(request, article_pk, article_slug):
 # Reactions at an article.
 
 
-def MEP(article, sha):
+def mep(article, sha):
     # convert markdown file to html file
     repo = Repo(article.get_path())
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
@@ -977,12 +976,11 @@ def answer(request):
         last_reaction_pk = article.last_reaction.pk
     else:
         last_reaction_pk = 0
-    
+
     # Retrieve lasts reactions of the current topic.
     reactions = Reaction.objects.filter(article=article) \
-    .prefetch_related() \
-    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
-
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -1075,21 +1073,20 @@ def solve_alert(request):
     reaction = Reaction.objects.get(pk=alert.comment.id)
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
-    u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
-    u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-    u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
-    u'la modération vous remercie !'.format(
-        alert.author.username,
-        reaction.author.username,
-        reaction.article.title,
-        settings.SITE_URL +
-        reaction.get_absolute_url(),
-        request.user.username,
-        request.POST['text']))
+           u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
+           u'Votre alerte a été traitée par **{4}** et il vous a laissé '
+           u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+           u'la modération vous remercie !'.format(
+               alert.author.username,
+               reaction.author.username,
+               reaction.article.title,
+               settings.SITE_URL +
+               reaction.get_absolute_url(),
+               request.user.username,
+               request.POST['text']))
     send_mp(
         bot, [
-            alert.author], u"Résolution d'alerte : {0}".format(
-            reaction.article.title), "", msg, False)
+            alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
     alert.delete()
 
     messages.success(

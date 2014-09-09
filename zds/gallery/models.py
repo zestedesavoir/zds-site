@@ -18,6 +18,7 @@ def image_path(instance, filename):
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
+
 class UserGallery(models.Model):
 
     class Meta:
@@ -77,6 +78,7 @@ class Image(models.Model):
 
     def get_extension(self):
         return os.path.splitext(self.physical.name)[1][1:]
+
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

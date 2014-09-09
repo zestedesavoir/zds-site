@@ -5,7 +5,9 @@ from zds.search.constants import MODEL_NAMES
 from zds.utils.paginator import paginator_range
 from zds.utils import render_template
 
+
 class CustomSearchView(SearchView):
+
     def create_response(self):
         (paginator, page) = self.build_page()
 

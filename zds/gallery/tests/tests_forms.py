@@ -81,7 +81,7 @@ class ImageFormTest(TestCase):
 
         self.assertTrue(form.is_valid())
         upload_file.close()
-    
+
     def test_valid_archive_image_form(self):
         upload_file = open(os.path.join(settings.SITE_ROOT, 'fixtures', 'archive-gallery.zip'), 'r')
 
@@ -167,7 +167,7 @@ class ImageFormTest(TestCase):
         files = {
             'physical': SimpleUploadedFile(upload_file.name, upload_file.read())
         }
-        form = ImageForm(data, files)
+        ImageForm(data, files)
         upload_file.close()
 
     def test_too_long_legend_image_form(self):
@@ -181,7 +181,7 @@ class ImageFormTest(TestCase):
         files = {
             'physical': SimpleUploadedFile(upload_file.name, upload_file.read())
         }
-        form = ImageForm(data, files)
+        ImageForm(data, files)
         upload_file.close()
 
 

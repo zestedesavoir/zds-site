@@ -52,7 +52,7 @@ class ArticleForm(forms.Form):
         queryset=SubCategory.objects.all(),
         required=False
     )
-    
+
     licence = forms.ModelChoiceField(
         label="Licence de votre publication",
         queryset=Licence.objects.all(),
@@ -140,7 +140,7 @@ class ReactionForm(forms.Form):
                 placeholder=u'Cet article est verrouillé.',
                 disabled=True
             )
-            
+
     def clean(self):
         cleaned_data = super(ReactionForm, self).clean()
 

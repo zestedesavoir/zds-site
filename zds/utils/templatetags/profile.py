@@ -29,7 +29,6 @@ def user(pk):
     return user
 
 
-
 @register.filter('state')
 def state(user):
     try:

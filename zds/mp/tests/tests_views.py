@@ -511,7 +511,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk)
+            + '?sujet=' + str(self.topic1.pk)
             + '&cite=4864',
             {}
         )
@@ -522,8 +522,8 @@ class AnswerViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk)
-            + '&cite='+str(self.post1.pk),
+            + '?sujet=' + str(self.topic1.pk)
+            + '&cite=' + str(self.post1.pk),
             {}
         )
 
@@ -533,7 +533,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'preview': '',
@@ -548,7 +548,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.get_last_answer().pk
@@ -571,7 +571,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.get_last_answer().pk
@@ -641,7 +641,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk)
+            + '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(200, response.status_code)
@@ -659,7 +659,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post1.pk)
+            + '?message=' + str(self.post1.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -668,7 +668,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk)
+            + '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -685,7 +685,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk),
+            + '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
                 'preview': ''
@@ -710,7 +710,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk),
+            + '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
             },

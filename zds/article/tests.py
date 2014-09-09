@@ -44,7 +44,7 @@ class ArticleTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
-        
+
         self.licence = LicenceFactory()
 
         self.article = ArticleFactory()
@@ -407,14 +407,14 @@ class ArticleTests(TestCase):
 
         # change licence (get 302) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -439,14 +439,14 @@ class ArticleTests(TestCase):
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : self.licence.pk
+                'licence': self.licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -465,14 +465,14 @@ class ArticleTests(TestCase):
 
         # change licence (get 302, redirection to login page) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -481,7 +481,7 @@ class ArticleTests(TestCase):
         article = Article.objects.get(pk=self.article.pk)
         self.assertEqual(article.licence.pk, self.licence.pk)
         self.assertNotEqual(article.licence.pk, new_licence.pk)
-        
+
         # login with random user
         self.assertTrue(
             self.client.login(
@@ -492,14 +492,14 @@ class ArticleTests(TestCase):
         # change licence (get 403, random user cannot edit article if not in
         # authors list) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
@@ -528,18 +528,18 @@ class ArticleTests(TestCase):
         article_content = u'Mais nous c\'est pas pareil ...'
         result = self.client.post(
             reverse('zds.article.views.edit') +
-                '?article={}'.format(self.article.pk),
+            '?article={}'.format(self.article.pk),
             {
                 'title': article_title,
                 'description': self.article.description,
                 'text': article_content,
                 'subcategory': self.article.subcategory.all(),
-                'licence' : self.licence.pk
+                'licence': self.licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-         # now, draft and public version are not the same
+        # now, draft and public version are not the same
         article = Article.objects.get(pk=self.article.pk)
         self.assertNotEqual(article.sha_draft, article.sha_public)
 
@@ -572,11 +572,11 @@ class ArticleTests(TestCase):
         online_zip = zipfile.ZipFile(online_zip_path, 'r')
 
         # first, test in manifest
-        online_manifest= json_reader.loads(online_zip.read('manifest.json'))
-        self.assertNotEqual(online_manifest['title'], article_title) # title has not changed in online version
+        online_manifest = json_reader.loads(online_zip.read('manifest.json'))
+        self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
 
-        draft_manifest= json_reader.loads(draft_zip.read('manifest.json'))
-        self.assertNotEqual(online_manifest['title'], article_title) # title has not changed in online version
+        draft_manifest = json_reader.loads(draft_zip.read('manifest.json'))
+        self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
 
         self.assertNotEqual(online_zip.read(online_manifest['text']), article_content)
         self.assertEqual(draft_zip.read(draft_manifest['text']), article_content)  # content is good in draft
