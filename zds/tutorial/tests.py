@@ -5,7 +5,8 @@ import shutil
 import tarfile
 import tempfile
 import zipfile
-
+from git import Repo
+from urllib import urlretrieve
 try:
     import ujson as json_reader
 except:
@@ -29,6 +30,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
     ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
+from zds.tutorial.views import insert_into_zip
 from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
 
@@ -145,23 +147,37 @@ class BigTutorialTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
         #create temporary data directory
-        temp = os.path.join(SITE_ROOT, "temp")
-        
-        # download tar
-        if not os.path.isdir(temp):
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
-        tarpath = os.path.join(MEDIA_ROOT, "temp", self.bigtuto.get_phy_slug()+".tar")
-        result = self.client.get(
-            reverse('zds.tutorial.views.download')+"?tutoriel={}".format(str(self.bigtuto.pk)),
-            follow=False)
-        
-        save_path = os.path.join(settings.REPO_PATH, self.bigtuto.get_phy_slug()+".tar")
-        shutil.copy(save_path, tarpath)
-        tar = tarfile.open(tarpath)
-        tar.extractall(path=os.path.join(temp, self.bigtuto.get_phy_slug()))
-        tar.close()
-        
-        self.assertTrue(os.path.isdir(os.path.join(temp, self.bigtuto.get_phy_slug())))
+        # download zip
+        repo_path = os.path.join(settings.REPO_PATH, self.bigtuto.get_phy_slug())
+        repo = Repo(repo_path)
+        zip_path = os.path.join(tempfile.gettempdir(), self.bigtuto.slug + '.zip')
+        zip_file = zipfile.ZipFile(zip_path, 'w')
+        insert_into_zip(zip_file, repo.commit(self.bigtuto.sha_draft).tree)
+        zip_file.close()
+
+        zip_dir = os.path.join(temp, self.bigtuto.get_phy_slug())
+        if not os.path.exists(zip_dir):
+            os.makedirs(zip_dir, mode=0777)
+
+        # Extract zip
+        with zipfile.ZipFile(zip_path) as zip_file:
+            for member in zip_file.namelist():
+                filename = os.path.basename(member)
+                # skip directories
+                if not filename:
+                    continue
+                if not os.path.exists(os.path.dirname(os.path.join(zip_dir, member))):
+                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
+                    print(u"--------------> {}".format(member))
+                # copy file (taken from zipfile's extract)
+                source = zip_file.open(member)
+                target = file(os.path.join(zip_dir, filename), "wb")
+                with source, target:
+                    shutil.copyfileobj(source, target)
+        self.assertTrue(os.path.isdir(zip_dir))
         
         # update markdown files
         up_intro_tfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), self.bigtuto.introduction), "a")
@@ -211,6 +227,7 @@ class BigTutorialTests(TestCase):
         
         #delete temporary data directory
         shutil.rmtree(temp)
+        os.remove(zip_path)
 
     def test_add_note(self):
         """To test add note for tutorial."""
@@ -2483,23 +2500,36 @@ class MiniTutorialTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
         #create temporary data directory
-        temp = os.path.join(SITE_ROOT, "temp")
-        
-        # download tar
-        if not os.path.isdir(temp):
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
-        tarpath = os.path.join(MEDIA_ROOT, "temp", self.minituto.get_phy_slug()+".tar")
-        result = self.client.get(
-            reverse('zds.tutorial.views.download')+"?tutoriel={}".format(str(self.minituto.pk)),
-            follow=False)
-        
-        save_path = os.path.join(settings.REPO_PATH, self.minituto.get_phy_slug()+".tar")
-        shutil.copy(save_path, tarpath)
-        tar = tarfile.open(tarpath)
-        tar.extractall(path=os.path.join(temp, self.minituto.get_phy_slug()))
-        tar.close()
-        
-        self.assertTrue(os.path.isdir(os.path.join(temp, self.minituto.get_phy_slug())))
+        # download zip
+        repo_path = os.path.join(settings.REPO_PATH, self.minituto.get_phy_slug())
+        repo = Repo(repo_path)
+        zip_path = os.path.join(tempfile.gettempdir(), self.minituto.slug + '.zip')
+        zip_file = zipfile.ZipFile(zip_path, 'w')
+        insert_into_zip(zip_file, repo.commit(self.minituto.sha_draft).tree)
+        zip_file.close()
+
+        zip_dir = os.path.join(temp, self.minituto.get_phy_slug())
+        if not os.path.exists(zip_dir):
+            os.makedirs(zip_dir, mode=0777)
+
+        # Extract zip
+        with zipfile.ZipFile(zip_path) as zip_file:
+            for member in zip_file.namelist():
+                filename = os.path.basename(member)
+                # skip directories
+                if not filename:
+                    continue
+                if not os.path.exists(os.path.dirname(os.path.join(zip_dir, member))):
+                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
+                # copy file (taken from zipfile's extract)
+                source = zip_file.open(member)
+                target = file(os.path.join(zip_dir, filename), "wb")
+                with source, target:
+                    shutil.copyfileobj(source, target)
+        self.assertTrue(os.path.isdir(zip_dir))
         
         # update markdown files
         up_intro_tfile = open(os.path.join(temp, self.minituto.get_phy_slug(), self.minituto.introduction), "a")
@@ -2532,6 +2562,7 @@ class MiniTutorialTests(TestCase):
         
         #delete temporary data directory
         shutil.rmtree(temp)
+        os.remove(zip_path)
         
     def add_test_extract_named_introduction(self):
         """test the use of an extract named introduction"""
