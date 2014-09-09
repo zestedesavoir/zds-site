@@ -2586,7 +2586,7 @@ def import_tuto(request):
     else:
         form = ImportForm()
         form_archive = ImportArchiveForm(user=request.user)
-    
+
     profile = get_object_or_404(Profile, user=request.user)
     oldtutos = []
     if profile.sdz_tutorial:

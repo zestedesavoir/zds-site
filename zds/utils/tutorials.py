@@ -295,7 +295,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
 
 
 def check_json(data, tutorial, zip):
-    from zds.tutorial.models import Tutorial, Part, Chapter, Extract
+    from zds.tutorial.models import Part, Chapter, Extract
     if "title" not in data:
         return (False, u"Le tutoriel que vous souhaitez importer manque de titre")
     if "type" not in data:
@@ -316,20 +316,23 @@ def check_json(data, tutorial, zip):
                 elif not Extract.objects.filter(pk=extract["pk"], chapter__tutorial__pk=tutorial.pk).exists():
                     return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} »".format(extract["title"]))
                 try:
-                    info = zip.getinfo(extract["text"])
+                    zip.getinfo(extract["text"])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                   u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(
-                            extract["text"], extract["title"]))
+                    return (False,
+                            u'Le fichier « {} » renseigné dans vos métadonnées '
+                            u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(
+                                extract["text"],
+                                extract["title"]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
                 try:
-                    info = zip.getinfo(data[sub])
+                    zip.getinfo(data[sub])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                   u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
-                            data["title"], data[sub]))
+                    return (False,
+                            u'Le fichier « {} » renseigné dans vos métadonnées '
+                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                                data["title"], data[sub]))
     elif tutorial.is_big():
         if data["type"] == "MINI":
             return (False, u"Vous essayez d'importer un mini tutoriel dans un big tutoriel")
@@ -366,7 +369,7 @@ def check_json(data, tutorial, zip):
                                     return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(
                                         extract["title"]))
                                 try:
-                                    info = zip.getinfo(extract["text"])
+                                    zip.getinfo(extract["text"])
                                 except KeyError:
                                     return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
                                                    u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.
@@ -375,7 +378,7 @@ def check_json(data, tutorial, zip):
                         for sub in subs:
                             if sub in chapter:
                                 try:
-                                    info = zip.getinfo(chapter[sub])
+                                    zip.getinfo(chapter[sub])
                                 except KeyError:
                                     return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
                                                    u'pour le chapitre « {} » ne se trouve pas dans votre zip'
@@ -384,25 +387,26 @@ def check_json(data, tutorial, zip):
                 for sub in subs:
                     if sub in part:
                         try:
-                            info = zip.getinfo(part[sub])
+                            zip.getinfo(part[sub])
                         except KeyError:
-                            return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                           u'pour la partie « {} » ne se trouve pas dans votre zip'.format(
-                                    part["title"], part[sub]))
+                            return (False,
+                                    u'Le fichier « {} » renseigné dans vos métadonnées '
+                                    u'pour la partie « {} » ne se trouve pas dans votre zip'.format(
+                                        part["title"], part[sub]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
                 try:
-                    info = zip.getinfo(data[sub])
+                    zip.getinfo(data[sub])
                 except KeyError:
-                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                   u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
-                            data["title"], data[sub]))
+                    return (False,
+                            u'Le fichier « {} » renseigné dans vos métadonnées '
+                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                                data["title"], data[sub]))
     return (True, None)
 
 
 def import_archive(request):
-    from django.core.files import File
     from zds.tutorial.models import Tutorial
     import zipfile
     import shutil
@@ -414,7 +418,7 @@ def import_archive(request):
             import simplejson as json_reader
         except:
             import json as json_reader
-    
+
     archive = request.FILES["file"]
     tutorial = Tutorial.objects.get(pk=request.POST["tutorial"])
     ext = str(archive).split(".")[-1]
@@ -448,20 +452,20 @@ def import_archive(request):
         if not json_here:
             return (False, u"L'archive n'a pas pu être importée car le "
                            u"fichier manifest.json (fichier de métadonnées est introuvable).")
-        
+
         # init git
         repo = Repo(tutorial.get_path())
         index = repo.index
-        
-        #delete old file
+
+        # delete old file
         for filename in os.listdir(tutorial.get_path()):
             if not filename.startswith('.'):
                 mf = os.path.join(tutorial.get_path(), filename)
                 if os.path.isfile(mf):
                     os.remove(mf)
                 elif os.path.isdir(mf):
-                    shutil.rmtree(mf) 
-        #copy new file
+                    shutil.rmtree(mf)
+        # copy new file
         for i in zfile.namelist():
             ph = i
             if ph != "":
@@ -478,7 +482,7 @@ def import_archive(request):
                     except:
                         pass
         zfile.close()
-        
+
         # save in git
         msg = "Import du tutoriel"
         aut_user = str(request.user.pk)

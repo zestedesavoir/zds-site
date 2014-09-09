@@ -298,6 +298,7 @@ class ImportForm(forms.Form):
         )
         super(ImportForm, self).__init__(*args, **kwargs)
 
+
 class ImportArchiveForm(forms.Form):
 
     file = forms.FileField(
@@ -316,7 +317,7 @@ class ImportArchiveForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.fields['tutorial'].queryset=Tutorial.objects.filter(authors__in=[user])
+        self.fields['tutorial'].queryset = Tutorial.objects.filter(authors__in=[user])
 
         self.helper.layout = Layout(
             Field('file'),

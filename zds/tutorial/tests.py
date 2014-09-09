@@ -2,11 +2,9 @@
 
 import os
 import shutil
-import tarfile
 import tempfile
 import zipfile
 from git import Repo
-from urllib import urlretrieve
 try:
     import ujson as json_reader
 except:
@@ -33,8 +31,6 @@ from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapt
 from zds.tutorial.views import insert_into_zip
 from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
-
-from django.conf.global_settings import MEDIA_ROOT
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
@@ -146,7 +142,7 @@ class BigTutorialTests(TestCase):
             username=self.user_author.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #create temporary data directory
+        # create temporary data directory
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
@@ -171,14 +167,13 @@ class BigTutorialTests(TestCase):
                     continue
                 if not os.path.exists(os.path.dirname(os.path.join(zip_dir, member))):
                     os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
-                    print(u"--------------> {}".format(member))
                 # copy file (taken from zipfile's extract)
                 source = zip_file.open(member)
                 target = file(os.path.join(zip_dir, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
-        
+
         # update markdown files
         up_intro_tfile = open(os.path.join(temp, self.bigtuto.get_phy_slug(), self.bigtuto.introduction), "a")
         up_intro_tfile.write(u"preuve de modification de l'introduction")
@@ -207,9 +202,9 @@ class BigTutorialTests(TestCase):
         shutil.make_archive(os.path.join(temp, self.bigtuto.get_phy_slug()),
                             "zip",
                             os.path.join(temp, self.bigtuto.get_phy_slug()))
-        
+
         self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")))
-        
+
         # import zip archive
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
@@ -224,8 +219,8 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Tutorial.objects.all().count(), 1)
-        
-        #delete temporary data directory
+
+        # delete temporary data directory
         shutil.rmtree(temp)
         os.remove(zip_path)
 
@@ -2499,7 +2494,7 @@ class MiniTutorialTests(TestCase):
             username=self.user_author.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-        #create temporary data directory
+        # create temporary data directory
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
@@ -2530,7 +2525,7 @@ class MiniTutorialTests(TestCase):
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
-        
+
         # update markdown files
         up_intro_tfile = open(os.path.join(temp, self.minituto.get_phy_slug(), self.minituto.introduction), "a")
         up_intro_tfile.write(u"preuve de modification de l'introduction")
@@ -2543,7 +2538,7 @@ class MiniTutorialTests(TestCase):
         shutil.make_archive(os.path.join(temp, self.minituto.get_phy_slug()),
                             "zip",
                             os.path.join(temp, self.minituto.get_phy_slug()))
-        
+
         self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
         # import zip archive
         result = self.client.post(
@@ -2559,11 +2554,11 @@ class MiniTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Tutorial.objects.all().count(), 1)
-        
-        #delete temporary data directory
+
+        # delete temporary data directory
         shutil.rmtree(temp)
         os.remove(zip_path)
-        
+
     def add_test_extract_named_introduction(self):
         """test the use of an extract named introduction"""
 
