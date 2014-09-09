@@ -15,7 +15,7 @@ Les contributions externes sont les bienvenues !
 2. Faites vos modifications
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests
 4. Assurez-vous que l'intégralité des tests passent : `python manage.py test`
-5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds`
+5. Assurez-vous que le code suit la [PEP-8](http://legacy.python.org/dev/peps/pep-0008/) : `flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds`
 6. Si vous avez fait des modifications du _front_, jouez les tests associés : `gulp test`
 7. Si vous modifiez le modèle (les fichiers models.py), n'oubliez pas de créer les fichiers de migration : `python manage.py schemamigration app_name --auto`
 8. Poussez votre travail et faites une _pull request_
