@@ -4,18 +4,27 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document, $, undefined){
     "use strict";
     
-    $(".spoiler").each(function(){
-        $(this).before($("<a/>", {
-            "text": "Afficher/Masquer le contenu masqué",
-            "class": "spoiler-title ico-after view",
-            "href": "#",
-            "click": function(e){
-                $(this).next(".spoiler").toggle();
-                e.preventDefault();
-            }
-        }));
+    function buildSpoilers($elem){
+        $elem.each(function(){
+            $(this).before($("<a/>", {
+                text: "Afficher/Masquer le contenu masqué",
+                class: "spoiler-title ico-after view",
+                href: "#",
+                click: function(e){
+                    $(this).next(".spoiler").toggle();
+                    e.preventDefault();
+                }
+            }));
+        });
+    }
+
+    $(document).ready(function(){
+        buildSpoilers($("#content .spoiler"));
+        $("#content").on("DOMNodeInserted", ".spoiler", function(e){
+            buildSpoilers($(e.target));
+        });
     });
-})(jQuery);
+})(document, jQuery);

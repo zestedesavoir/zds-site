@@ -181,6 +181,6 @@ gulp.task("pack", ["build"], function() {
 
 gulp.task("travis", ["pack"]);
 
-gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts"]);
+gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "merge-scripts"]);
 
 gulp.task("default", ["build", "watch"]);
