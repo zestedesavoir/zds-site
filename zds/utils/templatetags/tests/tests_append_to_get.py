@@ -2,7 +2,7 @@
 
 
 from django.test import TestCase, RequestFactory
-from django.template import TemplateSyntaxError, Token, TOKEN_TEXT, Context
+from django.template import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
 
 from zds.utils.templatetags.append_to_get import easy_tag, AppendGetNode
 
@@ -44,20 +44,18 @@ class AppendGetNodeTest(TestCase):
     def setUp(self):
         # Every test needs access to the request factory.
         factory = RequestFactory()
-        self.argl1 = "key1=var1"
 
-        self.argl2 = "key1=var1,key2=var2"
         self.context = Context({'request': factory.get('/data/test'), 'var1': 1, 'var2': 2})
 
     def test_valid_call(self):
 
         # Test normal call
-        agn = AppendGetNode(self.argl2)
+        agn = AppendGetNode("key1=var1,key2=var2")
         tr = agn.render(self.context)
         self.assertTrue(tr == "/data/test?key1=1&key2=2" or tr == "/data/test?key2=2&key1=1")
 
         # Test call with one argument
-        agn = AppendGetNode(self.argl1)
+        agn = AppendGetNode("key1=var1")
         tr = agn.render(self.context)
         self.assertEqual(tr, "/data/test?key1=1")
 
@@ -66,5 +64,56 @@ class AppendGetNodeTest(TestCase):
         agn = AppendGetNode("")
         tr = agn.render(self.context)
         self.assertEqual(tr, "/data/test")
+
+    def test_invalid_call(self):
+
+        # Test invalid format
+
+        # Space separators args :
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1=var1 key2=var2")
+        # No values :
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1=,key2=var2")
+        self.assertRaises(TemplateSyntaxError, AppendGetNode, "key1,key2=var2")
+        # Not resolvable variable
+        agn = AppendGetNode("key1=var3,key2=var2")
+        self.assertRaises(VariableDoesNotExist, agn.render, self.context)
+
+    def test_valid_templatetag(self):
+
+        # Test normal call
+        tr = Template("{% load append_to_get %}"
+                      "{% append_to_get key1=var1,key2=var2 %}"
+                      ).render(self.context)
+        self.assertTrue(tr == "/data/test?key1=1&key2=2" or tr == "/data/test?key2=2&key1=1")
+
+        # Test call with one argument
+        tr = Template("{% load append_to_get %}"
+                      "{% append_to_get key1=var1 %}"
+                      ).render(self.context)
+        self.assertEqual(tr, "/data/test?key1=1")
+
+    def test_invalid_templatetag(self):
+        # Test invalid format
+
+        # Space separators args :
+        str_tp = ("{% load append_to_get %}"
+                  "{% append_to_get key1=var1 key2=var2 %}")
+        self.assertRaises(TemplateSyntaxError, Template, str_tp)
+
+        # No values :
+        str_tp = ("{% load append_to_get %}"
+                  "{% append_to_get key1=,key2=var2 %}")
+        self.assertRaises(TemplateSyntaxError, Template, str_tp)
+        str_tp = ("{% load append_to_get %}"
+                  "{% append_to_get key1,key2=var2 %}")
+        self.assertRaises(TemplateSyntaxError, Template, str_tp)
+
+        # Not resolvable variable
+        tr = Template("{% load append_to_get %}"
+                      "{% append_to_get key1=var3,key2=var2 %}"
+                      )
+        self.assertRaises(VariableDoesNotExist, tr.render, self.context)
+
+
 
 
