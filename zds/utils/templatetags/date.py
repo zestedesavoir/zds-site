@@ -12,6 +12,10 @@ from django.utils.tzinfo import LocalTimezone
 register = template.Library()
 
 
+__DATE_FMT_FUTUR = "Dans le futur"
+__ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'
+__ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'
+
 def date_formatter(value, tooltip, small):
     try:
         value = datetime(value.year, value.month, value.day,
@@ -25,7 +29,7 @@ def date_formatter(value, tooltip, small):
         now = datetime.now()
     now = now - timedelta(0, 0, now.microsecond)
     if value > now:
-        return "Dans le futur"
+        return __DATE_FMT_FUTUR
     else:
         delta = now - value
         # Natural time for today, absolute date after.
@@ -33,9 +37,9 @@ def date_formatter(value, tooltip, small):
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
         elif small:
-            return date(value, 'd/m/y à H\hi')
+            return date(value, __ABS_DATE_FMT_SMALL)
         else:
-            return date(value, 'l d F Y à H\hi')
+            return date(value, __ABS_DATE_FMT_NORMAL)
 
 
 @register.filter
