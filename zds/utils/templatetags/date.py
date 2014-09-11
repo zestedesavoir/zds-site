@@ -16,6 +16,7 @@ __DATE_FMT_FUTUR = "Dans le futur"
 __ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'
 __ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'
 
+
 def date_formatter(value, tooltip, small):
     try:
         value = datetime(value.year, value.month, value.day,
@@ -44,9 +45,9 @@ def date_formatter(value, tooltip, small):
 
 @register.filter
 def format_date(value, small=False):
-    return date_formatter(value, False, small)
+    return date_formatter(value, tooltip=False, small=small)
 
 
 @register.filter
 def tooltip_date(value):
-    return date_formatter(value, True, False)
+    return date_formatter(value, tooltip=True, small=False)
