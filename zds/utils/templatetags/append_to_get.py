@@ -21,7 +21,7 @@ def easy_tag(func):
     """
 
     @wraps(func)
-    def inner(parser, token):
+    def inner(_, token):
         splitted_arg = token.split_contents()
         try:
             return func(*splitted_arg)
