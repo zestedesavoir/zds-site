@@ -290,8 +290,10 @@
 
     $(document).ready(function() {
         $("[data-autocomplete]").autocomplete();
-        $("#content").on("DOMNodeInserted", "[data-autocomplete]", function(e){
-            $(e.target).autocomplete();
+        $("#content").on("DOMNodeInserted", "input", function(e){
+            var $input = $(e.target);
+            if($input.is("[data-autocomplete]"))
+                $input.autocomplete();
         });
     });
 })(jQuery);
