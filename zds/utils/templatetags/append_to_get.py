@@ -36,11 +36,9 @@ class AppendGetNode(template.Node):
         for key in self.dict_pairs:
             get[key] = self.dict_pairs[key].resolve(context)
 
-        if len(get):
-            path += "?"
-            for (key, v) in get.items():
-                for value in get.getlist(key):
-                    path += u"&{0}={1}".format(key, value)
+        if len(get) > 0:
+            list_arg = ["{0}={1}".format(key, value) for key in get.keys() for value in get.getlist(key)]
+            path += "?" + "&".join(list_arg)
 
         return path
 
