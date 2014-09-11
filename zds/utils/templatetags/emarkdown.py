@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from functools import partial
 import re
 
 from django import template
@@ -125,4 +124,5 @@ def decale_header(text, count):
 
 # Register 3 filter.
 for i in range(1, 4):
-    register.filter('decale_header_{}'.format(i))(partial(decale_header, count=i))
+    register.filter('decale_header_{}'.format(i))(lambda t: decale_header(t, count=i))
+
