@@ -29,6 +29,7 @@ def date_formatter(value, tooltip, small):
     else:
         now = datetime.now()
     now = now - timedelta(0, 0, now.microsecond)
+
     if value > now:
         return __DATE_FMT_FUTUR
     else:
@@ -37,10 +38,8 @@ def date_formatter(value, tooltip, small):
         # Reverse if in tooltip
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
-        elif small:
-            return date(value, __ABS_DATE_FMT_SMALL)
         else:
-            return date(value, __ABS_DATE_FMT_NORMAL)
+            return date(value, __ABS_DATE_FMT_SMALL if small else __ABS_DATE_FMT_NORMAL)
 
 
 @register.filter
