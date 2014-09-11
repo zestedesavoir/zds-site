@@ -22,9 +22,9 @@ def easy_tag(func):
 
 class AppendGetNode(template.Node):
 
-    def __init__(self, dict):
+    def __init__(self, dictionary):
         self.dict_pairs = {}
-        for pair in dict.split(','):
+        for pair in dictionary.split(','):
             pair = pair.split('=')
             self.dict_pairs[pair[0]] = template.Variable(pair[1])
 
@@ -46,5 +46,5 @@ class AppendGetNode(template.Node):
 
 @register.tag()
 @easy_tag
-def append_to_get(_tag_name, dict):
-    return AppendGetNode(dict)
+def append_to_get(_tag_name, dictionary):
+    return AppendGetNode(dictionary)
