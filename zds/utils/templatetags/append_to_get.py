@@ -26,7 +26,8 @@ class AppendGetNode(template.Node):
         self.dict_pairs = {}
         for pair in dictionary.split(','):
             pair = pair.split('=')
-            self.dict_pairs[pair[0]] = template.Variable(pair[1])
+            if len(pair) > 1:
+                self.dict_pairs[pair[0]] = template.Variable(pair[1])
 
     def render(self, context):
         get = context['request'].GET.copy()
