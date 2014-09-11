@@ -4,53 +4,61 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document, $, undefined){
     "use strict";
     
-    var $list = $(".navigable-list");
+    $(document).ready(function(){
+        var $lists = $("#content .navigable-list");
 
-    if($list.length > 0){
-        var $navigableElems = $list.find(".navigable-elem");
-        $("body").on("keydown", function(e){
-            if(!$(document.activeElement).is(":input") && (e.which === 74 || e.which === 75)){
-                var $current = $list.find(".navigable-elem.active"),
-                    nextIndex = null;
+        if($lists.length > 0){
+            var $navigableElems = $lists.find(".navigable-elem");
 
-                if($current.length === 1){
-                    var currentIndex = $navigableElems.index($current);
-                    if(e.which === 75){ // J
-                        if(currentIndex > 0)
-                            nextIndex = currentIndex - 1;
-                    } else { // K
-                        if(currentIndex + 1 < $navigableElems.length)
-                            nextIndex = currentIndex + 1;
+            $("body").on("keydown", function(e){
+                if(!$(document.activeElement).is(":input") && (e.which === 74 || e.which === 75)){
+                    var $current = $lists.find(".navigable-elem.active"),
+                        nextIndex = null;
+
+                    if($current.length === 1){
+                        var currentIndex = $navigableElems.index($current);
+                        if(e.which === 75){ // J
+                            if(currentIndex > 0)
+                                nextIndex = currentIndex - 1;
+                        } else { // K
+                            if(currentIndex + 1 < $navigableElems.length)
+                                nextIndex = currentIndex + 1;
+                        }
+                    } else {
+                        nextIndex = 0;
                     }
-                } else {
-                    nextIndex = 0;
+
+                    if(nextIndex !== null){
+                        $current.removeClass("active");
+                        activeNavigableElem($navigableElems.eq(nextIndex));
+                    }
                 }
+            });
 
-                if(nextIndex !== null){
-                    $current.removeClass("active");
-                    activeNavigableElem($navigableElems.eq(nextIndex));
+            $("#content .navigable-list")
+            .on("focus", ".navigable-link", function(){
+                if(!$(this).parents(".navigable-elem:first").hasClass("active")){
+                    $lists.find(".navigable-elem.active").removeClass("active");
+                    activeNavigableElem($(this).parents(".navigable-elem"));
                 }
-            }
-        });
+            })
+            .on("blur", ".navigable-link", function(){
+                $(this).parents(".navigable-elem:first").removeClass("active");
+            });
+        }
 
-        $list.find(".navigable-link").on("focus", function(){
-            if(!$(this).parents(".navigable-elem:first").hasClass("active")){
-                $list.find(".navigable-elem.active").removeClass("active");
-                activeNavigableElem($(this).parents(".navigable-elem"));
-            }
-        });
-        $list.find(".navigable-link").on("blur", function(){
-            $(this).parents(".navigable-elem:first").removeClass("active");
-        });
-    }
+        function activeNavigableElem($elem){
+            $elem
+                .addClass("active")
+                .find(".navigable-link")
+                    .focus();
+        }
 
-    function activeNavigableElem($elem){
-        $elem
-            .addClass("active")
-            .find(".navigable-link")
-                .focus();
-    }
-})(jQuery);
+        $("#content").on("DOMNodeInserted", ".navigable-list, .navigable-elem", function(){
+            $lists = $("#content .navigable-list");
+        });
+    });
+})(document, jQuery);

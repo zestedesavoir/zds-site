@@ -4,19 +4,19 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     var dropdownMouseDown = false;
     
-    $("[data-click]")
-    .on("mousedown", function(){
+    $("body")
+    .on("mousedown", "[data-click]", function(){
         dropdownMouseDown = true;
     })
-    .on("mouseup", function(){
+    .on("mouseup", "[data-click]", function(){
         dropdownMouseDown = false;
     })
-    .on("click focus", function(e){
+    .on("click focus", "[data-click]", function(e){
         if(e.type === "focus" && dropdownMouseDown)
             return false;
 

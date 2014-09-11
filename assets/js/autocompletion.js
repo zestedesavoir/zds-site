@@ -4,7 +4,7 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($) {
+(function($, undefined) {
     "use strict";
 
     function AutoComplete(input, options) {
@@ -290,5 +290,8 @@
 
     $(document).ready(function() {
         $("[data-autocomplete]").autocomplete();
+        $("#content").on("DOMNodeInserted", "[data-autocomplete]", function(e){
+            $(e.target).autocomplete();
+        });
     });
 })(jQuery);
