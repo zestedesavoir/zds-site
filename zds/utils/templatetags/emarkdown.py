@@ -1,18 +1,20 @@
 # coding: utf-8
 
+from functools import partial
+import re
+
 from django import template
 from django.utils.safestring import mark_safe
-import re
 
 import markdown
 from markdown.extensions.zds import ZdsExtension
 from zds.utils.templatetags.smileysDef import smileys
 
+register = template.Library()
 
 """
 Markdown related filters.
 """
-
 
 def get_markdown_instance(inline=False):
     """
@@ -46,10 +48,6 @@ def get_markdown_instance(inline=False):
                            )
     return md
 
-register = template.Library()
-
-
-
 
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
@@ -70,49 +68,21 @@ def emarkdown_inline(text):
             inline=True).convert(text).encode('utf-8').strip())
 
 
-def sub_hd1(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "#" + lvl + hd
+def decale_header(text, count):
 
-    return next
+    def sub_hd(match):
+        lvl = match.group('level')
+        hd = match.group('header')
 
+        new_content = "#" * count + lvl + hd
 
-def sub_hd2(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "#" + lvl + hd
+        return new_content
 
-    return next
-
-
-def sub_hd3(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "###" + lvl + hd
-
-    return next
-
-
-@register.filter('decale_header_1')
-def decale_header_1(text):
     return re.sub(
         r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd1,
+        sub_hd,
         text.encode("utf-8"))
 
 
-@register.filter('decale_header_2')
-def decale_header_2(text):
-    return re.sub(
-        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd2,
-        text.encode("utf-8"))
-
-
-@register.filter('decale_header_3')
-def decale_header_3(text):
-    return re.sub(
-        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd3,
-        text.encode("utf-8"))
+for i in range(4):
+    register.filter('decale_header_{}'.format(i))(partial(decale_header, count=i))
