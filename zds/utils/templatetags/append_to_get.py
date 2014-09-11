@@ -44,11 +44,11 @@ class AppendGetNode(template.Node):
         :param str arg_list: the argument list to append.
         """
 
-        self.dict_pairs = {}
+        self.__dict_pairs = {}
         for pair in arg_list.split(','):
             pair = pair.split('=')
             if len(pair) > 1:
-                self.dict_pairs[pair[0]] = template.Variable(pair[1])
+                self.__dict_pairs[pair[0]] = template.Variable(pair[1])
 
     def render(self, context):
         """
@@ -61,8 +61,8 @@ class AppendGetNode(template.Node):
         get = context['request'].GET.copy()
         path = context['request'].META['PATH_INFO']
 
-        for key in self.dict_pairs:
-            get[key] = self.dict_pairs[key].resolve(context)
+        for key in self.__dict_pairs:
+            get[key] = self.__dict_pairs[key].resolve(context)
 
         if len(get) > 0:
             list_arg = [u"{0}={1}".format(key, value) for key in get.keys() for value in get.getlist(key)]
