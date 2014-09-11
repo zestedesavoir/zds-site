@@ -8,16 +8,28 @@ from django.template.defaultfilters import date
 from django.utils.datetime_safe import datetime
 from django.utils.tzinfo import LocalTimezone
 
-
 register = template.Library()
 
+"""
+Define a filter to format date.
+"""
+
+# Date formating constants
 
 __DATE_FMT_FUTUR = "Dans le futur"
-__ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'
-__ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'
+__ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'       # Small format
+__ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'    # Normal format
 
 
 def date_formatter(value, tooltip, small):
+    """
+    Format a date to an human readable string.
+
+    :param value: Date to format.
+    :param bool tooltip: if `True`, format date to a tooltip label.
+    :param bool small: if `True`, create a shorter string.
+    :return:
+    """
     try:
         value = datetime(value.year, value.month, value.day,
                          value.hour, value.minute, value.second)
@@ -44,9 +56,11 @@ def date_formatter(value, tooltip, small):
 
 @register.filter
 def format_date(value, small=False):
+    """Format a date to an human readable string."""
     return date_formatter(value, tooltip=False, small=small)
 
 
 @register.filter
 def tooltip_date(value):
+    """Format a date to an human readable string. To be used in tooltip."""
     return date_formatter(value, tooltip=True, small=False)
