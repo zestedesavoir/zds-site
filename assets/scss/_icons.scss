@@ -283,6 +283,17 @@
                 @include sprite-pos($gear-light, true);
             }
         }
+        &.help {
+            &:after {
+                @include sprite-pos($help, true);
+            }
+            &.blue:after {
+                @include sprite-pos($help-blue, true);
+            }
+            &.light:after {
+                @include sprite-pos($help-light, true);
+            }
+        }
         // TODO : faire une vraie icône offline
         &.offline,
         &.arrow-right {
