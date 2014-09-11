@@ -689,7 +689,6 @@ def modify_tutorial(request):
                          settings.SITE_URL + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
-
                     create_topic(author=request.user,
                                  forum=forum,
                                  title=u"[beta][tutoriel]{0}".format(tutorial.title),
@@ -749,7 +748,6 @@ def modify_tutorial(request):
                          settings.SITE_URL + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
-
                     create_topic(author=request.user,
                                  forum=forum,
                                  title=u"[beta][tutoriel]{0}".format(tutorial.title),
@@ -1071,19 +1069,19 @@ def add_tutorial(request):
                 tutorial.need_writer = True
             else:
                 tutorial.need_writer = False
-            
+
             if "need_proofreader" in data and \
                data["need_proofreader"] == "on":
                 tutorial.need_proofreader = True
             else:
                 tutorial.need_proofreader = False
-            
+
             if "need_illustrator" in data and \
                data["need_illustrator"] == "on":
                 tutorial.need_illustrator = True
             else:
                 tutorial.need_illustrator = False
-            
+
             if "need_newwriter" in data and \
                data["need_newwriter"] == "on":
                 tutorial.need_newwriter = True
@@ -1221,25 +1219,25 @@ def edit_tutorial(request):
                 tutorial.need_writer = True
             else:
                 tutorial.need_writer = False
-            
+
             if "need_proofreader" in data and \
                data["need_proofreader"] == "on":
                 tutorial.need_proofreader = True
             else:
                 tutorial.need_proofreader = False
-            
+
             if "need_illustrator" in data and \
                data["need_illustrator"] == "on":
                 tutorial.need_illustrator = True
             else:
                 tutorial.need_illustrator = False
-            
+
             if "need_newwriter" in data and \
                data["need_newwriter"] == "on":
                 tutorial.need_newwriter = True
             else:
                 tutorial.need_newwriter = False
-            
+
             # add MAJ date
 
             tutorial.update = datetime.now()
@@ -3519,3 +3517,32 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+def help_tutorial(request):
+    """fetch all tutorials that needs help"""
+
+    # Retrieve type of the help. Default value is any help
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+
+    # filter according to GET "type" parameter
+    if type == 'writer':
+        tutos = Tutorial.objects.filter(need_writer=True).all()
+    elif type == 'proofreader':
+        tutos = Tutorial.objects.filter(need_proofreader=True).all()
+    elif type == 'illustrator':
+        tutos = Tutorial.objects.filter(need_illustrator=True).all()
+    elif type == 'newwriter':
+        tutos = Tutorial.objects.filter(need_newwriter=True).all()
+    else:
+        tutos = Tutorial.objects.filter(Q(need_writer=True) |
+                                        Q(need_proofreader=True) |
+                                        Q(need_illustrator=True) |
+                                        Q(need_newwriter=True) |
+                                        Q(sha_beta__isnull=False)) \
+                                .all()
+
+    return render_template("tutorial/tutorial/help.html", {"tutorials": tutos})

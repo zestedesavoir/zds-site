@@ -116,7 +116,6 @@ class TutorialForm(FormWithTitle):
         required=False,
     )
 
-
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
