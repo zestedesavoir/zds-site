@@ -24,5 +24,5 @@ class CaptureasNode(template.Node):
 
     def render(self, context):
         output = self.__node_list.render(context)
-        context[self.__variable_name] = output.strip(' \t\n\r')
+        context[self.__variable_name] = output.strip()
         return ''
