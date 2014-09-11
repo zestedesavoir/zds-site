@@ -6,11 +6,13 @@ register = template.Library()
 @register.tag(name='captureas')
 def do_captureas(parser, token):
     try:
-        tag_name, args = token.contents.split(None, 1)
+        tag_name, args = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError("'captureas' node requires a variable name.")
+
     nodelist = parser.parse(('endcaptureas',))
     parser.delete_first_token()
+
     return CaptureasNode(nodelist, args)
 
 
