@@ -46,9 +46,12 @@ class AppendGetNode(template.Node):
 
         self.__dict_pairs = {}
         for pair in arg_list.split(','):
-            pair = pair.split('=')
-            if len(pair) > 1:
-                self.__dict_pairs[pair[0]] = template.Variable(pair[1])
+            try:
+                key, val = pair.split('=')
+                self.__dict_pairs[key] = template.Variable(val)
+            except ValueError:
+                raise template.TemplateSyntaxError(
+                    "Bad argument format. '{}' must use the format 'key1=var1,key2=var2'".format(arg_list))
 
     def render(self, context):
         """
