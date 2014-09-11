@@ -18,7 +18,7 @@ def do_captureas(parser, token):
     """
 
     try:
-        tag_name, variable_name = token.split_contents()
+        _, variable_name = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError("'captureas' node requires a variable name.")
 
