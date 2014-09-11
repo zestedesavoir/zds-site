@@ -22,10 +22,20 @@ def easy_tag(func):
 
     @wraps(func)
     def inner(parser, token):
+        splitted_arg = token.split_contents()
         try:
-            return func(*token.split_contents())
+            return func(*splitted_arg)
         except TypeError:
-            raise template.TemplateSyntaxError('Bad arguments for tag "{}"'.format(token.split_contents()[0]))
+            import inspect
+            args = inspect.getargspec(func).args[1:]
+
+            err_msg = 'Bad arguments for tag "{0}".\nThe tag "{0}" take {1} arguments ({2}).\n {3} were provided ({4}).'
+            fstring = err_msg.format(splitted_arg[0],
+                                     len(args),
+                                     ", ".join(args),
+                                     len(splitted_arg),
+                                     ", ".join(splitted_arg))
+            raise template.TemplateSyntaxError(fstring)
     return inner
 
 
