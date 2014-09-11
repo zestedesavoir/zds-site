@@ -16,9 +16,7 @@ def date_formatter(value, tooltip, small):
     try:
         value = datetime(value.year, value.month, value.day,
                          value.hour, value.minute, value.second)
-    except AttributeError:
-        return value
-    except ValueError:
+    except (AttributeError, ValueError):
         return value
 
     if getattr(value, 'tzinfo', None):
