@@ -35,6 +35,7 @@ def date_formatter(value, tooltip, small):
         value = datetime(value.year, value.month, value.day,
                          value.hour, value.minute, value.second)
     except (AttributeError, ValueError):
+        # Check why not raise template.TemplateSyntaxError()
         return value
 
     if getattr(value, 'tzinfo', None):
@@ -69,6 +70,7 @@ def tooltip_date(value):
 
 @register.filter('humane_time')
 def humane_time(t):
+    """Render time to an human readable string"""
     tp = time.localtime(t)
     return time.strftime("%d %b %Y, %H:%M:%S", tp)
 
