@@ -2,7 +2,6 @@
 
 from django import template
 from django.utils.safestring import mark_safe
-import time
 import re
 
 import markdown
@@ -50,10 +49,6 @@ def get_markdown_instance(inline=False):
 register = template.Library()
 
 
-@register.filter('humane_time')
-def humane_time(t):
-    tp = time.localtime(t)
-    return time.strftime("%d %b %Y, %H:%M:%S", tp)
 
 
 @register.filter(needs_autoescape=False)

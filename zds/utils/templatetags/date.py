@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import timedelta
+import time
 
 from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -64,3 +65,10 @@ def format_date(value, small=False):
 def tooltip_date(value):
     """Format a date to an human readable string. To be used in tooltip."""
     return date_formatter(value, tooltip=True, small=False)
+
+
+@register.filter('humane_time')
+def humane_time(t):
+    tp = time.localtime(t)
+    return time.strftime("%d %b %Y, %H:%M:%S", tp)
+
