@@ -586,24 +586,30 @@
    ============== */
 .alert-box {
     position: relative;
-    padding: 8px 15px;
+    padding: 8px 30px 8px 15px;
     margin: 0 0 15px 2%;
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 
     .alert-box-text {
         display: block;
+        float: left;
     }
 
     .close-alert-box {
         display: block;
-        position: absolute;
-        top: 12px;
-        right: 15px;
+        float: right;
         height: 20px;
         width: 20px;
         text-indent: -9999px;
         text-decoration: none;
+        background-color: transparent;
+        line-height: 22px;
+        color: #FFF;
+
+        &.ico-after:after {
+            margin-top: 4px;
+        }
     }
     .close-alert-box-text {
         width: auto;
