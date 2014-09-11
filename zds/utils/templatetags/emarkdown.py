@@ -6,19 +6,29 @@ import time
 import re
 
 import markdown
-
 from markdown.extensions.zds import ZdsExtension
 from zds.utils.templatetags.smileysDef import smileys
 
 
-# Markdowns customs extensions :
-def get_markdown_instance(Inline=False):
-    zdsext = ZdsExtension({"inline": Inline, "emoticons": smileys})
+"""
+Markdown related filters.
+"""
+
+
+def get_markdown_instance(inline=False):
+    """
+    Provide a pre-configured markdown parser.
+
+    :param bool inline: If `True`, configure parser to parse only inline content.
+    :return: A ZMarkdown parser.
+    """
+    zdsext = ZdsExtension({"inline": inline, "emoticons": smileys})
     # Generate parser
     md = markdown.Markdown(extensions=(zdsext,),
                            safe_mode = 'escape',
-                           inline = Inline,
                            # Protect use of html by escape it
+                           inline = inline,
+                           # Parse only inline content.
                            enable_attributes = False,
                            # Disable the conversion of attributes.
                            # This could potentially allow an
@@ -27,7 +37,8 @@ def get_markdown_instance(Inline=False):
                            tab_length = 4,
                            # Length of tabs in the source.
                            # This is the default value
-                           output_format = 'html5',      # html5 output
+                           output_format = 'html5',
+                           # html5 output
                            # This is the default value
                            smart_emphasis = True,
                            # Enable smart emphasis for underscore syntax
@@ -40,7 +51,7 @@ register = template.Library()
 
 
 @register.filter('humane_time')
-def humane_time(t, conf={}):
+def humane_time(t):
     tp = time.localtime(t)
     return time.strftime("%d %b %Y, %H:%M:%S", tp)
 
@@ -49,8 +60,8 @@ def humane_time(t, conf={}):
 def emarkdown(text):
     try:
         return mark_safe(
-            get_markdown_instance(
-                Inline=False).convert(text).encode('utf-8'))
+            get_markdown_instance(inline=False).convert(text).encode('utf-8'))
+
     except:
         return mark_safe(
             u'<div class="error ico-after"><p>Une erreur est survenue '
@@ -61,7 +72,7 @@ def emarkdown(text):
 def emarkdown_inline(text):
     return mark_safe(
         get_markdown_instance(
-            Inline=True).convert(text).encode('utf-8').strip())
+            inline=True).convert(text).encode('utf-8').strip())
 
 
 def sub_hd1(g):
