@@ -20,7 +20,7 @@
 
     function buildModals($elems){
         $elems.each(function(){
-            $("#modals").append($(this).addClass("tab-modalize"));
+            $modals.append($(this).addClass("tab-modalize"));
             $(this).append($("<a/>", {
                 "class": "btn btn-cancel " + ($(this).is("[data-modal-close]") ? "btn-modal-fullwidth" : ""),
                 "href": "#close-modal",
