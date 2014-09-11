@@ -98,8 +98,18 @@ def emarkdown_inline(text):
 
 
 def decale_header(text, count):
+    """
+    Shift header in markdown document.
+
+    :param str text: Text to filter.
+    :param int count:
+    :return: Filtered text.
+    :rtype: str
+    """
 
     def sub_hd(match):
+        """Replace header shifted."""
+
         lvl = match.group('level')
         hd = match.group('header')
 
@@ -113,5 +123,6 @@ def decale_header(text, count):
         text.encode("utf-8"))
 
 
-for i in range(4):
+# Register 3 filter.
+for i in range(1, 4):
     register.filter('decale_header_{}'.format(i))(partial(decale_header, count=i))
