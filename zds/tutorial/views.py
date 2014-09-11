@@ -308,7 +308,10 @@ def reject_tutorial(request):
                 u'Voici le message que [{2}]({3}), ton validateur t\'a laissé\n\n> {4}\n\n'
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
-                u'semble injuste ou manque de clarté.'.format(
+                u'semble injuste ou manque de clarté.\n\n'
+                u'N\'oublie pas que la communauté peut t\'aider '
+                u'via la mise en bêta et les diverses options '
+                u'du menu "éditer" du tutoriel.'.format(
                     author.username,
                     tutorial.title,
                     validation.validator.username,
@@ -382,7 +385,10 @@ def valid_tutorial(request):
                 u'Je te conseille de rester à leur écoute afin '
                 u'd\'apporter des corrections/compléments.'
                 u'Un Tutoriel vivant et à jour est bien plus lu '
-                u'qu\'un sujet abandonné !'.format(
+                u'qu\'un sujet abandonné !\n\n\n'
+                u'*Maintenant que ton zeste est publié, n\'ouvlie pas '
+                u'de l\'enlever de la bêta et de mettre à jour les options'
+                u'de demandes d\'aides du menu "éditer" du tutoriel.*'.format(
                     author.username,
                     tutorial.title,
                     settings.SITE_URL + tutorial.get_absolute_url_online(),
@@ -700,11 +706,14 @@ def modify_tutorial(request):
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     private_mp = \
                         (u'Bonjour {},\n\n'
-                         u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                         u'Vous venez de mettre votre tutoriel **{}** en bêta. La communauté '
                          u'pourra le consulter afin de vous faire des retours '
                          u'constructifs avant sa soumission en validation.\n\n'
                          u'Un sujet dédié pour la beta de votre tutoriel a été '
-                         u'crée dans le forum et est accessible [ici]({})'.format(
+                         u'crée dans le forum et est accessible [ici]({}).\n\n'
+                         u'Si vous avez besoin d\'aide pour continuer à rédiger, '
+                         u'corriger ou illustrer votre tutoriel, des options sont '
+                         u'présentes dans le menu "éditer" de ce dernier.'.format(
                              request.user.username,
                              tutorial.title,
                              settings.SITE_URL + tp.get_absolute_url()))
