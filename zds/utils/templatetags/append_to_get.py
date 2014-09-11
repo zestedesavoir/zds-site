@@ -13,7 +13,7 @@ def easy_tag(func):
     Deal with the repetitive parts of parsing template tags :
 
      - Wraps functions attributes;
-     - Raise `TemplateSyntaxError` if arguments are not well formated.
+     - Raise `TemplateSyntaxError` if arguments are not well formatted.
 
     :rtype: function
     :param func: Function to wraps.
