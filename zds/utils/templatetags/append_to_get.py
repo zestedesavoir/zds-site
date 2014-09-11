@@ -61,10 +61,13 @@ class AppendGetNode(template.Node):
             if pair:
                 try:
                     key, val = pair.split('=')
+                    if not val:
+                        raise template.TemplateSyntaxError(
+                            "Bad argument format. Empty value for key '{}".format(key))
                     self.__dict_pairs[key] = template.Variable(val)
                 except ValueError:
                     raise template.TemplateSyntaxError(
-                        "Bad argument format. '{}' must use the format 'key1=var1,key2=var2'".format(arg_list))
+                        "Bad argument format.\n'{}' must use the format 'key1=var1,key2=var2'".format(arg_list))
 
     def render(self, context):
         """
