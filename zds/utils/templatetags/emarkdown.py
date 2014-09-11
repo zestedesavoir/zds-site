@@ -16,6 +16,11 @@ register = template.Library()
 Markdown related filters.
 """
 
+# Constant strings
+__MD_ERROR_PARSING = u"Une erreur est survenue dans la génération de texte Markdown. " \
+                     u"Veuillez rapporter le bug."
+
+
 def get_markdown_instance(inline=False):
     """
     Provide a pre-configured markdown parser.
@@ -49,23 +54,47 @@ def get_markdown_instance(inline=False):
     return md
 
 
+def render_markdown(text, inline=False):
+    """
+    Render a markdown text to html.
+
+    :param str text: Text to render.
+    :param bool inline: If `True`, parse only inline content.
+    :return: Equivalent html string.
+    :rtype: str
+    """
+    return get_markdown_instance(inline=False).convert(text).encode('utf-8').strip()
+
+
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
-    try:
-        return mark_safe(
-            get_markdown_instance(inline=False).convert(text).encode('utf-8'))
+    """
+    Filter markdown text and render it to html.
 
+    :param str text: Text to render.
+    :return: Equivalent html string.
+    :rtype: str
+    """
+    try:
+        return mark_safe(render_markdown(text, inline=False))
     except:
-        return mark_safe(
-            u'<div class="error ico-after"><p>Une erreur est survenue '
-            u'dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
+        return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
 def emarkdown_inline(text):
-    return mark_safe(
-        get_markdown_instance(
-            inline=True).convert(text).encode('utf-8').strip())
+    """
+    Filter markdown text and render it to html. Only inline elements will be parsed.
+
+    :param str text: Text to render.
+    :return: Equivalent html string.
+    :rtype: str
+    """
+
+    try:
+        return mark_safe(render_markdown(text, inline=True))
+    except:
+        return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
 
 
 def decale_header(text, count):
