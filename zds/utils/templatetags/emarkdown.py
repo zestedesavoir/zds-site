@@ -112,7 +112,7 @@ def decale_header(text, count):
         lvl = match.group('level')
         hd = match.group('header')
 
-        new_content = "#" * count + lvl + hd
+        new_content = "#" * count + match.group(0)
 
         return new_content
 
