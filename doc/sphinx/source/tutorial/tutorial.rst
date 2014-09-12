@@ -311,7 +311,7 @@ Afin d'aider les auteurs de tutoriels à rédiger ces derniers, des options lors
 - Besoin d'aide à l'écriture
 - Besoin d'aide à la correction/relecture
 - Besoin d'aide pour illustrer
-- Désire d'abandonner le tutoriel et recherche d'un repreneur
+- Désir d'abandonner le tutoriel et recherche d'un repreneur
 
 L'ensemble de ces options est visible via la page "help.html", template dans le fichier `templates/tutorial/tutorial/help.html`. Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués.
 Toutes les données servant à peupler ce tableau sont renvoyées via la méthode `help_tutorial` dans le fichier `zds/tutorial/views.py`. Cette méthode peut prendre en compte un argument en GET nommé `type` désignant le filtre à appliquer :
