@@ -3811,7 +3811,6 @@ class MiniTutorialTests(TestCase):
         tutos = response.context['tutorials']
         self.assertEqual(len(tutos), 1)
 
-
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)

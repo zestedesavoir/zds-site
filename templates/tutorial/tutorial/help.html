@@ -17,18 +17,11 @@
 
 {% block content_out %}
     <section class="full-content-wrapper">
-        <h1>
+        <h1 class="ico-after ico-tutorials">
             {% block headline %}
                 Aider les auteurs de tutoriels ({{ tutorials|length }})
             {% endblock %}
         </h1>
-
-        {% captureas headlinesub %}
-            {% block headline_sub %}{% endblock %}
-        {% endcaptureas %}
-        {% if headlinesub %}
-            <h2 class="subtitle">{{ headlinesub|safe }}</h2>
-        {% endif %}
 
         {% block content %}
             {% if tutorials %}
@@ -36,14 +29,14 @@
                 <table class="fullwidth">
                     <thead>
                         <tr>
-                            <th><span class="ico-after gear blue"></span></th> <!-- tuto en beta -->
-                            <th><span class="ico-after gear blue"></span></th> <!-- tuto en ligne -->
-                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la rédaction -->
-                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la correction -->
-                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour l'illustration -->
-                            <th><span class="ico-after gear blue"></span></th> <!-- Je laisse ce tuto a qui veux le reprendre -->
-                            <th>Auteur(s)</th> <!-- Contacter le(s) auteur(s) -->
-                            <th>Titre du tutoriel</th> <!-- Titre du tuto -->
+                            <th scope="col" title="Tutoriel en bêta"><span class="ico-after gear blue"></span></th> <!-- tuto en beta -->
+                            <th scope="col" title="Tutoriel en ligne"><span class="ico-after gear blue"></span></th> <!-- tuto en ligne -->
+                            <th scope="col" title="Besoin d'aide pour la rédaction"><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la rédaction -->
+                            <th scope="col" title="Besoin d'aide pour la correction"><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la correction -->
+                            <th scope="col" title="Besoin d'aide pour l'illustration"><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour l'illustration -->
+                            <th scope="col" title="Tutoriel en recherche d'un repreneur"><span class="ico-after gear blue"></span></th> <!-- Je laisse ce tuto a qui veux le reprendre -->
+                            <th scope="col" title="Contacter le(s) auteur(s)">MP Auteur(s)</th> <!-- Contacter le(s) auteur(s) -->
+                            <th scope="col" title="Titre du tutoriel">Titre du tutoriel</th> <!-- Titre du tuto -->
                         </tr>
                     </thead>
                     <tbody>
@@ -52,56 +45,42 @@
                                 <!-- tuto en beta -->
                                 <td>
                                     {% if tutorial.sha_beta %}
-                                        <a class="ico-after gear blue" href="{{ tutorial.get_absolute_url_beta }}"></a>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                        <a title="Oui" href="{{ tutorial.get_absolute_url_beta }}"><img src="dummy_tutobeta.png" alt=""></a>
                                     {% endif %}
                                 </td>
                                 <!-- tuto en ligne -->
                                 <td>
                                     {% if tutorial.sha_public %}
-                                        <a class="ico-after gear blue" href="{{ tutorial.get_absolute_url_online }}"></a>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                        <a title="Oui" href="{{ tutorial.get_absolute_url_online }}"><img src="dummy_tutopublic.png" alt=""></a>
                                     {% endif %}
                                 </td>
                                 <!-- Besoin d'aide pour la rédaction -->
                                 <td>
                                     {% if tutorial.need_writer %}
-                                        <span class="ico-after gear blue"></span>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                        <img src="dummy_need_writer.png" alt="">
                                     {% endif %}
                                 </td>
                                 <!-- Besoin d'aide pour la correction -->
                                 <td>
                                     {% if tutorial.need_proofreader %}
-                                        <span class="ico-after gear blue"></span>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                        <img src="dummy_need_proofreader.png" alt="">
                                     {% endif %}
                                 </td>
                                 <!-- Besoin d'aide pour l'illustration -->
                                 <td>
                                     {% if tutorial.need_illustrator %}
-                                        <span class="ico-after gear blue"></span>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                        <img src="dummy_need_illustrator.png" alt="">
                                     {% endif %}
                                 </td>
                                 <!-- Je laisse ce tuto a qui veux le reprendre -->
                                 <td>
                                     {% if tutorial.need_newwriter %}
-                                        <span class="ico-after gear blue"></span>
-                                    {% else %}
-                                        <span class="ico-after gear grey"></span>
+                                       <img src="dummy_need_newwriter.png" alt="">
                                     {% endif %}
                                 </td>
                                 <!-- Contacter le(s) auteur(s) -->
                                 <td>
-                                    {% for author in tutorial.authors.all %}
-                                        {% include 'misc/member_item.part.html' with member=author avatar=True %}
-                                    {% endfor %}
+                                    <a  href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
                                 </td>
                                 <!-- Titre du tuto -->
                                 <td>
@@ -114,13 +93,13 @@
 
                 <!-- I'm a Legend -->
                 <ul id="legend">
-                    <li><span class="ico-after gear blue">Tutoriel en beta</span></li>
-                    <li><span class="ico-after gear blue">Tutoriel en ligne</span></li>
-                    <li><span class="ico-after gear blue">Besoin d'aide pour la rédaction</span></li>
-                    <li><span class="ico-after gear blue">Besoin d'aide pour la correction</span></li>
-                    <li><span class="ico-after gear blue">Besoin d'aide pour l'illustration</span></li>
-                    <li><span class="ico-after gear blue">Je laisse ce tutoriel a qui veux le reprendre</span></li>
-                    <li><span class="ico-after gear blue">Contacter le(s) auteur(s)</span></li>
+                    <li><img src="dummy_tutobeta.png" alt=""> Tutoriel en beta</li>
+                    <li><img src="dummy_tutopublic.png" alt=""> Tutoriel en ligne</li>
+                    <li><img src="dummy_need_writer.png" alt=""> Besoin d'aide pour la rédaction</li>
+                    <li><img src="dummy_need_proofreader.png" alt=""> Besoin d'aide pour la correction</li>
+                    <li><img src="dummy_need_illustrator.png" alt=""> Besoin d'aide pour l'illustration</li>
+                    <li><img src="dummy_need_newwriter.png" alt=""> Je laisse ce tutoriel a qui veux le reprendre</li>
+                    <li><img src="dummy_contactmp.png" alt=""> Contacter le(s) auteur(s)</li>
                 </ul>
             {% else %}
                 <p>
@@ -135,7 +114,7 @@
 
 {% block sidebar_new %}{% endblock %}
 {% block sidebar_blocks %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Besoin">
         <h3>Besoin</h3>
         <ul>
             <li>
@@ -161,7 +140,7 @@
             {% if request.GET.type %}
                 <li>
                     <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross blue">
-                        Annuler le(s) filtre(s)
+                        Annuler le filtre
                     </a>
                 </li>
             {% endif %}
