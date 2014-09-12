@@ -1,0 +1,170 @@
+{% extends "tutorial/base_online.html" %}
+{% load captureas %}
+
+
+
+{% block title %}
+    Aider les auteurs
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Aider les auteurs</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h1>
+            {% block headline %}
+                Aider les auteurs de tutoriels ({{ tutorials|length }})
+            {% endblock %}
+        </h1>
+
+        {% captureas headlinesub %}
+            {% block headline_sub %}{% endblock %}
+        {% endcaptureas %}
+        {% if headlinesub %}
+            <h2 class="subtitle">{{ headlinesub|safe }}</h2>
+        {% endif %}
+
+        {% block content %}
+            {% if tutorials %}
+                (Légende des icones <a href="#legend">en bas du tableau</a>)
+                <table class="fullwidth">
+                    <thead>
+                        <tr>
+                            <th><span class="ico-after gear blue"></span></th> <!-- tuto en beta -->
+                            <th><span class="ico-after gear blue"></span></th> <!-- tuto en ligne -->
+                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la rédaction -->
+                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour la correction -->
+                            <th><span class="ico-after gear blue"></span></th> <!-- Besoin d'aide pour l'illustration -->
+                            <th><span class="ico-after gear blue"></span></th> <!-- Je laisse ce tuto a qui veux le reprendre -->
+                            <th>Auteur(s)</th> <!-- Contacter le(s) auteur(s) -->
+                            <th>Titre du tutoriel</th> <!-- Titre du tuto -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tutorial in tutorials %}
+                            <tr>
+                                <!-- tuto en beta -->
+                                <td>
+                                    {% if tutorial.sha_beta %}
+                                        <a class="ico-after gear blue" href="{{ tutorial.get_absolute_url_beta }}"></a>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- tuto en ligne -->
+                                <td>
+                                    {% if tutorial.sha_public %}
+                                        <a class="ico-after gear blue" href="{{ tutorial.get_absolute_url_online }}"></a>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- Besoin d'aide pour la rédaction -->
+                                <td>
+                                    {% if tutorial.need_writer %}
+                                        <span class="ico-after gear blue"></span>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- Besoin d'aide pour la correction -->
+                                <td>
+                                    {% if tutorial.need_proofreader %}
+                                        <span class="ico-after gear blue"></span>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- Besoin d'aide pour l'illustration -->
+                                <td>
+                                    {% if tutorial.need_illustrator %}
+                                        <span class="ico-after gear blue"></span>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- Je laisse ce tuto a qui veux le reprendre -->
+                                <td>
+                                    {% if tutorial.need_newwriter %}
+                                        <span class="ico-after gear blue"></span>
+                                    {% else %}
+                                        <span class="ico-after gear grey"></span>
+                                    {% endif %}
+                                </td>
+                                <!-- Contacter le(s) auteur(s) -->
+                                <td>
+                                    {% for author in tutorial.authors.all %}
+                                        {% include 'misc/member_item.part.html' with member=author avatar=True %}
+                                    {% endfor %}
+                                </td>
+                                <!-- Titre du tuto -->
+                                <td>
+                                    {{ tutorial.title }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- I'm a Legend -->
+                <ul id="legend">
+                    <li><span class="ico-after gear blue">Tutoriel en beta</span></li>
+                    <li><span class="ico-after gear blue">Tutoriel en ligne</span></li>
+                    <li><span class="ico-after gear blue">Besoin d'aide pour la rédaction</span></li>
+                    <li><span class="ico-after gear blue">Besoin d'aide pour la correction</span></li>
+                    <li><span class="ico-after gear blue">Besoin d'aide pour l'illustration</span></li>
+                    <li><span class="ico-after gear blue">Je laisse ce tutoriel a qui veux le reprendre</span></li>
+                    <li><span class="ico-after gear blue">Contacter le(s) auteur(s)</span></li>
+                </ul>
+            {% else %}
+                <p>
+                    Aucun rédacteur n'a l'air d'avoir besoin d'aide !
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
+{% endblock %}
+
+
+
+{% block sidebar_new %}{% endblock %}
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>Besoin</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.tutorial.views.help_tutorial" %}?type=writer" class="ico-after tick green {% if request.GET.type == "writer" %}unread{% endif %}">
+                    Rédacteur
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.help_tutorial" %}?type=proofreader" class="ico-after tick green {% if request.GET.type == "proofreader" %}unread{% endif %}">
+                    Correcteur
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.help_tutorial" %}?type=illustrator" class="ico-after tick green {% if request.GET.type == "illustrator" %}unread{% endif %}">
+                    Illustrateur
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.help_tutorial" %}?type=newwriter" class="ico-after tick green {% if request.GET.type == "newwriter" %}unread{% endif %}">
+                    Repreneur
+                </a>
+            </li>
+            {% if request.GET.type %}
+                <li>
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross blue">
+                        Annuler le(s) filtre(s)
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
