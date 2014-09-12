@@ -1,6 +1,6 @@
-========================
+======================
 Installation sous OS X
-========================
+======================
 
 Pour installer une version locale de ZdS sur OS X, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -28,7 +28,7 @@ Installation de virtualenv
 
 
 Création de votre environnement
-==========================
+===============================
 
 .. sourcecode:: bash
 
@@ -56,7 +56,7 @@ Front ou Back ?
 ===============
 
 Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources `ici <http://zestedesavoir.com/static/pack.zip>`_
-Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
+Il faudra l'extraire dans le dossier ``dist/`` à la racine de votre projet.
 
 Si vous comptez contribuer au front-end, rendez-vous sur la documentation dédiée.
 
@@ -70,11 +70,11 @@ Installation de toutes les dépendances
   gulp build
 
 
-Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
-Pour sortir de votre environnement : `deactive`
+Pour relancer votre environnement : ``source ~/.virtualenvs/zdsenv/bin/activate``
+Pour sortir de votre environnement : ``deactive``
 
 Aller plus loin
-================
+===============
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 

@@ -1,6 +1,6 @@
-========================
+=======================
 Installation sous Linux
-========================
+=======================
 
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -31,7 +31,7 @@ Ou, en une ligne,
     easy_install pip
 
 Instalation et configuration de `virtualenv`
-===========================================
+============================================
 
 (cette étape n'est pas obligatoire, mais fortement conseillée)
 
@@ -48,20 +48,22 @@ Instalation et configuration de `virtualenv`
     source zdsenv/bin/activate
 
 
+Pour sortir de votre environnement : ``deactive``
+
 Une documentation plus complète de cet outil [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 Front ou Back ?
 ===============
 
 Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources `ici <http://zestedesavoir.com/static/pack.zip>`_
-Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
+Il faudra l'extraire dans le dossier ``dist/`` à la racine de votre projet.
 
 Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
 
 Lancer ZdS
-===============
+==========
 
-Une fois dans votre environnement python (`source ../bin/activate` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
+Une fois dans votre environnement python (``source ../bin/activate`` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
 
 .. sourcecode:: bash
 

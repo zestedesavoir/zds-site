@@ -2,7 +2,7 @@
    sphinx-quickstart le Samedi 30 Août 2014 à 12:10:30.
 
 Documentation de Zeste De Savoir
-===========================================
+================================
 
 Sommaire:
 
@@ -15,12 +15,13 @@ Sommaire:
    forum/forum.rst
    gallery/gallery.rst
    article/article.rst
-   
+   utils/utils.rst
+
 
 
 
 Index et tableaux
-==================
+=================
 
 * :ref:`genindex`
 * :ref:`modindex`
