@@ -36,14 +36,14 @@ def date_formatter(value, tooltip, small):
         value = datetime(value.year, value.month, value.day,
                          value.hour, value.minute, value.second)
     except (AttributeError, ValueError):
-        # Check why not raise template.TemplateSyntaxError()
+        # todo : Check why not raise template.TemplateSyntaxError() ?
         return value
 
     if getattr(value, 'tzinfo', None):
         now = datetime.now(LocalTimezone(value))
     else:
         now = datetime.now()
-    now = now - timedelta(0, 0, now.microsecond)
+    now = now - timedelta(microseconds=now.microsecond)
 
     if value > now:
         return __DATE_FMT_FUTUR
