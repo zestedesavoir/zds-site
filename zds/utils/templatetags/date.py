@@ -15,11 +15,12 @@ register = template.Library()
 Define a filter to format date.
 """
 
-# Date formating constants
+# Date formatting constants
 
 __DATE_FMT_FUTUR = "Dans le futur"
 __ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'       # Small format
 __ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'    # Normal format
+__ABS_HUMAN_TIME_FMT = "%d %b %Y, %H:%M:%S"
 
 
 def date_formatter(value, tooltip, small):
@@ -72,5 +73,5 @@ def tooltip_date(value):
 def humane_time(t):
     """Render time to an human readable string"""
     tp = time.localtime(t)
-    return time.strftime("%d %b %Y, %H:%M:%S", tp)
+    return time.strftime(__ABS_HUMAN_TIME_FMT, tp)
 
