@@ -308,7 +308,10 @@ def reject_tutorial(request):
                 u'Voici le message que [{2}]({3}), ton validateur t\'a laissé\n\n> {4}\n\n'
                 u'N\'hésite pas à lui envoyer un petit message pour discuter '
                 u'de la décision ou demander plus de détails si tout cela te '
-                u'semble injuste ou manque de clarté.'.format(
+                u'semble injuste ou manque de clarté.\n\n'
+                u'N\'oublie pas que la communauté peut t\'aider '
+                u'via la mise en bêta et les diverses options '
+                u'du menu "éditer" du tutoriel.'.format(
                     author.username,
                     tutorial.title,
                     validation.validator.username,
@@ -382,7 +385,10 @@ def valid_tutorial(request):
                 u'Je te conseille de rester à leur écoute afin '
                 u'd\'apporter des corrections/compléments.'
                 u'Un Tutoriel vivant et à jour est bien plus lu '
-                u'qu\'un sujet abandonné !'.format(
+                u'qu\'un sujet abandonné !\n\n\n'
+                u'*Maintenant que ton zeste est publié, n\'ouvlie pas '
+                u'de l\'enlever de la bêta et de mettre à jour les options'
+                u'de demandes d\'aides du menu "éditer" du tutoriel.*'.format(
                     author.username,
                     tutorial.title,
                     settings.SITE_URL + tutorial.get_absolute_url_online(),
@@ -689,7 +695,6 @@ def modify_tutorial(request):
                          settings.SITE_URL + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
-
                     create_topic(author=request.user,
                                  forum=forum,
                                  title=u"[beta][tutoriel]{0}".format(tutorial.title),
@@ -701,11 +706,14 @@ def modify_tutorial(request):
                     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
                     private_mp = \
                         (u'Bonjour {},\n\n'
-                         u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                         u'Vous venez de mettre votre tutoriel **{}** en bêta. La communauté '
                          u'pourra le consulter afin de vous faire des retours '
                          u'constructifs avant sa soumission en validation.\n\n'
                          u'Un sujet dédié pour la beta de votre tutoriel a été '
-                         u'crée dans le forum et est accessible [ici]({})'.format(
+                         u'crée dans le forum et est accessible [ici]({}).\n\n'
+                         u'Si vous avez besoin d\'aide pour continuer à rédiger, '
+                         u'corriger ou illustrer votre tutoriel, des options sont '
+                         u'présentes dans le menu "éditer" de ce dernier.'.format(
                              request.user.username,
                              tutorial.title,
                              settings.SITE_URL + tp.get_absolute_url()))
@@ -749,7 +757,6 @@ def modify_tutorial(request):
                          settings.SITE_URL + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.BETA_FORUM_ID)
-
                     create_topic(author=request.user,
                                  forum=forum,
                                  title=u"[beta][tutoriel]{0}".format(tutorial.title),
@@ -1057,6 +1064,7 @@ def add_tutorial(request):
             tutorial.introduction = "introduction.md"
             tutorial.conclusion = "conclusion.md"
             tutorial.images = "images"
+
             if "licence" in data and data["licence"] != "":
                 lc = Licence.objects.filter(pk=data["licence"]).all()[0]
                 tutorial.licence = lc
@@ -1064,6 +1072,30 @@ def add_tutorial(request):
                 tutorial.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
                 )
+
+            if "need_writer" in data and \
+               data["need_writer"] == "on":
+                tutorial.need_writer = True
+            else:
+                tutorial.need_writer = False
+
+            if "need_proofreader" in data and \
+               data["need_proofreader"] == "on":
+                tutorial.need_proofreader = True
+            else:
+                tutorial.need_proofreader = False
+
+            if "need_illustrator" in data and \
+               data["need_illustrator"] == "on":
+                tutorial.need_illustrator = True
+            else:
+                tutorial.need_illustrator = False
+
+            if "need_newwriter" in data and \
+               data["need_newwriter"] == "on":
+                tutorial.need_newwriter = True
+            else:
+                tutorial.need_newwriter = False
 
             # add create date
 
@@ -1169,7 +1201,10 @@ def edit_tutorial(request):
                     "subcategory": tutorial.subcategory.all(),
                     "introduction": tutorial.get_introduction(),
                     "conclusion": tutorial.get_conclusion(),
-
+                    "need_writer": tutorial.need_writer,
+                    "need_proofreader": tutorial.need_proofreader,
+                    "need_illustrator": tutorial.need_illustrator,
+                    "need_newwriter": tutorial.need_newwriter,
                 })
                 return render_template("tutorial/tutorial/edit.html",
                                        {
@@ -1187,6 +1222,30 @@ def edit_tutorial(request):
                 tutorial.licence = Licence.objects.get(
                     pk=settings.DEFAULT_LICENCE_PK
                 )
+
+            if "need_writer" in data and \
+               data["need_writer"] == "on":
+                tutorial.need_writer = True
+            else:
+                tutorial.need_writer = False
+
+            if "need_proofreader" in data and \
+               data["need_proofreader"] == "on":
+                tutorial.need_proofreader = True
+            else:
+                tutorial.need_proofreader = False
+
+            if "need_illustrator" in data and \
+               data["need_illustrator"] == "on":
+                tutorial.need_illustrator = True
+            else:
+                tutorial.need_illustrator = False
+
+            if "need_newwriter" in data and \
+               data["need_newwriter"] == "on":
+                tutorial.need_newwriter = True
+            else:
+                tutorial.need_newwriter = False
 
             # add MAJ date
 
@@ -1245,6 +1304,10 @@ def edit_tutorial(request):
             "subcategory": tutorial.subcategory.all(),
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
+            "need_writer": tutorial.need_writer,
+            "need_proofreader": tutorial.need_proofreader,
+            "need_illustrator": tutorial.need_illustrator,
+            "need_newwriter": tutorial.need_newwriter,
         })
     return render_template("tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
@@ -3463,3 +3526,32 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+def help_tutorial(request):
+    """fetch all tutorials that needs help"""
+
+    # Retrieve type of the help. Default value is any help
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+
+    # filter according to GET "type" parameter
+    if type == 'writer':
+        tutos = Tutorial.objects.filter(need_writer=True).all()
+    elif type == 'proofreader':
+        tutos = Tutorial.objects.filter(need_proofreader=True).all()
+    elif type == 'illustrator':
+        tutos = Tutorial.objects.filter(need_illustrator=True).all()
+    elif type == 'newwriter':
+        tutos = Tutorial.objects.filter(need_newwriter=True).all()
+    else:
+        tutos = Tutorial.objects.filter(Q(need_writer=True) |
+                                        Q(need_proofreader=True) |
+                                        Q(need_illustrator=True) |
+                                        Q(need_newwriter=True) |
+                                        Q(sha_beta__isnull=False)) \
+                                .all()
+
+    return render_template("tutorial/tutorial/help.html", {"tutorials": tutos})

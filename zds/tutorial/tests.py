@@ -3711,6 +3711,106 @@ class MiniTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
+    def test_help_to_perfect_tuto(self):
+        """ This test aim to unit test the "help me to write my tutorial"
+        interface. It is testing if the back-end is always sending back
+        good datas """
+
+        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+
+        # if we give the tuto a beta it should return 1
+        self.minituto.sha_beta = "whatever"
+        self.minituto.save()
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+
+        # However if we ask with a filter we will still get 0
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=writer',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=proofreader',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=illustrator',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=newwriter',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+
+        # now tutorial is positive for every options
+        # if we ask for any help we should get a positive answer for every filter
+        self.minituto.need_writer = True
+        self.minituto.need_proofreader = True
+        self.minituto.need_illustrator = True
+        self.minituto.need_newwriter = True
+        self.minituto.save()
+
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=writer',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=proofreader',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=illustrator',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            '?type=newwriter',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+
     def tearDown(self):
         if os.path.isdir(settings.REPO_PATH):
             shutil.rmtree(settings.REPO_PATH)
