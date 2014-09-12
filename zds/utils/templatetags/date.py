@@ -71,7 +71,7 @@ def tooltip_date(value):
 
 @register.filter('humane_time')
 def humane_time(t):
-    """Render time to an human readable string"""
+    """Render time (number of second from epoch) to an human readable string"""
     tp = time.localtime(t)
     return time.strftime(__ABS_HUMAN_TIME_FMT, tp)
 
