@@ -62,7 +62,7 @@ def render_markdown(text, inline=False):
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=False).convert(text).encode('utf-8').strip()
+    return get_markdown_instance(inline=inline).convert(text).encode('utf-8').strip()
 
 
 @register.filter(needs_autoescape=False)
