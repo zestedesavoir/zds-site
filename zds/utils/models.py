@@ -285,3 +285,32 @@ class Tag(models.Model):
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)
+
+
+class HelpWriting(models.Model):
+
+    """Tutorial Help"""
+    class Meta:
+        verbose_name = u'Aide à la rédaction'
+        verbose_name_plural = u'Aides à la rédaction'
+
+    # A name for this help
+    title = models.CharField('Name', max_length=20, null=False)
+    slug = models.SlugField(max_length=80)
+
+    # tablelabel: Used for the accessibility "This tutoriel need help for writing"
+    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
+
+    # The image to use to illustrate this role
+    imagename = models.CharField('Illustration', max_length=100, null=False)
+
+    def __unicode__(self):
+        """Textual Licence Form."""
+        return self.title
+
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(HelpWriting, self).save(*args, **kwargs)
