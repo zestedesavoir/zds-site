@@ -467,12 +467,16 @@ def ask_validation(request):
                               status__in=['PENDING', 'PENDING_V'])\
         .delete()
     # We create and save validation object of the tutorial.
-
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
     validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
+    field = ""
+    for data in request.POST.getlist("extracts"):
+        field += str(data)+","
+    validation.extracts = field.lstrip(",")
+
     if old_validator is not None:
         validation.validator = old_validator
         validation.date_reserve
@@ -830,9 +834,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     tutorial.load_introduction_and_conclusion(mandata, sha)
 
     # If it's a small tutorial, fetch its chapter
-
+    hierarchy = []
     if tutorial.type == "MINI":
         if 'chapter' in mandata:
+            mandata["chapter"] = tutorial.get_selected_chapter(sha, mandata["chapter"])
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
@@ -843,16 +848,17 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                          )
             cpt = 1
             for ext in chapter["extracts"]:
+                hierarchy.append([ext['pk'], ext['title']])
                 ext["position_in_chapter"] = cpt
                 ext["path"] = tutorial.get_path()
                 ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
                 cpt += 1
         else:
             chapter = None
+
     else:
-
         # If it's a big tutorial, fetch parts.
-
+        mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
         parts = mandata["parts"]
         cpt_p = 1
         for part in parts:
@@ -869,12 +875,15 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
                 cpt_e = 1
+                sub_c_hierarchy = []
                 for ext in chapter["extracts"]:
+                    sub_c_hierarchy.append([ext['pk'], ext['title']])
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
                     ext["path"] = tutorial.get_path()
                     ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
                     cpt_e += 1
+                hierarchy.append([u"{}.{}-{}".format(str(cpt_p), str(cpt_c), chapter['title']), sub_c_hierarchy])
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
@@ -882,9 +891,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         .first()
     if tutorial.source:
         form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
+        form_ask_validation.fields["extracts"].choices = hierarchy
         form_valid = ValidForm(initial={"source": tutorial.source})
     else:
         form_ask_validation = AskValidationForm()
+        form_ask_validation.fields["extracts"].choices = hierarchy
         form_valid = ValidForm()
     form_reject = RejectForm()
     return render_template("tutorial/tutorial/view.html", {
@@ -925,6 +936,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     if tutorial.type == "MINI":
         if "chapter" in mandata:
+            mandata["chapter"] = tutorial.get_selected_chapter_online(mandata["chapter"])
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_prod_path()
             chapter["type"] = "MINI"
@@ -948,9 +960,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         else:
             chapter = None
     else:
-
-        # chapter = Chapter.objects.get(tutorial=tutorial)
-
+        # if tutorial is big
+        mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
         parts = mandata["parts"]
         cpt_p = 1
         for part in parts:
@@ -1289,38 +1300,36 @@ def view_part(
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
-
-    parts = mandata["parts"]
+    mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
+    # load parts
     find = False
     cpt_p = 1
-    for part in parts:
+    for part in mandata["parts"]:
+        part["tutorial"] = tutorial
+        part["path"] = tutorial.get_path()
+        part["slug"] = slugify(part["title"])
+        part["position_in_tutorial"] = cpt_p
+        cpt_c = 1
+        for chapter in part["chapters"]:
+            chapter["part"] = part
+            chapter["path"] = tutorial.get_path()
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["type"] = "BIG"
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            cpt_e = 1
+            for ext in chapter["extracts"]:
+                ext["chapter"] = chapter
+                ext["position_in_chapter"] = cpt_e
+                ext["path"] = tutorial.get_path()
+                cpt_e += 1
+            cpt_c += 1
         if part_pk == str(part["pk"]):
             find = True
-            part["tutorial"] = tutorial
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
-                cpt_c += 1
             final_part = part
-            break
         cpt_p += 1
-
     # if part can't find
     if not find:
         raise Http404
@@ -1349,7 +1358,7 @@ def view_part_online(
     mandata = tutorial.load_json_for_public()
     tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
-
+    mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
@@ -1394,7 +1403,7 @@ def view_part_online(
     if not find:
         raise Http404
 
-    return render_template("tutorial/part/view_online.html", {"part": final_part})
+    return render_template("tutorial/part/view_online.html", {"tutorial": mandata, "part": final_part})
 
 
 @can_write_and_read_now
@@ -1593,8 +1602,6 @@ def edit_part(request):
 
 
 # Chapters.
-
-
 @login_required
 def view_chapter(
     request,
@@ -1629,6 +1636,7 @@ def view_chapter(
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
 
+    mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
@@ -1638,6 +1646,7 @@ def view_chapter(
     for part in parts:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
+        part["position_in_tutorial"] = cpt_c
         part["get_absolute_url"] = reverse(
             "zds.tutorial.views.view_part",
             args=[
@@ -1714,7 +1723,7 @@ def view_chapter_online(
     mandata = tutorial.load_json_for_public()
     tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
-
+    mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
     mandata['get_parts'] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1

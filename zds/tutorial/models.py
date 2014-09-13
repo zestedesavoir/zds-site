@@ -447,6 +447,80 @@ class Tutorial(models.Model):
                                            self.slug +
                                            ".epub"))
 
+    def get_selected_parts(self, sha, parts):
+        """
+        return parts which are selected for validation
+        """
+        is_validation = sha == self.sha_validation and self.in_validation()
+        is_public = sha == self.sha_public and self.on_line()
+        is_partial = is_validation or is_public
+
+        if is_validation:
+            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["PENDING", "PENDING_V"]).first()
+        if is_public:
+            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
+        if is_partial:
+            extracts_select = cal.extracts.split(",")
+
+        if not is_partial:
+            return parts
+
+        # clean if we are in validation
+        prs = []
+        for part in parts:
+            chs = []
+            for chapter in part["chapters"]:
+                exts = []
+                for ext in chapter["extracts"]:
+                    if is_partial and str(ext['pk']) in extracts_select:
+                        exts.append(ext)
+                if len(exts) > 0:
+                    chapter["extracts"] = exts
+                    chs.append(chapter)
+            if len(chs) > 0:
+                part["chapters"] = chs
+                prs.append(part)
+
+        return prs
+
+    def get_selected_parts_online(self, parts):
+        """
+        return parts which are selected for public
+        """
+        return self.get_selected_parts(self.sha_public, parts)
+
+    def get_selected_chapter(self, sha, chapter):
+        """
+        return chapter which are selected for validation
+        """
+        is_validation = sha == self.sha_validation and self.in_validation()
+        is_public = sha == self.sha_public and self.on_line()
+        is_partial = is_validation or is_public
+        if is_validation:
+            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["PENDING", "PENDING_V"]).first()
+        if is_public:
+            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
+        if is_partial:
+            extracts_select = cal.extracts.split(",")
+
+        if not is_partial:
+            return chapter
+
+        # clean if we are in validation
+        exts = []
+        for ext in chapter["extracts"]:
+            if is_partial and str(ext['pk']) in extracts_select:
+                exts.append(ext)
+        chapter["extracts"] = exts
+
+        return chapter
+
+    def get_selected_chapter_online(self, chapter):
+        """
+        return chapter which are selected for public
+        """
+        return self.get_selected_chapter(self.sha_public, chapter)
+
 
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
@@ -1085,6 +1159,7 @@ class Validation(models.Model):
                                            blank=True, null=True)
     comment_validator = models.TextField('Commentaire du validateur',
                                          blank=True, null=True)
+    extracts = models.CommaSeparatedIntegerField('Extraits à valider', max_length=250, blank=True, null=True)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,

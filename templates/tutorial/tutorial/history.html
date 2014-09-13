@@ -92,10 +92,10 @@
                     <td>
                         {% if not tutorial.sha_beta = log.newhexsha %}
                             {% if not tutorial.sha_beta %}
-                                <a href="#activ-beta" class="open-modal">
+                                <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
                                     {% trans "Activer" %}
                                 </a>
-                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                <form action="{% url 'zds.tutorial.views.modify_tutorial' %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
                                     {% csrf_token %}
                                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                                     <input type="hidden" name="activ_beta">
@@ -111,10 +111,10 @@
                                     </button>
                                 </form>
                             {% else %}
-                                <a href="#activ-beta" class="open-modal">
+                                <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
                                     {% trans "Mettre à jour" %}
                                 </a>
-                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                <form action="{% url 'zds.tutorial.views.modify_tutorial' %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
                                     {% csrf_token %}
                                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                                     <input type="hidden" name="update_beta">

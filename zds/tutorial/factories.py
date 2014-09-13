@@ -290,12 +290,44 @@ class ExtractFactory(factory.DjangoModelFactory):
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
         chapter = kwargs.pop('chapter', None)
         if chapter:
-            if chapter.tutorial:
-                chapter.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.tutorial.save()
-            elif chapter.part:
-                chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.part.tutorial.save()
+            extract.text = os.path.join(
+                chapter.part.get_phy_slug(),
+                chapter.get_phy_slug(),
+                'text.md')
+            extract.save()
+            f = open(
+                os.path.join(
+                    chapter.part.tutorial.get_path(),
+                    extract.text),
+                "w")
+            f.write(contenu.encode('utf-8'))
+            f.close()
+
+            chapter.part.tutorial.save()
+            repo = Repo(chapter.part.tutorial.get_path())
+
+            man = export_tutorial(chapter.part.tutorial)
+            f = open(
+                os.path.join(
+                    chapter.part.tutorial.get_path(),
+                    'manifest.json'),
+                "w")
+            f.write(
+                json_writer.dumps(
+                    man,
+                    indent=4,
+                    ensure_ascii=False).encode('utf-8'))
+            f.close()
+
+            repo.index.add([extract.text])
+            repo.index.add(['manifest.json'])
+
+            cm = repo.index.commit("Init Chapter")
+
+            chapter.part.tutorial.sha_draft = cm.hexsha
+            chapter.part.tutorial.save()
+            chapter.part.save()
+            extract.chapter = chapter
 
         return extract
 

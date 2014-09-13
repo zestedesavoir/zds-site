@@ -495,6 +495,15 @@ class AskValidationForm(forms.Form):
             }
         )
     )
+    extracts = forms.MultipleChoiceField(
+        label=u'Extraits à envoyer en validation',
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={
+                'size': '15',
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(AskValidationForm, self).__init__(*args, **kwargs)
@@ -505,6 +514,7 @@ class AskValidationForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
+            Field('extracts'),
             StrictButton(
                 _(u'Confirmer'),
                 type='submit'),
