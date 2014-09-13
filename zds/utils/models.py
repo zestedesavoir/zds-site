@@ -325,3 +325,6 @@ class HelpWriting(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(HelpWriting, self).save(*args, **kwargs)
