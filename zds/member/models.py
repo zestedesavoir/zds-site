@@ -225,10 +225,12 @@ class Profile(models.Model):
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
 
+
 @receiver(models.signals.post_delete, sender=User)
 def auto_delete_token_on_unregistering(sender, instance, **kwargs):
     TokenForgotPassword.objects.filter(user=instance).delete()
     TokenRegister.objects.filter(user=instance).delete()
+
 
 class TokenForgotPassword(models.Model):
 
