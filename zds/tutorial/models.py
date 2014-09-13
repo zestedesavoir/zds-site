@@ -121,6 +121,8 @@ class Tutorial(models.Model):
 
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
+    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
+
     def __unicode__(self):
         return self.title
 
