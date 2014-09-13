@@ -334,8 +334,11 @@ class Tutorial(models.Model):
 
             return conclu_contenu.decode('utf-8')
 
-    def delete_entity_and_tree(self, using=None):
+    def delete_entity_and_tree(self):
+        """deletes the entity and its filesystem counterpart"""
         shutil.rmtree(self.get_path(), 0)
+        Validation.objects.filter(tutorial=self).delete()
+
         if self.gallery is not None:
             self.gallery.delete()
         if self.on_line():

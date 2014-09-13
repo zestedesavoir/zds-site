@@ -125,8 +125,6 @@ def unregister(request):
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author=current):
         message.author = anonymous
-        if message.editor is not None and message.editor.username == current.username:
-            message.editor = anonymous
         message.save()
     for message in PrivatePost.objects.filter(author=current):
         message.author = anonymous
@@ -150,6 +148,16 @@ def unregister(request):
         topic.author = anonymous
         topic.save()
     TopicFollowed.objects.filter(user=current).delete()
+    # Before deleting gallery let's summurize what we deleted
+    # - unpublished tutorials with only the unregistering member as an author
+    # - unpublished articles with only the unregistering member as an author
+    # - all category associated with those entites (have a look on article.delete_entity_and_tree
+    #   and tutorial.delete_entity_and_tree
+    # So concerning galleries, we just have for us
+    # - "personnal galleries" with only one owner (unregistering user)
+    # - "personnal galleries" with more than one owner
+    # so we will just delete the unretistering user ownership and give it to anonymous in the only case
+    # he was alone so that gallery is not lost
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_users().count() == 1:
             anonymousGallery = UserGallery()
@@ -157,8 +165,7 @@ def unregister(request):
             anonymousGallery.mode = "w"
             anonymousGallery.gallery = gallery.gallery
             anonymousGallery.save()
-        else:
-            gallery.delete()
+        gallery.delete()
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
