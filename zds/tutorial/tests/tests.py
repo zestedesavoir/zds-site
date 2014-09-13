@@ -3995,6 +3995,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
+
         response = self.client.post(
             reverse('zds.tutorial.views.help_tutorial'),
             follow=False
