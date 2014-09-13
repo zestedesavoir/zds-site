@@ -22,7 +22,7 @@ from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
-from zds.utils.models import SubCategory, Licence, Comment
+from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
 
 
@@ -110,6 +110,8 @@ class Tutorial(models.Model):
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
+
+    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
     def __unicode__(self):
         return self.title
