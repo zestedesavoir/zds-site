@@ -29,7 +29,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.tutorial.views import insert_into_zip
-from zds.utils.models import SubCategory, Licence, Alert
+from zds.utils.models import SubCategory, Licence, Alert, HelpWriting
 from zds.utils.misc import compute_hash
 
 
@@ -3857,6 +3857,60 @@ class MiniTutorialTests(TestCase):
         # finally, clean up things:
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
+
+    def test_help_to_perfect_tuto(self):
+        """ This test aim to unit test the "help me to write my tutorial"
+        interface. It is testing if the back-end is always sending back
+        good datas """
+
+        helps = HelpWriting.objects.all()
+
+        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+
+        # if we give the tuto a beta it should return 1
+        self.minituto.sha_beta = "whatever"
+        self.minituto.save()
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+
+        # However if we ask with a filter we will still get 0
+        for helping in helps:
+            response = self.client.post(
+                reverse('zds.tutorial.views.help_tutorial') +
+                u'?type={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            tutos = response.context['tutorials']
+            self.assertEqual(len(tutos), 0)
+
+        # now tutorial is positive for every options
+        # if we ask for any help we should get a positive answer for every filter
+        for helping in helps:
+            self.minituto.helps.add(helping)
+        self.minituto.save()
+
+        for helping in helps:
+            response = self.client.post(
+                reverse('zds.tutorial.views.help_tutorial') +
+                u'?type={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            tutos = response.context['tutorials']
+            self.assertEqual(len(tutos), 1)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
