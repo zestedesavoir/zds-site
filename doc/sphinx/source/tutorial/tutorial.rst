@@ -165,6 +165,40 @@ donc le contenu est assez conséquent, et demande beaucoup de structuration. On 
                                          |-> conclusion
 
 
+Import de tutoriels
+========================
+
+Zeste de Savoir permet d'importer des tutoriels provenant de sources extérieures. Deux formats d'import sont actuellement supportés.
+
+Les archives zip
+----------------
+Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste de Savoir, vous avez téléchargé l'archive correspondate et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site ? Il suffit de faire une archive zip du répertoire dans lequel se trouve les fichiers de votre tutoriel et renseignez les deux champs relatif à l'import d'une archive, puis cliquez sur importer.
+
+.. figure:: images/import-archive.png
+    :align:   center
+
+.. attention::
+
+    Le rajout d'une partie, d'un chapitre ou d'un tutoriel n'est pas encore supportés dans l'import. Le module n'importera que ce qui a été **modifié** dans les fichiers markdown.
+
+Le format .tuto
+---------------
+
+Il s'agit du format dans lequel était exporté les tutoriels sur le SiteduZero. C'est un format de type xml. Cependant, pour qu'il soit
+importable sur ZdS il faut le transformer à l'aide d'un outil de conversion en semi-markdown. Si vous avez besoin d'importer un tutoriel
+de ce format, vous devez contacter le staff de Zeste de Savoir pour que vous fichier ``.tuto`` soit converti en semi markdown.
+
+Vous aurez aussi besoin du pack d'images (au format zip) qui sont utilisés dans votre tutoriel.
+
+Il ne vous restera plus qu'a renseigner les champs relatifs à l'import de .tuto pour importer le votre.
+
+.. figure:: images/import-tuto.png
+    :align:   center
+
+.. attention::
+
+    L'import du tutoriel peut prendre beaucoup de temps en fonction de la taille de votre tutoriel.
+
 Cycle de vie des tutoriels
 ==========================
 
