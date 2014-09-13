@@ -43,7 +43,7 @@ from lxml import etree
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
-    mark_read, Note
+    mark_read, Note, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
@@ -1117,6 +1117,10 @@ def add_tutorial(request):
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
 
+            # Add helps if needed
+            for helpwriting in form.cleaned_data["helps"]:
+                tutorial.helps.add(helpwriting)
+
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
 
@@ -1182,7 +1186,7 @@ def edit_tutorial(request):
                     "subcategory": tutorial.subcategory.all(),
                     "introduction": tutorial.get_introduction(),
                     "conclusion": tutorial.get_conclusion(),
-
+                    "helps": tutorial.helps.all(),
                 })
                 return render_template("tutorial/tutorial/edit.html",
                                        {
@@ -1259,6 +1263,7 @@ def edit_tutorial(request):
             "subcategory": tutorial.subcategory.all(),
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
+            "helps": tutorial.helps.all(),
         })
     return render_template("tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
@@ -3583,3 +3588,26 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+def help_tutorial(request):
+    """fetch all tutorials that needs help"""
+
+    # Retrieve type of the help. Default value is any help
+    try:
+        type = request.GET['type']
+    except KeyError:
+        type = None
+
+    if type is not None:
+        aide = get_object_or_404(HelpWriting, slug=type)
+        tutos = Tutorial.objects.filter(helps=aide) \
+                                .all()
+    else:
+        tutos = Tutorial.objects.filter(sha_beta__isnull=False) \
+                                .exclude(sha_beta="") \
+                                .all()
+
+    aides = HelpWriting.objects.all()
+
+    return render_template("tutorial/tutorial/help.html", {"tutorials": tutos, "helps": aides})
