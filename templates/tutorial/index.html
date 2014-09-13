@@ -17,7 +17,7 @@
     {% if tag %}
         {% trans "Découvrez tous nos tutoriels sur" %} {{ tag }}. {% trans "Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres" %}.
     {% else %}
-        {% trans "Les tutoriels vous permettent d'apprendre divers sujets tous plus intéressants 
+        {% trans "Les tutoriels vous permettent d'apprendre divers sujets tous plus intéressants
         les uns que les autres" %}.
     {% endif %}
 {% endblock %}
@@ -45,7 +45,7 @@
                 {% endif %}
             {% endblock %}
         </h1>
-        
+
         <meta itemprop="itemListOrder" content="Unordered">
 
         {% if tutorials %}
@@ -70,6 +70,10 @@
     >
         <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
             {% trans "Nouveau tutoriel" %}
+        </a>
+
+        <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="new-btn ico-after help blue">
+            Aider les rédacteurs
         </a>
 
         <h3>{% blocktrans %} Catégories <span class="wide">de tutoriels</span> {% endblocktrans %}</h3>
