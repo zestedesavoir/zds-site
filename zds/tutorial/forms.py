@@ -9,7 +9,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
-from zds.tutorial.models import TYPE_CHOICES
+from zds.tutorial.models import TYPE_CHOICES, HelpWriting
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorial.models import Tutorial
@@ -99,6 +99,13 @@ class TutorialForm(FormWithTitle):
         empty_label=None
     )
 
+    helps = forms.ModelMultipleChoiceField(
+        label="J'ai besoin d'aide avec un...",
+        queryset=HelpWriting.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple()
+    )
+
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -115,6 +122,7 @@ class TutorialForm(FormWithTitle):
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            Field('helps'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
