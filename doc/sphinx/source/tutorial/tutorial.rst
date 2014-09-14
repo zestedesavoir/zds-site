@@ -317,6 +317,8 @@ Pour pouvoir versionner tout ceci, nous avons un fichier nommé ``masnifest.json
 
 L'objectif étant d'arriver à tout versionner (catégories, ...) et de ne plus avoir à lire dans la base de données pour afficher quelque chose.
 
+**NB** : A chaque modification d'un élément du tutoriel, l'auteur doit renseigner un message de suivi (ou message de révision). Ce message (qui se veut court) permet de résumer les modifications qui ont été faites lors de l'édition.
+
 Qu'en est-il des images ?
 +++++++++++++++++++++++++
 
