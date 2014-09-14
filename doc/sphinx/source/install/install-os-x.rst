@@ -70,8 +70,8 @@ Installation de toutes les dépendances
   gulp build
 
 
-Pour relancer votre environnement : `source ~/.virtualenvs/zdsenv/bin/activate`
-Pour sortir de votre environnement : `deactive`
+Pour relancer votre environnement : ``source ~/.virtualenvs/zdsenv/bin/activate``
+Pour sortir de votre environnement : ``deactive``
 
 Aller plus loin
 ================
