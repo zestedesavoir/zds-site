@@ -60,7 +60,7 @@ class ArticleForm(forms.Form):
         required=True,
         empty_label=None
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,

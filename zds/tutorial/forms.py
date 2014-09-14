@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from django import forms
 from django.conf import settings
 
@@ -98,7 +97,7 @@ class TutorialForm(FormWithTitle):
         required=True,
         empty_label=None
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,
@@ -158,7 +157,7 @@ class PartForm(FormWithTitle):
             }
         )
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,
@@ -217,7 +216,7 @@ class ChapterForm(FormWithTitle):
             }
         )
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,
@@ -267,7 +266,7 @@ class EmbdedChapterForm(forms.Form):
         required=False,
         widget=forms.Textarea
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,
@@ -311,7 +310,7 @@ class ExtractForm(FormWithTitle):
             }
         )
     )
-    
+
     msg_commit = forms.CharField(
         label='Message de suivi',
         max_length=80,
