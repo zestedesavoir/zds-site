@@ -256,6 +256,8 @@ def get_sep(msg):
     Handle separator for commit msg
     """
     if msg is None or msg.strip() == "":
+        return ""
+    else:
         return ":"
 
 

@@ -2699,11 +2699,11 @@ def maj_repo_part(
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
 
-            msg = u"Modification de la partie '{}' {} {}".format(part.title, get_sep(msg), msg)
+            msg = u"Modification de la partie '{}' {} {}".format(part.title, get_sep(msg), msg).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création de la partie '{}' {} {}".format(part.title, get_sep(msg), msg)
+            msg = u"Création de la partie '{}' {} {}".format(part.title, get_sep(msg), msg).strip()
         index.add([part.get_phy_slug()])
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
@@ -2761,11 +2761,11 @@ def maj_repo_chapter(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            msg = u"Modification du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg)
+            msg = u"Modification du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg)
+            msg = u"Création du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), msg).strip()
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
             intro.write(smart_str(introduction).strip())
@@ -2841,7 +2841,7 @@ def maj_repo_extract(
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg = u"Mise à jour de l'extrait '{}' {} {}".format(extract.title, get_sep(msg), msg)
+        msg = u"Mise à jour de l'extrait '{}' {} {}".format(extract.title, get_sep(msg), msg).strip()
 
     # update manifest
 
