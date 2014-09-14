@@ -410,7 +410,7 @@ def maj_repo_article(
         article=None,
         text=None,
         action=None,
-        msg = None,):
+        msg=None,):
 
     if action == 'del':
         shutil.rmtree(old_slug_path)

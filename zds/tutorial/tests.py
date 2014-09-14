@@ -941,8 +941,9 @@ class BigTutorialTests(TestCase):
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
                 'msg_commit': u"Mise à jour du chapitre",
-                "last_hash": compute_hash([os.path.join(c3.get_path(),"introduction.md"),
-				    os.path.join(c3.get_path(),"conclusion.md")])
+                "last_hash": compute_hash([
+                    os.path.join(c3.get_path(), "introduction.md"),
+                    os.path.join(c3.get_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 3 : edition de titre")

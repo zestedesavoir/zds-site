@@ -2641,7 +2641,7 @@ def maj_repo_tuto(
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
             msg = u"Modification du tutoriel : '{}'".format(tuto.title)
-                
+
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
@@ -2698,7 +2698,7 @@ def maj_repo_part(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
-            
+
             msg = u"Modification de la partie '{}' {} {}".format(part.title, get_sep(msg), msg)
         elif action == "add":
             if not os.path.exists(new_slug_path):
