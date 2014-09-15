@@ -32,7 +32,7 @@ from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str
@@ -3594,18 +3594,15 @@ def help_tutorial(request):
     """fetch all tutorials that needs help"""
 
     # Retrieve type of the help. Default value is any help
-    try:
-        type = request.GET['type']
-    except KeyError:
-        type = None
+    type = request.GET.get('type', None)
 
     if type is not None:
         aide = get_object_or_404(HelpWriting, slug=type)
         tutos = Tutorial.objects.filter(helps=aide) \
                                 .all()
     else:
-        tutos = Tutorial.objects.filter(sha_beta__isnull=False) \
-                                .exclude(sha_beta="") \
+        tutos = Tutorial.objects.annotate(total=Count('helps')) \
+                                .filter((Q(sha_beta__isnull=False) & Q(sha_beta="")) | Q(total__gt=0)) \
                                 .all()
 
     aides = HelpWriting.objects.all()
