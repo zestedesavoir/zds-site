@@ -2547,7 +2547,7 @@ class MiniTutorialTests(TestCase):
         shutil.rmtree(temp)
         os.remove(zip_path)
 
-    def add_test_extract_named_introduction(self):
+    def test_add_extract_named_introduction(self):
         """test the use of an extract named introduction"""
 
         self.client.login(username=self.user_author,
@@ -2571,7 +2571,7 @@ class MiniTutorialTests(TestCase):
         self.assertTrue(os.path.isfile(intro_path))
         self.assertTrue(os.path.isfile(extract_path))
 
-    def add_test_extract_named_conclusion(self):
+    def test_add_extract_named_conclusion(self):
         """test the use of an extract named introduction"""
 
         self.client.login(username=self.user_author,

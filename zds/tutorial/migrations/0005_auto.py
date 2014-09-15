@@ -183,7 +183,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'HelpWriting'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'imagename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '20'}),
             'tablelabel': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
