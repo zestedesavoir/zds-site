@@ -33,12 +33,12 @@
                     <article class="extend">
                             {% if tutorial.image.physical.tutorial_illu.url %}
                                 <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
-                                    {% if tutorial.sha_beta %}
+                                    {% if tutorial.in_beta %}
                             {% endif %}
                             <div class="tutorial-infos">
                                 <h3 >{{tutorial.title}}</h3>
                                 <span>{% trans "par : " %}{% for author in tutorial.authors.all %}
-                                    {% if tutorial.sha_public %}
+                                    {% if tutorial.on_line %}
                                             {% if tutorial.authors.all.count > 1 and not forloop.last %}
                                                 ,
                                             {% endif %}
@@ -54,7 +54,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </p>
-                                    <a  href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
+                                    <a  href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
                                 {% if tutorial.on_line %}
                                     <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ tutorial.get_absolute_url_online }}"><img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel en ligne{% endblocktrans %}" /></a>
                                 {% else %}
