@@ -3598,6 +3598,25 @@ def help_tutorial(request):
                                 .filter((Q(sha_beta__isnull=False) & Q(sha_beta="")) | Q(total__gt=0)) \
                                 .all()
 
+    # Paginator
+    paginator = Paginator(tutos, settings.TOPICS_PER_PAGE)
+    page = request.GET.get('page')
+
+    try:
+        shown_tutos = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_tutos = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_tutos = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
     aides = HelpWriting.objects.all()
 
-    return render_template("tutorial/tutorial/help.html", {"tutorials": tutos, "helps": aides})
+    return render_template("tutorial/tutorial/help.html", {
+        "tutorials": shown_tutos,
+        "helps": aides,
+        "pages": paginator_range(page, paginator.num_pages),
+        "nb": page
+    })
