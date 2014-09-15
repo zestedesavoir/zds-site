@@ -89,21 +89,21 @@ class LoginForm(forms.Form):
                 StrictButton('',
                              type='button',
                              css_class="ico-after facebook light btn-facebook",
-                             onclick="javascript:location.href='"
+                             onclick=u"javascript:location.href='"
                                      + reverse('social:begin', args=['facebook'])
-                                     + "?next={}'".format(next)),
+                                     + u"?next={}'".format(next)),
                 StrictButton('',
                              type='button',
                              css_class="ico-after twitter light btn-twitter",
-                             onclick="javascript:location.href='"
+                             onclick=u"javascript:location.href='"
                                      + reverse('social:begin', args=['twitter'])
-                                     + "?next={}'".format(next)),
+                                     + u"?next={}'".format(next)),
                 StrictButton('',
                              type='button',
                              css_class="ico-after google-plus light btn-gplus",
-                             onclick="javascript:location.href='"
+                             onclick=u"javascript:location.href='"
                                      + reverse('social:begin', args=['google-oauth2'])
-                                     + "?next={}'".format(next)),
+                                     + u"?next={}'".format(next)),
             ),
         )
 
