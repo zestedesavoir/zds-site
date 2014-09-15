@@ -83,6 +83,24 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after facebook light btn-facebook",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['facebook'])
+                                     + "?next={}'".format(next)),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after twitter light btn-twitter",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['twitter'])
+                                     + "?next={}'".format(next)),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after google-plus light btn-gplus",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['google-oauth2'])
+                                     + "?next={}'".format(next)),
             ),
         )
 
@@ -129,6 +147,24 @@ class RegisterForm(forms.Form):
             Field('email'),
             ButtonHolder(
                 Submit('submit', 'Valider mon inscription'),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after facebook light btn-facebook",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['facebook'])
+                                     + "?next={}'".format(next)),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after twitter light btn-twitter",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['twitter'])
+                                     + "?next={}'".format(next)),
+                StrictButton('',
+                             type='button',
+                             css_class="ico-after google-plus light btn-gplus",
+                             onclick="javascript:location.href='"
+                                     + reverse('social:begin', args=['google-oauth2'])
+                                     + "?next={}'".format(next)),
             ))
 
     def clean(self):
