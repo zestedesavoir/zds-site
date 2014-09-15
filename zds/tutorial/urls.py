@@ -117,7 +117,7 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.solve_alert'),
 
                        # Help
-                       url(r'^aider/tutoriels/$',
+                       url(r'^aides/$',
                            'zds.tutorial.views.help_tutorial'),
                        )
 
