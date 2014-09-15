@@ -43,13 +43,13 @@
                             <tr>
                                 <!-- tuto en beta -->
                                 <td>
-                                    {% if tutorial.sha_beta %}
+                                    {% if tutorial.in_beta %}
                                         <a title="oui" href="{{ tutorial.get_absolute_url_beta }}"><img src="dummy_tutobeta.png" alt=""></a>
                                     {% endif %}
                                 </td>
                                 <!-- tuto en ligne -->
                                 <td>
-                                    {% if tutorial.sha_public %}
+                                    {% if tutorial.on_line %}
                                         <a title="oui" href="{{ tutorial.get_absolute_url_online }}"><img src="dummy_tutopublic.png" alt=""></a>
                                     {% endif %}
                                 </td>
@@ -62,7 +62,7 @@
                                 {% endfor %}
                                 <!-- Contacter le(s) auteur(s) -->
                                 <td>
-                                    <a  href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
+                                    <a  href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
                                 </td>
                                 <!-- Titre du tuto -->
                                 <td>

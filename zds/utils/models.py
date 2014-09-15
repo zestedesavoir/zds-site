@@ -302,7 +302,7 @@ class HelpWriting(models.Model):
 
     # A name for this help
     title = models.CharField('Name', max_length=20, null=False)
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=20)
 
     # tablelabel: Used for the accessibility "This tutoriel need help for writing"
     tablelabel = models.CharField('TableLabel', max_length=150, null=False)
@@ -311,11 +311,8 @@ class HelpWriting(models.Model):
     imagename = models.CharField('Illustration', max_length=100, null=False)
 
     def __unicode__(self):
-        """Textual Licence Form."""
+        """Textual Help Form."""
         return self.title
-
-    def get_phy_slug(self):
-        return str(self.pk) + "_" + self.slug
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
