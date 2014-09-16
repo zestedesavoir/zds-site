@@ -1,0 +1,117 @@
+{% extends "tutorial/base_online.html" %}
+{% load captureas %}
+
+
+
+{% block title %}
+    Aider les auteurs
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Aider les auteurs</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h1 class="ico-after ico-tutorials">
+            {% block headline %}
+                Aider les auteurs de tutoriels ({{ tutorials|length }})
+            {% endblock %}
+        </h1>
+
+        {% block content %}
+            {% if tutorials %}
+                (Légende des icones <a href="#legend">en bas du tableau</a>)
+                <table class="fullwidth">
+                    <thead>
+                        <tr>
+                            <th scope="col" title="Tutoriel en bêta"><img src="" alt=""></th>
+                            <th scope="col" title="Tutoriel en ligne"><img src="" alt=""></th>
+                            {% for help in helps %}
+                                <th scope="col" title="{{ help.tablelabel }}"><img src="" alt=""></th>
+                            {% endfor %}
+                            <th scope="col" title="Contacter le(s) auteur(s)">MP Auteur(s)</th>
+                            <th scope="col" title="Titre du tutoriel">Titre du tutoriel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tutorial in tutorials %}
+                            <tr>
+                                <!-- tuto en beta -->
+                                <td>
+                                    {% if tutorial.in_beta %}
+                                        <a title="oui" href="{{ tutorial.get_absolute_url_beta }}"><img src="dummy_tutobeta.png" alt=""></a>
+                                    {% endif %}
+                                </td>
+                                <!-- tuto en ligne -->
+                                <td>
+                                    {% if tutorial.on_line %}
+                                        <a title="oui" href="{{ tutorial.get_absolute_url_online }}"><img src="dummy_tutopublic.png" alt=""></a>
+                                    {% endif %}
+                                </td>
+                                {% for help in helps %}
+                                    <td>
+                                        {% if help in tutorial.helps.all %}
+                                            <img src="{{ help.image.url }}" alt="">
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <!-- Contacter le(s) auteur(s) -->
+                                <td>
+                                    <a  href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
+                                </td>
+                                <!-- Titre du tuto -->
+                                <td>
+                                    {{ tutorial.title }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% include "misc/pagination.part.html" with position='bottom' %}
+                <!-- I'm a Legend -->
+                <ul id="legend">
+                    <li><img src="dummy_tutobeta.png" alt=""> Tutoriel en beta</li>
+                    <li><img src="dummy_tutopublic.png" alt=""> Tutoriel en ligne</li>
+                    {% for help in helps %}
+                        <li><img src="{{ help.image.url }}" alt=""> {{ help.tablelabel }}</li>
+                    {% endfor %}
+                    <li><img src="dummy_contactmp.png" alt=""> Contacter le(s) auteur(s)</li>
+                </ul>
+            {% else %}
+                <p>
+                    Aucun rédacteur n'a l'air d'avoir besoin d'un {{ request.GET.type|lower }} !
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
+{% endblock %}
+
+
+
+{% block sidebar_new %}{% endblock %}
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Besoin">
+        <h3>Besoin</h3>
+        <ul>
+            {% for help in helps %}
+                <li>
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="ico-after tick green {% if request.GET.type == "help.title" %}unread{% endif %}">
+                        {{ help.title }}
+                    </a>
+                </li>
+            {% endfor %}
+            {% if request.GET.type %}
+                <li>
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross blue">
+                        Annuler le filtre
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

@@ -114,4 +114,8 @@ urlpatterns = patterns('',
                        # Moderation
                        url(r'^resolution_alerte/$',
                            'zds.tutorial.views.solve_alert'),
+
+                       # Help
+                       url(r'^aides/$',
+                           'zds.tutorial.views.help_tutorial'),
                        )
