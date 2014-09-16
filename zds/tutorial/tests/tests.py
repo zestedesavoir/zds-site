@@ -4019,7 +4019,6 @@ class MiniTutorialTests(TestCase):
         # if we ask for any help we should get a positive answer for every filter
         for helping in helps:
             self.minituto.helps.add(helping)
-        self.minituto.save()
 
         for helping in helps:
             response = self.client.post(
