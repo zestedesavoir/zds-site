@@ -74,4 +74,3 @@ def humane_time(t):
     """Render time (number of second from epoch) to an human readable string"""
     tp = time.localtime(t)
     return time.strftime(__ABS_HUMAN_TIME_FMT, tp)
-

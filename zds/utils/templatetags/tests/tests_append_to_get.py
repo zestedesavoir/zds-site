@@ -33,11 +33,12 @@ class EasyTagTest(TestCase):
 
     def test_invalid_call(self):
 
+        wf = self.wrapped_function
         # Check raising TemplateSyntaxError if call with too few arguments
-        self.assertRaises(TemplateSyntaxError, self.wrapped_function, None, Token(TOKEN_TEXT,"elem1 elem2"))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, "elem1 elem2"))
 
         # Check raising TemplateSyntaxError if call with too many arguments
-        self.assertRaises(TemplateSyntaxError, self.wrapped_function, None, Token(TOKEN_TEXT,"elem1 elem2 elem3 elem4"))
+        self.assertRaises(TemplateSyntaxError, wf, None, Token(TOKEN_TEXT, "elem1 elem2 elem3 elem4"))
 
 
 class AppendGetNodeTest(TestCase):
@@ -58,7 +59,6 @@ class AppendGetNodeTest(TestCase):
         agn = AppendGetNode("key1=var1")
         tr = agn.render(self.context)
         self.assertEqual(tr, "/data/test?key1=1")
-
 
         # Test call without arguments
         agn = AppendGetNode("")
@@ -113,7 +113,3 @@ class AppendGetNodeTest(TestCase):
                       "{% append_to_get key1=var3,key2=var2 %}"
                       )
         self.assertRaises(VariableDoesNotExist, tr.render, self.context)
-
-
-
-
