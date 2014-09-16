@@ -21,6 +21,13 @@ def image_path_category(instance, filename):
     return os.path.join('categorie/normal', str(instance.pk), filename)
 
 
+def image_path_help(instance, filename):
+    """Return path to an image."""
+    ext = filename.split('.')[-1]
+    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    return os.path.join('helps/normal', str(instance.pk), filename)
+
+
 class Category(models.Model):
 
     """Common category for several concepts of the application."""
@@ -308,7 +315,10 @@ class HelpWriting(models.Model):
     tablelabel = models.CharField('TableLabel', max_length=150, null=False)
 
     # The image to use to illustrate this role
-    imagename = models.CharField('Illustration', max_length=100, null=False)
+    image = models.ImageField(
+        upload_to=image_path_help,
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         """Textual Help Form."""
