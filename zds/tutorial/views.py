@@ -3499,8 +3499,8 @@ def help_tutorial(request):
         tutos = Tutorial.objects.filter(helps=aide) \
                                 .all()
     else:
-        tutos = Tutorial.objects.annotate(total=Count('helps')) \
-                                .filter((Q(sha_beta__isnull=False) & Q(sha_beta="")) | Q(total__gt=0)) \
+        tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
+                                .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
                                 .all()
 
     # Paginator
