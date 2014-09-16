@@ -316,7 +316,10 @@ class HelpWriting(models.Model):
     tablelabel = models.CharField('TableLabel', max_length=150, null=False)
 
     # The image to use to illustrate this role
-    image = ThumbnailerImageField(upload_to=image_path_help)
+    image = models.ImageField(
+        upload_to=image_path_help,
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         """Textual Help Form."""
