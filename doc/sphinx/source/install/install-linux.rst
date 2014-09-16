@@ -92,18 +92,11 @@ il peut être utile de rajouter un hook de pre-commit à git. Un hook est un pet
 programme qui sera exécuté avant une action particulière de git. En l'occurence nous
 allons rajouter un hook qui s'executera juste avant la validation d'un commit.
 
-Pour cela, commencer par créer le fichier .git/hooks/pre-commit
+Pour cela, commencer par créer eté éditer le fichier .git/hooks/pre-commit
 
 .. sourcecode:: bash
 
-touch .git/hooks/pre-commit
-
-
-Puis rendez le executable via chmod
-
-.. sourcecode:: bash
-
-chmod +x .git/hooks/pre-commit
+vim .git/hooks/pre-commit
 
 
 Il ne reste plus qu'à rajouter le contenu suivant dans ce fichier et dorénavant
@@ -122,4 +115,11 @@ RESULT=$?
 
 [ $RESULT -ne 0 ] && exit 1
 exit 0
+
+
+Enfin n'oubliez pas de le rendre executable via chmod
+
+.. sourcecode:: bash
+
+chmod +x .git/hooks/pre-commit
 
