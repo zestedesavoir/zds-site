@@ -55,8 +55,8 @@
                                 </td>
                                 {% for help in helps %}
                                     <td>
-                                        {% if help in tutorial.helps %}
-                                            <img src="{{ help.imagepath }}" alt="">
+                                        {% if help in tutorial.helps.all %}
+                                            <img src="{{ help.image.url }}" alt="">
                                         {% endif %}
                                     </td>
                                 {% endfor %}
@@ -78,7 +78,7 @@
                     <li><img src="dummy_tutobeta.png" alt=""> Tutoriel en beta</li>
                     <li><img src="dummy_tutopublic.png" alt=""> Tutoriel en ligne</li>
                     {% for help in helps %}
-                        <li><img src="{{ help.imagepath }}" alt=""> {{ help.tablelabel }}</li>
+                        <li><img src="{{ help.image.url }}" alt=""> {{ help.tablelabel }}</li>
                     {% endfor %}
                     <li><img src="dummy_contactmp.png" alt=""> Contacter le(s) auteur(s)</li>
                 </ul>
