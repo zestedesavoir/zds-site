@@ -294,9 +294,37 @@ class ImportForm(forms.Form):
         self.helper.layout = Layout(
             Field('file'),
             Field('images'),
-            Submit('submit', 'Importer'),
+            Submit('import-tuto', 'Importer le .tuto'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
+
+
+class ImportArchiveForm(forms.Form):
+
+    file = forms.FileField(
+        label='Sélectionnez l\'archive de votre tutoriel',
+        required=True
+    )
+
+    tutorial = forms.ModelChoiceField(
+        label="Tutoriel vers lequel vous souhaitez importer votre archive",
+        queryset=Tutorial.objects.none(),
+        required=True
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(ImportArchiveForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.fields['tutorial'].queryset = Tutorial.objects.filter(authors__in=[user])
+
+        self.helper.layout = Layout(
+            Field('file'),
+            Field('tutorial'),
+            Submit('import-archive', 'Importer l\'archive'),
+        )
+
 
 # Notes
 

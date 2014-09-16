@@ -85,17 +85,19 @@
     .main .content-container {
         .article-content,
         .message-content {
-            .information.ico-after:after {
-                @include sprite-pos($information, true);
-            }
-            .question.ico-after:after {
-                @include sprite-pos($question, true);
-            }
-            .error.ico-after:after {
-                @include sprite-pos($error, true);
-            }
-            .warning.ico-after:after {
-                @include sprite-pos($warning, true);
+            :not(.alert-box){
+                &.information.ico-after:after {
+                    @include sprite-pos($information, true);
+                }
+                &.question.ico-after:after {
+                    @include sprite-pos($question, true);
+                }
+                &.error.ico-after:after {
+                    @include sprite-pos($error, true);
+                }
+                &.warning.ico-after:after {
+                    @include sprite-pos($warning, true);
+                }
             }
         }
     }
