@@ -11,17 +11,17 @@ Les commandes suivantes sont génériques et indépendantes de la distribution q
 
 Assurez vous que les dépendances suivantes soient résolues :
 
-- git : `apt-get install git`
+- git : ``apt-get install git``
 - python2.7
-- python-dev : `apt-get install python-dev`
-- easy_install : `apt-get install python-setuptools`
-- pip : `easy_install pip`
-- libxml2-dev : `apt-get install libxml2-dev`
-- python-lxml : `apt-get install python-lxml`
+- python-dev : ``apt-get install python-dev``
+- easy_install : ``apt-get install python-setuptools``
+- pip : ``easy_install pip``
+- libxml2-dev : ``apt-get install libxml2-dev``
+- python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
-- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : `apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev`
+- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
 
 Ou, en une ligne,
 
@@ -50,7 +50,7 @@ Instalation et configuration de `virtualenv`
 
 Pour sortir de votre environnement : ``deactive``
 
-Une documentation plus complète de cet outil [est disponible ici](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+Une documentation plus complète de cet outil `est disponible ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
 Front ou Back ?
 ===============

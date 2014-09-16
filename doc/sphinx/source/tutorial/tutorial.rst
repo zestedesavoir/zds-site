@@ -195,7 +195,7 @@ en beta, en postant le lien version la version beta du tutoriel.
 
 .. attention::
 
-    Le lien de la beta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie `?version=blablabla`. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version beta.
+    Le lien de la beta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie ``?version=blablabla``. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version beta.
 
 En fait lorsqu'un tutoriel est en mode beta, il s'agit d'une version précise qui est mise 
 dans ce mode. On peut continuer à mettre à jour la version brouillon pour rajouter de nouveaux chapitres
@@ -270,9 +270,9 @@ Le module des tutoriels se base sur **git** pour versionner son contenu. Physiqu
 
 Pour éviter les conflits dans les noms de fichier, le chemin vers un extrait aura souvent le modèle suivant :
 
-`[id_partie]_[slug_partie]/[id_chap]_[slug_chap]/[id_extrait]_[slug_extrait].md`
+``[id_partie]_[slug_partie]/[id_chap]_[slug_chap]/[id_extrait]_[slug_extrait].md``
 
-Pour pouvoir versionner tout ceci, nous avons un fichier nommé `masnifest.json` chargé de stocker l'ensemble des métadonnées versionnées du tutoriel. Ce fichier manifest est lui aussi versionné. Pour chaque version, il suffit donc de lire ce fichier pour reconstituer un tutoriel. C'est un fichier json qui reprend la structure du document, et les différents chemins relatifs vers le contenu. Les métadonnées stockées sont :
+Pour pouvoir versionner tout ceci, nous avons un fichier nommé ``masnifest.json`` chargé de stocker l'ensemble des métadonnées versionnées du tutoriel. Ce fichier manifest est lui aussi versionné. Pour chaque version, il suffit donc de lire ce fichier pour reconstituer un tutoriel. C'est un fichier json qui reprend la structure du document, et les différents chemins relatifs vers le contenu. Les métadonnées stockées sont :
 
 - Le titre du tutoriel, des parties, des chapitres et des extraits
 - Le sous-titre du tutoriel
@@ -294,9 +294,9 @@ Le parti a été pris de ne pas versionner les images qui sont stockées sur le 
 Quid des tutoriels publiés ?
 ++++++++++++++++++++++++++++
 
-Les tutoriels en *offline* sont tous versionnés, et sont dans le répertoire `tutoriels_private`. Lorsqu'ils sont validés le traitement suivant est appliqué.
+Les tutoriels en *offline* sont tous versionnés, et sont dans le répertoire ``tutoriels_private``. Lorsqu'ils sont validés le traitement suivant est appliqué.
 
-- On copie le dépôt du tutoriel dans le répertoire `tutoriels_public`
+- On copie le dépôt du tutoriel dans le répertoire ``tutoriels_public``
 - On va chercher dans l'historique du dépot les fichiers correspondant à la version publique
 - On converti ces fichiers en html (en utilisant zMarkdown)
 - On stocke les fichiers html sur le serveur.
