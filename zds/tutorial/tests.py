@@ -3874,9 +3874,29 @@ class MiniTutorialTests(TestCase):
         tutos = response.context['tutorials']
         self.assertEqual(len(tutos), 0)
 
-        # if we give the tuto a beta it should return 1
-        self.minituto.sha_beta = "whatever"
-        self.minituto.save()
+        # then active the beta on tutorial :
+        ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.minituto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
         response = self.client.post(
             reverse('zds.tutorial.views.help_tutorial'),
             follow=False
