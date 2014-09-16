@@ -84,7 +84,7 @@
                 </ul>
             {% else %}
                 <p>
-                    Aucun rédacteur n'a l'air d'avoir besoin d'aide !
+                    Aucun rédacteur n'a l'air d'avoir besoin d'un {{ request.GET.type|lower }} !
                 </p>
             {% endif %}
         {% endblock %}
