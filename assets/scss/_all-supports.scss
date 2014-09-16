@@ -586,24 +586,30 @@
    ============== */
 .alert-box {
     position: relative;
-    padding: 8px 15px;
+    padding: 8px 30px 8px 15px;
     margin: 0 0 15px 2%;
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 
     .alert-box-text {
         display: block;
+        float: left;
     }
 
     .close-alert-box {
         display: block;
-        position: absolute;
-        top: 12px;
-        right: 15px;
+        float: right;
         height: 20px;
         width: 20px;
         text-indent: -9999px;
         text-decoration: none;
+        background-color: transparent;
+        line-height: 22px;
+        color: #FFF;
+
+        &.ico-after:after {
+            margin-top: 4px;
+        }
     }
     .close-alert-box-text {
         width: auto;
@@ -1863,50 +1869,57 @@
             }
         }
 
-        .information,
-        .question,
-        .error,
-        .warning,
+        :not(.alert-box){
+            &.information,
+            &.question,
+            &.error,
+            &.warning,
+            &.spoiler {
+                margin: 25px 0;
+                padding: 7px 15px 7px 45px;
+
+                &.ico-after:after {
+                    position: absolute;
+                    top: 50%;
+                    left: 23px;
+                    margin: -11px 0 0 -11px;
+                    height: 22px;
+                    width: 22px;
+                }
+            }
+            &.information {
+                background: #daeaee;
+
+                &.ico-after:after {
+                    @include sprite-pos($information);
+                }
+            }
+            &.question {
+                background: #e2daee;
+
+                &.ico-after:after {
+                    @include sprite-pos($question);
+                }
+            }
+            &.error {
+                background: #eedada;
+
+                &.ico-after:after {
+                    @include sprite-pos($error);
+                }
+            }
+            &.warning {
+                background: #eee7da;
+
+                &.ico-after:after {
+                    @include sprite-pos($warning);
+                }
+            }
+        }
         .spoiler {
-            margin: 25px 0;
-            padding: 7px 15px 7px 45px;
-
-            &.ico-after:after {
-                position: absolute;
-                top: 50%;
-                left: 23px;
-                margin: -11px 0 0 -11px;
-                height: 22px;
-                width: 22px;
-            }
-        }
-        .information {
-            background: #daeaee;
-
-            &.ico-after:after {
-                @include sprite-pos($information);
-            }
-        }
-        .question {
-            background: #e2daee;
-
-            &.ico-after:after {
-                @include sprite-pos($question);
-            }
-        }
-        .error {
-            background: #eedada;
-
-            &.ico-after:after {
-                @include sprite-pos($error);
-            }
-        }
-        .warning {
-            background: #eee7da;
-
-            &.ico-after:after {
-                @include sprite-pos($warning);
-            }
+            margin-top: 0;
+            padding-left: 15px;
+            background: #EEE;
         }
         .spoiler-title {
             display: block;
@@ -1928,11 +1941,6 @@
             &:hover {
                 text-decoration: underline;
             }
-        }
-        .spoiler {
-            margin-top: 0;
-            padding-left: 15px;
-            background: #EEE;
         }
 
         img {
