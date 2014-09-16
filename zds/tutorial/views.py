@@ -40,7 +40,7 @@ from git import Repo, Actor
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
-    ExtractForm, ImportForm, NoteForm, AskValidationForm, ValidForm, RejectForm
+    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -57,7 +57,7 @@ from zds.utils.mps import send_mp
 from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.tutorials import get_blob, export_tutorial_to_md, move
+from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 
 
@@ -2556,31 +2556,49 @@ def local_import(request):
 @login_required
 def import_tuto(request):
     if request.method == "POST":
-        form = ImportForm(request.POST, request.FILES)
-
-        # check extension
-
-        if "file" in request.FILES:
-            filename = str(request.FILES["file"])
-            ext = filename.split(".")[-1]
-            if ext == "tuto":
-                import_content(request, request.FILES["file"],
-                               request.FILES["images"], "")
+        # for import tuto
+        if "import-tuto" in request.POST:
+            form = ImportForm(request.POST, request.FILES)
+            form_archive = ImportArchiveForm(user=request.user)
+            if "file" in request.FILES:
+                filename = str(request.FILES["file"])
+                ext = filename.split(".")[-1]
+                if ext == "tuto":
+                    import_content(request, request.FILES["file"],
+                                   request.FILES["images"], "")
+                else:
+                    raise Http404
+            return redirect(reverse("zds.member.views.tutorials"))
+        elif "import-archive" in request.POST:
+            form = ImportForm()
+            form_archive = ImportArchiveForm(request.user, request.POST, request.FILES)
+            if form_archive.is_valid():
+                (check, reason) = import_archive(request)
+                if not check:
+                    messages.error(request, reason)
+                else:
+                    messages.success(request, reason)
+                    return redirect(reverse("zds.member.views.tutorials"))
             else:
-                raise Http404
-        return redirect(reverse("zds.member.views.tutorials"))
+                return render_template("tutorial/tutorial/import.html",
+                                       {"form": form,
+                                        "form_archive": form_archive})
     else:
         form = ImportForm()
-        profile = get_object_or_404(Profile, user=request.user)
-        oldtutos = []
-        if profile.sdz_tutorial:
-            olds = profile.sdz_tutorial.strip().split(":")
-        else:
-            olds = []
-        for old in olds:
-            oldtutos.append(get_info_old_tuto(old))
+        form_archive = ImportArchiveForm(user=request.user)
+
+    profile = get_object_or_404(Profile, user=request.user)
+    oldtutos = []
+    if profile.sdz_tutorial:
+        olds = profile.sdz_tutorial.strip().split(":")
+    else:
+        olds = []
+    for old in olds:
+        oldtutos.append(get_info_old_tuto(old))
     return render_template(
-        "tutorial/tutorial/import.html", {"form": form, "old_tutos": oldtutos})
+        "tutorial/tutorial/import.html", {"form": form,
+                                          "form_archive": form_archive,
+                                          "old_tutos": oldtutos})
 
 
 # Handling repo
@@ -2844,6 +2862,7 @@ def insert_into_zip(zip_file, git_tree):
 def download(request):
     """Download a tutorial."""
     tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+
     repo_path = os.path.join(settings.REPO_PATH, tutorial.get_phy_slug())
     repo = Repo(repo_path)
     sha = tutorial.sha_draft
@@ -2873,7 +2892,7 @@ def download_markdown(request):
         ".md")
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/txt")
+        content_type="application/txt")
     response["Content-Disposition"] = \
         "attachment; filename={0}.md".format(tutorial.slug)
     return response
@@ -2891,7 +2910,7 @@ def download_html(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="text/html")
+        content_type="text/html")
     response["Content-Disposition"] = \
         "attachment; filename={0}.html".format(tutorial.slug)
     return response
@@ -2909,7 +2928,7 @@ def download_pdf(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/pdf")
+        content_type="application/pdf")
     response["Content-Disposition"] = \
         "attachment; filename={0}.pdf".format(tutorial.slug)
     return response
@@ -2927,7 +2946,7 @@ def download_epub(request):
         raise Http404
     response = HttpResponse(
         open(phy_path, "rb").read(),
-        mimetype="application/epub")
+        content_type="application/epub")
     response["Content-Disposition"] = \
         "attachment; filename={0}.epub".format(tutorial.slug)
     return response
