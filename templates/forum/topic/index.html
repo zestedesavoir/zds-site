@@ -178,7 +178,7 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
                     Ne plus être notifié par courriel
                 {% else %}

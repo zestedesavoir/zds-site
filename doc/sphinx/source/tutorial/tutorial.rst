@@ -165,6 +165,40 @@ donc le contenu est assez conséquent, et demande beaucoup de structuration. On 
                                          |-> conclusion
 
 
+Import de tutoriels
+========================
+
+Zeste de Savoir permet d'importer des tutoriels provenant de sources extérieures. Deux formats d'import sont actuellement supportés.
+
+Les archives zip
+----------------
+Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste de Savoir, vous avez téléchargé l'archive correspondate et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site ? Il suffit de faire une archive zip du répertoire dans lequel se trouve les fichiers de votre tutoriel et renseignez les deux champs relatif à l'import d'une archive, puis cliquez sur importer.
+
+.. figure:: images/import-archive.png
+    :align:   center
+
+.. attention::
+
+    Le rajout d'une partie, d'un chapitre ou d'un tutoriel n'est pas encore supportés dans l'import. Le module n'importera que ce qui a été **modifié** dans les fichiers markdown.
+
+Le format .tuto
+---------------
+
+Il s'agit du format dans lequel était exporté les tutoriels sur le SiteduZero. C'est un format de type xml. Cependant, pour qu'il soit
+importable sur ZdS il faut le transformer à l'aide d'un outil de conversion en semi-markdown. Si vous avez besoin d'importer un tutoriel
+de ce format, vous devez contacter le staff de Zeste de Savoir pour que vous fichier ``.tuto`` soit converti en semi markdown.
+
+Vous aurez aussi besoin du pack d'images (au format zip) qui sont utilisés dans votre tutoriel.
+
+Il ne vous restera plus qu'a renseigner les champs relatifs à l'import de .tuto pour importer le votre.
+
+.. figure:: images/import-tuto.png
+    :align:   center
+
+.. attention::
+
+    L'import du tutoriel peut prendre beaucoup de temps en fonction de la taille de votre tutoriel.
+
 Cycle de vie des tutoriels
 ==========================
 
@@ -195,7 +229,7 @@ en beta, en postant le lien version la version beta du tutoriel.
 
 .. attention::
 
-    Le lien de la beta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie `?version=blablabla`. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version beta.
+    Le lien de la beta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie ``?version=blablabla``. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version beta.
 
 En fait lorsqu'un tutoriel est en mode beta, il s'agit d'une version précise qui est mise 
 dans ce mode. On peut continuer à mettre à jour la version brouillon pour rajouter de nouveaux chapitres
@@ -270,9 +304,9 @@ Le module des tutoriels se base sur **git** pour versionner son contenu. Physiqu
 
 Pour éviter les conflits dans les noms de fichier, le chemin vers un extrait aura souvent le modèle suivant :
 
-`[id_partie]_[slug_partie]/[id_chap]_[slug_chap]/[id_extrait]_[slug_extrait].md`
+``[id_partie]_[slug_partie]/[id_chap]_[slug_chap]/[id_extrait]_[slug_extrait].md``
 
-Pour pouvoir versionner tout ceci, nous avons un fichier nommé `masnifest.json` chargé de stocker l'ensemble des métadonnées versionnées du tutoriel. Ce fichier manifest est lui aussi versionné. Pour chaque version, il suffit donc de lire ce fichier pour reconstituer un tutoriel. C'est un fichier json qui reprend la structure du document, et les différents chemins relatifs vers le contenu. Les métadonnées stockées sont :
+Pour pouvoir versionner tout ceci, nous avons un fichier nommé ``masnifest.json`` chargé de stocker l'ensemble des métadonnées versionnées du tutoriel. Ce fichier manifest est lui aussi versionné. Pour chaque version, il suffit donc de lire ce fichier pour reconstituer un tutoriel. C'est un fichier json qui reprend la structure du document, et les différents chemins relatifs vers le contenu. Les métadonnées stockées sont :
 
 - Le titre du tutoriel, des parties, des chapitres et des extraits
 - Le sous-titre du tutoriel
@@ -294,9 +328,9 @@ Le parti a été pris de ne pas versionner les images qui sont stockées sur le 
 Quid des tutoriels publiés ?
 ++++++++++++++++++++++++++++
 
-Les tutoriels en *offline* sont tous versionnés, et sont dans le répertoire `tutoriels_private`. Lorsqu'ils sont validés le traitement suivant est appliqué.
+Les tutoriels en *offline* sont tous versionnés, et sont dans le répertoire ``tutoriels_private``. Lorsqu'ils sont validés le traitement suivant est appliqué.
 
-- On copie le dépôt du tutoriel dans le répertoire `tutoriels_public`
+- On copie le dépôt du tutoriel dans le répertoire ``tutoriels_public``
 - On va chercher dans l'historique du dépot les fichiers correspondant à la version publique
 - On converti ces fichiers en html (en utilisant zMarkdown)
 - On stocke les fichiers html sur le serveur.

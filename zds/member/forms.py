@@ -577,6 +577,11 @@ class PromoteMemberForm(forms.Form):
         required=False,
     )
 
+    activation = forms.BooleanField(
+        label="Compte actif",
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         super(PromoteMemberForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -586,5 +591,6 @@ class PromoteMemberForm(forms.Form):
         self.helper.layout = Layout(
             Field('groups'),
             Field('superuser'),
+            Field('activation'),
             StrictButton('Valider', type='submit'),
         )
