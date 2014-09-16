@@ -1228,9 +1228,15 @@ def edit_tutorial(request):
                 conclusion=data["conclusion"],
                 action="maj",
             )
+
             tutorial.subcategory.clear()
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
+
+            tutorial.helps.clear()
+            for help in form.cleaned_data["helps"]:
+                tutorial.helps.add(help)
+
             tutorial.save()
             return redirect(tutorial.get_absolute_url())
     else:

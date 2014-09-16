@@ -3,7 +3,6 @@
     fields:
         title: "Redacteur"
         tablelabel: "Besoin d'aide pour la rédaction"
-        imagename: "dummy_redacteur.png"
         slug: "redacteur"
 
 -   model: utils.HelpWriting
@@ -11,7 +10,6 @@
     fields:
         title: "Correcteur"
         tablelabel: "Besoin d'aide pour la correction"
-        imagename: "dummy_correcteur.png"
         slug: "correcteur"
 
 -   model: utils.HelpWriting
@@ -19,7 +17,6 @@
     fields:
         title: "Illustrateur"
         tablelabel: "Besoin d'aide pour l'illustration"
-        imagename: "dummy_illustrateur.png"
         slug: "illustrateur"
 
 -   model: utils.HelpWriting
@@ -27,5 +24,4 @@
     fields:
         title: "Repreneur"
         tablelabel: "Cherche un repreneur"
-        imagename: "dummy_repreneur.png"
         slug: "repreneur"
