@@ -52,7 +52,7 @@
                                 </a>
                                 <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
-                                        {{ validation.comment_authors }}
+                                        {{ validation.comment_authors|safe }}
                                     </p>
                                 </div>
                             {% endif %}
