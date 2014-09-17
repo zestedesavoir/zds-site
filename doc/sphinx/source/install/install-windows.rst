@@ -1,6 +1,6 @@
-=========================================
+==========================================
 Installation sous **Windows 7, 8** et plus
-=========================================
+==========================================
 
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.

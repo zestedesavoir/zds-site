@@ -1,24 +1,39 @@
 # coding: utf-8
 
-from django import template
-from django.utils.safestring import mark_safe
-import time
 import re
 
-import markdown
+from django import template
+from django.utils.safestring import mark_safe
 
+import markdown
 from markdown.extensions.zds import ZdsExtension
 from zds.utils.templatetags.smileysDef import smileys
 
+register = template.Library()
 
-# Markdowns customs extensions :
-def get_markdown_instance(Inline=False):
-    zdsext = ZdsExtension({"inline": Inline, "emoticons": smileys})
+"""
+Markdown related filters.
+"""
+
+# Constant strings
+__MD_ERROR_PARSING = u"Une erreur est survenue dans la génération de texte Markdown. " \
+                     u"Veuillez rapporter le bug."
+
+
+def get_markdown_instance(inline=False):
+    """
+    Provide a pre-configured markdown parser.
+
+    :param bool inline: If `True`, configure parser to parse only inline content.
+    :return: A ZMarkdown parser.
+    """
+    zdsext = ZdsExtension({"inline": inline, "emoticons": smileys})
     # Generate parser
     md = markdown.Markdown(extensions=(zdsext,),
                            safe_mode = 'escape',
-                           inline = Inline,
                            # Protect use of html by escape it
+                           inline = inline,
+                           # Parse only inline content.
                            enable_attributes = False,
                            # Disable the conversion of attributes.
                            # This could potentially allow an
@@ -27,7 +42,8 @@ def get_markdown_instance(Inline=False):
                            tab_length = 4,
                            # Length of tabs in the source.
                            # This is the default value
-                           output_format = 'html5',      # html5 output
+                           output_format = 'html5',
+                           # html5 output
                            # This is the default value
                            smart_emphasis = True,
                            # Enable smart emphasis for underscore syntax
@@ -36,77 +52,87 @@ def get_markdown_instance(Inline=False):
                            )
     return md
 
-register = template.Library()
 
+def render_markdown(text, inline=False):
+    """
+    Render a markdown text to html.
 
-@register.filter('humane_time')
-def humane_time(t, conf={}):
-    tp = time.localtime(t)
-    return time.strftime("%d %b %Y, %H:%M:%S", tp)
+    :param str text: Text to render.
+    :param bool inline: If `True`, parse only inline content.
+    :return: Equivalent html string.
+    :rtype: str
+    """
+    return get_markdown_instance(inline=inline).convert(text).encode('utf-8').strip()
 
 
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
+    """
+    Filter markdown text and render it to html.
+
+    :param str text: Text to render.
+    :return: Equivalent html string.
+    :rtype: str
+    """
     try:
-        return mark_safe(
-            get_markdown_instance(
-                Inline=False).convert(text).encode('utf-8'))
+        return mark_safe(render_markdown(text, inline=False))
     except:
-        return mark_safe(
-            u'<div class="error ico-after"><p>Une erreur est survenue '
-            u'dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
+        return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
 def emarkdown_inline(text):
-    return mark_safe(
-        get_markdown_instance(
-            Inline=True).convert(text).encode('utf-8').strip())
+    """
+    Filter markdown text and render it to html. Only inline elements will be parsed.
+
+    :param str text: Text to render.
+    :return: Equivalent html string.
+    :rtype: str
+    """
+
+    try:
+        return mark_safe(render_markdown(text, inline=True))
+    except:
+        return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
 
 
-def sub_hd1(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "#" + lvl + hd
+def sub_hd(match, count):
+    """Replace header shifted."""
+    st = match.group(1)
+    lvl = match.group('level')
+    hd = match.group('header')
+    end = match.group(4)
 
-    return next
+    new_content = st + "#" * count + lvl + hd + end
 
-
-def sub_hd2(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "#" + lvl + hd
-
-    return next
+    return new_content
 
 
-def sub_hd3(g):
-    lvl = g.group('level')
-    hd = g.group('header')
-    next = "###" + lvl + hd
+def decale_header(text, count):
+    """
+    Shift header in markdown document.
 
-    return next
+    :param str text: Text to filter.
+    :param int count:
+    :return: Filtered text.
+    :rtype: str
+    """
+    return re.sub(
+        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
+        lambda t: sub_hd(t, count),
+        text.encode("utf-8"))
 
 
 @register.filter('decale_header_1')
 def decale_header_1(text):
-    return re.sub(
-        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd1,
-        text.encode("utf-8"))
+    return decale_header(text, 1)
 
 
 @register.filter('decale_header_2')
 def decale_header_2(text):
-    return re.sub(
-        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd2,
-        text.encode("utf-8"))
+    return decale_header(text, 2)
 
 
 @register.filter('decale_header_3')
 def decale_header_3(text):
-    return re.sub(
-        r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
-        sub_hd3,
-        text.encode("utf-8"))
+    return decale_header(text, 3)
