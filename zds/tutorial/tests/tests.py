@@ -249,7 +249,7 @@ class BigTutorialTests(TestCase):
                     os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
                 # copy file (taken from zipfile's extract)
                 source = zip_file.open(member)
-                target = file(os.path.join(zip_dir, filename), "wb")
+                target = file(os.path.join(zip_dir, member), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
