@@ -9,7 +9,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
 from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
-from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
+from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorial.models import Tutorial
 
@@ -204,7 +204,11 @@ class ChapterForm(FormWithTitle):
     introduction = forms.CharField(
         label='Introduction',
         required=False,
-        widget=forms.Textarea
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     conclusion = forms.CharField(
@@ -331,8 +335,7 @@ class ExtractForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Hidden('last_hash', '{{ last_hash }}'),
-            CommonLayoutEditor(),
-            Field('msg_commit'),
+            CommonLayoutVersionEditor(),
         )
 
 

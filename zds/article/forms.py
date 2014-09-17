@@ -8,7 +8,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 from zds.article.models import Article
-from zds.utils.forms import CommonLayoutEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 
 
@@ -84,8 +84,7 @@ class ArticleForm(forms.Form):
             Field('image'),
             Field('subcategory'),
             Field('licence'),
-            CommonLayoutEditor(),
-            Field('msg_commit'),
+            CommonLayoutVersionEditor(),
         )
 
     def clean(self):

@@ -419,11 +419,11 @@ def maj_repo_article(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = u"Modification de l'article {} {} {}".format(article.title, get_sep(msg), msg).strip()
+            msg = u"Modification de l'article '{}' {} {}".format(article.title, get_sep(msg), msg).strip()
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = u"Création de l'article {} {} {}".format(article.title, get_sep(msg), msg).strip()
+            msg = u"Création de l'article '{}' {} {}".format(article.title, get_sep(msg), msg).strip()
 
         repo = Repo(new_slug_path)
         index = repo.index
