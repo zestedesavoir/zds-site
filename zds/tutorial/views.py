@@ -476,7 +476,7 @@ def ask_validation(request):
     validation = Validation()
     validation.tutorial = tutorial
     validation.date_proposition = datetime.now()
-    validation.comment_authors = emarkdown(request.POST["text"])
+    validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
     if old_validator is not None:
         validation.validator = old_validator
