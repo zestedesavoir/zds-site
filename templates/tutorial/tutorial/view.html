@@ -63,7 +63,7 @@
                         </p>
 
                         <blockquote>
-                            {{ validation.comment_authors|safe }}
+                            {{ validation.comment_authors|emarkdown }}
                         </blockquote>
                     </div>
                 {% endif %}

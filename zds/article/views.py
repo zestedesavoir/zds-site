@@ -658,7 +658,7 @@ def modify(request):
             validation.status = 'PENDING'
             validation.article = article
             validation.date_proposition = datetime.now()
-            validation.comment_authors = emarkdown(request.POST['comment'])
+            validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
 
             if old_validator is not None:
