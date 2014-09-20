@@ -15,7 +15,7 @@ L'élément ``append_to_get`` permet de rajouter des paramètres à la requête 
 ``module/toto``, le code de template suivant ::
 
     {% load append_to_get %}
-    <a href="{% append_to_get page=key1=var1,key2=var2 %}">Mon lien</a>
+    <a href="{% append_to_get key1=var1,key2=var2 %}">Mon lien</a>
 
 produira le code suivant ::
 
