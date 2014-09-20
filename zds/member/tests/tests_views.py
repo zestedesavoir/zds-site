@@ -585,7 +585,3 @@ class MemberTests(TestCase):
             rmtree(settings.REPO_PATH)
         if os.path.isdir(settings.REPO_PATH_PROD):
             rmtree(settings.REPO_PATH_PROD)
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            rmtree(settings.REPO_ARTICLE_PATH)
-        if os.path.isdir(settings.MEDIA_ROOT):
-            rmtree(settings.MEDIA_ROOT)

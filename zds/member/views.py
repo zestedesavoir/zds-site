@@ -111,6 +111,13 @@ def unregister(request):
         else:
             if tuto.authors.count() == 1:
                 tuto.authors.add(external)
+                external_gallery = UserGallery()
+                external_gallery.user = external
+                external_gallery.gallery = tuto.gallery
+                external_gallery.mode = 'w'
+                external_gallery.save()
+                UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
+
             tuto.authors.remove(current)
             tuto.save()
     for article in request.user.profile.get_articles():

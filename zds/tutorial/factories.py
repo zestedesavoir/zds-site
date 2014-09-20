@@ -10,6 +10,7 @@ import factory
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
 from zds.utils.models import SubCategory, Licence
+from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.utils.tutorials import export_tutorial
 
 contenu = (
@@ -63,6 +64,9 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 
         tuto.sha_draft = cm.hexsha
         tuto.sha_beta = None
+        tuto.gallery = GalleryFactory()
+        for author in tuto.authors.all():
+            UserGalleryFactory(user=author, gallery=tuto.gallery)
         return tuto
 
 
@@ -80,6 +84,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         tuto = super(MiniTutorialFactory, cls)._prepare(create, **kwargs)
+
         path = tuto.get_path()
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
@@ -106,6 +111,9 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
         cm = repo.index.commit("Init Tuto")
 
         tuto.sha_draft = cm.hexsha
+        tuto.gallery = GalleryFactory()
+        for author in tuto.authors.all():
+            UserGalleryFactory(user=author, gallery=tuto.gallery)
         return tuto
 
 
