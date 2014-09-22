@@ -114,7 +114,7 @@ def unregister(request):
                 external_gallery = UserGallery()
                 external_gallery.user = external
                 external_gallery.gallery = tuto.gallery
-                external_gallery.mode = 'w'
+                external_gallery.mode = 'W'
                 external_gallery.save()
                 UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
 
