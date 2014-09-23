@@ -51,7 +51,7 @@ def top_categories(user):
     for key, value in sort_list:
         top_tag.append(key)
         cpt += 1
-        if cpt >= settings.TOP_TAG_MAX:
+        if cpt >= settings.ZDS_APP['forum']['top_tag_max']:
             break
 
     tags = Tag.objects.filter(pk__in=top_tag)

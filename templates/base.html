@@ -25,7 +25,7 @@
                 {{ title_blocks|safe }}
                 &bull;
             {% endif %}
-            Zeste de Savoir
+            {{app.site.litteral_name}}
         {% endcaptureas %}
         {{ title|safe }}
     </title>
@@ -38,8 +38,7 @@
     {# Description #}
     {% captureas description %}
         {% block description %}
-            Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide animés par 
-            et pour la communauté.
+            {{app.site.long_description}}
         {% endblock %}
     {% endcaptureas %}
     <meta name="description" content="{{ description|safe }}">
@@ -53,9 +52,9 @@
 
 
     {# OpenGraph #}
-    <meta property="og:site_name" content="Zeste de Savoir">
+    <meta property="og:site_name" content="{{app.site.litteral_name}}">
     <meta property="og:title" content="{{ title|safe }}">
-    <meta property="og:url" content="http://zestedesavoir.com{{ request.path }}">
+    <meta property="og:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="og:language" content="fr_FR">
     <meta property="og:image:url" content="http://{{ meta_image }}">
     <meta property="og:image:secure_url" content="https://{{ meta_image }}">
@@ -65,13 +64,13 @@
 
 
     {# Twitter cards #}
-    <meta property="twitter:domain" content="http://zestedesavoir.com/">
+    <meta property="twitter:domain" content="{{app.site.url}}/">
     <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="http://zestedesavoir.com{{ request.path }}">
+    <meta property="twitter:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">
-    <meta property="twitter:site" content="@ZesteDeSavoir">
-    <meta property="twitter:creator" content="@{% block twitter_creator %}ZesteDeSavoir{% endblock %}">
+    <meta property="twitter:site" content="@{{app.site.name}}">
+    <meta property="twitter:creator" content="@{% block twitter_creator %}{{app.site.name}}{% endblock %}">
     <meta property="twitter:image" content="http://{{ meta_image }}">
 
 
@@ -145,7 +144,7 @@
 
                     {% captureas mobiletitle %}
                         {% block mobile_title %}
-                            Zeste de Savoir
+                            {{app.site.litteral_name}}
                         {% endblock %}
                     {% endcaptureas %}
 
@@ -155,7 +154,7 @@
                            class="header-logo-link"
                            data-title="{{ mobiletitle }}"
                         >
-                            Zeste de Savoir
+                            {{app.site.litteral_name}}
                         </a>
                     </div>
 
@@ -528,7 +527,7 @@
         <footer class="page-footer">
             <div class="wrapper">
                 <p>
-                    Zeste de Savoir &bull; 2014
+                    {{app.site.litteral_name}} &bull; {{app.site.year}}
                     <span class="version">
                         &bull; Version : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
@@ -536,7 +535,9 @@
                 <ul>
                     <li><a href="{% url "zds.pages.views.eula" %}">CGU</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+                    {% if app.site.association %}
                     <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+                    {% endif %}
                     {% if user.is_authenticated %}
                         <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
                     {% endif %}

@@ -175,7 +175,7 @@ class PrivatePostTest(TestCase):
             ceil(
                 float(
                     self.post1.position_in_topic) /
-                settings.POSTS_PER_PAGE))
+                settings.ZDS_APP['forum']['posts_per_page']))
 
         url = '{0}?page={1}#p{2}'.format(
             self.post1.privatetopic.get_absolute_url(),

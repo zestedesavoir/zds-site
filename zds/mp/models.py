@@ -135,7 +135,7 @@ class PrivatePost(models.Model):
             ceil(
                 float(
                     self.position_in_topic) /
-                settings.POSTS_PER_PAGE))
+                settings.ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.privatetopic.get_absolute_url(),

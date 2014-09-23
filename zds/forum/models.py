@@ -284,7 +284,7 @@ class Topic(models.Model):
 
         if last_user_post and last_user_post == self.get_last_post():
             t = timezone.now() - last_user_post.pubdate
-            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 
         return False
@@ -306,7 +306,7 @@ class Post(Comment):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.topic.get_absolute_url(),

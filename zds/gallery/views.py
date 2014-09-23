@@ -201,11 +201,12 @@ def edit_image(request, gal_pk, img_pk):
         form = UpdateImageForm(request.POST, request.FILES)
         if form.is_valid():
             if "physical" in request.FILES:
-                if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
+                if request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
                     messages.error(request, u"Votre image est beaucoup trop lourde, "
                                             u"réduisez sa taille à moins de {} "
                                             u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                            u"avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE / 1024)))
+                                            u"avant de l'envoyer".format(
+                                                str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
                 else:
                     img.title = request.POST["title"]
                     img.legend = request.POST["legend"]
@@ -350,7 +351,7 @@ def import_image(request, gal_pk):
                 fp.close()
                 title = os.path.basename(i)
                 # if size is too large don't save
-                if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
+                if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                     messages.error(
                         request,
                         u"L'image {} n'a pas pu être importée dans la gallerie"
