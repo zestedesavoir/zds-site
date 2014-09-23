@@ -24,7 +24,8 @@ from zds.article.models import Article
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.article.models import Validation as ArticleValidation
-
+from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.gallery.models import Gallery, UserGallery
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
@@ -100,6 +101,13 @@ class MemberTests(TestCase):
 
     def test_unregister(self):
         """Tests that unregistering user is working"""
+
+        # test not logged user can't unregister
+        self.client.logout()
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
         user = ProfileFactory()
         login_check = self.client.login(
             username=user.user.username,
@@ -112,22 +120,27 @@ class MemberTests(TestCase):
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
         user = ProfileFactory()
         user2 = ProfileFactory()
+        aloneGallery = GalleryFactory()
+        UserGalleryFactory(gallery=aloneGallery, user=user.user)
+        sharedGallery = GalleryFactory()
+        UserGalleryFactory(gallery=sharedGallery, user=user.user)
+        UserGalleryFactory(gallery=sharedGallery, user=user2.user)
         # first case : a published tutorial with only one author
-        publishedTutorialAlone = MiniTutorialFactory()
+        publishedTutorialAlone = MiniTutorialFactory(light=True)
         publishedTutorialAlone.authors.add(user.user)
         publishedTutorialAlone.save()
         # second case : a published tutorial with two authors
-        publishedTutorial2 = MiniTutorialFactory()
+        publishedTutorial2 = MiniTutorialFactory(light=True)
         publishedTutorial2.authors.add(user.user)
         publishedTutorial2.authors.add(user2.user)
         publishedTutorial2.save()
         # third case : a private tutorial with only one author
-        writingTutorialAlone = MiniTutorialFactory()
+        writingTutorialAlone = MiniTutorialFactory(light=True)
         writingTutorialAlone.authors.add(user.user)
         writingTutorialAlone.save()
         writingTutorialAlonePath = writingTutorialAlone.get_path()
         # fourth case : a private tutorial with at least two authors
-        writingTutorial2 = MiniTutorialFactory()
+        writingTutorial2 = MiniTutorialFactory(light=True)
         writingTutorial2.authors.add(user.user)
         writingTutorial2.authors.add(user2.user)
         writingTutorial2.save()
@@ -198,7 +211,7 @@ class MemberTests(TestCase):
         writingArticleAlone = ArticleFactory()
         writingArticleAlone.authors.add(user.user)
         writingArticleAlone.save()
-        writingArticle2 = MiniTutorialFactory()
+        writingArticle2 = ArticleFactory()
         writingArticle2.authors.add(user.user)
         writingArticle2.authors.add(user2.user)
         writingArticle2.save()
@@ -317,6 +330,11 @@ class MemberTests(TestCase):
         self.assertFalse(os.path.exists(writingTutorialAlonePath))
         self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
+        self.assertIsNotNone(Gallery.objects.get(pk=aloneGallery.pk))
+        self.assertEquals(aloneGallery.get_users().count(), 1)
+        self.assertEquals(sharedGallery.get_users().count(), 1)
+        self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+
 
     def test_sanctions(self):
         """Test various sanctions."""
