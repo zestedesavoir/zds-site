@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 
 from shutil import rmtree
 
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT, MEDIA_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
@@ -139,6 +139,7 @@ class MemberTests(TestCase):
         writingTutorialAlone = MiniTutorialFactory(light=True)
         writingTutorialAlone.authors.add(user.user)
         writingTutorialAlone.save()
+        writingTutorialAloneGallerPath = os.path.join(MEDIA_ROOT, writingTutorialAlone.gallery.slug);
         writingTutorialAlonePath = writingTutorialAlone.get_path()
         # fourth case : a private tutorial with at least two authors
         writingTutorial2 = MiniTutorialFactory(light=True)
@@ -311,8 +312,40 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(publishedTutorialAlone.authors.count(), 1)
         self.assertEqual(publishedTutorialAlone.authors.first().username, EXTERNAL_USER)
+        self.assertFalse(os.path.exists(writingTutorialAloneGallerPath))
         self.assertEqual(publishedTutorial2.authors.count(), 1)
         self.assertEqual(publishedTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertIsNotNone(publishedTutorial2.get_prod_path())
+        self.assertTrue(os.path.exists(publishedTutorial2.get_prod_path()))
+        self.assertIsNotNone(publishedTutorialAlone.get_prod_path())
+        self.assertTrue(os.path.exists(publishedTutorialAlone.get_prod_path()))
+        self.assertEqual(self.client.get(
+            reverse('zds.tutorial.views.view_tutorial_online', args=[
+                    publishedTutorialAlone.pk,
+                    publishedTutorialAlone.slug])
+        , follow=False
+        ).status_code, 200)
+        self.assertEqual(self.client.get(
+            reverse('zds.tutorial.views.view_tutorial_online', args=[
+                    publishedTutorial2.pk,
+                    publishedTutorial2.slug])
+        , follow=False
+        ).status_code, 200)
+        self.assertTrue(os.path.exists(publishedArticleAlone.get_path()))
+        self.assertEqual(self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    publishedArticleAlone.pk,
+                    publishedArticleAlone.slug]),
+            follow=True).status_code, 200)
+        self.assertEqual(self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    publishedArticle2.pk,
+                    publishedArticle2.slug]),
+            follow=True).status_code, 200)
         self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
         self.assertEqual(writingTutorial2.authors.count(), 1)
         self.assertEqual(writingTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
