@@ -139,7 +139,7 @@ class MemberTests(TestCase):
         writingTutorialAlone = MiniTutorialFactory(light=True)
         writingTutorialAlone.authors.add(user.user)
         writingTutorialAlone.save()
-        writingTutorialAloneGallerPath = os.path.join(MEDIA_ROOT, writingTutorialAlone.gallery.slug);
+        writingTutorialAloneGallerPath = os.path.join(MEDIA_ROOT, writingTutorialAlone.gallery.slug)
         writingTutorialAlonePath = writingTutorialAlone.get_path()
         # fourth case : a private tutorial with at least two authors
         writingTutorial2 = MiniTutorialFactory(light=True)
@@ -322,15 +322,11 @@ class MemberTests(TestCase):
         self.assertEqual(self.client.get(
             reverse('zds.tutorial.views.view_tutorial_online', args=[
                     publishedTutorialAlone.pk,
-                    publishedTutorialAlone.slug])
-        , follow=False
-        ).status_code, 200)
+                    publishedTutorialAlone.slug]), follow=False).status_code, 200)
         self.assertEqual(self.client.get(
             reverse('zds.tutorial.views.view_tutorial_online', args=[
                     publishedTutorial2.pk,
-                    publishedTutorial2.slug])
-        , follow=False
-        ).status_code, 200)
+                    publishedTutorial2.slug]), follow=False).status_code, 200)
         self.assertTrue(os.path.exists(publishedArticleAlone.get_path()))
         self.assertEqual(self.client.get(
             reverse(
