@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 
 from shutil import rmtree
 
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT, MEDIA_ROOT
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
