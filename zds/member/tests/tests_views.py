@@ -27,6 +27,7 @@ from zds.article.models import Validation as ArticleValidation
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
 @override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
@@ -334,7 +335,6 @@ class MemberTests(TestCase):
         self.assertEquals(aloneGallery.get_users().count(), 1)
         self.assertEquals(sharedGallery.get_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-
 
     def test_sanctions(self):
         """Test various sanctions."""

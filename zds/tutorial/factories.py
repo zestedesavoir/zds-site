@@ -29,6 +29,7 @@ content = (
 
 content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est testé'
 
+
 class BigTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
 
