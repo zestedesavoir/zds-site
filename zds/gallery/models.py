@@ -133,4 +133,6 @@ class Gallery(models.Model):
 @receiver(models.signals.post_delete, sender=Gallery)
 def auto_delete_image_on_delete(sender, instance, **kwargs):
     """Deletes image from filesystem when corresponding object is deleted."""
+    for image in instance.get_images():
+        image.delete()
     shutil.rmtree(instance.get_gallery_path())
