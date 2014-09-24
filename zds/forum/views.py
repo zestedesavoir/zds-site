@@ -275,8 +275,7 @@ def new(request):
             post = Post()
             post.topic = n_topic
             post.author = request.user
-            post.text = data["text"]
-            post.text_html = emarkdown(request.POST["text"])
+            post.update_content(request.POST["text"])
             post.pubdate = datetime.now()
             post.position = 1
             post.ip_address = get_client_ip(request)

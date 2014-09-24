@@ -1,19 +1,37 @@
 # coding: utf-8
 
+import os
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
 
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from shutil import rmtree
+
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
 from zds.forum.models import TopicFollowed
-from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
+from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile
-
+from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
+from zds.tutorial.factories import MiniTutorialFactory
+from zds.tutorial.models import Tutorial, Validation
+from zds.article.factories import ArticleFactory
+from zds.article.models import Article
+from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.models import Topic, Post
+from zds.article.models import Validation as ArticleValidation
+from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.gallery.models import Gallery, UserGallery
 
 
+@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
 class MemberTests(TestCase):
 
     def setUp(self):
@@ -21,6 +39,13 @@ class MemberTests(TestCase):
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
         settings.BOT_ACCOUNT = self.mas.user.username
+        self.anonymous = UserFactory(username=ANONYMOUS_USER, password="anything")
+        self.external = UserFactory(username=EXTERNAL_USER, password="anything")
+        self.category1 = CategoryFactory(position=1)
+        self.forum11 = ForumFactory(
+            category=self.category1,
+            position_in_category=1)
+        self.staff = StaffProfileFactory().user
 
     def test_login(self):
         """To test user login."""
@@ -74,6 +99,271 @@ class MemberTests(TestCase):
         self.assertEquals(len(mail.outbox), 2)
 
         self.assertTrue(User.objects.get(username='firm1').is_active)
+
+    def test_unregister(self):
+        """Tests that unregistering user is working"""
+
+        # test not logged user can't unregister
+        self.client.logout()
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        user = ProfileFactory()
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
+        user = ProfileFactory()
+        user2 = ProfileFactory()
+        aloneGallery = GalleryFactory()
+        UserGalleryFactory(gallery=aloneGallery, user=user.user)
+        sharedGallery = GalleryFactory()
+        UserGalleryFactory(gallery=sharedGallery, user=user.user)
+        UserGalleryFactory(gallery=sharedGallery, user=user2.user)
+        # first case : a published tutorial with only one author
+        publishedTutorialAlone = MiniTutorialFactory(light=True)
+        publishedTutorialAlone.authors.add(user.user)
+        publishedTutorialAlone.save()
+        # second case : a published tutorial with two authors
+        publishedTutorial2 = MiniTutorialFactory(light=True)
+        publishedTutorial2.authors.add(user.user)
+        publishedTutorial2.authors.add(user2.user)
+        publishedTutorial2.save()
+        # third case : a private tutorial with only one author
+        writingTutorialAlone = MiniTutorialFactory(light=True)
+        writingTutorialAlone.authors.add(user.user)
+        writingTutorialAlone.save()
+        writingTutorialAloneGallerPath = writingTutorialAlone.gallery.get_gallery_path()
+        writingTutorialAlonePath = writingTutorialAlone.get_path()
+        # fourth case : a private tutorial with at least two authors
+        writingTutorial2 = MiniTutorialFactory(light=True)
+        writingTutorial2.authors.add(user.user)
+        writingTutorial2.authors.add(user2.user)
+        writingTutorial2.save()
+        self.client.login(username=self.staff.username, password="hostel77")
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': publishedTutorialAlone.pk,
+                'text': u'Ce tuto est excellent',
+                'version': publishedTutorialAlone.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=publishedTutorialAlone.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': publishedTutorialAlone.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': publishedTutorial2.pk,
+                'text': u'Ce tuto est excellent',
+                'version': publishedTutorial2.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=publishedTutorial2.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': publishedTutorial2.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        # same thing for articles
+        publishedArticleAlone = ArticleFactory()
+        publishedArticleAlone.authors.add(user.user)
+        publishedArticleAlone.save()
+        publishedArticle2 = ArticleFactory()
+        publishedArticle2.authors.add(user.user)
+        publishedArticle2.authors.add(user2.user)
+        publishedArticle2.save()
+
+        writingArticleAlone = ArticleFactory()
+        writingArticleAlone.authors.add(user.user)
+        writingArticleAlone.save()
+        writingArticle2 = ArticleFactory()
+        writingArticle2.authors.add(user.user)
+        writingArticle2.authors.add(user2.user)
+        writingArticle2.save()
+        # ask public article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticleAlone.pk,
+                'comment': u'Valides moi ce bébé',
+                'pending': 'Demander validation',
+                'version': publishedArticleAlone.sha_draft,
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # reserve article
+        validation = ArticleValidation.objects.get(
+            article__pk=publishedArticleAlone.pk)
+        pub = self.client.post(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticleAlone.pk,
+                'comment-v': u'Cet article est excellent',
+                'valid-article': 'Demander validation',
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # ask public article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticle2.pk,
+                'comment': u'Valides moi ce bébé',
+                'pending': 'Demander validation',
+                'version': publishedArticle2.sha_draft,
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # reserve article
+        validation = ArticleValidation.objects.get(
+            article__pk=publishedArticle2.pk)
+        pub = self.client.post(
+            reverse('zds.article.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish article
+        pub = self.client.post(
+            reverse('zds.article.views.modify'),
+            {
+                'article': publishedArticle2.pk,
+                'comment-v': u'Cet article est excellent',
+                'valid-article': 'Demander validation',
+                'is_major': True
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        # about posts and topics
+        authoredTopic = TopicFactory(author=user.user, forum=self.forum11)
+        answeredTopic = TopicFactory(author=user2.user, forum=self.forum11)
+        PostFactory(topic=answeredTopic, author=user.user, position=2)
+        editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
+        editedAnswer.editor = user.user
+        editedAnswer.save()
+        privateTopic = PrivateTopicFactory(author=user.user)
+        privateTopic.participants.add(user2.user)
+        privateTopic.save()
+        PrivatePostFactory(author=user.user, privatetopic=privateTopic, position_in_topic=1)
+        login_check = self.client.login(
+            username=user.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('zds.member.views.unregister'),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(publishedTutorialAlone.authors.count(), 1)
+        self.assertEqual(publishedTutorialAlone.authors.first().username, EXTERNAL_USER)
+        self.assertFalse(os.path.exists(writingTutorialAloneGallerPath))
+        self.assertEqual(publishedTutorial2.authors.count(), 1)
+        self.assertEqual(publishedTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertIsNotNone(publishedTutorial2.get_prod_path())
+        self.assertTrue(os.path.exists(publishedTutorial2.get_prod_path()))
+        self.assertIsNotNone(publishedTutorialAlone.get_prod_path())
+        self.assertTrue(os.path.exists(publishedTutorialAlone.get_prod_path()))
+        self.assertEqual(self.client.get(
+            reverse('zds.tutorial.views.view_tutorial_online', args=[
+                    publishedTutorialAlone.pk,
+                    publishedTutorialAlone.slug]), follow=False).status_code, 200)
+        self.assertEqual(self.client.get(
+            reverse('zds.tutorial.views.view_tutorial_online', args=[
+                    publishedTutorial2.pk,
+                    publishedTutorial2.slug]), follow=False).status_code, 200)
+        self.assertTrue(os.path.exists(publishedArticleAlone.get_path()))
+        self.assertEqual(self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    publishedArticleAlone.pk,
+                    publishedArticleAlone.slug]),
+            follow=True).status_code, 200)
+        self.assertEqual(self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    publishedArticle2.pk,
+                    publishedArticle2.slug]),
+            follow=True).status_code, 200)
+        self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
+        self.assertEqual(writingTutorial2.authors.count(), 1)
+        self.assertEqual(writingTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(publishedArticleAlone.authors.count(), 1)
+        self.assertEqual(publishedArticleAlone.authors.first().username, EXTERNAL_USER)
+        self.assertEqual(publishedArticle2.authors.count(), 1)
+        self.assertEqual(publishedArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(Article.objects.filter(pk=writingArticleAlone.pk).count(), 0)
+        self.assertEqual(writingArticle2.authors.count(), 1)
+        self.assertEqual(writingArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
+        self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(), 0)
+        self.assertFalse(os.path.exists(writingTutorialAlonePath))
+        self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
+        self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
+        self.assertIsNotNone(Gallery.objects.get(pk=aloneGallery.pk))
+        self.assertEquals(aloneGallery.get_users().count(), 1)
+        self.assertEquals(sharedGallery.get_users().count(), 1)
+        self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
 
     def test_sanctions(self):
         """Test various sanctions."""
@@ -279,7 +569,7 @@ class MemberTests(TestCase):
         TopicFollowed(topic=topic2, user=tester.user).save()
         TopicFollowed(topic=topic3, user=tester.user).save()
 
-        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 3)
+        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 3)
 
         # retract all right, keep one group only and activate account
         result = self.client.post(
@@ -295,7 +585,7 @@ class MemberTests(TestCase):
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
         self.assertFalse(tester.user.is_superuser)
-        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 2)
+        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 2)
 
         # no groups specified
         result = self.client.post(
@@ -306,7 +596,7 @@ class MemberTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertEqual(TopicFollowed.objects.filter(user=tester).count(), 1)
+        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 1)
 
         # check that staff can't take away it's own super user rights
         result = self.client.post(
@@ -331,3 +621,14 @@ class MemberTests(TestCase):
                 'activation': "on"
             }, follow=False)
         self.assertEqual(result.status_code, 403)  # forbidden !
+
+    def tearDown(self):
+        Profile.objects.all().delete()
+        if os.path.isdir(settings.REPO_ARTICLE_PATH):
+            rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.MEDIA_ROOT):
+            rmtree(settings.MEDIA_ROOT)
+        if os.path.isdir(settings.REPO_PATH):
+            rmtree(settings.REPO_PATH)
+        if os.path.isdir(settings.REPO_PATH_PROD):
+            rmtree(settings.REPO_PATH_PROD)

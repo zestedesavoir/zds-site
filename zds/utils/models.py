@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from zds.utils import slugify
+from zds.utils.templatetags.emarkdown import emarkdown
 
 from model_utils.managers import InheritanceManager
 
@@ -194,6 +195,10 @@ class Comment(models.Model):
     def get_dislike_count(self):
         """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
+
+    def update_content(self, text):
+        self.text = text
+        self.text_html = emarkdown(self.text)
 
 
 class Alert(models.Model):

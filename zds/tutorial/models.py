@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from math import ceil
+import shutil
 try:
     import ujson as json_reader
 except:
@@ -332,6 +333,17 @@ class Tutorial(models.Model):
             conclu.close()
 
             return conclu_contenu.decode('utf-8')
+
+    def delete_entity_and_tree(self):
+        """deletes the entity and its filesystem counterpart"""
+        shutil.rmtree(self.get_path(), 0)
+        Validation.objects.filter(tutorial=self).delete()
+
+        if self.gallery is not None:
+            self.gallery.delete()
+        if self.on_line():
+            shutil.rmtree(self.get_prod_path())
+        self.delete()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

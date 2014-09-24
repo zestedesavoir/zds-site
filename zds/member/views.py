@@ -21,6 +21,10 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from zds.settings import ANONYMOUS_USER, EXTERNAL_USER
+from zds.utils.models import Comment
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.gallery.models import UserGallery
 import json
 import pygal
 
@@ -31,7 +35,7 @@ from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic, follow
+from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -83,6 +87,100 @@ def index(request):
             "pages": paginator_range(page, paginator.num_pages),
             "nb": page,
         })
+
+
+@login_required
+def warning_unregister(request):
+    """displays a warning page showing what will happen when user unregisters"""
+    return render_template("member/settings/unregister.html", {"user": request.user})
+
+
+@login_required
+@require_POST
+@transaction.atomic
+def unregister(request):
+    """allow members to unregister"""
+
+    anonymous = get_object_or_404(User, username=ANONYMOUS_USER)
+    external = get_object_or_404(User, username=EXTERNAL_USER)
+    current = request.user
+    for tuto in request.user.profile.get_tutos():
+        # we delete article only if not published with only one author
+        if not tuto.on_line() and tuto.authors.count() == 1:
+            if tuto.in_beta():
+                beta_topic = Topic.objects.get(key=tuto.pk)
+                first_post = beta_topic.first_post()
+                first_post.update_content(u'# Le tutoriel présenté par ce topic n\'existe plus.')
+            tuto.delete_entity_and_tree()
+        else:
+            if tuto.authors.count() == 1:
+                tuto.authors.add(external)
+                external_gallery = UserGallery()
+                external_gallery.user = external
+                external_gallery.gallery = tuto.gallery
+                external_gallery.mode = 'W'
+                external_gallery.save()
+                UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
+
+            tuto.authors.remove(current)
+            tuto.save()
+    for article in request.user.profile.get_articles():
+        # we delete article only if not published with only one author
+        if not article.on_line() and article.authors.count() == 1:
+            article.delete_entity_and_tree()
+        else:
+            if article.authors.count() == 1:
+                article.authors.add(external)
+            article.authors.remove(current)
+            article.save()
+    # all messages anonymisation (forum, article and tutorial posts)
+    for message in Comment.objects.filter(author=current):
+        message.author = anonymous
+        message.save()
+    for message in PrivatePost.objects.filter(author=current):
+        message.author = anonymous
+        message.save()
+    # in case current has been moderator in his old day
+    for message in Comment.objects.filter(editor=current):
+        message.editor = anonymous
+        message.save()
+    for topic in PrivateTopic.objects.filter(author=current):
+        topic.participants.remove(current)
+        if topic.participants.count() > 0:
+            topic.author = topic.participants.first()
+            topic.participants.remove(topic.author)
+            topic.save()
+        else:
+            topic.delete()
+    for topic in PrivateTopic.objects.filter(participants__in=[current]):
+        topic.participants.remove(current)
+        topic.save()
+    for topic in Topic.objects.filter(author=current):
+        topic.author = anonymous
+        topic.save()
+    TopicFollowed.objects.filter(user=current).delete()
+    # Before deleting gallery let's summurize what we deleted
+    # - unpublished tutorials with only the unregistering member as an author
+    # - unpublished articles with only the unregistering member as an author
+    # - all category associated with those entites (have a look on article.delete_entity_and_tree
+    #   and tutorial.delete_entity_and_tree
+    # So concerning galleries, we just have for us
+    # - "personnal galleries" with only one owner (unregistering user)
+    # - "personnal galleries" with more than one owner
+    # so we will just delete the unretistering user ownership and give it to anonymous in the only case
+    # he was alone so that gallery is not lost
+    for gallery in UserGallery.objects.filter(user=current):
+        if gallery.gallery.get_users().count() == 1:
+            anonymousGallery = UserGallery()
+            anonymousGallery.user = external
+            anonymousGallery.mode = "w"
+            anonymousGallery.gallery = gallery.gallery
+            anonymousGallery.save()
+        gallery.delete()
+
+    logout(request)
+    User.objects.filter(pk=current.pk).delete()
+    return redirect(reverse("zds.pages.views.home"))
 
 
 def details(request, user_name):

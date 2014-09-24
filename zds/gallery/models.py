@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 from easy_thumbnails.fields import ThumbnailerImageField
+from zds.settings import MEDIA_ROOT
 
 
 def image_path(instance, filename):
@@ -109,6 +110,10 @@ class Gallery(models.Model):
         return reverse('zds.gallery.views.gallery_details',
                        args=[self.pk, self.slug])
 
+    def get_gallery_path(self):
+        """get the physical path to this gallery root"""
+        return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
+
     # TODO rename function to get_users_galleries
     def get_users(self):
         return UserGallery.objects.all()\
@@ -123,3 +128,10 @@ class Gallery(models.Model):
         return Image.objects.all()\
             .filter(gallery=self)\
             .order_by('-pubdate')[0]
+
+
+@receiver(models.signals.post_delete, sender=Gallery)
+def auto_delete_image_on_delete(sender, instance, **kwargs):
+    """Deletes image from filesystem when corresponding object is deleted."""
+    for image in instance.get_images():
+        image.delete()

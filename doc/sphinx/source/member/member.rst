@@ -1,7 +1,106 @@
 ===========
-Les Membres
+Les membres
 ===========
 
+Inscription
+===========
+
+L'inscription d'un membre se déroule en deux phases :
+
+- Le membre crée son compte et fournit un pseudo, un mot de passe et une adresse mail valide.
+- Un mail de confirmation est envoyé avec un jeton qui permettra d'activer le compte.
+
+.. attention::
+
+    - Les virgules ne sont pas autorisées dans le pseudonyme, qui ne peut également pas commencer ou finir par des espaces.
+    - Le mot de passe doit faire au moins 6 caractères.
+
+
+Désinscription
+==============
+
+L'inscription se fait via l'interface utilisateur.
+
+-  Le lien de désinscription est accessible via paramètres (``/membres/parametres/profil/``) puis “Se désinscrire” dans la barre
+   latérale (``/membres/desinscrire/attention``) :
+
+   .. figure:: images/desinscription-1.png
+      :align:   center
+
+      Position du lien de désinscription dans les paramètres du membre (``/membres/parametres/profil/``)
+
+-  Le lien mène alors vers une page expliquant les conséquences de sa  désinscription. Il peut alors poursuivre via un bouton en bas de celle-ci :
+
+   .. figure:: images/desinscription-2.png
+      :align:   center
+
+      Bouton de confirmation
+
+
+-  Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
+
+   .. figure:: images/desinscription-3.png
+      :align:   center
+
+      La dernière étape
+
+
+Le clic sur "me désinscrire" entraîne alors une série d'action (qui sont **irréversibles**) :
+
+-  Suppression du profil, libèrant le pseudo et l’adresse courriel pour les futures inscriptions ;
+-  Le membre est déconnecté ;
+-  Les données du membre sont anonymisées :
+
+   -  le pseudo ``anonymous`` est employé :
+        -  pour les sujets du forum (qui, cependant, restent ouverts)
+        -  pour les messages des MP (le membre quitte les discussions auxquelles il participait) ;
+        -  pour les commentaires aux tutoriels et articles ;
+   -  les `galeries`_ non liées à un tutoriel sont données à ``Auteur externe`` (puisque l’image peut être considérée comme venant d’un “auteur”) avec droit de lecture et d’écriture ;
+   -  les `articles`_ et `tutoriels`_ suivent ces règles :
+
+      -  si le tutoriel/article a été écrit par plusieurs personnes : le membre est retiré de la liste des auteurs ;
+      -  si le tutoriel/article est *publié*, il passe sur le compte “Auteur externe”. Une demande expresse sera nécessaire au retrait complet de ces contenus ;
+      -  si le tutoriel/article n’est pas publié (brouillon, bêta, validation) il est supprimé, ainsi que la galerie qui lui est associée.
+
+.. _galeries: ../gallery/gallery.html
+.. _articles: ../article/article.html
+.. _tutoriels: ../tutorial/tutorial.html
+
+
+Les membres dans les environnement de test et de développement
+==============================================================
+
+Afin de faciliter les procédures de tests en local, 6 utilisateurs ont été créés via la fixture ``users.yaml`` (utilisateur/mot de passe):
+
+- user/user : Utilisateur normal
+- staff/staff : Utilisateur avec les droits d'un staff
+- admin/admin : Utilisateur avec les droits d'un staff et d'un admin
+- anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums, dans les commentaires d'articles et de tutoriels ainsi que dans les MPs
+- Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
+- ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit
+
+Pour que ces membres soient ajoutés à la base de données, il est donc nécéssaire d'exécuter la commande, suivante, à la racine du site
+
+.. sourcecode:: bash
+
+    python manage.py loaddata fixtures/users.yaml
+
+.. attention::
+
+    Les utilisateurs ``anonymous`` et ``Auteur externe`` **doivent** être présents dans la base de données pour le bon fonctionnement du site.
+    En effet, ils permettent le bon fonctionnement du processus d'anonymisation (voir `plus haut <#desinscription>`_)
+
+Les utilisateurs ``anonymous`` et ``Auteur externe`` sont totalement paramétrables dans le fichier ``zds/settings.py`` :
+pour changer le nom d'utilisateur (*username*) de ces comptes, agissez sur les constantes suivantes :
+
+.. sourcecode:: python
+
+    # Constant for anonymisation
+
+    ANONYMOUS_USER = "anonymous"
+    EXTERNAL_USER = "Auteur externe"
+
+Bien entendu, les comptes correspondants doivent exister dans la base de donnée.
 
 L'interface de promotion
 ------------------------
