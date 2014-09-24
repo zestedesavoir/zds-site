@@ -107,6 +107,10 @@ def unregister(request):
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
         if not tuto.on_line() and tuto.authors.count() == 1:
+            if tuto.in_beta():
+                beta_topic = Topic.objects.get(key=tuto.pk)
+                first_post = beta_topic.first_post()
+                first_post.update_content(u'# Le tutoriel présenté par ce topic n\'existe plus.')
             tuto.delete_entity_and_tree()
         else:
             if tuto.authors.count() == 1:
