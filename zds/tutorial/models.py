@@ -206,6 +206,7 @@ class Tutorial(models.Model):
         mandata['is_validation'] = self.in_validation() \
             and self.sha_validation == sha
         mandata['is_on_line'] = self.on_line() and self.sha_public == sha
+        mandata['get_parts'] = self.get_parts()
 
         # url:
         mandata['get_absolute_url'] = reverse(
