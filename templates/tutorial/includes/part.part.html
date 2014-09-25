@@ -9,7 +9,7 @@
                 {{ part.intro|safe }}
             {% endif %}
 
-            <ol>
+            <ol class="summary-part">
                 {% for chapter in chapters %}
                     <li>
                         <h3>
@@ -20,10 +20,10 @@
                                     {% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}{% if version %}?version={{ version }}{% endif %}
                                 {% endif %}
                             ">
-                                Chapitre {{ chapter.part.position_in_tutorial }}.{{ chapter.position_in_part }} | {{ chapter.title }}
+                                {{ chapter.title }}
                             </a>
                         </h3>
-                        <ol>
+                        <ol class="summary-part">
                             {% for extract in chapter.extracts %}
                                 <li>
                                     <h4>
@@ -43,6 +43,8 @@
                     </li>
                 {% endfor %}
             </ol>
+
+            <hr class="clearfix" />
 
             {% if part.conclu %}
                 {{ part.conclu|safe }}

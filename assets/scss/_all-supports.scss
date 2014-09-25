@@ -61,13 +61,13 @@
         color: #EEE;
         padding: 4px 13px;
         margin-left: 15px;
-        background: $blue;
+        background: $primary;
         text-decoration: none;
 
         &:hover,
         &:focus {
             background: #EEE;
-            color: $blue;
+            color: $primary;
         }
     }
 
@@ -89,15 +89,15 @@
     #accept-cookies {
         text-decoration: none;
         background: #EEE;
-        color: $blue;
+        color: $primary;
         padding: 4px 15px;
         border: none;
-        transition: background .15s, color .15s;
+        transition: background $transition-duration, color $transition-duration;
         margin-top: 3px;
 
         &:hover,
         &:focus {
-            background: $blue;
+            background: $primary;
             color: #EEE;
         }
     }
@@ -106,14 +106,14 @@
 
 .header-container header {
     background: #084561;
-    border-bottom: 3px solid $orange;
+    border-bottom: 3px solid $secondary;
 
     a,
     button {
         text-decoration: none;
         color: #FFF;
         transition-property: background;
-        transition-duration: $default-transition-duration;
+        transition-duration: $transition-duration;
 
         &:focus {
             outline: none;
@@ -159,7 +159,7 @@
     padding: 10px 2.5%;
     font-size: 14px;
     font-size: 1.4rem;
-    border-bottom: 3px solid $orange;
+    border-bottom: 3px solid $secondary;
     z-index: 50;
 
     .dropdown-title {
@@ -195,7 +195,7 @@
                     height: 25px;
                     line-height: 25px;
                     color: #95d7f5;
-                    transition: all $default-transition-duration ease;
+                    transition: all $transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -277,9 +277,9 @@
                         left: 0;
                         right: 0;
                         height: 2px;
-                        transition: all $default-transition-duration ease;
+                        transition: all $transition-duration ease;
                         border-radius: 2px 2px 0 0;
-                        background-color: $orange;
+                        background-color: $secondary;
                     }
                     &.active:before {
                         height: 0;
@@ -526,7 +526,7 @@
             background: rgba(255, 255, 255, .25);
             height: 40px;
             transition-property: background;
-            transition-duration: $default-transition-duration;
+            transition-duration: $transition-duration;
 
             &:hover,
             &:focus {
@@ -570,7 +570,7 @@
         font-size: 24px;
         background: rgba(255, 255, 255, 1);
         color: #084561;
-        transition: background $default-transition-duration ease;
+        transition: background $transition-duration ease;
 
         &:hover,
         &:focus {
@@ -661,8 +661,8 @@
         font-size: 16px;
         font-size: 1.6rem;
         position: relative;
-        color: lighten($blue, 20%);
-        transition: all $default-transition-duration ease;
+        color: lighten($primary, 20%);
+        transition: all $transition-duration ease;
 
         &:first-child {
             margin-top: 31px;
@@ -690,8 +690,8 @@
         font-size: 1.8rem;
         line-height: 38px;
         line-height: 3.8rem;
-        color: $blue;
-        border-bottom: 1px solid $orange;
+        color: $primary;
+        border-bottom: 1px solid $secondary;
         margin-top: 30px;
     }
     h4 {
@@ -736,7 +736,7 @@
         li {
             position: relative;
             padding: 0 0 0 2.5%;
-            transition: background $default-transition-duration ease;
+            transition: background $transition-duration ease;
 
             &:not(.inactive):hover,
             a:focus,
@@ -875,7 +875,7 @@
                 border: 1px solid #F0F0F0;
                 box-shadow: rgba(0, 0, 0, .1) 2px 2px 2px;
                 opacity: 0;
-                transition: visibility 0s linear 0.15s, opacity 0.15s, left 0.15s;
+                transition: visibility 0s linear $transition-duration, opacity $transition-duration, left $transition-duration;
 
                 .avatar {
                     height: 40px;
@@ -907,7 +907,7 @@
                         visibility: visible;
                         left: 100%;
                         opacity: 1;
-                        transition: visibility 0s linear 0, opacity 0.15s, left 0.15s;
+                        transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
                     }
                 }
             }
@@ -924,7 +924,7 @@
                 a {
                     position: relative;
                     color: #084561;
-                    transition: all $default-transition-duration ease;
+                    transition: all $transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -988,9 +988,9 @@
         font-size: 2.2rem;
         line-height: 38px;
         line-height: 3.8rem;
-        color: $blue;
+        color: $primary;
         font-weight: normal;
-        border-bottom: 1px solid $orange;
+        border-bottom: 1px solid $secondary;
         margin: 1px 0 15px;
 
         &.illu {
@@ -1195,7 +1195,7 @@
 
         input,
         button {
-            border: 1px solid $orange;
+            border: 1px solid $secondary;
             background: #FFF;
             margin: 5px 0 12px;
         }
@@ -1211,7 +1211,7 @@
             text-indent: -9999px;
             border-left: none;
             width: 40px;
-            transition: background .15s;
+            transition: background $transition-duration;
             
             position: absolute;
             bottom: 0;
@@ -1338,7 +1338,7 @@
             background: #EEE;
             color: #777;
             margin-left: 1px;
-            transition: all $default-transition-duration ease;
+            transition: all $transition-duration ease;
 
             &:before {
                 content: "#";
@@ -1347,8 +1347,8 @@
             &:hover,
             &:focus {
                 background: #FFF;
-                color: lighten($blue, 15%);
-                border-bottom: 1px solid lighten($blue, 15%);
+                color: lighten($primary, 15%);
+                border-bottom: 1px solid lighten($primary, 15%);
             }
         }
     }
@@ -1400,11 +1400,11 @@
             a {
                 display: block;
                 text-decoration: none;
-                color: lighten($blue, 20%);
+                color: lighten($primary, 20%);
                 height: 36px;
                 line-height: 36px;
                 padding: 0 8px;
-                transition: all $default-transition-duration ease;
+                transition: all $transition-duration ease;
 
                 &.ico-after {
                     padding-left: 30px;
@@ -1454,7 +1454,7 @@
             min-width: 45px;
             height: 40px;
             line-height: 40px;
-            transition: all $default-transition-duration ease;
+            transition: all $transition-duration ease;
             
             &.current {
                 height: 38px;
@@ -1570,7 +1570,7 @@
             width: 2px;
         }
         &.unread:before {
-            background: lighten($blue, 20%);
+            background: lighten($primary, 20%);
         }
 
         &:nth-child(2n){
@@ -1588,21 +1588,21 @@
         &.active {
             &:before {
                 width: 5px;
-                background: lighten($blue, 20%);
+                background: lighten($primary, 20%);
             }
         }
 
         &.selected {
-            background-color: lighten($blue, 75%);
+            background-color: lighten($primary, 75%);
         }
     }
     a {
         text-decoration: none;
-        color: lighten($blue, 15%);
+        color: lighten($primary, 15%);
 
         &:hover,
         &:focus {
-            color: lighten($blue, 15%);
+            color: lighten($primary, 15%);
             text-decoration: underline;
             outline: none;
         }
@@ -1692,7 +1692,7 @@
         .topic-no-last-answer {
             display: block;
             margin-top: 24px;
-            color: $blue;
+            color: $primary;
             opacity: .5;
         }
     }
@@ -1709,7 +1709,7 @@
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
-        color: $orange;
+        color: $secondary;
     }
 }
 
@@ -1780,7 +1780,7 @@
         > a,
         p a,
         ul:not(.pagination),
-        ol {
+        ol:not(.summary-part) {
             font-family: $font-serif-active;
         }
     }
@@ -1798,6 +1798,40 @@
         }
     }
 
+    .article-content .summary-part {
+        font-size: 20px;
+        color: darken($secondary, 11%);
+
+        h3,
+        h4 {
+            font-weight: normal;
+
+            a {
+                text-decoration: none;
+
+                &:hover,
+                &:focus {
+                    text-decoration: underline;
+                }
+            }
+        }
+        h3 {
+            font-size: 20px;
+            margin: 0 0 5px;
+        }
+
+        .summary-part {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+
+            h4 {
+                font-size: 14px;
+                margin: 2px 0;
+            }
+        }
+    }
+
     .article-content,
     .message-content {
         margin-top: 20px;
@@ -1806,9 +1840,11 @@
 
         h2,
         h3 {
+            clear: both;
+
             &,
             a {
-                color: #ee8709;
+                color: darken($secondary, 11%);
                 margin-top: 40px;
                 text-decoration: none;
             }
@@ -2024,7 +2060,6 @@
 
         // touche
         kbd {
-            $kbd-color: #F8F6EA;
             background-color: $kbd-color;
             padding: 2px 6px;
             border-radius: 3px;
@@ -2059,8 +2094,8 @@
 
     .comments-title {
         margin: 50px 0 20px;
-        color: $blue;
-        border-bottom: 1px solid $orange;
+        color: $primary;
+        border-bottom: 1px solid $secondary;
         font-weight: normal;
         font-size: 22px;
         font-size: 2.2rem;
@@ -2071,7 +2106,7 @@
     .article-content {
         p,
         ul:not(.pagination),
-        ol {
+        ol:not(.summary-part) {
             font-family: $font-serif-active;
         }
         figcaption p {
@@ -2108,7 +2143,7 @@ table {
 
     thead {
         background: #DDD;
-        color: $blue;
+        color: $primary;
     }
     th, td {
         text-align: left;
@@ -2222,7 +2257,7 @@ table {
                 line-height: 26px;
                 width: 28px;
                 color: #777;
-                transition: all $default-transition-duration ease;
+                transition: all $transition-duration ease;
 
                 &:first-child {
                     border-right: 0;
@@ -2298,12 +2333,12 @@ table {
                 line-height: 30px;
                 padding: 0 5px;
                 border-bottom: 1px solid #D2D5D6;
-                transition: all $default-transition-duration ease;
+                transition: all $transition-duration ease;
 
                 &:hover,
                 &:focus {
-                    border-bottom: 1px solid lighten($blue, 15%);
-                    color: lighten($blue, 15%);
+                    border-bottom: 1px solid lighten($primary, 15%);
+                    color: lighten($primary, 15%);
                     outline: none;
                 }
             }
@@ -2408,7 +2443,7 @@ table {
 
                 a {
                     color: #999;
-                    transition: all $default-transition-duration ease;
+                    transition: all $transition-duration ease;
 
                     &:hover,
                     &:focus {
@@ -2453,7 +2488,7 @@ table {
                     &:hover,
                     &:focus {
                         color: #555;
-                        border-bottom-color: $upvote-green;
+                        border-bottom-color: $upvote;
                     }
                     &.active {
                         color: #48a200;
@@ -2470,12 +2505,12 @@ table {
                     }
                 }
                 .upvote {
-                    color: $upvote-green;
+                    color: $upvote;
 
                     &:hover,
                     &:focus,
                     &.more-voted {
-                        border-bottom-color: $upvote-green;
+                        border-bottom-color: $upvote;
                     }
                     &:not(.has-vote){
                         text-indent: -9999px;
@@ -2483,12 +2518,12 @@ table {
                     }
                 }
                 .downvote {
-                    color: $downvote-red;
+                    color: $downvote;
 
                     &:hover,
                     &:focus,
                     &.more-voted {
-                        border-bottom-color: $downvote-red;
+                        border-bottom-color: $downvote;
                     }
                 }
                 .voted:after {
@@ -2544,7 +2579,7 @@ table {
                 display: block;
                 float: left;
                 margin-left: 3px;
-                transition: all $default-transition-duration ease;
+                transition: all $transition-duration ease;
 
                 &.ico-after {
                     padding-left: 30px !important;
@@ -2553,7 +2588,7 @@ table {
                 &:after {
                     top: 7px;
                     left: 7px;
-                    transition: all $default-transition-duration ease;
+                    transition: all $transition-duration ease;
                     opacity: .5;
                     margin: 0;
                 }
@@ -2575,7 +2610,7 @@ table {
 
                 &:hover,
                 &:focus {
-                    border-bottom-color: lighten($blue, 15%);
+                    border-bottom-color: lighten($primary, 15%);
                     outline: none;
                     background: none;
 
@@ -2612,7 +2647,7 @@ form.topic-message {
     background: #777;
 
     &.staff {
-        background: $upvote-green;
+        background: $upvote;
     }
 }
 
@@ -2674,7 +2709,7 @@ form.topic-message {
                 list-style: none;
 
                 &.active, &:hover {
-                    background-color: lighten($blue, 10%);
+                    background-color: lighten($primary, 10%);
                     color: white;
                 }
             }
@@ -2703,14 +2738,14 @@ form.topic-message {
 
             &:hover,
             &.active {
-                border-color: lighten($blue, 20%) !important;
+                border-color: lighten($primary, 20%) !important;
 
                 &:before {
                     display: none;
                 }
 
                 .topic-title {
-                    background: lighten($blue, 20%) !important;
+                    background: lighten($primary, 20%) !important;
                     color: #FFF;
                     text-decoration: none;
                 }
@@ -2760,10 +2795,10 @@ form.topic-message {
             }
 
             &.selected {
-                border-color: lighten($blue, 75%);
+                border-color: lighten($primary, 75%);
 
                 .topic-title {
-                    background: lighten($blue, 75%);
+                    background: lighten($primary, 75%);
                 }
             }
 
@@ -2778,7 +2813,7 @@ form.topic-message {
                 &:hover,
                 &:focus {
                     background-color: #CCC;
-                    color: lighten($blue, 20%);
+                    color: lighten($primary, 20%);
                 }
             }
         }
@@ -2866,10 +2901,10 @@ form.topic-message {
     padding: 20px 0;
 }
 .page-footer {
-    background: darken($blue, 10%);
+    background: darken($primary, 10%);
     height: 50px;
     line-height: 50px;
-    border-top: 3px solid $orange;
+    border-top: 3px solid $secondary;
     font-size: 14px;
     font-size: 1.4rem;
 
@@ -2898,7 +2933,7 @@ form.topic-message {
 
         &:hover,
         &:focus {
-            border-bottom-color: $orange;
+            border-bottom-color: $secondary;
         }
     }
 
@@ -2936,12 +2971,12 @@ form.topic-message {
 
     .modal-title {
         display: block;
-        border-bottom: 3px solid $orange;
+        border-bottom: 3px solid $secondary;
         line-height: 53px;
         height: 50px;
         text-indent: 15px;
         margin-bottom: 20px;
-        background: $blue;
+        background: $primary;
         color: #FFF;
         font-size: 16px;
         font-size: 1.6rem;
@@ -2991,7 +3026,7 @@ form.topic-message {
     .btn-submit:not(.modal-inner),
     [type=submit]:not(.modal-inner) {
         height: 51px;
-        color: $blue;
+        color: $primary;
         font-weight: bold;
     }
     .btn-cancel {
