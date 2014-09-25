@@ -61,7 +61,7 @@
 
                             {% if chapter_current.pk == chapter.pk %}
                                 <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
-                                    {% for extract in chapter.extracts %}
+                                    {% for extract in chapter_current.extracts %}
                                         <li>
                                             <a
                                                 {% if online %}
