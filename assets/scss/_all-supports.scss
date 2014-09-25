@@ -1780,7 +1780,7 @@
         > a,
         p a,
         ul:not(.pagination),
-        ol {
+        ol:not(.summary-part) {
             font-family: $font-serif-active;
         }
     }
@@ -1798,6 +1798,40 @@
         }
     }
 
+    .article-content .summary-part {
+        font-size: 20px;
+        color: darken($secondary, 11%);
+
+        h3,
+        h4 {
+            font-weight: normal;
+
+            a {
+                text-decoration: none;
+
+                &:hover,
+                &:focus {
+                    text-decoration: underline;
+                }
+            }
+        }
+        h3 {
+            font-size: 20px;
+            margin: 0 0 5px;
+        }
+
+        .summary-part {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+
+            h4 {
+                font-size: 14px;
+                margin: 2px 0;
+            }
+        }
+    }
+
     .article-content,
     .message-content {
         margin-top: 20px;
@@ -1806,9 +1840,11 @@
 
         h2,
         h3 {
+            clear: both;
+
             &,
             a {
-                color: #ee8709;
+                color: darken($secondary, 11%);
                 margin-top: 40px;
                 text-decoration: none;
             }
@@ -2070,7 +2106,7 @@
     .article-content {
         p,
         ul:not(.pagination),
-        ol {
+        ol:not(.summary-part) {
             font-family: $font-serif-active;
         }
         figcaption p {

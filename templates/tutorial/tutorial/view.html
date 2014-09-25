@@ -3,6 +3,7 @@
 {% load repo_reader %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
+{% load roman %}
 
 
 {% block title %}
@@ -117,7 +118,7 @@
         {% for part in parts %}
             <h2>
                 <a href="{% url "view-part-url" tutorial.pk tutorial.slug part.pk part.slug %}{% if version %}?version={{ version }}{% endif %}">
-                    Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                    {{ part.position_in_tutorial|roman }} - {{ part.title }}
                 </a>
             </h2>
             {% include "tutorial/includes/part.part.html" %}
