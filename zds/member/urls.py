@@ -7,8 +7,8 @@ from . import views
 
 urlpatterns = patterns('',
                        url(r'^$', 'zds.member.views.index'),
-                       url(r'^desinscrire/$', 'zds.member.views.unregister'),
-                       url(r'^desinscrire/attention$', 'zds.member.views.warning_unregister'),
+                       url(r'^desinscrire/valider/$', 'zds.member.views.unregister'),
+                       url(r'^desinscrire/avertissement/$', 'zds.member.views.warning_unregister'),
                        url(r'^voir/(?P<user_name>.+)/$',
                            'zds.member.views.details'),
                        url(r'^profil/modifier/(?P<user_pk>\d+)/$',
