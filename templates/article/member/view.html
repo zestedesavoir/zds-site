@@ -47,7 +47,7 @@
         {% endif %}
         {{ article.title }}
     </h1>
-    
+
     {% if article.licence %}
         <span class="license">
             {{ article.licence }}
@@ -72,13 +72,13 @@
 
     {% if article.sha_public %}
         <span class="pubdate">
-            Publié 
+            Publié
             <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
                 {{ article.pubdate|format_date }}
             </time>
         </span>
     {% endif %}
-    
+
     <div class="authors">
         <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
         <ul>
@@ -115,7 +115,7 @@
                         </p>
 
                         <blockquote>
-                            {{ validation.comment_authors }}
+                            {{ validation.comment_authors|emarkdown }}
                         </blockquote>
                     </div>
                 {% endif %}
