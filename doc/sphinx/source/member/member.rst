@@ -1,4 +1,4 @@
-===========
+﻿===========
 Les membres
 ===========
 
@@ -22,7 +22,7 @@ Désinscription
 L'inscription se fait via l'interface utilisateur.
 
 -  Le lien de désinscription est accessible via paramètres (``/membres/parametres/profil/``) puis “Se désinscrire” dans la barre
-   latérale (``/membres/desinscrire/attention``) :
+   latérale (``/membres/desinscrire/avertissement/``) :
 
    .. figure:: images/desinscription-1.png
       :align:   center
