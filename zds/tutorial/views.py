@@ -300,6 +300,7 @@ def reject_tutorial(request):
         # send feedback
 
         for author in tutorial.authors.all():
+            comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
             msg = (
                 u'Désolé **{0}**, ton zeste **{1}** n\'a malheureusement '
                 u'pas passé l’étape de validation. Mais ne désespère pas, '
@@ -313,7 +314,7 @@ def reject_tutorial(request):
                     tutorial.title,
                     validation.validator.username,
                     settings.SITE_URL + validation.validator.profile.get_absolute_url(),
-                    validation.comment_validator))
+                    comment_reject))
             bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
             send_mp(
                 bot,
