@@ -94,7 +94,7 @@ allons rajouter un hook qui s'executera juste avant la validation d'un commit.
 
 Pour cela, commencer par créer et éditer le fichier `.git/hooks/pre-commit`
 
-Ensuit, il ne reste plus qu'à rajouter le contenu suivant dans ce fichier et dorénavant
+Ensuite, il ne reste plus qu'à rajouter le contenu suivant dans ce fichier et dorénavant
 le controle flake (pour le respect PEP) sera exécuté avant la validation du message de commit.
 Ainsi, plus aucune erreur flake ne viendra vous embêter à posteriori et la base de code
 restera propre et lisible au cours du temps !
