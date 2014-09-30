@@ -129,6 +129,10 @@ def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
 
+    # article is not online = 404
+    if not article.on_line():
+        raise Http404
+
     # Load the article.
     article_version = article.load_json_for_public()
     txt = open(os.path.join(article.get_path(),
