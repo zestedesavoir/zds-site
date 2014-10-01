@@ -1644,9 +1644,36 @@
             margin: 5px 15px 0 0;
         }
 
+        .topic-tags {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: inline;
+
+            .topic-tag {
+                float: left;
+                padding: 0 5px;
+                margin: 0 3px 0 0;
+                color: #FFF;
+                background: $header-hover;
+
+                &:hover,
+                &:focus {
+                    background: #FFF;
+                    color: $header-hover;
+                    box-shadow: $header-hover 0 0 3px;
+                    text-decoration: none;
+                }
+            }
+
+            li:last-child .topic-tag {
+                margin-right: 5px;
+            }
+        }
+
         .topic-title-link {
             &:hover,
-            &:after {
+            &:focus {
                 text-decoration: none;
 
                 .topic-title {
@@ -1676,9 +1703,6 @@
         .topic-members {
             margin: 0;
             color: #777;
-        }
-        .topic-tag:before {
-            content: "#";
         }
     }
     .topic-answers {
