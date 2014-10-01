@@ -629,6 +629,14 @@
         background: #e67e22;
     }
 
+    &.ico-after {
+        padding-left: 40px;
+
+        &:after {
+            margin: 12px 0 0 13px;
+        }
+    }
+
     a {
         color: #EEE;
     }
