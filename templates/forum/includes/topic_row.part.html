@@ -32,7 +32,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
+            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link" title="{{ topic.title }}. {{ topic.subtitle }}">
                 <span class="topic-title" itemprop="itemListElement">{{ topic.title }}</span>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>

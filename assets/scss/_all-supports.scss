@@ -1335,16 +1335,16 @@
             display: block;
             text-decoration: none;
             padding: 0 10px;
-            background: #EEE;
-            color: #777;
+            background: $header-hover;
+            color: #FFF;
             margin-left: 1px;
             transition: all $transition-duration ease;
 
             &:hover,
             &:focus {
                 background: #FFF;
-                color: lighten($primary, 15%);
-                border-bottom: 1px solid lighten($primary, 15%);
+                color: $header-hover;
+                border-bottom: 1px solid $header-hover;
             }
         }
     }
