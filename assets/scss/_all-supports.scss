@@ -1340,10 +1340,6 @@
             margin-left: 1px;
             transition: all $transition-duration ease;
 
-            &:before {
-                content: "#";
-            }
-
             &:hover,
             &:focus {
                 background: #FFF;
@@ -1706,12 +1702,12 @@
         }
     }
     .topic-answers {
-        width: 13%;
+        width: 12%;
         text-align: center;
         padding-top: 29px;
     }
     .topic-last-answer {
-        width: 22%;
+        width: 23%;
 
         .topic-no-last-answer {
             display: block;
