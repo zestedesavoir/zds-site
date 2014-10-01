@@ -31,7 +31,7 @@
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
-                        <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
+                        <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
                             {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
