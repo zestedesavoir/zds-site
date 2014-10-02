@@ -24,7 +24,6 @@
     "gulp": "^3.7.0",
     "gulp-autoprefixer": "0.0.9",
     "gulp-cache": "^0.2.1",
-    "gulp-clean": "^0.3.0",
     "gulp-compass": "^1.1.9",
     "gulp-concat": "^2.2.0",
     "gulp-filter": "^1.0.0",
