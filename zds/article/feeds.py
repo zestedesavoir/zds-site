@@ -35,7 +35,7 @@ class LastArticlesFeedRSS(Feed):
         return authors
 
     def item_link(self, item):
-        return item.get_absolute_url_online()
+        return item.get_absolute_url()
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
