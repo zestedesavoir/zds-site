@@ -393,18 +393,19 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire pour votre demande.'
+                'placeholder': 'Commentaire pour votre demande.',
+                'rows': '3'
             }
         )
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -430,9 +431,10 @@ class ValidForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de publication.'
+                'placeholder': 'Commentaire de publication.',
+                'rows': '2'
             }
         )
     )
@@ -442,11 +444,11 @@ class ValidForm(forms.Form):
         initial=True
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -472,9 +474,10 @@ class RejectForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de rejet.'
+                'placeholder': 'Commentaire de rejet.',
+                'rows': '6'
             }
         )
     )

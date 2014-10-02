@@ -64,7 +64,7 @@
                         </p>
 
                         <blockquote>
-                            {{ validation.comment_authors }}
+                            {{ validation.comment_authors|emarkdown }}
                         </blockquote>
                     </div>
                 {% endif %}
@@ -236,7 +236,7 @@
                     <input type="hidden" name="activ_beta">
                     <input type="hidden" name="version" value="{{ version }}">
                     <p>
-                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta du tutoriel 
+                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta du tutoriel
                         "<em>{{ tutorial.title }}</em>" dans la version que vous voyez actuellement ?
                     </p>
                     <button type="submit">
@@ -261,7 +261,7 @@
                         <input type="hidden" name="update_beta">
                         <input type="hidden" name="version" value="{{ version }}">
                         <p>
-                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
                             "<em>{{ tutorial.title }}</em>" dans la version que vous voyez actuellement ?
                         </p>
                         <button type="submit">
@@ -319,7 +319,7 @@
                 <span class="ico-after tick disabled">En attente de validation</span>
             </li>
         {% endif %}
-        <div id="ask-validation" class="modal modal-medium">
+        <div id="ask-validation" class="modal modal-big">
             {% crispy formAskValidation %}
         </div>
     {% endif %}
@@ -341,7 +341,7 @@
                     <a  href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}"
                         class="ico-after cite blue"
                     >
-                        Envoyer un MP 
+                        Envoyer un MP
                         {% if tutorial.authors.all|length > 1 %}
                             aux auteurs
                         {% else %}
@@ -393,7 +393,7 @@
                             </li>
                             <li>
                                 <a href="#reject" class="open-modal ico-after cross red">Rejeter</a>
-                                <div class="modal modal-small" id="reject">
+                                <div class="modal modal-big" id="reject">
                                     {% crispy formReject %}
                                 </div>
                             </li>

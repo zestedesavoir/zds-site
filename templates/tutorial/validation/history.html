@@ -1,6 +1,7 @@
 {% extends "tutorial/validation/index.html" %}
 {% load date %}
 {% load captureas %}
+{% load emarkdown %}
 
 
 
@@ -52,7 +53,7 @@
                                 </a>
                                 <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
-                                        {{ validation.comment_authors }}
+                                        {{ validation.comment_authors|emarkdown }}
                                     </p>
                                 </div>
                             {% endif %}
