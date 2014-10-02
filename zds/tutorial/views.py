@@ -3290,29 +3290,33 @@ def solve_alert(request):
 
     if not request.user.has_perm("tutorial.change_note"):
         raise PermissionDenied
+
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     note = Note.objects.get(pk=alert.comment.id)
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = \
-        (u'Bonjour {0},'
-         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-         u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
-         u'et il vous a laissé le message suivant :'
-         u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-             alert.author.username,
-             note.author.username,
-             note.tutorial.title,
-             settings.SITE_URL + note.get_absolute_url(),
-             request.user.username,
-             request.POST["text"],))
-    send_mp(
-        bot,
-        [alert.author],
-        u"Résolution d'alerte : {0}".format(note.tutorial.title),
-        "",
-        msg,
-        False,
-    )
+
+    if request.POST["text"] != "":
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = \
+            (u'Bonjour {0},'
+             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+             u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
+             u'et il vous a laissé le message suivant :'
+             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
+                 alert.author.username,
+                 note.author.username,
+                 note.tutorial.title,
+                 settings.SITE_URL + note.get_absolute_url(),
+                 request.user.username,
+                 request.POST["text"],))
+        send_mp(
+            bot,
+            [alert.author],
+            u"Résolution d'alerte : {0}".format(note.tutorial.title),
+            "",
+            msg,
+            False,
+        )
+
     alert.delete()
     messages.success(request, u"L'alerte a bien été résolue")
     return redirect(note.get_absolute_url())

@@ -1071,24 +1071,31 @@ def solve_alert(request):
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
-           u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
-           u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-           u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
-           u'la modération vous remercie !'.format(
-               alert.author.username,
-               reaction.author.username,
-               reaction.article.title,
-               settings.SITE_URL +
-               reaction.get_absolute_url(),
-               request.user.username,
-               request.POST['text']))
-    send_mp(
-        bot, [
-            alert.author], u"Résolution d'alerte : {0}".format(reaction.article.title), "", msg, False)
-    alert.delete()
 
+    if request.POST["text"] != "":
+        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
+               u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
+               u'Votre alerte a été traitée par **{4}** et il vous a laissé '
+               u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+               u'la modération vous remercie !'.format(
+                   alert.author.username,
+                   reaction.author.username,
+                   reaction.article.title,
+                   settings.SITE_URL +
+                   reaction.get_absolute_url(),
+                   request.user.username,
+                   request.POST['text']))
+        send_mp(
+            bot,
+            [alert.author],
+            u"Résolution d'alerte : {0}".format(reaction.article.title),
+            "",
+            msg,
+            False
+        )
+
+    alert.delete()
     messages.success(
         request,
         u'L\'alerte a bien été résolue')
