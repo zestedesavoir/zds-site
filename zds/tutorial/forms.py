@@ -301,7 +301,7 @@ class ImportForm(forms.Form):
     def clean(self):
         cleaned_data = super(ImportForm, self).clean()
 
-        # Check that the password and it's confirmation match
+        # Check that the files extensions are correct
         tuto = cleaned_data.get('file')
         images = cleaned_data.get('images')
 
