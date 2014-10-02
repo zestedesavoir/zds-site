@@ -2904,6 +2904,7 @@ form.topic-message {
         background: #EEE;
         padding: 15px;
         margin-bottom: 5px;
+        border-bottom: 1px solid #CCC;
 
         pre {
             margin: 0;
@@ -2914,6 +2915,14 @@ form.topic-message {
         }
     }
     .show-markdown-help + .open-markdown-help {
+        margin-top: -5px;
+        padding-top: 5px;
+        line-height: 35px;
+
+        &:after {
+            margin-top: 15px !important;
+        }
+
         .close-markdown-help-text {
             display: inline;
         }
