@@ -48,7 +48,8 @@ class ArticleForm(forms.Form):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label="Sous catégories de votre article",
+        label=u"Sous catégories de votre article. Si aucune catégorie ne convient "
+              u"n'hésitez pas à en demander une nouvelle lors de la validation !",
         queryset=SubCategory.objects.all(),
         required=False
     )
