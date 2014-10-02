@@ -404,6 +404,17 @@
 
 
     /* ============
+       Main / Topic list
+       ============ */
+    .topic-list {
+        .topic-last-answer-short-date {
+            display: none;
+        }
+    }
+
+
+
+    /* ============
        Main / Message
        ============ */
     .topic-message {
