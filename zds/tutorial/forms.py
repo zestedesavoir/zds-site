@@ -279,7 +279,7 @@ class ImportForm(forms.Form):
 
     file = forms.FileField(
         label='Sélectionnez le tutoriel à importer',
-        required=False
+        required=True
     )
     images = forms.FileField(
         label='Fichier zip contenant les images du tutoriel',
@@ -297,6 +297,27 @@ class ImportForm(forms.Form):
             Submit('import-tuto', 'Importer le .tuto'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ImportForm, self).clean()
+
+        # Check that the password and it's confirmation match
+        tuto = cleaned_data.get('file')
+        images = cleaned_data.get('images')
+
+        if tuto is not None:
+            ext = tuto.name.split(".")[-1]
+            if ext != "tuto":
+                del cleaned_data['file']
+                msg = u'Le fichier doit être au format .tuto'
+                self._errors['file'] = self.error_class([msg])
+
+        if images is not None:
+            ext = images.name.split(".")[-1]
+            if ext != "zip":
+                del cleaned_data['images']
+                msg = u'Le fichier doit être au format .zip'
+                self._errors['images'] = self.error_class([msg])
 
 
 class ImportArchiveForm(forms.Form):
