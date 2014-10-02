@@ -76,6 +76,12 @@
         padding-top: 0 !important;
     }
 
+    .topic-list {
+        .topic-infos .ico-after:after {
+            margin: 4px 0 0 2px;
+        }
+    }
+
     .topic-message .message {
         .message-actions a {
             width: 0px;
