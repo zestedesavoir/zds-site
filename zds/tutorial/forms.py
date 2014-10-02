@@ -79,7 +79,7 @@ class TutorialForm(FormWithTitle):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient, "
+        label=u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
               u"n'hésitez pas à en demander une nouvelle lors de la validation !",
         queryset=SubCategory.objects.all(),
         required=True,
