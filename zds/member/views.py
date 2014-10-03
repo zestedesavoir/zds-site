@@ -29,9 +29,9 @@ import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm, PromoteMemberForm
+    OldTutoForm, PromoteMemberForm, KarmaForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
-    get_info_old_tuto, logout_user
+    get_info_old_tuto, logout_user, KarmaNote
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
@@ -240,6 +240,8 @@ def details(request, user_name):
         .prefetch_related("author")\
         .order_by("-pubdate").all()[:5]
 
+    karmaform = KarmaForm(profile)
+    karmanotes = KarmaNote.objects.filter(user=usr)
     form = OldTutoForm(profile)
     oldtutos = []
     if profile.sdz_tutorial:
@@ -257,6 +259,8 @@ def details(request, user_name):
         "topics": my_topics,
         "form": form,
         "old_tutos": oldtutos,
+        "karmaform": karmaform,
+        "karmanotes": karmanotes,
     })
 
 
@@ -1085,3 +1089,27 @@ def member_from_ip(request, ip):
         "members": members,
         "ip": ip
     })
+
+
+@login_required
+def modify_karma(request):
+    """ Add a Karma note to the user profile """
+
+    if request.method == "POST":
+        profile_pk = request.POST["profile_pk"]
+        profile = get_object_or_404(Profile, pk=profile_pk)
+
+        note = KarmaNote()
+        note.user = profile.user
+        note.staff = request.user
+        note.comment = request.POST["warning"]
+        note.value = int(request.POST["points"])
+
+        note.save()
+
+        profile.karma += note.value
+        profile.save()
+
+        return redirect(reverse("zds.member.views.details", args=[profile.user.username]))
+    else:
+        raise Http404

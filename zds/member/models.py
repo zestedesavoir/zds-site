@@ -285,6 +285,19 @@ class Ban(models.Model):
         null=True, db_index=True)
 
 
+class KarmaNote(models.Model):
+
+    class Meta:
+        verbose_name = 'Note de karma'
+        verbose_name_plural = 'Notes de karma'
+
+    user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
+    staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    comment = models.CharField('Commentaire', max_length=150)
+    value = models.IntegerField('Valeur')
+    create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+
+
 def logout_user(username):
     now = datetime.now()
     request = HttpRequest()

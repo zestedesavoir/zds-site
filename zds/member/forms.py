@@ -11,7 +11,7 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
-from zds.member.models import Profile, listing
+from zds.member.models import Profile, listing, KarmaNote
 from zds.settings import SITE_ROOT
 
 # Max password length for the user.
@@ -593,4 +593,36 @@ class PromoteMemberForm(forms.Form):
             Field('superuser'),
             Field('activation'),
             StrictButton('Valider', type='submit'),
+        )
+
+
+class KarmaForm(forms.Form):
+    warning = forms.CharField(
+        max_length=KarmaNote._meta.get_field('comment').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Commentaire sur le comportement de ce membre'
+            }),
+    )
+
+    points = forms.IntegerField(
+        max_value=100,
+        min_value=-100,
+        initial=0,
+    )
+
+    def __init__(self, profile, *args, **kwargs):
+        super(KarmaForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.member.views.modify_karma')
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'content-wrapper'
+
+        self.helper.layout = Layout(
+            Field('warning'),
+            Field('points'),
+            Hidden('profile_pk', '{{ profile.pk }}'),
+            ButtonHolder(
+                StrictButton('Valider', type='submit'),
+            ),
         )
