@@ -1078,7 +1078,7 @@ def solve_alert(request):
     reaction = Reaction.objects.get(pk=alert.comment.id)
 
     if request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
                u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
                u'Votre alerte a été traitée par **{4}** et il vous a laissé '

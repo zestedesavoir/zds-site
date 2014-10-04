@@ -3315,7 +3315,7 @@ def solve_alert(request):
     note = Note.objects.get(pk=alert.comment.id)
 
     if request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = \
             (u'Bonjour {0},'
              u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
