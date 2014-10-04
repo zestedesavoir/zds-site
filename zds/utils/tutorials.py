@@ -261,6 +261,13 @@ def get_sep(msg):
         return ":"
 
 
+def get_text_is_empty(msg):
+    if msg is None or msg.strip() == "":
+        return ""
+    else:
+        return msg
+
+
 def move(obj, new_pos, position_f, parent_f, children_fn):
     """Move an object and reorder other objects affected by moving.
 
