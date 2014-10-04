@@ -12,6 +12,9 @@ from django.dispatch import receiver
 from easy_thumbnails.fields import ThumbnailerImageField
 from zds.settings import MEDIA_ROOT
 
+GALLERY_WRITE = 'W'
+GALLERY_READ = 'R'
+
 
 def image_path(instance, filename):
     """Return path to an image."""
@@ -29,10 +32,10 @@ class UserGallery(models.Model):
     user = models.ForeignKey(User, verbose_name=('Membre'), db_index=True)
     gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     MODE_CHOICES = (
-        ('R', 'Lecture'),
-        ('W', 'Ecriture')
+        (GALLERY_READ, 'Lecture'),
+        (GALLERY_WRITE, 'Ecriture')
     )
-    mode = models.CharField(max_length=1, choices=MODE_CHOICES, default='R')
+    mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
     def __unicode__(self):
         """Textual form of an User Gallery."""
@@ -40,10 +43,10 @@ class UserGallery(models.Model):
                                                       self.user)
 
     def is_write(self):
-        return self.mode == 'W'
+        return self.mode == GALLERY_WRITE
 
     def is_read(self):
-        return self.mode == 'R'
+        return self.mode == GALLERY_READ
 
     def get_images(self):
         return Image.objects.all()\

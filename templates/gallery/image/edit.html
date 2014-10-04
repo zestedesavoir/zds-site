@@ -24,9 +24,11 @@
 
 
 {% block new_btn %}
-    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
-        Ajouter une image
-    </a>
+    {% if gallery_mode == zds.gallery.models.GALLERY_WRITE %}
+        <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
+            Ajouter une image
+        </a>
+    {% endif %}
 {% endblock %}
 
 
@@ -41,8 +43,9 @@
         <a href="{{ image.physical.gallery.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend }}"></a>
     </div>
     <div class="gallery-col-edit">
-        {% crispy form %}
-
+        {% if gallery_mode == zds.gallery.models.GALLERY_WRITE %}
+            {% crispy form %}
+        {% endif %}
         <hr class="clearfix">
 
         <p>

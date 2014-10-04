@@ -14,10 +14,11 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UserGalleryForm, ImageAsAvatarForm
-from zds.gallery.models import UserGallery, Image, Gallery
+from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
 from zds.tutorial.models import Tutorial
@@ -180,7 +181,7 @@ def modify_gallery(request):
 @login_required
 @can_write_and_read_now
 def edit_image(request, gal_pk, img_pk):
-    """Edit an existing image."""
+    """Edit or view an existing image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
@@ -188,12 +189,13 @@ def edit_image(request, gal_pk, img_pk):
     # Check if user can edit image
     try:
         permission = UserGallery.objects.get(user=request.user, gallery=gal)
-        if permission.mode != 'W':
+        assert permission is not None
+        if permission.mode != GALLERY_WRITE and request.method != "GET":
             raise PermissionDenied
-    except:
+    except (AssertionError, ObjectDoesNotExist):
         raise PermissionDenied
 
-    # Check if the image belong to the gallery
+    # Check if the image belongs to the gallery
     if img.gallery != gal:
         raise PermissionDenied
 
@@ -235,6 +237,7 @@ def edit_image(request, gal_pk, img_pk):
     return render_template(
         "gallery/image/edit.html", {
             "form": form,
+            "gallery_mode": permission.mode,
             "as_avatar_form": as_avatar_form,
             "gallery": gal,
             "image": img
@@ -281,7 +284,7 @@ def new_image(request, gal_pk):
     # check if the user can upload new image in this gallery
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        if gal_mode.mode != GALLERY_WRITE:
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -320,7 +323,7 @@ def import_image(request, gal_pk):
 
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        if gal_mode.mode != GALLERY_WRITE:
             raise PermissionDenied
     except:
         raise PermissionDenied
