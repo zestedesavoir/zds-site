@@ -45,6 +45,9 @@ Autrement dit,
 + En modifier le titre, la légende ou encore l'image en elle-même. À noter que le titre et la légende peuvent être modifiés **sans qu'il ne soit nécéssaire** d'uploader une nouvelle image.
 + Obtenir le code à insérer dans un champ de texte acceptant le markdown pour l'image en elle-même, sa miniature ou encore la miniature accompagnée du lien vers l'image en taille réelle.
 
+.. attention::
+    Le titre de l'image n'entre pas en compte dans le nommage de l'image une fois cette dernière téléchargée. Afin de s'assurer l'unicité des noms, nous utilisons un algorithme de hashage pour cela.
+
 Les utilisateurs et leurs droits
 --------------------------------
 
@@ -64,8 +67,9 @@ Lors d'un clic sur "Ajouter un utilisateur", une fenêtre modale s'ouvre :
 
 Il est alors possible de rajouter un nouvel utilisateur dans la gallerie. Les droits de celui-ci peuvent-être les suivants :
 
-+ **Écriture** : l'utilisateur peut modifier ou supprimer des images existantes, en rajouter des nouvelles et changer les atributs de la gallerie (y compris ajouter de nouveaux utilisateurs)
-+ **Lecture** : l'utilisateur a seulement le droit de consulter les images existantes dans la gallerie sans pouvoir apporter de modifications.
++ **Lecture** : (``zds.gallery.models.GALLERY_READ``) l'utilisateur a seulement le droit de consulter les images existantes dans la gallerie sans pouvoir apporter de modifications;
++ **Écriture** : (``zds.gallery.models.GALLERY_WRITE``), inclut **Lecture**, l'utilisateur peut modifier ou supprimer des images existantes, en rajouter des nouvelles et changer les atributs de la gallerie (y compris ajouter de nouveaux utilisateurs);
+
 
 Il n'est actuelement pas possible de modifier les droits d'un utilisateur après son ajout à la galerie.
 
@@ -101,11 +105,27 @@ Une fois cliqué sur "confirmer", la gallerie et les images qu'elle contient son
 .. attention::
    Si une galerie est liée à un tutoriel existant, elle ne peut pas être supprimée.
 
+Lien gallerie <-> Tutoriel
+==========================
+
+Chaque tutoriel possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au tutoriel lors de sa création.
+
+Chaque auteur possède un droit d'accès en écriture (``GALLERY_WRITE``) sur la gallerie liée au toturiel.
+
+Si un membre possède un droit de lecture seule (``GALLERY_READ``) sur la gallerie d'un tutoriel, aucun droit n'est accordé à ce membre quant au tutoriel.
+
+A l'heure actuelle, les articles ne possèdent pas de gallerie.
+
 Aspects techniques
 ==================
 
-Chaque galerie (classe ``Gallery``) est stockée en base de donnée avec son titre, son sous-titre et son *slug* (ainsi que la date de création et de dernière modification). Une galerie est ratachée à l'utilisateur via la classe ``UserGallery``, qui reprend un lien vers l'utilisateur, la gallerie, mais également les droits qu'il possède sur cette dernière, sous la forme d'une lettre unique : ``R`` pour le droit de lecture ou ``W`` pour le droit d'écriture.
+Chaque galerie (classe ``Gallery``) est stockée en base de donnée avec son titre, son sous-titre et son *slug* (ainsi que la date de création et de dernière modification). Une galerie est ratachée à l'utilisateur via la classe ``UserGallery``, qui reprend un lien vers l'utilisateur, la gallerie, mais également les droits qu'il possède sur cette dernière, sous la forme d'une constante : ``GALLERY_READ`` pour le droit de lecture ou ``GALLERY_WRITE`` pour le droit d'écriture.
 
 Une image (classe ``Image``) est renseignée en base de donnée avec son titre, sa légende, un lien vers la galerie qui la contient, son *slug* et un lien *physique* vers le fichier image  (ainsi que la date de création et de dernière modification).
 
 Les images sont stockée dans le dossier renseigné par la variable ``MEDIA_URL`` (dans le fichier ``settings.py``), dans un sous-dossier dont le nom correspond au ``pk`` de la galerie. C'est la libraire `easy_thumbnails <https://github.com/SmileyChris/easy-thumbnails>`_ qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du *back*.
+
+Outils logiciels utilisés
+=========================
+
+Afin d'assurer une compatibilité maximale de toutes les images des galleries, leur redimensionnement au besoin... Le logiciel pyllow est utilisé.
