@@ -2699,7 +2699,9 @@ def maj_repo_part(
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
 
-            msg = u"Modification de la partie '{}' {} {}".format(part.title, get_sep(msg), get_text_is_empty(msg)).strip()
+            msg = u"Modification de la partie '{}' {} {}".format(part.title,
+                                                                 get_sep(msg),
+                                                                 get_text_is_empty(msg)).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
