@@ -7,20 +7,26 @@
 (function($, undefined){
     "use strict";
     
-    var dropdownMouseDown = false;
+    var mouseDown = false,
+        shiftHold = false;
+
+    $(document).on("keydown keyup", function(e){
+        shiftHold = e.shiftKey;
+    });
 
     $(".dropdown").each(function(){
-        var $elem = $(this).parent().find("> a");
+        var $dropdown = $(this),
+            $elem = $(this).parent().find("> a");
 
         if(!$elem.parents(".logbox").length)
             $elem.addClass("has-dropdown");
 
         $elem
         .on("mousedown", function(){
-            dropdownMouseDown = true;
+            mouseDown = true;
         })
         .on("mouseup", function(){
-            dropdownMouseDown = false;
+            mouseDown = false;
         })
         .on("click", function(e){
             if(($(this).parents(".header-menu-list").length > 0 && parseInt($("html").css("width")) < 960))
@@ -40,18 +46,32 @@
         .on("focus", function(e){
             e.preventDefault();
 
-            if(!dropdownMouseDown && !$(this).hasClass("active")){
-                activeDropdown($(this));
+            if(!mouseDown && !$elem.hasClass("active")){
+                activeDropdown($elem);
                 
-                $(this)
-                .one("blur", function(){
-                    $elem = $(this);
+                $elem
+                .off("blur")
+                .on("blur", function(){
+                    $elem
+                    .one("blur", function(){
+                        if(shiftHold)
+                            triggerCloseDropdown($elem);
+                    });
+
                     setTimeout(function(){
-                        if($(":tabbable:focus", $elem.parent().find(".dropdown")).length){
-                            $(":tabbable:last", $elem.parent().find(".dropdown")).one("blur", function(){
-                                $elem.removeClass("active");
-                                triggerCloseDropdown($elem);
-                            });
+                        if($(":tabbable:focus", $dropdown).length){
+                            var listenBlurLast = function(){
+                                $(":tabbable:last", $dropdown)
+                                .one("blur", function(){
+                                    if(shiftHold){
+                                        listenBlurLast();
+                                        return;
+                                    }
+                                    $elem.removeClass("active");
+                                    triggerCloseDropdown($elem);
+                                });
+                            };
+                            listenBlurLast();
                         } else {
                             $elem.removeClass("active");
                             triggerCloseDropdown($elem);

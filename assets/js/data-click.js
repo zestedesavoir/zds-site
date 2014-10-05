@@ -11,6 +11,8 @@
 
     function dataClick($elem){
         $elem
+        .attr("tabindex", -1)
+        .attr("aria-hidden", true)
         .on("mousedown", function(){
             dropdownMouseDown = true;
         })
@@ -24,7 +26,7 @@
             if(!($(this).hasClass("dont-click-if-sidebar") && $(".header-container .mobile-menu-btn").is(":visible"))){
                 e.preventDefault();
                 e.stopPropagation();
-                $("#" + $(this).attr("data-click")).trigger("click");
+                $("#" + $(this).attr("data-click")).trigger(e.type);
             }
         });
     }
