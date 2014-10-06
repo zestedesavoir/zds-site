@@ -250,7 +250,7 @@
                                     {% csrf_token %}
                                     <button
                                         type="submit"
-                                        title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
+                                        title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
                                         class=" upvote
                                                 ico-after
                                                 {% if message.like > message.dislike %}more-voted{% endif %}
@@ -265,7 +265,7 @@
                                     {% csrf_token %}
                                     <button
                                         type="submit"
-                                        title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
+                                        title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
                                         class=" downvote
                                                 ico-after
                                                 {% if message.like < message.dislike %}more-voted{% endif %}
