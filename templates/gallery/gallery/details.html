@@ -29,28 +29,6 @@
 
 
 
-{% block sidebar_actions %}
-    {% if gallery_mode.is_write %}
-        <div class="mobile-menu-bloc" data-title="Front-end">
-            <h3>Actions</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
-                        Ajouter une image
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
-                        Importer une archive
-                    </a>
-                </li>
-            </ul>
-        </div>
-    {% endif %}
-{% endblock %}
-
-
-
 {% block content %}
     <div class="authors">
         <span class="authors-label">Galerie partagée avec : </span>
@@ -131,4 +109,26 @@
             </p>
         {% endif %}
     </form>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if gallery_mode.is_write %}
+        <div class="mobile-menu-bloc" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
+                        Ajouter une image
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
+                        Importer une archive
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
