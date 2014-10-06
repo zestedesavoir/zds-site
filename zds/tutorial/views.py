@@ -2560,18 +2560,13 @@ def import_tuto(request):
         # for import tuto
         if "import-tuto" in request.POST:
             form = ImportForm(request.POST, request.FILES)
-            form_archive = ImportArchiveForm(user=request.user)
-            if "file" in request.FILES:
-                filename = str(request.FILES["file"])
-                ext = filename.split(".")[-1]
-                if ext == "tuto":
-                    import_content(request, request.FILES["file"],
-                                   request.FILES["images"], "")
-                else:
-                    raise Http404
-            return redirect(reverse("zds.member.views.tutorials"))
+            if form.is_valid():
+                import_content(request, request.FILES["file"], request.FILES["images"], "")
+                return redirect(reverse("zds.member.views.tutorials"))
+            else:
+                form_archive = ImportArchiveForm(user=request.user)
+
         elif "import-archive" in request.POST:
-            form = ImportForm()
             form_archive = ImportArchiveForm(request.user, request.POST, request.FILES)
             if form_archive.is_valid():
                 (check, reason) = import_archive(request)
@@ -2581,9 +2576,8 @@ def import_tuto(request):
                     messages.success(request, reason)
                     return redirect(reverse("zds.member.views.tutorials"))
             else:
-                return render_template("tutorial/tutorial/import.html",
-                                       {"form": form,
-                                        "form_archive": form_archive})
+                form = ImportForm()
+
     else:
         form = ImportForm()
         form_archive = ImportArchiveForm(user=request.user)
