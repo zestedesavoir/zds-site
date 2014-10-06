@@ -14,7 +14,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UserGalleryForm, ImageAsAvatarForm
-from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
+from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
