@@ -598,7 +598,9 @@
 
     .close-alert-box {
         display: block;
-        float: right;
+        position: absolute;
+        top: 0;
+        right: 15px;
         height: 20px;
         width: 20px;
         text-indent: -9999px;
@@ -2636,6 +2638,10 @@ table {
                 color: #555;
                 text-decoration: none;
             }
+        }
+
+        .alert-box .alert-box-text {
+            float: none;
         }
     }
 }
