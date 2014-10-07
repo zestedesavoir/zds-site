@@ -1,6 +1,16 @@
 # coding: utf-8
 import os
 import shutil
+import tempfile
+import zipfile
+
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
 
 from django.conf import settings
 from django.core import mail
@@ -34,7 +44,7 @@ class ArticleTests(TestCase):
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
-        
+
         self.licence = LicenceFactory()
 
         self.article = ArticleFactory()
@@ -397,14 +407,14 @@ class ArticleTests(TestCase):
 
         # change licence (get 302) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -429,14 +439,14 @@ class ArticleTests(TestCase):
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : self.licence.pk
+                'licence': self.licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -455,14 +465,14 @@ class ArticleTests(TestCase):
 
         # change licence (get 302, redirection to login page) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -471,7 +481,7 @@ class ArticleTests(TestCase):
         article = Article.objects.get(pk=self.article.pk)
         self.assertEqual(article.licence.pk, self.licence.pk)
         self.assertNotEqual(article.licence.pk, new_licence.pk)
-        
+
         # login with random user
         self.assertTrue(
             self.client.login(
@@ -482,14 +492,14 @@ class ArticleTests(TestCase):
         # change licence (get 403, random user cannot edit article if not in
         # authors list) :
         result = self.client.post(
-            reverse('zds.article.views.edit') + 
-                '?article={}'.format(self.article.pk),
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
                 'description': self.article.description,
                 'text': self.article.get_text(),
                 'subcategory': self.article.subcategory.all(),
-                'licence' : new_licence.pk
+                'licence': new_licence.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
@@ -502,6 +512,144 @@ class ArticleTests(TestCase):
         # test change in JSON (normaly, nothing has) :
         json = article.load_json()
         self.assertEquals(json['licence'], self.licence.code)
+
+    def test_workflow_archive_article(self):
+        """ensure the behavior of archive with an article"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # modify article content and title (NOTE: zipfile does not ensure UTF-8)
+        article_title = u'Le titre, mais pas pareil'
+        article_content = u'Mais nous c\'est pas pareil ...'
+        result = self.client.post(
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
+            {
+                'title': article_title,
+                'description': self.article.description,
+                'text': article_content,
+                'subcategory': self.article.subcategory.all(),
+                'licence': self.licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # now, draft and public version are not the same
+        article = Article.objects.get(pk=self.article.pk)
+        self.assertNotEqual(article.sha_draft, article.sha_public)
+
+        # fetch archives :
+        # 1. draft version
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+        # 2. online version :
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}&online'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
+        f = open(online_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        # now check if modification are in draft version of archive and not in the public one
+        draft_zip = zipfile.ZipFile(draft_zip_path, 'r')
+        online_zip = zipfile.ZipFile(online_zip_path, 'r')
+
+        # first, test in manifest
+        online_manifest = json_reader.loads(online_zip.read('manifest.json'))
+        self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
+
+        draft_manifest = json_reader.loads(draft_zip.read('manifest.json'))
+        self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
+
+        self.assertNotEqual(online_zip.read(online_manifest['text']), article_content)
+        self.assertEqual(draft_zip.read(draft_manifest['text']), article_content)  # content is good in draft
+
+        draft_zip.close()
+        online_zip.close()
+
+        # then logout and test access
+        self.client.logout()
+
+        # public cannot access to draft version of article
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # ... but can access to online version
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}&online'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # login with random user
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # cannot access to draft version of article (if not author or staff)
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # but can access to online one
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}&online'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.client.logout()
+
+        # login with staff user
+        self.assertEqual(
+            self.client.login(
+                username=self.staff.username,
+                password='hostel77'),
+            True)
+
+        # staff can access to draft version of article
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        # ... and also to online version
+        result = self.client.get(
+            reverse('zds.article.views.download') +
+            '?article={0}&online'.format(
+                self.article.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # finally, clean up things:
+        os.remove(draft_zip_path)
+        os.remove(online_zip_path)
 
     def tearDown(self):
         if os.path.isdir(settings.REPO_ARTICLE_PATH):

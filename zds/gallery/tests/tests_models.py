@@ -104,7 +104,7 @@ class GalleryTest(TestCase):
 
     def test_get_absolute_url(self):
         absolute_url = reverse('zds.gallery.views.gallery_details',
-                args=[self.gallery.pk, self.gallery.slug])
+                               args=[self.gallery.pk, self.gallery.slug])
         self.assertEqual(absolute_url, self.gallery.get_absolute_url())
 
     def test_get_users(self):

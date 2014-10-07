@@ -14,12 +14,11 @@ from django.template.loader import get_template
 from zds import settings
 
 from zds.article.models import get_last_articles
-from zds.forum.models import get_last_topics
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template, slugify
+from zds.utils import render_template
 from zds.utils.models import Alert
 
 
@@ -31,7 +30,7 @@ def home(request):
         data = tuto.load_json_for_public()
         tuto.load_dic(data)
         tutos.append(data)
-    
+
     articles = []
     for article in get_last_articles():
         data = article.load_json_for_public()
@@ -69,14 +68,10 @@ def assoc_subscribe(request):
             user = request.user
             data = form.data
             context = {
-                'first_name': data['first_name'],
-                'surname': data['surname'],
+                'full_name': data['full_name'],
                 'email': data['email'],
+                'naissance': data['naissance'],
                 'adresse': data['adresse'],
-                'adresse_complement': data['adresse_complement'],
-                'code_postal': data['code_postal'],
-                'ville': data['ville'],
-                'pays': data['pays'],
                 'justification': data['justification'],
                 'username': user.username,
                 'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
@@ -96,10 +91,13 @@ def assoc_subscribe(request):
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
-                messages.success(request, "Votre demande d'adhésion a bien été envoyée et va être étudiée.")
+                messages.success(request, u"Votre demande d'adhésion a bien été envoyée et va être étudiée.")
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
+
+            # reset the form after successfull validation
+            form = AssocSubscribeForm()
         return render_template("pages/assoc_subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})

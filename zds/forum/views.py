@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
-import re
 
 from django.conf import settings
 from django.db.models import Q
@@ -19,14 +18,13 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from django.utils.encoding import smart_text
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag, get_topics
+    mark_read, TopicFollowed, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -45,7 +43,6 @@ def index(request):
 
     return render_template("forum/index.html", {"categories": categories,
                                                 "user": request.user})
-
 
 
 def details(request, cat_slug, forum_slug):
@@ -91,29 +88,27 @@ def details(request, cat_slug, forum_slug):
     })
 
 
-
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
-    
+
     category = get_object_or_404(Category, slug=cat_slug)
-    
+
     forums_pub = Forum.objects\
-                    .filter(group__isnull=True, category__pk=category.pk)\
-                    .select_related("category").all()
+        .filter(group__isnull=True, category__pk=category.pk)\
+        .select_related("category").all()
     if request.user.is_authenticated():
         forums_prv = Forum.objects\
-                    .filter(group__isnull=False, \
-                            group__in=request.user.groups.all(), \
-                            category__pk=category.pk)\
-                    .select_related("category")\
-                    .all()
-        forums = forums_pub|forums_prv
-    else :
+            .filter(group__isnull=False,
+                    group__in=request.user.groups.all(),
+                    category__pk=category.pk)\
+            .select_related("category")\
+            .all()
+        forums = forums_pub | forums_prv
+    else:
         forums = forums_pub
 
     return render_template("forum/category/index.html", {"category": category,
                                                          "forums": forums})
-
 
 
 def topic(request, topic_pk, topic_slug):
@@ -203,12 +198,12 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-        
+
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == u"[" :
+            if char == u"[":
                 nb_bracket += 1
         elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
@@ -217,14 +212,14 @@ def get_tag_by_title(title):
                 current_tag = u""
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
-                
-        elif ((char != u"[" and char.strip()!="") or not continue_parsing_tags):
+
+        elif ((char != u"[" and char.strip() != "") or not continue_parsing_tags):
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
-    #if we did not succed in parsing the tags
-    if nb_bracket != 0 :
-        return ([],original_title)
+    # if we did not succed in parsing the tags
+    if nb_bracket != 0:
+        return ([], original_title)
 
     return (tags, title.strip())
 
@@ -280,8 +275,7 @@ def new(request):
             post = Post()
             post.topic = n_topic
             post.author = request.user
-            post.text = data["text"]
-            post.text_html = emarkdown(request.POST["text"])
+            post.update_content(request.POST["text"])
             post.pubdate = datetime.now()
             post.position = 1
             post.ip_address = get_client_ip(request)
@@ -314,16 +308,16 @@ def solve_alert(request):
     bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
     msg = \
         (u'Bonjour {0},'
-        u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-        u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
-        u'et il vous a laissé le message suivant :'
-        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-            alert.author.username,
-            post.author.username,
-            post.topic.title,
-            settings.SITE_URL + post.get_absolute_url(),
-            request.user.username,
-            request.POST["text"],))
+         u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+         u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
+         u'et il vous a laissé le message suivant :'
+         u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
+             alert.author.username,
+             post.author.username,
+             post.topic.title,
+             settings.SITE_URL + post.get_absolute_url(),
+             request.user.username,
+             request.POST["text"],))
     send_mp(
         bot,
         [alert.author],
@@ -387,7 +381,7 @@ def edit(request):
         try:
             page = int(request.POST["page"])
         except:
-            #problem in variable format
+            # problem in variable format
             raise Http404
     else:
         page = 1
@@ -466,13 +460,10 @@ def answer(request):
         raise PermissionDenied
     last_post_pk = g_topic.last_message.pk
 
-    # Retrieve 10 last posts of the current topic.
-
-    posts = \
-        Post.objects.filter(topic=g_topic) \
+    # Retrieve last posts of the current topic.
+    posts = Post.objects.filter(topic=g_topic) \
         .prefetch_related() \
-        .order_by("-pubdate"
-                  )[:10]
+        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new post on the topic.
 
@@ -483,8 +474,7 @@ def answer(request):
         # Using the « preview button », the « more » button or new post
 
         if "preview" in data or newpost:
-            form = PostForm(g_topic, request.user, initial={"text": data["text"
-                                                                         ]})
+            form = PostForm(g_topic, request.user, initial={"text": data["text"]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
             return render_template("forum/post/new.html", {
@@ -513,7 +503,7 @@ def answer(request):
                 post.save()
                 g_topic.last_message = post
                 g_topic.save()
-                #Send mail
+                # Send mail
                 subject = "ZDS - Notification : " + g_topic.title
                 from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
                 followers = g_topic.get_followers_by_email()
@@ -531,19 +521,17 @@ def answer(request):
                             .render(
                                 Context({
                                     'username': receiver.username,
-                                    'title':g_topic.title,
+                                    'title': g_topic.title,
                                     'url': settings.SITE_URL + post.get_absolute_url(),
                                     'author': request.user.username
-                                })
-                        )
+                                }))
                         message_txt = get_template('email/notification/new.txt').render(
                             Context({
                                 'username': receiver.username,
-                                'title':g_topic.title,
+                                'title': g_topic.title,
                                 'url': settings.SITE_URL + post.get_absolute_url(),
                                 'author': request.user.username
-                            })
-                        )
+                            }))
                         msg = EmailMultiAlternatives(
                             subject, message_txt, from_email, [
                                 receiver.email])
@@ -879,7 +867,6 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
-
 def find_topic_by_tag(request, tag_pk, tag_slug):
     """Finds all topics byg tag."""
 
@@ -893,18 +880,19 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
             topics = Topic.objects.filter(
                 tags__in=[tag],
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags")\
+                    "author",
+                    "last_message",
+                    "tags")\
                 .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
                 .all()
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_solved=False).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags")\
+                is_solved=False).order_by("-last_message__pubdate")\
+                .prefetch_related(
+                    "author",
+                    "last_message",
+                    "tags")\
                 .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
                 .all()
     else:
@@ -932,7 +920,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         "nb": page,
         "filter": filter,
     })
-
 
 
 def find_topic(request, user_pk):
@@ -972,7 +959,7 @@ def find_post(request, user_pk):
 
     displayed_user = get_object_or_404(User, pk=user_pk)
     user = request.user
-    
+
     if user.has_perm("forum.change_post"):
         posts = \
             Post.objects.filter(author=displayed_user)\

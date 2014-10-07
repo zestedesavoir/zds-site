@@ -17,6 +17,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.forms.util import ErrorList
 
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
@@ -26,8 +27,6 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
-from django.db.models.query_utils import select_related_descend
-
 
 
 @login_required
@@ -38,7 +37,11 @@ def index(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
             liste = request.POST.getlist('items')
-            topics = PrivateTopic.objects.filter(pk__in=liste).all()
+            topics = PrivateTopic.objects.filter(pk__in=liste)\
+                .filter(
+                    Q(participants__in=[request.user])
+                    | Q(author=request.user))
+
             for topic in topics:
                 if topic.participants.all().count() == 0:
                     topic.delete()
@@ -73,7 +76,6 @@ def index(request):
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
-
 
 
 @login_required
@@ -139,7 +141,6 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -147,13 +148,13 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(request.user.username, 
-                initial={
-                    'participants': request.POST['participants'],
-                    'title': request.POST['title'],
-                    'subtitle': request.POST['subtitle'],
-                    'text': request.POST['text'],
-                })
+            form = PrivateTopicForm(request.user.username,
+                                    initial={
+                                        'participants': request.POST['participants'],
+                                        'title': request.POST['title'],
+                                        'subtitle': request.POST['subtitle'],
+                                        'text': request.POST['text'],
+                                    })
             return render_template('mp/topic/new.html', {
                 'form': form,
             })
@@ -175,6 +176,16 @@ def new(request):
                 if request.user == p:
                     continue
                 ctrl.append(p)
+
+            # user add only himself
+            if (len(ctrl) < 1
+                    and len(list_part) == 1
+                    and list_part[0] == request.user.username):
+                errors = form._errors.setdefault("participants", ErrorList())
+                errors.append(u'Vous êtes déjà auteur du message')
+                return render_template('mp/topic/new.html', {
+                    'form': form,
+                })
 
             p_topic = send_mp(request.user,
                               ctrl,
@@ -200,7 +211,8 @@ def new(request):
                     destList.append(User.objects.get(username=username).username)
                 except:
                     pass
-            dest = ', '.join(destList)
+            if len(destList) > 0:
+                dest = ', '.join(destList)
 
         form = PrivateTopicForm(username=request.user.username,
                                 initial={
@@ -211,12 +223,10 @@ def new(request):
         })
 
 
-
 @login_required
 @require_POST
 def edit(request):
     """Edit the given topic."""
-    authenticated_user = request.user
 
     try:
         topic_pk = request.POST['privatetopic']
@@ -232,12 +242,11 @@ def edit(request):
 
     if request.POST['username']:
         u = get_object_or_404(User, username=request.POST['username'])
-        if not authenticated_user == u:
+        if not request.user == u:
             g_topic.participants.add(u)
             g_topic.save()
 
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
-
 
 
 @login_required
@@ -251,11 +260,16 @@ def answer(request):
     # Retrieve current topic.
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    # Retrieve 3 last posts of the currenta topic.
-    posts = PrivatePost.objects\
-        .filter(privatetopic=g_topic)\
-        .order_by('-pubdate')[:3]
+    # check if user has right to answer
+    if not g_topic.author == request.user \
+            and request.user not in list(g_topic.participants.all()):
+        raise PermissionDenied
+
     last_post_pk = g_topic.last_message.pk
+    # Retrieve last posts of the current private topic.
+    posts = PrivatePost.objects.filter(privatetopic=g_topic) \
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -270,6 +284,7 @@ def answer(request):
             return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
+                'posts': posts,
                 'newpost': newpost,
                 'form': form,
             })
@@ -337,6 +352,7 @@ def answer(request):
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
+                    'posts': posts,
                     'form': form,
                 })
 
@@ -346,7 +362,7 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             post_cite_pk = request.GET['cite']
-            post_cite = PrivatePost.objects.get(pk=post_cite_pk)
+            post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
@@ -366,7 +382,6 @@ def answer(request):
             'last_post_pk': last_post_pk,
             'form': form
         })
-
 
 
 @login_required
@@ -442,13 +457,12 @@ def edit_post(request):
         })
 
 
-
 @login_required
 @require_POST
 @transaction.atomic
 def leave(request):
     if 'leave' in request.POST:
-        ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
         if ptopic.participants.count() == 0:
             ptopic.delete()
         elif request.user.pk == ptopic.author.pk:
@@ -466,14 +480,19 @@ def leave(request):
     return redirect(reverse('zds.mp.views.index'))
 
 
-
 @login_required
 @require_POST
 @transaction.atomic
 def add_participant(request):
-    ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
+    ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+
+    # check if user is the author of topic
+    if not ptopic.author == request.user:
+        raise PermissionDenied
+
     try:
-        part = User.objects.get(username=request.POST['user_pk'])
+        # user_pk or user_username ?
+        part = User.objects.get(username__exact=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,

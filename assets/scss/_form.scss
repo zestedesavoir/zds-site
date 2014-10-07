@@ -8,7 +8,6 @@
 
 .content-container,
 #modals {
-
     form {
         width: 100%;
 
@@ -34,7 +33,7 @@
     }
 
 
-
+    
     label {
         display: block;
         color: #555;
@@ -45,6 +44,9 @@
             color: #C0392B;
             margin-left: 4px;
         }
+    }
+    .small-content-wrapper .asteriskField {
+        display: none;
     }
     .form-error {
         display: block;
@@ -106,17 +108,12 @@
             }
         }
     }
-    input[type=submit],
+    [type=submit],
     button,
     .btn {
         height: 40px;
         line-height: 40px;
         cursor: pointer;
-    }
-
-    [type=submit],
-    button,
-    .btn {
         color: #DDD;
         padding: 0 15px;
         border: none;
@@ -128,19 +125,19 @@
     [type=submit],
     .btn-submit {
         color: #FFF;
-        background: #084561;
+        background: $upvote-green;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: #396A81;
+            background: lighten($upvote-green, 5%);
         }
     }
     .btn-cancel {
-        background: #c0392b;
+        background: $downvote-red;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: #e74c3c;
+            background: lighten($downvote-red, 7%);
         }
     }
     .btn-grey {
@@ -163,6 +160,10 @@
         display: block;
         display: inline-block;
         margin-top: 8px;
+    }
+
+    .buttonHolder {
+        margin-top: 25px;
     }
 }
 

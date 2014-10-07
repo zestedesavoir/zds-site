@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from math import ceil
+import shutil
 try:
     import ujson as json_reader
 except:
@@ -154,15 +155,13 @@ class Tutorial(models.Model):
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
     def in_validation(self):
-        return (
-            self.sha_validation is not None) and (
-            self.sha_validation.strip() != '')
+        return (self.sha_validation is not None) and (self.sha_validation.strip() != '')
 
     def in_drafting(self):
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def on_line(self):
-        return (self.sha_public is not None) and (self.sha_public.strip() != '') 
+        return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def is_mini(self):
         return self.type == 'MINI'
@@ -186,20 +185,20 @@ class Tutorial(models.Model):
         '''fill mandata with informations from database model'''
 
         fns = [
-            'is_big', 'is_mini', 'have_markdown','have_html', 'have_pdf', 
+            'is_big', 'is_mini', 'have_markdown', 'have_html', 'have_pdf',
             'have_epub', 'get_path', 'in_beta', 'in_validation', 'on_line'
-            ]
+        ]
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update',
             'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
-            ]
+        ]
 
-        #load functions and attributs in tree
-        for fn in fns: 
-            mandata[fn] = getattr(self,fn)
-        for attr in attrs: 
-            mandata[attr] = getattr(self,attr)
+        # load functions and attributs in tree
+        for fn in fns:
+            mandata[fn] = getattr(self, fn)
+        for attr in attrs:
+            mandata[attr] = getattr(self, attr)
 
         # general information
         mandata['slug'] = slugify(mandata['title'])
@@ -208,28 +207,28 @@ class Tutorial(models.Model):
             and self.sha_validation == sha
         mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
-        #url:
+        # url:
         mandata['get_absolute_url'] = reverse(
+            'zds.tutorial.views.view_tutorial',
+            args=[self.pk, mandata['slug']]
+        )
+
+        if self.in_beta():
+            mandata['get_absolute_url_beta'] = reverse(
+                'zds.tutorial.views.view_tutorial',
+                args=[self.pk, mandata['slug']]
+            ) + '?version=' + self.sha_beta
+
+        else:
+            mandata['get_absolute_url_beta'] = reverse(
                 'zds.tutorial.views.view_tutorial',
                 args=[self.pk, mandata['slug']]
             )
 
-        if self.in_beta():
-            mandata['get_absolute_url_beta'] = reverse(
-                    'zds.tutorial.views.view_tutorial',
-                    args=[self.pk, mandata['slug']]
-               ) + '?version=' + self.sha_beta
-
-        else:
-            mandata['get_absolute_url_beta'] = reverse(
-                    'zds.tutorial.views.view_tutorial',
-                    args=[self.pk, mandata['slug']]
-                )
-
         mandata['get_absolute_url_online'] = reverse(
-                'zds.tutorial.views.view_tutorial_online',
-                args=[self.pk, mandata['slug']]
-            )
+            'zds.tutorial.views.view_tutorial_online',
+            args=[self.pk, mandata['slug']]
+        )
 
     def load_introduction_and_conclusion(self, mandata, sha=None, public=False):
         '''Explicitly load introduction and conclusion to avoid useless disk
@@ -242,7 +241,6 @@ class Tutorial(models.Model):
         else:
             mandata['get_introduction'] = self.get_introduction(sha)
             mandata['get_conclusion'] = self.get_conclusion(sha)
-        
 
     def load_json_for_public(self, sha=None):
         if sha is None:
@@ -287,7 +285,7 @@ class Tutorial(models.Model):
         if sha is None:
             sha = self.sha_draft
         repo = Repo(self.get_path())
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "introduction" in tutorial_version:
@@ -314,7 +312,7 @@ class Tutorial(models.Model):
         if sha is None:
             sha = self.sha_draft
         repo = Repo(self.get_path())
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "introduction" in tutorial_version:
@@ -335,6 +333,17 @@ class Tutorial(models.Model):
             conclu.close()
 
             return conclu_contenu.decode('utf-8')
+
+    def delete_entity_and_tree(self):
+        """deletes the entity and its filesystem counterpart"""
+        shutil.rmtree(self.get_path(), 0)
+        Validation.objects.filter(tutorial=self).delete()
+
+        if self.gallery is not None:
+            self.gallery.delete()
+        if self.on_line():
+            shutil.rmtree(self.get_prod_path())
+        self.delete()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -403,7 +412,7 @@ class Tutorial(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_notes and last_user_notes[0] == self.get_last_note():
+        if last_user_notes and last_user_notes[0] == self.last_note:
             last_user_note = last_user_notes[0]
             t = timezone.now() - last_user_note.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
@@ -422,18 +431,22 @@ class Tutorial(models.Model):
         return os.path.isfile(os.path.join(self.get_prod_path(),
                                            self.slug +
                                            ".md"))
+
     def have_html(self):
         return os.path.isfile(os.path.join(self.get_prod_path(),
                                            self.slug +
                                            ".html"))
+
     def have_pdf(self):
         return os.path.isfile(os.path.join(self.get_prod_path(),
                                            self.slug +
                                            ".pdf"))
+
     def have_epub(self):
         return os.path.isfile(os.path.join(self.get_prod_path(),
                                            self.slug +
                                            ".epub"))
+
 
 def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
@@ -579,14 +592,14 @@ class Part(models.Model):
             return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
 
     def get_introduction(self, sha=None):
-        
+
         tutorial = self.tutorial
 
         # find hash code
         if sha is None:
             sha = tutorial.sha_draft
         repo = Repo(tutorial.get_path())
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "parts" in tutorial_version:
@@ -620,7 +633,7 @@ class Part(models.Model):
         if sha is None:
             sha = tutorial.sha_draft
         repo = Repo(tutorial.get_path())
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "parts" in tutorial_version:
@@ -785,13 +798,13 @@ class Chapter(models.Model):
         if self.tutorial:
             tutorial = self.tutorial
         else:
-            tutorial = self.part.tutorial        
+            tutorial = self.part.tutorial
         repo = Repo(tutorial.get_path())
 
         # find hash code
         if sha is None:
             sha = tutorial.sha_draft
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "parts" in tutorial_version:
@@ -800,7 +813,7 @@ class Chapter(models.Model):
                     for chapter in part["chapters"]:
                         if chapter["pk"] == self.pk:
                             path_chap = chapter["introduction"]
-                            break 
+                            break
         if "chapter" in tutorial_version:
             chapter = tutorial_version["chapter"]
             if chapter["pk"] == self.pk:
@@ -840,13 +853,13 @@ class Chapter(models.Model):
         if self.tutorial:
             tutorial = self.tutorial
         else:
-            tutorial = self.part.tutorial        
+            tutorial = self.part.tutorial
         repo = Repo(tutorial.get_path())
 
         # find hash code
         if sha is None:
             sha = tutorial.sha_draft
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "parts" in tutorial_version:
@@ -855,7 +868,7 @@ class Chapter(models.Model):
                     for chapter in part["chapters"]:
                         if chapter["pk"] == self.pk:
                             path_chap = chapter["conclusion"]
-                            break 
+                            break
         if "chapter" in tutorial_version:
             chapter = tutorial_version["chapter"]
             if chapter["pk"] == self.pk:
@@ -904,6 +917,7 @@ class Chapter(models.Model):
         for extract in self.get_extracts():
             extract.text = extract.get_path(relative=True)
             extract.save()
+
 
 class Extract(models.Model):
 
@@ -962,40 +976,40 @@ class Extract(models.Model):
 
         if self.chapter.tutorial:
             data = self.chapter.tutorial.load_json_for_public()
-            mandata = tutorial.load_dic(data)
+            mandata = self.chapter.tutorial.load_dic(data)
             if "chapter" in mandata:
                 for ext in mandata["chapter"]["extracts"]:
                     if ext['pk'] == self.pk:
                         return os.path.join(settings.REPO_PATH_PROD,
                                             str(self.chapter.tutorial.pk) + '_' + slugify(mandata['title']),
                                             str(ext['pk']) + "_" + slugify(ext['title'])) \
-                                            + '.md.html'
+                            + '.md.html'
         else:
             data = self.chapter.part.tutorial.load_json_for_public()
-            mandata = tutorial.load_dic(data)
+            mandata = self.chapter.part.tutorial.load_dic(data)
             for part in mandata["parts"]:
                 for chapter in part["chapters"]:
                     for ext in chapter["extracts"]:
                         if ext['pk'] == self.pk:
-                            chapter_path = os.path.join(settings.REPO_PATH_PROD,
-                                                        str(mandata['pk']) + '_' + slugify(mandata['title']),
-                                                        str(part['pk']) + "_" + slugify(part['title']),
-                                                        str(chapter['pk']) + "_" + slugify(chapter['title']),
-                                                        str(ext['pk']) + "_" + slugify(ext['title'])) \
-                                                        + '.md.html'
+                            return os.path.join(settings.REPO_PATH_PROD,
+                                                str(mandata['pk']) + '_' + slugify(mandata['title']),
+                                                str(part['pk']) + "_" + slugify(part['title']),
+                                                str(chapter['pk']) + "_" + slugify(chapter['title']),
+                                                str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                + '.md.html'
 
     def get_text(self, sha=None):
-        
+
         if self.chapter.tutorial:
             tutorial = self.chapter.tutorial
         else:
-            tutorial = self.chapter.part.tutorial        
+            tutorial = self.chapter.part.tutorial
         repo = Repo(tutorial.get_path())
 
         # find hash code
         if sha is None:
             sha = tutorial.sha_draft
-        
+
         manifest = get_blob(repo.commit(sha).tree, "manifest.json")
         tutorial_version = json_reader.loads(manifest)
         if "parts" in tutorial_version:
@@ -1006,7 +1020,7 @@ class Extract(models.Model):
                             for extract in chapter["extracts"]:
                                 if extract["pk"] == self.pk:
                                     path_ext = extract["text"]
-                                    break 
+                                    break
         if "chapter" in tutorial_version:
             chapter = tutorial_version["chapter"]
             if "extracts" in chapter:
@@ -1041,6 +1055,7 @@ class Extract(models.Model):
             return text_contenu.decode('utf-8')
         else:
             return None
+
 
 class Validation(models.Model):
 

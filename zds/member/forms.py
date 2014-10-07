@@ -7,8 +7,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 
-from email.utils import parseaddr
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
@@ -49,7 +47,7 @@ class OldTutoForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label='Identifiant',
+        label='Nom d\'utilisateur',
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -60,7 +58,7 @@ class LoginForm(forms.Form):
     )
 
     password = forms.CharField(
-        label='Mot magique',
+        label='Mot de passe',
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -68,7 +66,7 @@ class LoginForm(forms.Form):
     )
 
     remember = forms.BooleanField(
-        label='Connexion automatique',
+        label='Se souvenir de moi',
         initial=True,
     )
 
@@ -85,7 +83,6 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
 
@@ -132,7 +129,6 @@ class RegisterForm(forms.Form):
             Field('email'),
             ButtonHolder(
                 Submit('submit', 'Valider mon inscription'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
     def clean(self):
@@ -155,8 +151,8 @@ class RegisterForm(forms.Form):
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
-        
-        if username is not None :
+
+        if username is not None:
             if username.strip() == '':
                 msg = u'Le nom d\'utilisateur ne peut-être vide'
                 self._errors['username'] = self.error_class([msg])
@@ -257,8 +253,7 @@ class MiniProfileForm(forms.Form):
             Field('avatar_url'),
             Field('sign'),
             ButtonHolder(
-                StrictButton('Éditer le profil', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton(u'Enregistrer', type='submit'),
             ))
 
 
@@ -272,7 +267,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', "Afficher les signatures"),
             ('hover_or_click', "Cochez pour dérouler les menus au survol"),
             ('email_for_answer', u'Recevez un courriel lorsque vous '
-            u'recevez une réponse à un message privé'),
+             u'recevez une réponse à un message privé'),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -311,8 +306,7 @@ class ProfileForm(MiniProfileForm):
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton('Editer mon profil', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton(u'Enregistrer', type='submit'),
             ))
 
 
@@ -340,7 +334,7 @@ class ChangeUserForm(forms.Form):
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
         ),
-        error_messages = {'invalid': u'Veuillez entrer une adresse email valide.',}
+        error_messages={'invalid': u'Veuillez entrer une adresse email valide.', }
     )
 
     def __init__(self, *args, **kwargs):
@@ -353,8 +347,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton('Enregistrer', type='submit'),
             ),
         )
 
@@ -390,7 +383,7 @@ class ChangeUserForm(forms.Form):
                                 msg = u'Utilisez un autre fournisseur d\'adresses mail.'
                                 self._errors['email_new'] = self.error_class([msg])
                                 break
-            
+
         return cleaned_data
 
 
@@ -430,8 +423,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton('Changer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+                StrictButton('Enregistrer', type='submit'),
             )
         )
 
@@ -497,7 +489,6 @@ class ForgotPasswordForm(forms.Form):
             Field('username'),
             ButtonHolder(
                 StrictButton('Envoyer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -540,7 +531,6 @@ class NewPasswordForm(forms.Form):
             Field('password_confirm'),
             ButtonHolder(
                 StrictButton('Envoyer', type='submit'),
-                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -581,10 +571,15 @@ class PromoteMemberForm(forms.Form):
         queryset=Group.objects.all(),
         required=False,
     )
-    
+
     superuser = forms.BooleanField(
         label="Super-user",
-        required=False,    
+        required=False,
+    )
+
+    activation = forms.BooleanField(
+        label="Compte actif",
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -596,5 +591,6 @@ class PromoteMemberForm(forms.Form):
         self.helper.layout = Layout(
             Field('groups'),
             Field('superuser'),
+            Field('activation'),
             StrictButton('Valider', type='submit'),
         )

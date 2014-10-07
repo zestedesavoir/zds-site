@@ -21,10 +21,17 @@ install:
   - sudo apt-get update
   - sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
   - sudo apt-get install ttf-mscorefonts-installer
+  - sudo apt-get install unzip
   - sudo apt-get install texlive
   - sudo apt-get install texlive-xetex
   - sudo apt-get install texlive-lang-french
   - sudo apt-get install texlive-latex-extra
+
+  # Add fonts
+  - sudo wget -P /usr/share/fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
+  - sudo unzip /usr/share/fonts/truetype/Merriweather.zip -d /usr/share/fonts/truetype/Merriweather/
+  - sudo chmod a+r /usr/share/fonts/truetype/Merriweather/*.ttf
+  - sudo fc-cache -f -v
 
   # Cabal + Pandoc stuff
   - sudo mkdir -p ~/cabal/bin
@@ -53,6 +60,7 @@ install:
 script:
   - npm run-script travis
   - coverage run --source='.' manage.py test
+  - flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
 
 after_success:
   - coveralls

@@ -215,8 +215,8 @@
                                     </a>
 
                                     <ul class="dropdown-list">
-                                        {% with categories=user|top_categories %}
-                                            {% for title, forums in categories.items %}
+                                        {% with top=user|top_categories %}
+                                            {% for title, forums in top.categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
@@ -228,6 +228,18 @@
                                                     </ul>
                                                 </li>
                                             {% endfor %}
+                                            {% if top.tags %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        Tags les plus utilisés
+                                                    </li>
+                                                    {% for tag in top.tags %}
+                                                        <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>
@@ -381,7 +393,6 @@
                                        data-title="Mon compte"
 
                                        {% if not perms.forum.change_post %}
-                                           tabindex="-1"
                                            data-active="open-my-account"
                                        {% endif %}
                                     >
@@ -421,7 +432,6 @@
                                                 <a href="{% url "zds.article.views.list_validation" %}">Validation des articles</a>
                                             </li>
                                         {% endif %}
-
                                         <li>
                                             <form 
                                                 method="post"
@@ -429,8 +439,9 @@
                                             >
                                                 {% csrf_token %}
                                                 <button type="submit">Déconnexion</button>
-                                            </form>
-                                        </li>
+                                             </form>
+                                        </li> 
+
                                     </ul>
                                 </div>
                             </div>
@@ -553,8 +564,7 @@
         <script src="/static/js/vendors.js"></script>
         <script src="/static/js/main.js"></script>
     {% else %}
-        <script src="/static/js/vendors.min.js"></script>
-        <script src="/static/js/main.min.js"></script>
+        <script src="/static/js/all.min.js"></script>
     {% endif %}
 
 
@@ -567,7 +577,7 @@
                 displayMath: [['$$','$$']],
                 processEscapes: true,
             },
-            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js"] },
+            TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
             messageStyle: "none",
         });
     </script>
