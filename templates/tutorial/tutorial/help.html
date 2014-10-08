@@ -29,12 +29,12 @@
                 <table class="fullwidth">
                     <thead>
                         <tr>
-                            <th scope="col" title="Tutoriel en bêta"><img src="" alt=""></th>
-                            <th scope="col" title="Tutoriel en ligne"><img src="" alt=""></th>
+                            <th scope="col" title="Tutoriel en bêta"><span class="ico-after beta blue"></span></th>
+                            <th scope="col" title="Tutoriel en ligne"><span class="ico-after view blue"></span></th>
                             {% for help in helps %}
-                                <th scope="col" title="{{ help.tablelabel }}"><img src="" alt=""></th>
+                                <th scope="col" title="{{ help.tablelabel }}"><img src="{{ help.image.url }}" alt="{{ help.tablelabel }}"></th>
                             {% endfor %}
-                            <th scope="col" title="Contacter le(s) auteur(s)">MP Auteur(s)</th>
+                            <th scope="col" title="Contacter le(s) auteur(s)"><span class="ico-after email blue"></span></th>
                             <th scope="col" title="Titre du tutoriel">Titre du tutoriel</th>
                         </tr>
                     </thead>
@@ -44,13 +44,13 @@
                                 <!-- tuto en beta -->
                                 <td>
                                     {% if tutorial.in_beta %}
-                                        <a title="oui" href="{{ tutorial.get_absolute_url_beta }}"><img src="dummy_tutobeta.png" alt=""></a>
+                                        <a title="oui" href="{{ tutorial.get_absolute_url_beta }}" class="ico-after beta blue"></a>
                                     {% endif %}
                                 </td>
                                 <!-- tuto en ligne -->
                                 <td>
                                     {% if tutorial.on_line %}
-                                        <a title="oui" href="{{ tutorial.get_absolute_url_online }}"><img src="dummy_tutopublic.png" alt=""></a>
+                                        <a title="oui" href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue"></a>
                                     {% endif %}
                                 </td>
                                 {% for help in helps %}
@@ -62,7 +62,7 @@
                                 {% endfor %}
                                 <!-- Contacter le(s) auteur(s) -->
                                 <td>
-                                    <a  href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs"><img src="dummy_contactmp.png" alt=""></a>
+                                    <a href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs" class="ico-after email blue"></a>
                                 </td>
                                 <!-- Titre du tuto -->
                                 <td>
@@ -75,12 +75,12 @@
                 {% include "misc/pagination.part.html" with position='bottom' %}
                 <!-- I'm a Legend -->
                 <ul id="legend">
-                    <li><img src="dummy_tutobeta.png" alt=""> Tutoriel en beta</li>
-                    <li><img src="dummy_tutopublic.png" alt=""> Tutoriel en ligne</li>
+                    <li><span class="ico-after beta blue"></span> Tutoriel en beta</li>
+                    <li><span class="ico-after view blue"></span> Tutoriel en ligne</li>
                     {% for help in helps %}
                         <li><img src="{{ help.image.url }}" alt=""> {{ help.tablelabel }}</li>
                     {% endfor %}
-                    <li><img src="dummy_contactmp.png" alt=""> Contacter le(s) auteur(s)</li>
+                    <li><span class="ico-after email blue"></span> Contacter le(s) auteur(s)</li>
                 </ul>
             {% else %}
                 <p>
