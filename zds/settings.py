@@ -315,7 +315,7 @@ ZDS_APP = {
                 'provider_name': u"Progdupeupl",
                 'provider_url': u"http://progdupeu.pl",
             }
-        }
+        },
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
