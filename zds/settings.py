@@ -293,6 +293,29 @@ ZDS_APP = {
             'email': u"association@zestedesavoir.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
         },
+        'licenses': {
+            'logo': {
+                'code': u"CC-BY",
+                'title': u"Creative Commons License",
+                'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International.",
+                'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
+                'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
+                'author': u"MaxRoyo"
+            },
+            'cookies': {
+                'code': u"CC-BY",
+                'title': u"Licence Creative Commons",
+                'description': u"licence Creative Commons Attribution 4.0 International",
+                'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
+                'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/"
+            },
+            'source': {
+                'code' : u"GPL v3",
+                'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
+                'provider_name': u"Progdupeupl",
+                'provider_url': u"http://progdupeu.pl",
+            }
+        }
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"

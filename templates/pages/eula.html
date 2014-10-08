@@ -27,7 +27,7 @@
 
     <h3>1. Objet</h3>
     <p>
-        Les présentes &laquo; conditions générales d'utilisation &raquo; ont pour objet de définir l'encadrement juridique des modalités selon lesquelles l'association {{app.site.association.name}}, éditrice du site, met à la disposition des utilisateurs son site internet {{app.site.dns}} et les conditions selon lesquelles les utilisateurs accèdent et utilisent ce site.
+        Les présentes &laquo; conditions générales d'utilisation &raquo; ont pour objet de définir l'encadrement juridique des modalités selon lesquelles {% if app.site.association %} l'association {{app.site.association.name}},{% else %} la structure {% endif %} éditrice du site, met à la disposition des utilisateurs son site internet {{app.site.dns}} et les conditions selon lesquelles les utilisateurs accèdent et utilisent ce site.
     </p>
     <p>
         Toute connexion au site {{app.site.dns}} est soumise au respect des présentes conditions générales d'utilisation. L'accès au site par l'utilisateur entraîne son acceptation des présentes conditions générales d'utilisation et constitue donc un contrat entre l'éditeur et l'utilisateur.
@@ -37,12 +37,14 @@
     </p>
 
     <h3>2. Mentions légales</h3>
-    <p>
-        L'édition du site {{app.site.dns}} est assurée par l'association française de loi 1901 {{app.site.litteral_name}}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
-    </p>
-    <p>
-        Vous pouvez joindre l’association via l’adresse e-mail : <a href="{{app.site.association.email}}">{{app.site.association.email}}</a>.
-    </p>
+    {% if app.site.association %}
+        <p>
+            L'édition du site {{app.site.dns}} est assurée par l'association française de loi 1901 {{app.site.litteral_name}}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
+        </p>
+        <p>
+            Vous pouvez joindre l’association via l’adresse e-mail : <a href="{{app.site.association.email}}">{{app.site.association.email}}</a>.
+        </p>
+    {% endif %}
     {% if app.hosting %}
         <p>
             Le site est hébergé par {{app.hosting.name}} dont le siège social est situé {{app.hosting.address}}.
@@ -192,7 +194,7 @@
         L'utilisateur est libre de refuser de communiquer les renseignements sollicités pour l'inscription sur le site. Dans ce cas, il ne peut pas en devenir membre.
     </p>
     <p>
-        Conformément aux articles 39 et 40 de la Loi n<sup>o</sup>78-17 du 6 janvier 1978, l'utilisateur peut à tout moment accéder aux informations personnelles le concernant détenues par l'association éditrice du site et réaliser leur modification, leur rectification ou leur suppression. Tout utilisateur peut demander que les données soient rectifiées, complétées, mises à jour, ou supprimées. Pour exercer ces droits, tout utilisateur peut se servir du formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.
+        Conformément aux articles 39 et 40 de la Loi n<sup>o</sup>78-17 du 6 janvier 1978, l'utilisateur peut à tout moment accéder aux informations personnelles le concernant détenues par la structure éditrice du site et réaliser leur modification, leur rectification ou leur suppression. Tout utilisateur peut demander que les données soient rectifiées, complétées, mises à jour, ou supprimées. Pour exercer ces droits, tout utilisateur peut se servir du formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.
     </p>
 
     <h4>6.4 Politique relative à l'installation de cookies</h4>
@@ -214,9 +216,11 @@
     <p>
         Toute reproduction, publication, copie des différents contenus nécessite au préalable l'autorisation de l'éditeur du site.
     </p>
-    <p>
-        Le logo de {{app.site.dns}} est une réalisation de <a href="http://maxroyo.com/">MaxRoyo</a> sous licence <a href="http://creativecommons.org/licenses/by/3.0/fr/">CC BY</a>.
-    </p>
+    {% if app.site.licenses.logo %}
+        <p>
+            Le logo de {{app.site.dns}} est une réalisation de {{ app.site.licenses.logo.author }} sous licence <a href="{{ app.site.licenses.logo.url_license }}">{{ app.site.licenses.logo.code }}</a>.
+        </p>
+    {% endif %}
     <p>
         Il n'est concédé aux membres aucun droit de propriété intellectuelle sur le site.
     </p>
@@ -226,7 +230,7 @@
 
     <h4>7.1 Politique relative au contenu des membres</h4>
     <p>
-        Tout contenu mis en ligne par le membre est de sa seule responsabilité. Le membre s'engage à ne pas mettre en ligne de contenus contraire aux règles du site, aux présentes conditions ou à la législation en vigueur. La responsabilité du site et de l'association qui l'édite ne pourra être engagée pour une faute commise par un membre.
+        Tout contenu mis en ligne par le membre est de sa seule responsabilité. Le membre s'engage à ne pas mettre en ligne de contenus contraire aux règles du site, aux présentes conditions ou à la législation en vigueur. La responsabilité du site {% if app.site.association %} et de l'association {% endif %} qui l'édite ne pourra être engagée pour une faute commise par un membre.
     </p>
     <p>
         Tout recours en justice engagé par un tiers lésé sera de la responsabilité du membre et ce dernier s'engage en particulier à prendre en charge le paiement de toutes sommes, quelles qu'elles soient, qui résulteraient d'une action légale d'un tiers, y compris les honoraires d'avocat et frais de justice.
@@ -239,9 +243,15 @@
     </p>
 
     <h4>7.2 Code source du site</h4>
-    <p>
-        {{app.site.litteral_name}} est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://progdupeu.pl">Progdupeupl</a>.
-    </p>
+    {% if app.site.licenses.source %}
+        <p>
+            {{app.site.litteral_name}} est un site dont le code source est sous licence <a href="{{app.site.licenses.source.url_license}}">{{app.site.licenses.source.code}}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_name}}">{{ app.site.licenses.source.provider_url }}</a>.
+        </p>
+    {% else %}
+        <p>
+        {{app.site.litteral_name}} est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://zestedesavoir.com">Zeste de Savoir</a>.
+        </p>
+    {% endif %}
 
     <h4>7.3 Politique de signalement d'abus</h4>
     <p>
