@@ -11,6 +11,11 @@
     form {
         width: 100%;
 
+        &.content-wrapper {
+            width: calc(100% - 20px);
+            margin: 0 10px;
+        }
+
         p {
             position: relative;
         }

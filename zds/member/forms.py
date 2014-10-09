@@ -78,6 +78,7 @@ class LoginForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('zds.member.views.login_view')
         self.helper.form_method = 'post'
+        self.helper.form_class = 'content-wrapper'
 
         self.helper.layout = Layout(
             Field('username'),
@@ -105,6 +106,8 @@ class LoginForm(forms.Form):
                                      + reverse('social:begin', args=['google-oauth2'])
                                      + u"?next={}'".format(next)),
             ),
+            HTML('<a href="{% url "zds.member.views.forgot_password" %}" '
+                 u'class="form-sub-link">Mot de passe oublié ?</a>'),
         )
 
 
