@@ -33,7 +33,7 @@
     }
 
 
-    
+
     label {
         display: block;
         color: #555;
@@ -143,13 +143,13 @@
     [type=submit],
     .btn-submit {
         color: #FFF;
-        background: $upvote;
+        background: $primary;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($upvote, 5%);
+            background: lighten($upvote, 7%);
         }
 
         &.disabled.submitted {

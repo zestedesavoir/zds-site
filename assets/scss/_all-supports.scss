@@ -3043,9 +3043,9 @@ form.topic-message {
     padding: 20px 0;
 }
 .page-footer {
-    background: darken($primary, 10%);
-    height: 50px;
-    line-height: 50px;
+    background: $primary;
+    height: 40px;
+    line-height: 40px;
     border-top: 3px solid $secondary;
     font-size: 14px;
     font-size: 1.4rem;
