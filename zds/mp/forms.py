@@ -78,7 +78,7 @@ class PrivateTopicForm(forms.Form):
                 if User.objects.filter(username__exact=receiver.strip()).count() == 0 and receiver.strip() != '':
                     self._errors['participants'] = self.error_class(
                         [u'Un des participants saisi est introuvable'])
-                elif User.objects.filter(username=receiver.strip()).count() > 0:
+                elif receiver.strip().lower() == self.username.lower():
                     self._errors['participants'] = self.error_class(
                         [u'Vous ne pouvez pas vous écrire à vous-même !'])
 
