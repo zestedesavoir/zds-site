@@ -75,6 +75,7 @@ class LoginForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('zds.member.views.login_view')
         self.helper.form_method = 'post'
+        self.helper.form_class = 'content-wrapper'
 
         self.helper.layout = Layout(
             Field('username'),
@@ -83,25 +84,9 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after facebook light btn-facebook",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['facebook'])
-                                     + u"?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after twitter light btn-twitter",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['twitter'])
-                                     + u"?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after google-plus light btn-gplus",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['google-oauth2'])
-                                     + u"?next={}'".format(next)),
             ),
+            HTML('<a href="{% url "zds.member.views.forgot_password" %}" '
+                 u'class="form-sub-link">Mot de passe oublié ?</a>'),
         )
 
 
