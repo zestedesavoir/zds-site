@@ -530,8 +530,10 @@
 
             &:hover,
             &:focus {
-                outline: none;
-                background-color: rgba(255, 255, 255, .75);
+                background-color: #FFF;
+            }
+            &:focus {
+                outline-color: $secondary;
             }
         }
         input {
@@ -563,7 +565,6 @@
         }
     }
     .search-more {
-        // TODO : mettre l'icône en background plutôt que tout ça
         display: block;
         float: left;
         height: 40px;
@@ -574,13 +575,15 @@
         font-weight: bold;
         text-decoration: none;
         font-size: 24px;
-        background: rgba(255, 255, 255, 1);
-        color: #084561;
+        background: #FFF;
+        color: $primary;
         transition: background $transition-duration ease;
 
         &:hover,
         &:focus {
-            background: rgba(255, 255, 255, .7);
+            background: $secondary;
+            color: #FFF;
+            outline: none;
         }
     }
 }
