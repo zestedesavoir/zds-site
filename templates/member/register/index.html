@@ -9,39 +9,57 @@
 
 
 
-{% block headline %}
-    {% trans "Inscription" %}
-{% endblock %}
-
-
-
 {% block breadcrumb %}
     <li>{% trans "Inscription" %}</li>
 {% endblock %}
 
 
 
-{% block content %}
-    {% if not user.is_authenticated %}
-        {% if error %}
-            {{ error }}
-        {% endif %}
+{% block content_out %}
+    <div class="content-wrapper">
+        {% if not user.is_authenticated %}
+            {% if error %}
+                {{ error }}
+            {% endif %}
 
-        <p>
-            {% url "zds.member.views.login_view" as url_login %}
-            {% blocktrans with app_name=app.site.litteral_name %}
-                <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
-                possédez déjà un compte, veuillez <a href="{{url_login }}">vous connecter</a>.
-            {% endblocktrans %}
-        </p>
-        <p>
-            {% trans "Les informations demandées dans le formulaire suivant
-            sont nécessaires afin de poursuivre votre inscription" %}.
-        </p>
-        {% crispy form %}
-    {% else %}
-        <p>
-            {% trans "Vous êtes déjà connecté" %}.
-        </p>
-    {% endif %}
+            <p class="alert-box warning">
+                {% url "zds.member.views.login_view" as url_login %}
+                {% blocktrans with app_name=app.site.litteral_name %}
+                    <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
+                    possédez déjà un compte, veuillez <a href="{{url_login }}">vous connecter</a>.
+                {% endblocktrans %}
+            </p>
+
+            <div>
+                <div class="content-col-2">
+                    <h2>{% trans "Inscription classique" %}</h2>
+                    <p>
+                        {% trans "Les informations demandées dans le formulaire suivant
+                        sont nécessaires afin de poursuivre votre inscription." %}
+                    </p>
+                    {% crispy form %}
+                </div>
+                <div class="content-col-2">
+                    <h2>{% trans "Inscription sociale" %}</h2>
+                    <p>
+                        {% trans "Vous pouvez également créer un compte en utilisant
+                        un des services tiers ci-dessous." %}
+                    </p>
+
+                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
+                        {% trans "Inscription via Facebook" %}
+                    </a>
+                    <a href="{% url "social:begin" "twitter" %}" class="btn ico-after twitter light btn-twitter btn-holder">
+                        {% trans "Inscription via Twitter" %}
+                    </a>
+                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
+                        {% trans "Inscription via Google+" %}
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <p>
+                {% trans "Vous êtes déjà connecté." %}
+            </p>
+</div>
 {% endblock %}

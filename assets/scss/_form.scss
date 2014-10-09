@@ -119,7 +119,6 @@
         color: #DDD;
         padding: 0 15px;
         border: none;
-        float: right;
         text-decoration: none;
         margin-left: 1px;
         outline: none;
@@ -138,6 +137,9 @@
                 background: #555;
                 animation: lineLoading linear 1s infinite;
             }
+
+        &:not(.btn-holder){
+            float: right;
         }
     }
     [type=submit],
@@ -208,13 +210,46 @@
         }
     }
 
+    .btn-facebook {
+        background: #3b5998;
+
+        &:hover,
+        &:focus {
+            background: darken(#3b5998, 10%);
+        }
+    }
+    .btn-twitter {
+        background: #4099FF;
+
+        &:hover,
+        &:focus {
+            background: darken(#4099FF, 10%);
+        }
+    }
+    .btn-google-plus {
+        background: #d34836;
+
+        &:hover,
+        &:focus {
+            background: darken(#d34836, 10%);
+        }
+    }
+    .btn-facebook,
+    .btn-twitter,
+    .btn-google-plus {
+        width: 50%;
+        margin: 0 auto;
+        text-align: center;
+    }
+
     .form-sub-link {
         display: block;
         display: inline-block;
         margin-top: 8px;
     }
 
-    .buttonHolder {
+    .btn-holder,
+    .buttonHolder /* specifix for crispy */ {
         margin-top: 25px;
         min-height: 40px;
     }
