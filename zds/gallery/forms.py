@@ -120,9 +120,7 @@ class ImageForm(forms.Form):
     physical = forms.ImageField(
         label=u'Sélectionnez votre image',
         required=True,
-        help_text='Taille maximum : '
-                  + str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
-                  + ' <abbr title="kibioctet">Kio</abbr>'
+        help_text='Taille maximum : {0} Ko'.format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
     )
 
     def __init__(self, *args, **kwargs):
@@ -148,7 +146,7 @@ class ImageForm(forms.Form):
         if physical is not None and physical.size > settings.ZDS_APP['gallery']['image_max_size']:
             self._errors['physical'] = self.error_class(
                 [u'Votre image est trop lourde, la limite autorisée '
-                 u'est de : {0} Ko' .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024) + ' Ko'])
+                 u'est de {0} Ko'.format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
         return cleaned_data
 
 
