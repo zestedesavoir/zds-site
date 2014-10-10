@@ -249,7 +249,7 @@ class Tutorial(models.Model):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
-
+        data['licence'] = Licence.objects.get(code=data['licence']).title
         return data
 
     def load_json(self, path=None, online=False):
