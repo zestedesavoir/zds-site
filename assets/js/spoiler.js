@@ -9,6 +9,7 @@
     
     function buildSpoilers($elem){
         $elem.each(function(){
+            $(this).addClass("spoiler-build");
             $(this).before($("<a/>", {
                 text: "Afficher/Masquer le contenu masqué",
                 class: "spoiler-title ico-after view",
@@ -24,7 +25,9 @@
     $(document).ready(function(){
         buildSpoilers($("#content .spoiler"));
         $("#content").on("DOMNodeInserted", ".spoiler", function(e){
-            buildSpoilers($(e.target));
+            if($(e.target).is(".spoiler:not(.spoiler-build)")){
+                buildSpoilers($(e.target));
+            }
         });
     });
 })(document, jQuery);
