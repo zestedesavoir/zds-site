@@ -4,6 +4,7 @@
         title: "Redacteur"
         tablelabel: "Besoin d'aide pour la rédaction"
         slug: "redacteur"
+        image: "../static/images/aide_redacteur.png"
 
 -   model: utils.HelpWriting
     pk: 2
@@ -11,6 +12,7 @@
         title: "Correcteur"
         tablelabel: "Besoin d'aide pour la correction"
         slug: "correcteur"
+        image: "../static/images/aide_correcteur.png"
 
 -   model: utils.HelpWriting
     pk: 3
@@ -18,6 +20,7 @@
         title: "Illustrateur"
         tablelabel: "Besoin d'aide pour l'illustration"
         slug: "illustrateur"
+        image: "../static/images/aide_illustrateur.png"
 
 -   model: utils.HelpWriting
     pk: 4
@@ -25,3 +28,4 @@
         title: "Repreneur"
         tablelabel: "Cherche un repreneur"
         slug: "repreneur"
+        image: "../static/images/aide_repreneur.png"

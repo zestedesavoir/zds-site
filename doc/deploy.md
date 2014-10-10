@@ -380,6 +380,12 @@ Sinon, utilisez au choix le shell django ou bien
 python manage.py loaddata fixtures/users.py #crée aussi un utilisateur admin, staff et user, donc utilisez cette commande avec précaution.
 ```
 
+De même, afin d'activer les aides tutoriels permis par la ZEP 03, lancez :
+
+```
+python manage.py loaddata fixtures/aidestutos.py #crée aussi un utilisateur admin, staff et user, donc utilisez cette commande avec précaution.
+```
+
 
 Réindexation Solr :
 

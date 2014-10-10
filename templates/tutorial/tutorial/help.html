@@ -56,7 +56,7 @@
                                 {% for help in helps %}
                                     <td>
                                         {% if help in tutorial.helps.all %}
-                                            <img src="{{ help.image.url }}" alt="">
+                                            <img src="{{ help.image.url }}" alt="{{ help.title }}">
                                         {% endif %}
                                     </td>
                                 {% endfor %}
