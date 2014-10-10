@@ -681,9 +681,9 @@ def modify_tutorial(request):
                 msg = \
                     (u'Bonjour à tous,\n\n'
                      u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
-                     u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                     u'J\'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
                      u'sur la forme, afin de proposer en validation un texte de qualité.'
-                     u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                     u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
                      u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
                      u'\n\nMerci d\'avance pour votre aide'.format(
                          naturaltime(tutorial.create_at),
@@ -745,7 +745,7 @@ def modify_tutorial(request):
                      u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
                      u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
                      u'sur la forme, afin de proposer en validation un texte de qualité.'
-                     u'\n\nSi vous êtes interessé, cliquez ci-dessous '
+                     u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
                      u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
                      u'\n\nMerci d\'avance pour votre aide'.format(
                          naturaltime(tutorial.create_at),
