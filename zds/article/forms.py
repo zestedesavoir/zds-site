@@ -153,9 +153,9 @@ class ReactionForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data

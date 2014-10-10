@@ -130,7 +130,7 @@ class Article(models.Model):
         if relative:
             return None
         else:
-            return os.path.join(settings.REPO_ARTICLE_PATH, self.get_phy_slug())
+            return os.path.join(settings.ZDS_APP['article']['repo_path'], self.get_phy_slug())
 
     def load_json(self, path=None, online=False):
         if path is None:
@@ -274,7 +274,7 @@ class Article(models.Model):
                 and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
-            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
         return False
 
@@ -337,7 +337,7 @@ class Reaction(Comment):
         return u'<Article pour "{0}", #{1}>'.format(self.article, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.article.get_absolute_url_online(),

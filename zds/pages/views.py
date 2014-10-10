@@ -41,7 +41,7 @@ def home(request):
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
     except:
-        quote = u'Zeste de Savoir, la connaissance pour tous et sans pépins !'
+        quote = settings.ZDS_APP['site']['slogan']
 
     return render_template('home.html', {
         'last_tutorials': tutos,
@@ -74,20 +74,20 @@ def assoc_subscribe(request):
                 'adresse': data['adresse'],
                 'justification': data['justification'],
                 'username': user.username,
-                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
-                                                           kwargs={'user_name': user.username})
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                                                                         kwargs={'user_name': user.username})
             }
-
             # Send email
             subject = "Demande d'adhésion de {}".format(user.username)
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/assoc/subscribe.html").render(Context(context))
             message_txt = get_template("email/assoc/subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
                 from_email,
-                [settings.MAIL_CA_ASSO])
+                [settings.ZDS_APP['site']['association']['email_ca']])
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()

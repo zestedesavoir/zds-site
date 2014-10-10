@@ -27,29 +27,34 @@
 
     <h3>1. Objet</h3>
     <p>
-        Les présentes &laquo; conditions générales d'utilisation &raquo; ont pour objet de définir l'encadrement juridique des modalités selon lesquelles l'association Zeste de Savoir, éditrice du site, met à la disposition des utilisateurs son site internet zestedesavoir.com et les conditions selon lesquelles les utilisateurs accèdent et utilisent ce site.
+        Les présentes &laquo; conditions générales d'utilisation &raquo; ont pour objet de définir l'encadrement juridique des modalités selon lesquelles {% if app.site.association %} l'association {{app.site.association.name}},{% else %} la structure {% endif %} éditrice du site, met à la disposition des utilisateurs son site internet {{app.site.dns}} et les conditions selon lesquelles les utilisateurs accèdent et utilisent ce site.
     </p>
     <p>
-        Toute connexion au site zestedesavoir.com est soumise au respect des présentes conditions générales d'utilisation. L'accès au site par l'utilisateur entraîne son acceptation des présentes conditions générales d'utilisation et constitue donc un contrat entre l'éditeur et l'utilisateur.
+        Toute connexion au site {{app.site.dns}} est soumise au respect des présentes conditions générales d'utilisation. L'accès au site par l'utilisateur entraîne son acceptation des présentes conditions générales d'utilisation et constitue donc un contrat entre l'éditeur et l'utilisateur.
     </p>
     <p>
         En cas de non-acceptation des conditions générales d'utilisation stipulées dans le présent contrat, l'utilisateur se doit de renoncer à l'accès des services proposés par le site.
     </p>
 
     <h3>2. Mentions légales</h3>
-    <p>
-        L'édition du site zestedesavoir.com est assurée par l'association française de loi 1901 Zeste de Savoir, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
-    </p>
-    <p>
-        Vous pouvez joindre l’association via l’adresse e-mail : <a href="mailto:association@zestedesavoir.com">association@zestedesavoir.com</a>.
-    </p>
-    <p>
-        Le site est hébergé par OVH dont le siège social est situé 2 rue Kellermann - 59100 Roubaix - France.
-    </p>
-    <p>
-        Le site est enregistré auprès de la CNIL sous le numéro 1771020.
-    </p>
-
+    {% if app.site.association %}
+        <p>
+            L'édition du site {{app.site.dns}} est assurée par l'association française de loi 1901 {{app.site.litteral_name}}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
+        </p>
+        <p>
+            Vous pouvez joindre l’association via l’adresse e-mail : <a href="{{app.site.association.email}}">{{app.site.association.email}}</a>.
+        </p>
+    {% endif %}
+    {% if app.hosting %}
+        <p>
+            Le site est hébergé par {{app.hosting.name}} dont le siège social est situé {{app.hosting.address}}.
+        </p>
+    {% endif %}
+    {% if app.cnil %}
+        <p>
+            Le site est enregistré auprès de la CNIL sous le numéro {{app.site.cnil}}.
+        </p>
+    {% endif %}
     <h3>3. Définitions</h3>
     <ul>
         <li>Utilisateur : ce terme désigne toute personne qui utilise le site ou l'un des services proposés par le site.</li>
@@ -94,7 +99,7 @@
         Le site permet aux membres de publier des commentaires, des tutoriels, des articles, des messages sur les forums, de même que des messages privés entre membres. Le membre est responsable des propos tenus sur les forums et dans les commentaires d'un article ou d'un tutoriel.
     </p>
     <p>
-        Il est interdit aux membres de télécharger, diffuser, transmettre ou d’envoyer sur le site des contenus qui ont un caractère injurieux ou diffamatoire, pornographique, portent atteinte à la vie privée et/ou au droit à l’image d’autrui, incitent à la commission de crimes et délits, incitent à la consommation d’alcool, du tabac ou de médicaments, mettent en péril le bon fonctionnement du site, de ses serveurs et la protection des données de zestedesavoir.com ou de ses membres et d’une manière générale, ont un caractère contraire à la législation en vigueur.
+        Il est interdit aux membres de télécharger, diffuser, transmettre ou d’envoyer sur le site des contenus qui ont un caractère injurieux ou diffamatoire, pornographique, portent atteinte à la vie privée et/ou au droit à l’image d’autrui, incitent à la commission de crimes et délits, incitent à la consommation d’alcool, du tabac ou de médicaments, mettent en péril le bon fonctionnement du site, de ses serveurs et la protection des données de {{app.site.dns}} ou de ses membres et d’une manière générale, ont un caractère contraire à la législation en vigueur.
     </p>
     <p>
         Cette interdiction s'applique également aux contenus auxquels donnent accès les liens hypertextes fournis par un membre sur le site.
@@ -108,7 +113,7 @@
         Les membres sont seuls responsables du contenu qu'ils publient. L'éditeur du site ne peut être considéré comme responsable du contenu transmis ou mis en ligne par les membres. Toutefois,  les utilisateurs peuvent signaler une publication manifestement contraire aux lois en vigueur, aux règles du site ou aux conditions générales d'utilisation  dans le but d'un acte de modération par l'équipe du site.
     </p>
     <p>
-        En cas de manquement par un membre des règles du site et/ou des éléments ci-dessus, la modération de zestedesavoir.com peut décider de lui bloquer l'accès au site, à titre provisoire ou définitif, ou d'en limiter l'utilisation. Les différentes sanctions applicables sont inscrites dans le règlement du site. Aucune contrepartie ne pourra être exigée.
+        En cas de manquement par un membre des règles du site et/ou des éléments ci-dessus, la modération de {{app.site.dns}} peut décider de lui bloquer l'accès au site, à titre provisoire ou définitif, ou d'en limiter l'utilisation. Les différentes sanctions applicables sont inscrites dans le règlement du site. Aucune contrepartie ne pourra être exigée.
     </p>
 
     <h4>5.3 Propriété du contenu publié par un membre </h4>
@@ -168,7 +173,7 @@
 
     <h4>6.2  Utilisation des données enregistrées</h4>
     <p>
-        Toutes les données à caractère personnel transmises par les utilisateurs et membres du site sont recueillies dans le plus strict respect de la législation. Elles ont pour finalité une meilleure utilisation de zestedesavoir.com et sont donc utilisées par l'éditeur du site à cette fin.
+        Toutes les données à caractère personnel transmises par les utilisateurs et membres du site sont recueillies dans le plus strict respect de la législation. Elles ont pour finalité une meilleure utilisation de {{app.site.dns}} et sont donc utilisées par l'éditeur du site à cette fin.
     </p>
     <p>
         Lors de son inscription, il est requis de l'utilisateur de fournir des informations le concernant. En particulier, l'adresse électronique pourra être utilisée par le site pour l'administration et la communication d'informations touchant l'ensemble des membres du site (par exemple : une modification importante de la structure du site, l'ajout de fonctionnalités, une modification des présentes conditions, les dernières publications du site (newsletter), etc.).
@@ -189,7 +194,7 @@
         L'utilisateur est libre de refuser de communiquer les renseignements sollicités pour l'inscription sur le site. Dans ce cas, il ne peut pas en devenir membre.
     </p>
     <p>
-        Conformément aux articles 39 et 40 de la Loi n<sup>o</sup>78-17 du 6 janvier 1978, l'utilisateur peut à tout moment accéder aux informations personnelles le concernant détenues par l'association éditrice du site et réaliser leur modification, leur rectification ou leur suppression. Tout utilisateur peut demander que les données soient rectifiées, complétées, mises à jour, ou supprimées. Pour exercer ces droits, tout utilisateur peut se servir du formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.
+        Conformément aux articles 39 et 40 de la Loi n<sup>o</sup>78-17 du 6 janvier 1978, l'utilisateur peut à tout moment accéder aux informations personnelles le concernant détenues par la structure éditrice du site et réaliser leur modification, leur rectification ou leur suppression. Tout utilisateur peut demander que les données soient rectifiées, complétées, mises à jour, ou supprimées. Pour exercer ces droits, tout utilisateur peut se servir du formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.
     </p>
 
     <h4>6.4 Politique relative à l'installation de cookies</h4>
@@ -211,9 +216,11 @@
     <p>
         Toute reproduction, publication, copie des différents contenus nécessite au préalable l'autorisation de l'éditeur du site.
     </p>
-    <p>
-        Le logo de zestedesavoir.com est une réalisation de <a href="http://maxroyo.com/">MaxRoyo</a> sous licence <a href="http://creativecommons.org/licenses/by/3.0/fr/">CC BY</a>.
-    </p>
+    {% if app.site.licenses.logo %}
+        <p>
+            Le logo de {{app.site.dns}} est une réalisation de {{ app.site.licenses.logo.author }} sous licence <a href="{{ app.site.licenses.logo.url_license }}">{{ app.site.licenses.logo.code }}</a>.
+        </p>
+    {% endif %}
     <p>
         Il n'est concédé aux membres aucun droit de propriété intellectuelle sur le site.
     </p>
@@ -223,7 +230,7 @@
 
     <h4>7.1 Politique relative au contenu des membres</h4>
     <p>
-        Tout contenu mis en ligne par le membre est de sa seule responsabilité. Le membre s'engage à ne pas mettre en ligne de contenus contraire aux règles du site, aux présentes conditions ou à la législation en vigueur. La responsabilité du site et de l'association qui l'édite ne pourra être engagée pour une faute commise par un membre.
+        Tout contenu mis en ligne par le membre est de sa seule responsabilité. Le membre s'engage à ne pas mettre en ligne de contenus contraire aux règles du site, aux présentes conditions ou à la législation en vigueur. La responsabilité du site {% if app.site.association %} et de l'association {% endif %} qui l'édite ne pourra être engagée pour une faute commise par un membre.
     </p>
     <p>
         Tout recours en justice engagé par un tiers lésé sera de la responsabilité du membre et ce dernier s'engage en particulier à prendre en charge le paiement de toutes sommes, quelles qu'elles soient, qui résulteraient d'une action légale d'un tiers, y compris les honoraires d'avocat et frais de justice.
@@ -236,13 +243,19 @@
     </p>
 
     <h4>7.2 Code source du site</h4>
-    <p>
-        Zeste de Savoir est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://progdupeu.pl">Progdupeupl</a>.
-    </p>
+    {% if app.site.licenses.source %}
+        <p>
+            {{app.site.litteral_name}} est un site dont le code source est sous licence <a href="{{app.site.licenses.source.url_license}}">{{app.site.licenses.source.code}}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_name}}">{{ app.site.licenses.source.provider_url }}</a>.
+        </p>
+    {% else %}
+        <p>
+        {{app.site.litteral_name}} est un site dont le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://zestedesavoir.com">Zeste de Savoir</a>.
+        </p>
+    {% endif %}
 
     <h4>7.3 Politique de signalement d'abus</h4>
     <p>
-        Zeste de Savoir respecte les droits de propriété intellectuelle d'autrui et demande à ce que les utilisateurs du site agissent de même.
+        {{app.site.litteral_name}} respecte les droits de propriété intellectuelle d'autrui et demande à ce que les utilisateurs du site agissent de même.
     </p>
     <p>
         Si vous pensez qu'un contenu vous appartenant a été reproduit ou diffusé sans votre autorisation, veuillez nous contacter via le formulaire de contact présent sur le site ou via l'adresse de contact fournie dans les mentions légales du présent document.

@@ -164,7 +164,7 @@ def view_online(request, article_pk, article_slug):
         last_reaction_pk = article.last_reaction.pk
 
     # Handle pagination.
-    paginator = Paginator(reactions, settings.POSTS_PER_PAGE)
+    paginator = Paginator(reactions, settings.ZDS_APP['forum']['posts_per_page'])
 
     try:
         page_nbr = int(request.GET['page'])
@@ -261,7 +261,7 @@ def new(request):
                 article.licence = lc
             else:
                 article.licence = Licence.objects.get(
-                    pk=settings.DEFAULT_LICENCE_PK
+                    pk=settings.ZDS_APP['tutorial']['default_license_pk']
                 )
 
             article.save()
@@ -275,7 +275,7 @@ def new(request):
     else:
         form = ArticleForm(
             initial={
-                'licence': Licence.objects.get(pk=settings.DEFAULT_LICENCE_PK)
+                'licence': Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
             }
         )
 
@@ -344,13 +344,13 @@ def edit(request):
                     article.licence = lc
                 else:
                     article.licence = Licence.objects.get(
-                        pk=settings.DEFAULT_LICENCE_PK
+                        pk=settings.ZDS_APP['tutorial']['default_license_pk']
                     )
 
             article.save()
 
             new_slug = os.path.join(
-                settings.REPO_ARTICLE_PATH,
+                settings.ZDS_APP['article']['repo_path'],
                 article.get_phy_slug())
 
             maj_repo_article(request,
@@ -366,7 +366,7 @@ def edit(request):
             licence = Licence.objects.filter(code=json["licence"]).all()[0]
         else:
             licence = Licence.objects.get(
-                pk=settings.DEFAULT_LICENCE_PK
+                pk=settings.ZDS_APP['tutorial']['default_license_pk']
             )
         form = ArticleForm(initial={
             'title': json['title'],
@@ -437,7 +437,7 @@ def maj_repo_article(
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
-            aut_email = "inconnu@zestedesavoir.com"
+            aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(msg.encode('utf-8'),
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email)
@@ -458,7 +458,7 @@ def insert_into_zip(zip_file, git_tree):
 def download(request):
     """Download an article."""
     article = get_object_or_404(Article, pk=request.GET["article"])
-    repo_path = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
+    repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
     if 'online' in request.GET and article.on_line():
@@ -528,7 +528,7 @@ def modify(request):
                                validation.validator.username,
                                validation.validator.profile.get_absolute_url(),
                                comment_reject))
-                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     send_mp(
                         bot,
                         [author],
@@ -609,8 +609,8 @@ def modify(request):
                         u'est bien plus lu qu\'un sujet abandonné !'
                         .format(author.username,
                                 article.title,
-                                settings.SITE_URL + article.get_absolute_url_online()))
-                    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                                settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
+                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     send_mp(
                         bot,
                         [author],
@@ -669,7 +669,7 @@ def modify(request):
             if old_validator is not None:
                 validation.validator = old_validator
                 validation.date_reserve
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 msg = \
                     (u'Bonjour {0},\n\n'
                      u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
@@ -723,10 +723,10 @@ def modify(request):
                 u'Tu peux maintenant commencer à rédiger !'.format(
                     author.username,
                     article.title,
-                    settings.SITE_URL + article.get_absolute_url(),
-                    settings.SITE_URL + reverse("zds.member.views.articles"))
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url(),
+                    settings.ZDS_APP['site']['url'] + reverse("zds.member.views.articles"))
             )
-            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
                 bot,
                 [author],
@@ -768,9 +768,9 @@ def modify(request):
                 u'pourra plus y accéder.\n'.format(
                     author.username,
                     article.title,
-                    settings.SITE_URL + article.get_absolute_url())
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url())
             )
-            bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
                 bot,
                 [author],
@@ -985,7 +985,7 @@ def answer(request):
     # Retrieve lasts reactions of the current topic.
     reactions = Reaction.objects.filter(article=article) \
         .prefetch_related() \
-        .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
+        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -1051,7 +1051,7 @@ def answer(request):
             text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 reaction_cite.author.username,
-                settings.SITE_URL,
+                settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={
@@ -1078,7 +1078,7 @@ def solve_alert(request):
     reaction = Reaction.objects.get(pk=alert.comment.id)
 
     if request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
                u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
                u'Votre alerte a été traitée par **{4}** et il vous a laissé '
@@ -1087,7 +1087,7 @@ def solve_alert(request):
                    alert.author.username,
                    reaction.author.username,
                    reaction.article.title,
-                   settings.SITE_URL +
+                   settings.ZDS_APP['site']['url'] +
                    reaction.get_absolute_url(),
                    request.user.username,
                    request.POST['text']))
