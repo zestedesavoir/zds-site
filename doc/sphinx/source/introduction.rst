@@ -16,3 +16,4 @@ Si vous voulez installer et démarrer une instance locale de ZdS, vous devez cli
    install/install-windows
    install/install-os-x
    install/install-linux
+   install/deploy.rst

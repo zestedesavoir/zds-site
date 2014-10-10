@@ -350,3 +350,6 @@ Afin d'aider les auteurs de tutoriels à rédiger ces derniers, des options lors
 L'ensemble des tutoriels à la recherche d'aide est visible via la page "help.html" (template dans le fichier `templates/tutorial/tutorial/help.html`). Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués. Toutes les données servant à peupler ce tableau sont renvoyées via la méthode `help_tutorial` dans le fichier `zds/tutorial/views.py`. Cette méthode peut prendre en compte un argument en GET nommé type désignant le filtre à appliquer. Cet argument représente le slug d'une des options de la liste précédentes.
 En cas d'absence du paramètre, tout les tutoriels ayant au moins une demande d'aide d'activées ou en bêta sont renvoyé au template.
 De nouveau type de demande d'aide peuvent-être rajouté via l'interface d'administration Django dans la classe `Utils.HelpWriting`.
+
+Afin de garder un système souple et efficace, l'iconographie associée aux aides suppose un chargement dans la base de données des urls vers les images.
+Actuellement les images se situent dans le dossier `/static/images` et sont installables via la fixture ``aidestutos.yml``.
