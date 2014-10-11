@@ -75,6 +75,27 @@
             {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
         {% endwith %}
     {% endwith %}
+
+    <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">Signaler une faute dans ce chapitre</a>
+    <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo" chapter.part.tutorial.pk chapter.part.pk chapter.pk %}" method="post" >
+        <p>
+            J'ai trouvé une faute dans ce chapitre :
+            {% csrf_token %}
+            <textarea name="explication" placeholder="Expliquez ici la faute"></textarea>
+        </p>
+        <p>
+            <a href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
+                (cliquer ici si vous préférez envoyer un MP
+                {% if tutorial.authors.all|length > 1 %}
+                    aux auteurs
+                {% else %}
+                    à l'auteur
+                {% endif %}
+                )
+            </a>
+        </p>
+        <button type="submit">Envoyer</button>
+    </form>
 {% endblock %}
 
 
