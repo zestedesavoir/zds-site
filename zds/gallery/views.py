@@ -18,6 +18,7 @@ from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
 from zds.tutorial.models import Tutorial
@@ -180,20 +181,21 @@ def modify_gallery(request):
 @login_required
 @can_write_and_read_now
 def edit_image(request, gal_pk, img_pk):
-    """Edit an existing image."""
+    """Edit or view an existing image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
 
     # Check if user can edit image
     try:
-        permission = UserGallery.objects.get(user=request.user, gallery=gal)
-        if permission.mode != 'W':
+        gal_mode = UserGallery.objects.get(user=request.user, gallery=gal)
+        assert gal_mode is not None
+        if not gal_mode.is_write() and request.method != "GET":
             raise PermissionDenied
-    except:
+    except (AssertionError, ObjectDoesNotExist):
         raise PermissionDenied
 
-    # Check if the image belong to the gallery
+    # Check if the image belongs to the gallery
     if img.gallery != gal:
         raise PermissionDenied
 
@@ -236,6 +238,7 @@ def edit_image(request, gal_pk, img_pk):
     return render_template(
         "gallery/image/edit.html", {
             "form": form,
+            "gallery_mode": gal_mode,
             "as_avatar_form": as_avatar_form,
             "gallery": gal,
             "image": img
@@ -254,9 +257,10 @@ def delete_image(request):
     gal = get_object_or_404(Gallery, pk=gal_pk)
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        assert gal_mode is not None
 
         # Only allow RW users to modify images
-        if gal_mode.mode != "W":
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -282,7 +286,8 @@ def new_image(request, gal_pk):
     # check if the user can upload new image in this gallery
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        assert gal_mode is not None
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -304,10 +309,12 @@ def new_image(request, gal_pk):
                                     args=[gal.pk, img.pk]))
         else:
             return render_template("gallery/image/new.html", {"form": form,
+                                                              "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
+                                                          "gallery_mode": gal_mode,
                                                           "gallery": gal})
 
 
@@ -321,7 +328,8 @@ def import_image(request, gal_pk):
 
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        assert gal_mode is not None
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -383,8 +391,10 @@ def import_image(request, gal_pk):
                                     args=[gal.pk, gal.slug]))
         else:
             return render_template("gallery/image/new.html", {"form": form,
+                                                              "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ArchiveImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
+                                                          "gallery_mode": gal_mode,
                                                           "gallery": gal})

@@ -23,27 +23,24 @@
 
 
 
-{% block new_btn %}
-    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
-        Ajouter une image
-    </a>
-{% endblock %}
-
-
-
 
 {% block content %}
     <div class="gallery-col-image">
-        <p>Image :</p>
+        <p>
+            Image :
+        </p>
         <a href="{{ image.physical.url }}"><img src="{{ image.physical.url }}" alt="{{ image.legend }}"></a>
         
-        <p> Miniature :</p>
+        <p>
+            Miniature :
+        </p>
         <a href="{{ image.physical.gallery.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend }}"></a>
     </div>
     <div class="gallery-col-edit">
-        {% crispy form %}
-
-        <hr class="clearfix">
+        {% if gallery_mode.is_write %}
+            {% crispy form %}
+            <hr class="clearfix">
+        {% endif %}
 
         <p>
             Code markdown pour insérer cette image : <br>
@@ -59,6 +56,27 @@
         </p>
         
         {% crispy as_avatar_form %}
-        
     </div>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if gallery_mode.is_write %}
+        <div class="mobile-menu-bloc" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
+                        Ajouter une image
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
+                        Importer une archive
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

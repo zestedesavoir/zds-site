@@ -41,7 +41,7 @@
                             {{ gallery.gallery.title }}
                         </span>
                         <span class="topic-subtitle">
-                            {{ gallery.gallery.subtitle|default:"Pas de description" }}
+                            {{ gallery.gallery.subtitle }}
                         </span>
                     </a>
                 </div>
@@ -62,7 +62,8 @@
 
     {% if galleries|length = 0 %}
         <p>
-            Vous n'avez pas encore <a href="{% url "zds.gallery.views.new_gallery" %}">ajouté de galerie</a>.
+            Vous n'avez pas encore de galerie. <br>
+            <a href="{% url "zds.gallery.views.new_gallery" %}">Créer une galerie</a>.
         </p>
     {% endif %}
 {% endblock %}
@@ -71,24 +72,24 @@
 
 {% block sidebar_actions %}
     {% if galleries|length > 0 %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Actions</h3>
-        <ul>
-            <li>
-                <a href="#delete-galleries" class="open-modal ico-after cross red">
-                    Supprimer les galeries sélectionnées
-                </a>
-                
-                <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
-                    <p>
-                        Attention, vous vous appretez à supprimer toutes les galeries sélectionnées.
-                    </p>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li>
+                    <a href="#delete-galleries" class="open-modal ico-after cross red">
+                        Supprimer les galeries sélectionnées
+                    </a>
                     
-                    {% csrf_token %}
-                    <button type="submit" name="delete_multi" class="btn">Confirmer</button>
-                </form>
-            </li>
-        </ul>
-    </div>
+                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
+                        <p>
+                            Attention, vous vous appretez à supprimer toutes les galeries sélectionnées.
+                        </p>
+                        
+                        {% csrf_token %}
+                        <button type="submit" name="delete_multi" class="btn">Confirmer</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}
