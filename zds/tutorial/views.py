@@ -3587,7 +3587,7 @@ def warn_typo(
                 message,
                 send_by_mail=True,
                 leave=True)
-            messages.success(request, u'Votre correction à bien été proposée !')
+            messages.success(request, u'Votre correction a bien été proposée !')
         return redirect(reverse("zds.tutorial.views.view_chapter_online", args=[
             tutorial.pk,
             tutorial.slug,
@@ -3619,7 +3619,7 @@ def warn_typo(
                 message,
                 True,
                 direct=False)
-            messages.success(request, u'Votre correction à bien été proposée !')
+            messages.success(request, u'Votre correction a bien été proposée !')
         return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
             request,
             tutorial.pk,
