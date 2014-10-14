@@ -142,7 +142,7 @@ class Article(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-
+            data['licence'] = Licence.objects.get(code=data['licence'])
             return data
         else:
             return None
@@ -151,7 +151,7 @@ class Article(models.Model):
         repo = Repo(self.get_path())
         manarticle = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
         data = json_reader.loads(manarticle)
-        data['licence'] = Licence.objects.get(code=data['licence']).title
+        data['licence'] = Licence.objects.get(code=data['licence'])
         return data
 
     def load_dic(self, article_version):
