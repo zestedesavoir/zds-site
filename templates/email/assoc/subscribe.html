@@ -7,15 +7,13 @@
     <br />
     <br />
     <p>
-        Le membre {{ username }} demande à adhérer à Zeste de Savoir.
+        Le membre {{ username }} souhaiterait adhérer à {{app.site.association.name}}.
     </p>
     <ul>
-        <li>Prénom : {{ first_name }}</li>
-        <li>Nom de famille : {{ surname }}</li>
+        <li>Identité : {{ full_name }}</li>
         <li>Adresse courriel : {{ email }}</li>
-        <li>Adresse : {{ adresse }}, {{ adresse_complement }}</li>
-        <li>CP et ville : {{ code_postal }} {{ ville }}</li>
-        <li>Pays : {{ pays }}</li>
+        <li>Date de naissance : {{ naissance }}</li>
+        <li>Adresse : {{ adresse|linebreaks }}</li>
     </ul>
     <p>
         Raison de cette demande :

@@ -1,8 +1,8 @@
 /* ===== Zeste de Savoir ====================================================
+   Base style for globals elements & helpers
+   ---------------------------------
    Base from HTML5 BoilerPlate
    Updated by: Alex-D / Alexandre Demode
-   ---------------------------------
-   Base style for globals elements & helpers
    ========================================================================== */
 
 
@@ -27,6 +27,7 @@ html {
     width: 100%;
     font-size: 62.5%;
     overflow-x: hidden;
+    word-wrap: break-word;
 }
 body {
     background: $body-background;
@@ -69,11 +70,11 @@ textarea {
 }
 
 a {
-    color: lighten($blue, 20%);
-    transition: all $default-transition-duration ease;
+    color: lighten($primary, 20%);
+    transition: all $transition-duration ease;
 
     &:hover {
-        color: darken($orange, 15%);
+        color: darken($secondary, 15%);
         text-decoration: none;
     }
 }
@@ -188,4 +189,10 @@ nav {
 
 .clearfix {
     *zoom: 1;
+}
+
+hr.clearfix {
+    clear: both;
+    height: 0;
+    border: none;
 }

@@ -6,6 +6,11 @@
 
 {% block title %}
     Validation
+    {% if request.GET.type == "reserved" %}
+        / Reservés
+    {% elif request.GET.type == "orphan" %}
+        / Non-reservés
+    {% endif %}
 {% endblock %}
 
 
@@ -18,28 +23,33 @@
 
 {% block content_out %}
     <section class="full-content-wrapper">
-        <h2>
+        <h1>
             {% block headline %}
                 Validation des tutoriels
+                {% if request.GET.type == "reserved" %}
+                    / Reservés
+                {% elif request.GET.type == "orphan" %}
+                    / Non-reservés
+                {% endif %}
+                ({{ validations|length }})
             {% endblock %}
-        </h2>
+        </h1>
 
         {% captureas headlinesub %}
             {% block headline_sub %}{% endblock %}
         {% endcaptureas %}
         {% if headlinesub %}
-            <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+            <h2 class="subtitle">{{ headlinesub|safe }}</h2>
         {% endif %}
 
         {% block content %}
             {% if validations %}
-                <table>
+                <table class="fullwidth">
                     <thead>
                         <tr>
                             <th>Titre</th>
-                            <th width="8%">Catégorie(s)</th>
-                            <th width="8%">Auteur(s)</th>
-                            <th width="8%">Proposé</th>
+                            <th width="15%">Auteur(s)</th>
+                            <th width="10%">Proposé</th>
                             <th width="24%">Statut</th>
                         </tr>
                     </thead>
@@ -50,13 +60,19 @@
                                     <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
                                         {{ validation.tutorial.title }}
                                     </a>
-                                </td>
-                                <td>
-                                    {% for subcategory in validation.tutorial.subcategory.all %}
-                                        <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">
-                                            {{ subcategory.title }}
-                                        </a>
-                                    {% endfor %}
+                                    <br>
+                                    {% if validation.tutorial.subcategory.all %}
+                                        Catégories : 
+                                        {% for subcategory in validation.tutorial.subcategory.all %}
+                                            {% if not forloop.first %}
+                                                -
+                                            {% endif %}
+                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                                {{ subcategory.title }}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <em>Aucune catégorie</em>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% for author in validation.tutorial.authors.all %}
@@ -64,7 +80,7 @@
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <span>{{ validation.date_proposition|format_date|capfirst }}</span>
+                                    <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
@@ -89,22 +105,26 @@
 
 {% block sidebar_new %}{% endblock %}
 {% block sidebar_blocks %}
-    <h3>Filtres</h3>
-    <ul>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green">
-                En cours de validation
-            </a>
-        </li>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick">
-                En attente de validateur
-            </a>
-        </li>
-        <li>
-            <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
-                Annuler le filtre
-            </a>
-        </li>
-    </ul>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>Filtres</h3>
+        <ul>
+            <li>
+                <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
+                    En cours de validation
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
+                    En attente de validateur
+                </a>
+            </li>
+            {% if request.GET.type %}
+                <li>
+                    <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
+                        Annuler le filtre
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 {% endblock %}

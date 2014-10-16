@@ -13,6 +13,8 @@ except:
 import json as json_writer
 import os
 import shutil
+import zipfile
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -27,16 +29,16 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
-from git import *
+from git import Repo, Actor
 
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import render_template
 from zds.utils import slugify
-from zds.utils.articles import *
+from zds.utils.articles import get_blob
 from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
-    CommentDislike, Alert
+    CommentDislike, Alert, Licence
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -55,20 +57,27 @@ def index(request):
         tag = None
 
     if tag is None:
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False).exclude(sha_public="")\
             .order_by('-pubdate')\
             .all()
     else:
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all articles in the subcategory specified.
-        article = Article.objects\
+        articles = Article.objects\
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
             .exclude(sha_public="").order_by('-pubdate')\
             .all()
 
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version)
+
     return render_template('article/index.html', {
-        'articles': article,
+        'articles': article_versions,
+        'tag': tag,
     })
 
 
@@ -81,10 +90,6 @@ def view(request, article_pk, article_slug):
     if request.user not in article.authors.all():
         if not request.user.has_perm('article.change_article'):
             raise PermissionDenied
-
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url())
 
     # Retrieve sha given by the user. This sha must to be exist.
     # If it doesn't exist, we take draft version of the article.
@@ -104,21 +109,12 @@ def view(request, article_pk, article_slug):
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
 
     article_version = json_reader.loads(manifest)
-    article_version['txt'] = get_blob(
-        repo.commit(sha).tree,
-        article_version['text'])
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['sha_draft'] = article.sha_draft
-    article_version['sha_validation'] = article.sha_validation
-    article_version['sha_public'] = article.sha_public
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version['txt'] = get_blob(repo.commit(sha).tree, article_version['text'])
+    article_version = article.load_dic(article_version)
 
-    validation = Validation.objects.filter(article__pk=article.pk,
-                                            version=sha)\
-                                    .order_by("-date_proposition")\
-                                    .first()
+    validation = Validation.objects.filter(article__pk=article.pk)\
+        .order_by("-date_proposition")\
+        .first()
 
     return render_template('article/member/view.html', {
         'article': article_version,
@@ -133,26 +129,18 @@ def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    # The slug of the article must to be right.
-    if article_slug != slugify(article.title):
-        return redirect(article.get_absolute_url_online())
+    # article is not online = 404
+    if not article.on_line():
+        raise Http404
 
     # Load the article.
-    article_version = article.load_json()
-    txt = open(
-        os.path.join(
-            article.get_path(),
-            article_version['text'] +
-            '.html'),
-        "r")
+    article_version = article.load_json_for_public()
+    txt = open(os.path.join(article.get_path(),
+                            article_version['text'] + '.html'),
+               "r")
     article_version['txt'] = txt.read()
     txt.close()
-    article_version['pk'] = article.pk
-    article_version['slug'] = article.slug
-    article_version['image'] = article.image
-    article_version['is_locked'] = article.is_locked
-    article_version['get_absolute_url'] = article.get_absolute_url()
-    article_version['get_absolute_url_online'] = article.get_absolute_url_online()
+    article_version = article.load_dic(article_version)
 
     # If the user is authenticated
     if request.user.is_authenticated():
@@ -176,7 +164,7 @@ def view_online(request, article_pk, article_slug):
         last_reaction_pk = article.last_reaction.pk
 
     # Handle pagination.
-    paginator = Paginator(reactions, settings.POSTS_PER_PAGE)
+    paginator = Paginator(reactions, settings.ZDS_APP['forum']['posts_per_page'])
 
     try:
         page_nbr = int(request.GET['page'])
@@ -232,9 +220,10 @@ def new(request):
                 'description': request.POST['description'],
                 'text': request.POST['text'],
                 'image': image,
-                'subcategory': request.POST.getlist('subcategory')
+                'subcategory': request.POST.getlist('subcategory'),
+                'licence': request.POST['licence']
             })
-            return render_template('article/new.html', {
+            return render_template('article/member/new.html', {
                 'text': request.POST['text'],
                 'form': form
             })
@@ -266,6 +255,15 @@ def new(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
+            # add a licence to the article
+            if "licence" in data and data["licence"] != "":
+                lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                article.licence = lc
+            else:
+                article.licence = Licence.objects.get(
+                    pk=settings.ZDS_APP['tutorial']['default_license_pk']
+                )
+
             article.save()
 
             maj_repo_article(request,
@@ -275,7 +273,11 @@ def new(request):
                              action='add')
             return redirect(article.get_absolute_url())
     else:
-        form = ArticleForm()
+        form = ArticleForm(
+            initial={
+                'licence': Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
+            }
+        )
 
     return render_template('article/member/new.html', {
         'form': form
@@ -300,6 +302,28 @@ def edit(request):
 
     json = article.load_json()
     if request.method == 'POST':
+        # Using the "preview button"
+        if 'preview' in request.POST:
+            image = None
+            licence = None
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+            if 'licence' in request.POST:
+                licence = request.POST['licence']
+            form = ArticleForm(initial={
+                'title': request.POST['title'],
+                'description': request.POST['description'],
+                'text': request.POST['text'],
+                'image': image,
+                'subcategory': request.POST.getlist('subcategory'),
+                'licence': licence
+            })
+            return render_template('article/member/edit.html', {
+                'article': article,
+                'text': request.POST['text'],
+                'form': form
+            })
+
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
             # Update article with data.
@@ -314,10 +338,19 @@ def edit(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
+            if "licence" in data:
+                if data["licence"] != "":
+                    lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+                    article.licence = lc
+                else:
+                    article.licence = Licence.objects.get(
+                        pk=settings.ZDS_APP['tutorial']['default_license_pk']
+                    )
+
             article.save()
 
             new_slug = os.path.join(
-                settings.REPO_ARTICLE_PATH,
+                settings.ZDS_APP['article']['repo_path'],
                 article.get_phy_slug())
 
             maj_repo_article(request,
@@ -329,11 +362,18 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
+        if "licence" in json:
+            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+        else:
+            licence = Licence.objects.get(
+                pk=settings.ZDS_APP['tutorial']['default_license_pk']
+            )
         form = ArticleForm(initial={
             'title': json['title'],
             'description': json['description'],
             'text': article.get_text(),
             'subcategory': article.subcategory.all(),
+            'licence': licence
         })
 
     return render_template('article/member/edit.html', {
@@ -341,16 +381,23 @@ def edit(request):
     })
 
 
-def find_article(request, name):
+def find_article(request, pk_user):
     """Find an article from his author."""
-    user = get_object_or_404(User, pk=name)
+    user = get_object_or_404(User, pk=pk_user)
     articles = Article.objects\
         .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
         .order_by('-pubdate')\
         .all()
+
+    article_versions = []
+    for article in articles:
+        article_version = article.load_json_for_public()
+        article_version = article.load_dic(article_version)
+        article_versions.append(article_version)
+
     # Paginator
     return render_template('article/find.html', {
-        'articles': articles, 'usr': user,
+        'articles': article_versions, 'usr': user,
     })
 
 
@@ -366,8 +413,9 @@ def maj_repo_article(
         shutil.rmtree(old_slug_path)
     else:
         if action == 'maj':
-            shutil.move(old_slug_path, new_slug_path)
-            repo = Repo(new_slug_path)
+            if old_slug_path != new_slug_path:
+                shutil.move(old_slug_path, new_slug_path)
+                repo = Repo(new_slug_path)
             msg = 'Modification de l\'article'
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
@@ -389,7 +437,7 @@ def maj_repo_article(
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
-            aut_email = "inconnu@zestedesavoir.com"
+            aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(msg.encode('utf-8'),
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email)
@@ -398,25 +446,33 @@ def maj_repo_article(
         article.save()
 
 
+def insert_into_zip(zip_file, git_tree):
+    """recursively add files from a git_tree to a zip archive"""
+    for blob in git_tree.blobs:  # first, add files :
+        zip_file.writestr(blob.path, blob.data_stream.read())
+    if len(git_tree.trees) is not 0:  # then, recursively add dirs :
+        for subtree in git_tree.trees:
+            insert_into_zip(zip_file, subtree)
+
+
 def download(request):
     """Download an article."""
-
-    article = get_object_or_404(Article, pk=request.GET['article'])
-
-    ph = os.path.join(settings.REPO_ARTICLE_PATH, article.get_phy_slug())
-    repo = Repo(ph)
-    repo.archive(open(ph + ".tar", 'w'))
-
-    response = HttpResponse(
-        open(
-            ph +
-            ".tar",
-            'rb').read(),
-        mimetype='application/tar')
-    response[
-        'Content-Disposition'] = 'attachment; filename={0}.tar' \
-        .format(article.slug)
-
+    article = get_object_or_404(Article, pk=request.GET["article"])
+    repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
+    repo = Repo(repo_path)
+    sha = article.sha_draft
+    if 'online' in request.GET and article.on_line():
+        sha = article.sha_public
+    elif request.user not in article.authors.all():
+        if not request.user.has_perm('article.change_article'):
+            raise PermissionDenied  # Only authors can download draft version
+    zip_path = os.path.join(tempfile.gettempdir(), article.slug + '.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    insert_into_zip(zip_file, repo.commit(sha).tree)
+    zip_file.close()
+    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/zip")
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(article.slug)
+    os.remove(zip_path)
     return response
 
 # Validation
@@ -455,6 +511,7 @@ def modify(request):
                 article.pubdate = None
                 article.save()
 
+                comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
                 # send feedback
                 msg = (
                     u'Désolé, le zeste **{0}** '
@@ -470,7 +527,7 @@ def modify(request):
                         validation.validator.username,
                         validation.validator.profile.get_absolute_url(),
                         validation.comment_validator))
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     article.authors.all(),
@@ -487,8 +544,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                    "Vous devez avoir réservé cet article "
-                    "pour pouvoir le refuser.")
+                               "Vous devez avoir réservé cet article "
+                               "pour pouvoir le refuser.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -519,7 +576,7 @@ def modify(request):
         # A validatir would like to valid an article in validation. We
         # must update sha_public with the current sha of the validation.
         elif 'valid-article' in request.POST:
-            MEP(article, article.sha_validation)
+            mep(article, article.sha_validation)
             validation = Validation.objects\
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
@@ -549,8 +606,8 @@ def modify(request):
                     u'corrections/compléments. Un Article vivant et a jour '
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         article.title,
-                        article.get_absolute_url_online()))
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                        settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     article.authors.all(),
@@ -567,15 +624,15 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                    "Vous devez avoir réservé cet article "
-                    "pour pouvoir le publier.")
+                               "Vous devez avoir réservé cet article "
+                               "pour pouvoir le publier.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
                     validation.version)
 
     # User actions
-    if request.user in article.authors.all():
+    if request.user in article.authors.all() or request.user.has_perm('article.change_article'):
         if 'delete' in data:
             if article.authors.count() == 1:
                 article.delete()
@@ -586,13 +643,44 @@ def modify(request):
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
-        elif 'pending' in request.POST and article.sha_validation is None:
+        elif 'pending' in request.POST:
+            old_validation = Validation.objects.filter(article__pk=article_pk,
+                                                       status__in=['PENDING_V']).first()
+            if old_validation is not None:
+                old_validator = old_validation.validator
+            else:
+                old_validator = None
+            # Delete old pending validation
+            Validation.objects.filter(article__pk=article_pk,
+                                      status__in=['PENDING', 'PENDING_V'])\
+                .delete()
+
+            # Create new validation
             validation = Validation()
             validation.status = 'PENDING'
             validation.article = article
             validation.date_proposition = datetime.now()
             validation.comment_authors = request.POST['comment']
             validation.version = request.POST['version']
+
+            if old_validator is not None:
+                validation.validator = old_validator
+                validation.date_reserve
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                msg = \
+                    (u'Bonjour {0},\n\n'
+                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
+                     u'pour retrouver les modifications qui ont été faites, je t\'invite à'
+                     u'consulter l\'historique des versions'
+                     u'\n\nMerci'.format(old_validator.username, article.title))
+                send_mp(
+                    bot,
+                    [old_validator],
+                    u"Mise à jour d'article : {0}".format(article.title),
+                    "En validation",
+                    msg,
+                    False,
+                )
 
             validation.save()
 
@@ -622,6 +710,30 @@ def modify(request):
                 u'la rédaction de l\'article.'.format(
                     author.username))
 
+            # send msg to new author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                u'"Articles" sur la page de ton profil.\n\n'
+                u'Tu peux maintenant commencer à rédiger !'.format(
+                    author.username,
+                    article.title,
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url(),
+                    settings.ZDS_APP['site']['url'] + reverse("zds.member.views.articles"))
+            )
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                [author],
+                u"Ajout en tant qu'auteur : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
+
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
@@ -644,6 +756,27 @@ def modify(request):
                 request,
                 u'L\'auteur {0} a bien été retiré de l\'article.'.format(
                     author.username))
+
+            # send msg to removed author
+
+            msg = (
+                u'Bonjour **{0}**,\n\n'
+                u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
+                u'pourra plus y accéder.\n'.format(
+                    author.username,
+                    article.title,
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url())
+            )
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                [author],
+                u"Suppression des auteurs : {0}".format(article.title),
+                "",
+                msg,
+                True,
+                direct=False,
+            )
 
             return redirect(redirect_url)
 
@@ -743,6 +876,8 @@ def history_validation(request, article_pk):
     return render_template('article/validation/history.html', {
         'validations': validations,
         'article': article,
+        'authors': article.authors,
+        'tags': article.subcategory,
     })
 
 
@@ -767,7 +902,10 @@ def reservation(request, validation_pk):
         validation.date_reserve = datetime.now()
         validation.status = 'RESERVED'
         validation.save()
-        return redirect(validation.article.get_absolute_url())
+        return redirect(
+            validation.article.get_absolute_url() +
+            '?version=' + validation.version
+        )
 
 
 @login_required
@@ -775,7 +913,7 @@ def history(request, article_pk, article_slug):
     """Display an article."""
     article = get_object_or_404(Article, pk=article_pk)
 
-    if not article.on_line \
+    if not article.on_line() \
        and not request.user.has_perm('article.change_article') \
        and request.user not in article.authors.all():
         raise Http404
@@ -796,7 +934,7 @@ def history(request, article_pk, article_slug):
 # Reactions at an article.
 
 
-def MEP(article, sha):
+def mep(article, sha):
     # convert markdown file to html file
     repo = Repo(article.get_path())
     manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
@@ -834,17 +972,17 @@ def answer(request):
     if article.antispam(request.user):
         raise PermissionDenied
 
-    # Retrieve 3 last reactions of the currenta article.
-    reactions = Reaction.objects\
-        .filter(article=article)\
-        .order_by('-pubdate')[:3]
-
     # If there is a last reaction for the article, we save his pk.
     # Otherwise, we save 0.
     if article.last_reaction:
         last_reaction_pk = article.last_reaction.pk
     else:
         last_reaction_pk = 0
+
+    # Retrieve lasts reactions of the current topic.
+    reactions = Reaction.objects.filter(article=article) \
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -860,6 +998,7 @@ def answer(request):
                 'article': article,
                 'last_reaction_pk': last_reaction_pk,
                 'newreaction': newreaction,
+                'reactions': reactions,
                 'form': form
             })
 
@@ -888,6 +1027,7 @@ def answer(request):
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
+                    'reactions': reactions,
                     'form': form
                 })
 
@@ -905,9 +1045,10 @@ def answer(request):
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 reaction_cite.author.username,
+                settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
 
         form = ReactionForm(article, request.user, initial={
@@ -932,25 +1073,31 @@ def solve_alert(request):
 
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = u'Bonjour {0},\n\nVous recevez ce message car vous avez '
-    u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
-    u'Votre alerte a été traitée par **{4}** et il vous a laissé '
-    u'le message suivant :\n\n`{5}`\n\n\nToute l\'équipe de '
-    u'la modération vous remercie'.format(
-        alert.author.username,
-        reaction.author.username,
-        reaction.article.title,
-        settings.SITE_URL +
-        reaction.get_absolute_url(),
-        request.user.username,
-        request.POST['text'])
-    send_mp(
-        bot, [
-            alert.author], u"Résolution d'alerte : {0}".format(
-            reaction.article.title), "", msg, False)
-    alert.delete()
 
+    if request.POST["text"] != "":
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
+               u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
+               u'Votre alerte a été traitée par **{4}** et il vous a laissé '
+               u'le message suivant :\n\n> {5}\n\nToute l\'équipe de '
+               u'la modération vous remercie !'.format(
+                   alert.author.username,
+                   reaction.author.username,
+                   reaction.article.title,
+                   settings.ZDS_APP['site']['url'] +
+                   reaction.get_absolute_url(),
+                   request.user.username,
+                   request.POST['text']))
+        send_mp(
+            bot,
+            [alert.author],
+            u"Résolution d'alerte : {0}".format(reaction.article.title),
+            "",
+            msg,
+            False
+        )
+
+    alert.delete()
     messages.success(
         request,
         u'L\'alerte a bien été résolue')

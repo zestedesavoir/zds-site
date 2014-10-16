@@ -27,7 +27,6 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
-from django.db.models.query_utils import select_related_descend
 
 
 @login_required
@@ -60,7 +59,7 @@ def index(request):
         .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator
-    paginator = Paginator(privatetopics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(privatetopics, settings.ZDS_APP['forum']['topics_per_page'])
     page = request.GET.get('page')
 
     try:
@@ -105,7 +104,7 @@ def topic(request, topic_pk, topic_slug):
     last_post_pk = g_topic.last_message.pk
 
     # Handle pagination
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
 
     try:
         page_nbr = int(request.GET['page'])
@@ -149,24 +148,25 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(initial={
-                'participants': request.POST['participants'],
-                'title': request.POST['title'],
-                'subtitle': request.POST['subtitle'],
-                'text': request.POST['text'],
-            })
+            form = PrivateTopicForm(request.user.username,
+                                    initial={
+                                        'participants': request.POST['participants'],
+                                        'title': request.POST['title'],
+                                        'subtitle': request.POST['subtitle'],
+                                        'text': request.POST['text'],
+                                    })
             return render_template('mp/topic/new.html', {
                 'form': form,
             })
 
-        form = PrivateTopicForm(request.POST)
+        form = PrivateTopicForm(request.user.username, request.POST)
 
         if form.is_valid():
             data = form.data
 
             # Retrieve all participants of the MP.
             ctrl = []
-            list_part = data['participants'].replace(',', ' ').split()
+            list_part = data['participants'].split(",")
             for part in list_part:
                 part = part.strip()
                 if part == '':
@@ -202,19 +202,22 @@ def new(request):
                 'form': form,
             })
     else:
+        dest = None
         if 'username' in request.GET:
-            try:
-                # check that username in url is in the database
-                dest = User.objects.get(
-                    username=request.GET['username']).username
-            except:
-                dest = None
-        else:
-            dest = None
+            dest_list = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    dest_list.append(User.objects.get(username=username).username)
+                except:
+                    pass
+            if len(dest_list) > 0:
+                dest = ', '.join(dest_list)
 
-        form = PrivateTopicForm(initial={
-            'participants': dest
-        })
+        form = PrivateTopicForm(username=request.user.username,
+                                initial={
+                                    'participants': dest,
+                                })
         return render_template('mp/topic/new.html', {
             'form': form,
         })
@@ -262,11 +265,11 @@ def answer(request):
             and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
-    # Retrieve 3 last posts of the currenta topic.
-    posts = PrivatePost.objects\
-        .filter(privatetopic=g_topic)\
-        .order_by('-pubdate')[:3]
     last_post_pk = g_topic.last_message.pk
+    # Retrieve last posts of the current private topic.
+    posts = PrivatePost.objects.filter(privatetopic=g_topic) \
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -281,6 +284,7 @@ def answer(request):
             return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
+                'posts': posts,
                 'newpost': newpost,
                 'form': form,
             })
@@ -304,8 +308,9 @@ def answer(request):
                 g_topic.save()
 
                 # send email
-                subject = "ZDS - MP : " + g_topic.title
-                from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+                subject = "{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], g_topic.title)
+                from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                              settings.ZDS_APP['site']['email_noreply'])
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)
@@ -322,19 +327,17 @@ def answer(request):
                                 .render(
                                     Context({
                                         'username': part.username,
-                                        'url': settings.SITE_URL
+                                        'url': settings.ZDS_APP['site']['url']
                                         + post.get_absolute_url(),
                                         'author': request.user.username
-                                    })
-                            )
+                                    }))
                             message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.SITE_URL
+                                    'url': settings.ZDS_APP['site']['url']
                                     + post.get_absolute_url(),
                                     'author': request.user.username
-                                })
-                            )
+                                }))
 
                             msg = EmailMultiAlternatives(
                                 subject, message_txt, from_email, [
@@ -348,6 +351,7 @@ def answer(request):
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
+                    'posts': posts,
                     'form': form,
                 })
 
@@ -362,9 +366,10 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}Source:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 post_cite.author.username,
+                settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
 
         form = PrivatePostForm(g_topic, request.user, initial={
@@ -486,7 +491,7 @@ def add_participant(request):
 
     try:
         # user_pk or user_username ?
-        part = User.objects.get(username=request.POST['user_pk'])
+        part = User.objects.get(username__exact=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,

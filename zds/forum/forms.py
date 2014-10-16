@@ -19,6 +19,7 @@ class TopicForm(forms.Form):
         max_length=Topic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
+                'placeholder': '[Tag 1][Tag 2] Titre de mon sujet',
                 'required': 'required',
             }
         )
@@ -35,7 +36,7 @@ class TopicForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': 'Votre message au format Markdown.',
-                'required': 'required'
+                'required': 'required',
             }
         )
     )
@@ -88,10 +89,10 @@ class TopicForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        if text is not None and len(text) > settings.MAX_POST_LENGTH:
+        if text is not None and len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 
@@ -102,7 +103,7 @@ class PostForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': 'Votre message au format Markdown.',
-                'required': 'required'
+                'required': 'required',
             }
         )
     )
@@ -125,11 +126,12 @@ class PostForm(forms.Form):
                     u'afin de limiter le flood.',
                     disabled=True)
         elif topic.is_locked:
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Ce topic est verrouillé.',
-                disabled=True
-            )
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Ce topic est verrouillé.',
+                    disabled=True
+                )
 
     def clean(self):
         cleaned_data = super(PostForm, self).clean()
@@ -142,10 +144,10 @@ class PostForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 

@@ -14,12 +14,11 @@ from django.template.loader import get_template
 from zds import settings
 
 from zds.article.models import get_last_articles
-from zds.forum.models import get_last_topics
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template, slugify
+from zds.utils import render_template
 from zds.utils.models import Alert
 
 
@@ -29,31 +28,24 @@ def home(request):
     tutos = []
     for tuto in get_last_tutorials():
         data = tuto.load_json_for_public()
-        data['pk'] = tuto.pk
-        data['image'] = tuto.image
-        data['gallery'] = tuto.gallery
-        data['pubdate'] = tuto.pubdate
-        data['update'] = tuto.update
-        data['subcategory'] = tuto.subcategory
-        data['get_absolute_url_online'] = reverse(
-            'zds.tutorial.views.view_tutorial_online',
-            args=[
-                tuto.pk,
-                slugify(
-                    data['title'])])
-
+        tuto.load_dic(data)
         tutos.append(data)
+
+    articles = []
+    for article in get_last_articles():
+        data = article.load_json_for_public()
+        data = article.load_dic(data)
+        articles.append(data)
 
     try:
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
     except:
-        quote = u'Zeste de Savoir, la connaissance pour tous et sans pépins !'
+        quote = settings.ZDS_APP['site']['slogan']
 
     return render_template('home.html', {
-        'last_topics': get_last_topics(request.user),
         'last_tutorials': tutos,
-        'last_articles': get_last_articles(),
+        'last_articles': articles,
         'quote': quote,
     })
 
@@ -76,37 +68,36 @@ def assoc_subscribe(request):
             user = request.user
             data = form.data
             context = {
-                'first_name': data['first_name'],
-                'surname': data['surname'],
+                'full_name': data['full_name'],
                 'email': data['email'],
+                'naissance': data['naissance'],
                 'adresse': data['adresse'],
-                'adresse_complement': data['adresse_complement'],
-                'code_postal': data['code_postal'],
-                'ville': data['ville'],
-                'pays': data['pays'],
                 'justification': data['justification'],
                 'username': user.username,
-                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
-                                                           kwargs={'user_name': user.username})
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                                                                         kwargs={'user_name': user.username})
             }
-
             # Send email
             subject = "Demande d'adhésion de {}".format(user.username)
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/assoc/subscribe.html").render(Context(context))
             message_txt = get_template("email/assoc/subscribe.txt") .render(Context(context))
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
                 from_email,
-                [settings.MAIL_CA_ASSO])
+                [settings.ZDS_APP['site']['association']['email_ca']])
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
-                messages.success(request, "Votre demande d'adhésion a bien été envoyée et va être étudiée.")
+                messages.success(request, u"Votre demande d'adhésion a bien été envoyée et va être étudiée.")
             except:
                 msg = None
                 messages.error(request, "Une erreur est survenue.")
+
+            # reset the form after successfull validation
+            form = AssocSubscribeForm()
         return render_template("pages/assoc_subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})

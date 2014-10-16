@@ -25,47 +25,67 @@
 
 {% block content_out %}
     <section class="content-col-2">
-        <h2>
-            {{ usr.username }}
-        </h2>
+        <h1 id="infos-generales">
+            Profil de {{ usr.username }}
+        </h1>
 
-        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+        <div class="member-card">
+            <div class="member-avatar">
+                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
 
-        {% include 'misc/badge.part.html' with member=usr %}
+                {% include 'misc/badge.part.html' with member=usr %}
+            </div>
 
-        <p>
-            Inscrit {{ usr.date_joined|format_date }}
-        </p>
-        <p>
-            Dernière connexion {{ usr.last_login|format_date }}
-        </p>
-        {% if perms.member.show_ip %}
-            <p>
-                Dernière IP : {{ profile.last_ip_address }}
-            </p>
-            <p>
-                Ville : {{ profile.get_city }}
-            </p>
-        {% endif %}
+            <ul class="member-infos">
+                <li>
+                    Inscrit {{ usr.date_joined|format_date:True }}
+                </li>
+                <li>
+                    Dernière connexion {{ usr.last_login|format_date:True }}
+                </li>
+                {% if perms.member.show_ip %}
+                    <li>
+                        Dernière IP : {{ profile.last_ip_address }}
+                    </li>
+                    <li>
+                        {{ profile.get_city }}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
 
-        {% if profile.show_email and user.is_authenticated %}
-            <p>
-                E-mail : <span class="fi-mail">{{ usr.email|obfuscate_mailto }}</span>
-            </p>
-        {% endif %}
+
+        <hr class="clearfix" />
+
+
+        <ul class="member-social">
+            {% if profile.show_email and user.is_authenticated %}
+                <li>
+                    E-mail : {{ usr.email|obfuscate_mailto }}
+                </li>
+            {% endif %}
+
+            {% if profile.site %}
+                <li>
+                    Site web : <a href="{{ profile.site }}">{{ profile.site }}</a>
+                </li>
+            {% endif %}
+        </ul>
+
 
         {% if profile.sign %}
-            <h3>Signature</h3>
-            {{ profile.sign|emarkdown }}
+            <h2 id="signature">Signature</h2>
+            {{ profile.sign|emarkdown_inline }}
         {% endif %}
 
 
         {% if topics %}
-            <h2>Dernier sujets crées</h2>
-            {% for topic in topics %}
-                <h4><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></h4>
-                <h5>{{ topic.subtitle }}</h5>
-            {% endfor %}
+            <h2 id="derniers-sujets">Derniers sujets créés</h2>
+            <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+                {% for topic in topics %}
+                    {% include "forum/includes/topic_row.part.html" %}
+                {% endfor %}
+            </div>
         {% endif %}
     </section>
 
@@ -73,7 +93,7 @@
 
     <section class="content-col-2 tutorial-list">
         {% if tutorials %}
-            <h2 class="ico-after ico-tutorials">Derniers tutoriels</h2>
+            <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">Derniers tutoriels</h2>
             {% for tutorial in tutorials %}
                 {% include 'tutorial/includes/tutorial_item.part.html' %}
             {% endfor %}
@@ -81,7 +101,7 @@
 
 
         {% if articles %}
-            <h2 class="ico-after ico-articles">Derniers articles</h2>
+            <h2 class="ico-after ico-articles" id="derniers-artilces">Derniers articles</h2>
             {% for article in articles %}
                 {% include 'article/includes/article_item.part.html' %}
             {% endfor %}
@@ -91,8 +111,9 @@
 
 
     {% if profile.biography %}
-        <section class="full-content-wrapper">
-            <h2>Biographie</h2>
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin">
+            <h2 id="biographie">Biographie</h2>
             {{ profile.biography|emarkdown }}
         </section>
     {% endif %}
@@ -100,8 +121,9 @@
 
 
     {% if old_tutos and perms.member.change_profile %}
-        <section class="full-content-wrapper">
-            <h2>Anciens Tutos SdZ</h2>
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin">
+            <h2 id="anciens-tutoriels-sdz">Anciens tutoriels SdZ</h2>
             <table>
                 <thead>
                     <tr>
@@ -145,14 +167,18 @@
                         Modifier le profil
                     </a>
                 {% endif %}
+                {% if perms.member.super_user %}
+                    <a href="{% url "zds.member.views.settings_promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
+                        Promouvoir
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
-
         <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
             <h3>Actions</h3>
             <ul>
                 <li>
-                    <a href="{% url "zds.mp.views.new"%}?username={{ usr.username }}" class="ico-after cite blue">
+                    <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
                         Envoyer un message privé
                     </a>
                 </li>
@@ -173,74 +199,183 @@
         </div>
     {% endif %}
 
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Accès rapide">
+        <h3>Accès rapide</h3>
+        <ul>
+            <li>
+                <a href="#infos-generales">
+                    Informations générales
+                </a>
+            </li>
+            {% if profile.sign %}
+                <li>
+                    <a href="#signature">
+                        Signature
+                    </a>
+                </li>
+            {% endif %}
+            {% if topics %}
+                <li>
+                    <a href="#derniers-sujets">
+                        Derniers sujets
+                    </a>
+                </li>
+            {% endif %}
+            {% if tutorials %}
+                <li>
+                    <a href="#derniers-tutoriels">
+                        Derniers tutoriels
+                    </a>
+                </li>
+            {% endif %}
+            {% if articles %}
+                <li>
+                    <a href="#derniers-articles">
+                        Derniers articles
+                    </a>
+                </li>
+            {% endif %}
+            {% if profile.biography %}
+                <li>
+                    <a href="#biographie">
+                        Biographie
+                    </a>
+                </li>
+            {% endif %}
+            {% if old_tutos and perms.member.change_profile %}
+                <li>
+                    <a href="#anciens-tutoriels-sdz">
+                        Anciens tutoriels SdZ
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
     <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
         <h3>Activité</h3>
 
-        <h4>Tutoriels</h4>
-        <ul>
-            <li class="inactive">
-                <span>
-                    En cours de rédaction
-                    <span class="count">{{ profile.get_draft_tutos.count }}</span>
-                </span>
-            </li>
-            <li class="inactive">
-                <span>
-                    En cours de validation
-                    <span class="count">{{ profile.get_validate_tutos.count }}</span>
-                </span>
-            </li>
-            <li>
-                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
-                    En version bêta
-                    <span class="count">{{ profile.get_beta_tutos.count }}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
-                    En ligne
-                    <span class="count">{{ profile.get_public_tutos.count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_draft_tutos.count > 0 %}
+            <h4>Tutoriels</h4>
+            <ul>
+                {% if profile.get_public_tutos.count > 0 %}
+                    <li>
+                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                            En ligne
+                            <span class="count">{{ profile.get_public_tutos.count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.get_beta_tutos.count > 0 %}
+                    <li>
+                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                            En version bêta
+                            <span class="count">{{ profile.get_beta_tutos.count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if profile.user == user %}
+                    {% if profile.get_validate_tutos.count > 0 %}
+                        <li>
+                            <a href="{% url "zds.member.views.tutorials" %}?type=validate">
+                                En validation
+                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if profile.get_draft_tutos.count > 0 %}    
+                        <li>
+                            <a href="{% url "zds.member.views.tutorials" %}?type=draft">
+                                En rédaction
+                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if profile.get_validate_tutos.count > 0 %}
+                        <li class="inactive">
+                            <span>
+                                En validation
+                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                    {% if profile.get_draft_tutos.count > 0 %}
+                        <li class="inactive">
+                            <span>
+                                En rédaction
+                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
 
-        <h4>Articles</h4>
-        <ul>
-            <li class="inactive">
-                <span>
-                    En cours de rédaction
-                    <span class="count">{{ profile.get_draft_articles.count }}</span>
-                </span>
-            </li>
-            <li class="inactive">
-                <span>
-                    En attente de validation
-                    <span class="count">{{ profile.get_validate_articles.count }}</span>
-                </span>
-            </li>
-            <li>
-                <a href="{% url "zds.article.views.find_article" usr.pk %}">
-                    En ligne
-                    <span class="count">{{ profile.get_public_articles.count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_draft_articles.count > 0 %}
+            <h4>Articles</h4>
+            <ul>
+                <li>
+                    <a href="{% url "zds.article.views.find_article" usr.pk %}">
+                        En ligne
+                        <span class="count">{{ profile.get_public_articles.count }}</span>
+                    </a>
+                </li>
+                {% if profile.user == user %}
+                    <li>
+                        <a href="{% url "zds.member.views.articles" %}?type=validate">
+                            En validation
+                            <span class="count">{{ profile.get_validate_articles.count }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "zds.member.views.articles" %}?type=draft">
+                            En rédaction
+                            <span class="count">{{ profile.get_draft_articles.count }}</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="inactive">
+                        <span>
+                            En validation
+                            <span class="count">{{ profile.get_validate_articles.count }}</span>
+                        </span>
+                    </li>
+                    <li class="inactive">
+                        <span>
+                            En rédaction
+                            <span class="count">{{ profile.get_draft_articles.count }}</span>
+                        </span>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
 
-        <h4>Forums</h4>
-        <ul>
-            <li>
-                <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
-                    Sujets créés
-                    <span class="count">{{ profile.get_topic_count }}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{% url "zds.forum.views.find_post" usr.pk %}">
-                    Messages postés
-                    <span class="count">{{ profile.get_post_count }}</span>
-                </a>
-            </li>
-        </ul>
+        {% if profile.get_post_count > 0 %}
+            <h4>Forums</h4>
+            <ul>
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
+                        Sujets créés
+                        <span class="count">{{ profile.get_topic_count }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.forum.views.find_post" usr.pk %}">
+                        Messages postés
+                        <span class="count">{{ profile.get_post_count }}</span>
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
+
+        {% if profile.get_draft_tutos.count == 0 and profile.get_draft_articles.count == 0 and profile.get_post_count == 0 %}
+            <ul>
+                <li class="inactive">
+                    <span>Aucune activité</span>
+                </li>
+            </ul>
+        {% endif %}
     </div>
 
     {% if perms.member.change_profile %}
@@ -251,13 +386,13 @@
             <ul>
                 <li class="inactive">
                     <span>
-                        Nombre de messages modérés
+                        Messages modérés
                         <span class="count">{{ profile.get_invisible_posts_count }}</span>
                     </span>
                 </li>
                 <li class="inactive">
                     <span>
-                        Nombre d'alertes actives
+                        Alertes actives
                         <span class="count">{{ profile.get_alerts_posts_count }}</span>
                     </span>
                 </li>

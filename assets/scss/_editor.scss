@@ -6,7 +6,6 @@
     margin: 0;
     padding: 2px;
     list-style-position: initial;
-    list-style-image: none;
     list-style-type: none;
     border-bottom: none;
 
@@ -66,7 +65,7 @@
     button {
         &:hover,
         &:focus {
-            border-bottom-color: lighten($blue, 20%);
+            border-bottom-color: lighten($primary, 20%);
             outline: none;
             background-color: #EEE;
         }
@@ -275,7 +274,7 @@ div.zform-popup {
     }
     .btn-submit,
     [type=submit] {
-        color: $blue;
+        color: $primary;
         font-weight: bold;
     }
     .btn-cancel {

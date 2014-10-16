@@ -9,13 +9,9 @@ from . import views
 urlpatterns = patterns('',
 
                        # Feeds
-                       url(r'^flux/messages/rss/$',
-                           feeds.LastPostsFeedRSS(),
-                           name='post-feed-rss'),
-                       url(r'^flux/messages/atom/$',
-                           feeds.LastPostsFeedATOM(),
-                           name='post-feed-atom'),
-
+                       url(r'^flux/messages/rss/$', feeds.LastPostsFeedRSS(), name='post-feed-rss'),
+                       url(r'^flux/messages/atom/$', feeds.LastPostsFeedATOM(), name='post-feed-atom'),
+                       
                        url(r'^flux/sujets/rss/$',
                            feeds.LastTopicsFeedRSS(),
                            name='topic-feed-rss'),
@@ -46,7 +42,7 @@ urlpatterns = patterns('',
                            'zds.forum.views.move_topic'),
                        url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$',
                            'zds.forum.views.topic'),
-                       url(r'^sujets/membre/(?P<user_pk>.+)/$',
+                       url(r'^sujets/membre/(?P<user_pk>\d+)/$',
                            'zds.forum.views.find_topic'),
                        url(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$',
                            'zds.forum.views.find_topic_by_tag'),
@@ -66,7 +62,7 @@ urlpatterns = patterns('',
                            'zds.forum.views.like_post'),
                        url(r'^message/dislike/$',
                            'zds.forum.views.dislike_post'),
-                       url(r'^messages/(?P<user_pk>.+)/$',
+                       url(r'^messages/(?P<user_pk>\d+)/$',
                            'zds.forum.views.find_post'),
 
                        # Forum details

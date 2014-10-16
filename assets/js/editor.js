@@ -1,5 +1,5 @@
 
-(function(){
+(function(window, document, undefined){
     "use strict";
     
     var zForm = {
@@ -101,15 +101,23 @@
             
             for (var i=0, c=listTexta.length; i<c; i++) {
                 if (/md.editor/.test(listTexta[i].className)) {
-                    this.setup(listTexta[i].id);    
+                    this.setup(listTexta[i].id);
                 }
             }
+
+            this.addEvent(document.getElementById("content"), "DOMNodeInserted", (function(_this){
+                return function(e) {
+                    if (/md.editor/.test(e.target.className)) {
+                        _this.setup(e.target.id);
+                    }
+                };
+            }) (this));
             
             var overlay = document.body.appendChild(document.createElement("div"));
                 overlay.id = "zform-modal-overlay";
                 
             var wrapper = document.body.appendChild(document.createElement("div"));
-                wrapper.id = "zform-modal-wrapper";         
+                wrapper.id = "zform-modal-wrapper";
             
             wrapper.innerHTML = 
             "<div>" + 
@@ -561,4 +569,4 @@
             _this.init();
         };
     }) (zForm));
-})();
+})(window, document);

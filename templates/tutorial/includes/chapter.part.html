@@ -5,26 +5,18 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro and chapter.intro != "None" %}
+        {% if chapter.intro and chapter.intro != None %}
             {{ chapter.intro|emarkdown }}
-        {% else %}
+        {% elif not tutorial.is_beta %}
             <p class="ico-after warning">
                 Il n'y a pas d'introduction.
             </p>
         {% endif %}
     {% endif %}
+    
+    <hr />
 
-    {% if extracts %}
-        <ul>
-            {% for extract in extracts %}
-                <li>
-                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                        {{ extract.title }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
+    {% if not extracts %}
         <p class="ico-after warning">
             Il n'y a aucun extrait.
         </p>
@@ -39,14 +31,14 @@
             </a>
         </h2>
 
-        {% if user in authors %}
+        {% if user in authors or perms.tutorial.change_tutorial %}
             <div class="actions-title">
                 <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">Supprimer</a>
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
                     <p>
                         Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract.title }}</em> ?
                     </p>
-                    <input type="hidden" name="extract" value="{{ extract.pk }}" />
+                    <input type="hidden" name="extract" value="{{ extract.pk }}">
                     {% csrf_token %}
                     <button type="submit" name="delete">
                         Confirmer
@@ -56,7 +48,7 @@
                 <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
                     <select name="move_target">
-                        <option>Déplacer</option>
+                        <option disabled="disabled">Déplacer</option>
                         {% if extract.position_in_chapter > 1 %}
                             <option value="{{ extract.position_in_chapter|add:-1 }}">Monter</option>
                         {% endif %}
@@ -68,18 +60,18 @@
                         <option disabled>&mdash; Déplacer avant</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:-1 != extract.position_in_chapter %}
-                            <option value="{{ extract_mv.position_in_chapter }}">
-                                Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
-                            </option>
+                                <option value="{{ extract_mv.position_in_chapter }}">
+                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                </option>
                             {% endif %}
                         {% endfor %}
 
                         <option disabled>&mdash; Déplacer après</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:1 != extract.position_in_chapter %}
-                            <option value="{{ extract_mv.position_in_chapter }}">
-                                Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
-                            </option>
+                                <option value="{{ extract_mv.position_in_chapter }}">
+                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                </option>
                             {% endif %}
                         {% endfor %}
                     </select>
@@ -88,7 +80,7 @@
 
                     {% csrf_token %}
                     <button type="submit">
-                        Confirmer
+                        Déplacer
                     </button>
                 </form>
 
@@ -110,9 +102,9 @@
     <hr />
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.conclu and chapter.conclu != "None" %}
+        {% if chapter.conclu and chapter.conclu != None %}
             {{ chapter.conclu|emarkdown }}
-        {% else %} 
+        {% elif not tutorial.is_beta %}
             <p class="ico-after warning">
                 Il n'y a pas de conclusion.
             </p>

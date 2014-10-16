@@ -17,8 +17,16 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ forum.category.get_absolute_url }}">{{ forum.category.title }}</a></li>
-    <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ forum.category.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ forum.title }}</span>
+        </a>
+    </li>
     <li>Nouveau sujet</li>
 {% endblock %}
 

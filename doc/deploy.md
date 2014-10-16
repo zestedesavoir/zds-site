@@ -1,4 +1,4 @@
-# Configuration des serveurs
+﻿# Configuration des serveurs
 
 Zeste de Savoir est installe en 1 tiers (sur un seul serveur donc).
 
@@ -367,6 +367,19 @@ source /usr/local/nvm/nvm.sh
 gulp clean
 gulp build
 ```
+
+Modification du `settings_prod.py` :
+
+Si un utilisateur anonyme et un utilisateur permettant de récupérer les tutoriels venant de l'extérieur
+existent déjà, configurez les constantes `ANONYMOUS_USER` et `EXTERNAL_USER` pour que ces dernières
+aient pour valeur le pseudo desdits utilisateurs.
+
+Sinon, utilisez au choix le shell django ou bien
+
+```
+python manage.py loaddata fixtures/users.py #crée aussi un utilisateur admin, staff et user, donc utilisez cette commande avec précaution.
+```
+
 
 Réindexation Solr :
 

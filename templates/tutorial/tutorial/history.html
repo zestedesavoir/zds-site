@@ -1,94 +1,136 @@
 {% extends "tutorial/base.html" %}
-{% load emarkdown %}
 {% load profile %}
 {% load thumbnail %}
+{% load date %}
 
 
 {% block title %}
-  {{ tutorial.title }}
+    Historique de "{{ tutorial.title }}"
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
-    <li>Historique</li>
+    <li>Historique des modifications</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>{{ tutorial.title }}</h1>
-    <h3 class="subtitle">{{ tutorial.description }}</h3>
+    <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
+        {% if tutorial.image %}
+            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+        {% endif %}
+        Historique de "{{ tutorial.title }}"
+    </h1>
+
+    {% if tutorial.licence %}
+        <span class="license">
+            Licence {{ tutorial.licence }}
+        </span>
+    {% endif %}
+
+    <h2 class="subtitle">
+        {{ tutorial.description }}
+    </h2>
+
+    {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
 
 
 
 {% block content %}
-    {# TODO : Tout est à refaire ici #}
-    <div class="row">
-        <div class="large-12 columns">
-            <div class="large-1 columns hide-for-small">
-                {% if tutorial.image %}
-                    <img src="{{tutorial.image.physical.tutorial_illu.url }}" alt="">
-                {% endif %}
-            </div>
-            <div class="large-11 columns">
-                <p>
-                    Tutoriel
-                    {% if not tutorial.is_mini %}
-                    étendu
-                    {% endif %}
-                    rédigé par
-                    {% for member in tutorial.authors.all %}
-                        {% if forloop.counter > 1 %}
-                            {% if forloop.last %}
-                            et
-                            {% else %}
-                            ,
-                            {% endif %}
+    <table class="fullwidth">
+        <thead>
+            <tr>
+                <th width="10%">Etat</th>
+                <th width="18%">Date</th>
+                <th>Version</th>
+                <th width="10%">Diff.</th>
+                <th width="15%">Auteur</th>
+                <th width="12%">Bêta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>
+                        {% if tutorial.sha_validation = log.newhexsha %}
+                            Validation
                         {% endif %}
-                        {% include "misc/member_item.part.html" %}
-                    {% endfor %}.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="large-12 columns">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th width="25%">Date</th>
-                        <th>Version</th>
-                        <th width="10%">Diff.</th>
-                        <th width="10%">Auteur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in logs %}
-                        <tr>
-                            <td><p>{% if tutorial.sha_validation = log.newhexsha %} Validation {% elif tutorial.sha_beta =  log.newhexsha %} Beta {% elif tutorial.sha_draft =  log.newhexsha %} Draft {% endif%}</p></td>
-                            <td><p>{{ log.time.0|humane_time }}</p></td>
-                            <td><p><a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >{{ log.message }}</a></p></td>
-                            <td><p><a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >{{ log.newhexsha|truncatechars:8 }}</a></p></td>
-                            <td>
-                                {% with u=log.actor.name|user %}
-                                    {% if u %}
-                                        {% with profile=u|profile %}
-                                            <p><a href="{{ profile.get_absolute_url }}">{{ u.username }}</a></p>
-                                        {% endwith %}
-                                    {% else %}
-                                        <p>Inconnu</p>
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        {% if tutorial.sha_beta = log.newhexsha %}
+                            Beta
+                        {% endif %}
+                        {% if tutorial.sha_draft = log.newhexsha %}
+                            Draft
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ log.time.0|humane_time }}
+                    </td>
+                    <td>
+                        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >
+                            {{ log.message }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >
+                            {{ log.newhexsha|truncatechars:8 }}
+                        </a>
+                    </td>
+                    <td>
+                        {% with u=log.actor.name|user %}
+                            {% if u %}
+                                {% include "misc/member_item.part.html" with member=u avatar=True %}
+                            {% else %}
+                                <em>Inconnu</em>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if not tutorial.sha_beta = log.newhexsha %}
+                            {% if not tutorial.sha_beta %}
+                                <a href="#activ-beta" class="open-modal">
+                                    Activer
+                                </a>
+                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                                    <input type="hidden" name="activ_beta">
+                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                    <p>
+                                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel 
+                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="#activ-beta" class="open-modal">
+                                    Mettre à jour
+                                </a>
+                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                                    <input type="hidden" name="update_beta">
+                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                    <p>
+                                        Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                    </p>
+                                    <button type="submit">
+                                        Confirmer
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <em>En bêta</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

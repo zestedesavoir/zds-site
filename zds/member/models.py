@@ -11,12 +11,14 @@ import os
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.dispatch import receiver
 
 import pygeoip
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
+from django.utils.importlib import import_module
 
 
 class Profile(models.Model):
@@ -109,8 +111,8 @@ class Profile(models.Model):
                     'GeoLiteCityv6.dat'))
         geo = gic.record_by_addr(self.last_ip_address)
 
-        return u'{0} ({1}) : {2}'.format(
-            geo['city'], geo['postal_code'], geo['country_name'])
+        return u'{0}, {1}'.format(
+            geo['city'], geo['country_name'])
 
     def get_avatar_url(self):
         """Avatar URL (using custom URL or Gravatar)"""
@@ -118,7 +120,7 @@ class Profile(models.Model):
             return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email).hexdigest())
+                md5(self.user.email.lower()).hexdigest())
 
     def get_post_count(self):
         """Number of messages posted."""
@@ -224,6 +226,12 @@ class Profile(models.Model):
             .order_by('-last_message__pubdate')
 
 
+@receiver(models.signals.post_delete, sender=User)
+def auto_delete_token_on_unregistering(sender, instance, **kwargs):
+    TokenForgotPassword.objects.filter(user=instance).delete()
+    TokenRegister.objects.filter(user=instance).delete()
+
+
 class TokenForgotPassword(models.Model):
 
     class Meta:
@@ -286,9 +294,11 @@ def logout_user(username):
     for session in sessions:
         user_id = session.get_decoded().get('_auth_user_id')
         if username == user_id:
-            request.session = init_session(session.session_key)
+            engine = import_module(settings.SESSION_ENGINE)
+            request.session = engine.SessionStore(session.session_key)
             logout(request)
             break
+
 
 def listing():
 

@@ -8,29 +8,33 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group, SiteProfileNotAvailable
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render_to_response
-from django.template import Context, RequestContext
+from django.shortcuts import redirect, get_object_or_404
+from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from zds.utils.models import Comment
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.gallery.models import UserGallery
 import json
 import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm
+    OldTutoForm, PromoteMemberForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
     get_info_old_tuto, logout_user
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
-from zds.forum.models import Topic
+from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
@@ -39,13 +43,15 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 
 
-
 def index(request):
     """Displays the list of registered users."""
 
     if request.is_ajax():
         q = request.GET.get('q', '')
-        members = User.objects.filter(username__icontains=q)[:20]
+        if request.user.is_authenticated():
+            members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
+        else:
+            members = User.objects.filter(username__icontains=q)[:20]
         results = []
         for member in members:
             member_json = {}
@@ -63,7 +69,7 @@ def index(request):
         members = User.objects.order_by("-date_joined")
         # Paginator
 
-        paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
+        paginator = Paginator(members, settings.ZDS_APP['member']['members_per_page'])
         page = request.GET.get("page")
         try:
             shown_members = paginator.page(page)
@@ -81,6 +87,99 @@ def index(request):
             "nb": page,
         })
 
+
+@login_required
+def warning_unregister(request):
+    """displays a warning page showing what will happen when user unregisters"""
+    return render_template("member/settings/unregister.html", {"user": request.user})
+
+
+@login_required
+@require_POST
+@transaction.atomic
+def unregister(request):
+    """allow members to unregister"""
+
+    anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
+    external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
+    current = request.user
+    for tuto in request.user.profile.get_tutos():
+        # we delete article only if not published with only one author
+        if not tuto.on_line() and tuto.authors.count() == 1:
+            if tuto.in_beta():
+                beta_topic = Topic.objects.get(key=tuto.pk)
+                first_post = beta_topic.first_post()
+                first_post.update_content(u'# Le tutoriel présenté par ce topic n\'existe plus.')
+            tuto.delete_entity_and_tree()
+        else:
+            if tuto.authors.count() == 1:
+                tuto.authors.add(external)
+                external_gallery = UserGallery()
+                external_gallery.user = external
+                external_gallery.gallery = tuto.gallery
+                external_gallery.mode = 'W'
+                external_gallery.save()
+                UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
+
+            tuto.authors.remove(current)
+            tuto.save()
+    for article in request.user.profile.get_articles():
+        # we delete article only if not published with only one author
+        if not article.on_line() and article.authors.count() == 1:
+            article.delete_entity_and_tree()
+        else:
+            if article.authors.count() == 1:
+                article.authors.add(external)
+            article.authors.remove(current)
+            article.save()
+    # all messages anonymisation (forum, article and tutorial posts)
+    for message in Comment.objects.filter(author=current):
+        message.author = anonymous
+        message.save()
+    for message in PrivatePost.objects.filter(author=current):
+        message.author = anonymous
+        message.save()
+    # in case current has been moderator in his old day
+    for message in Comment.objects.filter(editor=current):
+        message.editor = anonymous
+        message.save()
+    for topic in PrivateTopic.objects.filter(author=current):
+        topic.participants.remove(current)
+        if topic.participants.count() > 0:
+            topic.author = topic.participants.first()
+            topic.participants.remove(topic.author)
+            topic.save()
+        else:
+            topic.delete()
+    for topic in PrivateTopic.objects.filter(participants__in=[current]):
+        topic.participants.remove(current)
+        topic.save()
+    for topic in Topic.objects.filter(author=current):
+        topic.author = anonymous
+        topic.save()
+    TopicFollowed.objects.filter(user=current).delete()
+    # Before deleting gallery let's summurize what we deleted
+    # - unpublished tutorials with only the unregistering member as an author
+    # - unpublished articles with only the unregistering member as an author
+    # - all category associated with those entites (have a look on article.delete_entity_and_tree
+    #   and tutorial.delete_entity_and_tree
+    # So concerning galleries, we just have for us
+    # - "personnal galleries" with only one owner (unregistering user)
+    # - "personnal galleries" with more than one owner
+    # so we will just delete the unretistering user ownership and give it to anonymous in the only case
+    # he was alone so that gallery is not lost
+    for gallery in UserGallery.objects.filter(user=current):
+        if gallery.gallery.get_users().count() == 1:
+            anonymousGallery = UserGallery()
+            anonymousGallery.user = external
+            anonymousGallery.mode = "w"
+            anonymousGallery.gallery = gallery.gallery
+            anonymousGallery.save()
+        gallery.delete()
+
+    logout(request)
+    User.objects.filter(pk=current.pk).delete()
+    return redirect(reverse("zds.pages.views.home"))
 
 
 def details(request, user_name):
@@ -116,22 +215,31 @@ def details(request, user_name):
     fchart = os.path.join(img_path, "mod-{}.svg".format(str(usr.pk)))
     dot_chart.render_to_file(fchart)
     my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
-        "-pubdate").filter(authors__in=[usr]).all()
+        "-pubdate").filter(authors__in=[usr]).all()[:5]
     my_tutorials = \
         Tutorial.objects.filter(sha_public__isnull=False) \
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
-                  ).all()
-    my_topics = Topic.objects.filter(author__pk=usr.pk).order_by("-pubdate"
-                                                                 ).all()
-    tops = []
-    for top in my_topics:
-        if not top.forum.can_read(request.user):
-            continue
-        else:
-            tops.append(top)
-            if len(tops) >= 5:
-                break
+                  ).all()[:5]
+
+    my_tuto_versions = []
+    for my_tutorial in my_tutorials:
+        mandata = my_tutorial.load_json_for_public()
+        my_tutorial.load_dic(mandata)
+        my_tuto_versions.append(mandata)
+    my_article_versions = []
+    for my_article in my_articles:
+        article_version = my_article.load_json_for_public()
+        my_article.load_dic(article_version)
+        my_article_versions.append(article_version)
+
+    my_topics = \
+        Topic.objects\
+        .filter(author=usr)\
+        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
+        .prefetch_related("author")\
+        .order_by("-pubdate").all()[:5]
+
     form = OldTutoForm(profile)
     oldtutos = []
     if profile.sdz_tutorial:
@@ -144,9 +252,9 @@ def details(request, user_name):
         "usr": usr,
         "profile": profile,
         "bans": bans,
-        "articles": my_articles[:5],
-        "tutorials": my_tutorials[:5],
-        "topics": tops,
+        "articles": my_article_versions,
+        "tutorials": my_tuto_versions,
+        "topics": my_topics,
         "form": form,
         "old_tutos": oldtutos,
     })
@@ -169,7 +277,7 @@ def modify_profile(request, user_pk):
             ban.type = u"Lecture Seule"
             ban.text = request.POST["ls-text"]
             detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                u'commentaires d\'articles et de tutoriels.')
+                      u'commentaires d\'articles et de tutoriels.')
         if "ls-temp" in request.POST:
             ban.type = u"Lecture Seule Temporaire"
             ban.text = request.POST["ls-temp-text"]
@@ -178,8 +286,8 @@ def modify_profile(request, user_pk):
                 + timedelta(days=int(request.POST["ls-jrs"]), hours=0,
                             minutes=0, seconds=0)
             detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                u'commentaires d\'articles et de tutoriels pendant {0} jours.'
-                .format(request.POST["ls-jrs"]))
+                      u'commentaires d\'articles et de tutoriels pendant {0} jours.'
+                      .format(request.POST["ls-jrs"]))
         if "ban-temp" in request.POST:
             ban.type = u"Ban Temporaire"
             ban.text = request.POST["ban-temp-text"]
@@ -187,22 +295,24 @@ def modify_profile(request, user_pk):
             profile.end_ban_read = datetime.now() \
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (u'Vous ne pouvez plus vous connecter sur Zeste de Savoir '
-                u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
+            detail = (u'Vous ne pouvez plus vous connecter sur {} '
+                      u'pendant {} jours.'.format(settings.ZDS_APP['site']['litteral_name'],
+                                                  request.POST["ban-jrs"]))
             logout_user(profile.user.username)
 
         if "ban" in request.POST:
             ban.type = u"Ban définitif"
             ban.text = request.POST["ban-text"]
             profile.can_read = False
-            detail = u"vous ne pouvez plus vous connecter sur Zeste de Savoir."
+            detail = u"vous ne pouvez plus vous " \
+                     u"connecter sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
             logout_user(profile.user.username)
         if "un-ls" in request.POST:
             ban.type = u"Autorisation d'écrire"
             ban.text = request.POST["unls-text"]
             profile.can_write = True
             detail = (u'Vous pouvez désormais poster sur les forums, dans les '
-                u'commentaires d\'articles et tutoriels.')
+                      u'commentaires d\'articles et tutoriels.')
         if "un-ban" in request.POST:
             ban.type = u"Autorisation de se connecter"
             ban.text = request.POST["unban-text"]
@@ -214,38 +324,32 @@ def modify_profile(request, user_pk):
         # send register message
 
         if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = \
-                u"""Bonjour **{0}**,
-
-**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}**.
-
-Ce qui signifie que {2}
-
-Le motif de votre sanction est :
-
-`{3}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, detail, ban.text)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'**Bonne Nouvelle**, la sanction qui '
+                   u'pesait sur vous a été levée par **{1}**.\n\n'
+                   u'Ce qui signifie que {2}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {3}\n\n'
+                   u'Cordialement, L\'équipe {4}.'
+                   .format(ban.user,
+                           ban.moderator,
+                           detail,
+                           ban.text,
+                           settings.ZDS_APP['site']['litteral_name']))
         else:
-            msg = \
-                u"""Bonjour **{0}**,
-
-Vous avez été santionné par **{1}**.
-
-La sanction est de type *{2}*, ce qui signifie que {3}
-
-Le motif de votre sanction est :
-
-`{4}`
-
-Cordialement, L'équipe Zeste de Savoir.
-
-""".format(ban.user,
-                    ban.moderator, ban.type, detail, ban.text)
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+            msg = (u'Bonjour **{0}**,\n\n'
+                   u'Vous avez été santionné par **{1}**.\n\n'
+                   u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                   u'Le motif de votre sanction est :\n\n'
+                   u'> {4}\n\n'
+                   u'Cordialement, L\'équipe {5}.'
+                   .format(ban.user,
+                           ban.moderator,
+                           ban.type,
+                           detail,
+                           ban.text,
+                           settings.ZDS_APP['site']['litteral_name']))
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             [ban.user],
@@ -256,7 +360,6 @@ Cordialement, L'équipe Zeste de Savoir.
             direct=True,
         )
     return redirect(profile.get_absolute_url())
-
 
 
 @login_required
@@ -276,6 +379,10 @@ def tutorials(request):
     profile = request.user.profile
     if type == "draft":
         user_tutorials = profile.get_draft_tutos()
+    elif type == "beta":
+        user_tutorials = profile.get_beta_tutos()
+    elif type == "validate":
+        user_tutorials = profile.get_validate_tutos()
     elif type == "public":
         user_tutorials = profile.get_public_tutos()
     else:
@@ -283,7 +390,6 @@ def tutorials(request):
 
     return render_template("tutorial/member/index.html",
                            {"tutorials": user_tutorials, "type": type})
-
 
 
 @login_required
@@ -303,6 +409,8 @@ def articles(request):
     profile = request.user.profile
     if type == "draft":
         user_articles = profile.get_draft_articles()
+    if type == "validate":
+        user_articles = profile.get_validate_articles()
     elif type == "public":
         user_articles = profile.get_public_articles()
     else:
@@ -310,22 +418,6 @@ def articles(request):
 
     return render_template("article/member/index.html",
                            {"articles": user_articles, "type": type})
-
-
-
-@login_required
-def actions(request):
-    """Show avaible actions for current user, like a customized homepage.
-
-    This may be very temporary.
-
-    """
-
-    # TODO: Seriously improve this page, and see if cannot be merged in
-    # zds.pages.views.home since it will be more coherent to give an enhanced
-    # homepage for registered users
-
-    return render_template("member/actions.html")
 
 
 # settings for public profile
@@ -361,8 +453,7 @@ def settings_mini_profile(request, user_name):
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -371,8 +462,7 @@ def settings_mini_profile(request, user_name):
             "sign": profile.sign,
         })
         c = {"form": form, "profile": profile}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -411,8 +501,7 @@ def settings_profile(request):
                              "Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
-            return render_to_response("member/settings/profile.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/profile.html", c)
     else:
         form = ProfileForm(initial={
             "biography": profile.biography,
@@ -425,8 +514,7 @@ def settings_profile(request):
             "sign": profile.sign,
         })
         c = {"form": form}
-        return render_to_response("member/settings/profile.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -471,13 +559,11 @@ def settings_account(request):
                 messages.error(request, "Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
-            return render_to_response("member/settings/account.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/account.html", c)
     else:
         form = ChangePasswordForm(request.user)
         c = {"form": form}
-        return render_to_response("member/settings/account.html", c,
-                                  RequestContext(request))
+        return render_template("member/settings/account.html", c)
 
 
 @can_write_and_read_now
@@ -485,7 +571,6 @@ def settings_account(request):
 def settings_user(request):
     """User's settings about his email."""
 
-    profile = request.user.profile
     if request.method == "POST":
         form = ChangeUserForm(request.POST)
         c = {"form": form}
@@ -499,14 +584,11 @@ def settings_user(request):
             old.save()
             return redirect(old.profile.get_absolute_url())
         else:
-            return render_to_response("member/settings/user.html", c,
-                                      RequestContext(request))
+            return render_template("member/settings/user.html", c)
     else:
         form = ChangeUserForm()
         c = {"form": form}
-        return render_to_response("member/settings/user.html", c,
-                                  RequestContext(request))
-
+        return render_template("member/settings/user.html", c)
 
 
 def login_view(request):
@@ -557,8 +639,9 @@ def login_view(request):
             messages.error(request,
                            "Les identifiants fournis ne sont pas valides")
     form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view") \
-        + "?next=" + str(next_page)
+    form.helper.form_action = reverse("zds.member.views.login_view")
+    if next_page is not None:
+        form.helper.form_action += "?next=" + next_page
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
@@ -597,21 +680,22 @@ def register_view(request):
 
             # Generate a valid token during one hour.
 
-            uuidToken = str(uuid.uuid4())
+            uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
-            token = TokenRegister(user=user, token=uuidToken,
+            token = TokenRegister(user=user, token=uuid_token,
                                   date_end=date_end)
             token.save()
 
             # send email
 
-            subject = "ZDS - Confirmation d'inscription"
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/register/confirm.html").render(Context(
-                {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/register/confirm.txt") .render(Context(
-                {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [user.email])
             msg.attach_alternative(message_html, "text/html")
@@ -626,7 +710,6 @@ def register_view(request):
     return render_template("member/register/index.html", {"form": form})
 
 
-
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -639,21 +722,21 @@ def forgot_password(request):
 
             # Generate a valid token during one hour.
 
-            uuidToken = str(uuid.uuid4())
+            uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
-            token = TokenForgotPassword(user=usr, token=uuidToken,
+            token = TokenForgotPassword(user=usr, token=uuid_token,
                                         date_end=date_end)
             token.save()
 
             # send email
-
-            subject = "ZDS - Mot de passe oublié"
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = "{} - Mot de passe oublié".format(settings.ZDS_APP['site']['abbr'])
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
-                {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [usr.email])
             msg.attach_alternative(message_html, "text/html")
@@ -664,7 +747,6 @@ def forgot_password(request):
                                    {"form": form})
     form = ForgotPasswordForm()
     return render_template("member/forgot_password/index.html", {"form": form})
-
 
 
 def new_password(request):
@@ -719,14 +801,14 @@ def active_account(request):
 
     # send register message
 
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = (
         u'Bonjour **{0}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
-        u'membre de la communauté de Zeste de Savoir.'
+        u'membre de la communauté de {4}.'
         u'\n\n'
-        u'Zeste de Savoir est une communauté dont le but est de diffuser des '
+        u'{4} est une communauté dont le but est de diffuser des '
         u'connaissances au plus grand nombre.'
         u'\n\n'
         u'Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans '
@@ -740,7 +822,7 @@ def active_account(request):
         u'plusieurs heures sur un problème.'
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
-        u'car la communauté de Zeste de Savoir est attachée aux valeurs du libre '
+        u'car la communauté de {4} est attachée aux valeurs du libre '
         u'partage et désire apporter le savoir à tout le monde quels que soient ses moyens.'
         u'\n\n'
         u'En espérant que tu te plairas ici, '
@@ -748,22 +830,24 @@ def active_account(request):
         u'\n\n'
         u'Clem\''
         .format(usr.username,
-                settings.SITE_URL + reverse("zds.tutorial.views.index"),
-                settings.SITE_URL + reverse("zds.article.views.index"),
-                settings.SITE_URL + reverse("zds.member.views.index"),
-                settings.SITE_URL + reverse("zds.forum.views.index")))
+                settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
+                settings.ZDS_APP['site']['litteral_name']))
     send_mp(
         bot,
         [usr],
-        u"Bienvenue sur Zeste de Savoir",
+        u"Bienvenue sur {}".format(settings.ZDS_APP['site']['name']),
         u"Le manuel du nouveau membre",
         msg,
         True,
         True,
         False,
     )
-    return render_template("member/register/token_success.html", {"usr": usr})
     token.delete()
+    form = LoginForm(initial={'username': usr.username})
+    return render_template("member/register/token_success.html", {"usr": usr, "form": form})
 
 
 def generate_token_account(request):
@@ -784,16 +868,17 @@ def generate_token_account(request):
 
     # send email
 
-    subject = "ZDS - Confirmation d'inscription"
-    from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+    subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+    from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                  settings.ZDS_APP['site']['email_noreply'])
     message_html = get_template("email/register/confirm.html"
                                 ) \
         .render(Context({"username": token.user.username,
-                         "url": settings.SITE_URL + token.get_absolute_url()}))
+                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     message_txt = get_template("email/register/confirm.txt"
                                ) \
         .render(Context({"username": token.user.username,
-                         "url": settings.SITE_URL + token.get_absolute_url()}))
+                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                  [token.user.email])
     msg.attach_alternative(message_html, "text/html")
@@ -828,7 +913,6 @@ def date_to_chart(posts):
     return lst
 
 
-
 @login_required
 @require_POST
 def add_oldtuto(request):
@@ -849,7 +933,6 @@ def add_oldtuto(request):
                      u'membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
-
 
 
 @login_required
@@ -882,3 +965,109 @@ def remove_oldtuto(request):
                      u'au membre {0}'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
+
+
+@login_required
+def settings_promote(request, user_pk):
+    """ Manage the admin right of user. Only super user can access """
+
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    profile = get_object_or_404(Profile, user__pk=user_pk)
+    user = profile.user
+
+    if request.method == "POST":
+        form = PromoteMemberForm(request.POST)
+        data = dict(form.data.iterlists())
+
+        groups = Group.objects.all()
+        usergroups = user.groups.all()
+
+        if 'groups' in data:
+            for group in groups:
+                if unicode(group.id) in data['groups']:
+                    if group not in usergroups:
+                        user.groups.add(group)
+                        messages.success(request, u'{0} appartient maintenant au groupe {1}'
+                                         .format(user.username, group.name))
+                else:
+                    if group in usergroups:
+                        user.groups.remove(group)
+                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
+                                         .format(user.username, group.name))
+                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                               forum__group=group)
+                        for topic in topics_followed:
+                            follow(topic, user)
+        else:
+            for group in usergroups:
+                topics_followed = Topic.objects.filter(topicfollowed__user=user,
+                                                       forum__group=group)
+                for topic in topics_followed:
+                    follow(topic, user)
+            user.groups.clear()
+            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
+                             .format(user.username))
+
+        if 'superuser' in data and u'on' in data['superuser']:
+            if not user.is_superuser:
+                user.is_superuser = True
+                messages.success(request, u'{0} est maintenant super-utilisateur'
+                                 .format(user.username))
+        else:
+            if user == request.user:
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+            else:
+                if user.is_superuser:
+                    user.is_superuser = False
+                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
+                                     .format(user.username))
+
+        if 'activation' in data and u'on' in data['activation']:
+            user.is_active = True
+            messages.success(request, u'{0} est maintenant activé'
+                             .format(user.username))
+        else:
+            user.is_active = False
+            messages.warning(request, u'{0} est désactivé'
+                             .format(user.username))
+
+        user.save()
+
+        usergroups = user.groups.all()
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        msg = (u'Bonjour {0},\n\n'
+               u'Un administrateur vient de modifier les groupes '
+               u'auxquels vous appartenez.  \n'.format(user.username))
+        if len(usergroups) > 0:
+            msg += u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'
+            for group in usergroups:
+                msg += u'* {0}\n'.format(group.name)
+        else:
+            msg += u'* Vous ne faites partie d\'aucun groupe'
+        msg += u'\n\n'
+        if user.is_superuser:
+            msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                    u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+        send_mp(
+            bot,
+            [user],
+            u'Modification des groupes',
+            u'',
+            msg,
+            True,
+            True,
+        )
+
+        return redirect(profile.get_absolute_url())
+
+    form = PromoteMemberForm(initial={'superuser': user.is_superuser,
+                                      'groups': user.groups.all(),
+                                      'activation': user.is_active
+                                      })
+    return render_template('member/settings/promote.html', {
+        "usr": user,
+        "profile": profile,
+        "form": form
+    })

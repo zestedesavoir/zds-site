@@ -7,7 +7,7 @@
 
 
 {% block title_base %}
-    &#183; Forums
+    &bull; Forums
 {% endblock %}
 
 
@@ -19,7 +19,11 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.forum.views.index" %}">Forums</a></li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{% url "zds.forum.views.index" %}" itemprop="url">
+            <span itemprop="title">Forums</span>
+        </a>
+    </li>
 {% endblock %}
 
 
@@ -59,6 +63,7 @@
         {% if user.is_authenticated %}
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>Sujets suivis</h3>
+
                 {% with follwedtopics=user|followed_topics %}
                     {% for period, topics in follwedtopics.items %}
                         <h4>{{ period|humane_delta }}</h4>
@@ -68,6 +73,7 @@
                                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                                         <input type="hidden" name="nb" value="{{ nb }}">
+                                        <input type="hidden" name="page" value="{{ nb }}">
                                         <input type="hidden" name="follow" value="1">
                                         {% csrf_token %}
 
@@ -78,15 +84,15 @@
                                     </form>
                                     
                                     <a href="{% spaceless %}
-                                        {% with first_unread=topic.first_unread_post %}
-                                            {% if first_unread %}
-                                                {{ first_unread.get_absolute_url }}
-                                            {% else %}
-                                                {{ topic.last_read_post.get_absolute_url }}
-                                            {% endif %}
-                                        {% endwith %}
-                                        {% endspaceless %}"
-                                       class="{% if not topic|is_read %}unread{% endif %}
+                                            {% with first_unread=topic.first_unread_post %}
+                                                {% if first_unread %}
+                                                    {{ first_unread.get_absolute_url }}
+                                                {% else %}
+                                                    {{ topic.last_read_post.get_absolute_url }}
+                                                {% endif %}
+                                            {% endwith %}
+                                            {% endspaceless %}"
+                                        class="{% if not topic|is_read %}unread{% endif %}
                                             ico-after
 
                                             {% if topic.is_solved %}
@@ -97,16 +103,16 @@
                                                 star yellow
                                             {% endif %}
                                         "
-                                       {% if topic.is_solved or topic.is_locked %}
-                                        data-prefix="
-                                            {% if topic.is_solved %}
-                                                Résolu
-                                            {% endif %}
-                                            {% if topic.is_locked %}
-                                                Fermé
-                                            {% endif %}
-                                        "
-                                       {% endif %}
+                                        {% if topic.is_solved or topic.is_locked %}
+                                            data-prefix="
+                                                {% if topic.is_solved %}
+                                                    Résolu
+                                                {% endif %}
+                                                {% if topic.is_locked %}
+                                                    Fermé
+                                                {% endif %}
+                                            "
+                                        {% endif %}
                                     >
                                         {% if not topic|is_read %}
                                             <span class="a11y">Non-lu :</span>
@@ -122,7 +128,7 @@
                                                 {% endwith %}
                                                 <span class="topic-last-answer">
                                                     Dernière réponse
-                                                    {{ answer.pubdate|format_date }}
+                                                    {{ answer.pubdate|format_date:True }}
                                                     par
                                                     <em>{{ answer.author.username }}</em>
                                                 </span>
@@ -138,23 +144,17 @@
                         </ul>
                     {% endfor %}
 
-                    {% if topics|length <= 0 %}
+                    {% if follwedtopics.items|length <= 0 %}
                         <ul>
-                            <li class="inactive"><em>Aucun sujet suivi</em></li>
+                            <li class="inactive">
+                                <span class="disabled">Aucun sujet suivi</span>
+                            </li>
                         </ul>
                     {% endif %}
                 {% endwith %}
             </div>
         {% endif %}
 
-        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
-            <h3>Flux</h3>
-            <ul>
-                <li><a href="{% url "post-feed-rss" %}" class="ico-after rss blue">Nouveaux messages (RSS)</a></li>
-                <li><a href="{% url "post-feed-atom" %}" class="ico-after rss blue">Nouveaux messages (ATOM)</a></li>
-                <li><a href="{% url "topic-feed-rss" %}" class="ico-after rss blue">Nouveaux sujets (RSS)</a></li>
-                <li><a href="{% url "topic-feed-atom" %}" class="ico-after rss blue">Nouveaux sujets (ATOM)</a></li>
-            </ul>
-        </div>
+        {% block feeds_rss %} {% endblock %}
     </aside>
 {% endblock %}

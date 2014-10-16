@@ -5,13 +5,32 @@
 
 
 
-<article class="topic-message {% if message.is_useful %}helpful{% endif %} {% if is_repeated_message %}repeated{% endif %}">
-    {% if topic.author = message.author and helpful_link %}
-        {% set True as is_author %}
-    {% else %}
-        {% set False as is_author %}
-    {% endif %}
+{% if topic.author = message.author and helpful_link %}
+    {% set True as is_author %}
+{% else %}
+    {% set False as is_author %}
+{% endif %}
 
+
+
+<article
+    class="
+        topic-message
+        {% if message.is_useful %}helpful{% endif %}
+        {% if is_repeated_message %}repeated{% endif %}
+    " 
+    {% if comment_schema %}
+        itemscope 
+        itemtype="http://schema.org/Comment"
+        itemprop="comment"
+    {% elif answer_schema %}
+        itemscope 
+        itemtype="http://schema.org/Answer"
+        {% if message.is_useful or message.like > message.dislike %}
+            itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
+        {% endif %}
+    {% endif %}
+>
     {% include "misc/message_user.html" with member=message.author push_badge=is_author %}
 
 
@@ -27,7 +46,7 @@
                         {% if message.author = user or perms_change %}
                             {% if can_hide != False %}
                                 <li>
-                                    <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
+                                    <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         Masquer
                                     </a>
                                     <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
@@ -55,7 +74,7 @@
                             {% if can_edit != False %}
                                 <li>
                                     <a href="{{ edit_link|safe }}" class="ico-after edit">
-                                        Editer
+                                        Éditer
                                     </a>
                                 </li>
                             {% endif %}
@@ -66,12 +85,12 @@
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     Signaler
                                 </a>
-                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-medium">
+                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-big">
                                     {% csrf_token %}
-                                    <p>
+                                    <label for="signal-message-{{ message.id }}-field">
                                         Pour quelle raison signalez-vous ce message ?
-                                    </p>
-                                    <input type="text" name="signal_text" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title ="Minimum 3 caractères pour signaler">
+                                    </label>
+                                    <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title="Minimum 3 caractères pour signaler" rows="4"></textarea>
 
                                     <button type="submit" name="signal_message">
                                         Signaler
@@ -95,7 +114,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
+                        <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             Démasquer
                         </a>
                         <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
@@ -114,8 +133,15 @@
         {% endif %}
 
         <div class="message-metadata">
-            <a href="{{ message.author.get_absolute_url }}" class="username">{{ message.author.username }}</a>
-            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">{{ message.pubdate|format_date|capfirst }}</a>
+            <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <span itemprop="name">{{ message.author.username }}</span>
+            </a>
+
+            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
+                <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
+                    {{ message.pubdate|format_date|capfirst }}
+                </time>
+            </a>
         </div>
 
         <div class="message-content">
@@ -131,7 +157,9 @@
             {% endif %}
 
             {% if message.is_visible != False %}
-                {{ message.text_html|safe }}
+                <div itemprop="text">
+                    {{ message.text_html|safe }}
+                </div>
             {% elif perms_change %}
                 <div class="message-hidden-content">
                     {{ message.text_html|safe }}
@@ -140,14 +168,20 @@
 
             {% if message.is_visible = False %}
                 <p class="message-hidden">
-                    Masqué par {{ message.editor }} : {{ message.text_hidden }}
+                    Masqué par {{ message.editor }}
+                    {% if message.text_hidden %}
+                        : {{ message.text_hidden }}
+                    {% endif %}
                 </p>
             {% elif message.update %}
                 <p class="message-edited ico-after edit">
-                    Edité {{ message.update|format_date }}
+                    Édité
                     {% if message.editor %}
                         par {{ message.editor }}
                     {% endif %}
+                    <time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
+                        {{ message.update|format_date }}
+                    </time>
                 </p>
             {% endif %}
         </div>
@@ -157,7 +191,7 @@
                 <div class="alert-box error">
                     {{ alert.pubdate|format_date|capfirst }} par 
                     {% include "misc/member_item.part.html" with member=alert.author %} : 
-                    <em>{{ alert.text }}</em>
+                    <em class="alert-box-text">{{ alert.text }}</em>
 
                     <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">Résoudre</a>
                     <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-medium">
@@ -193,13 +227,17 @@
 
                 {% if upvote_link %}
                     <div class="message-karma">
-                        {% if user.is_authenticated and helpful_link %}
+                        {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author = user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">
                                         {% csrf_token %}
                                         <button type="submit" class="tick ico-after {% if message.is_useful %}green{% endif %}">
-                                            Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            {% if message.is_useful %}
+                                                Cette réponse {% if topic.author == user %}ne m'{% else %}n'{% endif %}a pas aidé
+                                            {% else %}
+                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                            {% endif %}
                                         </button>
                                     </form>
                                 {% endif %}
@@ -207,61 +245,63 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            {% with profile_user=user|profile %}
-                                <form action="{{ upvote_link }}" method="post">
-                                    {% csrf_token %}
-                                    <button
-                                        type="submit"
-                                        title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
-                                        class=" upvote
-                                                ico-after
-                                                {% if message.like > message.dislike %}more-voted{% endif %}
-                                                {% if message.like > 0 %}has-vote{% endif %}
-                                                {% if profile_user|liked:message.pk %}voted{% endif %}"
-                                    >
-                                        +{{ message.like }}
-                                    </button>
-                                </form>
+                            <form action="{{ upvote_link }}" method="post">
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
+                                    class=" upvote
+                                            ico-after
+                                            {% if message.like > message.dislike %}more-voted{% endif %}
+                                            {% if message.like > 0 %}has-vote{% endif %}
+                                            {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                >
+                                    +{{ message.like }}
+                                </button>
+                            </form>
 
-                                <form action="{{ downvote_link }}" method="post">
-                                    {% csrf_token %}
-                                    <button
-                                        type="submit"
-                                        title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
-                                        class=" downvote
-                                                ico-after
-                                                {% if message.like < message.dislike %}more-voted{% endif %}
-                                                {% if message.dislike > 0 %}has-vote{% endif %}
-                                                {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                                    >
-                                        -{{ message.dislike }}
-                                    </button>
-                                </form>
-                            {% endwith %}
+                            <form action="{{ downvote_link }}" method="post">
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
+                                    class=" downvote
+                                            ico-after
+                                            {% if message.like < message.dislike %}more-voted{% endif %}
+                                            {% if message.dislike > 0 %}has-vote{% endif %}
+                                            {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                >
+                                    -{{ message.dislike }}
+                                </button>
+                            </form>
                         {% else %}
                             <span
-                               class="upvote
+                                class="upvote
                                       ico-after
                                       {% if message.like > message.dislike %}more-voted{% endif %}
                                       {% if message.like > 0 %}has-vote{% endif %}
                                       {% if not user.is_authenticated and message.like > message.dislike %}voted{% endif %}"
                                 {% if message.like > 0 %}
-                                    title="{{ message.like }} personnes ont trouvé ce message utile"
+                                    title="{{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile"
                                 {% endif %}
                             >
-                                +{{ message.like }}
+                                +<span itemprop="upvoteCount">
+                                    {{ message.like }}
+                                </span>
                             </span>
                             <span 
-                               class="downvote
+                                class="downvote
                                       ico-after
                                       {% if message.like < message.dislike %}more-voted{% endif %} 
                                       {% if message.dislike > 0 %}has-vote{% endif %}
                                       {% if not user.is_authenticated and message.like < message.dislike %}voted{% endif %}"
                                 {% if message.dislike > 0 %}
-                                    title="{{ message.dislike }} personnes n'ont pas trouvé ce message utile"
+                                    title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"
                                 {% endif %}
                             >
-                                -{{ message.dislike }}
+                                -<span itemprop="downvoteCount">
+                                    {{ message.dislike }}
+                                </span>
                             </span>
                         {% endif %}
                     {% if upvote_link %}

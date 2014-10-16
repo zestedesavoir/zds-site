@@ -74,18 +74,14 @@ class PagesMemberTests(TestCase):
         result = self.client.post(
             reverse('zds.pages.views.assoc_subscribe'),
             {
-                'first_name': 'Anne',
-                'surname': 'Onyme',
+                'full_name': 'Anne Onyme',
                 'email': 'anneonyme@test.com',
-                'adresse': '42 rue du savoir',
-                'adresse_complement': 'appartement 42',
-                'code_postal': '75000',
-                'ville': 'Paris',
-                'pays': 'France',
+                'naissance': '01 janvier 1970',
+                'adresse': '42 rue du savoir, appartement 42, 75000 Paris, France',
                 'justification': long_str,
                 'username': self.user1.username,
-                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
-                                                           kwargs={'user_name': self.user1.username})
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                                                                         kwargs={'user_name': self.user1.username})
             },
             follow=False)
 
@@ -97,18 +93,14 @@ class PagesMemberTests(TestCase):
         result = self.client.post(
             reverse('zds.pages.views.assoc_subscribe'),
             {
-                'first_name': 'Anne',
-                'surname': 'Onyme',
+                'full_name': 'Anne Onyme',
                 'email': 'anneonyme@test.com',
-                'adresse': '42 rue du savoir',
-                'adresse_complement': 'appartement 42',
-                'code_postal': '75000',
-                'ville': 'Paris',
-                'pays': 'France',
+                'naissance': '01 janvier 1970',
+                'adresse': '42 rue du savoir, appartement 42, 75000 Paris, France',
                 'justification': 'Parce que l\'assoc est trop swag !',
                 'username': self.user1.username,
-                'profile_url': settings.SITE_URL + reverse('zds.member.views.details',
-                                                           kwargs={'user_name': self.user1.username})
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                                                                         kwargs={'user_name': self.user1.username})
             },
             follow=False)
 
@@ -246,3 +238,12 @@ class PagesGuestTests(TestCase):
         )
 
         self.assertEqual(result.status_code, 200)
+
+    def test_render_template(self):
+        """Test: render_template() works and git_version is in template."""
+
+        result = self.client.get(
+            reverse('zds.pages.views.home'),
+        )
+
+        self.assertTrue('git_version' in result.context[-1])

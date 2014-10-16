@@ -1,10 +1,10 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Mobile sidebar menu, swipe open/close
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(window, document, $, undefined){
     "use strict";
 
     /**
@@ -178,11 +178,26 @@
         if($elem.hasClass("mobile-show-ico"))
             $div.addClass("mobile-show-ico");
 
-        var $links = ($elem.hasClass("mobile-all-links")) ? $("a:not(.action-hover)", $elem).addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
+        var $links = ($elem.hasClass("mobile-all-links")) ? $("a, button, span.disabled", $elem).not(".action-hover").addClass("mobile-menu-link") : $(".mobile-menu-link", $elem);
 
         $links.each(function(){
-            if($(this).parents(".mobile-menu-imported").length === 0)
-                $div.append($(this).clone().addClass("light"));
+            if($(this).parents(".mobile-menu-imported, .modal").length === 0){
+                var $elem = $(this).clone().addClass("light");
+                var formId;
+
+                if($(this).is("button")){
+                    var $form = $(this).parents("form:first");
+                    if(!$form.attr("id")){
+                        formId = "form" + $(".identified-form").length;
+                        $form.attr("id", formId).addClass("identified-form");
+                    } else {
+                        formId = $form.attr("id");
+                    }
+                    $elem.attr("form", formId);
+                }
+
+                $div.append($elem);
+            }
         });
 
         $elem.addClass("mobile-menu-imported");
@@ -264,4 +279,39 @@
             }, 200);
         }
     }
-})(jQuery);
+
+
+
+
+    /**
+     * Manage actions buttons, move them at the top af core of page
+     */
+    $(window).on("resize", function(){
+        if(parseInt($("html").css("width")) < 960 && !disableMobileMenu){
+            var $newBtns = $(".sidebar .new-btn:not(.mobile-btn-imported)");
+            if($newBtns.length > 0){
+                var $prevElem = $("#content")
+                    .find("> .content-wrapper, > .full-content-wrapper, > .content-col-2")
+                    .first()
+                    .find("h1, h2")
+                    .first();
+                if($prevElem.next(".license").length > 0)
+                    $prevElem = $prevElem.next(".license");
+                if($prevElem.next(".subtitle").length > 0)
+                    $prevElem = $prevElem.next(".subtitle");
+                if($prevElem.next(".taglist").length > 0)
+                    $prevElem = $prevElem.next(".taglist");
+
+                var $newBtnContainer = $("<div/>", {
+                    "class": "new-btn-container"
+                });
+                $newBtns.each(function(){
+                    $newBtnContainer.append($(this).clone().removeAttr("id").removeClass("blue"));
+                    $(this).addClass("mobile-btn-imported");
+                });
+                $prevElem.after($newBtnContainer);
+            }
+        }
+    });
+    $(window).trigger("resize");
+})(window, document, jQuery);

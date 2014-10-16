@@ -5,13 +5,17 @@
 
 
 {% block title_base %}
-    &#183; Mes articles
+    &bull; Articles
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% if user in article.authors.all %}
+        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    {% else %}
+        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+    {% endif %}
 {% endblock %}
 
 
@@ -30,7 +34,7 @@
 
 
 {% block headline %}
-    <h2>Éditer l'article : {{ article.title }}</h2>
+    <h1>Éditer l'article : {{ article.title }}</h1>
 {% endblock %}
 
 
@@ -50,4 +54,8 @@
     {% endif %}
 
     {% crispy form %}
+            
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
 {% endblock %}

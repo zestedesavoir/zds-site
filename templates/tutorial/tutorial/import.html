@@ -24,13 +24,31 @@
 
 
 {% block content %}
+    <h3>Envoi d'une archive</h3>    
+    <p>
+        Vous avez commencé a rédiger votre tutoriel sur l'éditeur en ligne de {{app.site.litteral_name}}, vous avez téléchargé l'archive correspondate et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site ? Faites une archive zip (seul format supporté actuellement) du répertoire dans lequel se trouve les fichiers de votre tutoriel et renseignez les deux champs ci-dessous, puis cliquez sur importer.
+    </p>
+    {% crispy form_archive %}
+
     <h3>Envoi de fichiers .tuto</h3>
+    <p>
+        Vous êtes l'auteur d'un cours sur le SdZ ? Nous l'avons récupéré pour vous ! Il est disponible en hors-ligne et n'attend plus que votre accord pour être publié. Il vous suffit d'en faire la demande à un membre du Staff via le forum ou directement par MP.
+    </p>
+
+    <p>
+        <strong>Attention</strong>, le fichier attendu n'est pas un .tuto du Site du Zéro, mais un format intermédiaire qui contient du Markdown et non du zCode. Contactez un membre du Staff pour demander la conversion de votre fichier.
+    </p>
+    <p>
+        Le fichier zip est celui qui contient les ressources de votre tutoriel. Il est également issu du convertisseur Markdown > zCode.
+    </p>
     {% crispy form %}
 
-    <hr>
 
     {% if old_tutos %}
         <h3>Récupérer un tutoriel du Site du Zéro</h3>
+        <p>
+            Ci-dessous se trouve la liste des tutoriels que vous aviez rédigé sur le Site du Zéro et que nous avons récupéré. Vous pouvez les importer pour continuer leur rédaction et les soumettre à la validation. Si vous pensez qu'il en manque un, vous pouvez contacter un membre du Staff.
+        </p>
         <table>
             <thead>
                 <tr>

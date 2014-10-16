@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Override for high pixel ratio screens : HD icons
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
@@ -13,11 +13,10 @@
     }
     .ico,
     .ico-after:after,
-    .breadcrumb ul li:not(:last-child):after,
+    .breadcrumb ol li:not(:last-child):after,
     input[type=radio]:checked,
     input[type=checkbox]:checked {
         background-size: round($sprite_width / 2) round($sprite_height / 2) !important;
-        //background-size: 50% 50% !important;
         background-image: $sprite2x !important;
     }
 
@@ -40,20 +39,26 @@
         }
     }
 
-    .breadcrumb ul li:not(:last-child):after {
+    .breadcrumb ol li:not(:last-child):after {
         @include sprite-pos($ariane, true);
     }
 
-    .search form button:after {
-        @include sprite-pos($search, true);
+    .search,
+    .search-box {
+        form button:after {
+            @include sprite-pos($search, true);
+        }
     }
 
-    .main .content-container h2 {
-        &.ico-articles:after {
-            @include sprite-pos($articles, true);
-        }
-        &.ico-tutorials:after {
-            @include sprite-pos($tutorials, true);
+    .main .content-container {
+        h1,
+        h2 {
+            &.ico-articles:after {
+                @include sprite-pos($articles, true);
+            }
+            &.ico-tutorials:after {
+                @include sprite-pos($tutorials, true);
+            }
         }
     }
 
@@ -80,274 +85,19 @@
     .main .content-container {
         .article-content,
         .message-content {
-            .information.ico-after:after {
-                @include sprite-pos($information, true);
-            }
-            .question.ico-after:after {
-                @include sprite-pos($question, true);
-            }
-            .error.ico-after:after {
-                @include sprite-pos($error, true);
-            }
-            .warning.ico-after:after {
-                @include sprite-pos($warning, true);
-            }
-        }
-    }
-
-
-
-    /* ==============
-        ALL: Icons
-       ============== */
-    .ico-after {
-        // TODO : faire une vraie icône online
-        &.online,
-        &.view {
-            &:after {
-                @include sprite-pos($view, true);
-            }
-            &.blue:after {
-                @include sprite-pos($view-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($view-light, true);
-            }
-        }
-        &.edit {
-            &:after {
-                @include sprite-pos($edit, true);
-            }
-            &.blue:after {
-                @include sprite-pos($edit-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($edit-light, true);
-            }
-        }
-        &.alert {
-            &:after {
-                @include sprite-pos($alert, true);
-            }
-            &.blue:after {
-                @include sprite-pos($alert-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($alert-light, true);
-            }
-        }
-        &.cite {
-            &:after {
-                @include sprite-pos($cite, true);
-            }
-            &.blue:after {
-                @include sprite-pos($cite-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($cite-light, true);
-            }
-        }
-
-        &.tick {
-            &:after {
-                @include sprite-pos($tick, true);
-            }
-            &.green:after {
-                @include sprite-pos($tick-green, true);
-            }
-            &.light:after {
-                @include sprite-pos($tick-light, true);
-            }
-        }
-
-        &.upvote {
-            &:after {
-                @include sprite-pos($thumb-up, true);
-            }
-            &.voted:after {
-                @include sprite-pos($thumb-up-voted, true);
-            }
-        }
-        &.downvote {
-            &:after {
-                @include sprite-pos($thumb-down, true);
-            }
-            &.voted:after {
-                @include sprite-pos($thumb-down-voted, true);
-            }
-        }
-
-        &.lock {
-            &:after {
-                @include sprite-pos($lock, true);
-            }
-            &.blue:after {
-                @include sprite-pos($lock-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($lock-light, true);
-            }
-        }
-
-        &.more {
-            &:after {
-                @include sprite-pos($more, true);
-            }
-            &.blue:after {
-                @include sprite-pos($more-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($more-light, true);
-            }
-        }
-        &.cross {
-            &:after {
-                @include sprite-pos($cross, true);
-            }
-            &.blue:after {
-                @include sprite-pos($cross-blue, true);
-            }
-            &.red:after {
-                @include sprite-pos($cross-red, true);
-            }
-            &.light:after {
-                @include sprite-pos($cross-light, true);
-            }
-            &.white:after {
-                @include sprite-pos($cross-white, true);
-            }
-        }
-        &.pin {
-            &:after {
-                @include sprite-pos($pin, true);
-            }
-            &.blue:after {
-                @include sprite-pos($pin-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($pin-light, true);
-            }
-        }
-        &.beta {
-            &:after {
-                @include sprite-pos($beta, true);
-            }
-            &.blue:after {
-                @include sprite-pos($beta-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($beta-light, true);
-            }
-        }
-        &.gear {
-            &:after {
-                @include sprite-pos($gear, true);
-            }
-            &.blue:after {
-                @include sprite-pos($gear-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($gear-light, true);
-            }
-        }
-        // TODO : faire une vraie icône offline
-        &.offline,
-        &.arrow-right {
-            &:after {
-                @include sprite-pos($arrow-right, true);
-            }
-            &.blue:after {
-                @include sprite-pos($arrow-right-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($arrow-right-light, true);
-            }
-        }
-        &.arrow-left {
-            &:after {
-                @include sprite-pos($arrow-left, true);
-            }
-            &.blue:after {
-                @include sprite-pos($arrow-left-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($arrow-left-light, true);
-            }
-        }
-        &.move {
-            &:after {
-                @include sprite-pos($move, true);
-            }
-            &.blue:after {
-                @include sprite-pos($move-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($move-light, true);
-            }
-        }
-        &.star {
-            &:after {
-                @include sprite-pos($star, true);
-            }
-            &.yellow:after {
-                @include sprite-pos($star-yellow, true);
-            }
-            &.blue:after {
-                @include sprite-pos($star-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($star-light, true);
-            }
-        }
-
-        &.download {
-            &:after {
-                @include sprite-pos($download, true);
-            }
-            &.blue:after {
-                @include sprite-pos($download-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($download-light, true);
-            }
-        }
-
-        &.import {
-            &:after {
-                @include sprite-pos($import, true);
-            }
-            &.blue:after {
-                @include sprite-pos($import-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($import-light, true);
-            }
-        }
-
-        &.history {
-            &:after {
-                @include sprite-pos($history, true);
-            }
-            &.blue:after {
-                @include sprite-pos($history-blue, true);
-            }
-            &.light:after {
-                @include sprite-pos($history-light, true);
-            }
-        }
-
-        &.rss {
-            &:after {
-                @include sprite-pos($rss, true);
-            }
-            &.blue:after {
-                @include sprite-pos($rss-blue, true);
-            }
-            &.orange:after {
-                @include sprite-pos($rss-orange, true);
-            }
-            &.light:after {
-                @include sprite-pos($rss-light, true);
+            :not(.alert-box){
+                &.information.ico-after:after {
+                    @include sprite-pos($information, true);
+                }
+                &.question.ico-after:after {
+                    @include sprite-pos($question, true);
+                }
+                &.error.ico-after:after {
+                    @include sprite-pos($error, true);
+                }
+                &.warning.ico-after:after {
+                    @include sprite-pos($warning, true);
+                }
             }
         }
     }

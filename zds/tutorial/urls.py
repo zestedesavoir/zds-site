@@ -3,13 +3,15 @@
 from django.conf.urls import patterns, url
 
 from . import views
-
+from . import feeds
 
 urlpatterns = patterns('',
                        # Viewing
+                       url(r'^flux/rss/$', feeds.LastTutorialsFeedRSS(), name='tutorial-feed-rss'),
+                       url(r'^flux/atom/$', feeds.LastTutorialsFeedATOM(), name='tutorial-feed-atom'),
 
                        # Current URLs
-                       url(r'^recherche/(?P<pk_user>.+)/$',
+                       url(r'^recherche/(?P<pk_user>\d+)/$',
                            'zds.tutorial.views.find_tuto'),
 
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',

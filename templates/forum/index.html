@@ -7,12 +7,9 @@
 
 
 
-{% block meta %}
-    <meta name="description" content="Les forums vous permettent de venir poser
-    vos questions aux autres membres mais aussi de vous entraîner ou tout
-    simplement de discuter. Cela fonctionne également dans l'autre sens : vous
-    pouvez ici aider les autres et proposer des exercices au reste de la
-    communauté.">
+{% block description %}
+    Les forums vous permettent de venir poser vos questions aux autres membres mais aussi de vous entraîner ou tout
+    simplement de discuter.
 {% endblock %}
 
 
@@ -37,12 +34,18 @@
         proposer des exercices au reste de la communauté.
     </p>
 
-    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list">
-        {% for title, forums in categories.items %}
-            <h3 class="group-title content-wrapper">
+    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+        <meta itemprop="itemListOrder" content="Unordered">
+
+        {% for title, forums in categories.categories.items %}
+            <h2 class="group-title content-wrapper">
                 {{ title }}
-            </h3>
+            </h2>
             {% include "forum/includes/forums.part.html" with forum=forums %}
         {% endfor %}
     </div>
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" %}
 {% endblock %}

@@ -1,13 +1,13 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Close alert-boxes
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
-    $(".close-alert-box:not(.open-modal)").on("click", function(e) {
+    $(".main").on("click", ".close-alert-box:not(.open-modal)", function(e) {
         $(this).parents(".alert-box:first").slideUp(150, function(){
             $(this).remove();
         });

@@ -1,10 +1,10 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Sandhose / Quentin Gliech
-   ---------------------------------
    Add autocomplete for members names
+   ---------------------------------
+   Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($) {
+(function($, undefined) {
     "use strict";
 
     function AutoComplete(input, options) {
@@ -13,8 +13,8 @@
         this.$dropdown = this.$wrapper.find(".autocomplete-dropdown");
 
         this.$dropdown.css({
-            top: "-" + this.$input.css("margin-bottom"),
-            left: this.$input.css("margin-left")
+            "marginTop": "-" + this.$input.css("margin-bottom"),
+            "left": this.$input.css("margin-left")
         });
 
         this.$input.on("keyup", this.handleInput.bind(this));
@@ -59,6 +59,7 @@
                 case 13: // Enter
                     e.preventDefault();
                     e.stopPropagation();
+
                     this.enter();
                     break;
             }
@@ -89,7 +90,7 @@
                         self.updateDropdown(self.sortList(data, search));
                     })
                     .fail(function(){
-                        console.log("something went wrong...");
+                        console.error("[Autocompletition] Something went wrong...");
                     })
                 ;
                 this.updateDropdown(this.sortList(this.searchCache(search), search));
@@ -98,6 +99,8 @@
         },
 
         showDropdown: function(){
+            if(this.$input.is("input"))
+                this.$dropdown.css("width", this.$input.outerWidth());
             this.$dropdown.show();
         },
 
@@ -115,7 +118,7 @@
             selected = selected || this.selected;
             var input = this.$input.val();
             var lastChar = input.substr(-1);
-            if((lastChar === "," || lastChar === " " || selected === -1) && this.options.type === "multiple")
+            if((lastChar === "," || selected === -1) && this.options.type === "multiple")
                 return false;
 
             var completion = this.getFromCache(selected);
@@ -123,9 +126,9 @@
                 return false;
 
             if(this.options.type === "multiple") {
-                var lastSpace = input.replace(",", " ").lastIndexOf(" ");
-                if(lastSpace){
-                    input = input.substr(0, lastSpace + 1) + completion.value + ", ";
+                var lastComma = input.lastIndexOf(",");
+                if(lastComma !== -1){
+                    input = input.substr(0, lastComma + 2) + completion.value + ", ";
                     this.$input.val(input);
                 } else {
                     this.$input.val(completion.value + ", ");
@@ -145,9 +148,9 @@
         },
 
         extractWords: function(input){
-            input = input.replace(/ /g, ","); // Replace space with comas
+            //input = input.replace(/ /g, ","); // Replace space with comas
             var words = $.grep(
-                input.split(","),  // Remove empty
+                $.map(input.split(","), $.trim),  // Remove empty
                 function(e){
                     return e === "" || e === undefined;
                 },
@@ -159,8 +162,7 @@
 
         parseInput: function(input){
             if(this.options.type === "multiple") {
-                var lastChar = input.substr(-1);
-                if(lastChar === "," || lastChar === " ")
+                if(input.substr(-1) === "," || input.substr(-2) === ", ")
                     return false;
 
                 var words = this.extractWords(input);
@@ -256,10 +258,16 @@
 
     function buildDom(input) {
         var $input = $(input),
-            $wrapper = $("<span>", { class: "autocomplete-wrapper" }),
-            $dropdown = $("<div>", { class: "autocomplete-dropdown" });
+            $wrapper = $("<div/>", {
+                "class": "autocomplete-wrapper"
+            }),
+            $dropdown = $("<div/>", {
+                "class": "autocomplete-dropdown"
+            })
+        ;
 
         return $input.addClass("autocomplete-input")
+            .attr("autocomplete", "off")
             .wrap($wrapper)
             .parent()
             .append($dropdown)
@@ -282,5 +290,10 @@
 
     $(document).ready(function() {
         $("[data-autocomplete]").autocomplete();
+        $("#content").on("DOMNodeInserted", "input", function(e){
+            var $input = $(e.target);
+            if($input.is("[data-autocomplete]"))
+                $input.autocomplete();
+        });
     });
 })(jQuery);

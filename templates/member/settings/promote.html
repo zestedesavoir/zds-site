@@ -1,0 +1,26 @@
+{% extends "member/settings/base.html" %}
+{% load crispy_forms_tags %}
+
+
+
+{% block title %}
+   Gestion des groupes
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Gestion des groupes</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Gestion des groupes
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

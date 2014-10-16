@@ -21,8 +21,19 @@
     </div>
     {% with profile=topic.author|profile %}
         <div class="topic-description">
-            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
-                <span class="topic-title">{{ topic.title }}</span>
+            {% if topic.tags.all %}
+                <ul class="topic-tags">
+                    {% for tag in topic.tags.all %}
+                        <li>
+                            <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                                {{ tag.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link" title="{{ topic.title }}. {{ topic.subtitle }}">
+                <span class="topic-title" itemprop="itemListElement">{{ topic.title }}</span>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>
             <p class="topic-members">
@@ -30,19 +41,14 @@
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
-                {% if topic.tags.all %}
-                    - Tags : 
-                    {% for tag in topic.tags.all %}
-                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag">{{ tag.title }}</a>
-                    {% endfor %}
-                {% endif %}
+                <span class="topic-members-label">{{ topic.pubdate|format_date }}</span>
             </p>
         </div>
     {% endwith %}
     <p class="topic-answers">
         {% with nb_post=topic.get_post_count %}
             {% if nb_post > 1 %}
-                {{ nb_post|add:"-1" }} réponse{% if nb_post > 2 %}s{% endif %}
+                {{ nb_post|add:"-1" }} réponse{{ nb_post|add:"-1"|pluralize }}
             {% endif %}
         {% endwith %}
     </p>

@@ -31,14 +31,14 @@
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
-                        <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
+                        <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
                             {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">Participants :</span>
+                            <span class="topic-members-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
@@ -51,7 +51,7 @@
                 {% endwith %}
                 <p class="topic-answers">
                     {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} réponse{% if topic.get_post_count > 2 %}s{% endif %}
+                        {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
                     {% endif %}
                 </p>
                 <p class="topic-last-answer">

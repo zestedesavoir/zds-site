@@ -11,12 +11,26 @@
     {% if topic.is_solved %}[Résolu]{% endif %} {{ topic.title }}
 {% endblock %}
 
-
-
 {% block breadcrumb %}
-    <li><a href="{{ topic.forum.category.get_absolute_url }}">{{ topic.forum.category.title }}</a></li>
-    <li><a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.title }}</a></li>
-    <li>{{ topic.title }}</li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.category.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.title }}</span>
+        </a>
+    </li>
+    <li>
+        {{ topic.title }}
+    </li>
+{% endblock %}
+
+
+
+{% block schema %}
+    itemscope itemtype="http://schema.org/Question"
 {% endblock %}
 
 
@@ -34,17 +48,23 @@
 
 
 {% block content %}
-    <ul class="taglist">
-        {% for tag in topic.tags.all %}
-            <li><a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">{{ tag.title }}</a></li>
-        {% endfor %}
-    </ul>
+    {% if topic.tags.all %}
+        <ul class="taglist" itemprop="keywords">
+            {% for tag in topic.tags.all %}
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">
+                        {{ tag.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     {% include "misc/pagination.part.html" with position="top" %}
 
     <div class="content-wrapper">
         {% if topic.is_solved %}
-            <div class="alert-box success">
+            <div class="alert-box success ico-after tick light">
                 L'auteur de ce sujet a trouvé une solution à son problème.
             </div>
         {% endif %}
@@ -80,7 +100,13 @@
                 {% set False as is_repeated_message %}
             {% endif %}
 
-            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}
+            {% if forloop.first and nb = 1 %}
+                {% set False as answer_schema %}
+            {% else %}
+                {% set True as answer_schema %}
+            {% endif %}
+
+            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
         {% endfor %}
     </div>
 
@@ -112,6 +138,7 @@
             <form action="{% url "zds.forum.views.edit" %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
+                <input type="hidden" name="page" value="{{ nb }}">
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
@@ -130,6 +157,7 @@
         <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="page" value="{{ nb }}">
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
@@ -146,10 +174,11 @@
         <form action="{% url "zds.forum.views.edit" %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
+            <input type="hidden" name="page" value="{{ nb }}">
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
                     Ne plus être notifié par courriel
                 {% else %}
@@ -171,6 +200,7 @@
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
             			{% csrf_token %}
 
@@ -188,6 +218,7 @@
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
             			{% csrf_token %}
 

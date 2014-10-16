@@ -1,13 +1,13 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Manage karma AJAX requests (+1/-1 on messages)
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
-    $(".upvote, .downvote").click(function(e){
+    $(".topic-message").on("click", ".upvote, .downvote", function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),

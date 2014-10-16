@@ -1,7 +1,7 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Wide screen support, for wide and extra-wide
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 
@@ -127,7 +127,7 @@
             background-image:linear-gradient(left, rgba(231, 235, 236, 0), rgba(231, 235, 236, .75));
         }
 
-        ul {
+        ol {
             margin: 0;
             padding: 0;
             list-style: none;
@@ -227,6 +227,10 @@
             width: 80%;
             margin-right: 0;
 
+            .taglist + .pubdate {
+                margin-top: -40px;
+            }
+
             .open-zen-mode {
                 display: block;
             }
@@ -246,7 +250,8 @@
                     content: "Quitter la ";
                 }
 
-                .reactions-title,
+                .comments-title,
+                .pagination:not(.pagination-chapter),
                 .topic-message {
                     display: none;
                 }
@@ -273,6 +278,15 @@
                     margin: 0;
                 }
             }
+
+            .article-content > .summary-part > li {
+                float: left;
+                width: 50%;
+
+                &:nth-child(2n+1) {
+                    clear: both;
+                }
+            }
         }
 
         .sidebar {
@@ -281,7 +295,8 @@
 
             h3,
             h4,
-            ul li {
+            ul li,
+            ol li {
                 padding-left: 11.5%;
             }
 
@@ -298,7 +313,8 @@
             }
 
             &.sommaire ul li.current {
-                ul {
+                ul,
+                ol {
                     margin-left: calc(-11% - 10px);
                     width: calc(111% + 10px);
                     background: linear-gradient(top, rgba(0, 0, 0, .07), transparent 3px);
@@ -315,6 +331,54 @@
     /* ============
        Main / Home
        ============ */
+    .home-quote {
+        blockquote {
+            text-align: left;
+        }
+
+        &.home-simple-quote {
+            img {
+                height: 80px;
+                top: -15px;
+                left: 150px;
+                margin-left: -10px;
+            }
+            
+            blockquote {
+                margin: 0 0 0 300px;
+            }
+        }
+
+        &.home-full-description {
+            img {
+                float: left;
+                margin: 15px 0 0 -15px;
+            }
+
+            .home-full-description-text {
+                margin-left: 300px;
+            }
+        }
+    }
+    .search-box {
+        form {
+            label {
+                line-height: 60px;
+                width: 300px;
+                float: left;
+            }
+
+            input,
+            button {
+                margin: 12px 0;
+                float: left;
+            }
+            input {
+                width: calc(100% - 371px);
+            }
+        }
+    }
+
     .content-cols .main {
         .content-container {
             width: 79%;
@@ -343,7 +407,11 @@
        Main / Message
        ============ */
     .topic-message {
-        margin: 0 0 25px;
+        margin: 25px 0;
+
+        &:first-child {
+            margin-top: 35px;
+        }
 
         .user,
         .message {
@@ -418,6 +486,10 @@
     .full-content-wrapper {
         margin: 0 0 0 4%;
 
+        &.without-margin {
+            margin: 0;
+        }
+
         .content-wrapper {
             max-width: none;
             margin: 0;
@@ -463,7 +535,7 @@
             &:hover,
             &:focus {
                 color: #EEE !important;
-                background: $blue !important;
+                background: $primary !important;
             }
         }
     }

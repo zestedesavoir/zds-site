@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from zds.utils import slugify
+from zds.utils.templatetags.emarkdown import emarkdown
 
 from model_utils.managers import InheritanceManager
 
@@ -67,7 +68,7 @@ class Category(models.Model):
             .filter(category__in=[self], is_main=True)\
             .select_related('subcategory')\
             .all()
-        
+
         for catsubcat in catsubcats:
             if catsubcat.subcategory.get_tutos().count() > 0:
                 csc.append(catsubcat)
@@ -195,6 +196,10 @@ class Comment(models.Model):
         """Gets number of dislike for the post."""
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
 
+    def update_content(self, text):
+        self.text = text
+        self.text_html = emarkdown(self.text)
+
 
 class Alert(models.Model):
 
@@ -275,6 +280,11 @@ class Tag(models.Model):
     def __unicode__(self):
         """Textual Link Form."""
         return u"{0}".format(self.title)
+
+    def get_absolute_url(self):
+        return reverse('zds.forum.views.find_topic_by_tag',
+                       kwargs={'tag_pk': self.pk,
+                               'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.title = smart_text(self.title).lower()

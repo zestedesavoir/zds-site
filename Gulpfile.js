@@ -1,16 +1,23 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
     path = require("path"),
-    spritesmith = require("gulp.spritesmith");
+    spritesmith = require("gulp.spritesmith"),
+    mainBowerFiles = require('main-bower-files');
 
 var paths = {
-  scripts: "assets/js/**",
+  scripts: ["assets/js/**", "!assets/js/_**"],
   images: "assets/images/**",
   smileys: "assets/smileys/**",
-  copy: "assets/misc/**",
-  stylesheet: "assets/scss/main.scss",
-  scss: ["assets/scss/**", "!assets/scss/_sprite.scss"],
-  sass: {
+  errors_main: "errors/scss/main.scss",
+  errors_path: "errors/scss/**",
+  errors: {
+    sass: "errors/scss",
+    images: "errors/images",
+    includePaths: ["errors/scss", "assets/bower_components/modularized-normalize-scss"],
+  },
+  styles_main: "assets/scss/main.scss",
+  styles_path: ["assets/scss/**", "!assets/scss/_sprite.scss"],
+  styles: {
     sass: "assets/scss",
     images: "assets/images",
     includePaths: ["assets/scss", "assets/bower_components/modularized-normalize-scss"],
@@ -18,9 +25,11 @@ var paths = {
   sprite: "assets/images/sprite@2x/*.png"
 };
 
+
+
 gulp.task("clean", function() {
-  return gulp.src(["dist/*"])
-    .pipe($.clean());
+  return gulp.src(["dist/*"], { read: false })
+    .pipe($.rimraf());
 });
 
 gulp.task("script", ["test"], function() {
@@ -35,12 +44,31 @@ gulp.task("script", ["test"], function() {
     .pipe($.size({ title: "main.min.js" }));
 });
 
-gulp.task("stylesheet", ["sprite"], function() {
-  return gulp.src(paths.stylesheet)
+gulp.task("clean-errors", function() {
+  return gulp.src(["errors/css/*"], { read: false })
+    .pipe($.rimraf());
+});
+
+gulp.task("errors", ["clean-errors"], function() {
+  return gulp.src(paths.errors_main)
     .pipe($.sass({
-      sass: paths.sass.sass,
-      imagePath: paths.sass.images,
-      includePaths: paths.sass.includePaths
+      sass: paths.errors.sass,
+      imagePath: paths.errors.images,
+      includePaths: paths.errors.includePaths
+    }))
+    .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
+    .pipe(gulp.dest("errors/css"))
+    .pipe($.rename({ suffix: ".min" })) // génère une version minimifié
+    .pipe($.minifyCss())
+    .pipe(gulp.dest("errors/css"));
+});
+
+gulp.task("stylesheet", ["sprite"], function() {
+  return gulp.src(paths.styles_main)
+    .pipe($.sass({
+      sass: paths.styles.sass,
+      imagePath: paths.styles.images,
+      includePaths: paths.styles.includePaths
     }))
     .pipe($.autoprefixer(["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"], { cascade: true }))
     .pipe(gulp.dest("dist/css"))
@@ -69,8 +97,10 @@ gulp.task("sprite", function() {
         return output;
       }
     }));
-  sprite.img.pipe(gulp.dest("dist/images"));
-  sprite.css.pipe(gulp.dest(paths.sass.sass));
+  sprite.img
+    .pipe($.imagemin({ optimisationLevel: 3, progressive: true, interlaced: true }))
+    .pipe(gulp.dest("dist/images"));
+  sprite.css.pipe(gulp.dest(paths.styles.sass));
   return sprite.css;
 });
 
@@ -91,11 +121,13 @@ gulp.task("smileys", function() {
 });
 
 gulp.task("vendors", function() {
-  return $.bowerFiles()
+  var vendors = mainBowerFiles();
+  vendors.push("assets/js/_**");
+
+  return gulp.src(vendors)
     .pipe($.newer("dist/js/vendors.js"))
     .pipe($.flatten()) // remove folder structure
     .pipe($.size({ title: "vendors", showFiles: true }))
-    .pipe(gulp.dest("dist/js/vendors"))
     .pipe($.concat("vendors.js"))
     .pipe($.size({ title: "vendors.js" }))
     .pipe(gulp.dest("dist/js"))
@@ -114,15 +146,21 @@ gulp.task("merge-scripts", ["script", "vendors"], function() {
 
 gulp.task("watch", function(cb) {
   gulp.watch(paths.scripts, ["script"]);
-  gulp.watch(paths.copy, ["copy"]);
   gulp.watch(paths.smiley, ["smileys"]);
   gulp.watch(paths.images, ["images"]);
-  gulp.watch(paths.scss, ["stylesheet"]);
-  gulp.watch(paths.sprite, ["sprite", "stylesheet"]);
+  gulp.watch(paths.styles_path, ["stylesheet"]);
+  gulp.watch(paths.errors_path, ["errors"]);
+  gulp.watch(paths.sprite, ["stylesheet"]); // stylesheet task already lauch sprite
 
   gulp.watch("dist/*/**", function(file) {
-    filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
+    var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
     $.livereload.changed(filePath);
+  });
+
+  gulp.watch("errors/*/**", function(file) {
+    setImmediate(function(){
+      $.livereload.changed(file.path);
+    });
   });
 
   $.livereload.listen();
@@ -134,20 +172,15 @@ gulp.task("test", function() {
     .pipe($.jshint.reporter("jshint-stylish"));
 });
 
-gulp.task("copy", function() {
-  return gulp.src(paths.copy)
-    .pipe(gulp.dest("dist/"));
-});
-
 gulp.task("pack", ["build"], function() {
   return gulp.src(["dist/*/**", "!dist/pack.zip"])
     .pipe($.zip("pack.zip"))
     .pipe(gulp.dest("dist/"));
 });
 
-gulp.task("travis", ["test"]);
 
+gulp.task("travis", ["pack"]);
 
-gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "vendors", "script", "merge-scripts", "copy"]);
+gulp.task("build", ["smileys", "images", "sprite", "stylesheet", "merge-scripts"]);
 
 gulp.task("default", ["build", "watch"]);

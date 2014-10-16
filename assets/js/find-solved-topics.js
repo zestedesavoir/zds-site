@@ -1,10 +1,10 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Search for solved topics when create a new topic
+   ---------------------------------
+   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
     var $solvedTopicsElem = $("main [data-solved-topics-url]");
