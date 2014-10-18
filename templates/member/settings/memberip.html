@@ -1,5 +1,5 @@
 {% extends "member/base.html" %}
-
+{% load date %}
 
 
 {% block title %}
@@ -27,7 +27,14 @@
     <ul>
         {% for member in members %}
             <li>
-                {% include "misc/member_item.part.html" with avatar=True %}
+                <a href="{{ member.get_absolute_url }}"
+                    class="member-item"
+                    itemscope
+                    itemtype="http://schema.org/Person"
+                >{% spaceless %}
+                <img src="{{ member.get_avatar_url }}" alt="" class="avatar" itemprop="image">
+                <span itemprop="name">{{ member.user.username }}</span>
+            {% endspaceless %}</a> <span class="info">le {{ member.last_visit|format_date:True }}</span>
             </li>
         {% endfor %}
     </ul>
