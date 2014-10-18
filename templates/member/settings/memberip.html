@@ -1,0 +1,34 @@
+{% extends "member/base.html" %}
+
+
+
+{% block title %}
+    Membres par IP
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>IP</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Membres par IP : <strong>{{ ip }}</strong>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Liste des membres dont la dernière IP est {{ ip }}
+    </p>
+    <ul>
+        {% for member in members %}
+            <li>
+                {% include "misc/member_item.part.html" with avatar=True %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

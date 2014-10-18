@@ -1071,3 +1071,14 @@ def settings_promote(request, user_pk):
         "profile": profile,
         "form": form
     })
+
+
+@login_required
+def member_from_ip(request, ip):
+    """ Get list of user connected from a particular ip """
+
+    members = User.objects.filter(profile__last_ip_address=ip)
+    return render_template('member/settings/memberip.html', {
+        "members": members,
+        "ip": ip
+    })
