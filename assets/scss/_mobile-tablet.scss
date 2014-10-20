@@ -603,15 +603,18 @@
         .full-content-wrapper {
             h1,
             h2,
-            h3 {
+            h3,
+            .subtitle {
                 padding-left: 10px;
                 padding-right: 10px;
+            }
+            .illu img {
+                display: none;
             }
 
             h4,
             h5,
             h6,
-            .subtitle,
             .authors,
             p,
             figure,
@@ -626,6 +629,13 @@
                     margin-left: 0;
                     margin-right: 0;
                 }
+            }
+
+            .license {
+                position: absolute;
+                margin-top: 0;
+                top: 62px;
+                right: 15px;
             }
         }
     }
