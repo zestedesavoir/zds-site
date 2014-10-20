@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 
 from shutil import rmtree
 
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER, SITE_ROOT
+from zds.settings import SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
@@ -38,9 +38,9 @@ class MemberTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
-        settings.BOT_ACCOUNT = self.mas.user.username
-        self.anonymous = UserFactory(username=ANONYMOUS_USER, password="anything")
-        self.external = UserFactory(username=EXTERNAL_USER, password="anything")
+        settings.ZDS_APP['member']['bot_account'] = self.mas.user.username
+        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
@@ -92,7 +92,7 @@ class MemberTests(TestCase):
 
         token = TokenRegister.objects.get(user=user)
         result = self.client.get(
-            settings.SITE_URL + token.get_absolute_url(),
+            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
             follow=False)
 
         self.assertEqual(result.status_code, 200)
@@ -311,10 +311,13 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(publishedTutorialAlone.authors.count(), 1)
-        self.assertEqual(publishedTutorialAlone.authors.first().username, EXTERNAL_USER)
+        self.assertEqual(publishedTutorialAlone.authors.first().username,
+                         settings.ZDS_APP["member"]["external_account"])
         self.assertFalse(os.path.exists(writingTutorialAloneGallerPath))
         self.assertEqual(publishedTutorial2.authors.count(), 1)
-        self.assertEqual(publishedTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(publishedTutorial2.authors
+                         .filter(username=settings.ZDS_APP["member"]["external_account"])
+                         .count(), 0)
         self.assertIsNotNone(publishedTutorial2.get_prod_path())
         self.assertTrue(os.path.exists(publishedTutorial2.get_prod_path()))
         self.assertIsNotNone(publishedTutorialAlone.get_prod_path())
@@ -344,14 +347,19 @@ class MemberTests(TestCase):
             follow=True).status_code, 200)
         self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
         self.assertEqual(writingTutorial2.authors.count(), 1)
-        self.assertEqual(writingTutorial2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(writingTutorial2.authors
+                         .filter(username=settings.ZDS_APP["member"]["external_account"])
+                         .count(), 0)
         self.assertEqual(publishedArticleAlone.authors.count(), 1)
-        self.assertEqual(publishedArticleAlone.authors.first().username, EXTERNAL_USER)
+        self.assertEqual(publishedArticleAlone.authors
+                         .first().username, settings.ZDS_APP["member"]["external_account"])
         self.assertEqual(publishedArticle2.authors.count(), 1)
-        self.assertEqual(publishedArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(publishedArticle2.authors
+                         .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
         self.assertEqual(Article.objects.filter(pk=writingArticleAlone.pk).count(), 0)
         self.assertEqual(writingArticle2.authors.count(), 1)
-        self.assertEqual(writingArticle2.authors.filter(username=EXTERNAL_USER).count(), 0)
+        self.assertEqual(writingArticle2.authors
+                         .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)

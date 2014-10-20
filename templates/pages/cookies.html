@@ -31,12 +31,12 @@
     <p><strong>En aucun cas</strong> les cookies servent à recueillir des renseignements personnels, transmettre des données sensibles ou transmettre des données personnelles à des tiers.</p>
 
     <h4>Cookies techniques</h4>
-    <p>Certaines fonctionnalités du site nécessitent des cookies pour pouvoir être opérationnelles. L'exemple typique est la connexion aux parties privées de Zeste de Savoir.</p>
-    <p>La liste complète des cookies techniques utilisés sur Zeste de Savoir et leur utilité est détaillée un peu plus bas.</p>
-    <p>Ces cookies, purement techniques, <strong>sont indispensables au fonctionnement de Zeste de Savoir</strong>. Si vous les refusez, les éléments qui en dépendent ne fonctionneront tout simplement pas !</p>
+    <p>Certaines fonctionnalités du site nécessitent des cookies pour pouvoir être opérationnelles. L'exemple typique est la connexion aux parties privées de {{app.site.litteral_name}}.</p>
+    <p>La liste complète des cookies techniques utilisés sur {{app.site.litteral_name}} et leur utilité est détaillée un peu plus bas.</p>
+    <p>Ces cookies, purement techniques, <strong>sont indispensables au fonctionnement de {{app.site.litteral_name}}</strong>. Si vous les refusez, les éléments qui en dépendent ne fonctionneront tout simplement pas !</p>
 
     <h4>Cookies d'analyse d'audience</h4>
-    <p>Zeste de Savoir analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :</p>
+    <p>{{app.site.litteral_name}} analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :</p>
     <ul>
         <li>Quelles fonctionnalités sont utilisées ?</li>
         <li>À quelle fréquence ?</li>
@@ -51,11 +51,11 @@
     <p>C'est cette analyse qui peut être désactivée, puisqu'elle n'est pas strictement indispensable au bon fonctionnement du site.</p>
 
     <h3>Les cookies sur ce site</h3>
-    <p>Pour être tout à fait précis, Zeste de Savoir utilise les cookies suivants :</p>
+    <p>Pour être tout à fait précis, {{app.site.litteral_name}} utilise les cookies suivants :</p>
     <h4>Cookies techniques</h4>
     <dl>
         <dt><tt>sessionid</tt></dt>
-        <dd>Ce cookie est un identifiant unique qui permet de faire le lien entre votre session de navigation et les différentes pages que vous visitez. Il permet en particulier de vous connecter à Zeste de Savoir. Il ne contient qu'une chaîne de caractères aléatoires.</dd>
+        <dd>Ce cookie est un identifiant unique qui permet de faire le lien entre votre session de navigation et les différentes pages que vous visitez. Il permet en particulier de vous connecter à {{app.site.litteral_name}}. Il ne contient qu'une chaîne de caractères aléatoires.</dd>
         <dt><tt>csrftoken</tt></dt>
         <dd>Ce cookie contient une chaîne de caractères aléatoires qui permet de se prémunir des attaques <a href="http://fr.wikipedia.org/wiki/Cross-Site_Request_Forgery">CSRF</a>. Composant indispensable de la sécurité du site, vous ne pourrez rien poster sans ce cookie.</dd>
         <dt><tt>hasconsent</tt></dt>
@@ -71,7 +71,7 @@
     <h3>Comment refuser les cookies tiers</h3>
     <h4>Refus pur et simple des cookies tiers dans le navigateur</h4>
     <p>Vous pouvez bloquer purement et simplement les cookies <strong>tiers</strong> dans votre navigateur, en suivant la procédure décrite <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">sur le site de la CNIL dans le Conseil 1</a>.</p>
-    <p>Cette man&oelig;uvre n'empêchera pas Zeste de Savoir de fonctionner, puisque les cookies techniques ne sont pas des cookies tiers.</p>
+    <p>Cette man&oelig;uvre n'empêchera pas {{app.site.litteral_name}} de fonctionner, puisque les cookies techniques ne sont pas des cookies tiers.</p>
     <p>Toutefois, devant le manque de finesse de contrôle d'une telle solution, vous pourriez préférer utiliser une solution présentée au paragraphe suivant.</p>
 
     <h4>Utilisation d'un logiciel "anti-espions"</h4>
@@ -79,10 +79,17 @@
     <p>La CNIL <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">indique quelles solutions sont disponibles avec votre navigateur</a>, dans son Conseil 2.</p>
 
     <h3>Licence de cette page</h3>
-    <p>
-        <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
-        <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{% url "zds.pages.views.cookies" %}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
-    </p>
+    {% if app.site.licenses.cookies %}
+        <p>
+            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="{{ app.site.licenses.cookies.title }}" style="border-width:0" src="{{ app.site.licenses.cookies.url_image }}" /></a>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{% url "zds.pages.views.cookies" %}">{{app.site.litteral_name}}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ app.site.licenses.cookies.url_license }}">{{ app.site.licenses.cookies.description }}</a>.
+        </p>
+    {% else %}
+        <p>
+            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{% url "zds.pages.views.cookies" %}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
+        </p>
+    {% endif %}
     <p>N'oubliez pas d'adapter les cookies réellement utilisés à votre cas si vous reprenez cette page !</p>
 
     <hr>

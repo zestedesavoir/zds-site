@@ -21,7 +21,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.settings import ANONYMOUS_USER, EXTERNAL_USER
 from zds.utils.models import Comment
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.gallery.models import UserGallery
@@ -70,7 +69,7 @@ def index(request):
         members = User.objects.order_by("-date_joined")
         # Paginator
 
-        paginator = Paginator(members, settings.MEMBERS_PER_PAGE)
+        paginator = Paginator(members, settings.ZDS_APP['member']['members_per_page'])
         page = request.GET.get("page")
         try:
             shown_members = paginator.page(page)
@@ -101,8 +100,8 @@ def warning_unregister(request):
 def unregister(request):
     """allow members to unregister"""
 
-    anonymous = get_object_or_404(User, username=ANONYMOUS_USER)
-    external = get_object_or_404(User, username=EXTERNAL_USER)
+    anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
+    external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
     current = request.user
     for tuto in request.user.profile.get_tutos():
         # we delete article only if not published with only one author
@@ -296,15 +295,17 @@ def modify_profile(request, user_pk):
             profile.end_ban_read = datetime.now() \
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (u'Vous ne pouvez plus vous connecter sur Zeste de Savoir '
-                      u'pendant {0} jours.'.format(request.POST["ban-jrs"]))
+            detail = (u'Vous ne pouvez plus vous connecter sur {} '
+                      u'pendant {} jours.'.format(settings.ZDS_APP['site']['litteral_name'],
+                                                  request.POST["ban-jrs"]))
             logout_user(profile.user.username)
 
         if "ban" in request.POST:
             ban.type = u"Ban définitif"
             ban.text = request.POST["ban-text"]
             profile.can_read = False
-            detail = u"vous ne pouvez plus vous connecter sur Zeste de Savoir."
+            detail = u"vous ne pouvez plus vous " \
+                     u"connecter sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
             logout_user(profile.user.username)
         if "un-ls" in request.POST:
             ban.type = u"Autorisation d'écrire"
@@ -329,24 +330,26 @@ def modify_profile(request, user_pk):
                    u'Ce qui signifie que {2}\n\n'
                    u'Le motif de votre sanction est :\n\n'
                    u'> {3}\n\n'
-                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                   u'Cordialement, L\'équipe {4}.'
                    .format(ban.user,
                            ban.moderator,
                            detail,
-                           ban.text))
+                           ban.text,
+                           settings.ZDS_APP['site']['litteral_name']))
         else:
             msg = (u'Bonjour **{0}**,\n\n'
                    u'Vous avez été santionné par **{1}**.\n\n'
                    u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
                    u'Le motif de votre sanction est :\n\n'
                    u'> {4}\n\n'
-                   u'Cordialement, L\'équipe Zeste de Savoir.'
+                   u'Cordialement, L\'équipe {5}.'
                    .format(ban.user,
                            ban.moderator,
                            ban.type,
                            detail,
-                           ban.text))
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                           ban.text,
+                           settings.ZDS_APP['site']['litteral_name']))
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             [ban.user],
@@ -686,12 +689,13 @@ def register_view(request):
 
             # send email
 
-            subject = "ZDS - Confirmation d'inscription"
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/register/confirm.html").render(Context(
-                {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/register/confirm.txt") .render(Context(
-                {"username": user.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [user.email])
             msg.attach_alternative(message_html, "text/html")
@@ -726,13 +730,13 @@ def forgot_password(request):
             token.save()
 
             # send email
-
-            subject = "ZDS - Mot de passe oublié"
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = "{} - Mot de passe oublié".format(settings.ZDS_APP['site']['abbr'])
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
-                {"username": usr.username, "url": settings.SITE_URL + token.get_absolute_url()}))
+                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [usr.email])
             msg.attach_alternative(message_html, "text/html")
@@ -797,14 +801,14 @@ def active_account(request):
 
     # send register message
 
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = (
         u'Bonjour **{0}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
-        u'membre de la communauté de Zeste de Savoir.'
+        u'membre de la communauté de {4}.'
         u'\n\n'
-        u'Zeste de Savoir est une communauté dont le but est de diffuser des '
+        u'{4} est une communauté dont le but est de diffuser des '
         u'connaissances au plus grand nombre.'
         u'\n\n'
         u'Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans '
@@ -818,7 +822,7 @@ def active_account(request):
         u'plusieurs heures sur un problème.'
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
-        u'car la communauté de Zeste de Savoir est attachée aux valeurs du libre '
+        u'car la communauté de {4} est attachée aux valeurs du libre '
         u'partage et désire apporter le savoir à tout le monde quels que soient ses moyens.'
         u'\n\n'
         u'En espérant que tu te plairas ici, '
@@ -826,14 +830,15 @@ def active_account(request):
         u'\n\n'
         u'Clem\''
         .format(usr.username,
-                settings.SITE_URL + reverse("zds.tutorial.views.index"),
-                settings.SITE_URL + reverse("zds.article.views.index"),
-                settings.SITE_URL + reverse("zds.member.views.index"),
-                settings.SITE_URL + reverse("zds.forum.views.index")))
+                settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
+                settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
+                settings.ZDS_APP['site']['litteral_name']))
     send_mp(
         bot,
         [usr],
-        u"Bienvenue sur Zeste de Savoir",
+        u"Bienvenue sur {}".format(settings.ZDS_APP['site']['name']),
         u"Le manuel du nouveau membre",
         msg,
         True,
@@ -863,16 +868,17 @@ def generate_token_account(request):
 
     # send email
 
-    subject = "ZDS - Confirmation d'inscription"
-    from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+    subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+    from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                  settings.ZDS_APP['site']['email_noreply'])
     message_html = get_template("email/register/confirm.html"
                                 ) \
         .render(Context({"username": token.user.username,
-                         "url": settings.SITE_URL + token.get_absolute_url()}))
+                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     message_txt = get_template("email/register/confirm.txt"
                                ) \
         .render(Context({"username": token.user.username,
-                         "url": settings.SITE_URL + token.get_absolute_url()}))
+                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                  [token.user.email])
     msg.attach_alternative(message_html, "text/html")
@@ -1030,7 +1036,7 @@ def settings_promote(request, user_pk):
         user.save()
 
         usergroups = user.groups.all()
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = (u'Bonjour {0},\n\n'
                u'Un administrateur vient de modifier les groupes '
                u'auxquels vous appartenez.  \n'.format(user.username))

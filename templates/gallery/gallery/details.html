@@ -29,17 +29,6 @@
 
 
 
-{% block new_btn %}
-    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
-        Ajouter une image
-    </a>
-    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="new-btn ico-after more blue">
-        Importer une archive
-    </a>
-{% endblock %}
-
-
-
 {% block content %}
     <div class="authors">
         <span class="authors-label">Galerie partagée avec : </span>
@@ -70,42 +59,76 @@
     
     <form id="form" name="form" method="post" action="{% url "zds.gallery.views.delete_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
-        <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
-        <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
-            Vue grille
-        </button>
-
-        <div class="gallery topic-list list-view clearfix navigable-list">
-            {% for img in gallery.get_images %}
-                <div class="topic gallery-item navigable-elem">
-                    <div class="topic-infos">
-                        <input name="items" type="checkbox" value="{{ img.pk }}">
-                    </div>
-                    <div class="topic-description">
-                        <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
-                            <img src="{{ img.physical.gallery.url }}"
-                                 data-caption="{{ img.title }}"
-                                 alt="{{ img.title }}"
-                                 class="topic-image"
-                            >
-                            <span class="topic-title">{{ img.title }}</span>
-                            <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
-                        </a>
-                    </div>
-                </div>
-            {% empty %}
-                <p>
-                    Aucune image. <br>
-                    Cliquez sur <em>Ajouter une image</em> pour en ajouter !
-                </p>
-            {% endfor %}
-
-            <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
-        </div>
-        
-        <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
-        <button class="toggle-gallery-view btn btn-grey" type="button"></button>
-
         {% csrf_token %}
+    
+        {% if gallery.get_images %}
+            {% if gallery_mode.is_write %}
+                <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
+            {% endif %}
+
+            <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
+                Vue grille
+            </button>
+
+            <div class="gallery topic-list list-view clearfix navigable-list">
+                {% for img in gallery.get_images %}
+                    <div class="topic gallery-item navigable-elem">
+                        <div class="topic-infos">
+                            <input name="items" type="checkbox" value="{{ img.pk }}">
+                        </div>
+                        <div class="topic-description">
+                            <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ img.physical.gallery.url }}"
+                                     data-caption="{{ img.title }}"
+                                     alt="{{ img.title }}"
+                                     class="topic-image"
+                                >
+                                <span class="topic-title">{{ img.title }}</span>
+                                <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
+            </div>
+            
+            {% if gallery_mode.is_write %}
+                <button class="btn btn-cancel" name="delete_multi" tabindex="-1">Supprimer la sélection</button>
+            {% endif %}
+
+            <button class="toggle-gallery-view btn btn-grey" type="button" tabindex="-1">
+                Vue grille
+            </button>
+        {% else %}
+            <p>
+                Aucune image. <br>
+                {% if gallery_mode.is_write %}
+                    Vous pouvez <a href="{% url "zds.gallery.views.new_image" gallery.pk %}">ajouter une image</a> à cette galerie dès à présent !
+                {% endif %}
+            </p>
+        {% endif %}
     </form>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if gallery_mode.is_write %}
+        <div class="mobile-menu-bloc" data-title="Actions">
+            <h3>Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
+                        Ajouter une image
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
+                        Importer une archive
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

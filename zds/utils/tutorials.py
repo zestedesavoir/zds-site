@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from datetime import datetime
 import os
+from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
 
@@ -488,7 +489,7 @@ def import_archive(request):
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
-            aut_email = "inconnu@zestedesavoir.com"
+            aut_email = "inconnu@".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(msg.encode("utf-8"),
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email))

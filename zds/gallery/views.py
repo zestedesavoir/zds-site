@@ -18,6 +18,7 @@ from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import render_template
 from zds.utils import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
 from zds.tutorial.models import Tutorial
@@ -180,20 +181,21 @@ def modify_gallery(request):
 @login_required
 @can_write_and_read_now
 def edit_image(request, gal_pk, img_pk):
-    """Edit an existing image."""
+    """Edit or view an existing image."""
 
     gal = get_object_or_404(Gallery, pk=gal_pk)
     img = get_object_or_404(Image, pk=img_pk)
 
     # Check if user can edit image
     try:
-        permission = UserGallery.objects.get(user=request.user, gallery=gal)
-        if permission.mode != 'W':
+        gal_mode = UserGallery.objects.get(user=request.user, gallery=gal)
+        assert gal_mode is not None
+        if not gal_mode.is_write() and request.method != "GET":
             raise PermissionDenied
-    except:
+    except (AssertionError, ObjectDoesNotExist):
         raise PermissionDenied
 
-    # Check if the image belong to the gallery
+    # Check if the image belongs to the gallery
     if img.gallery != gal:
         raise PermissionDenied
 
@@ -201,11 +203,12 @@ def edit_image(request, gal_pk, img_pk):
         form = UpdateImageForm(request.POST, request.FILES)
         if form.is_valid():
             if "physical" in request.FILES:
-                if request.FILES["physical"].size > settings.IMAGE_MAX_SIZE:
+                if request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
                     messages.error(request, u"Votre image est beaucoup trop lourde, "
                                             u"réduisez sa taille à moins de {} "
                                             u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                            u"avant de l'envoyer".format(str(settings.IMAGE_MAX_SIZE / 1024)))
+                                            u"avant de l'envoyer".format(
+                                                str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
                 else:
                     img.title = request.POST["title"]
                     img.legend = request.POST["legend"]
@@ -235,6 +238,7 @@ def edit_image(request, gal_pk, img_pk):
     return render_template(
         "gallery/image/edit.html", {
             "form": form,
+            "gallery_mode": gal_mode,
             "as_avatar_form": as_avatar_form,
             "gallery": gal,
             "image": img
@@ -253,9 +257,10 @@ def delete_image(request):
     gal = get_object_or_404(Gallery, pk=gal_pk)
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
+        assert gal_mode is not None
 
         # Only allow RW users to modify images
-        if gal_mode.mode != "W":
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -281,7 +286,8 @@ def new_image(request, gal_pk):
     # check if the user can upload new image in this gallery
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        assert gal_mode is not None
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -303,10 +309,12 @@ def new_image(request, gal_pk):
                                     args=[gal.pk, img.pk]))
         else:
             return render_template("gallery/image/new.html", {"form": form,
+                                                              "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
+                                                          "gallery_mode": gal_mode,
                                                           "gallery": gal})
 
 
@@ -320,7 +328,8 @@ def import_image(request, gal_pk):
 
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        if gal_mode.mode != 'W':
+        assert gal_mode is not None
+        if not gal_mode.is_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -350,7 +359,7 @@ def import_image(request, gal_pk):
                 fp.close()
                 title = os.path.basename(i)
                 # if size is too large don't save
-                if os.stat(ph_temp).st_size > settings.IMAGE_MAX_SIZE:
+                if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                     messages.error(
                         request,
                         u"L'image {} n'a pas pu être importée dans la gallerie"
@@ -382,8 +391,10 @@ def import_image(request, gal_pk):
                                     args=[gal.pk, gal.slug]))
         else:
             return render_template("gallery/image/new.html", {"form": form,
+                                                              "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ArchiveImageForm(initial={"new_image": True})  # A empty, unbound form
         return render_template("gallery/image/new.html", {"form": form,
+                                                          "gallery_mode": gal_mode,
                                                           "gallery": gal})

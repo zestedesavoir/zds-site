@@ -1,6 +1,6 @@
 Bonjour, membres du CA !
 
-Le membre {{ username }} demande à adhérer à Zeste de Savoir !
+Le membre {{ username }} demande à adhérer à {{app.site.association.name}} !
 
 Identité : {{ full_name }}
 Adresse courriel : {{ email }}

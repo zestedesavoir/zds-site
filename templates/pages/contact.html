@@ -23,17 +23,18 @@
 {% block content %}
     <h3>L'équipe de communication</h3>
     <p>
-       Vous pouvez à tout moment joindre l'équipe de communication de Zeste de Savoir par courriel via <a href="mailto:communication@zestedesavoir.com?Subject=Contact communication" target="_top">communication@zestedesavoir.com</a>
+        Vous pouvez à tout moment joindre l'équipe de communication de {{app.site.litteral_name}} par courriel via <a href="{{app.site.email_contact}}?Subject=Contact communication" target="_top">{{app.site.email_contact}}</a>
     </p>
-
-    <h3>L'association</h3>
-    <p>
-       Vous pouvez joindre l'association par courriel via <a href="mailto:association@zestedesavoir.com?Subject=Contact association" target="_top">association@zestedesavoir.com</a>
-    </p>
+    {% if app.site.association %}
+        <h3>L'association</h3>
+        <p>
+           Vous pouvez joindre l'association par courriel via <a href="mailto:{{app.site.association.email}}?Subject=Contact association" target="_top">{{app.site.association.email}}</a>
+        </p>
+    {% endif %}
 
     <h3>Le staff</h3>
     <p>
-        Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur Zeste de Savoir. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de Zeste de Savoir.
+        Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur {{app.site.litteral_name}}. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de {{app.site.litteral_name}}.
         Les membres faisant partie du Staff sont les suivants :
     </p>
     <div class="authors">
@@ -49,7 +50,7 @@
     <h3>L'équipe technique</h3>
     <p>
         L'équipe technique est constituée de certains membres du site dont le but est d'une part de s'assurer que le site reste toujours disponible en ligne, et d'autre part de corriger les bogues rencontrés sur le site.
-        Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du <a href="https://github.com/zestedesavoir/zds-site">dépôt officiel du projet</a>. Les membres faisant partie de l'équipe technique sont les suivants :
+        Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du <a href="{{app.site.repository}}">dépôt officiel du projet</a>. Les membres faisant partie de l'équipe technique sont les suivants :
     </p>
     <div class="authors">
         <ul>

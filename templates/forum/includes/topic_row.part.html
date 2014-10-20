@@ -21,7 +21,18 @@
     </div>
     {% with profile=topic.author|profile %}
         <div class="topic-description">
-            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
+            {% if topic.tags.all %}
+                <ul class="topic-tags">
+                    {% for tag in topic.tags.all %}
+                        <li>
+                            <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                                {{ tag.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link" title="{{ topic.title }}. {{ topic.subtitle }}">
                 <span class="topic-title" itemprop="itemListElement">{{ topic.title }}</span>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>
@@ -31,12 +42,6 @@
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
                 <span class="topic-members-label">{{ topic.pubdate|format_date }}</span>
-                {% if topic.tags.all %}
-                    - Tag{{ topic.tags.all|pluralize }} : 
-                    {% for tag in topic.tags.all %}
-                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag">{{ tag.title }}</a>
-                    {% endfor %}
-                {% endif %}
             </p>
         </div>
     {% endwith %}

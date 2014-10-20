@@ -54,7 +54,7 @@
 
         {% block sidebar_blocks %}{% endblock %}
 
-        {% if tutorial %}
+        {% if tutorial.on_line or tutorial.in_beta and user in tutorial.authors.all or perms.tutorial.change_tutorial %}
             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
                 <h3>Télécharger</h3>
                 <ul>
@@ -69,25 +69,25 @@
                             {% endif %}
                         {% endif %}
                         {% if tutorial.have_html %}
-                        <li>
-                            <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
-                                HTML
-                            </a>
-                        </li>
+                            <li>
+                                <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    HTML
+                                </a>
+                            </li>
                         {% endif %}
                         {% if tutorial.have_pdf %}
-                        <li>
-                            <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
-                                PDF
-                            </a>
-                        </li>
+                            <li>
+                                <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    PDF
+                                </a>
+                            </li>
                         {% endif %}
                         {% if tutorial.have_epub %}
-                        <li>
-                            <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
-                                EPUB
-                            </a>
-                        </li>
+                            <li>
+                                <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    EPUB
+                                </a>
+                            </li>
                         {% endif %}
                     {% endif %}
 

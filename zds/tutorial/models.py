@@ -175,12 +175,12 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(settings.REPO_PATH, self.get_phy_slug())
+            return os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.get_phy_slug())
 
     def get_prod_path(self):
         data = self.load_json_for_public()
         return os.path.join(
-            settings.REPO_PATH_PROD,
+            settings.ZDS_APP['tutorial']['repo_public_path'],
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata, sha=None):
@@ -417,7 +417,7 @@ class Tutorial(models.Model):
         if last_user_notes and last_user_notes[0] == self.last_note:
             last_user_note = last_user_notes[0]
             t = timezone.now() - last_user_note.pubdate
-            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
         return False
 
@@ -473,7 +473,7 @@ class Note(Comment):
         return u'<Tutorial pour "{0}", #{1}>'.format(self.tutorial, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.tutorial.get_absolute_url_online(),
@@ -591,7 +591,9 @@ class Part(models.Model):
         if relative:
             return self.get_phy_slug()
         else:
-            return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
+            return os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                self.tutorial.get_phy_slug(),
+                                self.get_phy_slug())
 
     def get_introduction(self, sha=None):
 
@@ -786,9 +788,11 @@ class Chapter(models.Model):
                 chapter_path = os.path.join(self.part.get_phy_slug(), self.get_phy_slug())
         else:
             if self.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
+                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                            self.tutorial.get_phy_slug(),
+                                            self.get_phy_slug())
             else:
-                chapter_path = os.path.join(settings.REPO_PATH,
+                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                             self.part.tutorial.get_phy_slug(),
                                             self.part.get_phy_slug(),
                                             self.get_phy_slug())
@@ -965,9 +969,10 @@ class Extract(models.Model):
                     self.chapter.get_phy_slug())
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_phy_slug())
+                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                            self.chapter.tutorial.get_phy_slug())
             else:
-                chapter_path = os.path.join(settings.REPO_PATH,
+                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                             self.chapter.part.tutorial.get_phy_slug(),
                                             self.chapter.part.get_phy_slug(),
                                             self.chapter.get_phy_slug())
@@ -982,7 +987,7 @@ class Extract(models.Model):
             if "chapter" in mandata:
                 for ext in mandata["chapter"]["extracts"]:
                     if ext['pk'] == self.pk:
-                        return os.path.join(settings.REPO_PATH_PROD,
+                        return os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
                                             str(self.chapter.tutorial.pk) + '_' + slugify(mandata['title']),
                                             str(ext['pk']) + "_" + slugify(ext['title'])) \
                             + '.md.html'
@@ -993,7 +998,7 @@ class Extract(models.Model):
                 for chapter in part["chapters"]:
                     for ext in chapter["extracts"]:
                         if ext['pk'] == self.pk:
-                            return os.path.join(settings.REPO_PATH_PROD,
+                            return os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
                                                 str(mandata['pk']) + '_' + slugify(mandata['title']),
                                                 str(part['pk']) + "_" + slugify(part['title']),
                                                 str(chapter['pk']) + "_" + slugify(chapter['title']),

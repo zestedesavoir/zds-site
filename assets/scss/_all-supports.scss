@@ -1345,20 +1345,16 @@
             display: block;
             text-decoration: none;
             padding: 0 10px;
-            background: #EEE;
-            color: #777;
+            background: $header-hover;
+            color: #FFF;
             margin-left: 1px;
             transition: all $transition-duration ease;
-
-            &:before {
-                content: "#";
-            }
 
             &:hover,
             &:focus {
                 background: #FFF;
-                color: lighten($primary, 15%);
-                border-bottom: 1px solid lighten($primary, 15%);
+                color: $header-hover;
+                border-bottom: 1px solid $header-hover;
             }
         }
     }
@@ -1654,9 +1650,36 @@
             margin: 5px 15px 0 0;
         }
 
+        .topic-tags {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: inline;
+
+            .topic-tag {
+                float: left;
+                padding: 0 5px;
+                margin: 0 3px 0 0;
+                color: #FFF;
+                background: $header-hover;
+
+                &:hover,
+                &:focus {
+                    background: #FFF;
+                    color: $header-hover;
+                    box-shadow: $header-hover 0 0 3px;
+                    text-decoration: none;
+                }
+            }
+
+            li:last-child .topic-tag {
+                margin-right: 5px;
+            }
+        }
+
         .topic-title-link {
             &:hover,
-            &:after {
+            &:focus {
                 text-decoration: none;
 
                 .topic-title {
@@ -1687,17 +1710,14 @@
             margin: 0;
             color: #777;
         }
-        .topic-tag:before {
-            content: "#";
-        }
     }
     .topic-answers {
-        width: 13%;
+        width: 12%;
         text-align: center;
         padding-top: 29px;
     }
     .topic-last-answer {
-        width: 22%;
+        width: 23%;
 
         .topic-no-last-answer {
             display: block;

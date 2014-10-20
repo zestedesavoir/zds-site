@@ -49,7 +49,9 @@ class TutorialForm(FormWithTitle):
     )
 
     image = forms.ImageField(
-        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' +
+              str(settings.ZDS_APP['gallery']['image_max_size'] / 1024) +
+              ' Ko)',
         required=False
     )
 
@@ -181,7 +183,7 @@ class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
         label=u'Selectionnez le logo du tutoriel '
-              u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
+              u'(max. {0} Ko)'.format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
 
@@ -408,10 +410,10 @@ class NoteForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 

@@ -23,14 +23,8 @@ from zds.settings import SITE_ROOT
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(
-    REPO_PATH_PROD=os.path.join(
-        SITE_ROOT,
-        'tutoriels-public-test'))
-@override_settings(
-    REPO_ARTICLE_PATH=os.path.join(
-        SITE_ROOT,
-        'articles-data-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
 class TestProfile(TestCase):
 
     def setUp(self):
@@ -259,12 +253,12 @@ class TestProfile(TestCase):
         self.assertEqual(self.forumtopic, topicsfollowed[0])
 
     def tearDown(self):
-        if os.path.isdir(settings.REPO_PATH):
-            shutil.rmtree(settings.REPO_PATH)
-        if os.path.isdir(settings.REPO_PATH_PROD):
-            shutil.rmtree(settings.REPO_PATH_PROD)
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            shutil.rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 

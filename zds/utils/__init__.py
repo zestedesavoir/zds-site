@@ -29,7 +29,7 @@ def get_git_version():
         branch = repo.active_branch
         commit = repo.head.commit.hexsha
         v = u"{0}/{1}".format(branch, commit[:7])
-        return {'name': v, 'url': u'https://github.com/zestedesavoir/zds-site/tree/{0}'.format(commit)}
+        return {'name': v, 'url': u'{}/tree/{}'.format(settings.ZDS_APP['site']['repository'], commit)}
     except:
         return {'name': '', 'url': ''}
 
@@ -45,6 +45,7 @@ def render_template(tmpl, dct=None):
     if dct is None:
         dct = {}
     dct['git_version'] = get_git_version()
+    dct['app'] = settings.ZDS_APP
     return render_to_response(
         tmpl, dct, context_instance=RequestContext(get_current_request()))
 
