@@ -5,7 +5,7 @@ Les tutoriels
 Les composantes d'un tutoriel
 =============================
 
-Un tutoriel n'est qu'un ensemble d'introduction de corps et de conclusion.
+Un tutoriel n'est qu'un ensemble d'introduction, de corps et de conclusion.
 Cependant, selon la taille souhaitée du tutoriel, il peut nécessiter une organisation
 particulière. C'est pourquoi les tutoriels de ZdS sont structurés en **quatre** niveaux.
 
@@ -13,7 +13,7 @@ Niveau 1 : Le tutoriel
 ----------------------
 
 Ce niveau définit l'ensemble des métadonnées associées à un tutoriel, c'est le plus haut
-niveau de tous les tutoriels. on y retrouve les informations suivantes :
+niveau de tous les tutoriels. On y retrouve les informations suivantes :
 
 - titre
 - description
@@ -31,6 +31,7 @@ en plusieurs parties. C'est typiquement le niveau qui sera utile si vous souhait
 un mémoire, ou une thèse. Par contre, pour un simple article, ce n'est pas la peine d'en faire
 des parties. Un tutoriel peut contenir plusieurs parties et une partie comprend essentiellement
 les informations suivantes :
+
 - titre
 - introduction
 - conclusion
@@ -43,6 +44,7 @@ On retrouve là encore les mêmes notions qu'on peut rencontrer dans la rédacti
 pédagogique. Si une partie peut contenir plusieurs chapitres (on le verra plus loin dans le cas
 des bigtutos), un chapitre peut être rattaché à un tutoriel directement (minituto).
 Le chapitre comprend les informations suivantes :
+
 - titre
 - introduction
 - conclusion
@@ -165,13 +167,14 @@ dont le contenu est assez conséquent, et demandent beaucoup de structuration. O
 
 
 Import de tutoriels
-========================
+===================
 
 Zeste de Savoir permet d'importer des tutoriels provenant de sources extérieures. Deux formats d'import sont actuellement supportés.
 
 Les archives zip
 ----------------
-Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste de Savoir, vous avez téléchargé l'archive correspondante et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site ? Il suffit de faire une archive zip du répertoire dans lequel se trouve les fichiers de votre tutoriel et renseignez les deux champs relatifs à l'import d'une archive, puis cliquez sur importer.
+
+Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste de Savoir, vous avez téléchargé l'archive correspondante et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site. Il suffit de faire une archive zip du répertoire dans lequel se trouvent les fichiers de votre tutoriel et de renseigner les deux champs relatifs à l'import d'une archive, puis de cliquer sur importer.
 
 .. figure:: images/import-archive.png
     :align:   center
@@ -183,13 +186,13 @@ Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste d
 Le format .tuto
 ---------------
 
-Il s'agit du format dans lequel était exporté les tutoriels sur le SiteduZero. C'est un format de type xml. Cependant, pour qu'il soit
+Il s'agit du format dans lequel étaient exportés les tutoriels sur le SiteduZero. C'est un format de type xml. Cependant, pour qu'il soit
 importable sur ZdS il faut le transformer à l'aide d'un outil de conversion en semi-markdown. Si vous avez besoin d'importer un tutoriel
 de ce format, vous devez contacter le staff de Zeste de Savoir pour que votre fichier ``.tuto`` soit converti en semi markdown.
 
 Vous aurez aussi besoin du pack d'images (au format zip) qui sont utilisés dans votre tutoriel.
 
-Il ne vous restera plus qu'à renseigner les champs relatifs à l'import de ``.tuto`` pour importer le votre.
+Il ne vous restera plus qu'à renseigner les champs relatifs à l'import de ``.tuto`` pour importer le vôtre.
 
 .. figure:: images/import-tuto.png
     :align:   center
@@ -202,7 +205,7 @@ Cycle de vie des tutoriels
 ==========================
 
 Quelque soit le type de tutoriel, le cycle de vie de celui-ci reste toujours le même.
-Un tutoriel peut-être rédigé par un ou plusieurs auteurs. Chaque modification sur le tutoriel
+Un tutoriel peut être rédigé par un ou plusieurs auteurs. Chaque modification sur le tutoriel
 est conservée afin de pouvoir retrouver l'historique des modifications et éventuellement
 récupérer le contenu perdu. Lorsqu'un tutoriel est créé il rentre dans sa première étape.
 
