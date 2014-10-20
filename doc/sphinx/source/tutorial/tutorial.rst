@@ -186,7 +186,7 @@ Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste d
 Le format .tuto
 ---------------
 
-Il s'agit du format dans lequel étaient exportés les tutoriels sur le SiteduZero. C'est un format de type xml. Cependant, pour qu'il soit
+Il s'agit du format dans lequel étaient exportés les tutoriels sur le Site du Zéro. C'est un format de type xml. Cependant, pour qu'il soit
 importable sur ZdS il faut le transformer à l'aide d'un outil de conversion en semi-markdown. Si vous avez besoin d'importer un tutoriel
 de ce format, vous devez contacter le staff de Zeste de Savoir pour que votre fichier ``.tuto`` soit converti en semi markdown.
 
@@ -219,25 +219,25 @@ La version brouillon est accessible uniquement pour les auteurs et validateurs d
 Si on souhaite donner un accès en lecture seule à nos écrits, il faut passer par la méthode
 adéquate.
 
-La beta
+La bêta
 -------
 
 Lorsque les auteurs estiment que leur tutoriel est arrivé à un certain niveau de maturité, et qu'ils souhaitent 
 recueillir les premiers retours de lecteurs, ils se doivent de mettre à disposition de la communauté le tutoriel en
-lecture seule. C'est le mode beta.
+lecture seule. C'est le mode bêta.
 
-La procédure voudrait que lors de l'ouverture d'une beta, l'auteur crée un sujet dans le forum des tutoriels
-en beta, en postant le lien vers la version beta du tutoriel.
+La procédure voudrait que lors de l'ouverture d'une bêta, l'auteur crée un sujet dans le forum des tutoriels
+en bêta, en postant le lien vers la version bêta du tutoriel.
 
 .. attention::
 
-    Le lien de la beta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie ``?version=blablabla``. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version beta.
+    Le lien de la bêta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie ``?version=blablabla``. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version bêta.
 
-En fait lorsqu'un tutoriel est en mode beta, il s'agit d'une version précise qui est mise 
+En fait lorsqu'un tutoriel est en mode bêta, il s'agit d'une version précise qui est mise 
 dans ce mode. On peut continuer à mettre à jour la version brouillon pour rajouter de nouveaux chapitres
 à notre tutoriel, pendant ce temps, la communauté lit une version figée de notre tutoriel. L'avantage étant que
 si le tutoriel prend beaucoup de temps à lire, le lecteur n'a pas de mauvaise surprise de mise à jour
-pendant sa lecture. Les auteurs quant à eux doivent mettre à jour manuellement leur version beta et ainsi
+pendant sa lecture. Les auteurs quant à eux doivent mettre à jour manuellement leur version bêta et ainsi
 ils contrôlent pleinement ce qu'ils mettent à disposition des lecteurs.
 
 La validation
@@ -252,7 +252,7 @@ votre tutoriel, il devra recommencer son travail si vous faites une mise à jour
 ralentir le processus de validation de votre tutoriel, mais décourager aussi le validateur. Donc un conseil à donner serait
 de n'envoyer que du contenu sûr en validation.
 
-Comme pour la beta, la version brouillon du tutoriel peut continuer à être améliorée pendant que la version 
+Comme pour la bêta, la version brouillon du tutoriel peut continuer à être améliorée pendant que la version 
 de validation reste figée. Auteurs et validateurs peuvent donc continuer à travailler chacun de son côté.
 
 La publication
@@ -290,7 +290,7 @@ brouillon. Il ne faut donc pas aller chercher en base de données les informatio
 Chaque tutoriel possède trois attributs principaux :
 
 - sha_draft : le hash du commit de la version brouillon
-- sha_beta : le hash du commit de la version beta
+- sha_beta : le hash du commit de la version bêta
 - sha_validation : le hash du commit de la version validation
 - sha_public : le hash du commit de la version publique
 
