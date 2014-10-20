@@ -3612,7 +3612,7 @@ def help_tutorial(request):
                                 .all()
 
     # Paginator
-    paginator = Paginator(tutos, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(tutos, settings.ZDS_APP['forum']['topics_per_page'])
     page = request.GET.get('page')
 
     try:
