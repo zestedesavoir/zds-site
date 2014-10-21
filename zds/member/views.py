@@ -1077,6 +1077,9 @@ def settings_promote(request, user_pk):
 def member_from_ip(request, ip):
     """ Get list of user connected from a particular ip """
 
+    if not request.user.has_perm("member.change_profile"):
+        raise PermissionDenied
+
     members = Profile.objects.filter(last_ip_address=ip).order_by('-last_visit')
     return render_template('member/settings/memberip.html', {
         "members": members,
