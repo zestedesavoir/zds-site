@@ -22,6 +22,7 @@ https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.10.zip
 easy-thumbnails==2.1
 
 # Development tools
+PyYAML==3.11
 django-debug-toolbar==1.2.1
 flake8==2.2.3
 autopep8==1.0.3
