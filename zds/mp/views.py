@@ -182,7 +182,7 @@ def new(request):
                     continue
                 p = get_object_or_404(User, username=part)
                 # We don't the author of the MP.
-                if request.user == p:
+                if request.user == p or p.profile.is_private():
                     continue
                 ctrl.append(p)
 

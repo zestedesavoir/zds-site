@@ -192,8 +192,8 @@ def details(request, user_name):
     except SiteProfileNotAvailable:
         raise Http404
 
-    if usr.username == settings.ZDS_APP.member['anonymous_account'] or \
-       usr.username == settings.ZDS_APP.member['external_account']:
+    if usr.username == settings.ZDS_APP['member']['anonymous_account'] or \
+       usr.username == settings.ZDS_APP['member']['external_account']:
         form = OldTutoForm(profile)
         return render_template("member/profile.html", {
             "usr": usr,
