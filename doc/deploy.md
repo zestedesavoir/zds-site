@@ -371,8 +371,9 @@ gulp build
 Modification du `settings_prod.py` :
 
 Si un utilisateur anonyme et un utilisateur permettant de récupérer les tutoriels venant de l'extérieur
-existent déjà, configurez les constantes `ANONYMOUS_USER` et `EXTERNAL_USER` pour que ces dernières
+existent déjà, configurez les constantes `ZDS_APP.member['anonymous_account']` et `ZDS_APP.member['external_account']` pour que ces dernières
 aient pour valeur le pseudo desdits utilisateurs.
+Si vous désirez que ces utilisateurs soient injoignables soyez sûrs qu'ils sont enregistrés dans le groupe `bot` qui devra être concordant avec  le paramètre `ZDS_APP.member['bot_group'].
 
 Sinon, utilisez au choix le shell django ou bien
 

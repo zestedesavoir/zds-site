@@ -716,6 +716,8 @@ def modify(request):
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
                 return redirect(redirect_url)
 

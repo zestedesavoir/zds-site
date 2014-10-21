@@ -92,6 +92,10 @@ class Profile(models.Model):
         """Textual forum of a profile."""
         return self.user.username
 
+    def is_private(self):
+        """checks the user can display his stats"""
+        return settings.ZDS_APP['member']['bot_group'] in self.user.groups.all()
+
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
         return reverse('zds.member.views.details',
@@ -132,6 +136,8 @@ class Profile(models.Model):
 
     def get_tuto_count(self):
         """Number of tutos created."""
+        if self.is_private():
+            return 0
         return Tutorial.objects.filter(authors__in=[self.user]).count()
 
     def get_tutos(self):
