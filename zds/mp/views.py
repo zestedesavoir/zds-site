@@ -19,6 +19,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
+from django.core.exceptions import ObjectDoesNotExist
 
 from zds.utils import slugify
 from zds.utils.mps import send_mp
@@ -257,7 +258,7 @@ def edit(request):
 
     if request.POST['username']:
         u = get_object_or_404(User, username=request.POST['username'])
-        if not request.user == u:
+        if not request.user == u and not u.profile.is_private():
             g_topic.participants.add(u)
             g_topic.save()
 
@@ -529,6 +530,8 @@ def add_participant(request):
     try:
         # user_pk or user_username ?
         part = User.objects.get(username__exact=request.POST['user_pk'])
+        if part.profile.is_private():
+            raise ObjectDoesNotExist
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
@@ -541,10 +544,9 @@ def add_participant(request):
             messages.success(
                 request,
                 _(u'Le membre a bien été ajouté à la conversation.'))
-    except KeyError:
+    except (KeyError, ObjectDoesNotExist):
         messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
-    except:
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou est injoignable.'))
         messages.warning(
             request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
 
