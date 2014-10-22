@@ -17,6 +17,15 @@ if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <tag name>" >&2
 	exit 1
 fi
+
+read -p "Did you run specific tasks for this version as described in update.md? " -r
+echo    # move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+	echo "Do it, now!"
+	exit 1
+fi
+
 cd /opt/zdsenv/ZesteDeSavoir/
 
 # Maintenance mode
