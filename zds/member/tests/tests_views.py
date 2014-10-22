@@ -630,6 +630,48 @@ class MemberTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 403)  # forbidden !
 
+    def test_filter_member_ip(self):
+        """Test filter member by ip"""
+
+        # create users (one regular and one staff and superuser)
+        tester = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        # test login normal user
+        result = self.client.post(
+            reverse('zds.member.views.login_view'),
+            {'username': tester.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        # good password then redirection
+        self.assertEqual(result.status_code, 302)
+
+        # Check that the filter can't be access from normal user
+        result = self.client.post(
+            reverse('zds.member.views.member_from_ip',
+                    kwargs={'ip': tester.last_ip_address}),
+            {}, follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # log the staff user
+        result = self.client.post(
+            reverse('zds.member.views.login_view'),
+            {'username': staff.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        # good password then redirection
+        self.assertEqual(result.status_code, 302)
+
+        # test that we retrieve correctly the 2 members (staff + user) from this ip
+        result = self.client.post(
+            reverse('zds.member.views.member_from_ip',
+                    kwargs={'ip': staff.last_ip_address}),
+            {}, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context['members']), 2)
+
     def tearDown(self):
         Profile.objects.all().delete()
         if os.path.isdir(settings.REPO_ARTICLE_PATH):
