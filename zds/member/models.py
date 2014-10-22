@@ -94,7 +94,9 @@ class Profile(models.Model):
 
     def is_private(self):
         """checks the user can display his stats"""
-        return settings.ZDS_APP['member']['bot_group'] in self.user.groups.all()
+        user_groups = self.user.groups.all()
+        user_group_names = [g.name for g in user_groups]
+        return settings.ZDS_APP['member']['bot_group'] in user_group_names
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
