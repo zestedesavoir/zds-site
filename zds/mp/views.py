@@ -172,7 +172,7 @@ def new(request):
 
         if form.is_valid():
             data = form.data
-
+            tried_unauthorized_member = False
             # Retrieve all participants of the MP.
             ctrl = []
             list_part = data['participants'].split(",")
@@ -182,8 +182,10 @@ def new(request):
                     continue
                 p = get_object_or_404(User, username=part)
                 # We don't the author of the MP.
-                if request.user == p or p.profile.is_private():
+                if request.user == p:
                     continue
+                if p.profile.is_private():
+                    tried_unauthorized_member = True
                 ctrl.append(p)
 
             # user add only himself
@@ -192,10 +194,16 @@ def new(request):
                     and list_part[0] == request.user.username):
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(_(u'Vous êtes déjà auteur du message'))
-                return render(request, 'mp/topic/new.html', {
+                if tried_unauthorized_member:
+                    errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                return render_template('mp/topic/new.html', {
                     'form': form,
                 })
-
+            if tried_unauthorized_member and len(ctrl) == 1:
+                errors = form._errors.setdefault("participants", ErrorList())
+                errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                    'form': form,
+                })
             p_topic = send_mp(request.user,
                               ctrl,
                               data['title'],
@@ -548,7 +556,7 @@ def add_participant(request):
         messages.warning(
             request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou est injoignable.'))
         messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+            request, u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.')
 
     return redirect(reverse('zds.mp.views.topic', args=[
         ptopic.pk,
