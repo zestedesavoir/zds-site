@@ -26,7 +26,7 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
-import StringIO
+import tempfile
 from django.db import transaction
 
 @login_required
@@ -189,13 +189,17 @@ def download(request):
     """Download a gallery."""
     gallery = get_object_or_404(Gallery, pk=request.GET["gallery"])
 
-    io = StringIO.StringIO()
-    zip_file = zipfile.ZipFile(io, 'w')
+    if request.user not in gallery.get_users():
+        raise PermissionDenied
+
+    zip_path = os.path.join(tempfile.gettempdir(), gallery.slug + '.zip')
+    zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, gallery)
     zip_file.close()
 
-    response = HttpResponse(io.getvalue(), content_type="application/x-zip-compressed")
+    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/x-zip-compressed")
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
+    os.remove(zip_path)
     return response
 
 @login_required
