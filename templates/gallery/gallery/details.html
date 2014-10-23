@@ -33,7 +33,7 @@
     <div class="authors">
         <span class="authors-label">Galerie partagée avec : </span>
         <ul>
-            {% for u in gallery.get_users %}
+            {% for u in gallery.get_users_gallery %}
                 {% captureas info %}
                     {% if u.mode == 'R' %}
                         Lecture

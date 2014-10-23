@@ -122,10 +122,15 @@ class Gallery(models.Model):
         """get the physical path to this gallery root"""
         return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
 
-    # TODO rename function to get_users_galleries
-    def get_users(self):
+    def get_users_gallery(self):
         return UserGallery.objects.all()\
             .filter(gallery=self)
+
+    def get_users(self):
+        users = []
+        for userGal in self.get_users_gallery():
+            users.append(userGal.user)
+        return users
 
     def get_images(self):
         return Image.objects.all()\

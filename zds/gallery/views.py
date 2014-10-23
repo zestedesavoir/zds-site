@@ -194,7 +194,7 @@ def download(request):
     insert_into_zip(zip_file, gallery)
     zip_file.close()
 
-    response = HttpResponse(io.getvalue(), mimetype="application/x-zip-compressed")
+    response = HttpResponse(io.getvalue(), content_type="application/x-zip-compressed")
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
     return response
 
