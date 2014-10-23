@@ -15,7 +15,6 @@ from zds.settings import MEDIA_ROOT
 GALLERY_WRITE = 'W'
 GALLERY_READ = 'R'
 
-
 def image_path(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
@@ -80,6 +79,9 @@ class Image(models.Model):
     def get_absolute_url(self):
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
+    def get_physical_path(self):
+        return '{0}/{1}'.format(settings.MEDIA_ROOT, self.physical)
+
     def get_extension(self):
         return os.path.splitext(self.physical.name)[1][1:]
 
@@ -108,6 +110,9 @@ class Gallery(models.Model):
     def __unicode__(self):
         """Textual form of an Gallery."""
         return self.title
+
+    def get_phy_slug(self):
+        return str(self.pk)
 
     def get_absolute_url(self):
         return reverse('zds.gallery.views.gallery_details',

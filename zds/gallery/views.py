@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
@@ -25,8 +26,8 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
+import StringIO
 from django.db import transaction
-
 
 @login_required
 def gallery_list(request):
@@ -55,7 +56,6 @@ def gallery_details(request, gal_pk, gal_slug):
         "images": images,
         "form": form,
     })
-
 
 @can_write_and_read_now
 @login_required
@@ -177,6 +177,26 @@ def modify_gallery(request):
             })
     return redirect(gallery.get_absolute_url())
 
+def insert_into_zip(zip_file, gallery):
+    """Adds image from a gallery to a zip archive"""
+    for image in gallery.get_images():
+        image_directory, image_filename = os.path.split(image.get_physical_path())
+        zip_path = os.path.join(str(gallery.slug), image_filename)
+        zip_file.write(image.get_physical_path(), zip_path)
+
+@login_required
+def download(request):
+    """Download a gallery."""
+    gallery = get_object_or_404(Gallery, pk=request.GET["gallery"])
+
+    io = StringIO.StringIO()
+    zip_file = zipfile.ZipFile(io, 'w')
+    insert_into_zip(zip_file, gallery)
+    zip_file.close()
+
+    response = HttpResponse(io.getvalue(), mimetype="application/x-zip-compressed")
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
+    return response
 
 @login_required
 @can_write_and_read_now
