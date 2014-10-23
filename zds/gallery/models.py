@@ -15,6 +15,7 @@ from zds.settings import MEDIA_ROOT
 GALLERY_WRITE = 'W'
 GALLERY_READ = 'R'
 
+
 def image_path(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]

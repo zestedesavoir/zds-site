@@ -29,6 +29,7 @@ import os
 import tempfile
 from django.db import transaction
 
+
 @login_required
 def gallery_list(request):
     """Display the gallery list with all their images."""
@@ -56,6 +57,7 @@ def gallery_details(request, gal_pk, gal_slug):
         "images": images,
         "form": form,
     })
+
 
 @can_write_and_read_now
 @login_required
@@ -177,12 +179,14 @@ def modify_gallery(request):
             })
     return redirect(gallery.get_absolute_url())
 
+
 def insert_into_zip(zip_file, gallery):
     """Adds image from a gallery to a zip archive"""
     for image in gallery.get_images():
         image_directory, image_filename = os.path.split(image.get_physical_path())
         zip_path = os.path.join(str(gallery.slug), image_filename)
         zip_file.write(image.get_physical_path(), zip_path)
+
 
 @login_required
 def download(request):
@@ -201,6 +205,7 @@ def download(request):
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
     os.remove(zip_path)
     return response
+
 
 @login_required
 @can_write_and_read_now

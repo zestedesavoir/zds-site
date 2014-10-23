@@ -307,6 +307,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(1, len(permissions))
         self.assertEqual('W', permissions[0].mode)
 
+
 class DownloadGalleryViewTest(TestCase):
 
     def setUp(self):
@@ -329,7 +330,7 @@ class DownloadGalleryViewTest(TestCase):
         self.assertEqual(1, Image.objects.all().count())
 
         response = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('zds.gallery.views.download') +
             '?gallery={0}'.format(
                 self.gallery1.pk),
             follow=False)
@@ -346,12 +347,13 @@ class DownloadGalleryViewTest(TestCase):
         self.assertEqual(1, Image.objects.all().count())
 
         response = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('zds.gallery.views.download') +
             '?gallery={0}'.format(
                 self.gallery1.pk),
             follow=False)
 
         self.assertEqual(403, response.status_code)
+
 
 class EditImageViewTest(TestCase):
 

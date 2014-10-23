@@ -131,4 +131,14 @@
             </ul>
         </div>
     {% endif %}
+        <div class="mobile-menu-bloc" data-title="Télcharger">
+            <h3>Télécharger</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.gallery.views.download" %}?gallery={{ gallery.pk  }}" class="ico-after import blue">
+                        Archive
+                    </a>
+                </li>
+            </ul>
+        </div>
 {% endblock %}
