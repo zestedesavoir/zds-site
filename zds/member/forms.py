@@ -603,12 +603,14 @@ class KarmaForm(forms.Form):
             attrs={
                 'placeholder': 'Commentaire sur le comportement de ce membre'
             }),
+        required=True,
     )
 
     points = forms.IntegerField(
         max_value=100,
         min_value=-100,
         initial=0,
+        required=False,
     )
 
     def __init__(self, profile, *args, **kwargs):

@@ -1095,6 +1095,9 @@ def member_from_ip(request, ip):
 def modify_karma(request):
     """ Add a Karma note to the user profile """
 
+    if not request.user.has_perm("member.change_profile"):
+        raise PermissionDenied
+
     if request.method == "POST":
         profile_pk = request.POST["profile_pk"]
         profile = get_object_or_404(Profile, pk=profile_pk)
