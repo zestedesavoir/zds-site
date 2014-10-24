@@ -34,6 +34,12 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr-fr'
 
+LANGUAGES= (
+	('fr-fr', ('Français')),
+	('en-us', ('English')),
+)
+DEFAULT_LANGUAGE = 1
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -112,6 +118,7 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
