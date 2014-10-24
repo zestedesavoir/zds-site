@@ -2878,6 +2878,7 @@ form.topic-message {
    ============== */
 .markdown-help {
     min-height: 50px;
+    overflow: hidden;
 
     .open-markdown-help {
         float: none !important;
