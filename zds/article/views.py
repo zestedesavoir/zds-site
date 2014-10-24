@@ -723,6 +723,7 @@ def modify(request):
                 if author.profile.is_private():
                     raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, "Utilisateur inexistant ou introuvable.")
                 return redirect(redirect_url)
 
             article.authors.add(author)
