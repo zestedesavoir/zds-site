@@ -407,8 +407,16 @@
        Main / Topic list
        ============ */
     .topic-list {
+        .topic-members-short-date {
+            display: none;
+        }
         .topic-last-answer-short-date {
             display: none;
+        }
+        .topic-last-answer {
+            .topic-no-last-answer {
+                margin-top: 24px;
+            }
         }
     }
 

@@ -80,6 +80,16 @@
         .topic-infos .ico-after:after {
             margin: 4px 0 0 2px;
         }
+        .topic-description {
+            .topic-subtitle {
+                display: none;
+            }
+        }
+        .topic-last-answer {
+            .topic-no-last-answer {
+                font-size: 1.3rem;
+            }
+        }
     }
 
     .topic-message .message {

@@ -1546,7 +1546,7 @@
 
     .topic {
         position: relative;
-        height: 81px;
+        min-height: 81px;
         line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
@@ -1555,16 +1555,7 @@
         clear: both;
 
         &:first-child {
-            overflow: visible;
-
-            &:after {
-                display: block;
-                content: " ";
-                width: 100%;
-                height: 1px;
-                background: #CCC;
-                margin-top: -2px;
-            }
+            border-top: 1px solid #CCC;
         }
 
         &:before {
@@ -1678,6 +1669,9 @@
         }
 
         .topic-title-link {
+            display: block;
+            min-height: 48px;
+
             &:hover,
             &:focus {
                 text-decoration: none;
@@ -1691,9 +1685,6 @@
         .topic-title,
         .topic-subtitle {
             display: block;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
             margin: 0;
             padding: 0;
         }
@@ -1721,7 +1712,7 @@
 
         .topic-no-last-answer {
             display: block;
-            margin-top: 24px;
+            margin-top: 27px;
             color: $primary;
             opacity: .5;
         }
