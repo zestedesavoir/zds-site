@@ -469,6 +469,40 @@
     .topic-list {
         .topic {
             background: none !important;
+
+            p {
+                margin: 0 !important;
+            }
+            
+            .topic-members {
+                .topic-members-long-date {
+                    display: none;
+                }
+            }
+            .topic-answers {
+                padding: 0;
+                width: 30%;
+                border-bottom: 1px solid #CCC;
+
+                &.topic-no-answer {
+                    display: none;
+                }
+            }
+            .topic-last-answer {
+                width: 30%;
+                padding: 0;
+                text-align: right;
+
+                .topic-last-answer-short-date {
+                    font-size: 1.3rem;
+                }
+                .topic-last-answer-long-date {
+                    display: none;
+                }
+                .topic-no-last-answer {
+                    text-align: center;
+                }
+            }
         }
     }
 

@@ -76,6 +76,29 @@
         padding-top: 0 !important;
     }
 
+    .topic-list {
+        .topic-infos .ico-after:after {
+            margin: 4px 0 0 2px;
+        }
+        .topic-description {
+            .topic-subtitle:empty {
+                display: none;
+            }
+        }
+        .topic-last-answer {
+            .topic-no-last-answer {
+                font-size: 1.3rem;
+            }
+        }
+    }
+    .forum-list {
+        .topic-description {
+            .topic-subtitle {
+                margin-left: 10px;
+            }
+        }
+    }
+
     .topic-message .message {
         .message-actions a {
             width: 0px;

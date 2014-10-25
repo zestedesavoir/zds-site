@@ -404,6 +404,37 @@
 
 
     /* ============
+       Main / Topic list
+       ============ */
+    .topic-list {
+        .topic-members-short-date {
+            display: none;
+        }
+        .topic-last-answer-short-date {
+            display: none;
+        }
+        &:not(.topic-list-small) .topic-last-answer {
+            .topic-no-last-answer {
+                margin-top: 24px;
+            }
+        }
+    }
+    .forum-list {
+        .topic {
+            min-height: 0;
+        }
+        .topic-last-answer {
+            .forum-last-message {
+                .forum-last-message-long {
+                    display: none;
+                }
+            }
+        }
+    }
+
+
+
+    /* ============
        Main / Message
        ============ */
     .topic-message {
