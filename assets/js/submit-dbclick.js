@@ -7,17 +7,23 @@
 (function($, undefined){
     "use strict";
 
-    var buttonsSelector = "[type=submit], [type=reset]";
+    var buttonsSelector = "[type=submit], [type=reset]",
+        $lastButtonClicked = null;
 
     $("body").on("submit", "form", function(){
         $(buttonsSelector)
             .addClass("disabled");
 
-        $(buttonsSelector, $(this))
+        if($lastButtonClicked === null)
+            $lastButtonClicked = $(buttonsSelector, $(this));
+
+        $lastButtonClicked
             .addClass("submitted")
             .append($("<span/>", { class: "line-loading" }));
     });
     $("form").on("click", buttonsSelector, function(e){
+        $lastButtonClicked = $(this);
+
         if($(this).hasClass("disabled"))
             e.preventDefault();
     });
