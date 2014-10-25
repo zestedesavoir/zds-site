@@ -125,11 +125,11 @@
     [type=submit],
     .btn-submit {
         color: #FFF;
-        background: $primary;
+        background: $upvote;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: lighten($primary, 7%);
+            background: lighten($upvote, 7%);
         }
     }
     .btn-cancel {
