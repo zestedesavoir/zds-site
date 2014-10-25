@@ -1,3 +1,5 @@
+{% load date %}
+
 {# Block displaying the list of forums belonging to a category #}
 
 
@@ -26,7 +28,14 @@
             {% with last_message=forum.get_last_message %}
                 {% if last_message %}
                     <a href="{{ last_message.topic.last_read_post.get_absolute_url }}">
-                        <span class="forum-last-message">Dernier message :</span>
+                        <span class="forum-last-message">
+                            <span class="forum-last-message-long">
+                                {{ last_message.pubdate|format_date|capfirst }}
+                            </span>
+                            <span class="forum-last-message-short">
+                                {{ last_message.pubdate|format_date:True|capfirst }}
+                            </span>
+                        </span>
                         <span class="forum-last-message-title">{{ last_message.topic.title }}</span>
                     </a>
                 {% else %}
