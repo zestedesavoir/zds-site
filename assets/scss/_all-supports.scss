@@ -30,7 +30,7 @@
 
             &:hover,
             &:focus {
-                color: #084561;
+                color: $primary;
                 background-color: #fff;
                 text-decoration: none;
             }
@@ -105,7 +105,7 @@
 
 
 .header-container header {
-    background: #084561;
+    background: $primary;
     border-bottom: 3px solid $secondary;
 
     a,
@@ -440,7 +440,7 @@
                 &:nth-child(2n+1) {
                     &,
                     form button {
-                        background-color: #084561;
+                        background-color: $primary;
                     }
                 }
             }
@@ -993,7 +993,7 @@
 
                 a {
                     position: relative;
-                    color: #084561;
+                    color: $primary;
                     transition: all $transition-duration ease;
 
                     &:hover,
@@ -1224,7 +1224,7 @@
                 font-size: 2.2rem;
                 line-height: 38px;
                 line-height: 3.8rem;
-                color: #084561;
+                color: $primary;
                 font-weight: normal;
                 border-bottom: 1px solid #F8AD32;
                 margin-top: 0;
@@ -1483,7 +1483,7 @@
                 &:hover,
                 &:focus {
                     background: #DDD;
-                    color: #084561;
+                    color: $primary;
                 }
             }
 
@@ -1516,7 +1516,7 @@
             display: block;
             text-align: center;
             text-decoration: none;
-            color: #084561;
+            color: $primary;
             min-width: 45px;
             height: 40px;
             line-height: 40px;
