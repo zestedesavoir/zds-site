@@ -125,7 +125,7 @@
         outline: none;
 
         &.submitted {
-            color: $primary;
+            color: #555;
 
             // Animation loading on submit buttons
             .line-loading {
@@ -135,7 +135,7 @@
                 bottom: 0;
                 width: 0%;
                 height: 1px;
-                background: $upvote;
+                background: #555;
                 animation: lineLoading linear 1s infinite;
             }
         }
@@ -152,8 +152,12 @@
             background: lighten($upvote, 5%);
         }
 
-        &.submitted {
+        &.disabled.submitted {
             color: $upvote;
+
+            .line-loading {
+                background: $upvote;
+            }
         }
     }
     .btn-cancel {
@@ -166,7 +170,7 @@
             background: lighten($downvote, 7%);
         }
 
-        &.submitted {
+        &.disabled.submitted {
             color: $downvote;
 
             .line-loading {
@@ -186,9 +190,11 @@
             color: #333;
         }
 
-        &.submitted {
+        &.disabled.submitted {
+            color: #555;
+
             .line-loading {
-                background: #555;
+                background: #999;
             }
         }
     }
@@ -198,7 +204,7 @@
         background: #EEE !important;
 
         &:not(.submitted){
-            color: #CCC !important;
+            color: #BBB !important;
         }
     }
 
@@ -210,6 +216,7 @@
 
     .buttonHolder {
         margin-top: 25px;
+        min-height: 40px;
     }
 }
 
