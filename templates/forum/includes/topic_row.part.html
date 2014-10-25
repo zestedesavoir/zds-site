@@ -41,7 +41,15 @@
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
-                <span class="topic-members-label">{{ topic.pubdate|format_date }}</span>
+                <span class="topic-members-label">
+                    -
+                    <span class="topic-members-long-date">
+                        {{ topic.pubdate|format_date|capfirst }}
+                    </span>
+                    <span class="topic-members-short-date">
+                        {{ topic.pubdate|format_date:True|capfirst }}
+                    </span>
+                </span>
             </span>
         </div>
     {% endwith %}
@@ -61,7 +69,7 @@
                         {{ answer.pubdate|format_date }}
                     </span>
                     <span class="topic-last-answer-short-date">
-                        {{ answer.pubdate|format_date:True }}
+                        {{ answer.pubdate|format_date:True|capfirst }}
                     </span>
                 </a>
                 <br>
