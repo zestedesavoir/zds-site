@@ -104,14 +104,14 @@
                                             {% endif %}
                                         "
                                         {% if topic.is_solved or topic.is_locked %}
-                                            data-prefix="
+                                            data-prefix="{% spaceless %}
                                                 {% if topic.is_solved %}
                                                     Résolu
                                                 {% endif %}
                                                 {% if topic.is_locked %}
                                                     Fermé
                                                 {% endif %}
-                                            "
+                                            {% endspaceless %}"
                                         {% endif %}
                                     >
                                         {% if not topic|is_read %}

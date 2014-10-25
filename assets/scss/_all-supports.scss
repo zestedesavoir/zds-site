@@ -1544,8 +1544,11 @@
     margin-top: 50px !important;
     margin-bottom: 50px !important;
 
+    h2 {
+        margin-bottom: 0 !important;
+    }
     h2 + .topic {
-        border-top: 1px solid #CCC;
+        border-top: none;
     }
 
     .topic {
@@ -1730,16 +1733,10 @@
 .forum-list {
     .group-title {
         width: 100%;
-        height: 50px;
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
         color: $secondary;
-    }
-    .topic-description {
-        .topic-subtitle {
-            margin-left: 10px;
-        }
     }
 }
 
@@ -1779,8 +1776,11 @@
             margin-top: 13px;
         }
         .forum-last-message {
-            color: #777;
             display: block;
+
+            .forum-last-message-long {
+                display: none;
+            }
         }
         .forum-last-message-title {
             display: block;
