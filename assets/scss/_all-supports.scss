@@ -1544,6 +1544,10 @@
     margin-top: 50px !important;
     margin-bottom: 50px !important;
 
+    h2 + .topic {
+        border-top: 1px solid #CCC;
+    }
+
     .topic {
         position: relative;
         min-height: 81px;
@@ -1731,6 +1735,11 @@
         clear: both;
         border-bottom: 1px solid #CCC;
         color: $secondary;
+    }
+    .topic-description {
+        .topic-subtitle {
+            margin-left: 10px;
+        }
     }
 }
 
