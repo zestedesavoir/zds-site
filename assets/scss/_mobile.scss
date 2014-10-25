@@ -81,7 +81,7 @@
             margin: 4px 0 0 2px;
         }
         .topic-description {
-            .topic-subtitle {
+            .topic-subtitle:empty {
                 display: none;
             }
         }
