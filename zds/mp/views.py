@@ -1,4 +1,4 @@
-# coding: utf-8
+﻿# coding: utf-8
 
 from datetime import datetime
 import json
@@ -195,13 +195,13 @@ def new(request):
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(_(u'Vous êtes déjà auteur du message'))
                 if tried_unauthorized_member:
-                    errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                    errors.append(u'Un des participants saisi est introuvable.')
                 return render_template('mp/topic/new.html', {
                     'form': form,
                 })
             if tried_unauthorized_member and len(ctrl) == 1:
                 errors = form._errors.setdefault("participants", ErrorList())
-                errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                errors.append(u'Un des participants saisi est introuvable.')
                     'form': form,
                 })
             p_topic = send_mp(request.user,
