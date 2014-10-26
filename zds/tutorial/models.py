@@ -12,6 +12,7 @@ except:
 
 import json as json_writer
 import os
+from django.db.models import Q
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -460,7 +461,14 @@ class Tutorial(models.Model):
         if is_public:
             cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
         if is_partial:
-            extracts_select = cal.extracts.split(",")
+            if cal.extracts is None:
+                my_extracts = Extract.objects\
+                    .filter(Q(chapter__tutorial=cal.tutorial) | Q(chapter__part__tutorial=cal.tutorial)).values("pk")
+                extracts_select = []
+                for my_extract in my_extracts:
+                    extracts_select.append(str(my_extract['pk']))
+            else:
+                extracts_select = cal.extracts.split(",")
 
         if not is_partial:
             return parts
@@ -501,7 +509,14 @@ class Tutorial(models.Model):
         if is_public:
             cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
         if is_partial:
-            extracts_select = cal.extracts.split(",")
+            if cal.extracts is None:
+                my_extracts = Extract.objects\
+                    .filter(Q(chapter__tutorial=cal.tutorial) | Q(chapter__part__tutorial=cal.tutorial)).values("pk")
+                extracts_select = []
+                for my_extract in my_extracts:
+                    extracts_select.append(str(my_extract['pk']))
+            else:
+                extracts_select = cal.extracts.split(",")
 
         if not is_partial:
             return chapter
