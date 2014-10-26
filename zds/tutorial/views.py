@@ -1128,7 +1128,8 @@ def add_tutorial(request):
                 tuto=tutorial,
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
-                action="add"
+                action="add",
+                msg=request.POST.get('msg_commit', None)
             )
             return redirect(tutorial.get_absolute_url())
     else:
@@ -1228,6 +1229,7 @@ def edit_tutorial(request):
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
                 action="maj",
+                msg=request.POST.get('msg_commit', None)
             )
             tutorial.subcategory.clear()
             for subcat in form.cleaned_data["subcategory"]:
@@ -1489,7 +1491,7 @@ def modify_part(request):
                       new_slug_path=new_slug_path,
                       tuto=part.tutorial,
                       action="maj",
-                      msg=u"Déplacement de la partie : {} ".format(part.title))
+                      msg=u"Déplacement de la partie {} ".format(part.title))
     elif "delete" in request.POST:
         # Delete all chapters belonging to the part
 
@@ -1515,7 +1517,8 @@ def modify_part(request):
                       old_slug_path=new_slug_tuto_path,
                       new_slug_path=new_slug_tuto_path,
                       tuto=part.tutorial,
-                      action="maj")
+                      action="maj",
+                      msg=u"Suppression de la partie {} ".format(part.title))
     return redirect(part.tutorial.get_absolute_url())
 
 
@@ -1916,7 +1919,7 @@ def modify_chapter(request):
                       new_slug_path=new_slug_path,
                       part=chapter.part,
                       action="maj",
-                      msg=u"Déplacement du chapitre : {}".format(chapter.title))
+                      msg=u"Déplacement du chapitre {}".format(chapter.title))
         messages.info(request, u"Le chapitre a bien été déplacé.")
     elif "delete" in data:
         old_pos = chapter.position_in_part
@@ -1952,7 +1955,8 @@ def modify_chapter(request):
                       old_slug_path=new_slug_path_part,
                       new_slug_path=new_slug_path_part,
                       part=chapter.part,
-                      action="maj")
+                      action="maj",
+                      msg=u"Suppression du chapitre {}".format(chapter.title))
         messages.info(request, u"Le chapitre a bien été supprimé.")
 
         return redirect(parent.get_absolute_url())
@@ -2228,7 +2232,8 @@ def modify_extract(request):
                          old_slug_path=new_slug_path_chapter,
                          new_slug_path=new_slug_path_chapter,
                          chapter=chapter,
-                         action="maj")
+                         action="maj",
+                         msg=u"Suppression de l'extrait {}".format(extract.title))
         return redirect(chapter.get_absolute_url())
     elif "move" in data:
         try:
@@ -2254,7 +2259,7 @@ def modify_extract(request):
                          new_slug_path=new_slug_path,
                          chapter=chapter,
                          action="maj",
-                         msg=u"Déplacement de l'extrait : {}".format(extract.title))
+                         msg=u"Déplacement de l'extrait {}".format(extract.title))
         return redirect(extract.get_absolute_url())
     raise Http404
 
@@ -2640,13 +2645,14 @@ def maj_repo_tuto(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = u"Modification du tutoriel : '{}'".format(tuto.title)
+            msg = u"Modification du tutoriel : «{}» {} {}".format(tuto.title, get_sep(msg), get_text_is_empty(msg))\
+                .strip()
 
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = u"Création du tutoriel : '{}'".format(tuto.title)
+            msg = u"Création du tutoriel «{}» {} {}".format(tuto.title, get_sep(msg), get_text_is_empty(msg)).strip()
         repo = Repo(new_slug_path)
         index = repo.index
         man_path = os.path.join(new_slug_path, "manifest.json")
@@ -2693,19 +2699,18 @@ def maj_repo_part(
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = u"Suppresion de la partie : '{}'".format(part.title)
+        msg = u"Suppresion de la partie : «{}»".format(part.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
 
-            msg = u"Modification de la partie '{}' {} {}".format(part.title,
-                                                                 get_sep(msg),
-                                                                 get_text_is_empty(msg)).strip()
+            msg = u"Modification de la partie «{}» {} {}".format(part.title,get_sep(msg),get_text_is_empty(msg))\
+                .strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création de la partie '{}' {} {}".format(part.title, get_sep(msg), get_text_is_empty(msg)).strip()
+            msg = u"Création de la partie «{}» {} {}".format(part.title, get_sep(msg), get_text_is_empty(msg)).strip()
         index.add([part.get_phy_slug()])
         man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
@@ -2758,23 +2763,23 @@ def maj_repo_chapter(
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
-        msg = u"Suppresion du chapitre : '{}'".format(chapter.title)
+        msg = u"Suppresion du chapitre : «{}»".format(chapter.title)
     else:
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             if chapter.tutorial:
-                msg = u"Modification du tutoriel '{}' {} {}".format(chapter.tutorial.title,
+                msg = u"Modification du tutoriel «{}» {} {}".format(chapter.tutorial.title,
                                                                     get_sep(msg),
                                                                     get_text_is_empty(msg)).strip()
             else:
-                msg = u"Modification du chapitre '{}' {} {}".format(chapter.title,
+                msg = u"Modification du chapitre «{}» {} {}".format(chapter.title,
                                                                     get_sep(msg),
                                                                     get_text_is_empty(msg)).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
-            msg = u"Création du chapitre '{}' {} {}".format(chapter.title, get_sep(msg), get_text_is_empty(msg))\
+            msg = u"Création du chapitre «{}» {} {}".format(chapter.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
@@ -2839,7 +2844,7 @@ def maj_repo_extract(
     chap = extract.chapter
 
     if action == "del":
-        msg = u"Suppression de l'extrait : '{}'".format(extract.title)
+        msg = u"Suppression de l'extrait : «{}»".format(extract.title)
         extract.delete()
         if old_slug_path:
             os.remove(old_slug_path)
@@ -2847,23 +2852,24 @@ def maj_repo_extract(
         if action == "maj":
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
+            msg = u"Mise à jour de l'extrait «{}» {} {}".format(extract.title, get_sep(msg), get_text_is_empty(msg))\
+                .strip()
+        elif action == "add":
+            msg = u"Création de l'extrait «{}» {} {}".format(extract.title, get_sep(msg), get_text_is_empty(msg))\
+                .strip()
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
         index.add([extract.get_path(relative=True)])
-        msg = u"Mise à jour de l'extrait '{}' {} {}".format(extract.title, get_sep(msg), get_text_is_empty(msg))\
-            .strip()
 
     # update manifest
-
     if chap.tutorial:
-        man_path = os.path.join(chap.tutorial.get_path(),
-                                "manifest.json")
+        man_path = os.path.join(chap.tutorial.get_path(), "manifest.json")
         chap.tutorial.dump_json(path=man_path)
     else:
-        man_path = os.path.join(chap.part.tutorial.get_path(),
-                                "manifest.json")
+        man_path = os.path.join(chap.part.tutorial.get_path(), "manifest.json")
         chap.part.tutorial.dump_json(path=man_path)
+
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
