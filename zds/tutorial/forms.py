@@ -125,6 +125,7 @@ class TutorialForm(FormWithTitle):
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
