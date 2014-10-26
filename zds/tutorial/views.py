@@ -2705,7 +2705,7 @@ def maj_repo_part(
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
 
-            msg = u"Modification de la partie «{}» {} {}".format(part.title,get_sep(msg),get_text_is_empty(msg))\
+            msg = u"Modification de la partie «{}» {} {}".format(part.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
@@ -2769,13 +2769,11 @@ def maj_repo_chapter(
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             if chapter.tutorial:
-                msg = u"Modification du tutoriel «{}» {} {}".format(chapter.tutorial.title,
-                                                                    get_sep(msg),
-                                                                    get_text_is_empty(msg)).strip()
+                msg = u"Modification du tutoriel «{}» " \
+                      u"{} {}".format(chapter.tutorial.title, get_sep(msg), get_text_is_empty(msg)).strip()
             else:
-                msg = u"Modification du chapitre «{}» {} {}".format(chapter.title,
-                                                                    get_sep(msg),
-                                                                    get_text_is_empty(msg)).strip()
+                msg = u"Modification du chapitre «{}» " \
+                      u"{} {}".format(chapter.title, get_sep(msg), get_text_is_empty(msg)).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
                 os.makedirs(new_slug_path, mode=0o777)
