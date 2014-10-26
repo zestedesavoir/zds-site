@@ -300,7 +300,7 @@ class ExtractFactory(factory.DjangoModelFactory):
                     chapter.part.tutorial.get_path(),
                     extract.text),
                 "w")
-            f.write(contenu.encode('utf-8'))
+            f.write(content.encode('utf-8'))
             f.close()
 
             chapter.part.tutorial.save()

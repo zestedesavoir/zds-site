@@ -457,9 +457,13 @@ class Tutorial(models.Model):
         is_partial = is_validation or is_public
 
         if is_validation:
-            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["PENDING", "PENDING_V"]).first()
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["PENDING", "PENDING_V"],
+                                            version=self.sha_validation).first()
         if is_public:
-            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["ACCEPT"],
+                                            version=self.sha_public).first()
         if is_partial:
             if cal.extracts is None:
                 my_extracts = Extract.objects\
@@ -505,9 +509,13 @@ class Tutorial(models.Model):
         is_public = sha == self.sha_public and self.on_line()
         is_partial = is_validation or is_public
         if is_validation:
-            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["PENDING", "PENDING_V"]).first()
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["PENDING", "PENDING_V"],
+                                            version=self.sha_validation).first()
         if is_public:
-            cal = Validation.objects.filter(tutorial__pk=self.pk, status__in=["ACCEPT"]).first()
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["ACCEPT"],
+                                            version=self.sha_public).first()
         if is_partial:
             if cal.extracts is None:
                 my_extracts = Extract.objects\
@@ -517,7 +525,6 @@ class Tutorial(models.Model):
                     extracts_select.append(str(my_extract['pk']))
             else:
                 extracts_select = cal.extracts.split(",")
-
         if not is_partial:
             return chapter
 
