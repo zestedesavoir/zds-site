@@ -271,7 +271,8 @@ def new(request):
                              new_slug_path=article.get_path(),
                              article=article,
                              text=data['text'],
-                             action='add')
+                             action='add',
+                             msg=request.POST.get('msg_commit', None))
             return redirect(article.get_absolute_url())
     else:
         form = ArticleForm(
@@ -419,12 +420,12 @@ def maj_repo_article(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = u"Modification de l'article '{}' {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+            msg = u"Modification de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = u"Création de l'article '{}' {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+            msg = u"Création de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
 
         repo = Repo(new_slug_path)
