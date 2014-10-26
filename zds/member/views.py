@@ -192,6 +192,15 @@ def details(request, user_name):
     except SiteProfileNotAvailable:
         raise Http404
 
+    if usr.username == settings.ANONYMOUS_USER or \
+       usr.username == settings.EXTERNAL_USER:
+        form = OldTutoForm(profile)
+        return render_template("member/profile.html", {
+            "usr": usr,
+            "profile": profile,
+            "form": form,
+        })
+
     # refresh moderation chart
 
     dot_chart = pygal.Dot(x_label_rotation=30)
