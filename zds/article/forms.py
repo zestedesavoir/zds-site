@@ -8,7 +8,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 from zds.article.models import Article
-from zds.utils.forms import CommonLayoutEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 
 
@@ -61,6 +61,17 @@ class ArticleForm(forms.Form):
         empty_label=None
     )
 
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         super(ArticleForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -73,7 +84,7 @@ class ArticleForm(forms.Form):
             Field('image'),
             Field('subcategory'),
             Field('licence'),
-            CommonLayoutEditor(),
+            CommonLayoutVersionEditor(),
         )
 
     def clean(self):
