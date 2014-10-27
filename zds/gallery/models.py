@@ -112,9 +112,6 @@ class Gallery(models.Model):
         """Textual form of an Gallery."""
         return self.title
 
-    def get_phy_slug(self):
-        return str(self.pk)
-
     def get_absolute_url(self):
         return reverse('zds.gallery.views.gallery_details',
                        args=[self.pk, self.slug])
@@ -124,8 +121,10 @@ class Gallery(models.Model):
         return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
 
     def get_users_gallery(self):
-        return UserGallery.objects.all()\
-            .filter(gallery=self)
+        return UserGallery.objects\
+            .select_related()\
+            .filter(gallery=self)\
+            .all()
 
     def get_users(self):
         users = []
