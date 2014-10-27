@@ -3,6 +3,8 @@
 
 import urllib
 import os
+import StringIO
+import zipfile
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -353,6 +355,39 @@ class DownloadGalleryViewTest(TestCase):
             follow=False)
 
         self.assertEqual(403, response.status_code)
+
+    def test_checks_if_zip_file_has_all_images(self):
+        """Checks if zip file has all images of the gallery"""
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(1, Gallery.objects.all().count())
+        self.assertEqual(1, UserGallery.objects.all().count())
+        self.assertEqual(1, Image.objects.all().count())
+
+        response = self.client.get(
+            reverse('zds.gallery.views.download') +
+            '?gallery={0}'.format(
+                self.gallery1.pk),
+            follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+        # Checks if we receive archive in the response.
+        self.assertEquals(
+            response.get('Content-Disposition'),
+            "attachment; filename={0}.zip".format(self.gallery1.slug)
+        )
+
+        # Checks if image is in the archive file.
+        content = StringIO.StringIO(response.content)
+        zipped_file = zipfile.ZipFile(content, 'r')
+        filename = self.image1.physical.name.split("/")[2]
+
+        self.assertIsNone(zipped_file.testzip())
+        self.assertIn("{0}/{1}".format(self.gallery1.slug, filename), zipped_file.namelist())
+        zipped_file.close()
+        content.close()
 
 
 class EditImageViewTest(TestCase):
