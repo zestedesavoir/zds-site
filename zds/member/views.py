@@ -445,11 +445,11 @@ def settings_mini_profile(request, user_name):
             try:
                 profile.save()
             except:
-                messages.error(request, "Une erreur est survenue.")
+                messages.error(request, u"Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_mini_profil"
                                         "e"))
             messages.success(request,
-                             "Le profil a correctement été mis à jour.")
+                             u"Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
@@ -495,10 +495,10 @@ def settings_profile(request):
             try:
                 profile.save()
             except:
-                messages.error(request, "Une erreur est survenue.")
+                messages.error(request, u"Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_profile"))
             messages.success(request,
-                             "Le profil a correctement été mis à jour.")
+                             u"Le profil a correctement été mis à jour.")
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
             return render_template("member/settings/profile.html", c)
@@ -532,9 +532,9 @@ def update_avatar(request):
         try:
             profile.save()
         except:
-            messages.error(request, "Une erreur est survenue.")
+            messages.error(request, u"Une erreur est survenue.")
             return redirect(reverse("zds.member.views.settings_profile"))
-        messages.success(request, "L'avatar a correctement été mis à jour.")
+        messages.success(request, u"L'avatar a correctement été mis à jour.")
 
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
@@ -552,11 +552,11 @@ def settings_account(request):
             try:
                 request.user.set_password(form.data["password_new"])
                 request.user.save()
-                messages.success(request, "Le mot de passe a bien été modifié."
+                messages.success(request, u"Le mot de passe a bien été modifié."
                                  )
                 return redirect(reverse("zds.member.views.settings_account"))
             except:
-                messages.error(request, "Une erreur est survenue.")
+                messages.error(request, u"Une erreur est survenue.")
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
             return render_template("member/settings/account.html", c)
@@ -626,18 +626,18 @@ def login_view(request):
                         return redirect(reverse("zds.pages.views.home"))
                 else:
                     messages.error(request,
-                                   "Vous n'êtes pas autorisé à vous connecter "
-                                   "sur le site, vous avez été banni par un "
-                                   "modérateur")
+                                   u"Vous n'êtes pas autorisé à vous connecter "
+                                   u"sur le site, vous avez été banni par un "
+                                   u"modérateur.")
             else:
                 messages.error(request,
-                               "Vous n'avez pas encore activé votre compte, "
-                               "vous devez le faire pour pouvoir vous "
-                               "connecter sur le site. Regardez dans vos "
-                               "mails : " + str(user.email))
+                               u"Vous n'avez pas encore activé votre compte, "
+                               u"vous devez le faire pour pouvoir vous "
+                               u"connecter sur le site. Regardez dans vos "
+                               u"mails : " + str(user.email))
         else:
             messages.error(request,
-                           "Les identifiants fournis ne sont pas valides")
+                           u"Les identifiants fournis ne sont pas valides.")
     form = LoginForm()
     form.helper.form_action = reverse("zds.member.views.login_view")
     if next_page is not None:
@@ -930,7 +930,7 @@ def add_oldtuto(request):
     profile.save()
     messages.success(request,
                      u'Le tutoriel a bien été lié au '
-                     u'membre {0}'.format(profile.user.username))
+                     u'membre {0}.'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
 
@@ -962,7 +962,7 @@ def remove_oldtuto(request):
 
     messages.success(request,
                      u'Le tutoriel a bien été retiré '
-                     u'au membre {0}'.format(profile.user.username))
+                     u'au membre {0}.'.format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
 
@@ -989,12 +989,12 @@ def settings_promote(request, user_pk):
                 if unicode(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
-                        messages.success(request, u'{0} appartient maintenant au groupe {1}'
+                        messages.success(request, u'{0} appartient maintenant au groupe {1}.'
                                          .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
-                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}'
+                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}.'
                                          .format(user.username, group.name))
                         topics_followed = Topic.objects.filter(topicfollowed__user=user,
                                                                forum__group=group)
@@ -1007,30 +1007,30 @@ def settings_promote(request, user_pk):
                 for topic in topics_followed:
                     follow(topic, user)
             user.groups.clear()
-            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe'
+            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe.'
                              .format(user.username))
 
         if 'superuser' in data and u'on' in data['superuser']:
             if not user.is_superuser:
                 user.is_superuser = True
-                messages.success(request, u'{0} est maintenant super-utilisateur'
+                messages.success(request, u'{0} est maintenant super-utilisateur.'
                                  .format(user.username))
         else:
             if user == request.user:
-                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateur')
+                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateurs.')
             else:
                 if user.is_superuser:
                     user.is_superuser = False
-                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur'
+                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur.'
                                      .format(user.username))
 
         if 'activation' in data and u'on' in data['activation']:
             user.is_active = True
-            messages.success(request, u'{0} est maintenant activé'
+            messages.success(request, u'{0} est maintenant activé.'
                              .format(user.username))
         else:
             user.is_active = False
-            messages.warning(request, u'{0} est désactivé'
+            messages.warning(request, u'{0} est désactivé.'
                              .format(user.username))
 
         user.save()
