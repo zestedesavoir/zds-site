@@ -634,7 +634,7 @@ def login_view(request):
                                u"Vous n'avez pas encore activé votre compte, "
                                u"vous devez le faire pour pouvoir vous "
                                u"connecter sur le site. Regardez dans vos "
-                               u"mails : " + str(user.email))
+                               u"mails : {}.".format(str(user.email)))
         else:
             messages.error(request,
                            u"Les identifiants fournis ne sont pas valides.")
