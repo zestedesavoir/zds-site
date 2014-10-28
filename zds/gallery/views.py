@@ -26,7 +26,7 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
-import tempfile
+import time
 from django.db import transaction
 
 
@@ -180,6 +180,25 @@ def modify_gallery(request):
     return redirect(gallery.get_absolute_url())
 
 
+def get_size(start_path='.'):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for filename in filenames:
+            fp = os.path.join(dirpath, filename)
+            total_size += os.path.getsize(fp)
+    return total_size
+
+
+def rm_content_folder(folder='.'):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception, e:
+            print e
+
+
 def insert_into_zip(zip_file, gallery):
     """Adds image from a gallery to a zip archive"""
     for image in gallery.get_images():
@@ -196,14 +215,36 @@ def download(request):
     if request.user not in gallery.get_users():
         raise PermissionDenied
 
-    zip_path = os.path.join(tempfile.gettempdir(), gallery.slug + '.zip')
-    zip_file = zipfile.ZipFile(zip_path, 'w')
-    insert_into_zip(zip_file, gallery)
-    zip_file.close()
+    cache_path = settings.ZDS_APP['gallery']['cache_path']
+    zip_path = os.path.join(cache_path, "{0}-{1}.zip".format(gallery.pk, gallery.slug))
+
+    # If the cache folder isn't exist, we create it.
+    if not os.path.exists(cache_path):
+        os.makedirs(zip_path, mode=0o777)
+
+    # Gets size of the cache folder and checks if the size is too big.
+    max_size = settings.ZDS_APP['gallery']['cache_size']
+    size = get_size(start_path=cache_path)
+    if size > max_size:
+        rm_content_folder(folder=cache_path)
+
+    # Checks if we must remove zip file of the gallery and regenerate it.
+    generateFile = True
+    if os.path.exists(zip_path):
+        timestamp_zip_file = os.path.getmtime(zip_path)
+        timestamp_last_image = int(time.mktime(gallery.get_last_image().pubdate.timetuple()))
+        if timestamp_last_image > timestamp_zip_file:
+            os.remove(zip_path)
+        else:
+            generateFile = False
+
+    if generateFile:
+        zip_file = zipfile.ZipFile(zip_path, 'w')
+        insert_into_zip(zip_file, gallery)
+        zip_file.close()
 
     response = HttpResponse(open(zip_path, "rb").read(), content_type="application/x-zip-compressed")
     response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
-    os.remove(zip_path)
     return response
 
 
