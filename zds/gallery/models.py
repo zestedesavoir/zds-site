@@ -127,10 +127,14 @@ class Gallery(models.Model):
             .all()
 
     def get_users(self):
-        users = []
-        for userGal in self.get_users_gallery():
-            users.append(userGal.user)
-        return users
+        users = UserGallery.objects\
+            .filter(gallery=self)\
+            .values_list('user', flat=True)\
+            .all()
+        return User.objects\
+            .select_related()\
+            .filter(pk__in=users)\
+            .all()
 
     def get_images(self):
         return Image.objects.all()\
