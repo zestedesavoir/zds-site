@@ -405,24 +405,24 @@ def articles(request):
     # public, draft or all user's articles.
 
     try:
-        type = request.GET["type"]
+        tpe = request.GET["type"]
     except KeyError:
-        type = None
+        tpe = None
 
     # Retrieves all articles of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if tpe == "draft":
         user_articles = profile.get_draft_articles()
-    if type == "validate":
+    elif tpe == "validate":
         user_articles = profile.get_validate_articles()
-    elif type == "public":
+    elif tpe == "public":
         user_articles = profile.get_public_articles()
     else:
         user_articles = profile.get_articles()
 
     return render_template("article/member/index.html",
-                           {"articles": user_articles, "type": type})
+                           {"articles": user_articles, "type": tpe})
 
 
 # settings for public profile
