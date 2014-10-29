@@ -255,62 +255,64 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Activité">
         <h3>Activité</h3>
 
-        {% if profile.get_draft_tutos.count > 0 %}
-            <h4>Tutoriels</h4>
-            <ul>
-                {% if profile.get_public_tutos.count > 0 %}
-                    <li>
-                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
-                            En ligne
-                            <span class="count">{{ profile.get_public_tutos.count }}</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if profile.get_beta_tutos.count > 0 %}
-                    <li>
-                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
-                            En version bêta
-                            <span class="count">{{ profile.get_beta_tutos.count }}</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if profile.user == user %}
-                    {% if profile.get_validate_tutos.count > 0 %}
+        {% with tutos_draft=profile.get_draft_tutos.count tutos_validate=profile.get_validate_tutos.count tutos_beta=profile.get_beta_tutos.count tutos_public=profile.get_public_tutos.count %}
+            {% if tutos_draft > 0 or tutos_validate > 0 or tutos_beta > 0 or tutos_public > 0 %}
+                <h4>Tutoriels</h4>
+                <ul>
+                    {% if tutos_public > 0 %}
                         <li>
-                            <a href="{% url "zds.member.views.tutorials" %}?type=validate">
-                                En validation
-                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                                En ligne
+                                <span class="count">{{ tutos_public }}</span>
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.get_draft_tutos.count > 0 %}
+                    {% if tutos_beta > 0 %}
                         <li>
-                            <a href="{% url "zds.member.views.tutorials" %}?type=draft">
-                                En rédaction
-                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                                En version bêta
+                                <span class="count">{{ tutos_beta }}</span>
                             </a>
                         </li>
                     {% endif %}
-                {% else %}
-                    {% if profile.get_validate_tutos.count > 0 %}
-                        <li class="inactive">
-                            <span>
-                                En validation
-                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
-                            </span>
-                        </li>
+                    {% if profile.user == user %}
+                        {% if tutos_validate > 0 %}
+                            <li>
+                                <a href="{% url "zds.member.views.tutorials" %}?type=validate">
+                                    En validation
+                                    <span class="count">{{ tutos_validate }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if tutos_draft > 0 %}
+                            <li>
+                                <a href="{% url "zds.member.views.tutorials" %}?type=draft">
+                                    En rédaction
+                                    <span class="count">{{ tutos_draft }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        {% if tutos_validate > 0 %}
+                            <li class="inactive">
+                                <span>
+                                    En validation
+                                    <span class="count">{{ tutos_validate }}</span>
+                                </span>
+                            </li>
+                        {% endif %}
+                        {% if tutos_draft > 0 %}
+                            <li class="inactive">
+                                <span>
+                                    En rédaction
+                                    <span class="count">{{ tutos_draft }}</span>
+                                </span>
+                            </li>
+                        {% endif %}
                     {% endif %}
-                    {% if profile.get_draft_tutos.count > 0 %}
-                        <li class="inactive">
-                            <span>
-                                En rédaction
-                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
-                            </span>
-                        </li>
-                    {% endif %}
-                {% endif %}
-            </ul>
-        {% endif %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         {% if profile.get_draft_articles.count > 0 %}
             <h4>Articles</h4>
