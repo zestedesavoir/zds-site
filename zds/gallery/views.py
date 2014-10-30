@@ -189,16 +189,6 @@ def get_size(start_path='.'):
     return total_size
 
 
-def rm_content_folder(folder='.'):
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception, e:
-            print e
-
-
 def insert_into_zip(zip_file, gallery):
     """Adds image from a gallery to a zip archive"""
     for image in gallery.get_images():
@@ -207,44 +197,67 @@ def insert_into_zip(zip_file, gallery):
         zip_file.write(image.get_physical_path(), zip_path)
 
 
+def exists_start_with(directory, start):
+    """Checks if a filename start with a given filename into a directory"""
+    for file in os.listdir(directory):
+        start_current_file = file.split('-')[0]
+        if str(start_current_file) == str(start):
+            return file
+    return None
+
+
 @login_required
 def download(request):
     """Download a gallery."""
+    import re
     gallery = get_object_or_404(Gallery, pk=request.GET["gallery"])
 
     if request.user not in gallery.get_users():
         raise PermissionDenied
 
+    filename = "{0}-{1}.zip".format(gallery.pk, time.time())
     cache_path = settings.ZDS_APP['gallery']['cache_path']
-    zip_path = os.path.join(cache_path, "{0}-{1}.zip".format(gallery.pk, gallery.slug))
+    zip_path = os.path.join(cache_path, filename)
 
     # If the cache folder isn't exist, we create it.
     if not os.path.exists(cache_path):
-        os.makedirs(zip_path, mode=0o777)
-
-    # Gets size of the cache folder and checks if the size is too big.
-    max_size = settings.ZDS_APP['gallery']['cache_size']
-    size = get_size(start_path=cache_path)
-    if size > max_size:
-        rm_content_folder(folder=cache_path)
+        os.makedirs(cache_path, mode=0o777)
 
     # Checks if we must remove zip file of the gallery and regenerate it.
     generateFile = True
-    if os.path.exists(zip_path):
-        timestamp_zip_file = os.path.getmtime(zip_path)
-        timestamp_last_image = int(time.mktime(gallery.get_last_image().pubdate.timetuple()))
-        if timestamp_last_image > timestamp_zip_file:
-            os.remove(zip_path)
+    old_filename = exists_start_with(cache_path, gallery.pk)
+    if old_filename is not None:
+        old_zip_path = os.path.join(cache_path, old_filename)
+        timestamp_old_zip_file = float(os.path.getmtime(old_zip_path))
+        timestamp_last_image = float(time.mktime(gallery.get_last_image().pubdate.timetuple()))
+        if timestamp_last_image > timestamp_old_zip_file:
+            os.remove(old_zip_path)
         else:
+            zip_path = os.path.join(cache_path, old_filename)
             generateFile = False
 
+    # Generates zip file if necessary.
     if generateFile:
         zip_file = zipfile.ZipFile(zip_path, 'w')
         insert_into_zip(zip_file, gallery)
         zip_file.close()
 
+    # Builds the response with the old or the new zip file.
     response = HttpResponse(open(zip_path, "rb").read(), content_type="application/x-zip-compressed")
-    response["Content-Disposition"] = "attachment; filename={0}.zip".format(gallery.slug)
+    response["Content-Disposition"] = "attachment; filename={0}.zip".format(filename)
+
+    # Gets size of the cache folder and checks if the size is too big.
+    max_size = settings.ZDS_APP['gallery']['cache_size']
+    size = get_size(start_path=cache_path)
+    if size > max_size:
+        # The size is bigger than the maximum of the cache, we remove the older zip file.
+        matchObj = re.match(r'^[0-9]+-([0-9]+.[0-9]+).zip$', filename)
+        if matchObj:
+            listdir = os.listdir(cache_path)
+            sorted(listdir, key=lambda x: float(matchObj.group(1)))
+            file_to_remove = os.path.join(cache_path, listdir[0])
+            os.remove(file_to_remove)
+
     return response
 
 

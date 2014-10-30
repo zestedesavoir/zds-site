@@ -376,12 +376,6 @@ class DownloadGalleryViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
-        # Checks if we receive archive in the response.
-        self.assertEquals(
-            response.get('Content-Disposition'),
-            "attachment; filename={0}.zip".format(self.gallery2.slug)
-        )
-
         # Checks if image is in the archive file.
         content = StringIO.StringIO(response.content)
         zipped_file = zipfile.ZipFile(content, 'r')
