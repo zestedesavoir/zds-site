@@ -2091,7 +2091,7 @@ def add_extract(request):
             if form.is_valid():
                 data = form.data
                 extract = Extract()
-                extract.chapter = chapter
+                extract.container = chapter
                 extract.position_in_chapter = chapter.get_extract_count() + 1
                 extract.title = data["title"]
                 extract.save()
@@ -2118,15 +2118,15 @@ def edit_extract(request):
     except KeyError:
         raise Http404
     extract = get_object_or_404(Extract, pk=extract_pk)
-    part = extract.chapter.part
+    part = extract.container.part
 
     # If part exist, we check if the user is in authors of the tutorial of the
     # part or If part doesn't exist, we check if the user is in authors of the
     # tutorial of the chapter.
 
     if part and request.user \
-            not in extract.chapter.part.tutorial.authors.all() or not part \
-            and request.user not in extract.chapter.tutorial.authors.all():
+            not in extract.container.part.tutorial.authors.all() or not part \
+            and request.user not in extract.container.tutorial.authors.all():
 
         # If the user isn't an author or a staff, we raise an exception.
 
@@ -2203,10 +2203,10 @@ def modify_extract(request):
     except KeyError:
         raise Http404
     extract = get_object_or_404(Extract, pk=extract_pk)
-    chapter = extract.chapter
+    chapter = extract.container
     if "delete" in data:
         pos_current_extract = extract.position_in_chapter
-        for extract_c in extract.chapter.get_extracts():
+        for extract_c in extract.container.get_extracts():
             if pos_current_extract <= extract_c.position_in_chapter:
                 extract_c.position_in_chapter = extract_c.position_in_chapter \
                     - 1
@@ -2216,9 +2216,9 @@ def modify_extract(request):
 
         old_slug = extract.get_path()
 
-        if extract.chapter.tutorial:
+        if extract.container.tutorial:
             new_slug_path_chapter = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                                 extract.chapter.tutorial.get_phy_slug())
+                                                 extract.container.tutorial.get_phy_slug())
         else:
             new_slug_path_chapter = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                                  chapter.part.tutorial.get_phy_slug(),
@@ -2245,9 +2245,9 @@ def modify_extract(request):
         move(extract, new_pos, "position_in_chapter", "chapter", "get_extracts")
         extract.save()
 
-        if extract.chapter.tutorial:
+        if extract.container.tutorial:
             new_slug_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                         extract.chapter.tutorial.get_phy_slug())
+                                         extract.container.tutorial.get_phy_slug())
         else:
             new_slug_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                          chapter.part.tutorial.get_phy_slug(),
@@ -2494,7 +2494,7 @@ def import_content(
                     extract = Extract()
                     extract.title = extract_title.text.strip()
                     extract.position_in_chapter = extract_count
-                    extract.chapter = chapter
+                    extract.container = chapter
                     extract.save()
                     extract.text = extract.get_path(relative=True)
                     extract.save()
@@ -2563,7 +2563,7 @@ def import_content(
             extract = Extract()
             extract.title = extract_title.text.strip()
             extract.position_in_chapter = extract_count
-            extract.chapter = chapter
+            extract.container = chapter
             extract.save()
             extract.text = extract.get_path(relative=True)
             extract.save()

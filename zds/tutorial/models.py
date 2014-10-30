@@ -27,8 +27,8 @@ from zds.utils.tutorials import get_blob, export_tutorial
 
 
 TYPE_CHOICES = (
-    ('MINI', 'Mini-tuto'),
-    ('BIG', 'Big-tuto'),
+    ('TUTO', 'Tutoriel'),
+    ('ARTICLE', 'Article'),
 )
 
 STATUS_CHOICES = (
@@ -39,14 +39,56 @@ STATUS_CHOICES = (
 )
 
 
-class Tutorial(models.Model):
+class Container(models.Model):
 
-    """A tutorial, large or small."""
+    """A container (tuto/article, part, chapter)."""
+    class Meta:
+        verbose_name = 'Container'
+        verbose_name_plural = 'Containers'
+
+    title = models.CharField('Titre', max_length=80)
+
+    introduction = models.CharField(
+        'chemin relatif introduction',
+        blank=True,
+        null=True,
+        max_length=200)
+
+    conclusion = models.CharField(
+        'chemin relatif conclusion',
+        blank=True,
+        null=True,
+        max_length=200)
+
+    parent = models.ForeignKey(Container,
+                              verbose_name='Conteneur parent',
+                              blank=True, null=True,
+                              on_delete=models.SET_NULL)
+
+    def has_extract(self):
+        return Extract.objects.filter(chapter=self).count() > 0
+
+    def has_sub_part(self):
+        return Container.objects.filter(parent=self).count() > 0
+
+    def add_container(self, container):
+        if not self.has_extract():
+            container.parent = self
+            container.save()
+
+    def add_extract(self, extract):
+        if not self.has_sub_part():
+            extract.chapter = self
+
+
+class PubliableContent(Container):
+
+    """A tutorial whatever its size or an aticle."""
     class Meta:
         verbose_name = 'Tutoriel'
         verbose_name_plural = 'Tutoriels'
 
-    title = models.CharField('Titre', max_length=80)
+
     description = models.CharField('Description', max_length=200)
     source = models.CharField('Source', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
@@ -84,20 +126,8 @@ class Tutorial(models.Model):
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
-
+    # as of ZEP 12 this fiels is no longer the size but the type of content (article/tutorial)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
-
-    introduction = models.CharField(
-        'chemin relatif introduction',
-        blank=True,
-        null=True,
-        max_length=200)
-
-    conclusion = models.CharField(
-        'chemin relatif conclusion',
-        blank=True,
-        null=True,
-        max_length=200)
 
     images = models.CharField(
         'chemin relatif images',
@@ -931,7 +961,7 @@ class Extract(models.Model):
         verbose_name_plural = 'Extraits'
 
     title = models.CharField('Titre', max_length=80)
-    chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent', db_index=True)
+    container = models.ForeignKey(Container, verbose_name='Chapitre parent', db_index=True)
     position_in_chapter = models.IntegerField('Position dans le chapitre', db_index=True)
 
     text = models.CharField(
@@ -945,53 +975,53 @@ class Extract(models.Model):
 
     def get_absolute_url(self):
         return '{0}#{1}-{2}'.format(
-            self.chapter.get_absolute_url(),
+            self.container.get_absolute_url(),
             self.position_in_chapter,
             slugify(self.title)
         )
 
     def get_absolute_url_online(self):
         return '{0}#{1}-{2}'.format(
-            self.chapter.get_absolute_url_online(),
+            self.container.get_absolute_url_online(),
             self.position_in_chapter,
             slugify(self.title)
         )
 
     def get_path(self, relative=False):
         if relative:
-            if self.chapter.tutorial:
+            if self.container.tutorial:
                 chapter_path = ''
             else:
                 chapter_path = os.path.join(
-                    self.chapter.part.get_phy_slug(),
-                    self.chapter.get_phy_slug())
+                    self.container.part.get_phy_slug(),
+                    self.container.get_phy_slug())
         else:
-            if self.chapter.tutorial:
+            if self.container.tutorial:
                 chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                            self.chapter.tutorial.get_phy_slug())
+                                            self.container.tutorial.get_phy_slug())
             else:
                 chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                            self.chapter.part.tutorial.get_phy_slug(),
-                                            self.chapter.part.get_phy_slug(),
-                                            self.chapter.get_phy_slug())
+                                            self.container.part.tutorial.get_phy_slug(),
+                                            self.container.part.get_phy_slug(),
+                                            self.container.get_phy_slug())
 
         return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
 
     def get_prod_path(self):
 
-        if self.chapter.tutorial:
-            data = self.chapter.tutorial.load_json_for_public()
-            mandata = self.chapter.tutorial.load_dic(data)
+        if self.container.tutorial:
+            data = self.container.tutorial.load_json_for_public()
+            mandata = self.container.tutorial.load_dic(data)
             if "chapter" in mandata:
                 for ext in mandata["chapter"]["extracts"]:
                     if ext['pk'] == self.pk:
                         return os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
-                                            str(self.chapter.tutorial.pk) + '_' + slugify(mandata['title']),
+                                            str(self.container.tutorial.pk) + '_' + slugify(mandata['title']),
                                             str(ext['pk']) + "_" + slugify(ext['title'])) \
                             + '.md.html'
         else:
-            data = self.chapter.part.tutorial.load_json_for_public()
-            mandata = self.chapter.part.tutorial.load_dic(data)
+            data = self.container.part.tutorial.load_json_for_public()
+            mandata = self.container.part.tutorial.load_dic(data)
             for part in mandata["parts"]:
                 for chapter in part["chapters"]:
                     for ext in chapter["extracts"]:
@@ -1005,10 +1035,10 @@ class Extract(models.Model):
 
     def get_text(self, sha=None):
 
-        if self.chapter.tutorial:
-            tutorial = self.chapter.tutorial
+        if self.container.tutorial:
+            tutorial = self.container.tutorial
         else:
-            tutorial = self.chapter.part.tutorial
+            tutorial = self.container.part.tutorial
         repo = Repo(tutorial.get_path())
 
         # find hash code
@@ -1041,14 +1071,14 @@ class Extract(models.Model):
 
     def get_text_online(self):
 
-        if self.chapter.tutorial:
+        if self.container.tutorial:
             path = os.path.join(
-                self.chapter.tutorial.get_prod_path(),
+                self.container.tutorial.get_prod_path(),
                 self.text +
                 '.html')
         else:
             path = os.path.join(
-                self.chapter.part.tutorial.get_prod_path(),
+                self.container.part.tutorial.get_prod_path(),
                 self.text +
                 '.html')
 
