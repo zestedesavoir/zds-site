@@ -18,7 +18,7 @@ from zds.member.models import Profile
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory
-from zds.tutorial.models import Tutorial, Validation
+from zds.tutorial.models import PubliableContent, Validation
 from zds.article.factories import ArticleFactory
 from zds.article.models import Article
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
@@ -345,7 +345,7 @@ class MemberTests(TestCase):
                     publishedArticle2.pk,
                     publishedArticle2.slug]),
             follow=True).status_code, 200)
-        self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
+        self.assertEqual(PubliableContent.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
         self.assertEqual(writingTutorial2.authors.count(), 1)
         self.assertEqual(writingTutorial2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])

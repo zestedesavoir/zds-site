@@ -38,14 +38,14 @@ class Category(models.Model):
         return self.title
 
     def get_tutos(self):
-        from zds.tutorial.models import Tutorial
+        from zds.tutorial.models import PubliableContent
         scat = CategorySubCategory.objects.filter(
             category__pk=self.pk,
             is_main=True)
         msct = []
         for sc in scat:
             msct.append(sc.subcategory)
-        return Tutorial.objects.filter(
+        return PubliableContent.objects.filter(
             subcategory__in=msct).exclude(
             sha_public=None).exclude(
             sha_public__isnull=True).all()
@@ -97,8 +97,8 @@ class SubCategory(models.Model):
         return self.title
 
     def get_tutos(self):
-        from zds.tutorial.models import Tutorial
-        return Tutorial.objects.filter(
+        from zds.tutorial.models import PubliableContent
+        return PubliableContent.objects.filter(
             subcategory__in=[self]).exclude(
             sha_public=None).exclude(
             sha_public='').exclude(

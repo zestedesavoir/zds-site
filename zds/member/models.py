@@ -16,7 +16,7 @@ from django.dispatch import receiver
 import pygeoip
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 from zds.utils.models import Alert
 from django.utils.importlib import import_module
 
@@ -132,36 +132,36 @@ class Profile(models.Model):
 
     def get_tuto_count(self):
         """Number of tutos created."""
-        return Tutorial.objects.filter(authors__in=[self.user]).count()
+        return PubliableContent.objects.filter(authors__in=[self.user]).count()
 
     def get_tutos(self):
         """Get all tutorials of the user."""
-        return Tutorial.objects.filter(authors__in=[self.user]).all()
+        return PubliableContent.objects.filter(authors__in=[self.user]).all()
 
     def get_draft_tutos(self):
         """Tutorial in draft."""
-        return Tutorial.objects.filter(
+        return PubliableContent.objects.filter(
             authors__in=[
                 self.user],
             sha_draft__isnull=False).all()
 
     def get_public_tutos(self):
         """Tutorial in public."""
-        return Tutorial.objects.filter(
+        return PubliableContent.objects.filter(
             authors__in=[
                 self.user],
             sha_public__isnull=False).all()
 
     def get_validate_tutos(self):
         """Tutorial in validation."""
-        return Tutorial.objects.filter(
+        return PubliableContent.objects.filter(
             authors__in=[
                 self.user],
             sha_validation__isnull=False).all()
 
     def get_beta_tutos(self):
         """Tutorial in beta."""
-        return Tutorial.objects.filter(
+        return PubliableContent.objects.filter(
             authors__in=[
                 self.user],
             sha_beta__isnull=False).all()

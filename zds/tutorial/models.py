@@ -378,7 +378,7 @@ class PubliableContent(Container):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
 
-        super(Tutorial, self).save(*args, **kwargs)
+        super(PubliableContent, self).save(*args, **kwargs)
 
     def get_note_count(self):
         """Return the number of notes in the tutorial."""
@@ -479,7 +479,7 @@ class PubliableContent(Container):
 
 
 def get_last_tutorials():
-    tutorials = Tutorial.objects.all()\
+    tutorials = PubliableContent.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
         .order_by('-pubdate')[:5]
@@ -494,7 +494,7 @@ class Note(Comment):
         verbose_name = 'note sur un tutoriel'
         verbose_name_plural = 'notes sur un tutoriel'
 
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
+    tutorial = models.ForeignKey(PubliableContent, verbose_name='Tutoriel', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -521,7 +521,7 @@ class TutorialRead(models.Model):
         verbose_name = 'Tutoriel lu'
         verbose_name_plural = 'Tutoriels lus'
 
-    tutorial = models.ForeignKey(Tutorial, db_index=True)
+    tutorial = models.ForeignKey(PubliableContent, db_index=True)
     note = models.ForeignKey(Note, db_index=True)
     user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
 
@@ -564,7 +564,7 @@ class Part(models.Model):
 
     # A part has to belong to a tutorial, since only tutorials with parts
     # are large tutorials
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel parent', db_index=True)
+    tutorial = models.ForeignKey(PubliableContent, verbose_name='Tutoriel parent', db_index=True)
     position_in_tutorial = models.IntegerField('Position dans le tutoriel', db_index=True)
 
     title = models.CharField('Titre', max_length=80)
@@ -724,7 +724,7 @@ class Chapter(models.Model):
 
     # If the chapter doesn't belong to a part, it's a small tutorial; we need
     # to bind informations about said tutorial directly
-    tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
+    tutorial = models.ForeignKey(PubliableContent, null=True, blank=True,
                                  verbose_name='Tutoriel parent', db_index=True)
 
     title = models.CharField('Titre', max_length=80, blank=True)
@@ -1099,7 +1099,7 @@ class Validation(models.Model):
         verbose_name = 'Validation'
         verbose_name_plural = 'Validations'
 
-    tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
+    tutorial = models.ForeignKey(PubliableContent, null=True, blank=True,
                                  verbose_name='Tutoriel proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)

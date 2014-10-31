@@ -21,7 +21,7 @@ from zds.utils import slugify
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 import zipfile
 import shutil
 import os
@@ -105,7 +105,7 @@ def modify_gallery(request):
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
         for g_pk in l:
-            if Tutorial.objects.filter(gallery__pk=g_pk).exists():
+            if PubliableContent.objects.filter(gallery__pk=g_pk).exists():
                 gallery = Gallery.objects.get(pk=g_pk)
                 messages.error(
                     request,

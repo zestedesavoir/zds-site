@@ -1,7 +1,7 @@
 from munin.helpers import muninview
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 from zds.article.models import Article
 
 
@@ -29,7 +29,7 @@ def total_mps(request):
 @muninview(config="""graph_title Total Tutorials
 graph_vlabel tutorials""")
 def total_tutorials(request):
-    tutorials = Tutorial.objects.all()
+    tutorials = PubliableContent.objects.all()
     return [("tutorials", tutorials.count()),
             ("offline", tutorials.filter(sha_public__isnull=True).count()),
             ("online", tutorials.filter(sha_public__isnull=False).count())]

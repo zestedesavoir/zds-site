@@ -36,7 +36,7 @@ from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -217,7 +217,7 @@ def details(request, user_name):
     my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
         "-pubdate").filter(authors__in=[usr]).all()[:5]
     my_tutorials = \
-        Tutorial.objects.filter(sha_public__isnull=False) \
+        PubliableContent.objects.filter(sha_public__isnull=False) \
         .filter(authors__in=[usr]) \
         .order_by("-pubdate"
                   ).all()[:5]

@@ -27,7 +27,7 @@ from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
 from zds.gallery.factories import GalleryFactory
-from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
+from zds.tutorial.models import Note, PubliableContent, Validation, Extract, Part, Chapter
 from zds.tutorial.views import insert_into_zip
 from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
@@ -125,7 +125,7 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
-        self.bigtuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.bigtuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
 
@@ -212,7 +212,7 @@ class BigTutorialTests(TestCase):
                 'import-archive': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Tutorial.objects.all().count(), 1)
+        self.assertEqual(PubliableContent.objects.all().count(), 1)
 
         # delete temporary data directory
         shutil.rmtree(temp)
@@ -251,7 +251,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Note.objects.all().count(), 1)
 
         # check values
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
         self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
         self.assertEqual(Note.objects.get(pk=1).position, 1)
@@ -502,7 +502,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Tutorial.objects.all().count(), 2)
+        self.assertEqual(PubliableContent.objects.all().count(), 2)
 
     def test_url_for_guest(self):
         """Test simple get request by guest."""
@@ -605,8 +605,8 @@ class BigTutorialTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Tutorial.objects.all().count(), 2)
-        tuto = Tutorial.objects.last()
+        self.assertEqual(PubliableContent.objects.all().count(), 2)
+        tuto = PubliableContent.objects.last()
         # add part 1
         result = self.client.post(
             reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
@@ -1085,7 +1085,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 4)
 
         # ask public tutorial
-        tuto = Tutorial.objects.get(pk=tuto.pk)
+        tuto = PubliableContent.objects.get(pk=tuto.pk)
 
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
@@ -1170,7 +1170,7 @@ class BigTutorialTests(TestCase):
             follow=False)
 
         # then active the beta on tutorial :
-        sha_draft = Tutorial.objects.get(pk=tuto.pk).sha_draft
+        sha_draft = PubliableContent.objects.get(pk=tuto.pk).sha_draft
         response = self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
@@ -1181,7 +1181,7 @@ class BigTutorialTests(TestCase):
             follow=False
         )
         self.assertEqual(302, response.status_code)
-        sha_beta = Tutorial.objects.get(pk=tuto.pk).sha_beta
+        sha_beta = PubliableContent.objects.get(pk=tuto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
 
         # delete part 1
@@ -1279,7 +1279,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # ask public tutorial
-        tuto = Tutorial.objects.get(pk=tuto.pk)
+        tuto = PubliableContent.objects.get(pk=tuto.pk)
         pub = self.client.post(
             reverse('zds.tutorial.views.ask_validation'),
             {
@@ -1834,7 +1834,7 @@ class BigTutorialTests(TestCase):
         self.bigtuto.image = image_tutorial
         self.bigtuto.save()
 
-        self.assertTrue(Tutorial.objects.get(pk=self.bigtuto.pk).image is not None)
+        self.assertTrue(PubliableContent.objects.get(pk=self.bigtuto.pk).image is not None)
 
         # Delete the image of the bigtuto.
 
@@ -1850,8 +1850,8 @@ class BigTutorialTests(TestCase):
         self.assertEqual(200, response.status_code)
 
         # Check if the tutorial is already in database and it doesn't have image.
-        self.assertEqual(1, Tutorial.objects.filter(pk=self.bigtuto.pk).count())
-        self.assertTrue(Tutorial.objects.get(pk=self.bigtuto.pk).image is None)
+        self.assertEqual(1, PubliableContent.objects.filter(pk=self.bigtuto.pk).count())
+        self.assertTrue(PubliableContent.objects.get(pk=self.bigtuto.pk).image is None)
 
     def test_workflow_beta_tuto(self):
         "Ensure the behavior of the beta version of tutorials"
@@ -1887,7 +1887,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(200, response.status_code)
 
         # then active the beta on tutorial :
-        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        sha_draft = PubliableContent.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
@@ -1909,9 +1909,9 @@ class BigTutorialTests(TestCase):
         self.assertEqual(200, response.status_code)
         # test beta :
         self.assertEqual(
-            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.bigtuto.pk).sha_beta,
             sha_draft)
-        url = Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
+        url = PubliableContent.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
         sha_beta = sha_draft
         # Test access for author (get 200)
         self.assertEqual(
@@ -1966,13 +1966,13 @@ class BigTutorialTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(
-            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.bigtuto.pk).sha_beta,
             sha_beta)
         self.assertNotEqual(
-            Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft,
+            PubliableContent.objects.get(pk=self.bigtuto.pk).sha_draft,
             sha_beta)
         # update beta
-        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        sha_draft = PubliableContent.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
@@ -1984,7 +1984,7 @@ class BigTutorialTests(TestCase):
         )
         self.assertEqual(302, response.status_code)
         old_url = url
-        url = Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
+        url = PubliableContent.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
         # test access to new beta url (get 200) :
         self.assertEqual(
             self.client.get(old_url).status_code,
@@ -2019,7 +2019,7 @@ class BigTutorialTests(TestCase):
         )
         self.assertEqual(302, response.status_code)
         self.assertEqual(
-            Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.bigtuto.pk).sha_beta,
             None)
         # test access from outside (get 302, connexion form)
         self.client.logout()
@@ -2088,7 +2088,7 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
 
-        tuto = Tutorial.objects.filter(pk=self.bigtuto.pk).first()
+        tuto = PubliableContent.objects.filter(pk=self.bigtuto.pk).first()
         self.assertEqual(tuto.title, newtitle)
         self.assertEqual(tuto.gallery.title, tuto.title)
         self.assertEqual(tuto.gallery.slug, tuto.slug)
@@ -2101,7 +2101,7 @@ class BigTutorialTests(TestCase):
         new_licence = Licence.objects.get(pk=new_licence.pk)
 
         # check value first
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
 
         # get value wich does not change (speed up test)
@@ -2138,7 +2138,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change :
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tuto.licence.pk, self.licence.pk)
         self.assertEqual(tuto.licence.pk, new_licence.pk)
 
@@ -2172,7 +2172,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change :
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -2200,7 +2200,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change (normaly, nothing has) :
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -2229,7 +2229,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         # test change (normaly, nothing has) :
-        tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tuto = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -2261,7 +2261,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # now, draft and public version are not the same
-        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tutorial = PubliableContent.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.sha_draft, tutorial.sha_public)
         # store extract
         added_extract = Extract.objects.get(chapter=Chapter.objects.get(pk=self.chapter2_1.pk))
@@ -2487,7 +2487,7 @@ class MiniTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        self.minituto = Tutorial.objects.get(pk=self.minituto.pk)
+        self.minituto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(self.minituto.on_line(), True)
         self.assertEquals(len(mail.outbox), 1)
 
@@ -2557,7 +2557,7 @@ class MiniTutorialTests(TestCase):
                 'import-archive': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Tutorial.objects.all().count(), 1)
+        self.assertEqual(PubliableContent.objects.all().count(), 1)
 
         # delete temporary data directory
         shutil.rmtree(temp)
@@ -2579,7 +2579,7 @@ class MiniTutorialTests(TestCase):
                 'text': u"Le contenu de l'extrait"
             })
         self.assertEqual(result.status_code, 302)
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         intro_path = os.path.join(tuto.get_path(), "introduction.md")
         extract_path = Extract.objects.get(pk=1).get_path()
@@ -2603,7 +2603,7 @@ class MiniTutorialTests(TestCase):
                 'text': u"Le contenu de l'extrait"
             })
         self.assertEqual(result.status_code, 302)
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         ccl_path = os.path.join(tuto.get_path(), "conclusion.md")
         extract_path = Extract.objects.get(pk=1).get_path()
@@ -2631,7 +2631,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(Note.objects.all().count(), 1)
 
         # check values
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
         self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
         self.assertEqual(Note.objects.get(pk=1).position, 1)
@@ -2882,7 +2882,7 @@ class MiniTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Tutorial.objects.all().count(), 2)
+        self.assertEqual(PubliableContent.objects.all().count(), 2)
 
     def test_url_for_guest(self):
         """Test simple get request by guest."""
@@ -3116,7 +3116,7 @@ class MiniTutorialTests(TestCase):
         self.minituto.image = image_tutorial
         self.minituto.save()
 
-        self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image is not None)
+        self.assertTrue(PubliableContent.objects.get(pk=self.minituto.pk).image is not None)
 
         # Delete the image of the minituto.
 
@@ -3132,8 +3132,8 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(200, response.status_code)
 
         # Check if the tutorial is already in database and it doesn't have image.
-        self.assertEqual(1, Tutorial.objects.filter(pk=self.minituto.pk).count())
-        self.assertTrue(Tutorial.objects.get(pk=self.minituto.pk).image is None)
+        self.assertEqual(1, PubliableContent.objects.filter(pk=self.minituto.pk).count())
+        self.assertTrue(PubliableContent.objects.get(pk=self.minituto.pk).image is None)
 
     def test_edit_tuto(self):
         "test that edition work well and avoid issue 1058"
@@ -3164,7 +3164,7 @@ class MiniTutorialTests(TestCase):
             follow=False
         )
         self.assertEqual(302, response.status_code)
-        tuto = Tutorial.objects.filter(pk=self.minituto.pk).first()
+        tuto = PubliableContent.objects.filter(pk=self.minituto.pk).first()
         self.assertEqual(tuto.title, self.minituto.title)
         self.assertEqual(tuto.description, "nouvelle description")
         # edit tuto with a slug change
@@ -3183,7 +3183,7 @@ class MiniTutorialTests(TestCase):
             },
             follow=False
         )
-        tuto = Tutorial.objects.filter(pk=self.minituto.pk).first()
+        tuto = PubliableContent.objects.filter(pk=self.minituto.pk).first()
         self.assertEqual(tuto.title, "nouveau titre pour nouveau slug")
         self.assertEqual(tuto.description, "nouvelle description")
         self.assertEqual(introduction, tuto.get_introduction())
@@ -3209,7 +3209,7 @@ class MiniTutorialTests(TestCase):
             },
             follow=False
         )
-        extract_pk = Tutorial.objects.get(pk=self.minituto.pk).get_chapter().get_extracts()[0].pk
+        extract_pk = PubliableContent.objects.get(pk=self.minituto.pk).get_chapter().get_extracts()[0].pk
         self.client.post(
             reverse('zds.tutorial.views.add_extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
             {
@@ -3231,7 +3231,7 @@ class MiniTutorialTests(TestCase):
             follow=False
         )
         # this test check issue 1060
-        self.assertEqual(introduction, Tutorial.objects.filter(pk=self.minituto.pk).first().get_introduction())
+        self.assertEqual(introduction, PubliableContent.objects.filter(pk=self.minituto.pk).first().get_introduction())
         self.assertEqual(2, Extract.objects.get(pk=extract_pk).position_in_chapter)
 
     def test_workflow_beta_tuto(self):
@@ -3260,7 +3260,7 @@ class MiniTutorialTests(TestCase):
                 password='hostel77'),
             True)
         # then active the beta on tutorial :
-        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        sha_draft = PubliableContent.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
@@ -3282,9 +3282,9 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(200, response.status_code)
         # test beta :
         self.assertEqual(
-            Tutorial.objects.get(pk=self.minituto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.minituto.pk).sha_beta,
             sha_draft)
-        url = Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
+        url = PubliableContent.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
         sha_beta = sha_draft
         # Test access for author (get 200)
         self.assertEqual(
@@ -3331,13 +3331,13 @@ class MiniTutorialTests(TestCase):
             })
         self.assertEqual(result.status_code, 302)
         self.assertEqual(
-            Tutorial.objects.get(pk=self.minituto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.minituto.pk).sha_beta,
             sha_beta)
         self.assertNotEqual(
-            Tutorial.objects.get(pk=self.minituto.pk).sha_draft,
+            PubliableContent.objects.get(pk=self.minituto.pk).sha_draft,
             sha_beta)
         # update beta
-        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        sha_draft = PubliableContent.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
@@ -3349,7 +3349,7 @@ class MiniTutorialTests(TestCase):
         )
         self.assertEqual(302, response.status_code)
         old_url = url
-        url = Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
+        url = PubliableContent.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
         # test access to new beta url (get 200) :
         self.assertEqual(
             self.client.get(old_url).status_code,
@@ -3384,7 +3384,7 @@ class MiniTutorialTests(TestCase):
         )
         self.assertEqual(302, response.status_code)
         self.assertEqual(
-            Tutorial.objects.get(pk=self.minituto.pk).sha_beta,
+            PubliableContent.objects.get(pk=self.minituto.pk).sha_beta,
             None)
         # test access from outside (get 302, connexion form)
         self.client.logout()
@@ -3463,8 +3463,8 @@ class MiniTutorialTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Tutorial.objects.all().count(), 2)
-        tuto = Tutorial.objects.last()
+        self.assertEqual(PubliableContent.objects.all().count(), 2)
+        tuto = PubliableContent.objects.last()
         chapter = Chapter.objects.filter(tutorial__pk=tuto.pk).first()
 
         # add extract 1
@@ -3578,7 +3578,7 @@ class MiniTutorialTests(TestCase):
         new_licence = Licence.objects.get(pk=new_licence.pk)
 
         # check value first
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
 
         # get value wich does not change (speed up test)
@@ -3615,7 +3615,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change :
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertNotEqual(tuto.licence.pk, self.licence.pk)
         self.assertEqual(tuto.licence.pk, new_licence.pk)
 
@@ -3649,7 +3649,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change :
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -3677,7 +3677,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test change (normaly, nothing has) :
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -3706,7 +3706,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         # test change (normaly, nothing has) :
-        tuto = Tutorial.objects.get(pk=self.minituto.pk)
+        tuto = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertEqual(tuto.licence.pk, self.licence.pk)
         self.assertNotEqual(tuto.licence.pk, new_licence.pk)
 
@@ -3738,7 +3738,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # now, draft and public version are not the same
-        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        tutorial = PubliableContent.objects.get(pk=self.minituto.pk)
         self.assertNotEqual(tutorial.sha_draft, tutorial.sha_public)
         # store extract
         added_extract = Extract.objects.get(chapter=Chapter.objects.get(pk=self.chapter.pk))

@@ -7,7 +7,7 @@ import os
 
 import factory
 
-from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
+from zds.tutorial.models import PubliableContent, Part, Chapter, Extract, Note,\
     Validation
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -31,7 +31,7 @@ content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est
 
 
 class BigTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    FACTORY_FOR = PubliableContent
 
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(
@@ -78,7 +78,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 
 
 class MiniTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    FACTORY_FOR = PubliableContent
 
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(

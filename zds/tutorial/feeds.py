@@ -5,7 +5,7 @@ from django.conf import settings
 
 from django.utils.feedgenerator import Atom1Feed
 
-from .models import Tutorial
+from .models import PubliableContent
 
 
 class LastTutorialsFeedRSS(Feed):
@@ -14,7 +14,7 @@ class LastTutorialsFeedRSS(Feed):
     description = "Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
     def items(self):
-        return Tutorial.objects\
+        return PubliableContent.objects\
             .filter(sha_public__isnull=False)\
             .order_by('-pubdate')[:5]
 

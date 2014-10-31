@@ -425,7 +425,7 @@ def check_json(data, tutorial, zip):
 
 
 def import_archive(request):
-    from zds.tutorial.models import Tutorial
+    from zds.tutorial.models import PubliableContent
     import zipfile
     import shutil
     import os
@@ -438,7 +438,7 @@ def import_archive(request):
             import json as json_reader
 
     archive = request.FILES["file"]
-    tutorial = Tutorial.objects.get(pk=request.POST["tutorial"])
+    tutorial = PubliableContent.objects.get(pk=request.POST["tutorial"])
     ext = str(archive).split(".")[-1]
     if ext == "zip":
         zfile = zipfile.ZipFile(archive, "a")

@@ -11,13 +11,13 @@ from django.core.urlresolvers import reverse
 from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length=Tutorial._meta.get_field('title').max_length,
+        max_length=PubliableContent._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -43,7 +43,7 @@ class TutorialForm(FormWithTitle):
 
     description = forms.CharField(
         label='Description',
-        max_length=Tutorial._meta.get_field('description').max_length,
+        max_length=PubliableContent._meta.get_field('description').max_length,
         required=False,
     )
 
@@ -394,7 +394,7 @@ class ImportArchiveForm(forms.Form):
 
     tutorial = forms.ModelChoiceField(
         label="Tutoriel vers lequel vous souhaitez importer votre archive",
-        queryset=Tutorial.objects.none(),
+        queryset=PubliableContent.objects.none(),
         required=True
     )
 
@@ -403,7 +403,7 @@ class ImportArchiveForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.fields['tutorial'].queryset = Tutorial.objects.filter(authors__in=[user])
+        self.fields['tutorial'].queryset = PubliableContent.objects.filter(authors__in=[user])
 
         self.helper.layout = Layout(
             Field('file'),

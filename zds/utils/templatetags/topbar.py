@@ -4,7 +4,7 @@ from django import template
 from django.conf import settings
 import itertools
 from zds.forum.models import Forum, Topic
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import PubliableContent
 from zds.utils.models import CategorySubCategory, Tag
 
 
@@ -63,7 +63,7 @@ def top_categories(user):
 def top_categories_tuto(user):
 
     cats = {}
-    subcats_tutos = Tutorial.objects.values('subcategory').filter(sha_public__isnull=False).all()
+    subcats_tutos = PubliableContent.objects.values('subcategory').filter(sha_public__isnull=False).all()
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_tutos)\

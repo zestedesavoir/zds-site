@@ -41,7 +41,7 @@ from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
-from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
+from models import PubliableContent, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
@@ -85,14 +85,14 @@ def index(request):
         tag = None
     if tag is None:
         tutorials = \
-            Tutorial.objects.filter(sha_public__isnull=False).exclude(sha_public="") \
+            PubliableContent.objects.filter(sha_public__isnull=False).exclude(sha_public="") \
             .order_by("-pubdate") \
             .all()
     else:
         # The tag isn't None and exist in the system. We can use it to retrieve
         # all tutorials in the subcategory specified.
 
-        tutorials = Tutorial.objects.filter(
+        tutorials = PubliableContent.objects.filter(
             sha_public__isnull=False,
             subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
 
@@ -206,7 +206,7 @@ def diff(request, tutorial_pk, tutorial_slug):
         sha = request.GET["sha"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
@@ -226,7 +226,7 @@ def diff(request, tutorial_pk, tutorial_slug):
 def history(request, tutorial_pk, tutorial_slug):
     """History of the tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
@@ -243,7 +243,7 @@ def history(request, tutorial_pk, tutorial_slug):
 def history_validation(request, tutorial_pk):
     """History of the validation of a tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # Get subcategory to filter validations.
 
@@ -279,7 +279,7 @@ def reject_tutorial(request):
         tutorial_pk = request.POST["tutorial"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
@@ -348,7 +348,7 @@ def valid_tutorial(request):
         tutorial_pk = request.POST["tutorial"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
         version=tutorial.sha_validation).latest("date_proposition")
@@ -418,7 +418,7 @@ def invalid_tutorial(request, tutorial_pk):
 
     # Retrieve current tutorial
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     un_mep(tutorial)
     validation = Validation.objects.filter(
         tutorial__pk=tutorial_pk,
@@ -453,7 +453,7 @@ def ask_validation(request):
         tutorial_pk = request.POST["tutorial"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff, he
     # hasn't permission to execute this method:
@@ -514,7 +514,7 @@ def delete_tutorial(request, tutorial_pk):
 
     # Retrieve current tutorial
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff, he
     # hasn't permission to execute this method:
@@ -569,7 +569,7 @@ def modify_tutorial(request):
     if not request.method == "POST":
         raise Http404
     tutorial_pk = request.POST["tutorial"]
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     # User actions
 
     if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
@@ -800,7 +800,7 @@ def modify_tutorial(request):
 def view_tutorial(request, tutorial_pk, tutorial_slug):
     """Show the given offline tutorial if exists."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # Retrieve sha given by the user. This sha must to be exist. If it doesn't
     # exist, we take draft version of the article.
@@ -907,7 +907,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     """Display a tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # If the tutorial isn't online, we raise 404 error.
     if not tutorial.on_line():
@@ -1055,7 +1055,7 @@ def add_tutorial(request):
 
             # Creating a tutorial
 
-            tutorial = Tutorial()
+            tutorial = PubliableContent()
             tutorial.title = data["title"]
             tutorial.description = data["description"]
             tutorial.type = data["type"]
@@ -1152,7 +1152,7 @@ def edit_tutorial(request):
         tutorial_pk = request.GET["tutoriel"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # If the user isn't an author of the tutorial or isn't in the staff, he
     # hasn't permission to execute this method:
@@ -1269,7 +1269,7 @@ def view_part(
 ):
     """Display a part."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     try:
         sha = request.GET["version"]
     except KeyError:
@@ -1344,7 +1344,7 @@ def view_part_online(
 ):
     """Display a part."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     if not tutorial.on_line():
         raise Http404
 
@@ -1410,7 +1410,7 @@ def add_part(request):
         tutorial_pk = request.GET["tutoriel"]
     except KeyError:
         raise Http404
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # Make sure it's a big tutorial, just in case
 
@@ -1608,7 +1608,7 @@ def view_chapter(
 ):
     """View chapter."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     try:
         sha = request.GET["version"]
@@ -1706,7 +1706,7 @@ def view_chapter_online(
 ):
     """View chapter."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
     if not tutorial.on_line():
         raise Http404
 
@@ -2271,7 +2271,7 @@ def find_tuto(request, pk_user):
         type = None
     display_user = get_object_or_404(User, pk=pk_user)
     if type == "beta":
-        tutorials = Tutorial.objects.all().filter(
+        tutorials = PubliableContent.objects.all().filter(
             authors__in=[display_user],
             sha_beta__isnull=False).exclude(sha_beta="").order_by("-pubdate")
 
@@ -2284,7 +2284,7 @@ def find_tuto(request, pk_user):
         return render_template("tutorial/member/beta.html",
                                {"tutorials": tuto_versions, "usr": display_user})
     else:
-        tutorials = Tutorial.objects.all().filter(
+        tutorials = PubliableContent.objects.all().filter(
             authors__in=[display_user],
             sha_public__isnull=False).exclude(sha_public="").order_by("-pubdate")
 
@@ -2343,7 +2343,7 @@ def import_content(
     images,
     logo,
 ):
-    tutorial = Tutorial()
+    tutorial = PubliableContent()
 
     # add create date
 
@@ -2900,7 +2900,7 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download a tutorial."""
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    tutorial = get_object_or_404(PubliableContent, pk=request.GET["tutoriel"])
 
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
@@ -2924,7 +2924,7 @@ def download(request):
 def download_markdown(request):
     """Download a markdown tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    tutorial = get_object_or_404(PubliableContent, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -2940,7 +2940,7 @@ def download_markdown(request):
 def download_html(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    tutorial = get_object_or_404(PubliableContent, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -2958,7 +2958,7 @@ def download_html(request):
 def download_pdf(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    tutorial = get_object_or_404(PubliableContent, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -2976,7 +2976,7 @@ def download_pdf(request):
 def download_epub(request):
     """Download an epub tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    tutorial = get_object_or_404(PubliableContent, pk=request.GET["tutoriel"])
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3219,7 +3219,7 @@ def answer(request):
 
     # Retrieve current tutorial.
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = get_object_or_404(PubliableContent, pk=tutorial_pk)
 
     # Making sure reactioning is allowed
 
@@ -3372,7 +3372,7 @@ def edit_note(request):
     note = get_object_or_404(Note, pk=note_pk)
     g_tutorial = None
     if note.position >= 1:
-        g_tutorial = get_object_or_404(Tutorial, pk=note.tutorial.pk)
+        g_tutorial = get_object_or_404(PubliableContent, pk=note.tutorial.pk)
 
     # Making sure the user is allowed to do that. Author of the note must to be
     # the user logged.

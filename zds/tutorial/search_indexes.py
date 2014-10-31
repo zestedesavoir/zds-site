@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from haystack import indexes
 
-from zds.tutorial.models import Tutorial, Part, Chapter, Extract
+from zds.tutorial.models import PubliableContent, Part, Chapter, Extract
 
 
 class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
@@ -15,7 +15,7 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     sha_public = indexes.CharField(model_attr='sha_public')
 
     def get_model(self):
-        return Tutorial
+        return PubliableContent
 
     def index_queryset(self, using=None):
         """Only tutorials online."""
