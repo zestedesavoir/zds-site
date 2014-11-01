@@ -543,6 +543,12 @@
             width: 12%;
             text-indent: -9999px;
 
+            &.disabled {
+                opacity: .5;
+                background: transparent;
+                cursor: default;
+            }
+
             &:after {
                 display: block;
                 content: " ";   
@@ -2491,7 +2497,7 @@ table {
                 button.ico-after {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
-                    background: none;
+                    background: none !important;
                     height: 32px;
 
                     &.upvote,
@@ -2499,6 +2505,17 @@ table {
                         &:not(.has-vote) {
                             text-indent: -9999px;
                             width: 0;
+                        }
+                    }
+                    &.disabled {
+                        &,
+                        &:hover,
+                        &:focus {
+                            border-bottom-color: transparent;
+
+                            &:after {
+                                opacity: .25 !important;
+                            }
                         }
                     }
                 }
@@ -2515,12 +2532,12 @@ table {
                     text-overflow: ellipsis;
                     white-space: nowrap;
 
-                    &:hover,
-                    &:focus {
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled) {
                         color: #555;
                         border-bottom-color: $upvote;
                     }
-                    &.active {
+                    &.active:not(.disabled) {
                         color: #48a200;
 
                         &:after {
@@ -2537,8 +2554,8 @@ table {
                 .upvote {
                     color: $upvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $upvote;
                     }
@@ -2550,8 +2567,8 @@ table {
                 .downvote {
                     color: $downvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $downvote;
                     }

@@ -71,7 +71,8 @@
             }
         }
 
-        &[disabled] {
+        &[disabled],
+        .disabled {
             background: #DDD !important;
             color: #555;
         }
@@ -111,6 +112,7 @@
     [type=submit],
     button,
     .btn {
+        position: relative;
         height: 40px;
         line-height: 40px;
         cursor: pointer;
@@ -121,6 +123,22 @@
         text-decoration: none;
         margin-left: 1px;
         outline: none;
+
+        &.submitted {
+            color: #555;
+
+            // Animation loading on submit buttons
+            .line-loading {
+                display: block;
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 0%;
+                height: 1px;
+                background: #555;
+                animation: lineLoading linear 1s infinite;
+            }
+        }
     }
     [type=submit],
     .btn-submit {
@@ -128,16 +146,36 @@
         background: $upvote;
 
         &:not([disabled]):hover,
-        &:not([disabled]):focus {
+        &:not([disabled]):focus,
+        &:not(.disabled):hover,
+        &:not(.disabled):focus {
             background: lighten($upvote, 5%);
+        }
+
+        &.disabled.submitted {
+            color: $upvote;
+
+            .line-loading {
+                background: $upvote;
+            }
         }
     }
     .btn-cancel {
         background: $downvote;
 
         &:not([disabled]):hover,
-        &:not([disabled]):focus {
+        &:not([disabled]):focus,
+        &:not(.disabled):hover,
+        &:not(.disabled):focus {
             background: lighten($downvote, 7%);
+        }
+
+        &.disabled.submitted {
+            color: $downvote;
+
+            .line-loading {
+                background: $downvote;
+            }
         }
     }
     .btn-grey {
@@ -145,15 +183,29 @@
         color: #555;
 
         &:not([disabled]):hover,
-        &:not([disabled]):focus {
+        &:not([disabled]):focus,
+        &:not(.disabled):hover,
+        &:not(.disabled):focus {
             background: #CCC;
             color: #333;
         }
+
+        &.disabled.submitted {
+            color: #555;
+
+            .line-loading {
+                background: #999;
+            }
+        }
     }
-    [disabled] {
-        cursor: default;
-        background: #F7F7F7;
-        color: #CCC;
+    [disabled],
+    .disabled {
+        cursor: default !important;
+        background: #EEE !important;
+
+        &:not(.submitted){
+            color: #BBB !important;
+        }
     }
 
     .form-sub-link {
@@ -164,6 +216,7 @@
 
     .buttonHolder {
         margin-top: 25px;
+        min-height: 40px;
     }
 }
 
@@ -211,5 +264,29 @@
     .controls .radio {
         padding-top: 3px;
         padding-bottom: 0;
+    }
+}
+
+
+
+
+@keyframes lineLoading {
+    0% {
+        width: 0%;
+        left: 0;
+        right: inherit;
+    }
+    49% {
+        left: 0;
+        right: inherit;
+    }
+    50% {
+        width: 100%;
+        left: inherit;
+        right: 0;
+    }
+    100% {
+        left: inherit;
+        right: 0;
     }
 }
