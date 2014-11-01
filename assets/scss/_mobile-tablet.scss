@@ -601,7 +601,7 @@
         }
         .content-wrapper,
         .full-content-wrapper {
-            h1,
+            h1:not(.ico-after),
             h2,
             h3,
             .subtitle {
