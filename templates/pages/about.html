@@ -36,12 +36,11 @@
                 {% endif %}
                 {% if app.site.licenses.logo %}
                     <p>
-                        <a href="#">Le logo de {{app.site.litteral_name}}</a> est créé par {{ app.site.licenses.logo.author }} et sous
-                    	<a rel="license" href="{{ app.site.licenses.logo.url_license }}">
+                        <a href="#">Le logo de {{app.site.litteral_name}}</a> a été créé par {{ app.site.licenses.logo.author }} et est sous
+                    	<a rel="license" href="{{ app.site.licenses.logo.url_license }}" title="{{ app.site.licenses.logo.description }}">
                             <img alt="{{ app.site.licenses.logo.title }}" src="{{ app.site.licenses.logo.url_image }}">
-                    	    {{ app.site.licenses.logo.description }}
                         </a>
-                        <img alt="Logo de {{app.site.litteral_name}}" src="{{app.site.url}}/static/images/logo.png">
+                        <img alt="Logo de {{ app.site.litteral_name }}" src="{{ app.site.url }}/static/images/logo-background.png">
                     </p>
                 {% endif %}
             </div>
