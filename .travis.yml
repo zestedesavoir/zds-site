@@ -14,7 +14,6 @@ notifications:
 
 cache:
   - apt
-  - pip
 
 install:
   # APT Stuff
