@@ -167,4 +167,18 @@
             }
         }
     }
+
+
+    .alert-box {
+        .alert-box-btn {
+            &,
+            &.alert-box-btn-right {
+                position: relative;
+                float: none;
+                display: block;
+                margin: 5px 0 0;
+                text-align: center;
+            }
+        }
+    }
 }
