@@ -520,6 +520,20 @@
 
 
 
+    /* ============
+       Forms
+       ============ */
+   .content-container,
+    #modals {
+        form.content-wrapper {
+            margin: 0;
+            width: 100%;
+        }
+    }
+
+
+
+
     /* ==============
         Modals boxes
        ============== */

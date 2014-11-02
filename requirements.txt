@@ -1,7 +1,7 @@
 # Implicit dependencies (facutlative dependencies of dependencies)
 pysolr==3.2.0
 pygments==1.6
-
+python-social-auth==0.1.26
 # Explicit dependencies (references in code)
 django==1.6.8
 coverage==3.7.1

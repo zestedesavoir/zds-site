@@ -22,9 +22,7 @@
 
 
 {% block content_out %}
-    <section class="small-content-wrapper">
-        <h1>Connexion</h1>
-
+    <section class="content-wrapper">
         {% if not user.is_authenticated %}
             {% if error %}
                 <div class="alert-box warning">
@@ -32,15 +30,34 @@
                 </div>
             {% endif %}
 
-            <p>
+            <p class="alert-box success">
                 Si vous n'avez pas de compte, vous pouvez <a href="{% url "zds.member.views.register_view" %}" >vous inscrire</a>.
             </p>
 
-            {% crispy form %}
+            <div>
+                <div class="content-col-2">
+                    <h2>Connexion classique</h2>
 
-            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">Mot de passe oublié ?</a>
+                    {% crispy form %}
+                </div>
+                <div class="content-col-2">
+                    <h2>Connexion via réseaux sociaux</h2>
+
+                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
+                        Connexion via Facebook
+                    </a>
+                    <a href="{% url "social:begin" "twitter" %}" class="btn ico-after twitter light btn-twitter btn-holder">
+                        Connexion via Twitter
+                    </a>
+                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
+                        Connexion via Google+
+                    </a>
+                </div>
+            </div>
         {% else %}
-            <p>
+            <h1>Connexion</h1>
+
+            <p class="alert-box error">
                 Vous êtes déjà connecté.
             </p>
         {% endif %}
