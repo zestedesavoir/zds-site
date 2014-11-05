@@ -36,3 +36,7 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 'jpeg': '/usr/bin/jpegoptim {filename}' 
 }
 ```
+
+
+Actions à faire pour mettre en prod la version : v1.3
+=====================================================
