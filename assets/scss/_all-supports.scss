@@ -1712,18 +1712,25 @@
             display: inline;
 
             .topic-tag {
+                display: block;
+                height: 23px;
+                line-height: 23px;
                 float: left;
                 padding: 0 5px;
                 margin: 0 3px 0 0;
-                color: #FFF;
-                background: $header-hover;
+                color: $header-hover;
+                background: #FCFCFC;
+                border: 1px solid #CCC;
 
                 &:hover,
                 &:focus {
                     background: #FFF;
-                    color: $header-hover;
-                    box-shadow: $header-hover 0 0 3px;
+                    color: $primary;
+                    border-color: $primary;
                     text-decoration: none;
+                }
+                &:focus {
+                    box-shadow: $header-hover 0 0 3px;
                 }
             }
 
@@ -1758,7 +1765,7 @@
         }
         .topic-subtitle {
             height: 24px;
-            line-height: 1.3em;
+            line-height: 1.5em;
             color: #777;
         }
         .topic-members {
