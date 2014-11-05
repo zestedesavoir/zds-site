@@ -129,7 +129,7 @@
 
         &:not([disabled]):hover,
         &:not([disabled]):focus {
-            background: lighten($upvote, 5%);
+            background: lighten($upvote, 7%);
         }
     }
     .btn-cancel {

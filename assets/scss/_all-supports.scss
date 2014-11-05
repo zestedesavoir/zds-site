@@ -30,7 +30,7 @@
 
             &:hover,
             &:focus {
-                color: #084561;
+                color: $primary;
                 background-color: #fff;
                 text-decoration: none;
             }
@@ -105,7 +105,7 @@
 
 
 .header-container header {
-    background: #084561;
+    background: $primary;
     border-bottom: 3px solid $secondary;
 
     a,
@@ -440,7 +440,7 @@
                 &:nth-child(2n+1) {
                     &,
                     form button {
-                        background-color: #084561;
+                        background-color: $primary;
                     }
                 }
             }
@@ -530,8 +530,10 @@
 
             &:hover,
             &:focus {
-                outline: none;
-                background-color: rgba(255, 255, 255, .75);
+                background-color: #FFF;
+            }
+            &:focus {
+                outline-color: $secondary;
             }
         }
         input {
@@ -557,7 +559,6 @@
         }
     }
     .search-more {
-        // TODO : mettre l'icône en background plutôt que tout ça
         display: block;
         float: left;
         height: 40px;
@@ -568,13 +569,15 @@
         font-weight: bold;
         text-decoration: none;
         font-size: 24px;
-        background: rgba(255, 255, 255, 1);
-        color: #084561;
+        background: #FFF;
+        color: $primary;
         transition: background $transition-duration ease;
 
         &:hover,
         &:focus {
-            background: rgba(255, 255, 255, .7);
+            background: $secondary;
+            color: #FFF;
+            outline: none;
         }
     }
 }
@@ -984,7 +987,7 @@
 
                 a {
                     position: relative;
-                    color: #084561;
+                    color: $primary;
                     transition: all $transition-duration ease;
 
                     &:hover,
@@ -1215,7 +1218,7 @@
                 font-size: 2.2rem;
                 line-height: 38px;
                 line-height: 3.8rem;
-                color: #084561;
+                color: $primary;
                 font-weight: normal;
                 border-bottom: 1px solid #F8AD32;
                 margin-top: 0;
@@ -1474,7 +1477,7 @@
                 &:hover,
                 &:focus {
                     background: #DDD;
-                    color: #084561;
+                    color: $primary;
                 }
             }
 
@@ -1507,7 +1510,7 @@
             display: block;
             text-align: center;
             text-decoration: none;
-            color: #084561;
+            color: $primary;
             min-width: 45px;
             height: 40px;
             line-height: 40px;
@@ -2996,9 +2999,9 @@ form.topic-message {
     padding: 20px 0;
 }
 .page-footer {
-    background: darken($primary, 10%);
-    height: 50px;
-    line-height: 50px;
+    background: $primary;
+    height: 40px;
+    line-height: 40px;
     border-top: 3px solid $secondary;
     font-size: 14px;
     font-size: 1.4rem;
