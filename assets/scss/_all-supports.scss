@@ -543,6 +543,12 @@
             width: 12%;
             text-indent: -9999px;
 
+            &.disabled {
+                opacity: .5;
+                background: transparent;
+                cursor: default;
+            }
+
             &:after {
                 display: block;
                 content: " ";   
@@ -1595,9 +1601,16 @@
     margin-top: 50px !important;
     margin-bottom: 50px !important;
 
+    h2 {
+        margin-bottom: 0 !important;
+    }
+    h2 + .topic {
+        border-top: none;
+    }
+
     .topic {
         position: relative;
-        height: 81px;
+        min-height: 81px;
         line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
@@ -1606,16 +1619,7 @@
         clear: both;
 
         &:first-child {
-            overflow: visible;
-
-            &:after {
-                display: block;
-                content: " ";
-                width: 100%;
-                height: 1px;
-                background: #CCC;
-                margin-top: -2px;
-            }
+            border-top: 1px solid #CCC;
         }
 
         &:before {
@@ -1708,18 +1712,25 @@
             display: inline;
 
             .topic-tag {
+                display: block;
+                height: 23px;
+                line-height: 23px;
                 float: left;
                 padding: 0 5px;
                 margin: 0 3px 0 0;
-                color: #FFF;
-                background: $header-hover;
+                color: $header-hover;
+                background: #FCFCFC;
+                border: 1px solid #CCC;
 
                 &:hover,
                 &:focus {
                     background: #FFF;
-                    color: $header-hover;
-                    box-shadow: $header-hover 0 0 3px;
+                    color: $primary;
+                    border-color: $primary;
                     text-decoration: none;
+                }
+                &:focus {
+                    box-shadow: $header-hover 0 0 3px;
                 }
             }
 
@@ -1729,6 +1740,9 @@
         }
 
         .topic-title-link {
+            display: block;
+            min-height: 48px;
+
             &:hover,
             &:focus {
                 text-decoration: none;
@@ -1742,9 +1756,6 @@
         .topic-title,
         .topic-subtitle {
             display: block;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
             margin: 0;
             padding: 0;
         }
@@ -1754,7 +1765,7 @@
         }
         .topic-subtitle {
             height: 24px;
-            line-height: 1.3em;
+            line-height: 1.5em;
             color: #777;
         }
         .topic-members {
@@ -1772,7 +1783,7 @@
 
         .topic-no-last-answer {
             display: block;
-            margin-top: 24px;
+            margin-top: 27px;
             color: $primary;
             opacity: .5;
         }
@@ -1786,7 +1797,6 @@
 .forum-list {
     .group-title {
         width: 100%;
-        height: 50px;
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
@@ -1830,8 +1840,11 @@
             margin-top: 13px;
         }
         .forum-last-message {
-            color: #777;
             display: block;
+
+            .forum-last-message-long {
+                display: none;
+            }
         }
         .forum-last-message-title {
             display: block;
@@ -1886,6 +1899,7 @@
         h3,
         h4 {
             font-weight: normal;
+            width: 90%;
 
             a {
                 text-decoration: none;
@@ -2542,7 +2556,7 @@ table {
                 button.ico-after {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
-                    background: none;
+                    background: none !important;
                     height: 32px;
 
                     &.upvote,
@@ -2550,6 +2564,17 @@ table {
                         &:not(.has-vote) {
                             text-indent: -9999px;
                             width: 0;
+                        }
+                    }
+                    &.disabled {
+                        &,
+                        &:hover,
+                        &:focus {
+                            border-bottom-color: transparent;
+
+                            &:after {
+                                opacity: .25 !important;
+                            }
                         }
                     }
                 }
@@ -2566,12 +2591,12 @@ table {
                     text-overflow: ellipsis;
                     white-space: nowrap;
 
-                    &:hover,
-                    &:focus {
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled) {
                         color: #555;
                         border-bottom-color: $upvote;
                     }
-                    &.active {
+                    &.active:not(.disabled) {
                         color: #48a200;
 
                         &:after {
@@ -2588,8 +2613,8 @@ table {
                 .upvote {
                     color: $upvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $upvote;
                     }
@@ -2601,8 +2626,8 @@ table {
                 .downvote {
                     color: $downvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $downvote;
                     }
