@@ -1,4 +1,4 @@
-Cette page détaille le _workflow_ utilisé sur Zeste de Savoir. Elle est là surtout pour satisfaire votre curiosité, à moins d'avoir les droits de faire une Mise En Production (MEP). La [page de contribution](CONTRIBUTING.md) devrait répondre à vos questions quant au processus de développement.
+Cette page détaille le _workflow_ utilisé sur Zeste de Savoir. Elle est là surtout pour satisfaire votre curiosité, à moins d'avoir les droits de faire une Mise En Production (MEP). La [page de contribution](../CONTRIBUTING.md) devrait répondre à vos questions quant au processus de développement.
 
 Ce _workflow_ est très fortement basé sur le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/).
 
@@ -25,7 +25,7 @@ L'idée générale est très simple :
 
 **Où peut-on trouver les détails pratiques ?**
 
-Tous ces détails sont [dans la page de contribution](CONTRIBUTING.md). On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
+Tous ces détails sont [dans la page de contribution](../CONTRIBUTING.md). On y trouve entre autres les recommendations en terme de PR ou de messages de commits.
 
 **Qu'est-ce qu'une "QA légère"** ?
 

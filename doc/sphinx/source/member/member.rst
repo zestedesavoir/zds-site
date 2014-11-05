@@ -55,11 +55,11 @@ Le clic sur "me désinscrire" entraîne alors une série d'action (qui sont **ir
         -  pour les sujets du forum (qui, cependant, restent ouverts)
         -  pour les messages des MP (le membre quitte les discussions auxquelles il participait) ;
         -  pour les commentaires aux tutoriels et articles ;
-   -  les `galeries`_ non liées à un tutoriel sont données à ``Auteur externe`` (puisque l’image peut être considérée comme venant d’un “auteur”) avec droit de lecture et d’écriture ;
+   -  les `galeries`_ non liées à un tutoriel sont données à ``external`` (puisque l’image peut être considérée comme venant d’un “auteur”) avec droit de lecture et d’écriture ;
    -  les `articles`_ et `tutoriels`_ suivent ces règles :
 
       -  si le tutoriel/article a été écrit par plusieurs personnes : le membre est retiré de la liste des auteurs ;
-      -  si le tutoriel/article est *publié*, il passe sur le compte “Auteur externe”. Une demande expresse sera nécessaire au retrait complet de ces contenus ;
+      -  si le tutoriel/article est *publié*, il passe sur le compte “external”. Une demande expresse sera nécessaire au retrait complet de ces contenus ;
       -  si le tutoriel/article n’est pas publié (brouillon, bêta, validation) il est supprimé, ainsi que la galerie qui lui est associée.
 
 .. _galeries: ../gallery/gallery.html
@@ -76,7 +76,7 @@ Afin de faciliter les procédures de tests en local, 6 utilisateurs ont été cr
 - staff/staff : Utilisateur avec les droits d'un staff
 - admin/admin : Utilisateur avec les droits d'un staff et d'un admin
 - anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums, dans les commentaires d'articles et de tutoriels ainsi que dans les MPs
-- Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
+- external/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
 - ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit
 
 Pour que ces membres soient ajoutés à la base de données, il est donc nécéssaire d'exécuter la commande, suivante, à la racine du site
@@ -87,18 +87,18 @@ Pour que ces membres soient ajoutés à la base de données, il est donc nécés
 
 .. attention::
 
-    Les utilisateurs ``anonymous`` et ``Auteur externe`` **doivent** être présents dans la base de données pour le bon fonctionnement du site.
+    Les utilisateurs ``anonymous`` et ``external`` **doivent** être présents dans la base de données pour le bon fonctionnement du site.
     En effet, ils permettent le bon fonctionnement du processus d'anonymisation (voir `plus haut <#desinscription>`_)
 
-Les utilisateurs ``anonymous`` et ``Auteur externe`` sont totalement paramétrables dans le fichier ``zds/settings.py`` :
-pour changer le nom d'utilisateur (*username*) de ces comptes, agissez sur les constantes suivantes :
+Les utilisateurs ``anonymous`` et ``external`` sont totalement paramétrables dans le fichier ``zds/settings.py`` :
+pour changer le nom d'utilisateur (*username*) de ces comptes, agissez sur les constantes suivantes (du dictionnaire ZDS_APP):
 
 .. sourcecode:: python
 
     # Constant for anonymisation
 
-    ANONYMOUS_USER = "anonymous"
-    EXTERNAL_USER = "Auteur externe"
+    anonymous_account = "anonymous"
+    external_account = "external"
 
 Bien entendu, les comptes correspondants doivent exister dans la base de donnée.
 

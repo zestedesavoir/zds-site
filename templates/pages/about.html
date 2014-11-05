@@ -22,24 +22,30 @@
 
 {% block content %}
 	<p>
-        Si vous vous intéressez à tout cela, vous devriez songer à <a href="https://github.com/zestedesavoir/zds-site">contribuer au développement du site</a> !
+        Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{app.site.repository}}">contribuer au développement du site</a> !
     </p>
 
     <div>
-        <div class="content-col-3">
-            <h3>Droits</h3>
-            <p>
-                Zeste de Savoir est un site donc le code source est sous licence <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a>, et provient en partie de <a href="http://progdupeu.pl">Progdupeupl</a>.
-            </p>
-            <p>
-                <a href="#">Le logo de Zeste de Savoir</a> est créé par MaxRoyo et sous
-            	<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-                    <img alt="Creative Commons License" src="http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png">
-            	    Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International.
-                </a>
-                <img alt="Logo de Zeste de Savoir" src="http://zestedesavoir.com/static/images/logo.png">
-            </p>
-        </div>
+        {% if app.site.licenses %}
+            <div class="content-col-3">
+                <h3>Droits</h3>
+                {% if app.site.licenses.source %}
+                    <p>
+                        {{app.site.litteral_name}} est un site donc le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_url }}">{{ app.site.licenses.source.provider_name }}</a>.
+                    </p>
+                {% endif %}
+                {% if app.site.licenses.logo %}
+                    <p>
+                        <a href="#">Le logo de {{app.site.litteral_name}}</a> est créé par {{ app.site.licenses.logo.author }} et sous
+                    	<a rel="license" href="{{ app.site.licenses.logo.url_license }}">
+                            <img alt="{{ app.site.licenses.logo.title }}" src="{{ app.site.licenses.logo.url_image }}">
+                    	    {{ app.site.licenses.logo.description }}
+                        </a>
+                        <img alt="Logo de {{app.site.litteral_name}}" src="{{app.site.url}}/static/images/logo.png">
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
 
         <div class="content-col-3">
             <h3>Système / Back-end</h3>

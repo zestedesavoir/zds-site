@@ -14,7 +14,7 @@
             .page-container,
             .mobile-menu {
                 transition-property: transform;
-                transition-duration: .3s;
+                transition-duration: $transition-duration * 2;
                 transition-timing-function: ease;
             }
         }
@@ -469,6 +469,40 @@
     .topic-list {
         .topic {
             background: none !important;
+
+            p {
+                margin: 0 !important;
+            }
+            
+            .topic-members {
+                .topic-members-long-date {
+                    display: none;
+                }
+            }
+            .topic-answers {
+                padding: 0;
+                width: 30%;
+                border-bottom: 1px solid #CCC;
+
+                &.topic-no-answer {
+                    display: none;
+                }
+            }
+            .topic-last-answer {
+                width: 30%;
+                padding: 0;
+                text-align: right;
+
+                .topic-last-answer-short-date {
+                    font-size: 1.3rem;
+                }
+                .topic-last-answer-long-date {
+                    display: none;
+                }
+                .topic-no-last-answer {
+                    text-align: center;
+                }
+            }
         }
     }
 
@@ -603,15 +637,18 @@
         .full-content-wrapper {
             h1,
             h2,
-            h3 {
+            h3,
+            .subtitle {
                 padding-left: 10px;
                 padding-right: 10px;
+            }
+            .illu img {
+                display: none;
             }
 
             h4,
             h5,
             h6,
-            .subtitle,
             .authors,
             p,
             figure,
@@ -626,6 +663,13 @@
                     margin-left: 0;
                     margin-right: 0;
                 }
+            }
+
+            .license {
+                position: absolute;
+                margin-top: 0;
+                top: 62px;
+                right: 15px;
             }
         }
     }
@@ -643,7 +687,7 @@
         height: auto;
 
         p {
-            border-bottom: 1px solid darken($orange, 40%);
+            border-bottom: 1px solid darken($secondary, 40%);
         }
         p,
         ul {

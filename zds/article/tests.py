@@ -39,7 +39,7 @@ class ArticleTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.BOT_ACCOUNT = self.mas.username
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
@@ -652,7 +652,7 @@ class ArticleTests(TestCase):
         os.remove(online_zip_path)
 
     def tearDown(self):
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            shutil.rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

@@ -35,14 +35,8 @@ from zds.utils.misc import compute_hash
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(
-    REPO_PATH_PROD=os.path.join(
-        SITE_ROOT,
-        'tutoriels-public-test'))
-@override_settings(
-    REPO_ARTICLE_PATH=os.path.join(
-        SITE_ROOT,
-        'articles-data-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
 class BigTutorialTests(TestCase):
 
     def setUp(self):
@@ -50,7 +44,7 @@ class BigTutorialTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.BOT_ACCOUNT = self.mas.username
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
@@ -147,7 +141,7 @@ class BigTutorialTests(TestCase):
         if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
         # download zip
-        repo_path = os.path.join(settings.REPO_PATH, self.bigtuto.get_phy_slug())
+        repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.bigtuto.get_phy_slug())
         repo = Repo(repo_path)
         zip_path = os.path.join(tempfile.gettempdir(), self.bigtuto.slug + '.zip')
         zip_file = zipfile.ZipFile(zip_path, 'w')
@@ -2397,26 +2391,20 @@ class BigTutorialTests(TestCase):
         os.remove(online_zip_path)
 
     def tearDown(self):
-        if os.path.isdir(settings.REPO_PATH):
-            shutil.rmtree(settings.REPO_PATH)
-        if os.path.isdir(settings.REPO_PATH_PROD):
-            shutil.rmtree(settings.REPO_PATH_PROD)
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            shutil.rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
 @override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(
-    REPO_PATH_PROD=os.path.join(
-        SITE_ROOT,
-        'tutoriels-public-test'))
-@override_settings(
-    REPO_ARTICLE_PATH=os.path.join(
-        SITE_ROOT,
-        'articles-data-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -2424,7 +2412,7 @@ class MiniTutorialTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
-        settings.BOT_ACCOUNT = self.mas.username
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
 
         self.user_author = ProfileFactory().user
         self.user = ProfileFactory().user
@@ -2499,7 +2487,7 @@ class MiniTutorialTests(TestCase):
         if not os.path.exists(temp):
             os.makedirs(temp, mode=0777)
         # download zip
-        repo_path = os.path.join(settings.REPO_PATH, self.minituto.get_phy_slug())
+        repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.minituto.get_phy_slug())
         repo = Repo(repo_path)
         zip_path = os.path.join(tempfile.gettempdir(), self.minituto.slug + '.zip')
         zip_file = zipfile.ZipFile(zip_path, 'w')
@@ -3871,11 +3859,11 @@ class MiniTutorialTests(TestCase):
         os.remove(online_zip_path)
 
     def tearDown(self):
-        if os.path.isdir(settings.REPO_PATH):
-            shutil.rmtree(settings.REPO_PATH)
-        if os.path.isdir(settings.REPO_PATH_PROD):
-            shutil.rmtree(settings.REPO_PATH_PROD)
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            shutil.rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)

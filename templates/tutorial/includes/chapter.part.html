@@ -16,17 +16,7 @@
     
     <hr />
 
-    {% if extracts %}
-        <ul>
-            {% for extract in extracts %}
-                <li>
-                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
-                        {{ extract.title }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
+    {% if not extracts %}
         <p class="ico-after warning">
             Il n'y a aucun extrait.
         </p>

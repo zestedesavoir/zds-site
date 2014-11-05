@@ -49,7 +49,9 @@ class TutorialForm(FormWithTitle):
     )
 
     image = forms.ImageField(
-        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' +
+              str(settings.ZDS_APP['gallery']['image_max_size'] / 1024) +
+              ' Ko)',
         required=False
     )
 
@@ -79,7 +81,8 @@ class TutorialForm(FormWithTitle):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label="Sous-catégories de votre tuto",
+        label=u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
+              u"n'hésitez pas à en demander une nouvelle lors de la validation !",
         queryset=SubCategory.objects.all(),
         required=True,
         widget=forms.SelectMultiple(
@@ -172,7 +175,7 @@ class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
         label=u'Selectionnez le logo du tutoriel '
-              u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
+              u'(max. {0} Ko)'.format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
 
@@ -279,7 +282,7 @@ class ImportForm(forms.Form):
 
     file = forms.FileField(
         label='Sélectionnez le tutoriel à importer',
-        required=False
+        required=True
     )
     images = forms.FileField(
         label='Fichier zip contenant les images du tutoriel',
@@ -297,6 +300,27 @@ class ImportForm(forms.Form):
             Submit('import-tuto', 'Importer le .tuto'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ImportForm, self).clean()
+
+        # Check that the files extensions are correct
+        tuto = cleaned_data.get('file')
+        images = cleaned_data.get('images')
+
+        if tuto is not None:
+            ext = tuto.name.split(".")[-1]
+            if ext != "tuto":
+                del cleaned_data['file']
+                msg = u'Le fichier doit être au format .tuto'
+                self._errors['file'] = self.error_class([msg])
+
+        if images is not None:
+            ext = images.name.split(".")[-1]
+            if ext != "zip":
+                del cleaned_data['images']
+                msg = u'Le fichier doit être au format .zip'
+                self._errors['images'] = self.error_class([msg])
 
 
 class ImportArchiveForm(forms.Form):
@@ -378,10 +402,10 @@ class NoteForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 
@@ -393,18 +417,19 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire pour votre demande.'
+                'placeholder': 'Commentaire pour votre demande.',
+                'rows': '3'
             }
         )
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -430,9 +455,10 @@ class ValidForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de publication.'
+                'placeholder': 'Commentaire de publication.',
+                'rows': '2'
             }
         )
     )
@@ -442,11 +468,11 @@ class ValidForm(forms.Form):
         initial=True
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -472,9 +498,10 @@ class RejectForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de rejet.'
+                'placeholder': 'Commentaire de rejet.',
+                'rows': '6'
             }
         )
     )

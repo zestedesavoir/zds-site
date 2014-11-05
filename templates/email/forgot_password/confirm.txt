@@ -1,6 +1,6 @@
 Bonjour {{ username }},
 
-Vous recevez ce message parce qu'une réinitialisation du mot de passe de votre compte utilisateur a été demandée sur Zeste de Savoir.
+Vous recevez ce message parce qu'une réinitialisation du mot de passe de votre compte utilisateur a été demandée sur {{app.site.litteral_name}}.
 
 ATTENTION
 Si vous n'avez pas demandé une réinitialisation du mot de passe, IGNOREZ et EFFACEZ ce courriel immédiatement ! Continuez uniquement si vous souhaitez que votre mot de passe soit réinitialisé !
@@ -9,4 +9,4 @@ Cliquez ou recopiez simplement le lien et complétez le reste du formulaire : {{
 
 
 Cordialement,
-L'équipe Zeste de Savoir
+L'équipe {{app.site.litteral_name}}
