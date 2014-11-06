@@ -110,6 +110,8 @@ def topic(request, topic_pk, topic_slug):
         page_nbr = int(request.GET['page'])
     except KeyError:
         page_nbr = 1
+    except ValueError:
+        raise Http404
 
     try:
         posts = paginator.page(page_nbr)
@@ -237,6 +239,8 @@ def edit(request):
         page = int(request.POST['page'])
     except KeyError:
         page = 1
+    except ValueError:
+        raise Http404
 
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 

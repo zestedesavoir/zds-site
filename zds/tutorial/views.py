@@ -1011,12 +1011,16 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         page_nbr = int(request.GET["page"])
     except KeyError:
         page_nbr = 1
+    except ValueError:
+        raise Http404
+
     try:
         notes = paginator.page(page_nbr)
     except PageNotAnInteger:
         notes = paginator.page(1)
     except EmptyPage:
         raise Http404
+
     res = []
     if page_nbr != 1:
 
@@ -1531,6 +1535,9 @@ def edit_part(request):
         part_pk = int(request.GET["partie"])
     except KeyError:
         raise Http404
+    except ValueError:
+        raise Http404
+
     part = get_object_or_404(Part, pk=part_pk)
     introduction = os.path.join(part.get_path(), "introduction.md")
     conclusion = os.path.join(part.get_path(), "conclusion.md")
@@ -1973,6 +1980,9 @@ def edit_chapter(request):
         chapter_pk = int(request.GET["chapitre"])
     except KeyError:
         raise Http404
+    except ValueError:
+        raise Http404
+
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
     big = chapter.part
     small = chapter.tutorial
@@ -2059,6 +2069,9 @@ def add_extract(request):
         chapter_pk = int(request.GET["chapitre"])
     except KeyError:
         raise Http404
+    except ValueError:
+        raise Http404
+
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
     part = chapter.part
 
