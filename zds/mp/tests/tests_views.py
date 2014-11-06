@@ -582,6 +582,50 @@ class AnswerViewTest(TestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual(2, PrivatePost.objects.all().count())
 
+    def test_unicode_title_answer(self):
+        """To test unicode title."""
+
+        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
+                                           title=u'Title with accent àéè')
+        unicodeTopic.participants.add(self.profile2.user)
+        unicodePost = PrivatePostFactory(
+            privatetopic=unicodeTopic,
+            author=self.profile1.user,
+            position_in_topic=1)
+
+        response = self.client.post(
+            reverse('zds.mp.views.answer')
+            + '?sujet=' + str(unicodeTopic.pk),
+            {
+                'text': 'answer',
+                'last_post': unicodePost.pk
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_unicode_subtitle_answer(self):
+        """To test unicode subtitle."""
+
+        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
+                                           subtitle=u'Subtitle with accent àéè')
+        unicodeTopic.participants.add(self.profile2.user)
+        unicodePost = PrivatePostFactory(
+            privatetopic=unicodeTopic,
+            author=self.profile1.user,
+            position_in_topic=1)
+
+        response = self.client.post(
+            reverse('zds.mp.views.answer')
+            + '?sujet=' + str(unicodeTopic.pk),
+            {
+                'text': 'answer',
+                'last_post': unicodePost.pk
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+
 
 class EditPostViewTest(TestCase):
 
