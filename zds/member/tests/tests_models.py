@@ -55,6 +55,15 @@ class TestProfile(TestCase):
         user2.avatar_url = testurl
         self.assertEqual(user2.get_avatar_url(), testurl)
 
+    def test_get_avatar_unicode_url(self):
+        # if an unicode email is specified
+        tester = ProfileFactory()
+        tester.user.email = u'test@ùprovider.com'
+        tester.user.save()
+        self.assertEqual(tester.get_avatar_url(),
+                         'https://secure.gravatar.com/avatar/{0}?d=identicon'.
+                         format(md5(tester.user.email.lower().encode('utf-8')).hexdigest()))
+
     def test_get_post_count(self):
         # Start with 0
         self.assertEqual(self.user1.get_post_count(), 0)

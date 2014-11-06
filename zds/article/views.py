@@ -59,7 +59,7 @@ def index(request):
 
     if tag is None:
         articles = Article.objects\
-            .filter(sha_public__isnull=False).exclude(sha_public="")\
+            .filter(sha_public__isnull=False).exclude(sha_public='')\
             .order_by('-pubdate')\
             .all()
     else:
@@ -67,7 +67,7 @@ def index(request):
         # all articles in the subcategory specified.
         articles = Article.objects\
             .filter(sha_public__isnull=False, subcategory__in=[tag])\
-            .exclude(sha_public="").order_by('-pubdate')\
+            .exclude(sha_public='').order_by('-pubdate')\
             .all()
 
     article_versions = []
@@ -114,7 +114,7 @@ def view(request, article_pk, article_slug):
     article_version = article.load_dic(article_version)
 
     validation = Validation.objects.filter(article__pk=article.pk)\
-        .order_by("-date_proposition")\
+        .order_by('-date_proposition')\
         .first()
 
     return render_template('article/member/view.html', {
@@ -137,8 +137,8 @@ def view_online(request, article_pk, article_slug):
     # Load the article.
     article_version = article.load_json_for_public()
     txt = open(os.path.join(article.get_path(),
-                            article_version['text'] + '.html'),
-               "r")
+                            article_version['text'] + u'.html'),
+               'r')
     article_version['txt'] = txt.read()
     txt.close()
     article_version = article.load_dic(article_version)
@@ -237,7 +237,7 @@ def new(request):
             article = Article()
             article.title = data['title']
             article.description = data['description']
-            article.text = "text.md"
+            article.text = 'text.md'
             if 'image' in request.FILES:
                 article.image = request.FILES['image']
 
@@ -257,8 +257,8 @@ def new(request):
                 article.subcategory.add(subcat)
 
             # add a licence to the article
-            if "licence" in data and data["licence"] != "":
-                lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+            if 'licence' in data and data['licence'] != '':
+                lc = Licence.objects.filter(pk=data['licence']).all()[0]
                 article.licence = lc
             else:
                 article.licence = Licence.objects.get(
@@ -340,9 +340,9 @@ def edit(request):
             for subcat in form.cleaned_data['subcategory']:
                 article.subcategory.add(subcat)
 
-            if "licence" in data:
-                if data["licence"] != "":
-                    lc = Licence.objects.filter(pk=data["licence"]).all()[0]
+            if 'licence' in data:
+                if data['licence'] != '':
+                    lc = Licence.objects.filter(pk=data['licence']).all()[0]
                     article.licence = lc
                 else:
                     article.licence = Licence.objects.get(
@@ -365,8 +365,8 @@ def edit(request):
 
             return redirect(article.get_absolute_url())
     else:
-        if "licence" in json:
-            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+        if 'licence' in json:
+            licence = Licence.objects.filter(code=json['licence']).all()[0]
         else:
             licence = Licence.objects.get(
                 pk=settings.ZDS_APP['tutorial']['default_license_pk']
@@ -388,7 +388,7 @@ def find_article(request, pk_user):
     """Find an article from his author."""
     user = get_object_or_404(User, pk=pk_user)
     articles = Article.objects\
-        .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public="")\
+        .filter(authors__in=[user], sha_public__isnull=False).exclude(sha_public='')\
         .order_by('-pubdate')\
         .all()
 
@@ -420,12 +420,12 @@ def maj_repo_article(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = u"Modification de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+            msg = u'Modification de l\'article «{}» {} {}'.format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = u"Création de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+            msg = u'Création de l\'article «{}» {} {}'.format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
 
         repo = Repo(new_slug_path)
@@ -435,15 +435,15 @@ def maj_repo_article(
         article.dump_json(path=man_path)
         index.add(['manifest.json'])
 
-        txt = open(os.path.join(new_slug_path, 'text.md'), "w")
+        txt = open(os.path.join(new_slug_path, 'text.md'), 'w')
         txt.write(smart_str(text).strip())
         txt.close()
         index.add(['text.md'])
 
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
-        if aut_email is None or aut_email.strip() == "":
-            aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
+        if aut_email is None or aut_email.strip() == '':
+            aut_email = u'inconnu@{}'.format(settings.ZDS_APP['site']['dns'])
         com = index.commit(msg,
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email)
@@ -463,7 +463,7 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    article = get_object_or_404(Article, pk=request.GET['article'])
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -476,8 +476,8 @@ def download(request):
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
-    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/zip")
-    response["Content-Disposition"] = "attachment; filename={0}.zip".format(article.slug)
+    response = HttpResponse(open(zip_path, 'rb').read(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename={0}.zip'.format(article.slug)
     os.remove(zip_path)
     return response
 
@@ -538,9 +538,9 @@ def modify(request):
                     send_mp(
                         bot,
                         [author],
-                        u"Refus de Validation : {0}".format(
+                        u'Refus de Validation : {0}'.format(
                             article.title),
-                        "",
+                        '',
                         msg,
                         True,
                         direct=False)
@@ -551,8 +551,7 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le refuser.")
+                               u'Vous devez avoir réservé cet article pour pouvoir le refuser.')
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -620,9 +619,9 @@ def modify(request):
                     send_mp(
                         bot,
                         [author],
-                        u"Publication : {0}".format(
+                        u'Publication : {0}'.format(
                             article.title),
-                        "",
+                        '',
                         msg,
                         True,
                         direct=False)
@@ -633,8 +632,7 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le publier.")
+                               u'Vous devez avoir réservé cet article pour pouvoir le publier.')
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -685,8 +683,8 @@ def modify(request):
                 send_mp(
                     bot,
                     [old_validator],
-                    u"Mise à jour d'article : {0}".format(article.title),
-                    "En validation",
+                    u'Mise à jour d\'article : {0}'.format(article.title),
+                    'En validation',
                     msg,
                     False,
                 )
@@ -724,20 +722,20 @@ def modify(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été ajouté comme auteur de l\'article [{1}]({2}).\n'
-                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
-                u'"Articles" sur la page de ton profil.\n\n'
+                u'Tu peux retrouver cet article en [cliquant ici]({3}), ou *via* le lien « En rédaction » du menu '
+                u'« Articles » sur la page de ton profil.\n\n'
                 u'Tu peux maintenant commencer à rédiger !'.format(
                     author.username,
                     article.title,
                     settings.ZDS_APP['site']['url'] + article.get_absolute_url(),
-                    settings.ZDS_APP['site']['url'] + reverse("zds.member.views.articles"))
+                    settings.ZDS_APP['site']['url'] + reverse('zds.member.views.articles'))
             )
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
                 bot,
                 [author],
-                u"Ajout en tant qu'auteur : {0}".format(article.title),
-                "",
+                u'Ajout en tant qu\'auteur : {0}'.format(article.title),
+                '',
                 msg,
                 True,
                 direct=False,
@@ -780,8 +778,8 @@ def modify(request):
             send_mp(
                 bot,
                 [author],
-                u"Suppression des auteurs : {0}".format(article.title),
-                "",
+                u'Suppression des auteurs : {0}'.format(article.title),
+                '',
                 msg,
                 True,
                 direct=False,
@@ -815,13 +813,13 @@ def list_validation(request):
         if subcategory is None:
             validations = Validation.objects \
                 .filter(validator__isnull=True, status='PENDING') \
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
         else:
             validations = Validation.objects \
                 .filter(validator__isnull=True, status='PENDING',
                         article__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
 
     # Reserved validation. There are a validator attached to the validations.
@@ -829,13 +827,13 @@ def list_validation(request):
         if subcategory is None:
             validations = Validation.objects \
                 .filter(validator__isnull=False, status='RESERVED') \
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
         else:
             validations = Validation.objects \
                 .filter(validator__isnull=False, status='PENDING',
                         article__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
 
     # Default, we display all validations.
@@ -843,13 +841,13 @@ def list_validation(request):
         if subcategory is None:
             validations = Validation.objects \
                 .filter(Q(status='PENDING') | Q(status='RESERVED'))\
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
         else:
             validations = Validation.objects \
                 .filter(status='PENDING',
                         article__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
+                .order_by('date_proposition') \
                 .all()
     return render_template('article/validation/index.html', {
         'validations': validations,
@@ -873,13 +871,13 @@ def history_validation(request, article_pk):
     if subcategory is None:
         validations = Validation.objects \
             .filter(article__pk=article_pk) \
-            .order_by("date_proposition") \
+            .order_by('date_proposition') \
             .all()
     else:
         validations = Validation.objects \
             .filter(article__pk=article_pk,
                     article__subcategory__in=[subcategory]) \
-            .order_by("date_proposition") \
+            .order_by('date_proposition') \
             .all()
 
     return render_template('article/validation/history.html', {
@@ -956,7 +954,7 @@ def mep(article, sha):
             article.get_path(),
             article_version['text'] +
             '.html'),
-        "w")
+        'w')
     html_file.write(emarkdown(md_file_contenu))
     html_file.close()
 
@@ -991,7 +989,7 @@ def answer(request):
     # Retrieve lasts reactions of the current topic.
     reactions = Reaction.objects.filter(article=article) \
         .prefetch_related() \
-        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+        .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
@@ -1083,7 +1081,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST['alert_pk'])
     reaction = Reaction.objects.get(pk=alert.comment.id)
 
-    if request.POST["text"] != "":
+    if request.POST['text'] != '':
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = (u'Bonjour {0},\n\nVous recevez ce message car vous avez '
                u'signalé le message de *{1}*, dans l\'article [{2}]({3}). '
@@ -1100,8 +1098,8 @@ def solve_alert(request):
         send_mp(
             bot,
             [alert.author],
-            u"Résolution d'alerte : {0}".format(reaction.article.title),
-            "",
+            u'Résolution d\'alerte : {0}'.format(reaction.article.title),
+            '',
             msg,
             False
         )

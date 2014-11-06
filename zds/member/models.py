@@ -119,8 +119,8 @@ class Profile(models.Model):
         if self.avatar_url:
             return self.avatar_url
         else:
-            return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email.lower()).hexdigest())
+            return u'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
+                md5(self.user.email.lower().encode('utf-8')).hexdigest())
 
     def get_post_count(self):
         """Number of messages posted."""
