@@ -29,12 +29,12 @@
                 <table class="fullwidth">
                     <thead>
                         <tr>
-                            <th scope="col" title="Tutoriel en bêta"><span class="ico-after beta blue"></span></th>
-                            <th scope="col" title="Tutoriel en ligne"><span class="ico-after view blue"></span></th>
+                            <th scope="col" title="Tutoriel en bêta" style="width: 32px"><span class="ico-after beta blue"></span></th>
+                            <th scope="col" title="Tutoriel en ligne" style="width: 32px"><span class="ico-after view blue"></span></th>
                             {% for help in helps %}
-                                <th scope="col" title="{{ help.tablelabel }}"><img src="{{ help.image.url }}" alt="{{ help.tablelabel }}"></th>
+                                <th scope="col" title="{{ help.tablelabel }}" style="width: 32px"><img src="{{ help.image.url }}" alt="{{ help.tablelabel }}"></th>
                             {% endfor %}
-                            <th scope="col" title="Contacter le(s) auteur(s)"><span class="ico-after email blue"></span></th>
+                            <th scope="col" title="Contacter le(s) auteur(s)" style="width: 32px"><span class="ico-after email blue"></span></th>
                             <th scope="col" title="Titre du tutoriel">Titre du tutoriel</th>
                         </tr>
                     </thead>
