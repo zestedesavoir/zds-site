@@ -290,8 +290,12 @@ De nouveau type de demande d'aide peuvent-être rajouté via l'interface d'admin
 Les fixtures d'aides
 ++++++++++++++++++++
 
-Quelques données de test sont présentes dans le fichier `fixtures/aidestutos.yaml`. En chargeant ces dernières, un tuto peut alors être modifié pour recevoir des demandes d'aides (en allant les sélectionner dans la liste à cet effet lors de l'édition du tuto).
+Quelques données de test sont présentes dans le fichier `fixtures/aide_tuto_media.yaml`. En chargeant ces dernières, un tuto peut alors être modifié pour recevoir des demandes d'aides (en allant les sélectionner dans la liste à cet effet lors de l'édition du tuto).
 Pour chaque données de test, il faut aussi passer par l'interface d'administration Django pour ajouter les images relatives à ces aides (limites techniques du chargement automatique). Quatres illustrations sont présentes dans le dossier de fixtures correspondant aux quatres aides présentes dans les fixtures.
+
+Pour charger ces fixtures, il ne faut pas utiliser la routine habituelle `manage.py loaddata`. En effet, les demandes d'aide ont besoin d'être liées à des images.
+C'est pourquoi, nous utilisons la factory `zds.utls.factories.HelpWritingFactory` pour mettre en place ces fixtures.
+Le code sera donc `python load_factory_data.py fixtures/aide_tuto_media.yaml`.
 
 L'aspect technique
 ==================

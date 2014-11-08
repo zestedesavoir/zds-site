@@ -24,4 +24,4 @@ for filename in args.files:
             m = getattr(m, comp)
 
         obj = getattr(m, splitted[-1])(**fixture["fields"])
-        print obj
+        print(obj)
