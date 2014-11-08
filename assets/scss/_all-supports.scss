@@ -543,6 +543,12 @@
             width: 12%;
             text-indent: -9999px;
 
+            &.disabled {
+                opacity: .5;
+                background: transparent;
+                cursor: default;
+            }
+
             &:after {
                 display: block;
                 content: " ";   
@@ -590,6 +596,11 @@
     margin: 0 0 15px 2%;
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
+    background: #777;
+
+    &.alert-box-not-closable {
+        padding-right: 15px;
+    }
 
     .alert-box-text {
         display: block;
@@ -619,6 +630,13 @@
         top: 8px;
     }
 
+    .alert-box-title {
+        margin: 5px 0;
+        padding: 0;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
     &.info, // TEMP PATCH WITH DJANGO ALERTS
     &.success {
         background: #48A200;
@@ -630,6 +648,12 @@
     &.warning {
         background: #e67e22;
     }
+    &.not-member {
+        background: #FDFDFD;
+        color: #333;
+        text-shadow: none;
+        border-bottom: 3px solid  #D2D5D6;
+    }
 
     &.ico-after {
         padding-left: 40px;
@@ -639,12 +663,45 @@
         }
     }
 
+    h4,
+    p {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    p {
+        margin: 0;
+    }
+
     a {
         color: #EEE;
+    }
+    .alert-box-btn {
+        display: inline-block;
+        background: $primary;
+        text-decoration: none;
+        padding: 8px 15px;
+        margin: 5px 0;
+        color: #FFF !important;
+
+        &:hover,
+        &:focus {
+            background: lighten($primary, 7%);
+        }
+
+        &.alert-box-btn-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+        }
     }
 }
 .content-wrapper .alert-box {
     margin: 0 0 20px;
+
+    & + .not-member {
+        margin-top: -20px;
+    }
 }
 
 
@@ -1544,9 +1601,16 @@
     margin-top: 50px !important;
     margin-bottom: 50px !important;
 
+    h2 {
+        margin-bottom: 0 !important;
+    }
+    h2 + .topic {
+        border-top: none;
+    }
+
     .topic {
         position: relative;
-        height: 81px;
+        min-height: 81px;
         line-height: 25px;
         border-top: 1px solid #FFF;
         border-bottom: 1px solid #CCC;
@@ -1555,16 +1619,7 @@
         clear: both;
 
         &:first-child {
-            overflow: visible;
-
-            &:after {
-                display: block;
-                content: " ";
-                width: 100%;
-                height: 1px;
-                background: #CCC;
-                margin-top: -2px;
-            }
+            border-top: 1px solid #CCC;
         }
 
         &:before {
@@ -1584,7 +1639,7 @@
         }
 
         &.unread {
-            .topic-title {
+            .topic-description .topic-title {
                 font-weight: bold;
             }
             background: #FFF;
@@ -1657,18 +1712,25 @@
             display: inline;
 
             .topic-tag {
+                display: block;
+                height: 23px;
+                line-height: 23px;
                 float: left;
                 padding: 0 5px;
                 margin: 0 3px 0 0;
-                color: #FFF;
-                background: $header-hover;
+                color: $header-hover;
+                background: #FCFCFC;
+                border: 1px solid #CCC;
 
                 &:hover,
                 &:focus {
                     background: #FFF;
-                    color: $header-hover;
-                    box-shadow: $header-hover 0 0 3px;
+                    color: $primary;
+                    border-color: $primary;
                     text-decoration: none;
+                }
+                &:focus {
+                    box-shadow: $header-hover 0 0 3px;
                 }
             }
 
@@ -1678,6 +1740,9 @@
         }
 
         .topic-title-link {
+            display: block;
+            min-height: 48px;
+
             &:hover,
             &:focus {
                 text-decoration: none;
@@ -1691,19 +1756,17 @@
         .topic-title,
         .topic-subtitle {
             display: block;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
             margin: 0;
             padding: 0;
         }
         .topic-title {
             font-size: 16px;
             font-size: 1.6rem;
+            font-weight: normal;
         }
         .topic-subtitle {
             height: 24px;
-            line-height: 1.3em;
+            line-height: 1.5em;
             color: #777;
         }
         .topic-members {
@@ -1721,7 +1784,7 @@
 
         .topic-no-last-answer {
             display: block;
-            margin-top: 24px;
+            margin-top: 27px;
             color: $primary;
             opacity: .5;
         }
@@ -1735,7 +1798,6 @@
 .forum-list {
     .group-title {
         width: 100%;
-        height: 50px;
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
@@ -1779,8 +1841,11 @@
             margin-top: 13px;
         }
         .forum-last-message {
-            color: #777;
             display: block;
+
+            .forum-last-message-long {
+                display: none;
+            }
         }
         .forum-last-message-title {
             display: block;
@@ -1835,6 +1900,7 @@
         h3,
         h4 {
             font-weight: normal;
+            width: 90%;
 
             a {
                 text-decoration: none;
@@ -2491,7 +2557,7 @@ table {
                 button.ico-after {
                     border-bottom-width: 3px;
                     border-bottom-color: transparent;
-                    background: none;
+                    background: none !important;
                     height: 32px;
 
                     &.upvote,
@@ -2499,6 +2565,17 @@ table {
                         &:not(.has-vote) {
                             text-indent: -9999px;
                             width: 0;
+                        }
+                    }
+                    &.disabled {
+                        &,
+                        &:hover,
+                        &:focus {
+                            border-bottom-color: transparent;
+
+                            &:after {
+                                opacity: .25 !important;
+                            }
                         }
                     }
                 }
@@ -2515,12 +2592,12 @@ table {
                     text-overflow: ellipsis;
                     white-space: nowrap;
 
-                    &:hover,
-                    &:focus {
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled) {
                         color: #555;
                         border-bottom-color: $upvote;
                     }
-                    &.active {
+                    &.active:not(.disabled) {
                         color: #48a200;
 
                         &:after {
@@ -2537,8 +2614,8 @@ table {
                 .upvote {
                     color: $upvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $upvote;
                     }
@@ -2550,8 +2627,8 @@ table {
                 .downvote {
                     color: $downvote;
 
-                    &:hover,
-                    &:focus,
+                    &:hover:not(.disabled),
+                    &:focus:not(.disabled),
                     &.more-voted {
                         border-bottom-color: $downvote;
                     }

@@ -76,6 +76,29 @@
         padding-top: 0 !important;
     }
 
+    .topic-list {
+        .topic-infos .ico-after:after {
+            margin: 4px 0 0 2px;
+        }
+        .topic-description {
+            .topic-subtitle:empty {
+                display: none;
+            }
+        }
+        .topic-last-answer {
+            .topic-no-last-answer {
+                font-size: 1.3rem;
+            }
+        }
+    }
+    .forum-list {
+        .topic-description {
+            .topic-subtitle {
+                margin-left: 10px;
+            }
+        }
+    }
+
     .topic-message .message {
         .message-actions a {
             width: 0px;
@@ -92,17 +115,6 @@
             span {
                 margin-right: 1px;
                 margin-left: 0;
-
-                &.has-vote {
-                    text-indent: 15px;
-                    line-height: 14px;
-                    font-size: 12px;
-                    text-align: right;
-
-                    &.downvote {
-                        line-height: 40px;
-                    }
-                }
             }
         }
         .message-submit {
@@ -152,6 +164,20 @@
 
             .show-markdown-help + .open-markdown-help {
                 margin-top: 0;
+            }
+        }
+    }
+
+
+    .alert-box {
+        .alert-box-btn {
+            &,
+            &.alert-box-btn-right {
+                position: relative;
+                float: none;
+                display: block;
+                margin: 5px 0 0;
+                text-align: center;
             }
         }
     }
