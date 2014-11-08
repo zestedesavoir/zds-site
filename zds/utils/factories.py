@@ -18,7 +18,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-
+        a = super(HelpWritingFactory, cls)._prepare(create, **kwargs)
         image_path = kwargs.pop('image_path', None)
         fixture_image_path = kwargs.pop('fixture_image_path', None)
 
@@ -27,13 +27,12 @@ class HelpWritingFactory(factory.DjangoModelFactory):
 
 
         if image_path is not None:
-            return super(HelpWritingFactory, cls)._prepare(create,
-                                                           image=factory.django.ImageField(from_path=image_path, format="PNG"),
-                                                           **kwargs)
+            copyfile(image_path, join(MEDIA_ROOT, basename(image_path)))
 
+            a.image= basename(image_path)
+            a.save()
 
-        else:
-            return super(HelpWritingFactory, cls)._prepare(create, image=factory.django.ImageField(color="orange", format="PNG"))
+        return a
 
 
 
