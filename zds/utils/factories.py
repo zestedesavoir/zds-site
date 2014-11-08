@@ -4,17 +4,16 @@ from zds.utils import slugify
 from zds.settings import SITE_ROOT, MEDIA_ROOT
 from shutil import copyfile
 from os.path import basename, join
-from PIL import Image
 
 import factory
+
 
 class HelpWritingFactory(factory.DjangoModelFactory):
     FACTORY_FOR = HelpWriting
 
     title = factory.Sequence(lambda n: u"titre de l\'image {0}".format(n))
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
-    tablelabel = factory.LazyAttribute(lambda n: u"Besoin de " + n.title )
-
+    tablelabel = factory.LazyAttribute(lambda n: u"Besoin de " + n.title)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -25,21 +24,16 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         if fixture_image_path is not None:
             image_path = join(SITE_ROOT, "fixtures", fixture_image_path)
 
-
         if image_path is not None:
             copyfile(image_path, join(MEDIA_ROOT, basename(image_path)))
-
-            a.image= basename(image_path)
+            a.image = basename(image_path)
             a.save()
 
         return a
-
-
-
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         kwargs.pop('image_path', None)
         kwargs.pop('fixture_image_path', None)
 
-        return super(HelpWritingFactory, cls)._create( target_class, *args, **kwargs)
+        return super(HelpWritingFactory, cls)._create(target_class, *args, **kwargs)
