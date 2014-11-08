@@ -12,7 +12,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
 from zds.member.models import Profile, listing
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -179,7 +179,7 @@ class RegisterForm(forms.Form):
         email = cleaned_data.get('email')
         if email:
             # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT,
+            with open(os.path.join(BASE_DIR,
                                    'forbidden_email_providers.txt'), 'r') as fh:
                 for provider in fh:
                     if provider.strip() in email:
@@ -377,7 +377,7 @@ class ChangeUserForm(forms.Form):
                     self._errors['email_new'] = self.error_class([u'Votre adresse courriel est déjà utilisée'])
                 else:
                     # Chech if email provider is authorized
-                    with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+                    with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as fh:
                         for provider in fh:
                             if provider.strip() in email_new:
                                 msg = u'Utilisez un autre fournisseur d\'adresses mail.'

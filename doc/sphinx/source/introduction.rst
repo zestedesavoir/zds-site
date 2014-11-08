@@ -58,11 +58,11 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
             'image_max_size': 1024 * 1024,
         },
         'article': {
-            'repo_path': os.path.join(SITE_ROOT, 'articles-data'),
+            'repo_path': os.path.join(BASE_DIR, 'articles-data'),
         },
         'tutorial': {
-            'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
-            'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
+            'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
+            'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
             'default_license_pk': 7
         },
         'forum': {

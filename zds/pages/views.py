@@ -16,7 +16,7 @@ from zds import settings
 from zds.article.models import get_last_articles
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.tutorial.models import get_last_tutorials
 from zds.utils import render_template
 from zds.utils.models import Alert
@@ -38,7 +38,7 @@ def home(request):
         articles.append(data)
 
     try:
-        with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
+        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
     except:
         quote = settings.ZDS_APP['site']['slogan']

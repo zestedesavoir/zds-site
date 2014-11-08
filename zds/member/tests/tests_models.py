@@ -18,13 +18,13 @@ from zds.member.models import TokenForgotPassword, TokenRegister
 from zds.tutorial.factories import MiniTutorialFactory
 from zds.gallery.factories import GalleryFactory
 from zds.utils.models import Alert
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(BASE_DIR, 'tutoriels-private-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(BASE_DIR, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(BASE_DIR, 'articles-data-test'))
 class TestProfile(TestCase):
 
     def setUp(self):

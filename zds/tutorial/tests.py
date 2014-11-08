@@ -23,7 +23,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.gallery.factories import UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
 from zds.gallery.factories import GalleryFactory
@@ -33,10 +33,10 @@ from zds.utils.models import SubCategory, Licence, Alert
 from zds.utils.misc import compute_hash
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(BASE_DIR, 'tutoriels-private-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(BASE_DIR, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(BASE_DIR, 'articles-data-test'))
 class BigTutorialTests(TestCase):
 
     def setUp(self):
@@ -484,7 +484,7 @@ class BigTutorialTests(TestCase):
             {
                 'file': open(
                     os.path.join(
-                        settings.SITE_ROOT,
+                        settings.BASE_DIR,
                         'fixtures',
                         'tuto',
                         'temps-reel-avec-irrlicht',
@@ -492,7 +492,7 @@ class BigTutorialTests(TestCase):
                     'r'),
                 'images': open(
                     os.path.join(
-                        settings.SITE_ROOT,
+                        settings.BASE_DIR,
                         'fixtures',
                         'tuto',
                         'temps-reel-avec-irrlicht',
@@ -2417,10 +2417,10 @@ class BigTutorialTests(TestCase):
             shutil.rmtree(settings.MEDIA_ROOT)
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(BASE_DIR, 'tutoriels-private-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(BASE_DIR, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(BASE_DIR, 'articles-data-test'))
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -2864,7 +2864,7 @@ class MiniTutorialTests(TestCase):
             {
                 'file': open(
                     os.path.join(
-                        settings.SITE_ROOT,
+                        settings.BASE_DIR,
                         'fixtures',
                         'tuto',
                         'securisez-vos-mots-de-passe-avec-lastpass',
@@ -2872,7 +2872,7 @@ class MiniTutorialTests(TestCase):
                     'r'),
                 'images': open(
                     os.path.join(
-                        settings.SITE_ROOT,
+                        settings.BASE_DIR,
                         'fixtures',
                         'tuto',
                         'securisez-vos-mots-de-passe-avec-lastpass',

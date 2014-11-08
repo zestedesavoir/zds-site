@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 
 from shutil import rmtree
 
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
@@ -28,10 +28,10 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(REPO_PATH=os.path.join(BASE_DIR, 'tutoriels-private-test'))
+@override_settings(REPO_PATH_PROD=os.path.join(BASE_DIR, 'tutoriels-public-test'))
+@override_settings(REPO_ARTICLE_PATH=os.path.join(BASE_DIR, 'articles-data-test'))
 class MemberTests(TestCase):
 
     def setUp(self):

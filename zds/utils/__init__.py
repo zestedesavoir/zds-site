@@ -25,7 +25,7 @@ def get_current_request():
 
 def get_git_version():
     try:
-        repo = Repo(settings.SITE_ROOT)
+        repo = Repo(settings.BASE_DIR)
         branch = repo.active_branch
         commit = repo.head.commit.hexsha
         v = u"{0}/{1}".format(branch, commit[:7])
