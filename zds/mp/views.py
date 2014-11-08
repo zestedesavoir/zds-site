@@ -196,14 +196,13 @@ def new(request):
                 errors.append(_(u'Vous êtes déjà auteur du message'))
                 if tried_unauthorized_member:
                     errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
-                return render_template('mp/topic/new.html', {
+                return render(request, 'mp/topic/new.html', {
                     'form': form,
                 })
             if tried_unauthorized_member and len(ctrl) == 1:
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
-                    'form': form,
-                })
+
             p_topic = send_mp(request.user,
                               ctrl,
                               data['title'],
