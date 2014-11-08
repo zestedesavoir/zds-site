@@ -6,10 +6,12 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from zds.member.factories import ProfileFactory
+from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils import slugify
+from zds.settings import ZDS_APP
+from django.contrib.auth.models import Group
 
 
 class IndexViewTest(TestCase):
@@ -912,6 +914,13 @@ class LeaveViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
 
+        self.anonymous_account = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        self.bot_group = Group()
+        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
+        self.anonymous_account.groups.add(self.bot_group)
+        self.anonymous_account.save()
+
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(
@@ -1076,6 +1085,24 @@ class AddParticipantViewTest(TestCase):
         )
 
         self.assertEqual(404, response.status_code)
+
+    def test_test_fail_add_bot_as_participant(self):
+        self.client.logout()
+        self.assertTrue(
+            self.client.login(
+                username=self.profile1.user.username,
+                password='hostel77'
+            )
+        )
+
+        self.client.post(
+            reverse('zds.mp.views.add_participant'),
+            {
+                'topic_pk': self.topic1.pk,
+                'user_pk': self.anonymous_account.username
+            }
+        )
+        self.assertFalse(self.anonymous_account in self.topic1.participants.all())
 
     def test_fail_add_participant_who_no_exist(self):
 
