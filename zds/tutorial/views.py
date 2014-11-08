@@ -2645,6 +2645,8 @@ def maj_repo_tuto(
     if action == "del":
         shutil.rmtree(old_slug_path)
     else:
+        # update the tutorial last edit date
+        tuto.update = datetime.now()
         if action == "maj":
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
@@ -2701,6 +2703,8 @@ def maj_repo_part(
 
     repo = Repo(part.tutorial.get_path())
     index = repo.index
+    # update the tutorial last edit date
+    part.tutorial.update = datetime.now()
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = _(u"Suppresion de la partie : «{}»").format(part.title)
@@ -2762,9 +2766,13 @@ def maj_repo_chapter(
     if chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.tutorial.get_phy_slug()))
         ph = None
+        # update the tutorial last edit date
+        chapter.tutorial.update = datetime.now()
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+        # update the tutorial last edit date
+        chapter.part.tutorial.update = datetime.now()
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
@@ -2839,9 +2847,14 @@ def maj_repo_extract(
     if extract.chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.tutorial.update = datetime.now()
+
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.part.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.part.tutorial.update = datetime.now()
     index = repo.index
 
     chap = extract.chapter
