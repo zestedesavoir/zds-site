@@ -1,29 +1,35 @@
+{% load i18n %}
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-    Bonjour, membres du CA,
+    
+    {% trans "Bonjour, membres du CA" %},
     <br />
     <br />
     <p>
-        Le membre {{ username }} souhaiterait adhérer à {{app.site.association.name}}.
+        {% blocktrans with asso_name=app.site.association.name %}
+        Le membre {{ username }} souhaiterait adhérer à {{asso_name}}.
+        {% endblocktrans %}
     </p>
     <ul>
-        <li>Identité : {{ full_name }}</li>
-        <li>Adresse courriel : {{ email }}</li>
-        <li>Date de naissance : {{ naissance }}</li>
-        <li>Adresse : {{ adresse|linebreaks }}</li>
+        <li>{% trans "Identité" %} : {{ full_name }}</li>
+        <li>{% trans "Adresse courriel" %} : {{ email }}</li>
+        <li>{% trans "Date de naissance" %} : {{ naissance }}</li>
+        <li>{% trans "Adresse" %} : {{ adresse|linebreaks }}</li>
     </ul>
     <p>
-        Raison de cette demande :
+        {% trans "Raison de cette demande" %} :
         <br/>
         {{ justification|linebreaks }}
     </p>
     <p>
-        Cliquez ici pour voir son profil sur le site : <a href="{{ profile_url }}">{{ profile_url }}</a>.
+
+        {% trans "Cliquez ici pour voir son profil sur le site" %} : <a href="{{ profile_url }}">{{ profile_url }}</a>.
     </p>
 
-    <p>Cordialement,<br/>
-    Clem</p>
+    <p>{% trans "Cordialement" %},<br/>
+    {{app.member.bot_account}}</p>
+    {% blocktrans %}
 </body>
