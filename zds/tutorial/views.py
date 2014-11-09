@@ -2900,7 +2900,17 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download a tutorial."""
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+
+    # check if tutoriel is an int
+
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'])
+    except ValueError:
+        # if not, check if it's int + '/' (nginx bug ?)
+        try:
+            tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'][:-1])
+        except ValueError:
+            raise Http404
 
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
@@ -2914,8 +2924,8 @@ def download(request):
     zip_file = zipfile.ZipFile(zip_path, 'w')
     insert_into_zip(zip_file, repo.commit(sha).tree)
     zip_file.close()
-    response = HttpResponse(open(zip_path, "rb").read(), content_type="application/zip")
-    response["Content-Disposition"] = "attachment; filename={0}.zip".format(tutorial.slug)
+    response = HttpResponse(open(zip_path, 'rb').read(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename={0}.zip'.format(tutorial.slug)
     os.remove(zip_path)
     return response
 
