@@ -1,6 +1,6 @@
 {% load captureas %}
 {% load append_to_get %}
-
+{% load i18n %}
 
 
 {% if pages|length > 1 %}
@@ -15,7 +15,7 @@
             <li class="prev">
                 {% with prev=nb|add:-1 %}
                     <a href="{% append_to_get page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue">
-                        Précédente
+                        {% trans "Précédente" %}
                     </a>
                 {% endwith %}
             </li>
@@ -37,7 +37,7 @@
             {% else %}
                 <li>
                     <a href="#pagination-{{ position }}" class="open-modal">...</a>
-                    <form action="." method="get" class="modal modal-small" id="pagination-{{ position }}" data-modal-title="Aller à la page...">
+                    <form action="." method="get" class="modal modal-small" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page" %}...'>
                         {% for key,val in request.GET.iterlists %}
                             {% if key != "page" %}
                                 {% for v in val %}
@@ -46,11 +46,11 @@
                             {% endif %}
                         {% endfor %}
                         <p>
-                            Indiquez la page à laquelle vous souhaitez vous rendre.
+                            {% trans "Indiquez la page à laquelle vous souhaitez vous rendre" %}.
                         </p>
                         <input type="number" name="page" min="1" max="{{ pages|last }}">
                         <button type="submit">
-                            Aller à la page
+                            {% trans "Aller à la page" %}
                         </button>
                     </form>
                 </li>
@@ -61,7 +61,7 @@
             <li class="next">
                 {% with next=nb|add:1 %}
                     <a href="{% append_to_get page=next %}{{ full_anchor }}" class="ico-after arrow-right blue">
-                        Suivante
+                        {% trans "Suivante" %}
                     </a>
                 {% endwith %}
             </li>

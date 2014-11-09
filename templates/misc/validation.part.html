@@ -1,6 +1,6 @@
 {% load date %}
 {% load emarkdown %}
-
+{% load i18n %}
 
 
 
@@ -11,12 +11,12 @@
     <form action="{{ reservation_url }}" method="post">
     	{% csrf_token %}
         <button type="submit">
-            Réserver
+            {% trans "Réserver" %}
         </button>
     </form>
 {% else %}
     {% if validation.validator %}
-        Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
+        {% trans "Réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
 
         {% if validation.date_reserve %}
             {{ validation.date_reserve|format_date:True }}
@@ -26,24 +26,26 @@
 
     {% if validation.is_pending_valid %}
         <a href="#unreservation-{{ validation.pk }}" class="open-modal">
-            Annuler la réservation
+            {% trans "Annuler la réservation" %}
         </a>
         <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation-{{ validation.pk }}">
         	{% csrf_token %}
             <p>
-                Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
-                Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+                {% trans "Actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
+                {% blocktrans %}
+                    Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+                {% endblocktrans %}
             </p>
             <button type="submit">
-                Confirmer
+                {% trans "Confirmer" %}
             </button>
         </form>
     {% elif validation.is_accept %}
-        Accepté {{ validation.date_validation|format_date:True }}
+        {% trans "Accepté" %} {{ validation.date_validation|format_date:True }}
         {% if validation.comment_validator %}
             -
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
-                Commentaire du validateur
+                {% trans "Commentaire du validateur" %}
             </a>
             <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
@@ -52,11 +54,11 @@
             </div>
         {% endif %}
     {% elif validation.is_reject %}
-        Rejeté {{ validation.date_validation|format_date:True }}
+        {% trans "Rejeté" %} {{ validation.date_validation|format_date:True }}
         {% if validation.comment_validator %}
             -
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
-                Motif du rejet
+                {% trans "Motif du rejet" %}
             </a>
             <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>

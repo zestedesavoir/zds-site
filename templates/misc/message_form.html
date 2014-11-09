@@ -1,5 +1,5 @@
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% if topic.is_locked %}
@@ -51,7 +51,7 @@
                             class="btn-grey"
                             {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         >
-                            Aperçu
+                            {% trans "Aperçu" %}
                         </button>
 
                         <button
@@ -59,7 +59,7 @@
                             name="answer"
                             {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         >
-                            Envoyer
+                            {% trans "Envoyer" %}
                         </button>
                     </div>
                 </div>
