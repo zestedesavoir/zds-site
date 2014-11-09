@@ -1,27 +1,28 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 
 
 {% block title_base %}
-    &bull; Messagerie Privée
+    &bull; {% trans "Messagerie Privée" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    Messagerie
+    {% trans "Messagerie" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.mp.views.index" %}">Messagerie Privée</a></li>
+    <li><a href="{% url "zds.mp.views.index" %}">{% trans "Messagerie Privée" %}</a></li>
 {% endblock %}
 
 
 
 {% block menu_mp %}
-    active
+    {% trans "active" %}
 {% endblock %}
 
 
@@ -29,7 +30,7 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <a href="{% url "zds.mp.views.new" %}" class="new-btn ico-after more blue">
-            Nouvelle conversation
+            {% trans "Nouvelle conversation" %}
         </a>
         {% block sidebar_actions %}{% endblock %}
     </aside>
