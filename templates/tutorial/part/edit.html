@@ -1,10 +1,11 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 {% block title %}
-    Éditer une partie
+    {% trans "Éditer une partie" %}
 {% endblock %}
 
 
@@ -12,7 +13,7 @@
 {% block breadcrumb %}
     <li><a href="{{ part.tutorial.get_absolute_url }}?version={{ version }}">{{ part.tutorial.title }}</a></li>
     <li><a href="{{ part.get_absolute_url }}?version={{ version }}">{{ part.title }}</a></li>
-    <li>Éditer une partie</li>
+    <li>{% trans "Éditer une partie" %}</li>
 {% endblock %}
 
 
@@ -22,7 +23,7 @@
         {% if part.image %}
             <img src="{{ part.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
-        Éditer la partie : {{ part.title }}
+        {% trans "Éditer la partie" %} : {{ part.title }}
     </h1>
 {% endblock %}
 
@@ -37,7 +38,7 @@
 {% block content %}
     {% if new_version %}
         <p class="ico-after warning">
-            Une nouvelle version a été postée avant que vous ne validiez.
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
         </p>
     {% endif %}
    {% crispy form %}

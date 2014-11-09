@@ -1,8 +1,7 @@
 {% load emarkdown %}
 {% load profile %}
 {% load thumbnail %}
-
-{# TODO : Comprendre comment designer l'export #}
+{% load i18n %}
 
 <div class="row">
     <div class="large-12 columns">
@@ -13,15 +12,15 @@
         </div>
         <div class="large-6 columns">
             <p>
-                Tutoriel
+                {% trans "Tutoriel" %}
                 {% if not tutorial.is_mini %}
-                    étendu
+                    {% trans "étendu" %}
                 {% endif %}
-                rédigé par
+                {% trans "rédigé par" %}
                 {% for member in tutorial.authors.all %}
                     {% if forloop.counter > 1 %}
                         {% if forloop.last %}
-                            et
+                            {% trans "et" %}
                         {% else %}
                             ,
                         {% endif %}
@@ -47,7 +46,7 @@
         {% if tutorial.get_introduction_online %}
             {{ tutorial.get_introduction_online|safe }}
         {% else %}
-            <p>Aucune introduction.</p>
+            <p>{% trans "Aucune introduction" %}.</p>
         {% endif %}
 
         {% if tutorial.is_mini %}
@@ -61,14 +60,14 @@
                 {% for part in parts %}
                     <h1>
                         <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.slug %}">
-                            Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                            {% trans "Partie" %} {{ part.position_in_tutorial }} : {{ part.title }}
                         </a>
                     </h1>
                     {% include "tutorial/includes/part_export.part.html" %}
                 {% endfor %}
             {% else %}
                 <p>
-                    Il n'y a actuellement aucune partie dans ce tutoriel.
+                    {% trans "Il n'y a actuellement aucune partie dans ce tutoriel" %}.
                 </p>
             {% endif %}
             <hr />
@@ -78,7 +77,7 @@
         {% if tutorial.get_conclusion_online %}
             {{ tutorial.get_conclusion_online|safe }}
         {% else %}
-            <p>Aucune conclusion.</p>
+            <p>{% trans "Aucune conclusion" %}.</p>
         {% endif %}
     </div>
 </div>

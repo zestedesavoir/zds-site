@@ -1,23 +1,24 @@
 {% extends "tutorial/base_online.html" %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Éditer un commentaire
+    {% trans "Éditer un commentaire" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
-    <li>Éditer un commentaire</li>
+    <li>{% trans "Éditer un commentaire" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Éditer le commentaire du tutoriel : {{ tutorial.title }}</h1>
+    <h1>{% trans "Éditer le commentaire du tutoriel" %} : {{ tutorial.title }}</h1>
 {% endblock %}
 
 

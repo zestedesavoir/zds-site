@@ -2,24 +2,24 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load captureas %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Commenter le tutoriel
+    {% trans "Commenter le tutoriel" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url_online }}">{{ tutorial.title }}</a></li>
-    <li>Commenter le tutoriel</li>
+    <li>{% trans "Commenter le tutoriel" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Ajouter un commentaire au tutoriel : {{ tutorial.title }}</h1>
+    <h1>{% trans "Ajouter un commentaire au tutoriel" %} : {{ tutorial.title }}</h1>
 {% endblock %}
 
 
@@ -33,8 +33,9 @@
 {% block content_after %}
     {% if newnote %}
         <div class="alert-box alert">
-            <strong>Au moins un nouveau message a été posté</strong> dans la discussion
-            pendant que vous rédigiez le votre.
+            {% blocktrans %}
+            <strong>Au moins un nouveau message a été posté</strong> dans la discussion pendant que vous rédigiez le votre.
+            {% endblocktrans %}
         </div>
     {% endif %}
 

@@ -1,15 +1,15 @@
 {% load emarkdown %}
 {% load repo_reader %}
-
+{% load i18n %}
 
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro and chapter.intro != None %}
+        {% if chapter.intro and chapter.intro != "None" %}
             {{ chapter.intro|emarkdown }}
         {% elif not tutorial.is_beta %}
             <p class="ico-after warning">
-                Il n'y a pas d'introduction.
+                {% trans "Il n'y a pas d'introduction" %}.
             </p>
         {% endif %}
     {% endif %}
@@ -18,7 +18,7 @@
 
     {% if not extracts %}
         <p class="ico-after warning">
-            Il n'y a aucun extrait.
+            {% trans "Il n'y a aucun extrait" %}.
         </p>
     {% endif %}
 
@@ -33,44 +33,46 @@
 
         {% if user in authors or perms.tutorial.change_tutorial %}
             <div class="actions-title">
-                <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">Supprimer</a>
+                <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">{% trans "Supprimer" %}</a>
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
                     <p>
+                        {% blocktrans %}
                         Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract.title }}</em> ?
+                        {% endblocktrans %}
                     </p>
                     <input type="hidden" name="extract" value="{{ extract.pk }}">
                     {% csrf_token %}
                     <button type="submit" name="delete">
-                        Confirmer
+                        {% trans "Confirmer" %}
                     </button>
                 </form>
 
-                <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">Déplacer</a>
+                <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
                     <select name="move_target">
-                        <option disabled="disabled">Déplacer</option>
+                        <option disabled="disabled">{% trans "Déplacer" %}</option>
                         {% if extract.position_in_chapter > 1 %}
-                            <option value="{{ extract.position_in_chapter|add:-1 }}">Monter</option>
+                            <option value="{{ extract.position_in_chapter|add:-1 }}">{% trans "Monter" %}</option>
                         {% endif %}
 
                         {% if extract.position_in_chapter < extracts|length %}
-                            <option value="{{ extract.position_in_chapter|add:1 }}">Descendre</option>
+                            <option value="{{ extract.position_in_chapter|add:1 }}">{% trans "Descendre" %}</option>
                         {% endif %}
 
-                        <option disabled>&mdash; Déplacer avant</option>
+                        <option disabled>&mdash; {% trans "Déplacer avant" %}</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:-1 != extract.position_in_chapter %}
                                 <option value="{{ extract_mv.position_in_chapter }}">
-                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                    {% trans "Extrait" %} {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                                 </option>
                             {% endif %}
                         {% endfor %}
 
-                        <option disabled>&mdash; Déplacer après</option>
+                        <option disabled>&mdash; {% trans "Déplacer après" %}</option>
                         {% for extract_mv in extracts %}
                             {% if extract != extract_mv and extract_mv.position_in_chapter|add:1 != extract.position_in_chapter %}
                                 <option value="{{ extract_mv.position_in_chapter }}">
-                                    Extrait {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
+                                    {% trans "Extrait" %} {{ extract_mv.position_in_chapter }} : {{ extract_mv.title }}
                                 </option>
                             {% endif %}
                         {% endfor %}
@@ -80,12 +82,12 @@
 
                     {% csrf_token %}
                     <button type="submit">
-                        Déplacer
+                        {% trans "Déplacer" %}
                     </button>
                 </form>
 
                 <a href="{% url "zds.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="ico-after edit btn btn-grey">
-                    Éditer
+                    {% trans "Éditer" %}
                 </a>
             </div>
         {% endif %}
@@ -94,7 +96,7 @@
             {{ extract.txt|emarkdown }}
         {% else %}
             <p class="ico-after warning">
-                Cet extrait est vide.
+                {% trans "Cet extrait est vide" %}.
             </p>
         {% endif %}
     {% endfor %}
@@ -102,11 +104,11 @@
     <hr />
 
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.conclu and chapter.conclu != None %}
+        {% if chapter.conclu and chapter.conclu != "None" %}
             {{ chapter.conclu|emarkdown }}
         {% elif not tutorial.is_beta %}
             <p class="ico-after warning">
-                Il n'y a pas de conclusion.
+                {% trans "Il n'y a pas de conclusion" %}.
             </p>
         {% endif %}
     {% endif %}
