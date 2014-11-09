@@ -1,22 +1,22 @@
 {% extends "member/register/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Inscription
+    {% trans "Inscription" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Inscription
+    {% trans "Inscription" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Inscription</li>
+    <li>{% trans "Inscription" %}</li>
 {% endblock %}
 
 
@@ -28,18 +28,21 @@
         {% endif %}
 
         <p>
-            <strong>Vous êtes sur le point de vous inscrire sur {{app.site.litteral_name}}</strong>. Si vous
-            possédez déjà un compte, veuillez <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
+            {% url "zds.member.views.login_view" as url_login %}
+            {% blocktrans with app_name=app.site.litteral_name %}
+                <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
+                possédez déjà un compte, veuillez" %} <a href="{{url_login }}">vous connecter</a>.
+            {% endblocktrans %}
         </p>
         <p>
-            Les informations demandées dans le formulaire suivant
-            sont nécessaires afin de poursuivre votre inscription.
+            {% trans "Les informations demandées dans le formulaire suivant
+            sont nécessaires afin de poursuivre votre inscription" %}.
         </p>
 
         {% crispy form %}
     {% else %}
         <p>
-            Vous êtes déjà connecté.
+            {% trans "Vous êtes déjà connecté" %}.
         </p>
     {% endif %}
 {% endblock %}

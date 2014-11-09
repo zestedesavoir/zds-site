@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title_base %}
-   Paramètres
+   {% trans "Paramètres" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.settings_profile" %}">Paramètres</a></li>
+    <li><a href="{% url "zds.member.views.settings_profile" %}">{% trans "Paramètres" %}</a></li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Paramètres
+    {% trans "Paramètres" %}
 {% endblock %}
 
 
@@ -23,12 +23,12 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Navigation">
-            <h3>Navigation</h3>
+            <h3>{% trans "Navigation" %}</h3>
             <ul>
-                <li><a href="{% url "zds.member.views.settings_profile" %}">Mon profil</a></li>
-                <li><a href="{% url "zds.member.views.settings_account" %}">Compte</a></li>
-                <li><a href="{% url "zds.member.views.settings_user" %}">Pseudo et courriel</a></li>
-				<li><a href="{% url "zds.member.views.warning_unregister"%}">Se désinscrire</a></li>
+                <li><a href="{% url "zds.member.views.settings_profile" %}">{% trans "Mon profil" %}</a></li>
+                <li><a href="{% url "zds.member.views.settings_account" %}">{% trans "Compte" %}</a></li>
+                <li><a href="{% url "zds.member.views.settings_user" %}">{% trans "Pseudo et courriel" %}</a></li>
+				<li><a href="{% url "zds.member.views.warning_unregister" %}">{% trans "Se désinscrire" %}</a></li>
             </ul>
         </div>
     </aside>

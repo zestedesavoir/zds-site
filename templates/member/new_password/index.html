@@ -1,22 +1,22 @@
 {% extends "member/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Nouveau mot de passe
+    {% trans "Nouveau mot de passe" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Nouveau mot de passe
+    {% trans "Nouveau mot de passe" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Nouveau mot de passe</li>
+    <li>{% trans "Nouveau mot de passe" %}</li>
 {% endblock %}
 
 
@@ -27,10 +27,10 @@
             {{ error }}
         {% endif %}
         <p>
-            Renseignez votre nouveau mot de passe.
+            {% trans "Renseignez votre nouveau mot de passe" %}.
         </p>
         {% crispy form %}
     {% else %}
-        <p>Vous êtes connecté</p>
+        <p>{% trans "Vous êtes connecté" %}</p>
     {% endif %}
 {% endblock %}

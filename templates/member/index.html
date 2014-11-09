@@ -1,28 +1,28 @@
 {% extends "member/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Liste des membres
+    {% trans "Liste des membres" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des membres</li>
+    <li>{% trans "Liste des membres" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Liste des membres
+    {% trans "Liste des membres" %}
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement {{ count }} membres).
+        {% trans "Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement" %} {{ count }} {% trans "membres" %}).
     </p>
 
 

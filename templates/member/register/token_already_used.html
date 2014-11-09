@@ -1,28 +1,31 @@
 {% extends "member/register/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Compte déjà activé
+    {% trans "Compte déjà activé" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Compte déjà activé
+    {% trans "Compte déjà activé" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
-    <li>Déjà activé</li>
+    <li><a href="{% url "{% trans "zds.member.views.register_view" %}" %}">{% trans "Inscription" %}</a></li>
+    <li>{% trans "Déjà activé" %}</li>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Votre email a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver <a href="{% url "zds.member.views.forgot_password" %}">ici</a>.
+        {% url "zds.member.views.forgot_password" as url_forgot %}
+        {% blocktrans %}
+            Votre email a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver" %} <a href="{{url_forgot}}">ici</a>.
+        {% endblocktrans %}
     </p>
 {% endblock %}

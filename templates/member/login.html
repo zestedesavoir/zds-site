@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Connexion
+    {% trans "Connexion" %}
 {% endblock %}
 
 
 
 {# No sidebar on this page #}
-{% block body_class %}no-sidebar{% endblock %}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
 {% block sidebar %}{% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Connexion</li>
+    <li>{% trans "Connexion" %}</li>
 {% endblock %}
 
 
 
 {% block content_out %}
     <section class="small-content-wrapper">
-        <h1>Connexion</h1>
+        <h1>{% trans "Connexion" %}</h1>
 
         {% if not user.is_authenticated %}
             {% if error %}
@@ -33,15 +33,18 @@
             {% endif %}
 
             <p>
-                Si vous n'avez pas de compte, vous pouvez <a href="{% url "zds.member.views.register_view" %}" >vous inscrire</a>.
+                {% url "zds.member.views.register_view" as url_register %}
+                {% blocktrans %}
+                    Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
+                {% endblocktrans %}
             </p>
 
             {% crispy form %}
 
-            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">Mot de passe oublié ?</a>
+            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">{% trans "Mot de passe oublié" %} ?</a>
         {% else %}
             <p>
-                Vous êtes déjà connecté.
+                {% trans "Vous êtes déjà connecté" %}.
             </p>
         {% endif %}
     </section>
