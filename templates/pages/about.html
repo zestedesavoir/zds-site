@@ -1,58 +1,65 @@
 {% extends "pages/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    À propos
+    {% trans "À propos" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>À propos</li>
+    <li>{% trans "À propos" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>À propos</h1>
+    <h1>{% trans "À propos" %}</h1>
 {% endblock %}
 
 
 
 {% block content %}
 	<p>
-        Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{app.site.repository}}">contribuer au développement du site</a> !
+        {% blocktrans with repository=app.site.repository %}
+            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{repository}}">contribuer au développement du site</a> !
+        {% endblocktrans %}
     </p>
 
     <div>
         {% if app.site.licenses %}
             <div class="content-col-3">
-                <h3>Droits</h3>
+                <h3>{% trans "Droits" %}</h3>
                 {% if app.site.licenses.source %}
                     <p>
-                        {{app.site.litteral_name}} est un site donc le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_url }}">{{ app.site.licenses.source.provider_name }}</a>.
+                        {% blocktrans with site_name=app.site.litteral_name src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
+                            {{site_name}} est un site donc le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
+                        {% endblocktrans %}
                     </p>
                 {% endif %}
                 {% if app.site.licenses.logo %}
                     <p>
-                        <a href="#">Le logo de {{app.site.litteral_name}}</a> a été créé par {{ app.site.licenses.logo.author }} et est sous
-                    	<a rel="license" href="{{ app.site.licenses.logo.url_license }}" title="{{ app.site.licenses.logo.description }}">
-                            <img alt="{{ app.site.licenses.logo.title }}" src="{{ app.site.licenses.logo.url_image }}">
-                        </a>
-                        <img alt="Logo de {{ app.site.litteral_name }}" src="{{ app.site.url }}/static/images/logo-background.png">
+                        {% blocktrans with site_name=app.site.litteral_name author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
+                            <a href="#">Le logo de {{site_name}}</a> a été créé par {{ author_logo }} et est sous
+                            <a rel="license" href="{{ url_license }}">
+                            <img alt="{{ logo_title }}" src="{{ url_image }}">
+                    	    {{ logo_desc }}
+                            </a>
+                        {% endblocktrans %}
+                        <img alt="Logo de {{app.site.litteral_name}}" src="{{app.site.url}}/static/images/logo.png">
                     </p>
                 {% endif %}
             </div>
         {% endif %}
 
         <div class="content-col-3">
-            <h3>Système / Back-end</h3>
+            <h3>{% trans "Système / Back-end" %}</h3>
             <p>
-                Le Back-end est propulsé par les outils suivants :
+                {% trans "Le Back-end est propulsé par les outils suivants" %} :
             </p>
 
-            <h4>Site</h4>
+            <h4>{% trans "Site" %}</h4>
             <ul>
                 <li><a href="http://www.python.org/">Python 2.7</a></li>
                 <li><a href="https://www.djangoproject.com/">Django 1.6</a></li>
@@ -64,19 +71,19 @@
                 <li><a href="http://gunicorn.org/">Gunicorn</a></li>
             </ul>
 
-            <h4>Base de données</h4>
+            <h4>{% trans "Base de données" %}</h4>
             <ul>
                 <li><a href="http://www.mysql.com/">MySQL</a></li>
             </ul>
         </div>
 
         <div class="content-col-3">
-            <h3>Front-end</h3>
+            <h3>{% trans "Front-end" %}</h3>
             <p>
-                Le front-end utilise les outils suivants :
+                {% trans "Le front-end utilise les outils suivants" %} :
             </p>
 
-            <h4>Feuilles de style</h4>
+            <h4>{% trans "Feuilles de style" %}</h4>
             <ul>
                 <li><a href="http://necolas.github.io/normalize.css/">Normalize.css</a></li>
                 <li><a href="http://sass-lang.com/">SCSS</a></li>

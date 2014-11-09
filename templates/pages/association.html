@@ -1,57 +1,58 @@
 {% extends "pages/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    L'association {{app.site.association.name}}
+    {% trans "L'association" %} {{app.site.association.name}}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>L'association {{app.site.association.name}}</li>
+    <li>{% trans "L'association" %} {{app.site.association.name}}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>L'association {{app.site.association.name}}</h1>
+    <h1>{% trans "L'association" %} {{app.site.association.name}}</h1>
 {% endblock %}
 
 
 
 {% block content %}
-    <h3>Présentation de l'association</h3>
+    <h3>{% trans "Présentation de l'association" %}</h3>
     <p>
-        {{app.site.association.name}} est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
-        légale du site {{app.site.url}}, dont le but est de promouvoir le partage de connaissances à travers des
-        ressources pédagogiques gratuites et de préférence sous licence libre.
-        <a href="http://www.journal-officiel.gouv.fr/publications/assoc/pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf">Parue
-            au Journal officiel le 19 avril 2014</a>, l'association a tenu sa première assemblée générale le 15 mars
-        2014, au cours de laquelle ont été élus le bureau et le conseil d'administration en présence des
-        <strong>quatorze</strong> membres fondateurs.
+        {% blocktrans with asso_name=app.site.association.name site_url=app.site.url %}
+            {{asso_name}} est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
+            légale du site {{site_url}}, dont le but est de promouvoir le partage de connaissances à travers des
+            ressources pédagogiques gratuites et de préférence sous licence libre.
+            <a href="http://www.journal-officiel.gouv.fr/publications/assoc/pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf">
+                Parue au Journal officiel le 19 avril 2014</a>, l'association a tenu sa première assemblée générale le 15 mars
+            2014, au cours de laquelle ont été élus le bureau et le conseil d'administration en présence des <strong>quatorze</strong> membres fondateurs.
+        {% endblocktrans %}
     </p>
     <p>
-        Ces membres fondateurs sont tous des anciens membres très actifs du feu siteduzero, un site de diffusion de
-        connaissances et d'entraide. À la suite du changement de politique de ce dernier, ils ont décidé de recréer une
-        plateforme sur laquelle ils pourraient à nouveau s'entraider et partager convenablement leurs connaissances et
-        surtout retrouver l'esprit communautaire qu'ils aimaient tant.
+        {% trans "Ces membres fondateurs sont tous des anciens membres très actifs du feu siteduzero, un site de diffusion de connaissances et d'entraide. À la suite du changement de politique de ce dernier, ils ont décidé de recréer une plateforme sur laquelle ils pourraient à nouveau s'entraider et partager convenablement leurs connaissances et surtout retrouver l'esprit communautaire qu'ils aimaient tant" %}.
     </p>
     <p>
-        Voilà l'histoire de {{app.site.association.name}}.
+        {% blocktrans with asso_name=app.site.association.name %}
+            Voilà l'histoire de {{asso_name}}.
+        {% endblocktrans %}    
     </p>
 
-    <h3>L'association et le site</h3>
+    <h3>{% trans "L'association et le site" %}</h3>
     <p>
-        <strong>Adhérer à l'association ne vous apporte rien sur le site</strong>. L'adhésion n'est là que pour soutenir
-        le projet, et ne donne droit à aucun pouvoir ou badge supplémentaire. Elle ne donne même pas accès à un forum
-        secret, puisque le forum de l'association est public !
+        {% blocktrans %}
+            <strong>Adhérer à l'association ne vous apporte rien sur le site</strong>. L'adhésion n'est là que pour soutenir
+            le projet, et ne donne droit à aucun pouvoir ou badge supplémentaire. Elle ne donne même pas accès à un forum
+            secret, puisque le forum de l'association est public !
+        {% endblocktrans %}
     </p>
     <p>
-        De même, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionné à l'adhésion à
-        l'association.
+        {% trans "De même, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionné à l'adhésion à l'association" %}.
     </p>
     <p>
-        Notez que vous devez être inscrit pour pouvoir adhérer.
+        {% trans "Notez que vous devez être inscrit pour pouvoir adhérer" %}.
     </p>
 {% endblock %}

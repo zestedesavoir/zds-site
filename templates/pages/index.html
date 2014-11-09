@@ -1,34 +1,34 @@
 {% extends "pages/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Pages
+    {% trans "Pages" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des pages</li>
+    <li>{% trans "Liste des pages" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Pages</h1>
+    <h1>{% trans "Pages" %}</h1>
 {% endblock %}
 
 
 
 {% block content %}
     <ul>
-        <li><a href="{% url "zds.pages.views.eula" %}"><abbr title="Conditions générales d'utilisation">CGU</abbr></a></li>
-        <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
+        <li><a href="{% url "zds.pages.views.eula" %}"><abbr title='{% trans "Conditions générales d utilisation" %}'>{% trans "CGU" %}</abbr></a></li>
+        <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
         {% if app.site.association %}
-            <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+            <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
         {% endif %}
-        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
-        <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
-        <li><a href="{% url "zds.pages.views.cookies" %}">Les cookies</a></li>
+        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+        <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
+        <li><a href="{% url "zds.pages.views.cookies" %}">{% trans "Les cookies" %}</a></li>
     </ul>
 {% endblock %}
