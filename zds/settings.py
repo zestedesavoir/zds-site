@@ -353,7 +353,7 @@ ZDS_APP = {
 
 # TODO : add this in the good way when #1707 w'll by merged
 
-if DEBUG:
+if not DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 
 # Load the production settings, overwrite the existing ones if needed
