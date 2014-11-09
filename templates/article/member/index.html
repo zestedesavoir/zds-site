@@ -1,54 +1,54 @@
 {% extends "article/index.html" %}
-
+{% load i18n %}
 
 
 {% block title_base %}
-    &bull; Articles
+    &bull; {% trans "Articles" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     {% if request.GET.type == "public" %}
-        <li>Publiés</li>
+        <li>{% trans "Publiés" %}</li>
     {% elif request.GET.type == "validate" %}
-        <li>En validation</li>
+        <li>{% trans "En validation" %}</li>
     {% elif request.GET.type == "draft" %}
-        <li>Brouillons</li>
+        <li>{% trans "Brouillons" %}</li>
     {% else %}
-        <li>Tous mes articles</li>
+        <li>{% trans "Tous mes articles" %}</li>
     {% endif %}
 {% endblock %}
 
 
 
 {% block title %}
-    Mes Articles
+    {% trans "Mes Articles" %}
     {% if request.GET.type == "public" %}
-        / Publiés
+        / {% trans "Publiés" %}
     {% elif request.GET.type == "validate" %}
-        / En validation
+        / {% trans "En validation" %}
     {% elif request.GET.type == "draft" %}
-        / Brouillons
+        / {% trans "Brouillons" %}
     {% endif %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Mes Articles
+    {% trans "Mes Articles" %}
     {% if request.GET.type == "public" %}
-        / Publiés
+        / {% trans "Publiés" %}
     {% elif request.GET.type == "validate" %}
-        / En validation
+        / {% trans "En validation" %}
     {% elif request.GET.type == "draft" %}
-        / Brouillons
+        / {% trans "Brouillons" %}
     {% endif %}
 {% endblock %}
 
@@ -57,31 +57,31 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <a href="{% url "zds.article.views.new" %}" class="ico-after more blue new-btn">
-            Nouvel article
+            {% trans "Nouvel article" %}
         </a>
 
         <div class="mobile-menu-bloc mobile-all-links" data-title="Filtres">
-            <h3>Filtres</h3>
+            <h3>{% trans "Filtres" %}</h3>
             <ul>
                 <li>
                     <a href="{% url "zds.member.views.articles" %}?type=public" class="ico-after tick green {% if request.GET.type == "public" %}unread{% endif %}">
-                        Publiés
+                        {% trans "Publiés" %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url "zds.member.views.articles" %}?type=validate" class="ico-after tick {% if request.GET.type == "validate" %}unread{% endif %}">
-                        En validation
+                        {% trans "En validation" %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url "zds.member.views.articles" %}?type=draft" class="ico-after edit {% if request.GET.type == "draft" %}unread{% endif %}">
-                        Brouillons
+                        {% trans "Brouillons" %}
                     </a>
                 </li>
                 {% if request.GET.type %}
                     <li>
                         <a href="{% url "zds.member.views.articles" %}" class="ico-after cross">
-                            Annuler le filtre
+                            {% trans "Annuler le filtre" %}
                         </a>
                     </li>
                 {% endif %}
@@ -101,7 +101,7 @@
         </div>
     {% else %}
         <p>
-            Aucun article disponible.
+            {% trans "Aucun article disponible" %}.
         </p>
     {% endif %}
 {% endblock %}

@@ -1,23 +1,24 @@
 {% extends "article/base.html" %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Éditer une réponse
+    {% trans "Éditer une réponse" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_url_online }}">{{ article.title }}</a></li>
-    <li>Éditer une réponse</a></li>
+    <li>{% trans "Éditer une réponse" %}</a></li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Editer une réponse à l'article : {{article.title}}
+    {% trans "Éditer une réponse à l'article" %} : {{article.title}}
 {% endblock %}
 
 

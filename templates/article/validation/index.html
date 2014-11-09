@@ -1,40 +1,40 @@
 {% extends "article/base.html" %}
 {% load date %}
 {% load captureas %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Liste des articles soumis en validation
+    {% trans "Liste des articles soumis en validation" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.article.views.list_validation" %}">Validation</a></li>
-    <li>Liste des articles</li>
+    <li><a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation" %}</a></li>
+    <li>{% trans "Liste des articles" %}</li>
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
-        <h3>Filtres</h3>
+        <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
                 <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
-                    En cours de validation
+                    {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
-                    En attente de validateur
+                    {% trans "En attente de validateur" %}
                 </a>
             </li>
             {% if request.GET.type %}
                 <li>
                     <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
-                        Annuler le filtre
+                        {% trans "Annuler le filtre" %}
                     </a>
                 </li>
             {% endif %}
@@ -48,7 +48,7 @@
     <section class="full-content-wrapper">
         <h2>
             {% block headline %}
-                Validation des articles
+                {% trans "Validation des articles" %}
                 ({{ validations|length }})
             {% endblock %}
         </h2>
@@ -58,10 +58,10 @@
                 <table class="fullwidth">
                     <thead>
                         <tr>
-                            <th>Titre</th>
-                            <th width="10%">Auteur(s)</th>
-                            <th width="10%">Proposé</th>
-                            <th width="24%">Statut</th>
+                            <th>{% trans "Titre" %}</th>
+                            <th width="10%">{% trans "Auteur(s)" %}</th>
+                            <th width="10%">{% trans "Proposé" %}</th>
+                            <th width="24%">{% trans "Statut" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,7 +73,7 @@
                                     </a>
                                     <br>
                                     {% if validation.article.subcategory.all %}
-                                        Catégories : 
+                                        {% trans "Catégories" %} : 
                                         {% for subcategory in validation.article.subcategory.all %}
                                             {% if not forloop.first %}
                                                 -
@@ -82,7 +82,7 @@
                                                 {{ subcategory.title }}</a>
                                         {% endfor %}
                                     {% else %}
-                                        <em>Aucune catégorie</em>
+                                        <em>{% trans "Aucune catégorie" %}</em>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -105,7 +105,7 @@
                 </table>
             {% else %}
                 <p>
-                    Aucun article soumis en validation.
+                    {% trans "Aucun article soumis en validation" %}.
                 </p>
             {% endif %}
         {% endblock %}

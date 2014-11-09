@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title_base %}
-    &bull; Articles
+    &bull; {% trans "Articles" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    Articles
+    {% trans "Articles" %}
 {% endblock %}
 
 
@@ -17,7 +17,7 @@
 {% block breadcrumb_base %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a href="{% url "zds.article.views.index" %}" itemprop="url">
-            <span itemprop="title">Articles</span>
+            <span itemprop="title">{% trans "Articles" %}</span>
         </a>
     </li>
 {% endblock %}
