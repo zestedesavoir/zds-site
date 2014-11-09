@@ -9,7 +9,7 @@ Actions à faire pour mettre en prod la version : v1.2
 Issue #1520
 -----------
 
-Dans le `settings_prod.py`
+Dans le `settings_prod.py` :
 
 - Remplacer `SITE_URL = 'http://zestedesavoir.com'` par `ZDS_APP['site']['url'] = 'http://zestedesavoir.com'`
 - Remplacer `ANONYMOUS_USER = "anonyme"` par `ZDS_APP['member']['anonymous_account'] = 'anonyme'`
@@ -40,3 +40,8 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 
 Actions à faire pour mettre en prod la version : v1.3
 =====================================================
+
+Issue #1707
+-----------
+
+Dans le `settings_prod.py` il faut remplacer `MEDIA_ROOT` par `BASE_DIR`.
