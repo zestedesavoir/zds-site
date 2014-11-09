@@ -416,8 +416,7 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render_template('article/member/index.html',
-                           {'articles': user_articles, 'type': tpe})
+    return render_template('article/member/index.html', {'articles': user_articles, 'type': state})
 
 
 # settings for public profile
