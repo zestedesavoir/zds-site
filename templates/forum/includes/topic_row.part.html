@@ -1,5 +1,6 @@
 {% load date %}
 {% load profile %}
+{% load i18n %}
 
 
 
@@ -10,13 +11,13 @@
 
     <div class="topic-infos">
         {% if topic.is_sticky %}
-            <span class="ico-after pin blue">[Epinglé]</span>
+            <span class="ico-after pin blue">[{% trans "Epinglé" %}]</span>
         {% endif %}
         {% if topic.is_solved %}
-            <span class="ico-after tick green">[Résolu]</span>
+            <span class="ico-after tick green">[{% trans "Résolu" %}]</span>
         {% endif %}
         {% if topic.is_locked %}
-            <span class="ico-after lock blue">[Fermé]</span>
+            <span class="ico-after lock blue">[{% trans "Fermé" %}]</span>
         {% endif %}
     </div>
     {% with profile=topic.author|profile %}
@@ -37,7 +38,7 @@
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>
             <span class="topic-members">
-                <span class="topic-members-label">Par</span>
+                <span class="topic-members-label">{% trans "Par" %}</span>
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
@@ -56,7 +57,7 @@
     {% with nb_post=topic.get_post_count %}
         <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
             {% if nb_post > 1 %}
-                {{ nb_post|add:"-1" }} réponse{{ nb_post|add:"-1"|pluralize }}
+                {{ nb_post|add:"-1" }} {% trans "réponse" %}{{ nb_post|add:"-1"|pluralize }}
             {% endif %}
         </p>
     {% endwith %}
@@ -65,7 +66,7 @@
             {% if answer %}
                 <a href="{{ last_read.get_absolute_url }}">
                     <span class="topic-last-answer-long-date">
-                        Dernière réponse <br>
+                        {% trans "Dernière réponse" %} <br>
                         {{ answer.pubdate|format_date|capfirst }}
                     </span>
                     <span class="topic-last-answer-short-date">
@@ -74,11 +75,11 @@
                 </a>
                 <br>
                 <span class="topic-last-answer-author">
-                    par
+                    {% trans "par" %}
                     {% include "misc/member_item.part.html" with member=answer.author %}
                 </span>
             {% else %}
-                <span class="topic-no-last-answer">Aucune réponse</span>
+                <span class="topic-no-last-answer">{% trans "Aucune réponse" %}</span>
             {% endif %}
         {% endwith %}
     </p>
