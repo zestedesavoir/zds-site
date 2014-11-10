@@ -44,4 +44,4 @@ Actions à faire pour mettre en prod la version : v1.3
 Issue #1707
 -----------
 
-Dans le `settings_prod.py` il faut remplacer `MEDIA_ROOT` par `BASE_DIR`.
+Dans le `settings_prod.py` il faut remplacer `SITE_ROOT` par `BASE_DIR`.
