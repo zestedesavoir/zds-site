@@ -49,6 +49,8 @@ class ForumMemberTests(TestCase):
             password='hostel77')
         self.assertEqual(log, True)
 
+        settings.ZDS_APP['member']['bot_account'] = ProfileFactory().user.username
+
     def feed_rss_display(self):
         """Test each rss feed feed"""
         response = self.client.get(reverse('post-feed-rss'), follow=False)
@@ -312,7 +314,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_signal_post(self):
-        """To test when a member quote anyone post."""
+        """To test when a member signal a post."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         PostFactory(topic=topic1, author=self.user, position=1)
@@ -332,6 +334,69 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Alert.objects.all().count(), 1)
         self.assertEqual(Alert.objects.filter(author=self.user).count(), 1)
         self.assertEqual(Alert.objects.get(author=self.user).text, u'Troll')
+
+        # and test that staff can solve but not user
+        alert = Alert.objects.get(comment=post2.pk)
+        # try as a normal user
+        result = self.client.post(
+            reverse('zds.forum.views.solve_alert'),
+            {
+                'alert_pk': alert.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        # login as staff
+        staff1 = StaffProfileFactory().user
+        self.assertEqual(
+            self.client.login(
+                username=staff1.username,
+                password='hostel77'),
+            True)
+        # try again as staff
+        result = self.client.post(
+            reverse('zds.forum.views.solve_alert'),
+            {
+                'alert_pk': alert.pk,
+                'text': u'Everything is Ok kid'
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 0)
+
+    def test_signal_and_solve_alert_empty_message(self):
+        """To test when a member signal a post and staff solve it."""
+        user1 = ProfileFactory().user
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        PostFactory(topic=topic1, author=self.user, position=1)
+        post2 = PostFactory(topic=topic1, author=user1, position=2)
+        PostFactory(topic=topic1, author=user1, position=3)
+
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') +
+            '?message={0}'.format(post2.pk),
+            {
+                'signal_text': u'Troll',
+                'signal_message': 'confirmer'
+            },
+            follow=False)
+
+        alert = Alert.objects.get(comment=post2.pk)
+        # login as staff
+        staff1 = StaffProfileFactory().user
+        self.assertEqual(
+            self.client.login(
+                username=staff1.username,
+                password='hostel77'),
+            True)
+        # try again as staff
+        result = self.client.post(
+            reverse('zds.forum.views.solve_alert'),
+            {
+                'alert_pk': alert.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.all().count(), 0)
 
     def test_like_post(self):
         """Test when a member like any post."""
