@@ -308,9 +308,9 @@ def answer(request):
                 g_topic.save()
 
                 # send email
-                subject = "{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], g_topic.title)
-                from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                              settings.ZDS_APP['site']['email_noreply'])
+                subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], g_topic.title)
+                from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                               settings.ZDS_APP['site']['email_noreply'])
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)
