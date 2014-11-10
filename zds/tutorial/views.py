@@ -2908,7 +2908,12 @@ def download(request):
     except ValueError:
         # if not, check if it's int + '/' (nginx bug ?)
         try:
-            tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'][:-1])
+            # chek if "tutoriel" is not empty
+            tuto = request.GET['tutoriel']
+            if tuto != '' and tuto[-1:] == '/':
+                tutorial = get_object_or_404(Tutorial, pk=request.GET['tutoriel'][:-1])
+            else:
+                raise Http404
         except ValueError:
             raise Http404
 

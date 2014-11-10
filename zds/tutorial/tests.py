@@ -2295,6 +2295,14 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 404)
 
+        # check if 404 when we add a char != '/' at the end of URL
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}a'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
         # 2. online version :
         result = self.client.get(
             reverse('zds.tutorial.views.download') +
