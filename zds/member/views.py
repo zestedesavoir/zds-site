@@ -41,7 +41,7 @@ from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
-
+from django.utils.translation import ugettext as _
 
 def index(request):
     """Displays the list of registered users."""
@@ -109,7 +109,7 @@ def unregister(request):
             if tuto.in_beta():
                 beta_topic = Topic.objects.get(key=tuto.pk)
                 first_post = beta_topic.first_post()
-                first_post.update_content(u'# Le tutoriel présenté par ce topic n\'existe plus.')
+                first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
             tuto.delete_entity_and_tree()
         else:
             if tuto.authors.count() == 1:
@@ -195,7 +195,7 @@ def details(request, user_name):
     # refresh moderation chart
 
     dot_chart = pygal.Dot(x_label_rotation=30)
-    dot_chart.title = u"Messages postés par période"
+    dot_chart.title = _(u"Messages postés par période")
     dot_chart.x_labels = [
         u"Dimanche",
         u"Lundi",
@@ -278,87 +278,87 @@ def modify_profile(request, user_pk):
         ban.pubdate = datetime.now()
         if "ls" in request.POST:
             profile.can_write = False
-            ban.type = u"Lecture Seule"
+            ban.type = _(u"Lecture Seule")
             ban.text = request.POST["ls-text"]
-            detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                      u'commentaires d\'articles et de tutoriels.')
+            detail = (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
+                      u'commentaires d\'articles et de tutoriels.'))
         if "ls-temp" in request.POST:
-            ban.type = u"Lecture Seule Temporaire"
+            ban.type = _(u"Lecture Seule Temporaire")
             ban.text = request.POST["ls-temp-text"]
             profile.can_write = False
             profile.end_ban_write = datetime.now() \
                 + timedelta(days=int(request.POST["ls-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                      u'commentaires d\'articles et de tutoriels pendant {0} jours.'
+            detail = (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
+                      u'commentaires d\'articles et de tutoriels pendant {0} jours.')
                       .format(request.POST["ls-jrs"]))
         if "ban-temp" in request.POST:
-            ban.type = u"Ban Temporaire"
+            ban.type = _(u"Ban Temporaire")
             ban.text = request.POST["ban-temp-text"]
             profile.can_read = False
             profile.end_ban_read = datetime.now() \
                 + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
                             minutes=0, seconds=0)
-            detail = (u'Vous ne pouvez plus vous connecter sur {} '
-                      u'pendant {} jours.'.format(settings.ZDS_APP['site']['litteral_name'],
-                                                  request.POST["ban-jrs"]))
+            detail = (_(u'Vous ne pouvez plus vous connecter sur {} '
+                      u'pendant {} jours.').format(settings.ZDS_APP['site']['litteral_name'],
+                                                   request.POST["ban-jrs"]))
             logout_user(profile.user.username)
 
         if "ban" in request.POST:
-            ban.type = u"Ban définitif"
+            ban.type = _(u"Ban définitif")
             ban.text = request.POST["ban-text"]
             profile.can_read = False
-            detail = u"vous ne pouvez plus vous " \
-                     u"connecter sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+            detail = _(u"vous ne pouvez plus vous "
+                       u"connecter sur {}.").format(settings.ZDS_APP['site']['litteral_name'])
             logout_user(profile.user.username)
         if "un-ls" in request.POST:
-            ban.type = u"Autorisation d'écrire"
+            ban.type = _(u"Autorisation d'écrire")
             ban.text = request.POST["unls-text"]
             profile.can_write = True
-            detail = (u'Vous pouvez désormais poster sur les forums, dans les '
-                      u'commentaires d\'articles et tutoriels.')
+            detail = (_(u'Vous pouvez désormais poster sur les forums, dans les '
+                      u'commentaires d\'articles et tutoriels.'))
         if "un-ban" in request.POST:
-            ban.type = u"Autorisation de se connecter"
+            ban.type = _(u"Autorisation de se connecter")
             ban.text = request.POST["unban-text"]
             profile.can_read = True
-            detail = u"vous pouvez désormais vous connecter sur le site."
+            detail = _(u"vous pouvez désormais vous connecter sur le site.")
         profile.save()
         ban.save()
 
         # send register message
 
         if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = (u'Bonjour **{0}**,\n\n'
-                   u'**Bonne Nouvelle**, la sanction qui '
-                   u'pesait sur vous a été levée par **{1}**.\n\n'
-                   u'Ce qui signifie que {2}\n\n'
-                   u'Le motif de votre sanction est :\n\n'
-                   u'> {3}\n\n'
-                   u'Cordialement, L\'équipe {4}.'
-                   .format(ban.user,
-                           ban.moderator,
-                           detail,
-                           ban.text,
-                           settings.ZDS_APP['site']['litteral_name']))
+            msg = _(u'Bonjour **{0}**,\n\n'
+                    u'**Bonne Nouvelle**, la sanction qui '
+                    u'pesait sur vous a été levée par **{1}**.\n\n'
+                    u'Ce qui signifie que {2}\n\n'
+                    u'Le motif de votre sanction est :\n\n'
+                    u'> {3}\n\n'
+                    u'Cordialement, L\'équipe {4}.')\
+                .format(ban.user,
+                        ban.moderator,
+                        detail,
+                        ban.text,
+                        settings.ZDS_APP['site']['litteral_name'])
         else:
-            msg = (u'Bonjour **{0}**,\n\n'
-                   u'Vous avez été santionné par **{1}**.\n\n'
-                   u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
-                   u'Le motif de votre sanction est :\n\n'
-                   u'> {4}\n\n'
-                   u'Cordialement, L\'équipe {5}.'
-                   .format(ban.user,
-                           ban.moderator,
-                           ban.type,
-                           detail,
-                           ban.text,
-                           settings.ZDS_APP['site']['litteral_name']))
+            msg = _(u'Bonjour **{0}**,\n\n'
+                    u'Vous avez été santionné par **{1}**.\n\n'
+                    u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
+                    u'Le motif de votre sanction est :\n\n'
+                    u'> {4}\n\n'
+                    u'Cordialement, L\'équipe {5}.')\
+                .format(ban.user,
+                        ban.moderator,
+                        ban.type,
+                        detail,
+                        ban.text,
+                        settings.ZDS_APP['site']['litteral_name'])
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             [ban.user],
             ban.type,
-            "Sanction",
+            _("Sanction"),
             msg,
             True,
             direct=True,
@@ -453,7 +453,7 @@ def settings_mini_profile(request, user_name):
                 return redirect(reverse("zds.member.views.settings_mini_profil"
                                         "e"))
             messages.success(request,
-                             u"Le profil a correctement été mis à jour.")
+                             _(u"Le profil a correctement été mis à jour."))
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
@@ -499,10 +499,10 @@ def settings_profile(request):
             try:
                 profile.save()
             except:
-                messages.error(request, u"Une erreur est survenue.")
+                messages.error(request, _(u"Une erreur est survenue."))
                 return redirect(reverse("zds.member.views.settings_profile"))
             messages.success(request,
-                             u"Le profil a correctement été mis à jour.")
+                             _(u"Le profil a correctement été mis à jour."))
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
             return render_template("member/settings/profile.html", c)
@@ -536,9 +536,9 @@ def update_avatar(request):
         try:
             profile.save()
         except:
-            messages.error(request, u"Une erreur est survenue.")
+            messages.error(request, _(u"Une erreur est survenue."))
             return redirect(reverse("zds.member.views.settings_profile"))
-        messages.success(request, u"L'avatar a correctement été mis à jour.")
+        messages.success(request, _(u"L'avatar a correctement été mis à jour."))
 
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
@@ -556,11 +556,11 @@ def settings_account(request):
             try:
                 request.user.set_password(form.data["password_new"])
                 request.user.save()
-                messages.success(request, u"Le mot de passe a bien été modifié."
+                messages.success(request, _(u"Le mot de passe a bien été modifié.")
                                  )
                 return redirect(reverse("zds.member.views.settings_account"))
             except:
-                messages.error(request, u"Une erreur est survenue.")
+                messages.error(request, _(u"Une erreur est survenue."))
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
             return render_template("member/settings/account.html", c)
@@ -630,18 +630,18 @@ def login_view(request):
                         return redirect(reverse("zds.pages.views.home"))
                 else:
                     messages.error(request,
-                                   u"Vous n'êtes pas autorisé à vous connecter "
-                                   u"sur le site, vous avez été banni par un "
-                                   u"modérateur.")
+                                   _(u"Vous n'êtes pas autorisé à vous connecter "
+                                     u"sur le site, vous avez été banni par un "
+                                     u"modérateur."))
             else:
                 messages.error(request,
-                               u"Vous n'avez pas encore activé votre compte, "
-                               u"vous devez le faire pour pouvoir vous "
-                               u"connecter sur le site. Regardez dans vos "
-                               u"mails : {}.".format(user.email))
+                               _(u"Vous n'avez pas encore activé votre compte, "
+                                 u"vous devez le faire pour pouvoir vous "
+                                 u"connecter sur le site. Regardez dans vos "
+                                 u"mails : {}.").format(user.email))
         else:
             messages.error(request,
-                           u"Les identifiants fournis ne sont pas valides.")
+                           _(u"Les identifiants fournis ne sont pas valides."))
     form = LoginForm()
     form.helper.form_action = reverse("zds.member.views.login_view")
     if next_page is not None:
@@ -693,7 +693,7 @@ def register_view(request):
 
             # send email
 
-            subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+            subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/register/confirm.html").render(Context(
@@ -734,7 +734,7 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = "{} - Mot de passe oublié".format(settings.ZDS_APP['site']['abbr'])
+            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['abbr'])
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
@@ -806,7 +806,7 @@ def active_account(request):
     # send register message
 
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-    msg = (
+    msg = _(
         u'Bonjour **{0}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
@@ -832,18 +832,18 @@ def active_account(request):
         u'En espérant que tu te plairas ici, '
         u'je te laisse maintenant faire un petit tour.'
         u'\n\n'
-        u'Clem\''
+        u'Clem\'')\
         .format(usr.username,
                 settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
                 settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
                 settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
                 settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
-                settings.ZDS_APP['site']['litteral_name']))
+                settings.ZDS_APP['site']['litteral_name'])
     send_mp(
         bot,
         [usr],
-        u"Bienvenue sur {}".format(settings.ZDS_APP['site']['name']),
-        u"Le manuel du nouveau membre",
+        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['name']),
+        _(u"Le manuel du nouveau membre"),
         msg,
         True,
         True,
@@ -872,7 +872,7 @@ def generate_token_account(request):
 
     # send email
 
-    subject = "{} - Confirmation d'inscription".format(settings.ZDS_APP['site']['abbr'])
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
     from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     message_html = get_template("email/register/confirm.html"
@@ -933,8 +933,8 @@ def add_oldtuto(request):
     profile.sdz_tutorial = last
     profile.save()
     messages.success(request,
-                     u'Le tutoriel a bien été lié au '
-                     u'membre {0}.'.format(profile.user.username))
+                     _(u'Le tutoriel a bien été lié au '
+                       u'membre {0}.').format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
 
@@ -965,8 +965,8 @@ def remove_oldtuto(request):
     profile.save()
 
     messages.success(request,
-                     u'Le tutoriel a bien été retiré '
-                     u'au membre {0}.'.format(profile.user.username))
+                     _(u'Le tutoriel a bien été retiré '
+                       u'au membre {0}.').format(profile.user.username))
     return redirect(reverse("zds.member.views.details",
                             args=[profile.user.username]))
 
@@ -993,12 +993,12 @@ def settings_promote(request, user_pk):
                 if unicode(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
-                        messages.success(request, u'{0} appartient maintenant au groupe {1}.'
+                        messages.success(request, _(u'{0} appartient maintenant au groupe {1}.')
                                          .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
-                        messages.warning(request, u'{0} n\'appartient maintenant plus au groupe {1}.'
+                        messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
                         topics_followed = Topic.objects.filter(topicfollowed__user=user,
                                                                forum__group=group)
@@ -1011,53 +1011,53 @@ def settings_promote(request, user_pk):
                 for topic in topics_followed:
                     follow(topic, user)
             user.groups.clear()
-            messages.warning(request, u'{0} n\'appartient (plus ?) à aucun groupe.'
+            messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
         if 'superuser' in data and u'on' in data['superuser']:
             if not user.is_superuser:
                 user.is_superuser = True
-                messages.success(request, u'{0} est maintenant super-utilisateur.'
+                messages.success(request, _(u'{0} est maintenant super-utilisateur.')
                                  .format(user.username))
         else:
             if user == request.user:
-                messages.error(request, u'Un super-utilisateur ne peux pas se retirer des super-utilisateurs.')
+                messages.error(request, _(u'Un super-utilisateur ne peux pas se retirer des super-utilisateurs.'))
             else:
                 if user.is_superuser:
                     user.is_superuser = False
-                    messages.warning(request, u'{0} n\'est maintenant plus super-utilisateur.'
+                    messages.warning(request, _(u'{0} n\'est maintenant plus super-utilisateur.')
                                      .format(user.username))
 
         if 'activation' in data and u'on' in data['activation']:
             user.is_active = True
-            messages.success(request, u'{0} est maintenant activé.'
+            messages.success(request, _(u'{0} est maintenant activé.')
                              .format(user.username))
         else:
             user.is_active = False
-            messages.warning(request, u'{0} est désactivé.'
+            messages.warning(request, _(u'{0} est désactivé.')
                              .format(user.username))
 
         user.save()
 
         usergroups = user.groups.all()
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = (u'Bonjour {0},\n\n'
-               u'Un administrateur vient de modifier les groupes '
-               u'auxquels vous appartenez.  \n'.format(user.username))
+        msg = _(u'Bonjour {0},\n\n'
+                u'Un administrateur vient de modifier les groupes '
+                u'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg += u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'
+            msg += _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n')
             for group in usergroups:
                 msg += u'* {0}\n'.format(group.name)
         else:
-            msg += u'* Vous ne faites partie d\'aucun groupe'
+            msg += _(u'* Vous ne faites partie d\'aucun groupe')
         msg += u'\n\n'
         if user.is_superuser:
-            msg += (u'Vous avez aussi rejoint le rang des super utilisateurs. '
-                    u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+            msg += _(u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                     u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
         send_mp(
             bot,
             [user],
-            u'Modification des groupes',
+            _(u'Modification des groupes'),
             u'',
             msg,
             True,

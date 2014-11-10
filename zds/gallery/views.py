@@ -26,6 +26,7 @@ import zipfile
 import shutil
 import os
 from django.db import transaction
+from django.utils.translation import ugettext as _
 
 
 @login_required
@@ -109,7 +110,7 @@ def modify_gallery(request):
                 gallery = Gallery.objects.get(pk=g_pk)
                 messages.error(
                     request,
-                    u"La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant.".format(
+                    _(u"La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant.").format(
                         gallery.title))
             else:
                 free_galleries.append(g_pk)
@@ -204,11 +205,11 @@ def edit_image(request, gal_pk, img_pk):
         if form.is_valid():
             if "physical" in request.FILES:
                 if request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(request, u"Votre image est beaucoup trop lourde, "
-                                            u"réduisez sa taille à moins de {} "
-                                            u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                            u"avant de l'envoyer.".format(
-                                                str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
+                    messages.error(request, _(u"Votre image est beaucoup trop lourde, "
+                                              u"réduisez sa taille à moins de {} "
+                                              u"<abbr title=\"kibioctet\">Kio</abbr> "
+                                              u"avant de l'envoyer.").format(
+                                                  str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
                 else:
                     img.title = request.POST["title"]
                     img.legend = request.POST["legend"]
@@ -360,10 +361,10 @@ def import_image(request, gal_pk):
                 title = os.path.basename(i)
                 # if size is too large don't save
                 if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(request, u"Votre image est beaucoup trop lourde, "
-                                            u"réduisez sa taille à moins de {} "
-                                            u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                            u"avant de l'envoyer.".format(
+                    messages.error(request, _(u"Votre image est beaucoup trop lourde, "
+                                              u"réduisez sa taille à moins de {} "
+                                              u"<abbr title=\"kibioctet\">Kio</abbr> "
+                                              u"avant de l'envoyer.").format(
                                                 str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
                     continue
                 # if it's not an image, pass
