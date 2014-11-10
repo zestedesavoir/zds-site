@@ -3308,7 +3308,7 @@ def solve_alert(request):
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     note = Note.objects.get(pk=alert.comment.id)
 
-    if request.POST["text"] != "":
+    if "text" in request.POST and request.POST["text"] != "":
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = \
             (u'Bonjour {0},'
