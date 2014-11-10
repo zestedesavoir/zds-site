@@ -8,20 +8,21 @@ from django.core.urlresolvers import reverse
 
 from zds.mp.models import PrivateTopic
 from zds.utils.forms import CommonLayoutEditor
+from django.utils.translation import ugettext_lazy as _
 
 
 class PrivateTopicForm(forms.Form):
     participants = forms.CharField(
-        label='Participants',
+        label=_('Participants'),
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Les participants doivent '
-                u'être séparés par une virgule.',
+                'placeholder': _(u'Les participants doivent '
+                u'être séparés par une virgule.'),
                 'required': 'required',
                 'data-autocomplete': '{ "type": "multiple" }'}))
 
     title = forms.CharField(
-        label='Titre',
+        label=_('Titre'),
         max_length=PrivateTopic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
@@ -31,7 +32,7 @@ class PrivateTopicForm(forms.Form):
     )
 
     subtitle = forms.CharField(
-        label='Sous-titre',
+        label=_('Sous-titre'),
         max_length=PrivateTopic._meta.get_field('subtitle').max_length,
         required=False
     )
@@ -41,7 +42,7 @@ class PrivateTopicForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': 'Votre message au format Markdown.',
+                'placeholder': _('Votre message au format Markdown.'),
                 'required': 'required'
             }
         )
@@ -70,25 +71,25 @@ class PrivateTopicForm(forms.Form):
 
         if participants is not None and participants.strip() == '':
             self._errors['participants'] = self.error_class(
-                [u'Le champ participants ne peut être vide'])
+                [_(u'Le champ participants ne peut être vide')])
 
         if participants is not None and participants.strip() != '':
             receivers = participants.strip().split(',')
             for receiver in receivers:
                 if User.objects.filter(username__exact=receiver.strip()).count() == 0 and receiver.strip() != '':
                     self._errors['participants'] = self.error_class(
-                        [u'Un des participants saisi est introuvable'])
+                        [_(u'Un des participants saisi est introuvable')])
                 elif receiver.strip().lower() == self.username.lower():
                     self._errors['participants'] = self.error_class(
-                        [u'Vous ne pouvez pas vous écrire à vous-même !'])
+                        [_(u'Vous ne pouvez pas vous écrire à vous-même !')])
 
         if title is not None and title.strip() == '':
             self._errors['title'] = self.error_class(
-                [u'Le champ titre ne peut être vide'])
+                [_(u'Le champ titre ne peut être vide')])
 
         if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class(
-                [u'Le champ text ne peut être vide'])
+                [_(u'Le champ text ne peut être vide')])
 
         return cleaned_data
 
@@ -98,7 +99,7 @@ class PrivatePostForm(forms.Form):
         label='',
         widget=forms.Textarea(
             attrs={
-                'placeholder': 'Votre message au format Markdown.',
+                'placeholder': _('Votre message au format Markdown.'),
                 'required': 'required'
             }
         )
@@ -119,8 +120,8 @@ class PrivatePostForm(forms.Form):
         if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Vous êtes seul dans cette conversation, '
-                u'vous ne pouvez plus y écrire.',
+                placeholder=_(u'Vous êtes seul dans cette conversation, '
+                u'vous ne pouvez plus y écrire.'),
                 disabled=True)
 
     def clean(self):
@@ -130,6 +131,6 @@ class PrivatePostForm(forms.Form):
 
         if text is not None and text.strip() == '':
             self._errors['text'] = self.error_class(
-                [u'Le champ text ne peut être vide'])
+                [_(u'Le champ text ne peut être vide')])
 
         return cleaned_data
