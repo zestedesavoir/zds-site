@@ -43,6 +43,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 from django.utils.translation import ugettext as _
 
+
 def index(request):
     """Displays the list of registered users."""
 

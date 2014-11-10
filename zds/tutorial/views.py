@@ -542,7 +542,7 @@ def delete_tutorial(request, tutorial_pk):
                       action="del")
         messages.success(request,
                          _(u'Le tutoriel {0} a bien '
-                         u'été supprimé.').format(tutorial.title))
+                           u'été supprimé.').format(tutorial.title))
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)
@@ -595,7 +595,7 @@ def modify_tutorial(request):
             ug.save()
             messages.success(request,
                              _(u'L\'auteur {0} a bien été ajouté à la rédaction '
-                             u'du tutoriel.').format(author.username))
+                               u'du tutoriel.').format(author.username))
 
             # send msg to new author
 
@@ -679,15 +679,15 @@ def modify_tutorial(request):
                     .first()
                 msg = \
                     (_(u'Bonjour à tous,\n\n'
-                     u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
-                     u'J\'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
-                     u'sur la forme, afin de proposer en validation un texte de qualité.'
-                     u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
-                     u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
-                     u'\n\nMerci d\'avance pour votre aide').format(
-                         naturaltime(tutorial.create_at),
-                         tutorial.title,
-                         settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
+                       u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                       u'J\'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                       u'sur la forme, afin de proposer en validation un texte de qualité.'
+                       u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
+                       u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                       u'\n\nMerci d\'avance pour votre aide').format(
+                           naturaltime(tutorial.create_at),
+                           tutorial.title,
+                           settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
 
@@ -702,14 +702,14 @@ def modify_tutorial(request):
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     private_mp = \
                         (_(u'Bonjour {},\n\n'
-                         u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
-                         u'pourra le consulter afin de vous faire des retours '
-                         u'constructifs avant sa soumission en validation.\n\n'
-                         u'Un sujet dédié pour la beta de votre tutoriel a été '
-                         u'crée dans le forum et est accessible [ici]({})').format(
-                             request.user.username,
-                             tutorial.title,
-                             settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
+                           u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                           u'pourra le consulter afin de vous faire des retours '
+                           u'constructifs avant sa soumission en validation.\n\n'
+                           u'Un sujet dédié pour la beta de votre tutoriel a été '
+                           u'crée dans le forum et est accessible [ici]({})').format(
+                               request.user.username,
+                               tutorial.title,
+                               settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
                     send_mp(
                         bot,
                         [request.user],
@@ -721,11 +721,11 @@ def modify_tutorial(request):
                 else:
                     msg_up = \
                         (_(u'Bonjour,\n\n'
-                         u'La beta du tutoriel est de nouveau active.'
-                         u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
-                         u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                  settings.ZDS_APP['site']['url']
-                                                                  + tutorial.get_absolute_url_beta()))
+                           u'La beta du tutoriel est de nouveau active.'
+                           u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                           u'\n\nMerci pour vos relectures').format(tutorial.title,
+                                                                    settings.ZDS_APP['site']['url']
+                                                                    + tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
 
@@ -741,15 +741,15 @@ def modify_tutorial(request):
                                              forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
                 msg = \
                     (_(u'Bonjour à tous,\n\n'
-                     u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
-                     u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
-                     u'sur la forme, afin de proposer en validation un texte de qualité.'
-                     u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
-                     u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
-                     u'\n\nMerci d\'avance pour votre aide').format(
-                         naturaltime(tutorial.create_at),
-                         tutorial.title,
-                         settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
+                       u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+                       u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+                       u'sur la forme, afin de proposer en validation un texte de qualité.'
+                       u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
+                       u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+                       u'\n\nMerci d\'avance pour votre aide').format(
+                           naturaltime(tutorial.create_at),
+                           tutorial.title,
+                           settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
 
@@ -763,11 +763,11 @@ def modify_tutorial(request):
                 else:
                     msg_up = \
                         (_(u'Bonjour, !\n\n'
-                         u'La beta du tutoriel a été mise à jour.'
-                         u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
-                         u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                  settings.ZDS_APP['site']['url']
-                                                                  + tutorial.get_absolute_url_beta()))
+                           u'La beta du tutoriel a été mise à jour.'
+                           u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                           u'\n\nMerci pour vos relectures').format(tutorial.title,
+                                                                    settings.ZDS_APP['site']['url']
+                                                                    + tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
                 messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
@@ -2780,10 +2780,10 @@ def maj_repo_chapter(
             if old_slug_path != new_slug_path:
                 os.rename(old_slug_path, new_slug_path)
             if chapter.tutorial:
-                msg = _(u"Modification du tutoriel «{}» " \
+                msg = _(u"Modification du tutoriel «{}» "
                         u"{} {}").format(chapter.tutorial.title, get_sep(msg), get_text_is_empty(msg)).strip()
             else:
-                msg = _(u"Modification du chapitre «{}» " \
+                msg = _(u"Modification du chapitre «{}» "
                         u"{} {}").format(chapter.title, get_sep(msg), get_text_is_empty(msg)).strip()
         elif action == "add":
             if not os.path.exists(new_slug_path):
@@ -3348,16 +3348,16 @@ def solve_alert(request):
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = \
             (_(u'Bonjour {0},'
-             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-             u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
-             u'et il vous a laissé le message suivant :'
-             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !').format(
-                 alert.author.username,
-                 note.author.username,
-                 note.tutorial.title,
-                 settings.ZDS_APP['site']['url'] + note.get_absolute_url(),
-                 request.user.username,
-                 request.POST["text"],))
+               u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+               u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
+               u'et il vous a laissé le message suivant :'
+               u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !').format(
+                   alert.author.username,
+                   note.author.username,
+                   note.tutorial.title,
+                   settings.ZDS_APP['site']['url'] + note.get_absolute_url(),
+                   request.user.username,
+                   request.POST["text"],))
         send_mp(
             bot,
             [alert.author],

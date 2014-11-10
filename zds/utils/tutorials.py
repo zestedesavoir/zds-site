@@ -339,7 +339,7 @@ def check_json(data, tutorial, zip):
                 except KeyError:
                     return (False,
                             _(u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour l\'extrait « {} » ne se trouve pas dans votre zip').format(
+                              u'pour l\'extrait « {} » ne se trouve pas dans votre zip').format(
                                 extract["text"],
                                 extract["title"]))
         subs = ["introduction", "conclusion"]
@@ -350,7 +350,7 @@ def check_json(data, tutorial, zip):
                 except KeyError:
                     return (False,
                             _(u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
+                              u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
                                 data[sub], data["title"]))
     elif tutorial.is_big():
         if data["type"] == "MINI":
@@ -393,7 +393,7 @@ def check_json(data, tutorial, zip):
                                 except KeyError:
                                     return (False,
                                             _(u"Le fichier « {} » renseigné dans vos métadonnées "
-                                            u"pour l\'extrait « {} » ne se trouve pas dans votre zip").
+                                              u"pour l\'extrait « {} » ne se trouve pas dans votre zip").
                                             format(extract["text"], extract["title"]))
                         subs = ["introduction", "conclusion"]
                         for sub in subs:
@@ -403,7 +403,7 @@ def check_json(data, tutorial, zip):
                                 except KeyError:
                                     return (False,
                                             _(u'Le fichier « {} » renseigné dans vos métadonnées '
-                                            u'pour le chapitre « {} » ne se trouve pas dans votre zip').
+                                              u'pour le chapitre « {} » ne se trouve pas dans votre zip').
                                             format(chapter[sub], chapter["title"]))
                 subs = ["introduction", "conclusion"]
                 for sub in subs:
@@ -413,8 +413,8 @@ def check_json(data, tutorial, zip):
                         except KeyError:
                             return (False,
                                     _(u'Le fichier « {} » renseigné dans vos métadonnées '
-                                    u'pour la partie « {} » ne se trouve pas dans votre zip').format(
-                                        part[sub], part["title"]))
+                                      u'pour la partie « {} » ne se trouve pas dans votre zip').format(
+                                          part[sub], part["title"]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
@@ -423,7 +423,7 @@ def check_json(data, tutorial, zip):
                 except KeyError:
                     return (False,
                             _(u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
+                              u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
                                 data[sub], data["title"]))
     return (True, None)
 

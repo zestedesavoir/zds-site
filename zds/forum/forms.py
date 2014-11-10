@@ -93,7 +93,7 @@ class TopicForm(forms.Form):
         if text is not None and len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 
@@ -123,8 +123,8 @@ class PostForm(forms.Form):
                 self.helper['text'].wrap(
                     Field,
                     placeholder=_(u'Vous venez de poster. Merci de patienter '
-                    u'au moins 15 minutes entre deux messages consécutifs '
-                    u'afin de limiter le flood.'),
+                                  u'au moins 15 minutes entre deux messages consécutifs '
+                                  u'afin de limiter le flood.'),
                     disabled=True)
         elif topic.is_locked:
             if 'text' not in self.initial:
@@ -148,7 +148,7 @@ class PostForm(forms.Form):
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 

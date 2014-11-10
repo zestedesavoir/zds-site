@@ -80,7 +80,8 @@ class TutorialForm(FormWithTitle):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient n'hésitez pas à en demander une nouvelle lors de la validation !"),
+        label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.all(),
         required=True,
         widget=forms.SelectMultiple(
@@ -197,7 +198,7 @@ class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
         label=_(u'Selectionnez le logo du tutoriel '
-              u'(max. {0} Ko)').format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
+                u'(max. {0} Ko)').format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
 
@@ -442,8 +443,8 @@ class NoteForm(forms.Form):
                 self.helper['text'].wrap(
                     Field,
                     placeholder=_(u'Vous venez de poster. Merci de patienter '
-                    u'au moins 15 minutes entre deux messages consécutifs '
-                    u'afin de limiter le flood.'),
+                                  u'au moins 15 minutes entre deux messages consécutifs '
+                                  u'afin de limiter le flood.'),
                     disabled=True)
         elif tutorial.is_locked:
             self.helper['text'].wrap(
@@ -466,7 +467,7 @@ class NoteForm(forms.Form):
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 

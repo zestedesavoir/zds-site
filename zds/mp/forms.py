@@ -17,7 +17,7 @@ class PrivateTopicForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Les participants doivent '
-                u'être séparés par une virgule.'),
+                                 u'être séparés par une virgule.'),
                 'required': 'required',
                 'data-autocomplete': '{ "type": "multiple" }'}))
 
@@ -121,7 +121,7 @@ class PrivatePostForm(forms.Form):
             self.helper['text'].wrap(
                 Field,
                 placeholder=_(u'Vous êtes seul dans cette conversation, '
-                u'vous ne pouvez plus y écrire.'),
+                              u'vous ne pouvez plus y écrire.'),
                 disabled=True)
 
     def clean(self):

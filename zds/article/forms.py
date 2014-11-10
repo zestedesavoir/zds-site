@@ -51,7 +51,7 @@ class ArticleForm(forms.Form):
 
     subcategory = forms.ModelMultipleChoiceField(
         label=_(u"Sous catégories de votre article. Si aucune catégorie ne convient "
-              u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.all(),
         required=False
     )
@@ -145,8 +145,8 @@ class ReactionForm(forms.Form):
                 self.helper['text'].wrap(
                     Field,
                     placeholder=_(u'Vous venez de poster. Merci de patienter '
-                    u'au moins 15 minutes entre deux messages consécutifs '
-                    u'afin de limiter le flood.'),
+                                  u'au moins 15 minutes entre deux messages consécutifs '
+                                  u'afin de limiter le flood.'),
                     disabled=True)
         elif article.is_locked:
             self.helper['text'].wrap(
@@ -169,6 +169,6 @@ class ReactionForm(forms.Form):
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data

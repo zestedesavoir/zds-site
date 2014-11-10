@@ -228,7 +228,7 @@ class MiniProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Lien vers un avatar externe '
-                u'(laissez vide pour utiliser Gravatar).')
+                                 u'(laissez vide pour utiliser Gravatar).')
             }
         )
     )
