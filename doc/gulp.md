@@ -1,20 +1,20 @@
 # Installation complète des outils
 
-## Installation de Node.JS
+## Installation de Node.js
 
 ### Windows
 
-Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
 
 ### Mac OS X
 
-Node.js propose un installer (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
 
 ### Linux
 
 #### Ubuntu
 
-Une version récente de Node avec npm est disponible sur le PPA `chris-lea/node.js`
+Une version récente de Node.js avec npm est disponible sur le PPA `chris-lea/node.js`
 
 ````shell
 sudo add-apt-repository ppa:chris-lea/node.js
@@ -24,7 +24,7 @@ sudo apt-get install python-software-properties python g++ make nodejs
 
 #### Debian
 
-Une version récente de Node se trouve dans les répos wheezy-backport, jessie, et sid. Sur ces versions de Debian, l'installation peut se faire de cette manière:
+Une version récente de Node.js se trouve dans les répos wheezy-backport, jessie, et sid. Sur ces versions de Debian, l'installation peut se faire de cette manière:
 
 ````shell
 sudo apt-get install node
@@ -40,7 +40,7 @@ sudo ln -s /usr/bin/nodejs /usr/bin/node
 
 Les instructions détaillées pour toutes les distributions se trouvent dans la [doc officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
 
-Pour vérifier si que Node.JS est installé (et si vous avez la bonne version) :
+Pour vérifier si que Node.js est installé (et si vous avez la bonne version) :
 
 ````shell
 node -v
@@ -49,7 +49,7 @@ npm -v
 1.4.7
 ````
 
-Vous devez avoir une version de node > 0.10.x, et de npm > 1.x.x
+Vous devez avoir une version de Node.js > 0.10.x, et de npm > 1.x.x
 
 ## Installation des dépendances (Gulp et Bower entre autres)
 
