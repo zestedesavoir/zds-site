@@ -8,15 +8,6 @@ Zeste de Savoir est un site internet communautaire codé à l'aide du framework 
 
 Lien du site : `zestedesavoir <http://www.zestedesavoir.com>`_
 
-Si vous voulez installer et démarrer une instance locale de ZdS, vous devez cliquer sur le lien correspondant à votre système d'exploitation.
-
-.. toctree::
-   :maxdepth: 2
-
-   install/install-windows
-   install/install-os-x
-   install/install-linux
-
 Il est possible de personnaliser ZdS pour n'importe quel site communautaire de partage. Un ensemble de paramètres est disponible dans le fichier ``settings.py`` via un dictionnaire. Vous pourrez donc écraser ces variables par défaut dans votre fichier ``settings_prod.py``. Le dictionnaire de variables relatives au site est donc le suivant :
 
 .. sourcecode:: python
@@ -77,3 +68,11 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
         }
     }
 
+Si vous voulez installer et démarrer une instance locale de ZdS, vous devez cliquer sur le lien correspondant à votre système d'exploitation.
+
+.. toctree::
+   :maxdepth: 2
+
+   install/install-windows
+   install/install-os-x
+   install/install-linux
