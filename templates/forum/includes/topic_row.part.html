@@ -21,42 +21,62 @@
     </div>
     {% with profile=topic.author|profile %}
         <div class="topic-description">
-            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">
-                <span class="topic-title" itemprop="itemListElement">{{ topic.title }}</span>
+            {% if topic.tags.all %}
+                <ul class="topic-tags">
+                    {% for tag in topic.tags.all %}
+                        <li>
+                            <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                                {{ tag.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link" title="{{ topic.title }}. {{ topic.subtitle }}">
+                <h4 class="topic-title" itemprop="itemListElement">{{ topic.title }}</h4>
                 <span class="topic-subtitle">{{ topic.subtitle }}</span>
             </a>
-            <p class="topic-members">
-                <span class="topic-members-label">Créé par</span>
+            <span class="topic-members">
+                <span class="topic-members-label">Par</span>
                 <em>
                     {% include "misc/member_item.part.html" with member=topic.author %}
                 </em>
-                <span class="topic-members-label">{{ topic.pubdate|format_date }}</span>
-                {% if topic.tags.all %}
-                    - Tag{{ topic.tags.all|pluralize }} : 
-                    {% for tag in topic.tags.all %}
-                        <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" class="topic-tag">{{ tag.title }}</a>
-                    {% endfor %}
-                {% endif %}
-            </p>
+                <span class="topic-members-label">
+                    -
+                    <span class="topic-members-long-date">
+                        {{ topic.pubdate|format_date|capfirst }}
+                    </span>
+                    <span class="topic-members-short-date">
+                        {{ topic.pubdate|format_date:True|capfirst }}
+                    </span>
+                </span>
+            </span>
         </div>
     {% endwith %}
-    <p class="topic-answers">
-        {% with nb_post=topic.get_post_count %}
+    {% with nb_post=topic.get_post_count %}
+        <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
             {% if nb_post > 1 %}
                 {{ nb_post|add:"-1" }} réponse{{ nb_post|add:"-1"|pluralize }}
             {% endif %}
-        {% endwith %}
-    </p>
+        </p>
+    {% endwith %}
     <p class="topic-last-answer">
         {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
             {% if answer %}
                 <a href="{{ last_read.get_absolute_url }}">
-                    Dernière réponse <br>
-                    {{ answer.pubdate|format_date }}
+                    <span class="topic-last-answer-long-date">
+                        Dernière réponse <br>
+                        {{ answer.pubdate|format_date|capfirst }}
+                    </span>
+                    <span class="topic-last-answer-short-date">
+                        {{ answer.pubdate|format_date:True|capfirst }}
+                    </span>
                 </a>
                 <br>
-                par
-                {% include "misc/member_item.part.html" with member=answer.author %}
+                <span class="topic-last-answer-author">
+                    par
+                    {% include "misc/member_item.part.html" with member=answer.author %}
+                </span>
             {% else %}
                 <span class="topic-no-last-answer">Aucune réponse</span>
             {% endif %}

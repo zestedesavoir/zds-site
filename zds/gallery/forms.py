@@ -10,7 +10,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.utils.forms import CommonLayoutModalText
 from zds.gallery.models import Gallery, Image
 
 
@@ -104,6 +103,7 @@ class UserGalleryForm(forms.Form):
 
         return cleaned_data
 
+
 class ImageForm(forms.Form):
     title = forms.CharField(
         label='Titre',
@@ -120,7 +120,7 @@ class ImageForm(forms.Form):
     physical = forms.ImageField(
         label=u'Sélectionnez votre image',
         required=True,
-        help_text='Taille maximum : ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' <abbr title="kibioctet">Kio</abbr>'
+        help_text='Taille maximum : {0} Ko'.format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)
     )
 
     def __init__(self, *args, **kwargs):
@@ -143,13 +143,51 @@ class ImageForm(forms.Form):
 
         physical = cleaned_data.get('physical')
 
-        if physical is not None and physical.size > settings.IMAGE_MAX_SIZE:
-            self._errors['physical'] = self.error_class([u'Votre image est trop lourde, la limite autorisée est de : {0} Ko'
-                                                                                     .format(settings.IMAGE_MAX_SIZE / 1024) + ' Ko'])
+        if physical is not None and physical.size > settings.ZDS_APP['gallery']['image_max_size']:
+            self._errors['physical'] = self.error_class(
+                [u'Votre image est trop lourde, la limite autorisée '
+                 u'est de {0} Ko'.format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
+        return cleaned_data
+
+
+class ArchiveImageForm(forms.Form):
+    file = forms.FileField(
+        label='Sélectionnez l\'archive contenant les images à charger',
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ArchiveImageForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'clearfix'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('file'),
+            ButtonHolder(
+                StrictButton('Importer', type='submit'),
+                HTML('<a class="btn btn-cancel" '
+                     u'href="{{ gallery.get_absolute_url }}">Annuler</a>'),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super(ArchiveImageForm, self).clean()
+
+        file = cleaned_data.get('file')
+        extension = file.name.split('.')[-1]
+
+        if extension != "zip":
+            self._errors['file'] = self.error_class(
+                [u"Le champ n'accepte que les fichiers zip"])
+            if 'file' in cleaned_data:
+                del cleaned_data['file']
+
         return cleaned_data
 
 
 class UpdateImageForm(ImageForm):
+
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
 
@@ -168,8 +206,11 @@ class UpdateImageForm(ImageForm):
             ),
         )
 
+
 class ImageAsAvatarForm(forms.Form):
+
     """"Form to add current image as avatar"""
+
     def __init__(self, *args, **kwargs):
         super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()

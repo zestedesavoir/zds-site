@@ -11,17 +11,17 @@ from .models import Post, Topic
 
 
 class LastPostsFeedRSS(Feed):
-    title = u'Derniers messages sur Zeste de Savoir'
+    title = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
     link = '/forums/'
     description = (u'Les derniers messages '
-        u'parus sur le forum de Zeste de Savoir.')
-    
+                   u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+
     def get_object(self, request):
         obj = {}
         if "forum" in request.GET:
-            obj['forum']=request.GET["forum"]
+            obj['forum'] = request.GET["forum"]
         if "tag" in request.GET:
-            obj['tag']=request.GET["tag"]
+            obj['tag'] = request.GET["tag"]
         return obj
 
     def items(self, obj):
@@ -29,20 +29,20 @@ class LastPostsFeedRSS(Feed):
             posts = Post.objects.filter(topic__forum__group__isnull=True,
                                         topic__forum__pk=obj['forum'],
                                         topic__tags__pk__in=[obj['tag']])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         elif "forum" in obj and "tag" not in obj:
             posts = Post.objects.filter(topic__forum__group__isnull=True,
                                         topic__forum__pk=obj['forum'])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         elif "forum" not in obj and "tag" in obj:
             posts = Post.objects.filter(topic__forum__group__isnull=True,
                                         topic__tags__pk__in=[obj['tag']])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         if "forum" not in obj and "tag" not in obj:
             posts = Post.objects.filter(topic__forum__group__isnull=True)\
                 .order_by('-pubdate')
 
-        return posts[:settings.POSTS_PER_PAGE]
+        return posts[:settings.ZDS_APP['forum']['posts_per_page']]
 
     def item_title(self, item):
         return u'{}, message #{}'.format(item.topic.title, item.pk)
@@ -70,16 +70,16 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
 
 
 class LastTopicsFeedRSS(Feed):
-    title = u'Derniers sujets sur Zeste de Savoir'
+    title = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
     link = '/forums/'
-    description = u'Les derniers sujets créés sur le forum de Zeste de Savoir.'
-    
+    description = u'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+
     def get_object(self, request):
         obj = {}
         if "forum" in request.GET:
-            obj['forum']=request.GET["forum"]
+            obj['forum'] = request.GET["forum"]
         if "tag" in request.GET:
-            obj['tag']=request.GET["tag"]
+            obj['tag'] = request.GET["tag"]
         return obj
 
     def items(self, obj):
@@ -87,20 +87,21 @@ class LastTopicsFeedRSS(Feed):
             topics = Topic.objects.filter(forum__group__isnull=True,
                                           forum__pk=obj['forum'],
                                           tags__pk__in=[obj['tag']])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         elif "forum" in obj and "tag" not in obj:
             topics = Topic.objects.filter(forum__group__isnull=True,
                                           forum__pk=obj['forum'])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         elif "forum" not in obj and "tag" in obj:
             topics = Topic.objects.filter(forum__group__isnull=True,
                                           tags__pk__in=[obj['tag']])\
-            .order_by('-pubdate')
+                .order_by('-pubdate')
         if "forum" not in obj and "tag" not in obj:
             topics = Topic.objects.filter(forum__group__isnull=True)\
                 .order_by('-pubdate')
 
-        return topics[:settings.POSTS_PER_PAGE]
+        return topics[:settings.ZDS_APP['forum']['posts_per_page']]
+
     def item_pubdate(self, item):
         return item.pubdate
 

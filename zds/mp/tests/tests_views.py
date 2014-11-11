@@ -511,7 +511,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk)
+            + '?sujet=' + str(self.topic1.pk)
             + '&cite=4864',
             {}
         )
@@ -522,8 +522,8 @@ class AnswerViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk)
-            + '&cite='+str(self.post1.pk),
+            + '?sujet=' + str(self.topic1.pk)
+            + '&cite=' + str(self.post1.pk),
             {}
         )
 
@@ -533,7 +533,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'preview': '',
@@ -548,7 +548,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.get_last_answer().pk
@@ -571,7 +571,7 @@ class AnswerViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet='+str(self.topic1.pk),
+            + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.get_last_answer().pk
@@ -581,6 +581,50 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(403, response.status_code)
         self.assertEqual(2, PrivatePost.objects.all().count())
+
+    def test_unicode_title_answer(self):
+        """To test unicode title."""
+
+        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
+                                           title=u'Title with accent àéè')
+        unicodeTopic.participants.add(self.profile2.user)
+        unicodePost = PrivatePostFactory(
+            privatetopic=unicodeTopic,
+            author=self.profile1.user,
+            position_in_topic=1)
+
+        response = self.client.post(
+            reverse('zds.mp.views.answer')
+            + '?sujet=' + str(unicodeTopic.pk),
+            {
+                'text': 'answer',
+                'last_post': unicodePost.pk
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_unicode_subtitle_answer(self):
+        """To test unicode subtitle."""
+
+        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
+                                           subtitle=u'Subtitle with accent àéè')
+        unicodeTopic.participants.add(self.profile2.user)
+        unicodePost = PrivatePostFactory(
+            privatetopic=unicodeTopic,
+            author=self.profile1.user,
+            position_in_topic=1)
+
+        response = self.client.post(
+            reverse('zds.mp.views.answer')
+            + '?sujet=' + str(unicodeTopic.pk),
+            {
+                'text': 'answer',
+                'last_post': unicodePost.pk
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 class EditPostViewTest(TestCase):
@@ -641,7 +685,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk)
+            + '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(200, response.status_code)
@@ -659,7 +703,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post1.pk)
+            + '?message=' + str(self.post1.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -668,7 +712,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.get(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk)
+            + '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -685,7 +729,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk),
+            + '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
                 'preview': ''
@@ -710,7 +754,7 @@ class EditPostViewTest(TestCase):
 
         response = self.client.post(
             reverse('zds.mp.views.edit_post')
-            + '?message='+str(self.post2.pk),
+            + '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
             },

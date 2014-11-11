@@ -1,14 +1,14 @@
 # coding: utf-8
 
-from cStringIO import StringIO
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from math import ceil
 from git import Repo
 import os
 import string
 import uuid
+import shutil
+
 from easy_thumbnails.fields import ThumbnailerImageField
 
 try:
@@ -68,7 +68,7 @@ class Article(models.Model):
     is_visible = models.BooleanField('Visible en rédaction', default=False, db_index=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80,db_index=True)
+                                  blank=True, null=True, max_length=80, db_index=True)
     sha_validation = models.CharField('Sha1 de la version en validation',
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
@@ -92,6 +92,14 @@ class Article(models.Model):
     def __unicode__(self):
         return self.title
 
+    def delete_entity_and_tree(self):
+        """deletes the entity and its filesystem counterpart"""
+        shutil.rmtree(self.get_path(), 0)
+        Validation.objects.filter(article=self).delete()
+        if self.on_line():
+            shutil.rmtree(self.get_prod_path())
+        self.delete()
+
     def get_absolute_url(self):
         return reverse('zds.article.views.view',
                        kwargs={'article_pk': self.pk,
@@ -110,7 +118,7 @@ class Article(models.Model):
             '?article={0}'.format(self.pk)
 
     def on_line(self):
-        return self.sha_public is not None
+        return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def in_validation(self):
         return self.sha_validation is not None
@@ -122,7 +130,7 @@ class Article(models.Model):
         if relative:
             return None
         else:
-            return os.path.join(settings.REPO_ARTICLE_PATH, self.get_phy_slug())
+            return os.path.join(settings.ZDS_APP['article']['repo_path'], self.get_phy_slug())
 
     def load_json(self, path=None, online=False):
         if path is None:
@@ -156,13 +164,13 @@ class Article(models.Model):
         article_version['sha_public'] = self.sha_public
         article_version['last_read_reaction'] = self.last_read_reaction
         article_version['get_reaction_count'] = self.get_reaction_count
-        article_version['get_absolute_url'] = reverse('zds.article.views.view', 
+        article_version['get_absolute_url'] = reverse('zds.article.views.view',
                                                       args=[self.pk, self.slug])
-        article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online', 
+        article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
                                                              args=[self.pk, slugify(article_version['title'])])
-        
+
         return article_version
-        
+
     def dump_json(self, path=None):
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
@@ -185,10 +193,10 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        
+
         if has_changed(self, 'image') and self.image:
             old = get_old_field_value(self, 'image', 'objects')
-            
+
             if old is not None and len(old.name) > 0:
                 root = settings.MEDIA_ROOT
                 name = os.path.join(root, old.name)
@@ -227,7 +235,7 @@ class Article(models.Model):
                 .latest('reaction__pubdate').reaction
         except:
             return self.first_reaction()
-    
+
     def first_unread_reaction(self):
         """Return the first reaction the user has unread."""
         try:
@@ -266,7 +274,7 @@ class Article(models.Model):
                 and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
-            if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
+            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
         return False
 
@@ -329,7 +337,7 @@ class Reaction(Comment):
         return u'<Article pour "{0}", #{1}>'.format(self.article, self.pk)
 
     def get_absolute_url(self):
-        page = int(ceil(float(self.position) / settings.POSTS_PER_PAGE))
+        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
 
         return '{0}?page={1}#p{2}'.format(
             self.article.get_absolute_url_online(),

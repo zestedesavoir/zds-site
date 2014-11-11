@@ -24,7 +24,9 @@
     <ul>
         <li><a href="{% url "zds.pages.views.eula" %}"><abbr title="Conditions générales d'utilisation">CGU</abbr></a></li>
         <li><a href="{% url "zds.pages.views.about" %}">À propos</a></li>
-        <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+        {% if app.site.association %}
+            <li><a href="{% url "zds.pages.views.association" %}">L'association</a></li>
+        {% endif %}
         <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">Adhérer</a></li>
         <li><a href="{% url "zds.pages.views.contact" %}">Contact</a></li>
         <li><a href="{% url "zds.pages.views.cookies" %}">Les cookies</a></li>

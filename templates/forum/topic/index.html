@@ -62,64 +62,61 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-    <div class="content-wrapper">
-        {% if topic.is_solved %}
-            <div class="alert-box success">
-                L'auteur de ce sujet a trouvé une solution à son problème.
-            </div>
+    {% if topic.is_solved %}
+        <div class="alert-box success ico-after tick light">
+            L'auteur de ce sujet a trouvé une solution à son problème.
+        </div>
+    {% endif %}
+
+    {% for message in posts %}
+        {% captureas edit_link %}
+            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas helpful_link %}
+            {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas upvote_link %}
+            {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas downvote_link %}
+            {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas alert_solve_link %}
+            {% url "zds.forum.views.solve_alert" %}
+        {% endcaptureas %}
+
+        {% if forloop.first and nb > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
         {% endif %}
 
-        {% for message in posts %}
-            {% captureas edit_link %}
-                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
+        {% if forloop.first and nb = 1 %}
+            {% set False as answer_schema %}
+        {% else %}
+            {% set True as answer_schema %}
+        {% endif %}
 
-            {% captureas cite_link %}
-                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas helpful_link %}
-                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas upvote_link %}
-                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas downvote_link %}
-                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas alert_solve_link %}
-                {% url "zds.forum.views.solve_alert" %}
-            {% endcaptureas %}
-
-            {% if forloop.first and nb > 1 %}
-                {% set True as is_repeated_message %}
-            {% else %}
-                {% set False as is_repeated_message %}
-            {% endif %}
-
-            {% if forloop.first and nb = 1 %}
-                {% set False as answer_schema %}
-            {% else %}
-                {% set True as answer_schema %}
-            {% endif %}
-
-            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
-        {% endfor %}
-    </div>
+        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
+    {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
 
 
-    {% if user.is_authenticated %}
-        {% captureas form_action %}
-            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
-        {% endcaptureas %}
-        
-        {% include "misc/message_form.html" with member=user %}
-    {% endif %}
+    {# Anwser form #}
+    {% captureas form_action %}
+        {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+    
+    {% include "misc/message_form.html" with member=user %}
 {% endblock %}
 
 
@@ -178,7 +175,7 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="ico-after cite {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
                     Ne plus être notifié par courriel
                 {% else %}

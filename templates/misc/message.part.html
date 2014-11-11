@@ -46,7 +46,7 @@
                         {% if message.author = user or perms_change %}
                             {% if can_hide != False %}
                                 <li>
-                                    <a href="#hide-message-{{ message.id }}" class="ico-after view open-modal">
+                                    <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         Masquer
                                     </a>
                                     <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
@@ -114,7 +114,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#show-message-{{ message.id }}" class="ico-after view open-modal">
+                        <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             Démasquer
                         </a>
                         <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
@@ -245,37 +245,35 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            {% with profile_user=user|profile %}
-                                <form action="{{ upvote_link }}" method="post">
-                                    {% csrf_token %}
-                                    <button
-                                        type="submit"
-                                        title="Ce message est utile {% if message.like > 0 %}({{ message.like }}  personnes ont trouvé ce message utile){% endif %}"
-                                        class=" upvote
-                                                ico-after
-                                                {% if message.like > message.dislike %}more-voted{% endif %}
-                                                {% if message.like > 0 %}has-vote{% endif %}
-                                                {% if profile_user|liked:message.pk %}voted{% endif %}"
-                                    >
-                                        +{{ message.like }}
-                                    </button>
-                                </form>
+                            <form action="{{ upvote_link }}" method="post">
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
+                                    class=" upvote
+                                            ico-after
+                                            {% if message.like > message.dislike %}more-voted{% endif %}
+                                            {% if message.like > 0 %}has-vote{% endif %}
+                                            {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                >
+                                    +{{ message.like }}
+                                </button>
+                            </form>
 
-                                <form action="{{ downvote_link }}" method="post">
-                                    {% csrf_token %}
-                                    <button
-                                        type="submit"
-                                        title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personnes n'ont pas trouvé ce message utile){% endif %}"
-                                        class=" downvote
-                                                ico-after
-                                                {% if message.like < message.dislike %}more-voted{% endif %}
-                                                {% if message.dislike > 0 %}has-vote{% endif %}
-                                                {% if profile_user|disliked:message.pk %}voted{% endif %}"
-                                    >
-                                        -{{ message.dislike }}
-                                    </button>
-                                </form>
-                            {% endwith %}
+                            <form action="{{ downvote_link }}" method="post">
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
+                                    class=" downvote
+                                            ico-after
+                                            {% if message.like < message.dislike %}more-voted{% endif %}
+                                            {% if message.dislike > 0 %}has-vote{% endif %}
+                                            {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                >
+                                    -{{ message.dislike }}
+                                </button>
+                            </form>
                         {% else %}
                             <span
                                 class="upvote

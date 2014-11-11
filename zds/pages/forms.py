@@ -69,7 +69,7 @@ class AssocSubscribeForm(forms.Form):
     def clean(self):
         cleaned_data = super(AssocSubscribeForm, self).clean()
         justification = cleaned_data.get('justification')
-        
+
         if justification is not None and len(justification) > 3000:
             self._errors['justification'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])

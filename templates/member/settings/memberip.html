@@ -1,0 +1,41 @@
+{% extends "member/base.html" %}
+{% load date %}
+
+
+{% block title %}
+    Membres par IP
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>IP</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    Membres par IP : <strong>{{ ip }}</strong>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Liste des membres dont la dernière IP est {{ ip }}
+    </p>
+    <ul>
+        {% for member in members %}
+            <li>
+                <a href="{{ member.get_absolute_url }}"
+                    class="member-item"
+                    itemscope
+                    itemtype="http://schema.org/Person"
+                >{% spaceless %}
+                <img src="{{ member.get_avatar_url }}" alt="" class="avatar" itemprop="image">
+                <span itemprop="name">{{ member.user.username }}</span>
+            {% endspaceless %}</a> <span class="info">le {{ member.last_visit|format_date:True }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

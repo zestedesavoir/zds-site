@@ -54,8 +54,9 @@ def send_mp(
     # send email
     if send_by_mail:
         if direct:
-            subject = "ZDS : " + n_topic.title
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = u"{} : {}".format(settings.ZDS_APP['site']['abbr'], n_topic.title)
+            from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                           settings.ZDS_APP['site']['email_noreply'])
             for part in users:
                 message_html = get_template('email/mp/direct.html').render(
                     Context({
@@ -77,20 +78,21 @@ def send_mp(
                 except:
                     msg = None
         else:
-            subject = "ZDS - MP: " + n_topic.title
-            from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+            subject = u"{} - MP: {}".format(settings.ZDS_APP['site']['abbr'], n_topic.title)
+            from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                           settings.ZDS_APP['site']['email_noreply'])
             for part in users:
                 message_html = get_template('email/mp/new.html').render(
                     Context({
                         'username': part.username,
-                        'url': settings.SITE_URL + n_topic.get_absolute_url(),
+                        'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
                         'author': author.username
                     })
                 )
                 message_txt = get_template('email/mp/new.txt').render(
                     Context({
                         'username': part.username,
-                        'url': settings.SITE_URL + n_topic.get_absolute_url(),
+                        'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
                         'author': author.username
                     })
                 )

@@ -45,7 +45,7 @@
                 </li>
                 {% if perms.member.show_ip %}
                     <li>
-                        Dernière IP : {{ profile.last_ip_address }}
+                        Dernière IP : <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
                     </li>
                     <li>
                         {{ profile.get_city }}
@@ -283,7 +283,7 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.get_draft_tutos.count > 0 %}    
+                    {% if profile.get_draft_tutos.count > 0 %}
                         <li>
                             <a href="{% url "zds.member.views.tutorials" %}?type=draft">
                                 En rédaction

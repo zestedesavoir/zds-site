@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from django import forms
 from django.conf import settings
 
@@ -10,7 +9,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
 from django.core.urlresolvers import reverse
 
 from zds.tutorial.models import TYPE_CHOICES
-from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor
+from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorial.models import Tutorial
 
@@ -49,7 +48,9 @@ class TutorialForm(FormWithTitle):
     )
 
     image = forms.ImageField(
-        label='Sélectionnez le logo du tutoriel (max. ' + str(settings.IMAGE_MAX_SIZE / 1024) + ' Ko)',
+        label='Sélectionnez le logo du tutoriel (max. ' +
+              str(settings.ZDS_APP['gallery']['image_max_size'] / 1024) +
+              ' Ko)',
         required=False
     )
 
@@ -79,7 +80,8 @@ class TutorialForm(FormWithTitle):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label="Sous-catégories de votre tuto",
+        label=u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
+              u"n'hésitez pas à en demander une nouvelle lors de la validation !",
         queryset=SubCategory.objects.all(),
         required=True,
         widget=forms.SelectMultiple(
@@ -94,6 +96,17 @@ class TutorialForm(FormWithTitle):
         queryset=Licence.objects.all(),
         required=True,
         empty_label=None
+    )
+
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -112,6 +125,7 @@ class TutorialForm(FormWithTitle):
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
             ),
@@ -145,6 +159,17 @@ class PartForm(FormWithTitle):
         )
     )
 
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         super(PartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -155,6 +180,7 @@ class PartForm(FormWithTitle):
             Field('title'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Field('msg_commit'),
             Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
@@ -172,14 +198,18 @@ class ChapterForm(FormWithTitle):
 
     image = forms.ImageField(
         label=u'Selectionnez le logo du tutoriel '
-              u'(max. {0} Ko)'.format(str(settings.IMAGE_MAX_SIZE / 1024)),
+              u'(max. {0} Ko)'.format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
 
     introduction = forms.CharField(
         label='Introduction',
         required=False,
-        widget=forms.Textarea
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': 'Votre message au format Markdown.'
+            }
+        )
     )
 
     conclusion = forms.CharField(
@@ -188,6 +218,17 @@ class ChapterForm(FormWithTitle):
         widget=forms.Textarea(
             attrs={
                 'placeholder': 'Votre message au format Markdown.'
+            }
+        )
+    )
+
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
             }
         )
     )
@@ -203,6 +244,7 @@ class ChapterForm(FormWithTitle):
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
+            Field('msg_commit'),
             Hidden('last_hash', '{{ last_hash }}'),
             ButtonHolder(
                 StrictButton(
@@ -230,6 +272,17 @@ class EmbdedChapterForm(forms.Form):
         widget=forms.Textarea
     )
 
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
@@ -241,6 +294,7 @@ class EmbdedChapterForm(forms.Form):
                 Field('image'),
                 Field('introduction', css_class='md-editor'),
                 Field('conclusion', css_class='md-editor'),
+                Field('msg_commit'),
                 Hidden('last_hash', '{{ last_hash }}'),
             ),
             ButtonHolder(
@@ -262,6 +316,17 @@ class ExtractForm(FormWithTitle):
         )
     )
 
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -271,7 +336,7 @@ class ExtractForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Hidden('last_hash', '{{ last_hash }}'),
-            CommonLayoutEditor()
+            CommonLayoutVersionEditor(),
         )
 
 
@@ -279,7 +344,7 @@ class ImportForm(forms.Form):
 
     file = forms.FileField(
         label='Sélectionnez le tutoriel à importer',
-        required=False
+        required=True
     )
     images = forms.FileField(
         label='Fichier zip contenant les images du tutoriel',
@@ -294,9 +359,58 @@ class ImportForm(forms.Form):
         self.helper.layout = Layout(
             Field('file'),
             Field('images'),
-            Submit('submit', 'Importer'),
+            Submit('import-tuto', 'Importer le .tuto'),
         )
         super(ImportForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ImportForm, self).clean()
+
+        # Check that the files extensions are correct
+        tuto = cleaned_data.get('file')
+        images = cleaned_data.get('images')
+
+        if tuto is not None:
+            ext = tuto.name.split(".")[-1]
+            if ext != "tuto":
+                del cleaned_data['file']
+                msg = u'Le fichier doit être au format .tuto'
+                self._errors['file'] = self.error_class([msg])
+
+        if images is not None:
+            ext = images.name.split(".")[-1]
+            if ext != "zip":
+                del cleaned_data['images']
+                msg = u'Le fichier doit être au format .zip'
+                self._errors['images'] = self.error_class([msg])
+
+
+class ImportArchiveForm(forms.Form):
+
+    file = forms.FileField(
+        label='Sélectionnez l\'archive de votre tutoriel',
+        required=True
+    )
+
+    tutorial = forms.ModelChoiceField(
+        label="Tutoriel vers lequel vous souhaitez importer votre archive",
+        queryset=Tutorial.objects.none(),
+        required=True
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(ImportArchiveForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.fields['tutorial'].queryset = Tutorial.objects.filter(authors__in=[user])
+
+        self.helper.layout = Layout(
+            Field('file'),
+            Field('tutorial'),
+            Submit('import-archive', 'Importer l\'archive'),
+        )
+
 
 # Notes
 
@@ -350,10 +464,10 @@ class NoteForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
 
@@ -365,18 +479,19 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire pour votre demande.'
+                'placeholder': 'Commentaire pour votre demande.',
+                'rows': '3'
             }
         )
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -388,12 +503,12 @@ class AskValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(), 
+            CommonLayoutModalText(),
             Field('source'),
             StrictButton(
                 'Confirmer',
                 type='submit'),
-            Hidden('tutorial', '{{ tutorial.pk }}'), 
+            Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'), )
 
 
@@ -402,9 +517,10 @@ class ValidForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de publication.'
+                'placeholder': 'Commentaire de publication.',
+                'rows': '2'
             }
         )
     )
@@ -414,11 +530,11 @@ class ValidForm(forms.Form):
         initial=True
     )
     source = forms.CharField(
-        label='Source originale',
+        label='',
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Url de la version originale'
+                'placeholder': 'URL de la version originale'
             }
         )
     )
@@ -444,9 +560,10 @@ class RejectForm(forms.Form):
     text = forms.CharField(
         label='',
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                'placeholder': 'Commentaire de rejet.'
+                'placeholder': 'Commentaire de rejet.',
+                'rows': '6'
             }
         )
     )

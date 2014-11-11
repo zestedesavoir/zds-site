@@ -1,0 +1,75 @@
+{% extends "member/settings/base.html" %}
+
+
+
+{% block breadcrumb %}
+    <li>Supression de compte</li>
+{% endblock %}
+
+
+
+{% block title %}
+    Désinscription
+{% endblock %}
+
+
+
+{% block headline %}
+    Désinscription
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Attention {{ user.username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu'implique cette action <strong>qui ne peut être annulée</strong> :
+    </p>
+
+    <ul>
+        <li>
+            Toutes vos conversations privées (MP) seront perdues ;
+        </li>
+        <li>
+            Tous vos messages de forums seront anonymisés ;
+        </li>
+        <li>
+            Votre compte et tout ses détails seront supprimés, cela signifie que l'adresse courriel ({{ user.email }}) sera effacée du système et votre pseudo ({{ user.username }}) sera libéré et utilisable par un autre membre ;
+        </li>
+        <li>
+            Vos tutoriels et articles non publiés (brouillon, bêta ou en cours de validation) seront supprimés sans possibilité de récuperation (sauf si d'autres auteurs sont présents lors de la rédaction) ;
+        </li>
+        <li>
+            Vos tutoriels et articles publiés subiront les modifications suivantes :
+            <ul>
+                <li>
+                    si vous étiez seul, ils seront placés sous la gouvernance du compte "Auteur Externe", sauf demande contraire de votre part à un membre du staff <strong>avant</strong> votre désinscription ;
+                </li>
+                <li>
+                    si vous étiez plusieurs auteurs, vous quitterez le groupe de rédacteurs. Les autres pourront dès lors continuer sans vous.
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>
+        Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton "Me désinscrire" ci-dessous. Sinon il n'est pas encore trop tard...
+    </p>
+
+    <p>
+        <a href="#unregister" class="open-modal btn btn-cancel">Me désinscrire</a>
+    </p>
+
+    <form
+        method="post"
+        action="{% url "zds.member.views.unregister" %}"
+        id="unregister"
+        class="modal modal-small"
+    >
+        <p>
+            C'est votre dernière chance de rester parmi nous...
+        </p>
+
+        {% csrf_token %}
+        <button type="submit">Me désinscrire</button>
+    </form>
+{% endblock %}

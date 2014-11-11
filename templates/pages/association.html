@@ -3,19 +3,19 @@
 
 
 {% block title %}
-    L'association Zeste de Savoir
+    L'association {{app.site.association.name}}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>L'association Zeste de Savoir</li>
+    <li>L'association {{app.site.association.name}}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>L'association Zeste de Savoir</h1>
+    <h1>L'association {{app.site.association.name}}</h1>
 {% endblock %}
 
 
@@ -23,8 +23,8 @@
 {% block content %}
     <h3>Présentation de l'association</h3>
     <p>
-        Zeste de Savoir est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
-        légale du site ZesteDeSavoir.com, dont le but est de promouvoir le partage de connaissances à travers des
+        {{app.site.association.name}} est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
+        légale du site {{app.site.url}}, dont le but est de promouvoir le partage de connaissances à travers des
         ressources pédagogiques gratuites et de préférence sous licence libre.
         <a href="http://www.journal-officiel.gouv.fr/publications/assoc/pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf">Parue
             au Journal officiel le 19 avril 2014</a>, l'association a tenu sa première assemblée générale le 15 mars
@@ -38,7 +38,7 @@
         surtout retrouver l'esprit communautaire qu'ils aimaient tant.
     </p>
     <p>
-        Voilà l'histoire de Zeste de Savoir.
+        Voilà l'histoire de {{app.site.association.name}}.
     </p>
 
     <h3>L'association et le site</h3>

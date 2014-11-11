@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
-import re
 
 from django.conf import settings
 from django.db.models import Q
@@ -19,14 +18,13 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from django.utils.encoding import smart_text
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, sub_tag, get_topics
+    mark_read, TopicFollowed, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -45,7 +43,6 @@ def index(request):
 
     return render_template("forum/index.html", {"categories": categories,
                                                 "user": request.user})
-
 
 
 def details(request, cat_slug, forum_slug):
@@ -69,7 +66,7 @@ def details(request, cat_slug, forum_slug):
 
     # Paginator
 
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -91,29 +88,27 @@ def details(request, cat_slug, forum_slug):
     })
 
 
-
 def cat_details(request, cat_slug):
     """Display the forums belonging to the given category."""
-    
+
     category = get_object_or_404(Category, slug=cat_slug)
-    
+
     forums_pub = Forum.objects\
-                    .filter(group__isnull=True, category__pk=category.pk)\
-                    .select_related("category").all()
+        .filter(group__isnull=True, category__pk=category.pk)\
+        .select_related("category").all()
     if request.user.is_authenticated():
         forums_prv = Forum.objects\
-                    .filter(group__isnull=False, \
-                            group__in=request.user.groups.all(), \
-                            category__pk=category.pk)\
-                    .select_related("category")\
-                    .all()
-        forums = forums_pub|forums_prv
-    else :
+            .filter(group__isnull=False,
+                    group__in=request.user.groups.all(),
+                    category__pk=category.pk)\
+            .select_related("category")\
+            .all()
+        forums = forums_pub | forums_prv
+    else:
         forums = forums_pub
 
     return render_template("forum/category/index.html", {"category": category,
                                                          "forums": forums})
-
 
 
 def topic(request, topic_pk, topic_slug):
@@ -146,7 +141,7 @@ def topic(request, topic_pk, topic_slug):
 
     # Handle pagination
 
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
 
     # The category list is needed to move threads
 
@@ -203,12 +198,12 @@ def get_tag_by_title(title):
     continue_parsing_tags = True
     original_title = title
     for char in title:
-        
+
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == u"[" :
+            if char == u"[":
                 nb_bracket += 1
         elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
@@ -217,14 +212,14 @@ def get_tag_by_title(title):
                 current_tag = u""
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
-                
-        elif ((char != u"[" and char.strip()!="") or not continue_parsing_tags):
+
+        elif ((char != u"[" and char.strip() != "") or not continue_parsing_tags):
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
-    #if we did not succed in parsing the tags
-    if nb_bracket != 0 :
-        return ([],original_title)
+    # if we did not succed in parsing the tags
+    if nb_bracket != 0:
+        return ([], original_title)
 
     return (tags, title.strip())
 
@@ -280,8 +275,7 @@ def new(request):
             post = Post()
             post.topic = n_topic
             post.author = request.user
-            post.text = data["text"]
-            post.text_html = emarkdown(request.POST["text"])
+            post.update_content(request.POST["text"])
             post.pubdate = datetime.now()
             post.position = 1
             post.ip_address = get_client_ip(request)
@@ -309,29 +303,33 @@ def solve_alert(request):
 
     if not request.user.has_perm("forum.change_post"):
         raise PermissionDenied
+
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
     post = Post.objects.get(pk=alert.comment.id)
-    bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
-    msg = \
-        (u'Bonjour {0},'
-        u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-        u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
-        u'et il vous a laissé le message suivant :'
-        u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-            alert.author.username,
-            post.author.username,
-            post.topic.title,
-            settings.SITE_URL + post.get_absolute_url(),
-            request.user.username,
-            request.POST["text"],))
-    send_mp(
-        bot,
-        [alert.author],
-        u"Résolution d'alerte : {0}".format(post.topic.title),
-        "",
-        msg,
-        False,
-    )
+
+    if "text" in request.POST and request.POST["text"] != "":
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        msg = \
+            (u'Bonjour {0},'
+             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+             u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
+             u'et il vous a laissé le message suivant :'
+             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
+                 alert.author.username,
+                 post.author.username,
+                 post.topic.title,
+                 settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                 request.user.username,
+                 request.POST["text"],))
+        send_mp(
+            bot,
+            [alert.author],
+            u"Résolution d'alerte : {0}".format(post.topic.title),
+            "",
+            msg,
+            False,
+        )
+
     alert.delete()
     messages.success(request, u"L'alerte a bien été résolue")
     return redirect(post.get_absolute_url())
@@ -387,7 +385,7 @@ def edit(request):
         try:
             page = int(request.POST["page"])
         except:
-            #problem in variable format
+            # problem in variable format
             raise Http404
     else:
         page = 1
@@ -468,8 +466,8 @@ def answer(request):
 
     # Retrieve last posts of the current topic.
     posts = Post.objects.filter(topic=g_topic) \
-    .prefetch_related() \
-    .order_by("-pubdate")[:settings.POSTS_PER_PAGE]
+        .prefetch_related() \
+        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new post on the topic.
 
@@ -509,9 +507,11 @@ def answer(request):
                 post.save()
                 g_topic.last_message = post
                 g_topic.save()
-                #Send mail
-                subject = "ZDS - Notification : " + g_topic.title
-                from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
+                # Send mail
+                subject = u"{} - Notification : {}".format(settings.ZDS_APP['site']['abbr'],
+                                                           g_topic.title)
+                from_email = "{0} <{1}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                                settings.ZDS_APP['site']['email_noreply'])
                 followers = g_topic.get_followers_by_email()
                 for follower in followers:
                     receiver = follower.user
@@ -527,19 +527,17 @@ def answer(request):
                             .render(
                                 Context({
                                     'username': receiver.username,
-                                    'title':g_topic.title,
-                                    'url': settings.SITE_URL + post.get_absolute_url(),
+                                    'title': g_topic.title,
+                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                     'author': request.user.username
-                                })
-                        )
+                                }))
                         message_txt = get_template('email/notification/new.txt').render(
                             Context({
                                 'username': receiver.username,
-                                'title':g_topic.title,
-                                'url': settings.SITE_URL + post.get_absolute_url(),
+                                'title': g_topic.title,
+                                'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                 'author': request.user.username
-                            })
-                        )
+                            }))
                         msg = EmailMultiAlternatives(
                             subject, message_txt, from_email, [
                                 receiver.email])
@@ -577,7 +575,7 @@ def answer(request):
             text = u"{0}Source:[{1}]({2}{3})".format(
                 text,
                 post_cite.author.username,
-                settings.SITE_URL,
+                settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
 
         form = PostForm(g_topic, request.user, initial={"text": text})
@@ -875,7 +873,6 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
-
 def find_topic_by_tag(request, tag_pk, tag_slug):
     """Finds all topics byg tag."""
 
@@ -889,18 +886,19 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
             topics = Topic.objects.filter(
                 tags__in=[tag],
                 is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags")\
+                    "author",
+                    "last_message",
+                    "tags")\
                 .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
                 .all()
         else:
             topics = Topic.objects.filter(
                 tags__in=[tag],
-                is_solved=False).order_by("-last_message__pubdate").prefetch_related(
-                "author",
-                "last_message",
-                "tags")\
+                is_solved=False).order_by("-last_message__pubdate")\
+                .prefetch_related(
+                    "author",
+                    "last_message",
+                    "tags")\
                 .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
                 .all()
     else:
@@ -910,7 +908,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
             .prefetch_related("author", "last_message", "tags").all()
     # Paginator
 
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -930,7 +928,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
     })
 
 
-
 def find_topic(request, user_pk):
     """Finds all topics of a user."""
 
@@ -943,7 +940,7 @@ def find_topic(request, user_pk):
         .order_by("-pubdate").all()
 
     # Paginator
-    paginator = Paginator(topics, settings.TOPICS_PER_PAGE)
+    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)
@@ -968,7 +965,7 @@ def find_post(request, user_pk):
 
     displayed_user = get_object_or_404(User, pk=user_pk)
     user = request.user
-    
+
     if user.has_perm("forum.change_post"):
         posts = \
             Post.objects.filter(author=displayed_user)\
@@ -983,7 +980,7 @@ def find_post(request, user_pk):
             .prefetch_related("author").order_by("-pubdate").all()
 
     # Paginator
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
     page = request.GET.get("page")
     try:
         shown_posts = paginator.page(page)
@@ -1009,7 +1006,7 @@ def followed_topics(request):
 
     # Paginator
 
-    paginator = Paginator(followed_topics, settings.FOLLOWED_TOPICS_PER_PAGE)
+    paginator = Paginator(followed_topics, settings.ZDS_APP['forum']['followed_topics_per_page'])
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)

@@ -1,4 +1,5 @@
 {% load date %}
+{% load emarkdown %}
 
 
 
@@ -59,7 +60,7 @@
             </a>
             <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
-                    {{ validation.comment_validator }}
+                    {{ validation.comment_validator|emarkdown }}
                 </p>
             </div>
         {% endif %}

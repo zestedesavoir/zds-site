@@ -31,7 +31,7 @@
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
-                        <a href="{{ topic.get_absolute_url }}" class="navigable-link">{% spaceless %}
+                        <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
                             {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
@@ -49,21 +49,28 @@
                         </p>
                     </div>
                 {% endwith %}
-                <p class="topic-answers">
+                <p class="topic-answers {% if topic.get_post_count <= 1 %}topic-no-answer{% endif %}">
                     {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
+                            {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
                     {% endif %}
                 </p>
                 <p class="topic-last-answer">
                     {% with answer=topic.get_last_answer %}
                         {% if answer %}
                             <a href="{{ answer.get_absolute_url }}">
-                                Dernière réponse <br>
-                                {{ answer.pubdate|format_date }}
+                                <span class="topic-last-answer-long-date">
+                                    Dernière réponse <br>
+                                    {{ answer.pubdate|format_date }}
+                                </span>
+                                <span class="topic-last-answer-short-date">
+                                    {{ answer.pubdate|format_date:True }}
+                                </span>
                             </a>
-                            <br> 
-                            par
-                            {% include "misc/member_item.part.html" with member=answer.author %}
+                            <br>
+                            <span class="topic-last-answer-author">
+                                par
+                                {% include "misc/member_item.part.html" with member=answer.author %}
+                            </span>
                         {% else %}
                             <span class="topic-no-last-answer">Aucune réponse</span>
                         {% endif %}

@@ -2,8 +2,32 @@
 
 
 
-<section class="content-wrapper topic-message">
-    {% if user.is_authenticated %}
+{% if topic.is_locked %}
+    <div class="alert-box ico-after lock light">
+        Ce sujet est verrouillé.
+    </div>
+{% elif not user.is_authenticated %}
+    <div class="alert-box warning alert-box-not-closable">
+        Vous devez être connecté pour pouvoir poster un message. <br>
+        <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}" class="btn alert-box-btn alert-box-btn-right">Connexion</a>
+    </div>
+    <div class="alert-box not-member alert-box-not-closable">
+        <h4 class="alert-box-title">Pas encore inscrit ?</h4>
+        <p>
+            Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité. <br>
+            <a href="{% url "zds.member.views.register_view" %}" class="alert-box-btn">Créer un compte</a>
+        </p>
+    </div>
+{% elif topic.antispam %}
+    <div class="alert-box warning ico-after alert light">
+        Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood.
+    </div>
+{% elif topic.alone %}
+    <div class="alert-box warning cross light">
+        Vous êtes seul dans cette conversation.
+    </div>
+{% else %}
+    <section class="topic-message">
         <form action="{{ form_action }}" method="post">
             {% include "misc/message_user.html" with hide_metadata=True %}
 
@@ -16,17 +40,7 @@
                         class="md-editor"
                         {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
-                    >{% spaceless %}
-                        {% if topic.is_locked %}
-                            Ce sujet est verrouillé.
-                        {% elif topic.antispam  %}
-                            Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood.
-                        {% elif topic.alone %}
-                            Vous êtes seul dans cette conversation.
-                        {% else %}
-                            {{ text }}
-                        {% endif %}
-                    {% endspaceless %}</textarea>
+                    >{{ text }}</textarea>
                 </div>
 
                 <div class="message-bottom">
@@ -56,9 +70,5 @@
                 {% csrf_token %}
             </div>
         </form>
-    {% else %}
-        <p>
-            Vous devez être connecté pour pouvoir poster un message.
-        </p>
-    {% endif %}
-</section>
+    </section>
+{% endif %}

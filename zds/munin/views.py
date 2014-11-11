@@ -35,7 +35,6 @@ def total_tutorials(request):
             ("online", tutorials.filter(sha_public__isnull=False).count())]
 
 
-
 @muninview(config="""graph_title Total articles
 graph_vlabel articles""")
 def total_articles(request):

@@ -8,7 +8,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 from zds.article.models import Article
-from zds.utils.forms import CommonLayoutEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 
 
@@ -48,16 +48,28 @@ class ArticleForm(forms.Form):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label="Sous catégories de votre article",
+        label=u"Sous catégories de votre article. Si aucune catégorie ne convient "
+              u"n'hésitez pas à en demander une nouvelle lors de la validation !",
         queryset=SubCategory.objects.all(),
         required=False
     )
-    
+
     licence = forms.ModelChoiceField(
         label="Licence de votre publication",
         queryset=Licence.objects.all(),
         required=True,
         empty_label=None
+    )
+
+    msg_commit = forms.CharField(
+        label='Message de suivi',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Un résumé de vos ajouts et modifications'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -72,7 +84,7 @@ class ArticleForm(forms.Form):
             Field('image'),
             Field('subcategory'),
             Field('licence'),
-            CommonLayoutEditor(),
+            CommonLayoutVersionEditor(),
         )
 
     def clean(self):
@@ -140,7 +152,7 @@ class ReactionForm(forms.Form):
                 placeholder=u'Cet article est verrouillé.',
                 disabled=True
             )
-            
+
     def clean(self):
         cleaned_data = super(ReactionForm, self).clean()
 
@@ -152,9 +164,9 @@ class ReactionForm(forms.Form):
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
-        elif len(text) > settings.MAX_POST_LENGTH:
+        elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.MAX_POST_LENGTH)])
+                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data

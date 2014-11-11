@@ -82,8 +82,6 @@ urlpatterns = patterns('',
                        url(r'^rechercher/', include('zds.search.urls')),
                        url(r'^munin/', include('zds.munin.urls')),
 
-                       url(r'^captcha/', include('captcha.urls')),
-
                        ('^munin/', include('munin.urls')),
 
                        url(r'^$', 'zds.pages.views.home'),

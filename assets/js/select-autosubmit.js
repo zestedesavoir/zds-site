@@ -4,10 +4,10 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
-    $(".select-autosubmit").change(function() {
+    $("body").on("change", ".select-autosubmit", function() {
         $(this).parents("form:first").submit();
     });
 })(jQuery);

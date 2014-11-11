@@ -5,7 +5,7 @@ import os
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm
+from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm, ArchiveImageForm
 from zds.member.factories import ProfileFactory
 from zds import settings
 
@@ -78,6 +78,18 @@ class ImageFormTest(TestCase):
             'physical': SimpleUploadedFile(upload_file.name, upload_file.read())
         }
         form = ImageForm(data, files)
+
+        self.assertTrue(form.is_valid())
+        upload_file.close()
+
+    def test_valid_archive_image_form(self):
+        upload_file = open(os.path.join(settings.SITE_ROOT, 'fixtures', 'archive-gallery.zip'), 'r')
+
+        data = {}
+        files = {
+            'file': SimpleUploadedFile(upload_file.name, upload_file.read())
+        }
+        form = ArchiveImageForm(data, files)
 
         self.assertTrue(form.is_valid())
         upload_file.close()
@@ -155,7 +167,7 @@ class ImageFormTest(TestCase):
         files = {
             'physical': SimpleUploadedFile(upload_file.name, upload_file.read())
         }
-        form = ImageForm(data, files)
+        ImageForm(data, files)
         upload_file.close()
 
     def test_too_long_legend_image_form(self):
@@ -169,7 +181,7 @@ class ImageFormTest(TestCase):
         files = {
             'physical': SimpleUploadedFile(upload_file.name, upload_file.read())
         }
-        form = ImageForm(data, files)
+        ImageForm(data, files)
         upload_file.close()
 
 

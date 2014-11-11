@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     $("#accessibility a").on("focus", function(){

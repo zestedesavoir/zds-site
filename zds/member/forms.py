@@ -7,8 +7,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 
-from email.utils import parseaddr
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
@@ -153,8 +151,8 @@ class RegisterForm(forms.Form):
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
-        
-        if username is not None :
+
+        if username is not None:
             if username.strip() == '':
                 msg = u'Le nom d\'utilisateur ne peut-être vide'
                 self._errors['username'] = self.error_class([msg])
@@ -269,7 +267,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', "Afficher les signatures"),
             ('hover_or_click', "Cochez pour dérouler les menus au survol"),
             ('email_for_answer', u'Recevez un courriel lorsque vous '
-            u'recevez une réponse à un message privé'),
+             u'recevez une réponse à un message privé'),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -336,7 +334,7 @@ class ChangeUserForm(forms.Form):
                 'placeholder': 'Ne mettez rien pour conserver l\'ancien'
             }
         ),
-        error_messages = {'invalid': u'Veuillez entrer une adresse email valide.',}
+        error_messages={'invalid': u'Veuillez entrer une adresse email valide.', }
     )
 
     def __init__(self, *args, **kwargs):
@@ -385,7 +383,7 @@ class ChangeUserForm(forms.Form):
                                 msg = u'Utilisez un autre fournisseur d\'adresses mail.'
                                 self._errors['email_new'] = self.error_class([msg])
                                 break
-            
+
         return cleaned_data
 
 
@@ -573,10 +571,15 @@ class PromoteMemberForm(forms.Form):
         queryset=Group.objects.all(),
         required=False,
     )
-    
+
     superuser = forms.BooleanField(
         label="Super-user",
-        required=False,    
+        required=False,
+    )
+
+    activation = forms.BooleanField(
+        label="Compte actif",
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -588,5 +591,6 @@ class PromoteMemberForm(forms.Form):
         self.helper.layout = Layout(
             Field('groups'),
             Field('superuser'),
+            Field('activation'),
             StrictButton('Valider', type='submit'),
         )

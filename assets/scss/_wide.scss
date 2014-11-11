@@ -278,6 +278,15 @@
                     margin: 0;
                 }
             }
+
+            .article-content > .summary-part > li {
+                float: left;
+                width: 50%;
+
+                &:nth-child(2n+1) {
+                    clear: both;
+                }
+            }
         }
 
         .sidebar {
@@ -392,6 +401,37 @@
         float: left;
     }
     
+
+
+    /* ============
+       Main / Topic list
+       ============ */
+    .topic-list {
+        .topic-members-short-date {
+            display: none;
+        }
+        .topic-last-answer-short-date {
+            display: none;
+        }
+        &:not(.topic-list-small) .topic-last-answer {
+            .topic-no-last-answer {
+                margin-top: 24px;
+            }
+        }
+    }
+    .forum-list {
+        .topic {
+            min-height: 0;
+        }
+        .topic-last-answer {
+            .forum-last-message {
+                .forum-last-message-long {
+                    display: none;
+                }
+            }
+        }
+    }
+
 
 
     /* ============
@@ -526,7 +566,7 @@
             &:hover,
             &:focus {
                 color: #EEE !important;
-                background: $blue !important;
+                background: $primary !important;
             }
         }
     }

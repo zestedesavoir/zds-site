@@ -11,9 +11,9 @@
 /**
  * Global vars
  */
-$default-transition-duration: .15s;
+$transition-duration: .15s;
 
-//$sprite: sprite-map("../images/sprite.png");
+//$sprite: url("../images/sprite.png");
 $sprite2x: url("../images/sprite@2x.png");
 $sprite: $sprite2x;
 
@@ -22,20 +22,23 @@ $sprite: $sprite2x;
 /**
  * Colors
  */
-$body-background: #F7F7F7;
-$blue: #084561;
-$orange: #F8AD32;
-$header-hover: #396a81;
-$helpful: #e9f9dc;
+$primary: #084561; // Blue for ZdS
+$secondary: #F8AD32; // Orange for ZdS
 
-$sidebar-background: #F0F0F0;
-$sidebar-hover: #FFF;
+$body-background: #F7F7F7; // Background of page body
+$header-hover: #396a81; // Hover background of links in header
+$helpful: #e9f9dc; // Background of helpful messages
 
-$upvote-green: #48a200;
-$downvote-red: #c0392b;
+$sidebar-background: #F0F0F0; // Background of sidebar
+$sidebar-hover: #FFF; // Background of links on hover
+
+$upvote: #48a200; // Green for ZdS / Upvote text & staff badge & submit button
+$downvote: #c0392b; // Red for ZdS / Downvote text & cancel button
+
+$kbd-color: #F8F6EA; // Base color for keyboard tag
 
 // Margins
-$modal-margin: 25px;
+$modal-margin: 25px; // Default modal margin (biggest size)
 
 // Font Famillies
 $font-sans-serif: "Segoe UI", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
@@ -77,6 +80,9 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
 @import "wide";
 @import "extra-wide";
 @import "mega-wide";
+
+// Icons
+@import "icons";
 
 // Retina-like support
 @import "high-pixel-ratio";
