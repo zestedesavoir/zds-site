@@ -13,6 +13,8 @@ from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
 from zds.member.models import Profile, listing
 from zds.settings import SITE_ROOT
+from zds.utils.tokens import generate_token
+from .adapters import get_adapter
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -47,7 +49,7 @@ class OldTutoForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label='Nom d\'utilisateur',
+        label='Identifiant',
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -58,7 +60,7 @@ class LoginForm(forms.Form):
     )
 
     password = forms.CharField(
-        label='Mot de passe',
+        label='Mot magique',
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -66,14 +68,16 @@ class LoginForm(forms.Form):
     )
 
     remember = forms.BooleanField(
-        label='Se souvenir de moi',
+        label='Connexion automatique',
         initial=True,
     )
+
+    user = None
 
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.member.views.login_view')
+        self.helper.form_action = reverse('member_login')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -83,8 +87,31 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton('Se connecter', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
+
+    def clean(self):
+        if self._errors:
+            return
+        username = self.cleaned_data["username"]
+        password = self.cleaned_data["password"]
+        user = authenticate(username=username, password=password)
+        if user:
+            self.user = user
+        else:
+            raise forms.ValidationError("Les identifiants fournis ne sont pas valides")
+        return self.cleaned_data
+
+    def login(self, request, redirect_url=None):
+        user = authenticate(request["username"], request["password"])
+        ret = get_adapter().perform_login(request, user, redirect_url)
+
+        request.session["get_token"] = generate_token()
+        if "remember" not in request.POST:
+            request.session.set_expiry(0)
+
+        return ret
 
 
 class RegisterForm(forms.Form):

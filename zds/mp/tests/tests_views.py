@@ -32,7 +32,7 @@ class IndexViewTest(TestCase):
         response = self.client.get(reverse('zds.mp.views.index'), follow=True)
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.index'), ''))
 
     def test_success_delete_topic_no_participants(self):
@@ -147,7 +147,7 @@ class TopicViewTest(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse(
                 'zds.mp.views.topic',
                 args=[self.topic1.pk, slugify(self.topic1.title)]), ''))
@@ -222,7 +222,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.new'), ''))
 
     def test_success_get_with_and_without_username(self):
@@ -376,7 +376,7 @@ class EditViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.edit'), ''))
 
     def test_fail_edit_topic_not_sending_topic_pk(self):
@@ -486,7 +486,7 @@ class AnswerViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.answer'), ''))
 
     def test_fail_answer_not_send_topic_pk(self):
@@ -662,7 +662,7 @@ class EditPostViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.edit_post'), ''))
 
     def test_fail_edit_post_no_get_parameter(self):
@@ -800,7 +800,7 @@ class LeaveViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.leave'), ''))
 
     def test_fail_leave_topic_no_exist(self):
@@ -924,7 +924,7 @@ class AddParticipantViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
+            reverse('member_login')
             + '?next=' + urllib.quote(reverse('zds.mp.views.add_participant'), ''))
 
     def test_fail_add_participant_topic_no_exist(self):

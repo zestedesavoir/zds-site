@@ -6,7 +6,6 @@ import uuid
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, SiteProfileNotAvailable
 from django.core.context_processors import csrf
@@ -16,11 +15,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateResponseMixin, View
 from zds.utils.models import Comment
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.gallery.models import UserGallery
@@ -36,11 +37,14 @@ from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
+from zds.member.utils import get_next_redirect_url, passthrough_next_redirect_url
 from zds.tutorial.models import Tutorial
 from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
-from zds.utils.tokens import generate_token
+from zds.utils.globals import get_form_class
+from .adapters import get_adapter
+from .settings import app_settings
 
 
 def index(request):
@@ -591,74 +595,81 @@ def settings_user(request):
         return render_template("member/settings/user.html", c)
 
 
-def login_view(request):
-    """Log in user."""
-
-    csrf_tk = {}
-    csrf_tk.update(csrf(request))
-    error = False
-
-    # Redirecting user once logged in?
-
-    if "next" in request.GET:
-        next_page = request.GET["next"]
-    else:
-        next_page = None
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            profile = get_object_or_404(Profile, user=user)
-            if user.is_active:
-                if profile.can_read_now():
-                    login(request, user)
-                    request.session["get_token"] = generate_token()
-                    if "remember" not in request.POST:
-                        request.session.set_expiry(0)
-                    profile.last_ip_address = get_client_ip(request)
-                    profile.save()
-                    # redirect the user if needed
-                    try:
-                        return redirect(next_page)
-                    except:
-                        return redirect(reverse("zds.pages.views.home"))
-                else:
-                    messages.error(request,
-                                   "Vous n'êtes pas autorisé à vous connecter "
-                                   "sur le site, vous avez été banni par un "
-                                   "modérateur")
-            else:
-                messages.error(request,
-                               "Vous n'avez pas encore activé votre compte, "
-                               "vous devez le faire pour pouvoir vous "
-                               "connecter sur le site. Regardez dans vos "
-                               "mails : " + str(user.email))
+class RedirectAuthenticatedUserMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        self.request = request
+        if request.user.is_authenticated():
+            redirect_to = self.get_authenticated_redirect_url()
+            response = HttpResponseRedirect(redirect_to)
+            return response
         else:
-            messages.error(request,
-                           "Les identifiants fournis ne sont pas valides")
-    form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view")
-    if next_page is not None:
-        form.helper.form_action += "?next=" + next_page
-    csrf_tk["error"] = error
-    csrf_tk["form"] = form
-    csrf_tk["next_page"] = next_page
-    return render_template("member/login.html",
-                           {"form": form,
-                            "csrf_tk": csrf_tk,
-                            "next_page": next_page})
+            response = super(RedirectAuthenticatedUserMixin, self) \
+                .dispatch(request, *args, **kwargs)
+        return response
+
+    def get_authenticated_redirect_url(self):
+        redirect_field_name = self.redirect_field_name
+        return get_adapter() \
+            .get_login_redirect_url(request=self.request,
+                                    url=self.get_success_url(),
+                                    redirect_field_name=redirect_field_name)
 
 
-@login_required
-@require_POST
-def logout_view(request):
-    """Log out user."""
+class LoginView(RedirectAuthenticatedUserMixin,
+                FormView):
+    form_class = LoginForm
+    template_name = "member/login.html"
+    success_url = "zds.pages.views.home"
+    redirect_field_name = "next"
 
-    logout(request)
-    request.session.clear()
-    return redirect(reverse("zds.pages.views.home"))
+    def get_form_class(self):
+        return get_form_class(app_settings.FORMS, 'login', self.form_class)
+
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        return form.login(self.request, redirect_url=success_url)
+
+    def get_success_url(self):
+        # Explicitly passed ?next= URL takes precedence
+        ret = (get_next_redirect_url(self.request,
+                                     self.redirect_field_name)
+               or self.success_url)
+        return ret
+
+    def get_context_data(self, **kwargs):
+        form = kwargs['form']
+        ret = super(LoginView, self).get_context_data(**kwargs)
+
+        login_url = passthrough_next_redirect_url(self.request,
+                                                  reverse('member_login'),
+                                                  self.redirect_field_name)
+        form.helper.form_action = login_url
+
+        csrf_tk = {}
+        csrf_tk.update(csrf(self.request))
+        csrf_tk["error"] = False
+        csrf_tk["form"] = form
+
+        ret.update({"form": form,
+                    "csrf_tk": csrf_tk})
+
+        return ret
+
+
+login = LoginView.as_view()
+
+
+class LogoutView(TemplateResponseMixin, View):
+    template_name = "home.html"
+
+    def post(self, *args, **kwargs):
+        return get_adapter().perform_logout(self.request)
+
+    def get_context_data(self, **kwargs):
+        return super(LogoutView, self).get_context_data(**kwargs)
+
+
+logout = LogoutView.as_view()
 
 
 def register_view(request):

@@ -52,7 +52,7 @@ class MemberTests(TestCase):
         user = ProfileFactory()
 
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member_login'),
             {'username': user.user.username,
              'password': 'hostel',
              'remember': 'remember'},
@@ -61,7 +61,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member_login'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -498,7 +498,7 @@ class MemberTests(TestCase):
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
-        result = self.client.get(reverse('zds.member.views.login_view') + '?next='
+        result = self.client.get(reverse('member_login') + '?next='
                                  + reverse('zds.member.views.details', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
@@ -639,7 +639,7 @@ class MemberTests(TestCase):
 
         # test login normal user
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member_login'),
             {'username': tester.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -656,7 +656,7 @@ class MemberTests(TestCase):
 
         # log the staff user
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member_login'),
             {'username': staff.user.username,
              'password': 'hostel77',
              'remember': 'remember'},

@@ -18,7 +18,7 @@ class GalleryListViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.gallery_list'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view')
+                             reverse('member_login')
                              + '?next=' + urllib.quote(reverse('zds.gallery.views.gallery_list'), ''))
 
     def test_list_galeries_belong_to_member(self):
@@ -50,7 +50,7 @@ class GalleryDetailViewTest(TestCase):
         response = self.client.get(reverse('zds.gallery.views.gallery_details',
                                            args=['89', 'test-gallery']), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view')
+                             reverse('member_login')
                              + '?next=' + urllib.quote(reverse('zds.gallery.views.gallery_details',
                                                                args=['89', 'test-gallery']), ''))
 
@@ -95,13 +95,13 @@ class NewGalleryViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.new_gallery'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member_login') +
                              '?next=' +
                              urllib.quote(reverse('zds.gallery.views.new_gallery'), ''))
 
         response = self.client.post(reverse('zds.gallery.views.new_gallery'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member_login') +
                              '?next=' +
                              urllib.quote(reverse('zds.gallery.views.new_gallery'), ''))
 
@@ -331,7 +331,7 @@ class EditImageViewTest(TestCase):
             follow=True
         )
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view')
+                             reverse('member_login')
                              + '?next=' + urllib.quote(reverse('zds.gallery.views.edit_image', args=[15, 156]), ''))
 
     def test_fail_member_no_permission_can_edit_image(self):
@@ -417,7 +417,7 @@ class ModifyImageTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.delete_image'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view')
+                             reverse('member_login')
                              + '?next=' + urllib.quote(reverse('zds.gallery.views.delete_image'), ''))
 
     def test_fail_modify_image_with_no_permission(self):
@@ -523,7 +523,7 @@ class NewImageViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('zds.gallery.views.new_image', args=[1]), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view')
+                             reverse('member_login')
                              + '?next=' + urllib.quote(reverse('zds.gallery.views.new_image', args=[1]), ''))
 
     def test_success_new_image_write_permission(self):
