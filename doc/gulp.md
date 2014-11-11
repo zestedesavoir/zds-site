@@ -1,75 +1,73 @@
-# tl;dr — Installation rapide
+# Installation complète des outils
 
-Installez [node.js](http://nodejs.org), puis, dans le dossier du projet :
+## Installation de Node.JS
 
-````shell
-[sudo] npm install -g bower gulp # Installe gulp et bower, si ce n'est pas déjà fait
-npm install # Installe les dépendances du projet
-gulp build # Lance gulp
-````
-
-# Installer Gulp
-
-## Prérequis
-
-### [Node.js](http://nodejs.org)
-
-Pour vérifier si vous avez node d'installé :
-
-````shell
-$ node -v
-v0.10.26
-$ npm -v
-1.4.7
-````
-
-Vous devez avoir une version de node > 0.10.x, et de npm > 1.x.x
-
-#### Windows
+### Windows
 
 Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node en ouvrant le fichier téléchargé.
 
-#### Mac OS X
+### Mac OS X
 
 Node.js propose un installer (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node en ouvrant le fichier téléchargé.
 
-#### Linux
+### Linux
 
-##### Ubuntu
+#### Ubuntu
 
 Une version récente de Node avec npm est disponible sur le PPA `chris-lea/node.js`
 
 ````shell
-$ sudo add-apt-repository ppa:chris-lea/node.js
-$ sudo apt-get update
-$ sudo apt-get install python-software-properties python g++ make nodejs
+sudo add-apt-repository ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install python-software-properties python g++ make nodejs
 ````
 
-##### Debian
+#### Debian
 
 Une version récente de Node se trouve dans les répos wheezy-backport, jessie, et sid. Sur ces versions de Debian, l'installation peut se faire de cette manière:
 
 ````shell
-$ sudo apt-get install node
+sudo apt-get install node
+````
+
+Certaines dépendances utilisent `node` au lieu de `nodejs`, pour y remédier :
+
+````shell
+sudo ln -s /usr/bin/nodejs /usr/bin/node
 ````
 
 -----
 
 Les instructions détaillées pour toutes les distributions se trouvent dans la [doc officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
 
-### Gulp et Bower
+Pour vérifier si que Node.JS est installé (et si vous avez la bonne version) :
+
+````shell
+node -v
+v0.10.26
+npm -v
+1.4.7
+````
+
+Vous devez avoir une version de node > 0.10.x, et de npm > 1.x.x
+
+## Installation des dépendances (Gulp et Bower entre autres)
 
 L'installation de Gulp et Bower se fait via `npm`. Selon votre installation, elle devra se faire en administrateur ou non.
 
 ````shell
-$ [sudo] npm install -g gulp bower
+[sudo] npm install -g gulp bower
 ````
 
-### Installer les dépendances npm du projet
+Dans le répertoire du projet :
 
-Dans le répertoire du projet, lancez simplement `npm install`. Cela installera les dépendances des tâches Gulp, et les dépendances front via Bower (jQuery, Modernizr, ...)
+````shell
+npm install
+````
 
-# Utiliser Gulp
+Cela installera les dépendances des tâches Gulp, et les dépendances front via Bower (jQuery, Modernizr, ...).
+
+# Utilisation de Gulp
 
 ## Présentation
 
@@ -138,9 +136,9 @@ dist/
 
 ## Les différentes tâches
 
-Gulp se lance avec `gulp [tache]`, où "*[tache]*" est la tâche à lancer.
+Gulp se lance avec `gulp [tache]` où `[tache]` est la tâche à lancer.
 
  - `clean`: Nettoie le dossier `dist/`
- - `build`: Compile tout (CSS, JS, et Images)
+ - `build`: Compile tout (CSS, JS, et images)
  - `test`: Lance les tests (JSHint, ...)
  - `watch`: Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement; `Ctrl+C` pour arrêter)
