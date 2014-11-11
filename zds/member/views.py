@@ -423,7 +423,11 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render(request, 'article/member/index.html', {'articles': user_articles, 'type': state})
+    # Order by title
+
+    user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render(request, 'article/member/index.html', {'articles': user_articles, 'type': type})
 
 
 # settings for public profile
