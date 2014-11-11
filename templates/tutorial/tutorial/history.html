@@ -101,9 +101,9 @@
                                     <input type="hidden" name="activ_beta">
                                     <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                     <p>
-                                        {% blocktrans with date_version=log.time.0|humane_time %}
+                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
                                             Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel 
-                                            "<em>{{ tutorial.title }}</em>" dans sa version du {{ date_version }} ?
+                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
                                         {% endblocktrans %}
                                     </p>
                                     <button type="submit">
@@ -120,9 +120,9 @@
                                     <input type="hidden" name="update_beta">
                                     <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                     <p>
-                                        {% blocktrans with date_version=log.time.0|humane_time %}
+                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
                                             Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
-                                            "<em>{{ tutorial.title }}</em>" dans sa version du {{ date_version }} ?
+                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
                                         {% endblocktrans %}
                                     </p>
                                     <button type="submit">

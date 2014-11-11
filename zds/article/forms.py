@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class ArticleForm(forms.Form):
     title = forms.CharField(
-        label=_('Titre'),
+        label=_(u'Titre'),
         max_length=Article._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
@@ -69,7 +69,7 @@ class ArticleForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _('Un résumé de vos ajouts et modifications')
+                'placeholder': _(u'Un résumé de vos ajouts et modifications')
             }
         )
     )

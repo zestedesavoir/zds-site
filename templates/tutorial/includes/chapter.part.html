@@ -36,8 +36,8 @@
                 <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">{% trans "Supprimer" %}</a>
                 <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
                     <p>
-                        {% blocktrans %}
-                        Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract.title }}</em> ?
+                        {% blocktrans with extract_title=extract.title %}
+                        Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract_title }}</em> ?
                         {% endblocktrans %}
                     </p>
                     <input type="hidden" name="extract" value="{{ extract.pk }}">

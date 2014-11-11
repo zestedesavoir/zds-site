@@ -215,8 +215,8 @@
                     <a href="#delete" class="open-modal ico-after cross red">{% trans "Supprimer" %}</a>
                     <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="delete">
                         <p>
-                            {% blocktrans %}
-                                Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article.title }}</em>".
+                            {% blocktrans with article_title=article.title %}
+                                Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article_title }}</em>".
                             {% endblocktrans %}
                         </p>
 
