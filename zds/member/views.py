@@ -427,7 +427,6 @@ def articles(request):
     except KeyError:
         sort_articles = 'abc'
 
-
     # Retrieves all articles of the current user.
 
     profile = request.user.profile
