@@ -366,30 +366,32 @@ def modify_profile(request, user_pk):
 def tutorials(request):
     """Returns all tutorials of the authenticated user."""
 
-    # The type indicate what the user would like to display. We can display
-    # public, draft or all user's tutorials.
+    # The type indicate what the user would like to display. We can display public, draft or all user's tutorials.
 
     try:
-        type = request.GET["type"]
+        type = request.GET['type']
     except KeyError:
         type = None
 
     # Retrieves all tutorials of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if type == 'draft':
         user_tutorials = profile.get_draft_tutos()
-    elif type == "beta":
+    elif type == 'beta':
         user_tutorials = profile.get_beta_tutos()
-    elif type == "validate":
+    elif type == 'validate':
         user_tutorials = profile.get_validate_tutos()
-    elif type == "public":
+    elif type == 'public':
         user_tutorials = profile.get_public_tutos()
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template("tutorial/member/index.html",
-                           {"tutorials": user_tutorials, "type": type})
+    # Order by title
+
+    user_tutorials = user_tutorials.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render_template('tutorial/member/index.html', {'tutorials': user_tutorials, 'type': type})
 
 
 @login_required
