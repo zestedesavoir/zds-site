@@ -40,3 +40,8 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 
 Actions à faire pour mettre en prod la version : v1.3
 =====================================================
+
+Issue #1341
+-----------
+
+Dans le `settings_prod.py` il vaut bien vérifier que `STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'` pour le versionnage des fichiers statiques. Plus d'informations sur la doc : https://docs.djangoproject.com/en/1.6/ref/contrib/staticfiles/#django.contrib.staticfiles.storage.CachedStaticFilesStorage.
