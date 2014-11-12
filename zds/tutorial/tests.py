@@ -2278,6 +2278,31 @@ class BigTutorialTests(TestCase):
         f = open(draft_zip_path, 'w')
         f.write(result.content)
         f.close()
+
+        # check if it's OK when we add a '/' at then end of URL
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}/'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # check if 404 when we add a to many chars at then end of URL
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}/foo'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # check if 404 when we add a char != '/' at the end of URL
+        result = self.client.get(
+            reverse('zds.tutorial.views.download') +
+            '?tutoriel={0}a'.format(
+                self.bigtuto.pk),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
         # 2. online version :
         result = self.client.get(
             reverse('zds.tutorial.views.download') +
