@@ -729,6 +729,29 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 404)
 
+        # Now give unknow point
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Good tester is good !',
+             'points': ''},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -40)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 3)
+
+        # Now give no point at all
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Good tester is good !'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -40)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 4)
+
         # Now access without post
         result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
         self.assertEqual(result.status_code, 404)

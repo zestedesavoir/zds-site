@@ -1106,7 +1106,10 @@ def modify_karma(request):
         note.user = profile.user
         note.staff = request.user
         note.comment = request.POST["warning"]
-        note.value = int(request.POST["points"])
+        try:
+            note.value = int(request.POST["points"])
+        except:
+            note.value = 0
 
         note.save()
 
