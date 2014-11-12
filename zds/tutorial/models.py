@@ -249,7 +249,8 @@ class Tutorial(models.Model):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
-        data['licence'] = Licence.objects.get(code=data['licence'])
+        if 'licence' in data:
+            data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
 
     def load_json(self, path=None, online=False):
@@ -266,7 +267,8 @@ class Tutorial(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-            data['licence'] = Licence.objects.get(code=data['licence'])
+            if 'licence' in data:
+                data['licence'] = Licence.objects.filter(code=data['licence']).first()
             return data
 
     def dump_json(self, path=None):
