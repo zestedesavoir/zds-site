@@ -78,7 +78,7 @@ def interventions_topics(user):
         .exclude(post=F('topic__last_message'))
 
     articlesfollowed = Reaction.objects\
-        .filter(author=user, article__sha_public__is_null=False)\
+        .filter(author=user, article__sha_public__isnull=False)\
         .values('article')\
         .distinct().all()
 
@@ -89,7 +89,7 @@ def interventions_topics(user):
         .exclude(reaction=F('article__last_reaction'))
 
     tutorialsfollowed = Note.objects\
-        .filter(author=user, tutorial__sha_public__is_null=False)\
+        .filter(author=user, tutorial__sha_public__isnull=False)\
         .values('tutorial')\
         .distinct().all()
 
