@@ -331,7 +331,7 @@ def solve_alert(request):
         )
 
     alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue")
+    messages.success(request, u"L'alerte a bien été résolue.")
     return redirect(post.get_absolute_url())
 
 
@@ -409,7 +409,7 @@ def edit(request):
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
             messages.success(request,
-                             u"Le sujet {0} est désormais vérouillé."
+                             u"Le sujet {0} est désormais verrouillé."
                              .format(g_topic.title))
         if "sticky" in data:
             g_topic.is_sticky = data["sticky"] == "true"
@@ -617,9 +617,9 @@ def edit_post(request):
     if post.author != request.user and request.method == "GET" \
             and request.user.has_perm("forum.change_post"):
         messages.warning(request,
-                         u'Vous \xe9ditez ce message en tant que '
-                         u'mod\xe9rateur (auteur : {}). Soyez encore plus '
-                         u'prudent lors de l\'\xe9dition de celui-ci !'
+                         u'Vous éditez ce message en tant que '
+                         u'modérateur (auteur : {}). Soyez encore plus '
+                         u'prudent lors de l\'édition de celui-ci !'
                          .format(post.author.username))
     if request.method == "POST":
         if "delete_message" in request.POST:
@@ -630,7 +630,7 @@ def edit_post(request):
                 if request.user.has_perm("forum.change_post"):
                     post.text_hidden = request.POST["text_hidden"]
                 post.editor = request.user
-                messages.success(request, u"Le message est désormais masqué")
+                messages.success(request, u"Le message est désormais masqué.")
         if "show_message" in request.POST:
             if request.user.has_perm("forum.change_post"):
                 post.is_visible = True
@@ -646,7 +646,7 @@ def edit_post(request):
             messages.success(request,
                              u'Une alerte a été envoyée '
                              u'à l\'équipe concernant '
-                             u'ce message')
+                             u'ce message.')
 
         # Using the preview button
 

@@ -329,8 +329,8 @@ def reject_tutorial(request):
                         + validation.version)
     else:
         messages.error(request,
-                       "Vous devez avoir réservé ce tutoriel "
-                       "pour pouvoir le refuser.")
+                       u"Vous devez avoir réservé ce tutoriel "
+                       u"pour pouvoir le refuser.")
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
 
@@ -403,8 +403,8 @@ def valid_tutorial(request):
                         + validation.version)
     else:
         messages.error(request,
-                       "Vous devez avoir réservé ce tutoriel "
-                       "pour pouvoir le valider.")
+                       u"Vous devez avoir réservé ce tutoriel "
+                       u"pour pouvoir le valider.")
         return redirect(tutorial.get_absolute_url() + "?version="
                         + validation.version)
 
@@ -560,7 +560,7 @@ def delete_tutorial(request, tutorial_pk):
         tutorial.save()
         messages.success(request,
                          u'Vous ne faites plus partie des rédacteurs de ce '
-                         u'tutoriel')
+                         u'tutoriel.')
     return redirect(reverse("zds.tutorial.views.index"))
 
 
@@ -732,7 +732,7 @@ def modify_tutorial(request):
 
                 messages.success(request, u"La BETA sur ce tutoriel est bien activée.")
             else:
-                messages.error(request, u"Impossible d'activer la BETA sur ce tutoriel.")
+                messages.error(request, u"La BETA sur ce tutoriel n'a malheureusement pas pu être activée.")
             return redirect(tutorial.get_absolute_url_beta())
         elif "update_beta" in request.POST:
             if "version" in request.POST:
@@ -773,7 +773,7 @@ def modify_tutorial(request):
                     send_post(topic, msg_up)
                 messages.success(request, u"La BETA sur ce tutoriel a bien été mise à jour.")
             else:
-                messages.error(request, u"Impossible de mettre à jour la BETA sur ce tutoriel.")
+                messages.error(request, u"La BETA sur ce tutoriel n'a malheureusement pas pu être mise à jour.")
             return redirect(tutorial.get_absolute_url_beta())
         elif "desactiv_beta" in request.POST:
             tutorial.sha_beta = None
@@ -782,10 +782,10 @@ def modify_tutorial(request):
             if topic is not None:
                 msg = \
                     (u'Désactivation de la beta du tutoriel  **{}**'
-                     u'\n\nPour plus d\'informations envoyez moi un MP'.format(tutorial.title))
+                     u'\n\nPour plus d\'informations envoyez moi un message privé.'.format(tutorial.title))
                 lock_topic(topic)
                 send_post(topic, msg)
-            messages.info(request, u"La BETA sur ce tutoriel a été désactivée.")
+            messages.info(request, u"La BETA sur ce tutoriel a bien été désactivée.")
             return redirect(tutorial.get_absolute_url())
 
     # No action performed, raise 403
@@ -1450,7 +1450,7 @@ def add_part(request):
             if "submit_continue" in request.POST:
                 form = PartForm()
                 messages.success(request,
-                                 u'Partie « {0} » ajouté '
+                                 u'La partie « {0} » a été ajoutée '
                                  u'avec succès.'.format(part.title))
             else:
                 return redirect(part.get_absolute_url())
@@ -1870,7 +1870,7 @@ def add_chapter(request):
             if "submit_continue" in request.POST:
                 form = ChapterForm()
                 messages.success(request,
-                                 u'Chapitre « {0} » ajouté '
+                                 u'Le chapitre « {0} » a été ajouté '
                                  u'avec succès.'.format(chapter.title))
             else:
                 return redirect(chapter.get_absolute_url())
@@ -3356,7 +3356,7 @@ def solve_alert(request):
             False,
         )
     alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue")
+    messages.success(request, u"L'alerte a bien été résolue.")
     return redirect(note.get_absolute_url())
 
 
@@ -3384,9 +3384,9 @@ def edit_note(request):
     if note.author != request.user and request.method == "GET" \
             and request.user.has_perm("tutorial.change_note"):
         messages.add_message(request, messages.WARNING,
-                             u'Vous \xe9ditez ce message en tant que '
-                             u'mod\xe9rateur (auteur : {}). Soyez encore plus '
-                             u'prudent lors de l\'\xe9dition de '
+                             u'Vous éditez ce message en tant que '
+                             u'modérateur (auteur : {}). Soyez encore plus '
+                             u'prudent lors de l\'édition de '
                              u'celui-ci !'.format(note.author.username))
         note.alerts.all().delete()
     if request.method == "POST":

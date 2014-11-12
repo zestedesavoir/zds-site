@@ -94,7 +94,7 @@ def assoc_subscribe(request):
                 messages.success(request, u"Votre demande d'adhésion a bien été envoyée et va être étudiée.")
             except:
                 msg = None
-                messages.error(request, "Une erreur est survenue.")
+                messages.error(request, u"Une erreur est survenue.")
 
             # reset the form after successfull validation
             form = AssocSubscribeForm()

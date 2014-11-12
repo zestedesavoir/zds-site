@@ -551,8 +551,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le refuser.")
+                               u"Vous devez avoir réservé cet article "
+                               u"pour pouvoir le refuser.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -633,8 +633,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le publier.")
+                               u"Vous devez avoir réservé cet article "
+                               u"pour pouvoir le publier.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -763,7 +763,7 @@ def modify(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été retiré de l\'article.'.format(
+                u'L\'auteur {0} a bien été retiré de la rédaction de l\'article.'.format(
                     author.username))
 
             # send msg to removed author
@@ -771,7 +771,7 @@ def modify(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
-                u'pourra plus y accéder.\n'.format(
+                u'pourras plus y accéder.\n'.format(
                     author.username,
                     article.title,
                     settings.ZDS_APP['site']['url'] + article.get_absolute_url())
@@ -1109,7 +1109,7 @@ def solve_alert(request):
     alert.delete()
     messages.success(
         request,
-        u'L\'alerte a bien été résolue')
+        u'L\'alerte a bien été résolue.')
 
     return redirect(reaction.get_absolute_url())
 
