@@ -171,6 +171,8 @@ def view_online(request, article_pk, article_slug):
         page_nbr = int(request.GET['page'])
     except KeyError:
         page_nbr = 1
+    except ValueError:
+        raise Http404
 
     try:
         reactions = paginator.page(page_nbr)
