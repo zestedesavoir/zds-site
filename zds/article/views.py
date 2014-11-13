@@ -521,31 +521,30 @@ def modify(request):
 
                 comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
                 # send feedback
-                for author in article.authors.all():
-                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
-                           u'n\'a malheureusement pas passé l’étape de validation. '
-                           u'Mais ne désespère pas, certaines corrections peuvent '
-                           u'sûrement être faites pour l’améliorer et repasser la '
-                           u'validation plus tard. Voici le message que [{2}]({3}), '
-                           u'ton validateur t\'a laissé\n\n{4}\n\nN\'hésite pas a '
-                           u'lui envoyer un petit message pour discuter de la décision '
-                           u'ou demander plus de détail si tout cela te semble '
-                           u'injuste ou manque de clarté.'.format(
-                               author.username,
-                               article.title,
-                               validation.validator.username,
-                               validation.validator.profile.get_absolute_url(),
-                               comment_reject))
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    send_mp(
-                        bot,
-                        [author],
-                        u"Refus de Validation : {0}".format(
-                            article.title),
-                        "",
-                        msg,
-                        True,
-                        direct=False)
+                msg = (
+                    u'Désolé, le zeste **{0}** '
+                    u'n\'a malheureusement pas passé l’étape de validation. '
+                    u'Mais ne désespère pas, certaines corrections peuvent '
+                    u'surement être faite pour l’améliorer et repasser la '
+                    u'validation plus tard. Voici le message que [{1}]({2}), '
+                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas a '
+                    u'lui envoyer un petit message pour discuter de la décision '
+                    u'ou demander plus de détail si tout cela te semble '
+                    u'injuste ou manque de clarté.'.format(
+                        article.title,
+                        validation.validator.username,
+                        validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    article.authors.all(),
+                    u"Refus de Validation : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
                 return redirect(
                     article.get_absolute_url() +
@@ -607,27 +606,25 @@ def modify(request):
                 article.save()
 
                 # send feedback
-                for author in article.authors.all():
-                    msg = (
-                        u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
-                        u'est maintenant publié ! Les lecteurs du monde entier '
-                        u'peuvent venir le lire et réagir à son sujet. Je te conseille '
-                        u'de rester à leur écoute afin d\'apporter des '
-                        u'corrections/compléments. Un article vivant et à jour '
-                        u'est bien plus lu qu\'un sujet abandonné !'
-                        .format(author.username,
-                                article.title,
-                                settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    send_mp(
-                        bot,
-                        [author],
-                        u"Publication : {0}".format(
-                            article.title),
-                        "",
-                        msg,
-                        True,
-                        direct=False)
+                msg = (
+                    u'Félicitations ! Le zeste [{0}]({1}) '
+                    u'est maintenant publié ! Les lecteurs du monde entier '
+                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
+                    u'de rester a leur écoute afin d\'apporter des '
+                    u'corrections/compléments. Un Article vivant et a jour '
+                    u'est bien plus lu qu\'un sujet abandonné !'.format(
+                        article.title,
+                        settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    article.authors.all(),
+                     u"Publication : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
                 return redirect(
                     article.get_absolute_url() +
