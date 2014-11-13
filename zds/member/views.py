@@ -370,58 +370,92 @@ def modify_profile(request, user_pk):
 def tutorials(request):
     """Returns all tutorials of the authenticated user."""
 
-    # The type indicate what the user would like to display. We can display
-    # public, draft or all user's tutorials.
+    # The type indicate what the user would like to display. We can display public, draft or all user's tutorials.
 
     try:
-        type = request.GET["type"]
+        type = request.GET['type']
     except KeyError:
         type = None
+
+    # The sort indicate the order of tutorials.
+
+    try:
+        sort_tuto = request.GET['sort']
+    except KeyError:
+        sort_tuto = 'abc'
 
     # Retrieves all tutorials of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if type == 'draft':
         user_tutorials = profile.get_draft_tutos()
-    elif type == "beta":
+    elif type == 'beta':
         user_tutorials = profile.get_beta_tutos()
-    elif type == "validate":
+    elif type == 'validate':
         user_tutorials = profile.get_validate_tutos()
-    elif type == "public":
+    elif type == 'public':
         user_tutorials = profile.get_public_tutos()
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template("tutorial/member/index.html",
-                           {"tutorials": user_tutorials, "type": type})
+    # Order articles (abc by default)
+
+    if sort_tuto == 'creation':
+        pass  # nothing to do. Tutorials are already sort by creation date
+    elif sort_tuto == 'modification':
+        user_tutorials = user_tutorials.order_by('-update')
+    else:
+        user_tutorials = user_tutorials.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render_template(
+        'tutorial/member/index.html',
+        {'tutorials': user_tutorials, 'type': type, 'sort': sort_tuto}
+    )
 
 
 @login_required
 def articles(request):
     """Returns all articles of the authenticated user."""
 
-    # The type indicate what the user would like to display. We can display
-    # public, draft or all user's articles.
+    # The type indicate what the user would like to display. We can display public, draft or all user's articles.
 
     try:
-        type = request.GET["type"]
+        type = request.GET['type']
     except KeyError:
         type = None
+
+    # The sort indicate the order of articles.
+
+    try:
+        sort_articles = request.GET['sort']
+    except KeyError:
+        sort_articles = 'abc'
 
     # Retrieves all articles of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if type == 'draft':
         user_articles = profile.get_draft_articles()
-    if type == "validate":
+    if type == 'validate':
         user_articles = profile.get_validate_articles()
-    elif type == "public":
+    elif type == 'public':
         user_articles = profile.get_public_articles()
     else:
         user_articles = profile.get_articles()
 
-    return render_template("article/member/index.html",
-                           {"articles": user_articles, "type": type})
+    # Order articles (abc by default)
+
+    if sort_articles == 'creation':
+        pass  # nothing to do. Articles are already sort by creation date
+    elif sort_articles == 'modification':
+        user_articles = user_articles.order_by('-update')
+    else:
+        user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render_template(
+        'article/member/index.html',
+        {'articles': user_articles, 'type': type, 'sort': sort_articles}
+    )
 
 
 # settings for public profile
