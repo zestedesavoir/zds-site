@@ -85,7 +85,7 @@
         </p>
         <p>
             <a href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
-                (cliquer ici si vous préférez envoyer un MP
+                (Pas assez de place ? Envoyer un MP
                 {% if tutorial.authors.all|length > 1 %}
                     aux auteurs
                 {% else %}

@@ -3543,6 +3543,48 @@ def dislike_note(request):
 
 @login_required
 @require_POST
+def warn_typo_mini(
+    request,
+    tutorial_pk,
+):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    profile = get_object_or_404(Profile, user=request.user)
+
+    if 'explication' not in request.POST or request.POST['explication'] is None:
+        explication = ""
+    else:
+        explication = request.POST['explication']
+        explication = '\n'.join(['> '+line for line in explication.split('\n')])
+
+    if explication == "":
+        messages.error(request, u'Votre proposition de correction est vide')
+    else:
+        message = (
+            u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n'
+            u'Voici son message :\n\n'
+            u'{}'.format(request.user.username,
+                         settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                         tutorial.title,
+                         settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
+                         explication)
+            )
+        send_mp(
+            request.user,
+            tutorial.authors.all(),
+            u"Proposition de correction",
+            tutorial.title,
+            message,
+            True,
+            direct=False)
+        messages.success(request, u'Votre correction a bien été proposée !')
+    return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
+        tutorial.pk,
+        tutorial.slug,
+    ]))
+
+
+@login_required
+@require_POST
 def warn_typo(
     request,
     tutorial_pk,
@@ -3550,10 +3592,9 @@ def warn_typo(
     chapter_pk=None,
 ):
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     profile = get_object_or_404(Profile, user=request.user)
 
-    if request.POST['explication'] is None:
+    if 'explication' not in request.POST or request.POST['explication'] is None:
         explication = ""
     else:
         explication = request.POST['explication']
@@ -3580,9 +3621,9 @@ def warn_typo(
                              )
                 )
             send_mp(
-                bot,
+                request.user,
                 tutorial.authors.all(),
-                "Proposition de correction",
+                u"Proposition de correction",
                 tutorial.title,
                 message,
                 send_by_mail=True,
@@ -3612,16 +3653,15 @@ def warn_typo(
                              explication)
                 )
             send_mp(
-                bot,
+                request.user,
                 tutorial.authors.all(),
-                "Proposition de correction",
+                u"Proposition de correction",
                 tutorial.title,
                 message,
                 True,
                 direct=False)
             messages.success(request, u'Votre correction a bien été proposée !')
         return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
-            request,
             tutorial.pk,
             tutorial.slug,
         ]))

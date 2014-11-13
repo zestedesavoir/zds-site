@@ -101,7 +101,7 @@
     {% endif %}
 
     <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">Signaler une faute dans ce tutoriel</a>
-    <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo" tutorial.pk %}" method="post" >
+    <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo_mini" tutorial.pk %}" method="post" >
         <p>
             J'ai trouvé une faute dans ce tutoriel :
             {% csrf_token %}
@@ -109,7 +109,7 @@
         </p>
         <p>
             <a href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
-                (cliquer ici si vous préférez envoyer un MP
+                (Pas assez de place ? Envoyer un MP
                 {% if tutorial.authors.all|length > 1 %}
                     aux auteurs
                 {% else %}
