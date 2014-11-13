@@ -241,7 +241,7 @@ def details(request, user_name):
         .order_by("-pubdate").all()[:5]
 
     karmaform = KarmaForm(profile)
-    karmanotes = KarmaNote.objects.filter(user=usr)
+    karmanotes = KarmaNote.objects.filter(user=usr).order_by('-create_at')
     form = OldTutoForm(profile)
     oldtutos = []
     if profile.sdz_tutorial:

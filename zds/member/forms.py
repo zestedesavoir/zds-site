@@ -13,6 +13,7 @@ from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
 from zds.member.models import Profile, listing, KarmaNote
 from zds.settings import SITE_ROOT
+from zds.utils.forms import CommonLayoutModalText
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -618,9 +619,9 @@ class KarmaForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('zds.member.views.modify_karma')
         self.helper.form_method = 'post'
-        self.helper.form_class = 'content-wrapper'
 
         self.helper.layout = Layout(
+            CommonLayoutModalText(),
             Field('warning'),
             Field('points'),
             Hidden('profile_pk', '{{ profile.pk }}'),

@@ -84,8 +84,10 @@
                     <li>Cet utilisateur n'a reçu aucune remarque</li>
                 {% endif %}
                 </ul>
-                Ajouter une remarque :
-                {% crispy karmaform %}
+                <a href="#karmatiser-modal" class="open-modal">Ajouter une remarque</a>
+                <div id="karmatiser-modal" class="modal modal-big">
+                    {% crispy karmaform %}
+                </div>
             </div>
         {% endif %}
 
