@@ -365,7 +365,7 @@ def import_image(request, gal_pk):
                                               u"réduisez sa taille à moins de {} "
                                               u"<abbr title=\"kibioctet\">Kio</abbr> "
                                               u"avant de l'envoyer.").format(
-                                                str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
+                                                  str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
                     continue
                 # if it's not an image, pass
                 try:
