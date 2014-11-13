@@ -302,16 +302,15 @@ def reject_tutorial(request):
               u'pas passé l’étape de validation. Mais ne désespère pas, '
               u'certaines corrections peuvent surement être faite pour '
               u'l’améliorer et repasser la validation plus tard. '
-              u'Voici le message que [{1}]({4}{2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
+              u'Voici le message que [{1}]({2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
               u'N\'hésite pas a lui envoyer un petit message pour discuter '
               u'de la décision ou demander plus de détail si tout cela te '
               u'semble injuste ou manque de clarté.')
             .format(tutorial.title,
                     validation.validator.username,
-                    validation.validator.profile.get_absolute_url(),
-                    validation.comment_validator,
-                    settings.ZDS_APP['site']['url']))
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
+                    validation.comment_validator))
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             tutorial.authors.all(),
@@ -372,19 +371,18 @@ def valid_tutorial(request):
         # send feedback
 
         msg = (
-            _(u'Félicitations ! Le zeste [{0}]({4}{1}) '
-              u'a été publié par [{2}]({4}{3}) ! Les lecteurs du monde entier '
-              u'peuvent venir l\'éplucher et réagir a son sujet. '-
+            _(u'Félicitations ! Le zeste [{0}]({1}) '
+              u'a été publié par [{2}]({3}) ! Les lecteurs du monde entier '
+              u'peuvent venir l\'éplucher et réagir a son sujet. '
               u'Je te conseille de rester a leur écoute afin '
               u'd\'apporter des corrections/compléments.'
               u'Un Tutoriel vivant et a jour est bien plus lu '
               u'qu\'un sujet abandonné !')
             .format(tutorial.title,
-                    tutorial.get_absolute_url_online(),
+                    settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
                     validation.validator.username,
-                    validation.validator.profile.get_absolute_url(),
-                    settings.ZDS_APP['site']['url']))
-        bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),))
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
             tutorial.authors.all(),

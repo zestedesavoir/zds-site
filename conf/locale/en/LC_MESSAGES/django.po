@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-14 23:19+0100\n"
+"POT-Creation-Date: 2014-11-14 23:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -489,7 +489,7 @@ msgstr ""
 #: templates/tutorial/member/index.html:11
 #: templates/tutorial/member/index.html:31
 #: templates/tutorial/member/index.html:51
-#: templates/tutorial/member/index.html:122 zds/tutorial/views.py:491
+#: templates/tutorial/member/index.html:122 zds/tutorial/views.py:489
 msgid "En validation"
 msgstr ""
 
@@ -4386,7 +4386,7 @@ msgid ""
 "Désolé, le zeste **{0}** n'a malheureusement pas passé l’étape de "
 "validation. Mais ne désespère pas, certaines corrections peuvent surement "
 "être faite pour l’améliorer et repasser la validation plus tard. Voici le "
-"message que [{1}]({4}{2}), ton validateur t'a laissé:\n"
+"message que [{1}]({2}), ton validateur t'a laissé:\n"
 "\n"
 "`{3}`\n"
 "\n"
@@ -4394,40 +4394,43 @@ msgid ""
 "demander plus de détail si tout cela te semble injuste ou manque de clarté."
 msgstr ""
 
-#: zds/tutorial/views.py:318
+#: zds/tutorial/views.py:317
 #, python-brace-format
 msgid "Refus de Validation : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:328
+#: zds/tutorial/views.py:327
 msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le refuser."
 msgstr ""
 
-#: zds/tutorial/views.py:370
+#: zds/tutorial/views.py:369
 msgid "Le tutoriel a bien été validé."
 msgstr ""
 
-#: zds/tutorial/views.py:375
+#: zds/tutorial/views.py:374
 #, python-brace-format
 msgid ""
-"Félicitations ! Le zeste [{0}]({4}{1}) a été publié par [{2}]({4}{3}) ! Les "
-"lecteurs du monde entier peuvent venir l'éplucher et réagir a son sujet. "
+"Félicitations ! Le zeste [{0}]({1}) a été publié par [{2}]({3}) ! Les "
+"lecteurs du monde entier peuvent venir l'éplucher et réagir a son sujet. Je "
+"te conseille de rester a leur écoute afin d'apporter des corrections/"
+"compléments.Un Tutoriel vivant et a jour est bien plus lu qu'un sujet "
+"abandonné !"
 msgstr ""
 
-#: zds/tutorial/views.py:391
+#: zds/tutorial/views.py:389
 #, python-brace-format
 msgid "Publication : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:401
+#: zds/tutorial/views.py:399
 msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le valider."
 msgstr ""
 
-#: zds/tutorial/views.py:432
+#: zds/tutorial/views.py:430
 msgid "Le tutoriel a bien été dépublié."
 msgstr ""
 
-#: zds/tutorial/views.py:482
+#: zds/tutorial/views.py:480
 #, python-brace-format
 msgid ""
 "Bonjour {0},Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de "
@@ -4437,30 +4440,30 @@ msgid ""
 "> Merci"
 msgstr ""
 
-#: zds/tutorial/views.py:490
+#: zds/tutorial/views.py:488
 #, python-brace-format
 msgid "Mise à jour de tuto : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:500
+#: zds/tutorial/views.py:498
 msgid "Votre demande de validation a été envoyée à l'équipe."
 msgstr ""
 
-#: zds/tutorial/views.py:540
+#: zds/tutorial/views.py:538
 #, python-brace-format
 msgid "Le tutoriel {0} a bien été supprimé."
 msgstr ""
 
-#: zds/tutorial/views.py:557
+#: zds/tutorial/views.py:555
 msgid "Vous ne faites plus partie des rédacteurs de ce tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:593
+#: zds/tutorial/views.py:591
 #, python-brace-format
 msgid "L'auteur {0} a bien été ajouté à la rédaction du tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:599
+#: zds/tutorial/views.py:597
 #, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
@@ -4472,17 +4475,17 @@ msgid ""
 "Tu peux maintenant commencer à rédiger !"
 msgstr ""
 
-#: zds/tutorial/views.py:613
+#: zds/tutorial/views.py:611
 #, python-brace-format
 msgid "Ajout en tant qu'auteur : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:645
+#: zds/tutorial/views.py:643
 #, python-brace-format
 msgid "L'auteur {0} a bien été retiré du tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:651
+#: zds/tutorial/views.py:649
 #, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
@@ -4491,12 +4494,12 @@ msgid ""
 "pas publié, tu ne pourra plus y accéder.\n"
 msgstr ""
 
-#: zds/tutorial/views.py:662
+#: zds/tutorial/views.py:660
 #, python-brace-format
 msgid "Suppression des auteurs : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:677
+#: zds/tutorial/views.py:675
 #, python-brace-format
 msgid ""
 "Bonjour à tous,\n"
@@ -4515,12 +4518,12 @@ msgid ""
 "Merci d'avance pour votre aide"
 msgstr ""
 
-#: zds/tutorial/views.py:692
+#: zds/tutorial/views.py:690
 #, python-brace-format
 msgid "[beta][tutoriel]{0}"
 msgstr ""
 
-#: zds/tutorial/views.py:700
+#: zds/tutorial/views.py:698
 msgid ""
 "Bonjour {},\n"
 "\n"
@@ -4532,12 +4535,12 @@ msgid ""
 "est accessible [ici]({})"
 msgstr ""
 
-#: zds/tutorial/views.py:712
+#: zds/tutorial/views.py:710
 #, python-brace-format
 msgid "Tutoriel en beta : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:719
+#: zds/tutorial/views.py:717
 #, python-brace-format
 msgid ""
 "Bonjour,\n"
@@ -4551,15 +4554,15 @@ msgid ""
 "Merci pour vos relectures"
 msgstr ""
 
-#: zds/tutorial/views.py:728
+#: zds/tutorial/views.py:726
 msgid "La BETA sur ce tutoriel est bien activée."
 msgstr ""
 
-#: zds/tutorial/views.py:730
+#: zds/tutorial/views.py:728
 msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être activée."
 msgstr ""
 
-#: zds/tutorial/views.py:739
+#: zds/tutorial/views.py:737
 #, python-brace-format
 msgid ""
 "Bonjour à tous,\n"
@@ -4578,7 +4581,7 @@ msgid ""
 "Merci d'avance pour votre aide"
 msgstr ""
 
-#: zds/tutorial/views.py:761
+#: zds/tutorial/views.py:759
 #, python-brace-format
 msgid ""
 "Bonjour, !\n"
@@ -4592,116 +4595,116 @@ msgid ""
 "Merci pour vos relectures"
 msgstr ""
 
-#: zds/tutorial/views.py:769
+#: zds/tutorial/views.py:767
 msgid "La BETA sur ce tutoriel a bien été mise à jour."
 msgstr ""
 
-#: zds/tutorial/views.py:771
+#: zds/tutorial/views.py:769
 msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être mise à jour."
 msgstr ""
 
-#: zds/tutorial/views.py:779
+#: zds/tutorial/views.py:777
 msgid ""
 "Désactivation de la beta du tutoriel  **{}**\n"
 "\n"
 "Pour plus d'informations envoyez moi un message privé."
 msgstr ""
 
-#: zds/tutorial/views.py:783
+#: zds/tutorial/views.py:781
 msgid "La BETA sur ce tutoriel a bien été désactivée."
 msgstr ""
 
-#: zds/tutorial/views.py:1450
+#: zds/tutorial/views.py:1448
 #, python-brace-format
 msgid "La partie « {0} » a été ajoutée avec succès."
 msgstr ""
 
-#: zds/tutorial/views.py:1491
+#: zds/tutorial/views.py:1489
 msgid "Déplacement de la partie {} "
 msgstr ""
 
-#: zds/tutorial/views.py:1518
+#: zds/tutorial/views.py:1516
 msgid "Suppression de la partie {} "
 msgstr ""
 
-#: zds/tutorial/views.py:1873
+#: zds/tutorial/views.py:1871
 #, python-brace-format
 msgid "Le chapitre « {0} » a été ajouté avec succès."
 msgstr ""
 
-#: zds/tutorial/views.py:1922
+#: zds/tutorial/views.py:1920
 msgid "Déplacement du chapitre {}"
 msgstr ""
 
-#: zds/tutorial/views.py:1923
+#: zds/tutorial/views.py:1921
 msgid "Le chapitre a bien été déplacé."
 msgstr ""
 
-#: zds/tutorial/views.py:1959
+#: zds/tutorial/views.py:1957
 msgid "Suppression du chapitre {}"
 msgstr ""
 
-#: zds/tutorial/views.py:1960
+#: zds/tutorial/views.py:1958
 msgid "Le chapitre a bien été supprimé."
 msgstr ""
 
-#: zds/tutorial/views.py:2242
+#: zds/tutorial/views.py:2240
 msgid "Suppression de l'extrait {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2268
+#: zds/tutorial/views.py:2266
 msgid "Déplacement de l'extrait {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2654
+#: zds/tutorial/views.py:2652
 msgid "Modification du tutoriel : «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2661
+#: zds/tutorial/views.py:2659
 msgid "Création du tutoriel «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2708
+#: zds/tutorial/views.py:2706
 msgid "Suppresion de la partie : «{}»"
 msgstr ""
 
-#: zds/tutorial/views.py:2714
+#: zds/tutorial/views.py:2712
 msgid "Modification de la partie «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2719
+#: zds/tutorial/views.py:2717
 msgid "Création de la partie «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2773
+#: zds/tutorial/views.py:2771
 msgid "Suppresion du chapitre : «{}»"
 msgstr ""
 
-#: zds/tutorial/views.py:2779
+#: zds/tutorial/views.py:2777
 msgid "Modification du tutoriel «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2782
+#: zds/tutorial/views.py:2780
 msgid "Modification du chapitre «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2787
+#: zds/tutorial/views.py:2785
 msgid "Création du chapitre «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2852
+#: zds/tutorial/views.py:2850
 msgid "Suppression de l'extrait : «{}»"
 msgstr ""
 
-#: zds/tutorial/views.py:2860
+#: zds/tutorial/views.py:2858
 msgid "Mise à jour de l'extrait «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2863
+#: zds/tutorial/views.py:2861
 msgid "Création de l'extrait «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:3346
+#: zds/tutorial/views.py:3344
 #, python-brace-format
 msgid ""
 "Bonjour {0},Vous recevez ce message car vous avez signalé le message de *{1}"
@@ -4713,16 +4716,16 @@ msgid ""
 "Toute l'équipe de la modération vous remercie !"
 msgstr ""
 
-#: zds/tutorial/views.py:3360
+#: zds/tutorial/views.py:3358
 #, python-brace-format
 msgid "Résolution d'alerte : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:3366
+#: zds/tutorial/views.py:3364
 msgid "L'alerte a bien été résolue."
 msgstr ""
 
-#: zds/tutorial/views.py:3394
+#: zds/tutorial/views.py:3392
 msgid ""
 "Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore "
 "plus prudent lors de l'édition de celui-ci !"

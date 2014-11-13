@@ -526,17 +526,16 @@ def modify(request):
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
                     u'surement être faite pour l’améliorer et repasser la '
-                    u'validation plus tard. Voici le message que [{1}]({4}{2}), '
+                    u'validation plus tard. Voici le message que [{1}]({2}), '
                     u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas a '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
                         article.title,
                         validation.validator.username,
-                        validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator,
-                        settings.ZDS_APP['site']['url']))
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                        settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
+                        validation.comment_validator))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     article.authors.all(),
@@ -608,16 +607,15 @@ def modify(request):
 
                 # send feedback
                 msg = (
-                    u'Félicitations ! Le zeste [{0}]({2}{1}) '
+                    u'Félicitations ! Le zeste [{0}]({1}) '
                     u'est maintenant publié ! Les lecteurs du monde entier '
                     u'peuvent venir le lire et réagir a son sujet. Je te conseille '
                     u'de rester a leur écoute afin d\'apporter des '
                     u'corrections/compléments. Un Article vivant et a jour '
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         article.title,
-                        article.get_absolute_url_online(),
-                        settings.ZDS_APP['site']['url']))
-                bot = get_object_or_404(User, username=settings.BOT_ACCOUNT)
+                        settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     article.authors.all(),
