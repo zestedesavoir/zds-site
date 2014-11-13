@@ -883,12 +883,12 @@ msgstr ""
 #: zds/forum/forms.py:19 zds/gallery/forms.py:19 zds/gallery/forms.py:110
 #: zds/mp/forms.py:25 zds/tutorial/forms.py:20
 msgid "Titre"
-msgstr ""
+msgstr "Title"
 
 #: templates/article/validation/index.html:62
 #: templates/tutorial/validation/index.html:51
 msgid "Auteur(s)"
-msgstr ""
+msgstr "Authors"
 
 #: templates/article/validation/index.html:85
 #: templates/tutorial/member/index.html:81
@@ -3697,11 +3697,11 @@ msgstr ""
 
 #: zds/forum/forms.py:23
 msgid "[Tag 1][Tag 2] Titre de mon sujet"
-msgstr ""
+msgstr "[Tag 1][Tag 2] Topic's title"
 
 #: zds/forum/forms.py:30 zds/gallery/forms.py:24 zds/mp/forms.py:35
 msgid "Sous-titre"
-msgstr ""
+msgstr "Subtitle"
 
 #: zds/forum/forms.py:67 zds/gallery/forms.py:51 zds/mp/forms.py:88
 msgid "Le champ titre ne peut être vide"
@@ -3736,32 +3736,32 @@ msgstr ""
 #: zds/tutorial/forms.py:187 zds/tutorial/forms.py:251
 #: zds/tutorial/forms.py:301
 msgid "Valider"
-msgstr ""
+msgstr "Confirm"
 
 #: zds/gallery/forms.py:40
 msgid "Créer"
-msgstr ""
+msgstr "Create"
 
 #: zds/gallery/forms.py:65
 msgid "Nom de l'utilisateur"
-msgstr ""
+msgstr "Username"
 
 #: zds/gallery/forms.py:103 zds/member/forms.py:504
 msgid "Ce nom d'utilisateur n'existe pas"
-msgstr ""
+msgstr "This username does'nt exist"
 
 #: zds/gallery/forms.py:116
 msgid "Légende"
-msgstr ""
+msgstr "Legend"
 
 #: zds/gallery/forms.py:122
 msgid "Sélectionnez votre image"
-msgstr ""
+msgstr "Select your picture"
 
 #: zds/gallery/forms.py:124
 #, python-brace-format
 msgid "Taille maximum : {0} Ko"
-msgstr ""
+msgstr "Max size : {0} KB"
 
 #: zds/gallery/forms.py:149
 #, python-brace-format
