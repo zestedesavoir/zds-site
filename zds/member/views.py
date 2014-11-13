@@ -371,29 +371,29 @@ def tutorials(request):
     """Returns all tutorials of the authenticated user."""
 
     # The type indicate what the user would like to display. We can display
-    # public, draft or all user's tutorials.
+    # public, draft, beta, validate or all user's tutorials.
 
     try:
-        type = request.GET["type"]
+        tpe = request.GET['type']
     except KeyError:
-        type = None
+        tpe = None
 
     # Retrieves all tutorials of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if tpe == 'draft':
         user_tutorials = profile.get_draft_tutos()
-    elif type == "beta":
+    elif tpe == 'beta':
         user_tutorials = profile.get_beta_tutos()
-    elif type == "validate":
+    elif tpe == 'validate':
         user_tutorials = profile.get_validate_tutos()
-    elif type == "public":
+    elif tpe == 'public':
         user_tutorials = profile.get_public_tutos()
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template("tutorial/member/index.html",
-                           {"tutorials": user_tutorials, "type": type})
+    return render_template('tutorial/member/index.html',
+                           {'tutorials': user_tutorials, 'type': tpe})
 
 
 @login_required
@@ -401,7 +401,7 @@ def articles(request):
     """Returns all articles of the authenticated user."""
 
     # The type indicate what the user would like to display. We can display
-    # public, draft or all user's articles.
+    # public, draft, validate or all user's articles.
 
     try:
         type = request.GET["type"]
