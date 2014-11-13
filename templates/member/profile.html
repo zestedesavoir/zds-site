@@ -72,6 +72,24 @@
             {% endif %}
         </ul>
 
+        {% if perms.member.change_profile %}
+            <div>
+                Remarques sur cette utilisateur ({{ profile.karma }}) :
+                <ul>
+                {% if karmanotes.count > 0 %}
+                    {% for note in karmanotes %}
+                        <li><strong>{{ note.value }}</strong> {{ note.create_at|format_date:True }} par {{ note.staff.username }} : {{ note.comment }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>Cet utilisateur n'a reçu aucune remarque</li>
+                {% endif %}
+                </ul>
+                <a href="#karmatiser-modal" class="open-modal">Ajouter une remarque</a>
+                <div id="karmatiser-modal" class="modal modal-big">
+                    {% crispy karmaform %}
+                </div>
+            </div>
+        {% endif %}
 
         {% if profile.sign %}
             <h2 id="signature">Signature</h2>

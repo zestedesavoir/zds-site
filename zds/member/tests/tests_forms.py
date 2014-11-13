@@ -4,7 +4,8 @@ from django.test import TestCase
 from zds.member.factories import ProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, \
     MiniProfileForm, ProfileForm, ChangeUserForm, \
-    ChangePasswordForm, ForgotPasswordForm, NewPasswordForm
+    ChangePasswordForm, ForgotPasswordForm, NewPasswordForm, \
+    KarmaForm
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof129chars = u'http://www.01234567890123456789123456789' \
@@ -497,3 +498,35 @@ class NewPasswordFormTest(TestCase):
         }
         form = NewPasswordForm(data=data, identifier=self.user1.user.username)
         self.assertFalse(form.is_valid())
+
+
+class KarmaFormTest(TestCase):
+    """ Check the form to impact the karma of a user """
+
+    def setUp(self):
+        self.user = ProfileFactory()
+
+    def test_valid_karma_form(self):
+        data = {
+            'warning': "bad user is bad !",
+            'points': "-50"
+        }
+        form = KarmaForm(data=data, profile=self.user)
+        self.assertTrue(form.is_valid())
+
+    def test_missing_warning_karma_form(self):
+        data = {
+            'warning': "",
+            'points': "-50"
+        }
+        form = KarmaForm(data=data, profile=self.user)
+        self.assertFalse(form.is_valid())
+
+    def test_missing_points_karma_form(self):
+        data = {
+            'warning': "bad user is bad !",
+            'points': ""
+        }
+        form = KarmaForm(data=data, profile=self.user)
+        # should be fine as points is not required=True
+        self.assertTrue(form.is_valid())
