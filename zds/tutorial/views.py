@@ -834,7 +834,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     tutorial.load_introduction_and_conclusion(mandata, sha)
 
     # If it's a small tutorial, fetch its chapter
-    hierarchy = []
+    hierarchy = tutorial.get_hierarchy(sha)
     if tutorial.type == "MINI":
         if 'chapter' in mandata:
             mandata["chapter"] = tutorial.get_selected_chapter(sha, mandata["chapter"])
@@ -848,7 +848,6 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                                          )
             cpt = 1
             for ext in chapter["extracts"]:
-                hierarchy.append([ext['pk'], ext['title']])
                 ext["position_in_chapter"] = cpt
                 ext["path"] = tutorial.get_path()
                 ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
@@ -875,15 +874,12 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
                 chapter["position_in_part"] = cpt_c
                 chapter["position_in_tutorial"] = cpt_c * cpt_p
                 cpt_e = 1
-                sub_c_hierarchy = []
                 for ext in chapter["extracts"]:
-                    sub_c_hierarchy.append([ext['pk'], ext['title']])
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
                     ext["path"] = tutorial.get_path()
                     ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
                     cpt_e += 1
-                hierarchy.append([u"{}.{}-{}".format(str(cpt_p), str(cpt_c), chapter['title']), sub_c_hierarchy])
                 cpt_c += 1
             cpt_p += 1
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\

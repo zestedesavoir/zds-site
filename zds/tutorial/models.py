@@ -182,6 +182,32 @@ class Tutorial(models.Model):
             settings.ZDS_APP['tutorial']['repo_public_path'],
             str(self.pk) + '_' + slugify(data['title']))
 
+    def get_hierarchy(self, sha):
+        hierarchy = []
+        repo = Repo(self.get_path())
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        mandata = json_reader.loads(manifest)
+        if self.is_mini():
+            if 'chapter' in mandata:
+                chapter = mandata["chapter"]
+                for ext in chapter["extracts"]:
+                    hierarchy.append([ext["pk"], ext['title']])
+
+        else:
+            # If it's a big tutorial, fetch parts.
+            parts = mandata["parts"]
+            cpt_p = 1
+            for part in parts:
+                cpt_c = 1
+                for chapter in part["chapters"]:
+                    sub_c_hierarchy = []
+                    for ext in chapter["extracts"]:
+                        sub_c_hierarchy.append([ext['pk'], ext['title']])
+                    hierarchy.append([u"{}.{}-{}".format(str(cpt_p), str(cpt_c), chapter['title']), sub_c_hierarchy])
+                    cpt_c += 1
+                cpt_p += 1
+
+        return hierarchy
     def load_dic(self, mandata, sha=None):
         '''fill mandata with informations from database model'''
 
