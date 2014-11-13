@@ -10,15 +10,18 @@
 
         {% include 'misc/badge.part.html' %}
 
-        {% if perms.forum.change_post %}
-            <div class="user-metadata">
-                {% if profile.karma < 0 %}
-                    <a href="{{ member.get_absolute_url }}" class="user-karma negative">{{ profile.karma }}</a>
-                {% else %}
-                    <a href="{{ member.get_absolute_url }}" class="user-karma">{{ profile.karma }}</a>
-                {% endif %}
-                <a href="{{ member.get_absolute_url }}">IPs</a>
-            </div>
-        {% endif %}
+        {% comment %}
+            {# TODO : properly display metadata (karma) #}
+            {% if perms.forum.change_post %}
+                <div class="user-metadata">
+                    {% if profile.karma < 0 %}
+                        <a href="{{ member.get_absolute_url }}" class="user-karma negative">{{ profile.karma }}</a>
+                    {% else %}
+                        <a href="{{ member.get_absolute_url }}" class="user-karma">{{ profile.karma }}</a>
+                    {% endif %}
+                    <a href="{{ member.get_absolute_url }}">IPs</a>
+                </div>
+            {% endif %}
+        {% endcomment %}
     {% endwith %}
 </div>
