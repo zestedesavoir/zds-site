@@ -1,28 +1,31 @@
 {% extends "member/register/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Jeton expiré
+    {% trans "Jeton expiré" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Jeton expiré
+    {% trans "Jeton expiré" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
-    <li>Jeton expiré</li>
+    <li><a href="{% url "zds.member.views.register_view" %}">{% trans "Inscription" %}</a></li>
+    <li>{% trans "Jeton expiré" %}</li>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Désolé, votre de jeton de confirmation a expiré. Vous pouvez cependant le regénerer, pour cela, cliquer sur ce lien suivant: <a href="{% url "zds.member.views.generate_token_account" %}?token={{token.token}}">envoi de jeton</a>.
+        {% url "zds.member.views.generate_token_account" as url_generate %}
+        {% blocktrans with jeton=token.token%}
+            Désolé, votre de jeton de confirmation a expiré. Vous pouvez cependant le regénerer, pour cela, cliquer sur ce lien suivant: <a href="{{url_generate}}?token={{jeton}}">envoi de jeton</a>.
+        {% endblocktrans %}
     </p>
 {% endblock %}

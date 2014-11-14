@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title_base %}
-    &bull; Membres
+    &bull; {% trans "Membres" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    Membres
+    {% trans "Membres" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.index" %}">Membres</a></li>
+    <li><a href="{% url "zds.member.views.index" %}">{% trans "Membres" %}</a></li>
 {% endblock %}
 
 

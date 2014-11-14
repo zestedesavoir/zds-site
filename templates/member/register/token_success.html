@@ -1,34 +1,34 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 {% block title %}
-    Confirmation d'inscription réussie
+    {% trans "Confirmation d'inscription réussie" %}
 {% endblock %}
 
 
 {# No sidebar on this page #}
-{% block body_class %}no-sidebar{% endblock %}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
 {% block sidebar %}{% endblock %}
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
-    <li>Confirmation</li>
+    <li><a href="{% url "zds.member.views.register_view" %}">{% trans "Inscription" %}</a></li>
+    <li>{% trans "Confirmation" %}</li>
 {% endblock %}
 
 
 {% block content_out %}
     <section class="small-content-wrapper">
-        <h2>Confirmation d'inscription réussie !</h2>
+        <h2>{% trans "Confirmation d'inscription réussie" %} !</h2>
 
         <p>
-            Vous avez confirmé votre courriel sur le site.
+            {% trans "Vous avez confirmé votre courriel sur le site" %}.
         </p>
         <p>
-            Vous pouvez maintenant vous connecter et partager avec tous les membres.
+            {% trans "Vous pouvez maintenant vous connecter et partager avec tous les membres" %}.
             {% crispy form %}
-            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">Mot de passe déjà oublié ?</a>
+            <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">{% trans "Mot de passe déjà oublié" %} ?</a>
         </p>
     </section>
 {% endblock %}

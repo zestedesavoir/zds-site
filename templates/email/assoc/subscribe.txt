@@ -1,16 +1,20 @@
-Bonjour, membres du CA !
+{% load i18n %}
+{% trans "Bonjour, membres du CA !" %}
 
-Le membre {{ username }} demande à adhérer à {{app.site.association.name}} !
+{% blocktrans with asso_name=app.site.association.name %}
+Le membre {{ username }} demande à adhérer à {{asso_name}} !
+{% endblocktrans %}
 
-Identité : {{ full_name }}
-Adresse courriel : {{ email }}
-Date de naissance : {{ naissance }}
-Adresse :
+{% trans "Identité" %} : {{ full_name }}
+{% trans "Adresse courriel" %} : {{ email }}
+{% trans "Date de naissance" %} : {{ naissance }}
+{% trans "Adresse" %} :
 {{ adresse }}
-Raison de cette demande :
+{% trans "Raison de cette demande" %} :
 {{ justification }}
 
-Lien du profil sur le site : {{ profile_url }}
+{% trans "Lien du profil sur le site" %} : {{ profile_url }}
 
-Cordialement,
-Clem
+{% trans "Cordialement," %}
+
+{{app.member.bot_account}}

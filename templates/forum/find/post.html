@@ -2,17 +2,18 @@
 {% load date %}
 {% load profile %}
 {% load emarkdown %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Messages postés par {{ usr.username }}
+    {% trans "Messages postés par" %} {{ usr.username }}
 {% endblock %}
 
 
 
 {% block headline %}
-    Messages postés par "{{ usr.username }}"
+    {% trans "Messages postés par" %} "{{ usr.username }}"
 {% endblock %}
 
 
@@ -21,8 +22,8 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.forum.views.find_post" usr.pk %}">Messages postés</a></li>
-    <li>Recherche</li>
+    <li><a href="{% url "zds.forum.views.find_post" usr.pk %}">{% trans "Messages postés" %}</a></li>
+    <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
 
@@ -35,9 +36,9 @@
             <table>
               <thead>
                 <tr>
-                  <th width="15%">Sujet</th>
-                  <th width="10%">Quand</th>
-                  <th width="30%">Extrait</th>
+                  <th width="15%">{% trans "Sujet" %}</th>
+                  <th width="10%">{% trans "Quand" %}</th>
+                  <th width="30%">{% trans "Extrait" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,7 +63,7 @@
         </div>
     {% else %}
         <p>
-            Aucun message n'a été posté par {{ usr.username }}.
+            {% trans "Aucun message n'a été posté par" %} {{ usr.username }}.
         </p>
     {% endif %}
 

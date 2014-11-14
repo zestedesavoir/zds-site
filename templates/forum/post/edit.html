@@ -2,11 +2,11 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load captureas %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Éditer un message
+    {% trans "Éditer un message" %}
 {% endblock %}
 
 
@@ -15,13 +15,13 @@
     <li><a href="{{ post.topic.forum.category.get_absolute_url }}">{{ post.topic.forum.category.title }}</a></li>
     <li><a href="{{ post.topic.forum.get_absolute_url }}">{{ post.topic.forum.title }}</a></li>
     <li><a href="{{ post.topic.get_absolute_url }}">{{ post.topic.title }}</a></li>
-    <li>Éditer un message</li>
+    <li>{% trans "Éditer un message" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Éditer un message : {{ post.topic.title }}
+    {% trans "Éditer un message" %} : {{ post.topic.title }}
 {% endblock %}
 
 

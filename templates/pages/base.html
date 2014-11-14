@@ -1,9 +1,9 @@
 {% extends "base_content_page.html" %}
-
+{% load i18n %}
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.pages.views.index" %}">Pages</a></li>
+    <li><a href="{% url "zds.pages.views.index" %}">{% trans "Pages" %}</a></li>
 {% endblock %}
 
 

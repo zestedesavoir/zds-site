@@ -1,12 +1,12 @@
 {% extends "article/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
     {% if tag %}
         {{ tag }}
     {% else %}
-        Tous les articles
+        {% trans "Tous les articles" %}
     {% endif %}
 {% endblock %}
 
@@ -14,11 +14,9 @@
 
 {% block description %}
     {% if tag %}
-        Articles de la communauté à propos de {{ tag }}. Vous pourrez également découvrir de nouvelles notions en parcourant les autres catégories.
+        {% trans "Articles de la communauté à propos de" %} {{ tag }}. {% trans "Vous pourrez également découvrir de nouvelles notions en parcourant les autres catégories" %}.
     {% else %}
-        Les articles sont rédigés par la communauté. Ils permettent aussi bien de se tenir 
-        informé des dernières innovations du moment que de découvrir de nouvelles notions 
-        liées à différents domaines : sciences, informatiques, ...
+        {% trans "Les articles sont rédigés par la communauté. Ils permettent aussi bien de se tenir informé des dernières innovations du moment que de découvrir de nouvelles notions liées à différents domaines : sciences, informatiques" %}, ...
     {% endif %}
 {% endblock %}
 
@@ -28,7 +26,7 @@
     {% if tag %}
         <li>{{ tag }}</li>
     {% else %}
-        <li>Tous les articles</li>
+        <li>{% trans "Tous les articles" %}</li>
     {% endif %}
 {% endblock %}
 
@@ -39,9 +37,9 @@
         <h2 class="ico-after ico-articles" itemprop="name">
             {% block headline %}
                 {% if tag %}
-                    Articles : {{ tag }}
+                    {% trans "Articles" %} : {{ tag }}
                 {% else %}
-                    Tous les articles
+                    {% trans "Tous les articles" %}
                 {% endif %}
             {% endblock %}
         </h2>
@@ -57,7 +55,7 @@
                 </div>
             {% else %}
                 <p>
-                    Aucun article disponible.
+                    {% trans "Aucun article disponible" %}.
                 </p>
             {% endif %}
         {% endblock %}

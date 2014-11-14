@@ -1,24 +1,25 @@
 {% extends "mp/base.html" %}
 {% load crispy_forms_tags %}
 {% load captureas %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Répondre au MP
+    {% trans "Répondre au MP" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></li>
-    <li>Répondre au MP</li>
+    <li>{% trans "Répondre au MP" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Répondre au MP : {{topic.title}}
+    {% trans "Répondre au MP" %} : {{topic.title}}
 {% endblock %}
 
 
@@ -32,8 +33,10 @@
 {% block content %}
     {% if newpost %}
         <div class="alert-box alert">
+            {% blocktrans %}
             <strong>Au moins un nouveau message a été posté</strong> dans la discussion
             pendant que vous rédigiez le votre.
+            {% endblocktrans %}
         </div>
     {% endif %}
 

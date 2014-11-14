@@ -1,13 +1,13 @@
 {% load profile %}
-
+{% load i18n %}
 
 
 {% with status=member|state %}
     {% if status == 'BAN'%}
-        <span class="badge banned {% if push_badge %}push-badge{% endif %}">Banni</span>
+        <span class="badge banned {% if push_badge %}push-badge{% endif %}">{% trans "Banni" %}</span>
     {% elif status == 'LS'%}
-        <span class="badge readonly {% if push_badge %}push-badge{% endif %}">LS</span>
+        <span class="badge readonly {% if push_badge %}push-badge{% endif %}">{% trans "LS" %}</span>
     {% elif status == 'STAFF' %}
-        <span class="badge staff {% if push_badge %}push-badge{% endif %}">Staff</span>
+        <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Staff" %}</span>
     {% endif %}
 {% endwith %}

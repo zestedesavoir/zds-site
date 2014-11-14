@@ -4,7 +4,7 @@
 {% load captureas %}
 {% load set %}
 {% load thumbnail %}
-
+{% load i18n %}
 
 
 {% block title %}
@@ -82,14 +82,14 @@
             {% for part in parts %}
                 <h2>
                     <a href="{% url "view-part-url-online" tutorial.pk tutorial.slug part.pk part.slug %}">
-                        Partie {{ part.position_in_tutorial }} : {{ part.title }}
+                        {% trans "Partie" %} {{ part.position_in_tutorial }} : {{ part.title }}
                     </a>
                 </h2>
                 {% include "tutorial/includes/part.part.html" with online=True %}
             {% endfor %}
         {% else %}
             <p>
-                Il n'y a actuellement aucune partie dans ce tutoriel.
+                {% trans "Il n'y a actuellement aucune partie dans ce tutoriel" %}.
             </p>
         {% endif %}
         <hr />
@@ -109,9 +109,9 @@
             <span itemprop="commentCount">
                 {{ tutorial.get_note_count }}
             </span>
-            commentaire{{ tutorial.get_note_count|pluralize }}
+            {% trans "commentaire" %}{{ tutorial.get_note_count|pluralize }}
         {% else %}
-            Aucun commentaire
+            {% trans "Aucun commentaire" %}
         {% endif %}
     </h3>
 
@@ -169,29 +169,29 @@
 
     {% if perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
-            <h3>Admin<span class="wide">istration</span></h3>
+            <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
             <ul>
                 <li>
                     <a href="{{ tutorial.get_absolute_url }}" class="ico-after offline blue">
-                        Version hors-ligne
+                        {% trans "Version hors-ligne" %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">
-                        Historique validation
+                        {% trans "Historique validation" %}
                     </a>
                 </li>
                 <li>
                     <a href="#unpublish" class="ico-after open-modal cross blue">
-                        Dépublier
+                        {% trans "Dépublier" %}
                     </a>
                     <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
                     	{% csrf_token %}
                         <p>
-                            Êtes-vous certains de vouloir dépublier le tutoriel "<em>{{ tutorial.title }}</em>".
+                            {% trans "Êtes-vous certains de vouloir dépublier le tutoriel" %} "<em>{{ tutorial.title }}</em>".
                         </p>
                         <button type="submit">
-                            Confirmer
+                            {% trans "Confirmer" %}
                         </button>
                     </form>
                 </li>

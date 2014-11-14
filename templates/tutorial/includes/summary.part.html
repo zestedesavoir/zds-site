@@ -1,11 +1,12 @@
 {% load emarkdown %}
 {% load profile %}
 {% load roman %}
+{% load i18n %}
 
 
 
 <div class="mobile-menu-bloc {% if not tutorial.type == 'MINI' %}accordeon{% endif %}" data-title="Sommaire du tutoriel">
-    <h3>Sommaire</h3>
+    <h3>{% trans "Sommaire" %}</h3>
 
     {% if tutorial.type == 'MINI' %}
         {# Small tutorial #}
@@ -25,7 +26,7 @@
         {% else %}
             <ul>
                 <li class="inactive">
-                    <span class="disabled mobile-menu-link">Aucun extrait actuellement</span>
+                    <span class="disabled mobile-menu-link">{% trans "Aucun extrait actuellement" %}</span>
                 </li>
             </ul>
         {% endif %}
@@ -83,7 +84,7 @@
         {% else %}
             <ul>
                 <li class="inactive">
-                    <span class="disabled mobile-menu-link">Aucune partie actuellement</span>
+                    <span class="disabled mobile-menu-link">{% trans "Aucune partie actuellement" %}</span>
                 </li>
             </ul>
         {% endif %}

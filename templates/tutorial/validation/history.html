@@ -2,19 +2,19 @@
 {% load date %}
 {% load captureas %}
 {% load emarkdown %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Historique de validation
+    {% trans "Historique de validation" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.tutorial.views.list_validation" %}">Validation</a></li>
+    <li><a href="{% url "zds.tutorial.views.list_validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
-    <li>Historique</li>
+    <li>{% trans "Historique" %}</li>
 {% endblock %}
 
 
@@ -25,7 +25,7 @@
 
 
 {% block headline_sub %}
-    Historique de validation
+    {% trans "Historique de validation" %}
 {% endblock %}
 
 
@@ -37,8 +37,8 @@
         <table class="fullwidth">
             <thead>
                 <tr>
-                    <th width="50%">Proposé</th>
-                    <th width="50%">Statut</th>
+                    <th width="50%">{% trans "Proposé" %}</th>
+                    <th width="50%">{% trans "Statut" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,7 +49,7 @@
                             {% if validation.comment_authors %}
                                 <br>
                                 <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
-                                    Message laissé à la validation
+                                    {% trans "Message laissé à la validation" %}
                                 </a>
                                 <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
@@ -70,7 +70,7 @@
         </table>
     {% else %}
         <p>
-            Ce tutoriel n'a jamais été soumis en validation.
+            {% trans "Ce tutoriel n'a jamais été soumis en validation" %}.
         </p>
     {% endif %}
 {% endblock %}

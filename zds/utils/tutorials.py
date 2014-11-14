@@ -10,6 +10,7 @@ from django.template.loader import get_template
 from git import Repo, Actor
 from zds.utils import slugify
 from zds.utils.models import Licence
+from django.utils.translation import ugettext as _
 
 
 # Export-to-dict functions
@@ -288,7 +289,7 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
 
     # Check that asked new position is correct
     if not 1 <= new_pos <= objects.count():
-        raise ValueError('Can\'t move object to position {0}'.format(new_pos))
+        raise ValueError(_(u"Impossible de déplacer l'objet en position {0}").format(new_pos))
 
     increased_pos = new_pos - old_pos > 0
 
@@ -315,30 +316,30 @@ def move(obj, new_pos, position_f, parent_f, children_fn):
 def check_json(data, tutorial, zip):
     from zds.tutorial.models import Part, Chapter, Extract
     if "title" not in data:
-        return (False, u"Le tutoriel que vous souhaitez importer manque de titre")
+        return (False, _(u"Le tutoriel que vous souhaitez importer manque de titre"))
     if "type" not in data:
-        return (False, u"Les métadonnées du tutoriel à importer ne nous permettent pas de connaître son type")
+        return (False, _(u"Les métadonnées du tutoriel à importer ne nous permettent pas de connaître son type"))
     elif tutorial.is_mini():
         if data["type"] == "BIG":
-            return (False, u"Vous essayez d'importer un big tutoriel dans un mini tutoriel")
+            return (False, _(u"Vous essayez d'importer un big tutoriel dans un mini tutoriel"))
         elif "chapter" not in data:
-            return (False, u"La structure de vos métadonnées est incohérente")
+            return (False, _(u"La structure de vos métadonnées est incohérente"))
         elif "extracts" not in data["chapter"]:
-            return (False, u"La structure de vos extraits est incohérente")
+            return (False, _(u"La structure de vos extraits est incohérente"))
         else:
             for extract in data["chapter"]["extracts"]:
                 if "pk" not in extract or "title" not in extract or "text" not in extract:
-                    return (False, u"Un de vos extraits est mal renseigné")
+                    return (False, _(u"Un de vos extraits est mal renseigné"))
                 elif not Extract.objects.filter(pk=extract["pk"]).exists():
-                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(extract["title"]))
+                    return (False, _(u"L'extrait « {} » n'existe pas dans notre base").format(extract["title"]))
                 elif not Extract.objects.filter(pk=extract["pk"], chapter__tutorial__pk=tutorial.pk).exists():
-                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} »".format(extract["title"]))
+                    return (False, _(u"Vous n'êtes pas autorisé à modifier l'extrait « {} »").format(extract["title"]))
                 try:
                     zip.getinfo(extract["text"])
                 except KeyError:
                     return (False,
-                            u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.format(
+                            _(u'Le fichier « {} » renseigné dans vos métadonnées '
+                              u'pour l\'extrait « {} » ne se trouve pas dans votre zip').format(
                                 extract["text"],
                                 extract["title"]))
         subs = ["introduction", "conclusion"]
@@ -348,49 +349,51 @@ def check_json(data, tutorial, zip):
                     zip.getinfo(data[sub])
                 except KeyError:
                     return (False,
-                            u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                            _(u'Le fichier « {} » renseigné dans vos métadonnées '
+                              u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
                                 data[sub], data["title"]))
     elif tutorial.is_big():
         if data["type"] == "MINI":
-            return (False, u"Vous essayez d'importer un mini tutoriel dans un big tutoriel")
+            return (False, _(u"Vous essayez d'importer un mini tutoriel dans un big tutoriel"))
         elif "parts" not in data:
-            return (False, u"La structure de vos métadonnées est incohérente")
+            return (False, _(u"La structure de vos métadonnées est incohérente"))
         else:
             for part in data["parts"]:
                 if "pk" not in part or "title" not in part:
-                    return (False, u"La structure de vos parties est incohérente")
+                    return (False, _(u"La structure de vos parties est incohérente"))
                 elif not Part.objects.filter(pk=part["pk"]).exists():
-                    return (False, u"La partie « {} » n'existe pas dans notre base".format(
+                    return (False, _(u"La partie « {} » n'existe pas dans notre base").format(
                         part["title"]))
                 elif not Part.objects.filter(pk=part["pk"], tutorial__pk=tutorial.pk).exists():
-                    return (False, u"La partie « {} » n'est pas dans le tutoriel à modifier ".format(
+                    return (False, _(u"La partie « {} » n'est pas dans le tutoriel à modifier ").format(
                         part["title"]))
                 if "chapters" in part:
                     for chapter in part["chapters"]:
                         if "pk" not in chapter or "title" not in chapter:
-                            return (False, u"La structure de vos chapitres est incohérente")
+                            return (False, _(u"La structure de vos chapitres est incohérente"))
                         elif not Chapter.objects.filter(pk=chapter["pk"]).exists():
-                            return (False, u"Le chapitre « {} » n'existe pas dans notre base".format(chapter["title"]))
+                            return (False, _(u"Le chapitre « {} » n'existe pas dans notre base").format(
+                                chapter["title"]))
                         elif not Chapter.objects.filter(pk=chapter["pk"], part__tutorial__pk=tutorial.pk).exists():
-                            return (False, u"Le chapitre « {} » n'est pas dans le tutoriel a modifier".format(
+                            return (False, _(u"Le chapitre « {} » n'est pas dans le tutoriel a modifier").format(
                                 chapter["title"]))
                         elif "extracts" in chapter:
                             for extract in chapter["extracts"]:
                                 if "pk" not in extract or "title" not in extract or "text" not in extract:
-                                    return (False, u"Un de vos extraits est mal renseigné")
+                                    return (False, _(u"Un de vos extraits est mal renseigné"))
                                 elif not Extract.objects.filter(pk=extract["pk"]).exists():
-                                    return (False, u"L'extrait « {} » n'existe pas dans notre base".format(
+                                    return (False, _(u"L'extrait « {} » n'existe pas dans notre base").format(
                                         extract["title"]))
                                 elif not Extract.objects.filter(pk=extract["pk"],
                                                                 chapter__part__tutorial__pk=tutorial.pk).exists():
-                                    return (False, u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ".format(
+                                    return (False, _(u"Vous n'êtes pas autorisé à modifier l'extrait « {} » ").format(
                                         extract["title"]))
                                 try:
                                     zip.getinfo(extract["text"])
                                 except KeyError:
-                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                                   u'pour l\'extrait « {} » ne se trouve pas dans votre zip'.
+                                    return (False,
+                                            _(u"Le fichier « {} » renseigné dans vos métadonnées "
+                                              u"pour l\'extrait « {} » ne se trouve pas dans votre zip").
                                             format(extract["text"], extract["title"]))
                         subs = ["introduction", "conclusion"]
                         for sub in subs:
@@ -398,9 +401,10 @@ def check_json(data, tutorial, zip):
                                 try:
                                     zip.getinfo(chapter[sub])
                                 except KeyError:
-                                    return (False, u'Le fichier « {} » renseigné dans vos métadonnées '
-                                                   u'pour le chapitre « {} » ne se trouve pas dans votre zip'
-                                            .format(chapter[sub], chapter["title"]))
+                                    return (False,
+                                            _(u'Le fichier « {} » renseigné dans vos métadonnées '
+                                              u'pour le chapitre « {} » ne se trouve pas dans votre zip').
+                                            format(chapter[sub], chapter["title"]))
                 subs = ["introduction", "conclusion"]
                 for sub in subs:
                     if sub in part:
@@ -408,9 +412,9 @@ def check_json(data, tutorial, zip):
                             zip.getinfo(part[sub])
                         except KeyError:
                             return (False,
-                                    u'Le fichier « {} » renseigné dans vos métadonnées '
-                                    u'pour la partie « {} » ne se trouve pas dans votre zip'.format(
-                                        part[sub], part["title"]))
+                                    _(u'Le fichier « {} » renseigné dans vos métadonnées '
+                                      u'pour la partie « {} » ne se trouve pas dans votre zip').format(
+                                          part[sub], part["title"]))
         subs = ["introduction", "conclusion"]
         for sub in subs:
             if sub in data:
@@ -418,8 +422,8 @@ def check_json(data, tutorial, zip):
                     zip.getinfo(data[sub])
                 except KeyError:
                     return (False,
-                            u'Le fichier « {} » renseigné dans vos métadonnées '
-                            u'pour le tutoriel « {} » ne se trouve pas dans votre zip'.format(
+                            _(u'Le fichier « {} » renseigné dans vos métadonnées '
+                              u'pour le tutoriel « {} » ne se trouve pas dans votre zip').format(
                                 data[sub], data["title"]))
     return (True, None)
 
@@ -468,8 +472,8 @@ def import_archive(request):
                 json_here = True
                 break
         if not json_here:
-            return (False, u"L'archive n'a pas pu être importée car le "
-                           u"fichier manifest.json (fichier de métadonnées est introuvable).")
+            return (False, _(u"L'archive n'a pas pu être importée car le "
+                             u"fichier manifest.json (fichier de métadonnées est introuvable)."))
 
         # init git
         repo = Repo(tutorial.get_path())
@@ -502,7 +506,7 @@ def import_archive(request):
         zfile.close()
 
         # save in git
-        msg = "Import du tutoriel"
+        msg = _(u"Import du tutoriel")
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
@@ -514,6 +518,6 @@ def import_archive(request):
         tutorial.save()
         tutorial.update_children()
 
-        return (True, u"Le tutoriel {} a été importé avec succès".format(tutorial.title))
+        return (True, _(u"Le tutoriel {} a été importé avec succès").format(tutorial.title))
     else:
-        return (False, u"L'archive n'a pas pu être importée car elle n'est pas au format zip")
+        return (False, _(u"L'archive n'a pas pu être importée car elle n'est pas au format zip"))

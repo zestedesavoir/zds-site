@@ -2,11 +2,12 @@
 {% load profile %}
 {% load emarkdown %}
 {% load repo_reader %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Tutoriels en bêta par {{ usr.username }}
+    {% trans "Tutoriels en bêta par" %} {{ usr.username }}
 {% endblock %}
 
 
@@ -15,14 +16,14 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">Tutoriels en bêta</a></li>
-    <li>Recherche</li>
+    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">{% trans "Tutoriels en bêta" %}</a></li>
+    <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h2 class="ico-after ico-tutorials">Tutoriels en bêta par {{ usr.username }}</h2>
+    <h2 class="ico-after ico-tutorials">{% trans "Tutoriels en bêta par" %} {{ usr.username }}</h2>
 {% endblock %}
 
 
@@ -36,13 +37,13 @@
         </div>
     {% else %}
         <p>
-            Aucun tutoriel disponible.
+            {% trans "Aucun tutoriel disponible" %}.
         </p>
     {% endif %}
 {% endblock %}
 
 {% block sidebar_blocks %}
     <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}" class="new-btn ico-after view blue">
-        Tutoriels en ligne par {{ usr.username }}
+        {% trans "Tutoriels en ligne par" %} {{ usr.username }}
     </a>
 {% endblock %}

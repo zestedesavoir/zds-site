@@ -1,23 +1,23 @@
 {% extends "forum/base.html" %}
 {% load profile %}
 {% load emarkdown %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Tag : {{ tag.title }}
+    {% trans "Tag" %} : {{ tag.title }}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Tag : {{ tag.title }}</li>
+    <li>{% trans "Tag" %} : {{ tag.title }}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Tag : {{ tag.title }}
+    {% trans "Tag" %} : {{ tag.title }}
 {% endblock %}
 
 {% block feeds_rss %}

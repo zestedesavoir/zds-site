@@ -54,7 +54,7 @@ class BigTutorialTests(TestCase):
         self.licence = LicenceFactory()
         self.licence.save()
 
-        self.bigtuto = BigTutorialFactory()
+        self.bigtuto = BigTutorialFactory(light=True)
         self.bigtuto.authors.add(self.user_author)
         self.bigtuto.gallery = GalleryFactory()
         self.bigtuto.licence = self.licence
@@ -130,6 +130,79 @@ class BigTutorialTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
+
+    def test_public_tutorial(self):
+        future_tutorial = BigTutorialFactory()
+        future_tutorial.authors.add(self.user_author)
+        future_tutorial.gallery = GalleryFactory()
+        future_tutorial.licence = self.licence
+        future_tutorial.save()
+
+        part1 = PartFactory(tutorial=future_tutorial, position_in_tutorial=1)
+        part2 = PartFactory(tutorial=future_tutorial, position_in_tutorial=2)
+        PartFactory(tutorial=future_tutorial, position_in_tutorial=3)
+
+        ChapterFactory(
+            part=part1,
+            position_in_part=1,
+            position_in_tutorial=1)
+        ChapterFactory(
+            part=part1,
+            position_in_part=2,
+            position_in_tutorial=2)
+        ChapterFactory(
+            part=part1,
+            position_in_part=3,
+            position_in_tutorial=3)
+
+        ChapterFactory(
+            part=part2,
+            position_in_part=1,
+            position_in_tutorial=4)
+        ChapterFactory(
+            part=part2,
+            position_in_part=2,
+            position_in_tutorial=5)
+
+        staff = StaffProfileFactory().user
+
+        login_check = self.client.login(
+            username=staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # ask public tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': future_tutorial.pk,
+                'text': u'Ce tuto est excellent',
+                'version': future_tutorial.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=future_tutorial.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': future_tutorial.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_import_archive(self):
         login_check = self.client.login(
@@ -2439,7 +2512,7 @@ class MiniTutorialTests(TestCase):
         self.licence = LicenceFactory()
         self.licence.save()
 
-        self.minituto = MiniTutorialFactory()
+        self.minituto = MiniTutorialFactory(light=True)
         self.minituto.authors.add(self.user_author)
         self.minituto.gallery = GalleryFactory()
         self.minituto.licence = self.licence

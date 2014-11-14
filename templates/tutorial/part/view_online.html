@@ -1,5 +1,5 @@
 {% extends "tutorial/base_online.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
@@ -45,7 +45,7 @@
 
     {% if tutorial.licence %}
         <span class="license" itemprop="license">
-            Licence {{ tutorial.licence }}
+            {% trans "Licence" %} {{ tutorial.licence }}
         </span>
     {% endif %}
 
@@ -63,11 +63,11 @@
 {% block sidebar_blocks %}
     {% if perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
-            <h3>Admin<span class="wide">istration</span></h3>
+            <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
             <ul>
                 <li>
                     <a href="{{ part.tutorial.get_absolute_url }}" class="ico-after offline blue">
-                        Version hors-ligne
+                        {% trans "Version hors-ligne" %}
                     </a>
                 </li>
             </ul>

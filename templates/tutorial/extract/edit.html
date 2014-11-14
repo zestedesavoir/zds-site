@@ -1,10 +1,10 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Éditer l'extrait
+    {% trans "Éditer l'extrait" %}
 {% endblock %}
 
 
@@ -17,13 +17,13 @@
         <li><a href="{{ extract.chapter.part.get_absolute_url }}">{{ extract.chapter.part.title }}</a></li>
         <li><a href="{{ extract.chapter.get_absolute_url }}">{{ extract.chapter.title }}</a></li>
     {% endif %}
-    <li>Éditer l'extrait</li>
+    <li>{% trans "Éditer l'extrait" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Éditer l'extrait</h1>
+    <h1>{% trans "Éditer l'extrait" %}</h1>
 {% endblock %}
 
 
@@ -31,7 +31,7 @@
 {% block content %}
     {% if new_version %}
         <p class="ico-after warning">
-            Une nouvelle version a été postée avant que vous ne validiez.
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
         </p>
     {% endif %}
     {% crispy form %}

@@ -1,7 +1,7 @@
 {% load date %}
 
 {# Block displaying the list of forums belonging to a category #}
-
+{% load i18n %}
 
 
 {% for forum in forums %}
@@ -39,7 +39,7 @@
                         <span class="forum-last-message-title">{{ last_message.topic.title }}</span>
                     </a>
                 {% else %}
-                    <span class="topic-no-last-answer">Aucun sujet</span>
+                    <span class="topic-no-last-answer">{% trans "Aucun sujet" %}</span>
                 {% endif %}
             {% endwith %}
         </p>

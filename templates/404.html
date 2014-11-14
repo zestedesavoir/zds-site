@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Erreur 404
+    {% trans "Erreur 404" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Erreur 404
+    {% trans "Erreur 404" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Erreur 404</li>
+    <li>{% trans "Erreur 404" %}</li>
 {% endblock %}
 
 
@@ -28,6 +28,6 @@
 
 {% block content %}
     <p>
-        Il semblerait que ce que vous cherchiez ne se trouve plus ici.
+        {% trans "Il semblerait que ce que vous cherchiez ne se trouve plus ici" %}.
     </p>
 {% endblock %}

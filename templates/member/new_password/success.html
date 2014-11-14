@@ -1,27 +1,27 @@
 {% extends "member/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Nouveau mot de passe réussi
+    {% trans "Nouveau mot de passe réussi" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Nouveau mot de passe réussi
+    {% trans "Nouveau mot de passe réussi" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Nouveau mot de passe</li>
+    <li>{% trans "Nouveau mot de passe" %}</li>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Votre mot de passe a bien été modifié. <a href="{% url "zds.member.views.login_view" %}">Vous connectez</a>.
+        {% trans "Votre mot de passe a bien été modifié" %}. <a href="{% url "{% trans "zds.member.views.login_view" %}" %}">{% trans "Vous connectez" %}</a>.
     </p>
 {% endblock %}
