@@ -9,9 +9,9 @@ from .models import Tutorial
 
 
 class LastTutorialsFeedRSS(Feed):
-    title = "Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    title = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
     link = "/tutoriels/"
-    description = "Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
     def items(self):
         return Tutorial.objects\
