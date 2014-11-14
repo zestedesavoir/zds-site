@@ -10,9 +10,9 @@ from .models import Article
 
 
 class LastArticlesFeedRSS(Feed):
-    title = "Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    title = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
     link = "/articles/"
-    description = "Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
     def items(self):
         return Article.objects\
