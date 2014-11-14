@@ -19,6 +19,7 @@ import shutil
 import re
 import zipfile
 import os
+import glob
 import tempfile
 
 from PIL import Image as ImagePIL
@@ -3103,11 +3104,14 @@ def mep(tutorial, sha):
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     tutorial_version = json_reader.loads(manifest)
-    if os.path.isdir(tutorial.get_prod_path()):
-        try:
-            shutil.rmtree(tutorial.get_prod_path())
-        except:
-            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
+    del_paths = glob.glob(os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
+                          str(tutorial.pk) + '_*'))
+    for del_path in del_paths:
+        if os.path.isdir(del_path):
+            try:
+                shutil.rmtree(del_path)
+            except:
+                shutil.rmtree(u"\\\\?\{0}".format(del_path))
     shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
     repo.head.reset(commit=sha, index=True, working_tree=True)
 
@@ -3200,11 +3204,14 @@ def mep(tutorial, sha):
 
 
 def un_mep(tutorial):
-    if os.path.isdir(tutorial.get_prod_path()):
-        try:
-            shutil.rmtree(tutorial.get_prod_path())
-        except:
-            shutil.rmtree(u"\\\\?\{0}".format(tutorial.get_prod_path()))
+    del_paths = glob.glob(os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
+                          str(tutorial.pk) + '_*'))
+    for del_path in del_paths:
+        if os.path.isdir(del_path):
+            try:
+                shutil.rmtree(del_path)
+            except:
+                shutil.rmtree(u"\\\\?\{0}".format(del_path))
 
 
 @can_write_and_read_now
