@@ -3104,15 +3104,18 @@ def mep(tutorial, sha):
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     tutorial_version = json_reader.loads(manifest)
-    del_paths = glob.glob(os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
-                          str(tutorial.pk) + '_*'))
+
+    prod_path = tutorial.get_prod_path(sha)
+
+    pattern = os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'], str(tutorial.pk) + '_*')
+    del_paths = glob.glob(pattern)
     for del_path in del_paths:
         if os.path.isdir(del_path):
             try:
                 shutil.rmtree(del_path)
             except:
                 shutil.rmtree(u"\\\\?\{0}".format(del_path))
-    shutil.copytree(tutorial.get_path(), tutorial.get_prod_path())
+    shutil.copytree(tutorial.get_path(), prod_path)
     repo.head.reset(commit=sha, index=True, working_tree=True)
 
     # collect md files
@@ -3144,14 +3147,14 @@ def mep(tutorial, sha):
 
         # download images
 
-        get_url_images(md_file_contenu, tutorial.get_prod_path())
+        get_url_images(md_file_contenu, prod_path)
 
         # convert to out format
-        out_file = open(os.path.join(tutorial.get_prod_path(), fichier), "w")
+        out_file = open(os.path.join(prod_path, fichier), "w")
         if md_file_contenu is not None:
             out_file.write(markdown_to_out(md_file_contenu.encode("utf-8")))
         out_file.close()
-        target = os.path.join(tutorial.get_prod_path(), fichier + ".html")
+        target = os.path.join(prod_path, fichier + ".html")
         os.chdir(os.path.dirname(target))
         try:
             html_file = open(target, "w")
@@ -3167,8 +3170,8 @@ def mep(tutorial, sha):
 
     # load markdown out
 
-    contenu = export_tutorial_to_md(tutorial).lstrip()
-    out_file = open(os.path.join(tutorial.get_prod_path(), tutorial.slug + ".md"), "w")
+    contenu = export_tutorial_to_md(tutorial, sha).lstrip()
+    out_file = open(os.path.join(prod_path, tutorial.slug + ".md"), "w")
     out_file.write(smart_str(contenu))
     out_file.close()
 
@@ -3180,11 +3183,11 @@ def mep(tutorial, sha):
 
     # load pandoc
 
-    os.chdir(tutorial.get_prod_path())
+    os.chdir(prod_path)
     os.system(settings.PANDOC_LOC
               + "pandoc --latex-engine=xelatex -s -S --toc "
-              + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".md -o " + os.path.join(tutorial.get_prod_path(),
+              + os.path.join(prod_path, tutorial.slug)
+              + ".md -o " + os.path.join(prod_path,
                                          tutorial.slug) + ".html" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
               + "--template=../../assets/tex/template.tex " + "-s " + "-S "
@@ -3192,12 +3195,12 @@ def mep(tutorial, sha):
               + "-V lang=francais " + "-V mainfont=Merriweather "
               + "-V monofont=\"Andale Mono\" " + "-V fontsize=12pt "
               + "-V geometry:margin=1in "
-              + os.path.join(tutorial.get_prod_path(), tutorial.slug) + ".md "
-              + "-o " + os.path.join(tutorial.get_prod_path(), tutorial.slug)
+              + os.path.join(prod_path, tutorial.slug) + ".md "
+              + "-o " + os.path.join(prod_path, tutorial.slug)
               + ".pdf" + pandoc_debug_str)
     os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
-              + os.path.join(tutorial.get_prod_path(), tutorial.slug)
-              + ".md -o " + os.path.join(tutorial.get_prod_path(),
+              + os.path.join(prod_path, tutorial.slug)
+              + ".md -o " + os.path.join(prod_path,
                                          tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
