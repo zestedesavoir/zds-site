@@ -95,7 +95,8 @@ gulp.task("sprite", function() {
         }
 
         return output;
-      }
+      },
+      engine: "pngsmith"
     }));
   sprite.img
     .pipe($.imagemin({ optimisationLevel: 3, progressive: true, interlaced: true }))
