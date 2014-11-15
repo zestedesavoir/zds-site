@@ -329,7 +329,9 @@ ZDS_APP = {
                 'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                 'provider_name': u"Progdupeupl",
                 'provider_url': u"http://progdupeu.pl",
-            }
+            },
+            'tuto_url': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+            'tuto_name': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
             'name': u"OVH",
@@ -366,10 +368,6 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
     },
-    'licences_cc': {
-        'tuto_url': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
-        'tuto_name': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
-    }
 }
 
 LOGIN_REDIRECT_URL = "/"
