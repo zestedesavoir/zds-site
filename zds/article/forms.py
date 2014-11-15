@@ -59,12 +59,12 @@ class ArticleForm(forms.Form):
 
     licence = forms.ModelChoiceField(
         label=_(
-            u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)'\
-                .format(
-                    settings.ZDS_APP['site']['licenses']['tuto_url'],
-                    settings.ZDS_APP['site']['licenses']['tuto_name'],
-                    settings.ZDS_APP['site']['name']
-                )
+            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)')
+            .format(
+                settings.ZDS_APP['site']['licenses']['tuto_url'],
+                settings.ZDS_APP['site']['licenses']['tuto_name'],
+                settings.ZDS_APP['site']['name']
+            )
         ),
         queryset=Licence.objects.all(),
         required=True,
