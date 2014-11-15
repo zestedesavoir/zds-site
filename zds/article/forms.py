@@ -58,7 +58,13 @@ class ArticleForm(forms.Form):
     )
 
     licence = forms.ModelChoiceField(
-        label=_(u"Licence de votre publication"),
+        label=_(
+            u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et Zeste De '
+            u'Savoir</a>)'.format(
+                settings.ZDS_APP['licences_cc']['tuto_url'],
+                settings.ZDS_APP['licences_cc']['tuto_name']
+            )
+        ),
         queryset=Licence.objects.all(),
         required=True,
         empty_label=None
