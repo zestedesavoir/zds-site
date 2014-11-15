@@ -37,12 +37,14 @@
 
 
 
-{% block content_out %}
+{% block content_ext %}
     <h2>{% trans "Nouveaux Fichiers" %}</h2>
     {% for add in path_add %}
         {% with add_next=add.b_blob|repo_blob %}
             <h3>{{ add.a_blob.path }}</h3>
-            {{ ''|diff_text:add_next|safe }}
+            <div class="diff_delta">
+                {{ ''|diff_text:add_next|safe }}
+            </div>
         {% endwith %}
     {% endfor %}
 
@@ -51,7 +53,9 @@
         {% with maj_next=maj.b_blob|repo_blob %}
             {% with maj_prev=maj.a_blob|repo_blob %}
                 <h3>{{ maj.a_blob.path }}</h3>
-                {{ maj_prev|diff_text:maj_next|safe }}
+                <div class="diff_delta">
+                    {{ maj_prev|diff_text:maj_next|safe }}
+                </div>
             {% endwith %}
         {% endwith %} 
     {% endfor %}
