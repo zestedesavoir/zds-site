@@ -295,7 +295,7 @@ def reject_tutorial(request):
         tutorial.pubdate = None
         tutorial.save()
         messages.info(request, _(u"Le tutoriel a bien été refusé."))
-
+        comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
         # send feedback
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
@@ -309,7 +309,7 @@ def reject_tutorial(request):
             .format(tutorial.title,
                     validation.validator.username,
                     settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
-                    validation.comment_validator))
+                    comment_reject))
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,

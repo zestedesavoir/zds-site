@@ -534,7 +534,7 @@ def modify(request):
                         article.title,
                         validation.validator.username,
                         settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
-                        validation.comment_validator))
+                        comment_reject))
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
