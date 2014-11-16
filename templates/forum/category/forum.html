@@ -8,6 +8,8 @@
         / {% trans "Sujets résolus" %}
     {% elif request.GET.filter == "unsolve" %}
         / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
     {% endif %}
 {% endblock %}
 
@@ -36,6 +38,8 @@
         <li>{% trans "Sujets résolus" %}</li>
     {% elif request.GET.filter == "unsolve" %}
         <li>{% trans "Sujets non-résolus" %}</li>
+    {% elif request.GET.filter == "noanswer" %}
+        <li>{% trans "Sujets sans réponse" %}</li>
     {% endif %}
 {% endblock %}
 
@@ -47,6 +51,8 @@
         / {% trans "Sujets résolus" %}
     {% elif request.GET.filter == "unsolve" %}
         / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
     {% endif %}
 {% endblock %}
 
@@ -102,7 +108,7 @@
         <ul>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve"
-                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}unread{% endif %}"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}unread{% endif %}"
                 >
                     {% trans "Sujets résolus" %}
                 </a>
@@ -112,6 +118,13 @@
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}unread{% endif %}"
                 >
                     {% trans "Sujets non résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=noanswer"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}unread{% endif %}"
+                >
+                    {% trans "Sujets sans réponse" %}
                 </a>
             </li>
             {% if request.GET.filter %}

@@ -13,8 +13,20 @@ La modération des forums
 
 La modération des sujets
 ------------------------
+
 La modération des messages
 --------------------------
 
 Les filtres sur les sujets
 ==========================
+
+Dans un forum
+-------------
+
+Il existe actuellement 3 filtres pour filtrer les sujets dans un forum :
+
+* Sujets résolus (`solve`)
+* Sujets non résolus (`unsolve`)
+* Sujets sans réponse (`noanswer`)
+
+Il suffit d'ajouter `?filter=<filtre>` à l'URL en remplaçant `<filtre>` par un des 3 filtre ci-dessus.
