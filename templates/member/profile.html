@@ -195,29 +195,33 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
-            <h3>{% trans "Actions" %}</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
-                        {% trans "Envoyer un message privé" %}
-                    </a>
-                </li>
-                {% if perms.member.change_profile %}
-                    <li>
-                        <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
-                            {% trans "Attribuer un tuto SdZ" %}
-                        </a>
-                        <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
-                            <p>
-                                {% trans "Choisissez un tutoriel du SdZ à attribuer au membre" %}.
-                            </p>
-                            {% crispy form %}
-                        </div>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
+        {% if perms.member.change_profile or usr != user %}
+            <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
+                <h3>{% trans "Actions" %}</h3>
+                <ul>
+                    {% if usr != user %}
+                        <li>
+                            <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
+                                {% trans "Envoyer un message privé" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if perms.member.change_profile %}
+                        <li>
+                            <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
+                                {% trans "Attribuer un tuto SdZ" %}
+                            </a>
+                            <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
+                                <p>
+                                    {% trans "Choisissez un tutoriel du SdZ à attribuer au membre" %}.
+                                </p>
+                                {% crispy form %}
+                            </div>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     {% endif %}
 
     <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Accès rapide" %}'>
