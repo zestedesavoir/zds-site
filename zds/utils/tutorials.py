@@ -113,7 +113,7 @@ def get_blob(tree, chemin):
         return None
 
 
-def export_tutorial_to_md(tutorial):
+def export_tutorial_to_md(tutorial, sha=None):
     # Two variables to handle two distinct cases (large/small tutorial)
     chapter = None
     parts = None
@@ -121,14 +121,14 @@ def export_tutorial_to_md(tutorial):
 
     i = open(
         os.path.join(
-            tutorial.get_prod_path(),
+            tutorial.get_prod_path(sha),
             tutorial.introduction),
         "r")
     i_contenu = i.read()
     i.close()
     tuto['intro'] = i_contenu
 
-    c = open(os.path.join(tutorial.get_prod_path(), tutorial.conclusion), "r")
+    c = open(os.path.join(tutorial.get_prod_path(sha), tutorial.conclusion), "r")
     c_contenu = c.read()
     c.close()
     tuto['conclu'] = c_contenu
@@ -144,24 +144,24 @@ def export_tutorial_to_md(tutorial):
     tuto['slug'] = tutorial.slug
 
     # find the good manifest file
-    mandata = tutorial.load_json(online=True)
+    mandata = tutorial.load_json_for_public(sha=sha)
 
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
             chapter = mandata['chapter']
-            chapter['path'] = tutorial.get_prod_path()
+            chapter['path'] = tutorial.get_prod_path(sha)
             chapter['type'] = 'MINI'
             intro = open(
                 os.path.join(
-                    tutorial.get_prod_path(),
+                    tutorial.get_prod_path(sha),
                     mandata['introduction']),
                 "r")
             chapter['intro'] = intro.read()
             intro.close()
             conclu = open(
                 os.path.join(
-                    tutorial.get_prod_path(),
+                    tutorial.get_prod_path(sha),
                     mandata['conclusion']),
                 "r")
             chapter['conclu'] = conclu.read()
@@ -169,10 +169,10 @@ def export_tutorial_to_md(tutorial):
             cpt = 1
             for ext in chapter['extracts']:
                 ext['position_in_chapter'] = cpt
-                ext['path'] = tutorial.get_prod_path()
+                ext['path'] = tutorial.get_prod_path(sha)
                 text = open(
                     os.path.join(
-                        tutorial.get_prod_path(),
+                        tutorial.get_prod_path(sha),
                         ext['text']),
                     "r")
                 ext['txt'] = text.read()
@@ -190,14 +190,14 @@ def export_tutorial_to_md(tutorial):
             part['position_in_tutorial'] = cpt_p
             intro = open(
                 os.path.join(
-                    tutorial.get_prod_path(),
+                    tutorial.get_prod_path(sha),
                     part['introduction']),
                 "r")
             part['intro'] = intro.read()
             intro.close()
             conclu = open(
                 os.path.join(
-                    tutorial.get_prod_path(),
+                    tutorial.get_prod_path(sha),
                     part['conclusion']),
                 "r")
             part['conclu'] = conclu.read()
@@ -213,14 +213,14 @@ def export_tutorial_to_md(tutorial):
                 chapter['position_in_tutorial'] = cpt_c * cpt_p
                 intro = open(
                     os.path.join(
-                        tutorial.get_prod_path(),
+                        tutorial.get_prod_path(sha),
                         chapter['introduction']),
                     "r")
                 chapter['intro'] = intro.read()
                 intro.close()
                 conclu = open(
                     os.path.join(
-                        tutorial.get_prod_path(),
+                        tutorial.get_prod_path(sha),
                         chapter['conclusion']),
                     "r")
                 chapter['conclu'] = conclu.read()
@@ -231,7 +231,7 @@ def export_tutorial_to_md(tutorial):
                     ext['path'] = tutorial.get_path()
                     text = open(
                         os.path.join(
-                            tutorial.get_prod_path(),
+                            tutorial.get_prod_path(sha),
                             ext['text']),
                         "r")
                     ext['txt'] = text.read()

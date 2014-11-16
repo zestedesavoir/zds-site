@@ -175,8 +175,8 @@ class Tutorial(models.Model):
         else:
             return os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.get_phy_slug())
 
-    def get_prod_path(self):
-        data = self.load_json_for_public()
+    def get_prod_path(self, sha=None):
+        data = self.load_json_for_public(sha)
         return os.path.join(
             settings.ZDS_APP['tutorial']['repo_public_path'],
             str(self.pk) + '_' + slugify(data['title']))
