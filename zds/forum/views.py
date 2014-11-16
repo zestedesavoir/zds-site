@@ -51,18 +51,12 @@ def details(request, cat_slug, forum_slug):
     forum = get_object_or_404(Forum, slug=forum_slug)
     if not forum.can_read(request.user):
         raise PermissionDenied
-    if "filter" in request.GET:
-        filter = request.GET["filter"]
-        if filter == "solve":
-            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=True)
-            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=True)
-        else:
-            sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, is_solved=False)
-            topics = get_topics(forum_pk=forum.pk, is_sticky=False, is_solved=False)
+    if 'filter' in request.GET:
+        filter = request.GET['filter']
     else:
         filter = None
-        sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True)
-        topics = get_topics(forum_pk=forum.pk, is_sticky=False)
+    sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, filter=filter)
+    topics = get_topics(forum_pk=forum.pk, is_sticky=False, filter=filter)
 
     # Paginator
 

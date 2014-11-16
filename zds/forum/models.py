@@ -449,21 +449,16 @@ def get_last_topics(user):
     return tops
 
 
-def get_topics(forum_pk, is_sticky, is_solved=None):
-    """ Get topics according to parameters """
+def get_topics(forum_pk, is_sticky, filter=None):
+    """Get topics according to parameters."""
 
-    if is_solved is not None:
-        return Topic.objects.filter(
-            forum__pk=forum_pk,
-            is_sticky=is_sticky,
-            is_solved=is_solved).order_by("-last_message__pubdate").prefetch_related(
-            "author",
-            "last_message",
-            "tags").all()
+    if filter == 'solve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
+    elif filter == 'unsolve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
+    elif filter == 'noanswer':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
     else:
-        return Topic.objects.filter(
-            forum__pk=forum_pk,
-            is_sticky=is_sticky).order_by("-last_message__pubdate").prefetch_related(
-            "author",
-            "last_message",
-            "tags").all()
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
+
+    return topics.order_by('-last_message__pubdate').prefetch_related('author', 'last_message', 'tags').all()
