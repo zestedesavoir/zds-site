@@ -1,11 +1,11 @@
 # Implicit dependencies (facutlative dependencies of dependencies)
 pysolr==3.2.0
-pygments==1.6
+pygments==2.0.1
 
 # Explicit dependencies (references in code)
 django==1.6.8
 coverage==3.7.1
-south==1.0
+south==1.0.1
 django-crispy-forms==1.4.0
 django-email-obfuscator==0.1.3
 django-haystack==2.3.1
@@ -15,7 +15,7 @@ python-memcached==1.53
 lxml==3.4.0
 pygal==1.5.1
 factory-boy==2.4.1
-pygeoip==0.3.1
+pygeoip==0.3.2
 pillow==2.6.1
 https://github.com/zestedesavoir/GitPython/archive/0.3.2-RC2.zip
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.10.zip
@@ -23,7 +23,7 @@ easy-thumbnails==2.2
 
 # Development tools
 PyYAML==3.11
-django-debug-toolbar==1.2.1
+django-debug-toolbar==1.2.2
 flake8==2.2.5
 autopep8==1.0.4
 sphinx==1.2.3
