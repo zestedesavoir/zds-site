@@ -12,6 +12,7 @@ from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.utils.tutorials import export_tutorial
+from zds.tutorial.views import mep
 
 content = (
     u'Ceci est un contenu de tutoriel utile et à tester un peu partout\n\n '
@@ -340,3 +341,18 @@ class LicenceFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
         return licence
+
+
+class PublishedMiniTutorial(MiniTutorialFactory):
+    FACTORY_FOR = Tutorial
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        tutorial = super(PublishedMiniTutorial, cls)._prepare(create, **kwargs)
+        tutorial.pubdate = datetime.now()
+        tutorial.sha_public = tutorial.sha_draft
+        tutorial.source = ''
+        tutorial.sha_validation = None
+        mep(tutorial, tutorial.sha_draft)
+        tutorial.save()
+        return tutorial
