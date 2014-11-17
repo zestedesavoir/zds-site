@@ -158,6 +158,44 @@ def load_posts(cli, size, fake):
             post.save()
 
 
+def load_comment_article(cli, size, fake):
+    """
+    Load article's comments
+    """
+    nb_avg_posts = size * 20
+    cli.stdout.write(u"Nombres de messages à poster en moyenne dans un article : {}".format(nb_avg_posts))
+    nb_articles = Article.objects.filter(sha_public__isnull=False).count()
+    articles = list(Article.objects.filter(sha_public__isnull=False).all())
+    nb_users = User.objects.count()
+    profiles = list(Profile.objects.all())
+    for i in range(0, nb_articles):
+        nb = randint(0, nb_avg_posts * 2)
+        for j in range(0, nb):
+            post = ReactionFactory(article=articles[i], author=profiles[j % nb_users].user, position=j+1)
+            post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
+            post.text_html = emarkdown(post.text)
+            post.save()
+
+
+def load_comment_tutorial(cli, size, fake):
+    """
+    Load tutorial's comments
+    """
+    nb_avg_posts = size * 20
+    cli.stdout.write(u"Nombres de messages à poster en moyenne dans un tutoriel : {}".format(nb_avg_posts))
+    nb_tutorials = Tutorial.objects.filter(sha_public__isnull=False).count()
+    tutorials = list(Tutorial.objects.filter(sha_public__isnull=False).all())
+    nb_users = User.objects.count()
+    profiles = list(Profile.objects.all())
+    for i in range(0, nb_tutorials):
+        nb = randint(0, nb_avg_posts * 2)
+        for j in range(0, nb):
+            post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_tutorials].user, position=j+1)
+            post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
+            post.text_html = emarkdown(post.text)
+            post.save()
+
+
 def load_tutorials(cli, size, fake):
     """
     Load tutorials
@@ -166,7 +204,7 @@ def load_tutorials(cli, size, fake):
     parts = []
     chapters = []
 
-    nb_tutos = size * 5
+    nb_tutos = size * 10
     nb_avg_parts_in_tuto = size * 1
     nb_avg_chapters_in_tuto = size * 1
     cli.stdout.write(u"Nombres de big tutoriels à créer : {}".format(nb_tutos))
@@ -189,6 +227,17 @@ def load_tutorials(cli, size, fake):
                                                position_in_tutorial=j * k,
                                                title=fake.text(max_nb_chars=200)))
 
+    percent_tutos_validation_without_validator = 0.1
+    percent_tutos_validation_with_validator = 0.1
+    percent_tutos_in_beta = 0.1
+    percent_tutos_public = 0.3
+    tutorials_count = len(tutorials)
+    cli.stdout.write(u"Nombres de big tutoriels sans validateurs : {}".format(str(int(tutorials_count * percent_tutos_validation_without_validator))))
+    cli.stdout.write(u"Nombres de big tutoriels réservé en validations : {}".format(str(int(tutorials_count * percent_tutos_validation_with_validator))))
+    cli.stdout.write(u"Nombres de big tutoriels en beta : {}".format(str(int(tutorials_count * percent_tutos_in_beta))))
+    cli.stdout.write(u"Nombres de big tutoriels publiés : {}".format(str(int(tutorials_count * percent_tutos_public))))
+    # code validation
+
 @transaction.atomic
 class Command(BaseCommand):
     args = '[low|medium|high]'
@@ -196,7 +245,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         default_size = "low"
-        default_module = ["member", "article", "gallery", "tutorial"]
+        default_module = ["member", "staff", "category_forum", "forum", "tag", "topic", "post", "article", "note", "gallery", "tutorial", "reaction"]
         for arg in args:
             ps = arg.split("=")
             if len(ps) < 2:
@@ -233,3 +282,11 @@ class Command(BaseCommand):
             load_topics(self, size, fake)
         if "post" in default_module:
             load_posts(self, size, fake)
+        if "article" in default_module:
+            load_articles(self, size, fake)
+        if "tutorial" in default_module:
+            load_tutorials(self, size, fake)
+        if "reaction" in default_module:
+            load_comment_article(self, size, fake)
+        if "note" in default_module:
+            load_comment_tutorial(self, size, fake)
