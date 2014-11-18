@@ -20,7 +20,7 @@ from zds.tutorial.models import Tutorial, Validation as TValidation
 from zds.tutorial.views import mep as mep_tuto
 from zds.article.views import mep as mep_art
 from zds.forum.models import Forum, Topic
-from zds.utils.models import Tag, Category, CategorySubCategory, SubCategory
+from zds.utils.models import Tag, Category, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
 from zds import settings
 from django.db import transaction
@@ -252,6 +252,13 @@ def load_categories_content(cli, size, fake):
     """
     Load categories and subcategories for tutorial and article
     """
+
+    lics = ["CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO", "Tout-Droits"]
+    for lic in lics:
+        ex = Licence.objects.filter(code=lic)
+        if ex is None:
+            l = Licence(code=lic, title=lic, description="")
+            l.save()
     categories = []
     sub_categories = []
     nb_categories = size * 5
