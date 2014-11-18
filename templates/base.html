@@ -34,7 +34,7 @@
     <meta name="language" content="fr">
     <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
-    
+
 
     {# Description #}
     {% captureas description %}
@@ -105,8 +105,8 @@
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
 </head>
-<body class="{% block body_class %}{% endblock %}" 
-      itemscope 
+<body class="{% block body_class %}{% endblock %}"
+      itemscope
       itemtype="http://schema.org/WebPage"
 >
     <!--[if lt IE 8]>
@@ -131,7 +131,7 @@
 
         <div id="cookies-banner">
             <span>
-                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %} 
+                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
             </span>
             <button id="reject-cookies">{% trans "ici" %}</button>.
             <a href="/pages/cookies">{% trans "En savoir plus" %}</a>
@@ -247,11 +247,11 @@
                         </ul>
                     </nav>
 
-    
+
                     {# Logbox #}
                     <div class="logbox header-right {% if not user.is_authenticated %}unlogged{% endif %}">
                         {% if user.is_authenticated %}
-                        
+
                             <div class="notifs-links">
                                 {# MESSAGERIE PRIVEE #}
                                 <div>
@@ -388,9 +388,9 @@
                                 {% with profile=user.profile %}
                                     <a href="{% url "zds.member.views.settings_profile" %}"
                                        id="my-account"
-                                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar" 
-                                       {% trans "title=\"Mon compte\" 
-                                       data-title=\"Mon compte" %}"
+                                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
+                                       title="{% blocktrans %}Mon compte{% endblocktrans %}"
+                                       data-title="{% blocktrans %}Mon compte{% endblocktrans %}"
 
                                        {% if not perms.forum.change_post %}
                                            data-active="open-my-account"
@@ -433,14 +433,14 @@
                                             </li>
                                         {% endif %}
                                         <li>
-                                            <form 
+                                            <form
                                                 method="post"
                                                 action="{% url "zds.member.views.logout_view" %}"
                                             >
                                                 {% csrf_token %}
                                                 <button type="submit">{% trans "Déconnexion" %}</button>
                                              </form>
-                                        </li> 
+                                        </li>
 
                                     </ul>
                                 </div>
@@ -454,7 +454,7 @@
                 </div>
             </header>
 
-        
+
             <div class="clearfix sub-header">
                 <div class="wrapper">
                     <div class="breadcrumb" itemprop="breadcrumb">
@@ -517,7 +517,7 @@
                         </section>
                     {% endblock %}
                 </main>
-                
+
                 {% block sidebar %}{% endblock %}
             </div>
         </div>
@@ -534,7 +534,7 @@
                 </p>
                 <ul>
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
-                    <li><a href="{% url "zds.pages.views.about" %}">À {% trans "propos" %}</a></li>
+                    <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}
                         <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
                     {% endif %}
@@ -549,7 +549,7 @@
 
 
 
-    
+
 
     {# Google Tag Manager #}
     <noscript id="gtm">
