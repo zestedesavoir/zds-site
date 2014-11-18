@@ -15,11 +15,11 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFacto
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
-from zds.article.models import Article, Reaction, Validation as AValidation
-from zds.tutorial.models import Tutorial, Note, Validation as TValidation
+from zds.article.models import Article, Validation as AValidation
+from zds.tutorial.models import Tutorial, Validation as TValidation
 from zds.tutorial.views import mep as mep_tuto
 from zds.article.views import mep as mep_art
-from zds.forum.models import Category, Forum, Topic, Post
+from zds.forum.models import Forum, Topic
 from zds.utils.models import Tag, Category, CategorySubCategory, SubCategory
 from zds.utils import slugify
 from zds import settings
@@ -115,9 +115,9 @@ def load_gallery(cli, size, fake):
         for i in range(0, nb_users):
             for j in range(0, nb_galleries):
                 gal = GalleryFactory(title=fake.text(max_nb_chars=80), subtitle=fake.text(max_nb_chars=200))
-                ug = UserGalleryFactory(user=profiles[i].user, gallery=gal)
+                UserGalleryFactory(user=profiles[i].user, gallery=gal)
                 for k in range(0, nb_images):
-                    img = ImageFactory(gallery=gal)
+                    ImageFactory(gallery=gal)
         tps2 = time.time()
         cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
 
@@ -318,7 +318,7 @@ def load_comment_tutorial(cli, size, fake):
     for i in range(0, nb_tutorials):
         nb = randint(0, nb_avg_posts * 2)
         for j in range(0, nb):
-            post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_tutorials].user, position=j+1)
+            post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_users].user, position=j+1)
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
@@ -566,7 +566,7 @@ def load_articles(cli, size, fake):
 
 @transaction.atomic
 class Command(BaseCommand):
-    args = '[low|medium|high]'
+    args = 'size=[low|medium|high] type=member,staff,gallery,category_forum,category_content'
     help = 'Load fixtures for ZdS'
     # python manage.py load_fixtures size=low module=staff racine=user
 
