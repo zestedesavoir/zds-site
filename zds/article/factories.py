@@ -61,7 +61,7 @@ class ReactionFactory(factory.DjangoModelFactory):
         return reaction
 
 
-class VaidationFactory(factory.DjangoModelFactory):
+class ValidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
 
 

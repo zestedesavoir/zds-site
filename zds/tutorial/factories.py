@@ -14,18 +14,18 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.utils.tutorials import export_tutorial
 
 content = (
-    u'Ceci est un contenu de tutoriel utile et à tester un peu partout'
-    u'Ce contenu ira aussi bien dans les introductions, que dans les conclusions et les extraits '
-    u'le gros intéret étant qu\'il renferme des images pour tester l\'execution coté pandoc '
-    u'Exemple d\'image ![Ma pepite souris](http://blog.science-infuse.fr/public/souris.jpg)'
-    u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/inv_souris.jpg)'
-    u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)'
-    u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)'
+    u'Ceci est un contenu de tutoriel utile et à tester un peu partout\n\n '
+    u'Ce contenu ira aussi bien dans les introductions, que dans les conclusions et les extraits \n\n '
+    u'le gros intéret étant qu\'il renferme des images pour tester l\'execution coté pandoc \n\n '
+    u'Exemple d\'image ![Ma pepite souris](http://blog.science-infuse.fr/public/souris.jpg)\n\n '
+    u'\nExemple d\'image ![Image inexistante](http://blog.science-infuse.fr/public/inv_souris.jpg)\n\n '
+    u'\nExemple de gif ![](http://corigif.free.fr/oiseau/img/oiseau_004.gif)\n\n '
+    u'\nExemple de gif inexistant ![](http://corigif.free.fr/oiseau/img/ironman.gif)\n\n '
     u'Une image de type wikipedia qui fait tomber des tests ![](https://s.qwant.com/thumbr/?u=http%3A%2'
-    u'F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)'
-    u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)'
-    u'\n Attention les tests ne doivent pas crasher '
-    u'qu\'un sujet abandonné !')
+    u'F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n '
+    u'Image dont le serveur n\'existe pas ![](http://unknown.image.zds)\n\n '
+    u'\n Attention les tests ne doivent pas crasher \n\n \n\n \n\n '
+    u'qu\'un sujet abandonné !\n\n ')
 
 content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est testé'
 
@@ -324,7 +324,7 @@ class SubCategoryFactory(factory.DjangoModelFactory):
     slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
 
 
-class VaidationFactory(factory.DjangoModelFactory):
+class ValidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
 
 
