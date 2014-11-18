@@ -194,27 +194,28 @@ def details(request, user_name):
         raise Http404
 
     # refresh moderation chart
+    if request.user.has_perm("member.change_profile"):
+        dot_chart = pygal.Dot(x_label_rotation=30)
+        dot_chart.title = _(u"Messages postés par période")
+        dot_chart.x_labels = [
+            u"Dimanche",
+            u"Lundi",
+            u"Mardi",
+            u"Mercredi",
+            u"Jeudi",
+            u"Vendredi",
+            u"Samedi",
+        ]
+        dot_chart.show_legend = False
+        dates = date_to_chart(profile.get_posts())
+        for i in range(0, 24):
+            dot_chart.add(str(i) + " h", dates[(i + 1) % 24])
+        img_path = os.path.join(settings.MEDIA_ROOT, "pygal")
+        if not os.path.isdir(img_path):
+            os.makedirs(img_path, mode=0o777)
+        fchart = os.path.join(img_path, "mod-{}.svg".format(str(usr.pk)))
+        dot_chart.render_to_file(fchart)
 
-    dot_chart = pygal.Dot(x_label_rotation=30)
-    dot_chart.title = _(u"Messages postés par période")
-    dot_chart.x_labels = [
-        u"Dimanche",
-        u"Lundi",
-        u"Mardi",
-        u"Mercredi",
-        u"Jeudi",
-        u"Vendredi",
-        u"Samedi",
-    ]
-    dot_chart.show_legend = False
-    dates = date_to_chart(profile.get_posts())
-    for i in range(0, 24):
-        dot_chart.add(str(i) + " h", dates[(i + 1) % 24])
-    img_path = os.path.join(settings.MEDIA_ROOT, "pygal")
-    if not os.path.isdir(img_path):
-        os.makedirs(img_path, mode=0o777)
-    fchart = os.path.join(img_path, "mod-{}.svg".format(str(usr.pk)))
-    dot_chart.render_to_file(fchart)
     my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
         "-pubdate").filter(authors__in=[usr]).all()[:5]
     my_tutorials = \
@@ -262,6 +263,7 @@ def details(request, user_name):
         "old_tutos": oldtutos,
         "karmaform": karmaform,
         "karmanotes": karmanotes,
+        "stats_filename": fchart,
     })
 
 
