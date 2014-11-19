@@ -19,8 +19,8 @@ from zds.article.models import Article, Validation as AValidation
 from zds.tutorial.models import Tutorial, Validation as TValidation
 from zds.tutorial.views import mep as mep_tuto
 from zds.article.views import mep as mep_art
-from zds.forum.models import Forum, Topic
-from zds.utils.models import Tag, Category, CategorySubCategory, SubCategory, Licence
+from zds.forum.models import Forum, Topic, Category as FCategory
+from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
 from zds.utils import slugify
 from zds import settings
 from django.db import transaction
@@ -48,6 +48,7 @@ def load_member(cli, size, fake, root):
             profile.user.email = fake.free_email()
             if u == "admin":
                 profile.user.is_superuser = True
+                profile.user.is_staff = True
             profile.user.save()
             profile.site = fake.url()
             profile.biography = fake.text(max_nb_chars=200)
@@ -144,12 +145,12 @@ def load_forums(cli, size, fake):
     nb_forums = size * 8
     cli.stdout.write(u"Nombres de Forums à créer : {}".format(nb_forums))
     tps1 = time.time()
-    nb_categories = Category.objects.count()
+    nb_categories = FCategory.objects.count()
     if nb_categories == 0:
         cli.stdout.write(u"Il n'y a aucune catgorie actuellement. Vous devez rajouter les categories "
                          u"de forum dans vos fixtures")
     else:
-        categories = list(Category.objects.all())
+        categories = list(FCategory.objects.all())
         for i in range(0, nb_forums):
             forum = ForumFactory(category=categories[i % nb_categories],
                                  position_in_category=(i / nb_categories) + 1)
@@ -268,9 +269,9 @@ def load_categories_content(cli, size, fake):
     tps1 = time.time()
     for i in range(0, nb_categories):
         ttl = fake.word()
-        cat = Category(title=ttl,
-                       description=fake.sentence(nb_words=15, variable_nb_words=True),
-                       slug=slugify(ttl))
+        cat = TCategory(title=ttl,
+                        description=fake.sentence(nb_words=15, variable_nb_words=True),
+                        slug=slugify(ttl))
         cat.save()
         categories.append(cat)
     for i in range(0, nb_sub_categories):
