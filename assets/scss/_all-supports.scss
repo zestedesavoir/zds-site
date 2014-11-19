@@ -2267,6 +2267,27 @@ table {
     &.fullwidth {
         width: 100%;
     }
+
+    &.diff {
+        tbody tr {
+            border-bottom: none;
+            font-family : $font-monospace;
+            background: #FFF;
+            line-height: 1em;
+            .diff_next {
+                display: none;
+            }
+            td.diff_header {
+                padding : 5px;
+            }
+        }
+    }
+}
+
+.diff_delta {
+    overflow: scroll;
+    width: 100%;
+    font-size : 0.9em;
 }
 
 
