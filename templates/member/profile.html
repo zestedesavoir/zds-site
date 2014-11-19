@@ -337,44 +337,46 @@
             </ul>
         {% endif %}
 
-        {% if profile.get_draft_articles.count > 0 %}
-            <h4>{% trans "Articles" %}</h4>
-            <ul>
-                <li>
-                    <a href="{% url "zds.article.views.find_article" usr.pk %}">
-                        {% trans "En ligne" %}
-                        <span class="count">{{ profile.get_public_articles.count }}</span>
-                    </a>
-                </li>
-                {% if profile.user == user %}
+        {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count %}
+            {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 %}
+                <h4>Articles</h4>
+                <ul>
                     <li>
-                        <a href="{% url "zds.member.views.articles" %}?type=validate">
-                            {% trans "En validation" %}
-                            <span class="count">{{ profile.get_validate_articles.count }}</span>
+                        <a href="{% url "zds.article.views.find_article" usr.pk %}">
+                            {% trans "En ligne" %}
+                            <span class="count">{{ articles_public_count }}</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="{% url "zds.member.views.articles" %}?type=draft">
-                            {% trans "En rédaction" %}
-                            <span class="count">{{ profile.get_draft_articles.count }}</span>
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="inactive">
-                        <span>
-                            {% trans "En validation" %}
-                            <span class="count">{{ profile.get_validate_articles.count }}</span>
-                        </span>
-                    </li>
-                    <li class="inactive">
-                        <span>
-                            {% trans "En rédaction" %}
-                            <span class="count">{{ profile.get_draft_articles.count }}</span>
-                        </span>
-                    </li>
-                {% endif %}
-            </ul>
-        {% endif %}
+                    {% if profile.user == user %}
+                        <li>
+                            <a href="{% url "zds.member.views.articles" %}?type=validate">
+                                {% trans "En validation" %}
+                                <span class="count">{{ articles_validation_count }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url "zds.member.views.articles" %}?type=draft">
+                                {% trans "En rédaction" %}
+                                <span class="count">{{ articles_draft_count }}</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="inactive">
+                            <span>
+                                {% trans "En validation" %}
+                                <span class="count">{{ articles_validation_count }}</span>
+                            </span>
+                        </li>
+                        <li class="inactive">
+                            <span>
+                                {% trans "En rédaction" %}
+                                <span class="count">{{ articles_draft_count }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         {% if profile.get_post_count > 0 %}
             <h4>{% trans "Forums" %}</h4>

@@ -186,10 +186,13 @@ class Profile(models.Model):
 
     def get_draft_articles(self):
         """Get all draft articles of the user."""
-        return Article.objects.filter(
-            authors__in=[
-                self.user],
-            sha_draft__isnull=False).all()
+        return Article.objects\
+            .filter(
+                authors__in=[self.user],
+                sha_draft__isnull=False,
+                sha_validation__isnull=True,
+                sha_public__isnull=True,
+            ).all()
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
