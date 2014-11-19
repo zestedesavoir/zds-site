@@ -837,7 +837,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     hierarchy = tutorial.get_hierarchy(sha)
     if tutorial.type == "MINI":
         if 'chapter' in mandata:
-            mandata["chapter"] = tutorial.get_selected_chapter(sha, mandata["chapter"])
+            mandata["chapter"] = tutorial\
+                .get_selected_chapter(sha,
+                                      mandata["chapter"],
+                                      is_validator=request.user.has_perm("tutorial.change_tutorial"))
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_path()
             chapter["type"] = "MINI"
@@ -857,7 +860,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
 
     else:
         # If it's a big tutorial, fetch parts.
-        mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
+        mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"], )
         parts = mandata["parts"]
         cpt_p = 1
         for part in parts:
@@ -932,7 +935,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     if tutorial.type == "MINI":
         if "chapter" in mandata:
-            mandata["chapter"] = tutorial.get_selected_chapter_online(mandata["chapter"])
+            mandata["chapter"] = tutorial\
+                .get_selected_chapter_online(mandata["chapter"])
             chapter = mandata["chapter"]
             chapter["path"] = tutorial.get_prod_path()
             chapter["type"] = "MINI"
@@ -957,7 +961,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             chapter = None
     else:
         # if tutorial is big
-        mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
+        mandata["parts"] = tutorial\
+            .get_selected_parts_online(mandata["parts"])
         parts = mandata["parts"]
         cpt_p = 1
         for part in parts:
@@ -1296,7 +1301,10 @@ def view_part(
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
-    mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
+    mandata["parts"] = tutorial\
+        .get_selected_parts(sha,
+                            mandata["parts"],
+                            is_validator=request.user.has_perm("tutorial.change_tutorial"))
     # load parts
     find = False
     cpt_p = 1
@@ -1354,7 +1362,8 @@ def view_part_online(
     mandata = tutorial.load_json_for_public()
     tutorial.load_dic(mandata, sha=tutorial.sha_public)
     mandata["update"] = tutorial.update
-    mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
+    mandata["parts"] = tutorial\
+        .get_selected_parts_online(mandata["parts"])
     mandata["get_parts"] = mandata["parts"]
     parts = mandata["parts"]
     cpt_p = 1
@@ -1632,7 +1641,10 @@ def view_chapter(
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
 
-    mandata["parts"] = tutorial.get_selected_parts(sha, mandata["parts"])
+    mandata["parts"] = tutorial\
+        .get_selected_parts(sha,
+                            mandata["parts"],
+                            is_validator=request.user.has_perm("tutorial.change_tutorial"))
     parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None

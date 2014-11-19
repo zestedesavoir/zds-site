@@ -208,6 +208,7 @@ class Tutorial(models.Model):
                 cpt_p += 1
 
         return hierarchy
+
     def load_dic(self, mandata, sha=None):
         '''fill mandata with informations from database model'''
 
@@ -474,11 +475,11 @@ class Tutorial(models.Model):
                                            self.slug +
                                            ".epub"))
 
-    def get_selected_parts(self, sha, parts):
+    def get_selected_parts(self, sha, parts, is_validator=False):
         """
         return parts which are selected for validation
         """
-        is_validation = sha == self.sha_validation and self.in_validation()
+        is_validation = sha == self.sha_validation and self.in_validation() and is_validator
         is_public = sha == self.sha_public and self.on_line()
         is_partial = is_validation or is_public
 
@@ -527,11 +528,11 @@ class Tutorial(models.Model):
         """
         return self.get_selected_parts(self.sha_public, parts)
 
-    def get_selected_chapter(self, sha, chapter):
+    def get_selected_chapter(self, sha, chapter, is_validator=False):
         """
         return chapter which are selected for validation
         """
-        is_validation = sha == self.sha_validation and self.in_validation()
+        is_validation = (sha == self.sha_validation) and (self.in_validation()) and is_validator
         is_public = sha == self.sha_public and self.on_line()
         is_partial = is_validation or is_public
         if is_validation:
