@@ -137,6 +137,17 @@
         </section>
     {% endif %}
 
+    {% if stats_filename and perms.member.change_profile %}
+        <hr class="clearfix" />
+        <section class="full-content-wrapper without-margin">
+            <h2 id="activity">{% trans "Activité" %}</h2>
+            <figure>
+                {% autoescape off %}
+                    {{stats_filename}}
+                {% endautoescape %}
+            </figure>
+        </section>
+    {% endif %}
 
 
     {% if old_tutos and perms.member.change_profile %}
