@@ -84,6 +84,7 @@ class Article(models.Model):
                                       related_name='last_reaction',
                                       verbose_name='Derniere réaction')
     is_locked = models.BooleanField('Est verrouillé', default=False)
+    js_support = models.BooleanField('Support du Javascript', default=False)
 
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',

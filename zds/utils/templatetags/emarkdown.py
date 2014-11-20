@@ -66,7 +66,7 @@ def render_markdown(text, inline=False, js_support=False):
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text):
+def emarkdown(text, js=""):
     """
     Filter markdown text and render it to html.
 
@@ -74,8 +74,9 @@ def emarkdown(text):
     :return: Equivalent html string.
     :rtype: str
     """
+    is_js = (js == "js")
     try:
-        return mark_safe(render_markdown(text, inline=False))
+        return mark_safe(render_markdown(text, inline=False, js_support=is_js))
     except:
         return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
@@ -91,7 +92,7 @@ def emarkdown_inline(text):
     """
 
     try:
-        return mark_safe(render_markdown(text, inline=True, js_support=False))
+        return mark_safe(render_markdown(text, inline=True))
     except:
         return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
 

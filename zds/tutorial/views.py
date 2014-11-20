@@ -892,6 +892,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         form_ask_validation = AskValidationForm()
         form_valid = ValidForm()
     form_reject = RejectForm()
+
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
     return render_template("tutorial/tutorial/view.html", {
         "tutorial": mandata,
         "chapter": chapter,
@@ -901,6 +906,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         "formAskValidation": form_ask_validation,
         "formValid": form_valid,
         "formReject": form_reject,
+        "is_js": is_js
     })
 
 
@@ -1329,10 +1335,16 @@ def view_part(
     if not find:
         raise Http404
 
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
     return render_template("tutorial/part/view.html",
                            {"tutorial": mandata,
                             "part": final_part,
-                            "version": sha})
+                            "version": sha,
+                            "is_js": is_js})
 
 
 def view_part_online(
@@ -1686,12 +1698,18 @@ def view_chapter(
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
 
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
     return render_template("tutorial/chapter/view.html", {
         "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
         "version": sha,
+        "is_js": is_js
     })
 
 
@@ -3157,8 +3175,12 @@ def mep(tutorial, sha):
 
             target = u"\\\\?\{0}".format(target)
             html_file = open(target, "w")
+        if tutorial.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
         if md_file_contenu is not None:
-            html_file.write(emarkdown(md_file_contenu))
+            html_file.write(emarkdown(md_file_contenu, is_js))
         html_file.close()
 
     # load markdown out
