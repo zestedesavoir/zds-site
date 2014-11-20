@@ -45,6 +45,8 @@ urlpatterns = patterns('',
                            'zds.article.views.reservation'),
                        url(r'^validation/historique/(?P<article_pk>\d+)/$',
                            'zds.article.views.history_validation'),
+                       url(r'^activation_js/$',
+                           'zds.article.views.activ_js'),
 
                        # Reactions
                        url(r'^message/editer/$',

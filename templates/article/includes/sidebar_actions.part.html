@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load crispy_forms_tags %}
+
 {% if user in authors.all or perms.article.change_article %}
     {% if article.sha_draft = version %}
         <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
@@ -118,6 +120,14 @@
                     {% endif %}
                 </a>
             </li>
+            <li>
+                <a href="#js-activation" class="open-modal ico-after tick green">
+                    JSFiddle
+                </a>
+            </li>
+            <div id="js-activation" class="modal modal-small">
+                {% crispy formJs %}
+            </div>
 
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}
