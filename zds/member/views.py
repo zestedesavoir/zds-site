@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-import os
 import uuid
 
 from django.conf import settings
