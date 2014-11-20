@@ -76,25 +76,25 @@
         {% endwith %}
     {% endwith %}
 
-    <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">Signaler une faute dans ce chapitre</a>
+    <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">{% trans "Signaler une faute dans ce chapitre" %}</a>
     <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo" chapter.part.tutorial.pk chapter.part.pk chapter.pk %}" method="post" >
         <p>
-            J'ai trouvé une faute dans ce chapitre :
+            {% trans "J'ai trouvé une faute dans ce chapitre :" %}
             {% csrf_token %}
-            <textarea name="explication" placeholder="Expliquez ici la faute"></textarea>
+            <textarea name="explication" placeholder="{% blocktrans %}Expliquez ici la faute{% endblocktrans %}"></textarea>
         </p>
         <p>
             <a href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
-                (Pas assez de place ? Envoyer un MP
+                ({% trans "Pas assez de place ? Envoyer un MP" %}
                 {% if tutorial.authors.all|length > 1 %}
-                    aux auteurs
+                    {% trans "aux auteurs" %}
                 {% else %}
-                    à l'auteur
+                    {% trans "à l'auteur" %}
                 {% endif %}
                 )
             </a>
         </p>
-        <button type="submit">Envoyer</button>
+        <button type="submit">{% trans "Envoyer" %}</button>
     </form>
 {% endblock %}
 
