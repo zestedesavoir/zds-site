@@ -117,12 +117,18 @@ def view(request, article_pk, article_slug):
         .order_by("-date_proposition")\
         .first()
 
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
     return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
         'version': sha,
-        'validation': validation
+        'validation': validation,
+        'is_js': is_js
     })
 
 
@@ -957,7 +963,11 @@ def mep(article, sha):
             article_version['text'] +
             '.html'),
         "w")
-    html_file.write(emarkdown(md_file_contenu))
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    html_file.write(emarkdown(md_file_contenu, is_js))
     html_file.close()
 
 

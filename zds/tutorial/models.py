@@ -109,6 +109,7 @@ class Tutorial(models.Model):
                                   related_name='last_note',
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
+    js_support = models.BooleanField('Support du Javascript', default=False)
 
     def __unicode__(self):
         return self.title
