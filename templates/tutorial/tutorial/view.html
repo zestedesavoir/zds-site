@@ -102,7 +102,7 @@
 
 {% block content %}
     {% if tutorial.get_introduction and tutorial.get_introduction != "None" %}
-        {{ tutorial.get_introduction|emarkdown }}
+        {{ tutorial.get_introduction|emarkdown:is_js }}
     {% elif not tutorial.is_beta %}
         <p class="ico-after warning">
             {% trans "Il n'y a pas d'introduction" %}.
@@ -136,7 +136,7 @@
     {% endif %}
 
     {% if tutorial.get_conclusion and tutorial.get_conclusion != "None" %}
-        {{ tutorial.get_conclusion|emarkdown }}
+        {{ tutorial.get_conclusion|emarkdown:is_js }}
     {% elif not tutorial.is_beta %}
         <p class="ico-after warning">
             {% trans "Il n'y a pas de conclusion" %}.
