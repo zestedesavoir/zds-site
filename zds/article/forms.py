@@ -2,8 +2,9 @@
 
 from django.conf import settings
 
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden
+from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder
 from django import forms
 from django.core.urlresolvers import reverse
 
@@ -172,3 +173,26 @@ class ReactionForm(forms.Form):
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
+
+
+class ActivJsForm(forms.Form):
+
+    js_support = forms.BooleanField(
+        label='Cocher pour activer JSFiddle',
+        required=False,
+        initial=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ActivJsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.article.views.activ_js')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('js_support'),
+            ButtonHolder(
+                StrictButton(
+                    _(u'Valider'),
+                    type='submit'),),
+            Hidden('article', '{{ article.pk }}'), )

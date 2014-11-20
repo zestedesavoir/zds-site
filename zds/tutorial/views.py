@@ -41,7 +41,7 @@ from git import Repo, Actor
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
-    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
+    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -880,6 +880,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
         .order_by("-date_proposition")\
         .first()
+    form_js = ActivJsForm(initial={"js_support": tutorial.js_support})
+
     if tutorial.source:
         form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
         form_valid = ValidForm(initial={"source": tutorial.source})
@@ -899,6 +901,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         "version": sha,
         "validation": validation,
         "formAskValidation": form_ask_validation,
+        "formJs": form_js,
         "formValid": form_valid,
         "formReject": form_reject,
         "is_js": is_js
@@ -3395,6 +3398,21 @@ def solve_alert(request):
     alert.delete()
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(note.get_absolute_url())
+
+
+@login_required
+@require_POST
+def activ_js(request):
+
+    # only for staff
+
+    if not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
+    tutorial = get_object_or_404(Tutorial, pk=request.POST["tutorial"])
+    tutorial.js_support = not (tutorial.js_support)
+    tutorial.save()
+
+    return redirect(tutorial.get_absolute_url())
 
 
 @can_write_and_read_now

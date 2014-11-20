@@ -102,7 +102,8 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.invalid_tutorial'),
                        url(r'^validation/historique/(?P<tutorial_pk>\d+)/$',
                            'zds.tutorial.views.history_validation'),
-
+                       url(r'^activation_js/$',
+                           'zds.tutorial.views.activ_js'),
                        # Reactions
                        url(r'^message/editer/$',
                            'zds.tutorial.views.edit_note'),
@@ -115,3 +116,4 @@ urlpatterns = patterns('',
                        url(r'^resolution_alerte/$',
                            'zds.tutorial.views.solve_alert'),
                        )
+

@@ -362,6 +362,14 @@
                         {% endif %}
                     </a>
                 </li>
+                <li>
+                    <a href="#js-activation" class="open-modal ico-after tick green">
+                        JSFiddle
+                    </a>
+                </li>
+                <div id="js-activation" class="modal modal-small">
+                    {% crispy formJs %}
+                </div>
 
                 {% if tutorial.on_line %}
                     <li>
