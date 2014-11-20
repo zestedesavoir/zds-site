@@ -157,18 +157,15 @@ class Article(models.Model):
         return data
 
     def load_dic(self, article_version):
-        article_version['pk'] = self.pk
+        attrs = [
+            'pk', 'subcategory', 'image', 'pubdate', 'last_read_reaction', 'get_reaction_count',
+            'is_locked', 'sha_draft', 'sha_validation', 'sha_public'
+        ]
+        for attr in attrs:
+            article_version[attr] = getattr(self, attr)
+
         article_version['slug'] = slugify(article_version['title'])
-        article_version['image'] = self.image
-        article_version['pubdate'] = self.pubdate
-        article_version['is_locked'] = self.is_locked
-        article_version['sha_draft'] = self.sha_draft
-        article_version['sha_validation'] = self.sha_validation
-        article_version['sha_public'] = self.sha_public
-        article_version['last_read_reaction'] = self.last_read_reaction
-        article_version['get_reaction_count'] = self.get_reaction_count
-        article_version['get_absolute_url'] = reverse('zds.article.views.view',
-                                                      args=[self.pk, self.slug])
+        article_version['get_absolute_url'] = reverse('zds.article.views.view', args=[self.pk, self.slug])
         article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
                                                              args=[self.pk, slugify(article_version['title'])])
 

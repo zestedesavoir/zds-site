@@ -352,11 +352,19 @@
         &.home-full-description {
             img {
                 float: left;
-                margin: 15px 0 0 -15px;
+                margin: 15px 0 0 50px;
+                padding-right: 125px;
             }
 
             .home-full-description-text {
-                margin-left: 300px;
+                margin-left: 30px;
+                width: 20%;
+                float: left;
+                p {
+                    font-size : 1.1em;
+                    text-align : justify;
+                    margin: 0px;
+                }
             }
         }
     }
@@ -374,7 +382,7 @@
                 float: left;
             }
             input {
-                width: calc(100% - 371px);
+                width: calc(100% - 387px);
             }
         }
     }
@@ -401,6 +409,13 @@
         float: left;
     }
     
+    .article-img {
+        width: 30%;
+        text-align: center;
+        img {
+            max-width: 100%;
+        }
+    }
 
 
     /* ============

@@ -110,6 +110,47 @@
             @include sprite-pos($star-blue);
         }
     }
+    &.article {
+        &:after {
+            @include sprite-pos($article);
+        }
+    }
+    &.tutorial {
+        &:after {
+            @include sprite-pos($tutorial);
+        }
+    }
+    &.association {
+        &:after {
+            @include sprite-pos($logo);
+        }
+    }
+    &.forum {
+        &:after {
+            @include sprite-pos($forum);
+        }
+    }
+    &.hot-topics {
+        &:after {
+            @include sprite-pos($hot-topics);
+        }
+    }
+    &.reaction {
+        &:after {
+            @include sprite-pos($reaction);
+        }
+    }
+    &.github {
+        &:after {
+            @include sprite-pos($github);
+        }
+        &.blue:after {
+            @include sprite-pos($github-blue);
+        }
+        &.light:after {
+            @include sprite-pos($github-light);
+        }
+    }
 }
 
 
@@ -407,6 +448,38 @@
             }
         }
 
+        &.article {
+            &:after {
+                @include sprite-pos($article, true);
+            }
+        }
+        &.tutorial {
+            &:after {
+                @include sprite-pos($tutorial, true);
+            }
+        }
+
+        &.association {
+            &:after {
+                @include sprite-pos($logo, true);
+            }
+        }
+        &.forum {
+            &:after {
+                @include sprite-pos($forum, true);
+            }
+        }
+        &.hot-topics {
+            &:after {
+                @include sprite-pos($hot-topics, true);
+            }
+        }
+
+        &.reaction {
+            &:after {
+                @include sprite-pos($reaction, true);
+            }
+        }
 
         // Social
         &.facebook {

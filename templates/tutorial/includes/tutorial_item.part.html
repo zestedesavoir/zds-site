@@ -1,29 +1,38 @@
 {% load thumbnail %}
+{% load date %}
 
-<article>
-    <a href="
+<article class="home-article">
+    {% if illu.tutorial_illu.url %}
+    <div class="article-img">
+        <img src="{{ illu.home_illu.url }}" alt="">
+    </div>
+    {% endif %}
+    <div class="home-meta-data">
+        {% if display_date %}
+        <div class="home-box-date">
+            <div class="box-day">{{tutorial.pubdate|date:"d"}}</div>
+            <div class="box-month">{{tutorial.pubdate|date:"M"}}</div>
+            <div class="box-year">{{tutorial.pubdate|date:"Y"}}</div>
+        </div>
+        <div class="home-box-sep"></div>
+        {% endif %}
+        <div class="home-box-category">
+            {% if tutorial.subcategory %}
+                {% for category in tutorial.subcategory.all %}
+                    <p><a class="{% if display_date %} extend-tag {% endif %}" href="#">{{ category.title }}</a></p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="ico-after reaction home-box-count-comment"><a href="#">{{ comment_count }}</a></div>
+    </div>
+    <a class="link" href="
         {% if beta %}
             {{ tutorial.get_absolute_url_beta }}
         {% else %}
             {{ tutorial.get_absolute_url_online }}
         {% endif %}
     ">
-        {% if tutorial.image.physical.tutorial_illu.url %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
-        {% endif %}
-        <div class="tutorial-infos {% if not tutorial.image.physical.tutorial_illu.url %}no-illu{% endif %}">
-            <h3 itemprop="itemListElement">{{ tutorial.title }}</h3>
-            
-            <span class="article-metadata">
-                {% if tutorial.subcategory %}
-                    {% for category in tutorial.subcategory.all %}
-                        {% if not forloop.first %}
-                            -
-                        {% endif %}
-                        {{ category.title }}                                    
-                    {% endfor %}
-                {% endif %}
-            </span>
-        </div>
+        <h3 class="home-title" itemprop="itemListElement">{{ tutorial.title }}</h3>
     </a>
+    <p class="home-subtitle">{{ tutorial.description }}</p>
 </article>

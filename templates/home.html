@@ -9,7 +9,8 @@
 
 
 
-{% block body_class %}home content-cols{% endblock %}
+
+{% block body_class %}no-sidebar{% endblock %}
 
 
 
@@ -32,28 +33,39 @@
             <div class="home-wrapper">
                 <img src="{% static "images/clem-home.png" %}" alt="" width="214" height="209">
                 <div class="home-full-description-text">
-                    <h2>{{app.site.slogan}}</h2>
-
-                    <blockquote>
-                        «&nbsp;{{ quote }}&nbsp;»
-                    </blockquote>
-
+                    <h2>La connaissance pour tous</h2>
                     <p>
                     {% blocktrans with site_name=app.site.litteral_name %}
-                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                        {{site_name}} est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide animés par et pour la communauté.
                     {% endblocktrans %}
                     </p>
+                    <a href="#" class="ico-after tutorial label">Découvrir les tutoriels</a>
+                    <a href="#" class="ico-after article label">Lire les articles</a>
+                    <a href="#" class="ico-after forum label">Echanger sur les forums</a>
+                </div>
+                <div class="home-full-description-text">
+                    <h2>Partagez vos connaissances</h2>
                     <p>
                     {% blocktrans %}
-                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
+                        Tous les membres peuvent écrire et publier des tutoriels et articles sur le site. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
                     {% endblocktrans %}
                     </p>
+                    <a href="#" class="ico-after tutorial label">Rédiger un nouveau tutoriel</a>
+                    <a href="#" class="ico-after article label">Ecrire un nouvel article</a>
+                    <a href="#" class="ico-after forum label">Aider les débutants sur les forums</a>
+                </div>
+                <div class="home-full-description-text">
+                    <h2>Gratuit et sans publicité</h2>
                     {% if app.site.association %}
                     <p>
                     {% blocktrans %}
-                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
+                        Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif.
                     {% endblocktrans %}
                     </p>
+                    <a href='{% url "zds.pages.views.association" %}' class="ico-after association label">En savoir plus sur l'association</a>
+                    <a href="{{app.site.repository}}" class="ico-after github blue label">Aider à developper la plateforme</a>
+                    <a href="{{app.social.twitter}}" class="ico-after twitter blue label">Nous suivre sur Twitter</a>
+                    <a href="{{app.social.facebook}}" class="ico-after facebook blue label">Nous aimer sur Facebook</a>
                     {% endif %}
                 </div>
             </div>
@@ -78,86 +90,44 @@
 
 
 {% block content_out %}
-    <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
+    {% url 'zds.tutorial.views.index' as url_tutorials %}
+    {% url 'zds.article.views.index' as url_articles %}
+    {% url 'zds.forum.views.index' as url_forums %}
+    <section class="content-col-3 article-list" itemscope itemtype="http://schema.org/ItemList">
         <h2 class="ico-after ico-articles" itemprop="name">
             {% trans "Derniers articles" %}
+            <a href="{{url_articles}}">{% trans "Tous les articles" %}</a>
         </h2>
         
         <meta itemprop="itemListOrder" content="Descending">
 
         {% for article in last_articles %}
-            <article>
-                {% if article.image %}
-                    <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
-                        <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
-                    </a>
-                {% endif %}
-                <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
-                    <h3>
-                        <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}" itemprop="itemListElement">
-                            {{ article.title }}
-                        </a>
-                    </h3>
-                    
-                    <span class="article-metadata">
-                        {{ article.pubdate|format_date|capfirst }} -
-                        <a href="
-                            {% if article.last_read_reaction %}
-                                {{ article.last_read_reaction.get_absolute_url }}
-                            {% else %}
-                                {{ article.get_absolute_url_online }}#reactions
-                            {% endif %}
-                        ">
-                            {% if article.get_reaction_count == 0 %}
-                                {% trans "Aucune réaction" %}
-                            {% else %}
-                                {{ article.get_reaction_count }} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}
-                            {% endif %}
-                        </a>
-                    </span>
-                </div>
-
-                <p class="resume">
-                    {{ article.description }}
-                </p>
-            </article>
+            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=article illu=article.image display_date=True comment_count=article.get_reaction_count %}
         {% endfor %}
     </section>
 
-    <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
+    <section class="content-col-3 article-list" itemscope itemtype="http://schema.org/ItemList">
         <h2 class="ico-after ico-tutorials" itemprop="name">
             {% trans "Derniers tutoriels" %}
+            <a href="{{url_tutorials}}">{% trans "Tous les tutoriels" %}</a>
         </h2>
         
         <meta itemprop="itemListOrder" content="Descending">
         
         {% for tutorial in last_tutorials %}
-            {% include 'tutorial/includes/tutorial_item.part.html' %}
+            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=tutorial illu=tutorial.image.physical display_date=False comment_count=tutorial.get_note_count %}
         {% endfor %}
     </section>
-{% endblock %}
+    <section class="content-col-3 hot-topic-list" itemscope itemtype="http://schema.org/ItemList">
+        <h2 class="ico-after hot-topics" itemprop="name">
+            {% trans "Sujets chauds" %}
+            <a href="{{url_forums}}">{% trans "Tous les forums" %}</a>
+        </h2>
 
+        <meta itemprop="itemListOrder" content="Descending">
 
-
-{% block sidebar %}
-    <aside class="sidebar accordeon mobile-menu-hide"
-           data-title='{% trans "Catégories de tutoriels" %}'
-    >
-        <h3>{% trans "Catégories" %} <span class="wide">{% trans "de tutoriels" %}</span></h3>
-
-        {% with categories='.'|top_categories_tuto %}
-            {% for title, subcats in categories.items %}
-                <h4>{{ title }}</h4>
-                <ul>
-                    {% for subcat in subcats %}
-                        <li>
-                            <a href="{{ subcat.get_absolute_url_tutorial }}">
-                                {{ subcat.title }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        {% endwith %}
-    </aside>
+        {% for topic in last_topics %}
+            {% include 'forum/includes/topic_item.part.html' %}
+        {% endfor %}
+    </section>
 {% endblock %}
