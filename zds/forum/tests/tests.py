@@ -1141,7 +1141,7 @@ class ForumGuestTests(TestCase):
 
         # all normal (== not sticky) topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 3)  # 2 normal + 1 with answers
-        self.assertIn(topic1, get_topics(forum_pk=self.forum11.pk, is_sticky=False)[0])
+        self.assertIn(topic1, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
 
         # all sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 3)  # 2 normal + 1 with answers

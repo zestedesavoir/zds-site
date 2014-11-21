@@ -335,8 +335,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(first_tuto.position, 1)
         self.assertEqual(first_tuto.pk, tuto.last_note.pk)
         self.assertEqual(
-            Note.objects.get(
-                pk=1).text,
+            first_tuto.text,
             u'Histoire de blablater dans les comms du tuto')
 
         # test antispam return 403

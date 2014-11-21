@@ -970,7 +970,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             0,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
     def test_success_leave_topic_as_author(self):
@@ -987,7 +987,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             1,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
         self.assertEqual(
