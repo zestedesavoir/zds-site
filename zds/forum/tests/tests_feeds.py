@@ -78,11 +78,11 @@ class LastTopicsFeedRSSTest(TestCase):
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 1)
         # test with a forum
-        obj = {'forum': self.topic1.pk}
+        obj = {'forum': self.topic1.forum.pk}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 1)
         # test with a forum and a tag
-        obj = {'forum': self.topic1.pk, 'tag': self.tag.pk}
+        obj = {'forum': self.topic1.forum.pk, 'tag': self.tag.pk}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -110,7 +110,7 @@ class LastTopicsFeedRSSTest(TestCase):
         ref = self.topic2.pubdate
         topics = self.topicfeed.items(obj={'tag': self.tag.pk})
         ret = self.topicfeed.item_pubdate(item=topics[0])
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """
@@ -234,11 +234,11 @@ class LastPostFeedTest(TestCase):
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 2)
         # test with a forum
-        obj = {'forum': self.topic1.pk}
+        obj = {'forum': self.topic1.forum.pk}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 2)
         # test with a forum and a tag
-        obj = {'forum': self.topic1.pk, 'tag': self.tag.pk}
+        obj = {'forum': self.topic1.forum.pk, 'tag': self.tag.pk}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -266,7 +266,7 @@ class LastPostFeedTest(TestCase):
         ref = self.post3.pubdate
         posts = self.postfeed.items(obj={'tag': self.tag2.pk})
         ret = self.postfeed.item_pubdate(item=posts[0])
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """

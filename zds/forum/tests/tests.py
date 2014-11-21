@@ -111,10 +111,10 @@ class ForumMemberTests(TestCase):
 
         # check topic's number
         self.assertEqual(Topic.objects.all().count(), 1)
-        topic = Topic.objects.get(pk=1)
+        topic = Topic.objects.first()
         # check post's number
         self.assertEqual(Post.objects.all().count(), 1)
-        post = Post.objects.get(pk=1)
+        post = Post.objects.first()
 
         # check topic and post
         self.assertEqual(post.topic, topic)
@@ -193,12 +193,12 @@ class ForumMemberTests(TestCase):
         self.assertEqual(post3.topic, topic1)
 
         # check values
-        self.assertEqual(Post.objects.get(pk=4).topic, topic1)
-        self.assertEqual(Post.objects.get(pk=4).position, 4)
-        self.assertEqual(Post.objects.get(pk=4).editor, None)
+        post_final = Post.objects.last()
+        self.assertEqual(post_final.topic, topic1)
+        self.assertEqual(post_final.position, 4)
+        self.assertEqual(post_final.editor, None)
         self.assertEqual(
-            Post.objects.get(
-                pk=4).text,
+            post_final.text,
             u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
 
         # test antispam return 403
@@ -304,12 +304,8 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.answer') +
-            '?sujet={0}&cite={0}'.format(
-                topic1.pk,
-                post2.pk),
-            follow=True)
+        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite={1}'.format(
+            topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
 
@@ -1100,11 +1096,12 @@ class ForumGuestTests(TestCase):
 
         # all normal (== not sticky) topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 2)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False)[0], topic_solved)
+        self.assertIn(topic_solved, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
+        self.assertIn(topic, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
 
         # all sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 2)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True)[0], topic_solved_sticky)
+        self.assertIn(topic_solved_sticky, get_topics(forum_pk=self.forum11.pk, is_sticky=True))
 
         # solved filter
 
@@ -1144,19 +1141,19 @@ class ForumGuestTests(TestCase):
 
         # all normal (== not sticky) topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 3)  # 2 normal + 1 with answers
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False)[0], topic1)
+        self.assertIn(topic1, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
 
         # all sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 3)  # 2 normal + 1 with answers
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True)[0], topic2)
+        self.assertIn(topic2, get_topics(forum_pk=self.forum11.pk, is_sticky=True))
 
         # no answer topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer')), 2)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer')[0], topic_solved)
+        self.assertIn(topic_solved, get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer'))
 
         # no answer sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer')), 2)
-        self.assertEqual(
-            get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer')[0],
-            topic_solved_sticky
+        self.assertIn(
+            topic_solved_sticky,
+            get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )

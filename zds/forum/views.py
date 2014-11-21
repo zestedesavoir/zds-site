@@ -461,7 +461,7 @@ def answer(request):
     # Retrieve last posts of the current topic.
     posts = Post.objects.filter(topic=g_topic) \
         .prefetch_related() \
-        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+        .order_by("-position")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new post on the topic.
 

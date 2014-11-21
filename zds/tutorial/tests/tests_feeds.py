@@ -119,7 +119,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         ref = Tutorial.objects.get(pk=self.minituto.pk).pubdate
         tuto = self.tutofeed.items()[0]
         ret = self.tutofeed.item_pubdate(item=tuto)
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """

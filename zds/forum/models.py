@@ -9,7 +9,7 @@ import string
 import uuid
 
 from django.contrib.auth.models import Group, User
-from django.utils import timezone
+from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
@@ -103,7 +103,7 @@ class Forum(models.Model):
         """Gets the last message on the forum, if there are any."""
         try:
             return Post.objects.all().filter(
-                topic__forum__pk=self.pk).order_by('-pubdate')[0]
+                topic__forum__pk=self.pk).order_by('-position')[0]
         except IndexError:
             return None
 
@@ -193,7 +193,7 @@ class Topic(models.Model):
         return Post.objects\
             .filter(topic=self)\
             .select_related("author")\
-            .order_by('pubdate')\
+            .order_by('position')\
             .first()
 
     def add_tags(self, tag_collection):
@@ -217,7 +217,7 @@ class Topic(models.Model):
             return TopicRead.objects\
                 .select_related()\
                 .filter(topic=self, user=get_current_user())\
-                .latest('post__pubdate').post
+                .latest('post__position').post
         except:
             return self.first_post()
 
@@ -226,11 +226,11 @@ class Topic(models.Model):
         try:
             last_post = TopicRead.objects\
                 .filter(topic=self, user=get_current_user())\
-                .latest('post__pubdate').post
+                .latest('post__position').post
 
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                pubdate__gt=last_post.pubdate)\
+                posiion__gt=last_post.position)\
                 .select_related("author").first()
 
             return next_post
@@ -279,11 +279,11 @@ class Topic(models.Model):
         last_user_post = Post.objects\
             .filter(topic=self)\
             .filter(author=user.pk)\
-            .order_by('pubdate')\
+            .order_by('position')\
             .last()
 
         if last_user_post and last_user_post == self.get_last_post():
-            t = timezone.now() - last_user_post.pubdate
+            t = datetime.now() - last_user_post.pubdate
             if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 

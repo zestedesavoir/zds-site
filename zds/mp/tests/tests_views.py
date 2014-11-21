@@ -648,7 +648,7 @@ class AnswerViewTest(TestCase):
             {
                 'text': 'answer',
                 'preview': '',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -662,7 +662,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -685,7 +685,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -970,7 +970,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             0,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
     def test_success_leave_topic_as_author(self):
@@ -987,7 +987,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             1,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
         self.assertEqual(

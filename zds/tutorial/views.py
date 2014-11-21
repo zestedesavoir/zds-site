@@ -559,9 +559,8 @@ def delete_tutorial(request, tutorial_pk):
 
 
 @can_write_and_read_now
+@require_POST
 def modify_tutorial(request):
-    if not request.method == "POST":
-        raise Http404
     tutorial_pk = request.POST["tutorial"]
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     # User actions

@@ -309,6 +309,8 @@ class NoteFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         note = super(NoteFactory, cls)._prepare(create, **kwargs)
+        note.pubdate = datetime.now()
+        note.save()
         tutorial = kwargs.pop('tutorial', None)
         if tutorial:
             tutorial.last_note = note
