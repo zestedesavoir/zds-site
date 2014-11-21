@@ -42,7 +42,7 @@
                     {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                 </li>
                 <li>
-                    {% trans "Dernière connexion" %} {{ usr.last_login|format_date:True }}
+                    {% trans "Dernière connexion" %} {{ profile.last_visit|format_date:True }}
                 </li>
                 {% if perms.member.show_ip %}
                     <li>
