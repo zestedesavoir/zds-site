@@ -3318,12 +3318,16 @@ def answer(request):
             note_cite = Note.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
                 raise PermissionDenied
+
             for line in note_cite.text.splitlines():
                 text = text + "> " + line + "\n"
-            text = u"{0}Source:[{1}]({2})".format(
+
+            text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
                 note_cite.author.username,
+                settings.ZDS_APP['site']['url'],
                 note_cite.get_absolute_url())
+
         form = NoteForm(tutorial, request.user, initial={"text": text})
         return render_template("tutorial/comment/new.html", {
             "tutorial": tutorial,
