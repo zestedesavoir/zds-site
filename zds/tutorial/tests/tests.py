@@ -2721,8 +2721,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(first_note.position, 1)
         self.assertEqual(first_note.pk, tuto.last_note.pk)
         self.assertEqual(
-            Note.objects.get(
-                pk=1).text,
+            Note.objects.first().text,
             u'Histoire de blablater dans les comms du tuto')
 
         # test antispam return 403

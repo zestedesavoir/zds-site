@@ -304,10 +304,8 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.answer') +
-            '?sujet={0}&cite={1}'.format(topic1.pk,post2.pk),
-            follow=True)
+        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite={1}'.format(
+            topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
 
@@ -1143,19 +1141,19 @@ class ForumGuestTests(TestCase):
 
         # all normal (== not sticky) topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 3)  # 2 normal + 1 with answers
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False)[0], topic1)
+        self.assertIn(topic1, get_topics(forum_pk=self.forum11.pk, is_sticky=False)[0])
 
         # all sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 3)  # 2 normal + 1 with answers
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True)[0], topic2)
+        self.assertIn(topic2, get_topics(forum_pk=self.forum11.pk, is_sticky=True))
 
         # no answer topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer')), 2)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer')[0], topic_solved)
+        self.assertIn(topic_solved, get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer'))
 
         # no answer sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer')), 2)
-        self.assertEqual(
-            get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer')[0],
-            topic_solved_sticky
+        self.assertIn(
+            topic_solved_sticky,
+            get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )
