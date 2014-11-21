@@ -60,10 +60,7 @@ install:
   - travis_retry pip install MySQL-python
 
   # NodeJS + NPM stuff
-  - sudo add-apt-repository -y ppa:chris-lea/node.js
-  - sudo apt-get -y update
   - sudo apt-get -y install nodejs
-  - travis_retry npm install -g bower gulp
   - travis_retry npm install
 
 script:

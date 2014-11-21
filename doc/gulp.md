@@ -1,33 +1,31 @@
-# Installation complète des outils
+# Installation des outils
 
-## Installation de Node.js
+## Installation de Node.js et npm
 
 ### Windows
 
-Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.msi*) pour Windows, disponible à [cette adresse](http://nodejs.org/download/). Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
 
 ### Mac OS X
 
-Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à [cette addresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à [cette adresse](http://nodejs.org/download/). Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
 
 ### Linux
 
 #### Ubuntu
 
-Une version récente de Node.js avec npm est disponible sur le PPA `chris-lea/node.js`
+L'installation peut se faire simplement via `apt-get` :
+
+````shell
+sudo apt-get install nodejs
+````
+
+Mais il est possible d'avoir une version un peu plus récente avec :
 
 ````shell
 sudo add-apt-repository ppa:chris-lea/node.js
 sudo apt-get update
-sudo apt-get install python-software-properties python g++ make nodejs
-````
-
-#### Debian
-
-Une version récente de Node.js se trouve dans les répos wheezy-backport, jessie, et sid. Sur ces versions de Debian, l'installation peut se faire de cette manière:
-
-````shell
-sudo apt-get install node
+sudo apt-get install nodejs
 ````
 
 Certaines dépendances utilisent `node` au lieu de `nodejs`, pour y remédier :
@@ -36,109 +34,175 @@ Certaines dépendances utilisent `node` au lieu de `nodejs`, pour y remédier :
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ````
 
+#### Debian
+
+Une version récente de Node.js se trouve dans les dépôts *wheezy-backport*, *jessie* et *sid*. Sur ces versions de Debian, l'installation peut se faire de cette manière :
+
+````shell
+sudo apt-get install node
+````
+
+#### Fedora / CentOS / RHEL
+
+Il vous faut tout simplement faire :
+
+````shell
+sudo curl -sL https://rpm.nodesource.com/setup | bash -
+sudo yum install -y nodejs
+````
+
+#### Arch Linux
+
+Il faut simplement lancer cette commande : 
+
+````
+pacman -S nodejs
+````
+
+### FreeBSD / OpenBSD
+
+Une installation via `pkg` devrait suffire :
+
+````
+pkg install node
+````
+
 -----
 
-Les instructions détaillées pour toutes les distributions se trouvent dans la [doc officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
+*Les instructions pour installer Node.js sur les distributions CentOS, RHEL, FreeBSD et OpenBSD sont issues du lien juste en dessous et n'ont pas été testées.*
 
-Pour vérifier si que Node.js est installé (et si vous avez la bonne version) :
+Les instructions détaillées pour toutes les distributions se trouvent dans la [documentation officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager).
+
+Pour vérifier que Node.js est installé (et que vous avez la bonne version) :
 
 ````shell
 node -v
 v0.10.26
 npm -v
-1.4.7
+2.1.7
 ````
 
-Vous devez avoir une version de Node.js > 0.10.x, et de npm > 1.x.x
+Vous devez avoir une version de Node.js > 0.10.x et de npm > 2.x.x. Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
+
+## Mise à jour de Node.js et npm
+
+Pour npm, il suffit de le mettre à jour avec cette commande :
+
+````
+sudo npm install -g npm
+````
+
+Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devrait fonctionner.
 
 ## Installation des dépendances (Gulp et Bower entre autres)
 
-L'installation de Gulp et Bower se fait via `npm`. Selon votre installation, elle devra se faire en administrateur ou non.
-
-````shell
-[sudo] npm install -g gulp bower
-````
-
-Dans le répertoire du projet :
+L'installation de Gulp et Bower se fait via npm, dans le répertoire du projet :
 
 ````shell
 npm install
 ````
 
-Cela installera les dépendances des tâches Gulp, et les dépendances front via Bower (jQuery, Modernizr, ...).
+Cela installera les dépendances des tâches Gulp, et les différentes bibliothèques (jQuery, Modernizr...) via Bower.
 
-# Utilisation de Gulp
+# Utilisation des outils
 
-## Présentation
+## Présentation de Gulp
 
-Gulp est un outil permettant d'automatiser les tâches liées au front.
-Dans notre cas, il permet de :
+Gulp est un outil permettant d'automatiser les tâches liées au front. Dans notre cas, il permet de :
 
-- Vérifier la syntaxe Javascript (JSHint)
-- Rassembler en un fichier et minimifier les fichiers Javascript
-- Compiler les fichiers SCSS, pour les transformer CSS (via compass)
+- Vérifier la syntaxe Javascript
+- Minifier les fichiers Javascript et les rassembler en un fichier
+- Compiler les fichiers SCSS, pour les transformer CSS
 - Compresser les images
 
-Il y a un dossier `assets/` à la racine, qui ressemble à ça :
+Il y a, à la racine du projet, un dossier `assets/` (contenant les sources JS et SCSS non minimisées, ainsi que les images) qui ressemble à ça :
 
 ````shell
 assets/
 ├── bower_components
-│   ├── jquery
-│   └── modernizr
-│   ...
+│   ├── jquery
+│   └── modernizr
+│   ...
 ├── images
-│   ├── favicon.ico
-│   ├── favicon.png
-│   ├── logo@2x.png
-│   ...
+│   ├── favicon.ico
+│   ├── favicon.png
+│   ├── logo@2x.png
+│   ...
 ├── js
-│   ├── accessibility-links.js
-│   ├── data-click.js
-│   ...
+│   ├── accessibility-links.js
+│   ├── data-click.js
+│   ...
 ├── scss
-│   ├── main.scss
-│   ├── _mobile.scss
-│   ├── _mobile-tablet.scss
-│   ...
-└── smileys
-    ├── ange.png
-    ├── angry.gif
-    ...
-````
-
-Et le build gulp donne un dossier `dist/`, avec des fichiers optimisés pour la production, comme pour le développement
-
-````shell
-dist/
-├── css
-│   ├── main.css # CSS compilé
-│   └── main.min.css # version minimifié
-├── images # Les images ont été optimisées
-│   ├── favicon.ico
-│   ├── favicon.png
-│   ├── logo@2x.png
-│   ...
-├── js
-│   ├── all.min.js # Vendors + custom, minimifié 
-│   ├── main.js # Tout le JS Custom
-│   ├── main.min.js # Version minimifiée
-│   ├── vendors # Les dépendances (non-minimifiées)
-│   │   ├── jquery.js
-│   │   └── modernizr.js
-│   ├── vendors.js # Toutes les dépendances rassemblées 
-│   └── vendors.min.js # Version minimifiée
+│   ├── main.scss
+│   ├── _mobile.scss
+│   ├── _mobile-tablet.scss
+│   ...
 └── smileys
     ├── ange.png
     ├── angry.gif
     ...
 ````
 
-## Les différentes tâches
+Après le passage de Gulp, toujours à la racine du projet, est créé un dossier `dist/` (contenant des fichiers optimisés pour la production) qui est similaire à ça :
 
-Gulp se lance avec `gulp [tache]` où `[tache]` est la tâche à lancer.
+````shell
+dist/
+├── css
+│   ├── main.css # Tout le CSS compilé...
+│   └── main.min.css # ...et minimisé
+├── images # Toutes les images optimisées
+│   ├── favicon.ico
+│   ├── favicon.png
+│   ├── logo@2x.png
+│   ...
+├── js
+│   ├── all.min.js # Tout le JS minimisé
+│   ├── main.js # Tout le JS customisé...
+│   ├── main.min.js # ...et minimisé
+│   ├── vendors # Toutes les bibliothèques non-minimisées
+│   │   ├── jquery.js
+│   │   └── modernizr.js
+│   ├── vendors.js # Toutes les bibliothèques rassemblées...
+│   └── vendors.min.js # ...et minimisées
+└── smileys
+    ├── ange.png
+    ├── angry.gif
+    ...
+````
+
+## Utilisation de Gulp
+
+Gulp se lance avec `npm run-script gulp [tâche]` où `[tâche]` est la tâche à lancer. Les différentes tâches sont :
 
  - `clean`: Nettoie le dossier `dist/`
  - `build`: Compile tout (CSS, JS, et images)
  - `test`: Lance les tests (JSHint, ...)
  - `watch`: Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement; `Ctrl+C` pour arrêter)
+
+Si vous voulez utiliser directement la commande `gulp [tâche]` au lieu de `npm run-script gulp [tâche]`, il vous faut lancer cette commande avec les droits administrateurs :
+
+````shell
+sudo npm install -g gulp bower
+````
+
+# Nettoyage des outils
+
+## Nettoyage de npm
+
+Pour nettoyer npm, il vous suffit de lancer ces commandes dans votre environnement :
+
+````shell
+sudo rm -rI ~/.npm
+rm -rI node_modules/
+````
+
+## Nettoyage des fichiers CSS et Javascript
+
+Toujours dans votre environnement :
+
+````shell
+rm -rI dist/
+rm -rI gulp-cache/
+````
+
+Il vous faudra peut-être aussi vider le cache de votre navigateur pour être sûr de repartir à zéro.
