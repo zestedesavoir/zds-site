@@ -332,16 +332,16 @@ def answer(request):
                                 .render(
                                     Context({
                                         'username': part.username,
-                                        'url': settings.ZDS_APP['site']['url']
-                                        + post.get_absolute_url(),
-                                        'author': request.user.username
+                                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                                        'author': request.user.username,
+                                        'site_name': settings.ZDS_APP['site']['litteral_name']
                                     }))
                             message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.ZDS_APP['site']['url']
-                                    + post.get_absolute_url(),
-                                    'author': request.user.username
+                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                                    'author': request.user.username,
+                                    'site_name': settings.ZDS_APP['site']['litteral_name']
                                 }))
 
                             msg = EmailMultiAlternatives(
@@ -519,14 +519,16 @@ def add_participant(request):
                         Context({
                             'username': part.username,
                             'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
-                            'author': request.user.username
+                            'author': request.user.username,
+                            'site_name': settings.ZDS_APP['site']['litteral_name']
                         }))
 
                 message_txt = get_template('email/mp/add_participant.txt').render(
                     Context({
                         'username': part.username,
                         'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
-                        'author': request.user.username
+                        'author': request.user.username,
+                        'site_name': settings.ZDS_APP['site']['litteral_name']
                     }))
 
                 msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
