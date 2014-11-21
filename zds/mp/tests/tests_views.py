@@ -947,7 +947,7 @@ class LeaveViewTest(TestCase):
             reverse('zds.mp.views.leave'),
             {
                 'leave': '',
-                'topic_pk': '154'
+                'topic_pk': '9999'
             }
         )
 
@@ -955,7 +955,7 @@ class LeaveViewTest(TestCase):
 
     def test_success_leave_topic_as_author_no_participants(self):
 
-        self.topic1.participants.remove(self.profile2)
+        self.topic1.participants.clear()
         self.topic1.save()
 
         response = self.client.post(
