@@ -19,15 +19,15 @@ from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
 
+from django.utils.translation import ugettext as _
+
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import PrivateTopicForm, PrivatePostForm
-from .models import PrivateTopic, PrivatePost, \
-    never_privateread, mark_read, PrivateTopicRead
-from django.utils.translation import ugettext as _
+from forms import PrivateTopicForm, PrivatePostForm
+from models import PrivateTopic, PrivatePost, never_privateread, mark_read, PrivateTopicRead
 
 
 @login_required
@@ -56,8 +56,9 @@ def index(request):
 
     privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
-        .select_related("author", "participants")\
-        .distinct().order_by('-last_message__pubdate').all()
+        .select_related('author', 'participants')\
+        .distinct().order_by('-last_message__pubdate')\
+        .all()
 
     # Paginator
     paginator = Paginator(privatetopics, settings.ZDS_APP['forum']['topics_per_page'])
@@ -75,7 +76,8 @@ def index(request):
 
     return render_template('mp/index.html', {
         'privatetopics': shown_privatetopics,
-        'pages': paginator_range(page, paginator.num_pages), 'nb': page
+        'pages': paginator_range(page, paginator.num_pages),
+        'nb': page
     })
 
 
@@ -86,8 +88,7 @@ def topic(request, topic_pk, topic_slug):
     # TODO: Clean that up
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    if not g_topic.author == request.user \
-            and request.user not in list(g_topic.participants.all()):
+    if not g_topic.author == request.user and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
     # Check link
@@ -98,9 +99,7 @@ def topic(request, topic_pk, topic_slug):
         if never_privateread(g_topic):
             mark_read(g_topic)
 
-    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
-        .order_by('position_in_topic')\
-        .all()
+    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk).order_by('position_in_topic').all()
 
     last_post_pk = g_topic.last_message.pk
 
@@ -169,7 +168,7 @@ def new(request):
 
             # Retrieve all participants of the MP.
             ctrl = []
-            list_part = data['participants'].split(",")
+            list_part = data['participants'].split(',')
             for part in list_part:
                 part = part.strip()
                 if part == '':
@@ -181,10 +180,8 @@ def new(request):
                 ctrl.append(p)
 
             # user add only himself
-            if (len(ctrl) < 1
-                    and len(list_part) == 1
-                    and list_part[0] == request.user.username):
-                errors = form._errors.setdefault("participants", ErrorList())
+            if (len(ctrl) < 1 and len(list_part) == 1 and list_part[0] == request.user.username):
+                errors = form._errors.setdefault('participants', ErrorList())
                 errors.append(_(u'Vous êtes déjà auteur du message'))
                 return render_template('mp/topic/new.html', {
                     'form': form,
@@ -217,13 +214,9 @@ def new(request):
             if len(dest_list) > 0:
                 dest = ', '.join(dest_list)
 
-        form = PrivateTopicForm(username=request.user.username,
-                                initial={
-                                    'participants': dest,
-                                })
-        return render_template('mp/topic/new.html', {
-            'form': form,
-        })
+        form = PrivateTopicForm(username=request.user.username, initial={'participants': dest})
+
+        return render_template('mp/topic/new.html', {'form': form})
 
 
 @login_required
@@ -266,15 +259,14 @@ def answer(request):
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
     # check if user has right to answer
-    if not g_topic.author == request.user \
-            and request.user not in list(g_topic.participants.all()):
+    if not g_topic.author == request.user and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
     last_post_pk = g_topic.last_message.pk
     # Retrieve last posts of the current private topic.
     posts = PrivatePost.objects.filter(privatetopic=g_topic) \
         .prefetch_related() \
-        .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+        .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
@@ -283,9 +275,8 @@ def answer(request):
 
         # Using the « preview button », the « more » button or new post
         if 'preview' in data or newpost:
-            form = PrivatePostForm(g_topic, request.user, initial={
-                'text': data['text']
-            })
+            form = PrivatePostForm(g_topic, request.user, initial={'text': data['text']})
+
             return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
@@ -313,8 +304,8 @@ def answer(request):
                 g_topic.save()
 
                 # send email
-                subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], g_topic.title)
-                from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                subject = u'{} - MP : {}'.format(settings.ZDS_APP['site']['abbr'], g_topic.title)
+                from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                                settings.ZDS_APP['site']['email_noreply'])
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
@@ -347,7 +338,7 @@ def answer(request):
                             msg = EmailMultiAlternatives(
                                 subject, message_txt, from_email, [
                                     part.email])
-                            msg.attach_alternative(message_html, "text/html")
+                            msg.attach_alternative(message_html, 'text/html')
                             msg.send()
 
                 return redirect(post.get_absolute_url())
@@ -369,7 +360,7 @@ def answer(request):
             post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
             for line in post_cite.text.splitlines():
-                text = text + '> ' + line + '\n'
+                text += u'> {}\n'.format(line)
 
             text = u'{0}Source:[{1}]({2}{3})'.format(
                 text,
@@ -377,9 +368,8 @@ def answer(request):
                 settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
 
-        form = PrivatePostForm(g_topic, request.user, initial={
-            'text': text
-        })
+        form = PrivatePostForm(g_topic, request.user, initial={'text': text})
+
         return render_template('mp/post/new.html', {
             'topic': g_topic,
             'posts': posts,
@@ -417,21 +407,15 @@ def edit_post(request):
         if 'text' not in request.POST:
             # if preview mode return on
             if 'preview' in request.POST:
-                return redirect(
-                    reverse('zds.mp.views.edit_post') +
-                    '?message=' +
-                    str(post_pk))
+                return redirect(reverse('zds.mp.views.edit_post') + '?message={}'.format(post_pk))
             # disallow send mp
             else:
                 raise PermissionDenied
 
         # Using the preview button
         if 'preview' in request.POST:
-            form = PrivatePostForm(g_topic, request.user, initial={
-                'text': request.POST['text']
-            })
-            form.helper.form_action = reverse(
-                'zds.mp.views.edit_post') + '?message=' + str(post_pk)
+            form = PrivatePostForm(g_topic, request.user, initial={'text': request.POST['text']})
+            form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message={}'.format(post_pk)
 
             return render_template('mp/post/edit.html', {
                 'post': post,
@@ -451,8 +435,7 @@ def edit_post(request):
         form = PrivatePostForm(g_topic, request.user, initial={
             'text': post.text
         })
-        form.helper.form_action = reverse(
-            'zds.mp.views.edit_post') + '?message=' + str(post_pk)
+        form.helper.form_action = reverse('zds.mp.views.edit_post') + '?message={}'.format(post_pk)
         return render_template('mp/post/edit.html', {
             'post': post,
             'topic': g_topic,
