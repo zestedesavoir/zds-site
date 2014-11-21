@@ -130,7 +130,7 @@ class Gallery(models.Model):
     def get_last_image(self):
         return Image.objects.all()\
             .filter(gallery=self)\
-            .order_by('-pubdate')[0]
+            .last()
 
 
 @receiver(models.signals.post_delete, sender=Gallery)
