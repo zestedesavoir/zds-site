@@ -648,7 +648,7 @@ class AnswerViewTest(TestCase):
             {
                 'text': 'answer',
                 'preview': '',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -662,7 +662,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -685,7 +685,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )

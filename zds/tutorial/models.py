@@ -17,7 +17,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils import timezone
+from datetime import datetime
 from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
@@ -410,11 +410,11 @@ class Tutorial(models.Model):
         last_user_notes = Note.objects\
             .filter(tutorial=self)\
             .filter(author=user.pk)\
-            .order_by('-pubdate')
+            .order_by('-position')
 
         if last_user_notes and last_user_notes[0] == self.last_note:
             last_user_note = last_user_notes[0]
-            t = timezone.now() - last_user_note.pubdate
+            t = datetime.now() - last_user_note.pubdate
             if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
         return False

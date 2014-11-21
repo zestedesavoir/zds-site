@@ -114,7 +114,7 @@ class LastArticlesFeedRSSTest(TestCase):
         ref = Article.objects.get(pk=self.article.pk).pubdate
         article = self.articlefeed.items()[0]
         ret = self.articlefeed.item_pubdate(item=article)
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """

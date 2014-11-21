@@ -22,7 +22,7 @@ except:
 import json as json_writer
 
 from django.contrib.auth.models import User
-from django.utils import timezone
+from datetime import datetime
 
 from zds.utils import get_current_user
 from zds.utils import slugify
@@ -268,12 +268,12 @@ class Article(models.Model):
         last_user_reactions = Reaction.objects\
             .filter(article=self)\
             .filter(author=user.pk)\
-            .order_by('-pubdate')
+            .order_by('-position')
 
         if last_user_reactions \
                 and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
-            t = timezone.now() - last_user_reaction.pubdate
+            t = datetime.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
         return False

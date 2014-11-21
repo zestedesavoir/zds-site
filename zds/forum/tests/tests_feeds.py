@@ -110,7 +110,7 @@ class LastTopicsFeedRSSTest(TestCase):
         ref = self.topic2.pubdate
         topics = self.topicfeed.items(obj={'tag': self.tag.pk})
         ret = self.topicfeed.item_pubdate(item=topics[0])
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """
@@ -266,7 +266,7 @@ class LastPostFeedTest(TestCase):
         ref = self.post3.pubdate
         posts = self.postfeed.items(obj={'tag': self.tag2.pk})
         ret = self.postfeed.item_pubdate(item=posts[0])
-        self.assertEqual(ret, ref)
+        self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """

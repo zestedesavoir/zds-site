@@ -51,6 +51,10 @@ class BigTutorialTests(TestCase):
         self.staff = StaffProfileFactory().user
         self.subcat = SubCategoryFactory()
 
+        ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)
         self.licence = LicenceFactory()
         self.licence.save()
 
@@ -325,10 +329,11 @@ class BigTutorialTests(TestCase):
 
         # check values
         tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
-        self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
-        self.assertEqual(Note.objects.get(pk=1).position, 1)
-        self.assertEqual(Note.objects.get(pk=1).pk, tuto.last_note.pk)
+        first_tuto = Note.objects.first()
+        self.assertEqual(first_tuto.tutorial, tuto)
+        self.assertEqual(first_tuto.author.pk, user1.pk)
+        self.assertEqual(first_tuto.position, 1)
+        self.assertEqual(first_tuto.pk, tuto.last_note.pk)
         self.assertEqual(
             Note.objects.get(
                 pk=1).text,
@@ -2509,6 +2514,11 @@ class MiniTutorialTests(TestCase):
 
         self.subcat = SubCategoryFactory()
 
+        ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         self.licence = LicenceFactory()
         self.licence.save()
 
@@ -2705,10 +2715,11 @@ class MiniTutorialTests(TestCase):
 
         # check values
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
-        self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
-        self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
-        self.assertEqual(Note.objects.get(pk=1).position, 1)
-        self.assertEqual(Note.objects.get(pk=1).pk, tuto.last_note.pk)
+        first_note = Note.objects.first()
+        self.assertEqual(first_note.tutorial, tuto)
+        self.assertEqual(first_note.author.pk, user1.pk)
+        self.assertEqual(first_note.position, 1)
+        self.assertEqual(first_note.pk, tuto.last_note.pk)
         self.assertEqual(
             Note.objects.get(
                 pk=1).text,

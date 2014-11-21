@@ -47,7 +47,7 @@ class PrivateTopic(models.Model):
         """Gets the last answer in the thread, if any."""
         last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
-            .order_by('-pubdate')\
+            .order_by('-position_in_topic')\
             .first()
 
         if last_post == self.first_post():
@@ -59,7 +59,7 @@ class PrivateTopic(models.Model):
         """Return the first post of a topic, written by topic's author."""
         return PrivatePost.objects\
             .filter(privatetopic=self)\
-            .order_by('pubdate')\
+            .order_by('position_in_topic')\
             .first()
 
     def last_read_post(self, user=None):
@@ -74,7 +74,7 @@ class PrivateTopic(models.Model):
             if len(post) == 0:
                 return self.first_post()
             else:
-                return post.latest('privatepost__pubdate').privatepost
+                return post.latest('privatepost__position_in_topic').privatepost
 
         except PrivatePost.DoesNotExist:
             return self.first_post()
@@ -88,11 +88,11 @@ class PrivateTopic(models.Model):
             last_post = PrivateTopicRead.objects\
                 .select_related()\
                 .filter(privatetopic=self, user=user)\
-                .latest('privatepost__pubdate').privatepost
+                .latest('privatepost__position_in_topic').privatepost
 
             next_post = PrivatePost.objects.filter(
                 privatetopic__pk=self.pk,
-                pubdate__gt=last_post.pubdate).first()
+                position_in_topic__gt=last_post.position_in_topic).first()
 
             return next_post
         except:
