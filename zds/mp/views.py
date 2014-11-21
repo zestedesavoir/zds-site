@@ -212,7 +212,7 @@ def new(request):
             for username in request.GET.getlist('username'):
                 try:
                     dest_list.append(User.objects.get(username=username).username)
-                except:
+                except User.DoesNotExist:
                     pass
             if len(dest_list) > 0:
                 dest = ', '.join(dest_list)
@@ -488,6 +488,10 @@ def leave(request):
 @require_POST
 @transaction.atomic
 def add_participant(request):
+    """
+    Add a participant to a private topic.
+    """
+
     ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
 
     # check if user is the author of topic
@@ -497,22 +501,41 @@ def add_participant(request):
     try:
         # user_pk or user_username ?
         part = User.objects.get(username__exact=request.POST['user_pk'])
+
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
-            messages.warning(
-                request,
-                _(u'Le membre que vous essayez d\'ajouter '
-                  u'à la conversation y est déjà.'))
+            messages.warning(request, _(u'Le membre que vous essayez d\'ajouter à la conversation y est déjà.'))
         else:
             ptopic.participants.add(part)
             ptopic.save()
 
-            messages.success(
-                request,
-                _(u'Le membre a bien été ajouté à la conversation.'))
-    except:
-        messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+            # send a mail to the new user
+            if part.profile.email_for_answer:
+                subject = u'{} - MP : {}'.format(settings.ZDS_APP['site']['abbr'], ptopic.title)
+                from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+                                               settings.ZDS_APP['site']['email_noreply'])
 
-    return redirect(reverse('zds.mp.views.topic', args=[
-        ptopic.pk,
-        slugify(ptopic.title)]))
+                message_html = get_template('email/mp/add_participant.html') \
+                    .render(
+                        Context({
+                            'username': part.username,
+                            'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
+                            'author': request.user.username
+                        }))
+
+                message_txt = get_template('email/mp/add_participant.txt').render(
+                    Context({
+                        'username': part.username,
+                        'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
+                        'author': request.user.username
+                    }))
+
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                msg.attach_alternative(message_html, 'text/html')
+                msg.send()
+
+            messages.success(request, _(u'Le membre a bien été ajouté à la conversation.'))
+
+    except User.DoesNotExist:
+        messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+
+    return redirect(reverse('zds.mp.views.topic', args=[ptopic.pk, slugify(ptopic.title)]))
