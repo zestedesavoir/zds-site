@@ -11,6 +11,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template import Context
 from django.template.loader import get_template
+from django.shortcuts import render
 from zds import settings
 
 from zds.article.models import get_last_articles
@@ -18,7 +19,6 @@ from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import SITE_ROOT
 from zds.tutorial.models import get_last_tutorials
-from zds.utils import render_template
 from zds.utils.models import Alert
 from django.utils.translation import ugettext as _
 
@@ -44,7 +44,7 @@ def home(request):
     except:
         quote = settings.ZDS_APP['site']['slogan']
 
-    return render_template('home.html', {
+    return render(request, 'home.html', {
         'last_tutorials': tutos,
         'last_articles': articles,
         'quote': quote,
@@ -52,12 +52,12 @@ def home(request):
 
 
 def index(request):
-    return render_template('pages/index.html')
+    return render(request, 'pages/index.html')
 
 
 def about(request):
     """Display many informations about the website."""
-    return render_template('pages/about.html')
+    return render(request, 'pages/about.html')
 
 
 @can_write_and_read_now
@@ -99,15 +99,15 @@ def assoc_subscribe(request):
 
             # reset the form after successfull validation
             form = AssocSubscribeForm()
-        return render_template("pages/assoc_subscribe.html", {"form": form})
+        return render(request, "pages/assoc_subscribe.html", {"form": form})
 
     form = AssocSubscribeForm(initial={'email': request.user.email})
-    return render_template("pages/assoc_subscribe.html", {"form": form})
+    return render(request, "pages/assoc_subscribe.html", {"form": form})
 
 
 def association(request):
     """Display association's presentation."""
-    return render_template('pages/association.html')
+    return render(request, 'pages/association.html')
 
 
 def contact(request):
@@ -118,7 +118,7 @@ def contact(request):
     devs = User.objects.filter(
         groups__in=Group.objects.filter(
             name__contains='dev')).all()
-    return render_template('pages/contact.html', {
+    return render(request, 'pages/contact.html', {
         'staffs': staffs,
         'devs': devs
     })
@@ -126,12 +126,12 @@ def contact(request):
 
 def eula(request):
     """End-User Licence Agreement."""
-    return render_template('pages/eula.html')
+    return render(request, 'pages/eula.html')
 
 
 def cookies(request):
     """Cookies explaination page."""
-    return render_template('pages/cookies.html')
+    return render(request, 'pages/cookies.html')
 
 
 @can_write_and_read_now
@@ -143,6 +143,6 @@ def alerts(request):
 
     alerts = Alert.objects.all().order_by('-pubdate')
 
-    return render_template('pages/alerts.html', {
+    return render(request, 'pages/alerts.html', {
         'alerts': alerts,
     })
