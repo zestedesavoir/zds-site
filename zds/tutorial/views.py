@@ -1070,7 +1070,6 @@ def add_tutorial(request):
             # add create date
 
             tutorial.create_at = datetime.now()
-            tutorial.pubdate = datetime.now()
 
             # Creating the gallery
 
@@ -2645,8 +2644,6 @@ def maj_repo_tuto(
     if action == "del":
         shutil.rmtree(old_slug_path)
     else:
-        # update the tutorial last edit date
-        tuto.update = datetime.now()
         if action == "maj":
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
