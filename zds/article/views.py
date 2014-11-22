@@ -1137,7 +1137,7 @@ def activ_js(request):
     if not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
     article = get_object_or_404(Article, pk=request.POST["article"])
-    article.js_support = not (article.js_support)
+    article.js_support = "js_support" in request.POST
     article.save()
 
     return redirect(article.get_absolute_url())
