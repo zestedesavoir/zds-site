@@ -2644,10 +2644,11 @@ def import_tuto(request):
         olds = []
     for old in olds:
         oldtutos.append(get_info_old_tuto(old))
-    return render(request, 
-        "tutorial/tutorial/import.html", {"form": form,
-                                          "form_archive": form_archive,
-                                          "old_tutos": oldtutos})
+    return render(
+        request,
+        "tutorial/tutorial/import.html",
+        {"form": form, "form_archive": form_archive, "old_tutos": oldtutos}
+    )
 
 
 # Handling repo
@@ -3474,8 +3475,7 @@ def edit_note(request):
                             initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
-            return render(request, 
-                "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+            return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
 
@@ -3492,8 +3492,7 @@ def edit_note(request):
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
         form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
             + "?message=" + str(note_pk)
-        return render(request, 
-            "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+        return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
 @can_write_and_read_now

@@ -235,7 +235,8 @@ def edit_image(request, gal_pk, img_pk):
         })
 
     as_avatar_form = ImageAsAvatarForm()
-    return render(request, 
+    return render(
+        request,
         "gallery/image/edit.html", {
             "form": form,
             "gallery_mode": gal_mode,
