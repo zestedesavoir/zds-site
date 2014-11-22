@@ -2,6 +2,7 @@
 
 import urllib
 
+from django.core import mail
 from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -1149,3 +1150,39 @@ class AddParticipantViewTest(TestCase):
             profile3.user,
             PrivateTopic.objects.get(pk=self.topic1.pk).participants.all()
         )
+
+    def test_add_participant_email_notification(self):
+
+        profile3 = ProfileFactory()
+        profile3.email_for_answer = True
+        profile3.save()
+
+        response = self.client.post(
+            reverse('zds.mp.views.add_participant'),
+            {
+                'topic_pk': self.topic1.pk,
+                'user_pk': profile3.user.username
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['messages']))
+        self.assertEquals(len(mail.outbox), 1)
+
+    def test_add_participant_email_no_notification(self):
+
+        profile3 = ProfileFactory()
+
+        response = self.client.post(
+            reverse('zds.mp.views.add_participant'),
+            {
+                'topic_pk': self.topic1.pk,
+                'user_pk': profile3.user.username
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['messages']))
+        self.assertEquals(len(mail.outbox), 0)
