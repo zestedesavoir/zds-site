@@ -44,7 +44,7 @@ class ThreadLocals(object):
 def render_template(tmpl, dct=None):
     if dct is None:
         dct = {}
-    dct['git_version'] = get_git_version()
+    #dct['git_version'] = get_git_version()
     dct['app'] = settings.ZDS_APP
     return render_to_response(
         tmpl, dct, context_instance=RequestContext(get_current_request()))
