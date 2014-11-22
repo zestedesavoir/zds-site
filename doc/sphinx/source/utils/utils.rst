@@ -18,3 +18,4 @@ Pour préciser le tutoriel à regenerer, il suffit de rajouter l'argument ``id=1
 
    translate
    templatetags
+   context_processors
