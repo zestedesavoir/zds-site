@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-18 23:06+0100\n"
+"POT-Creation-Date: 2014-11-20 17:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,7 +410,7 @@ msgstr ""
 #: templates/article/view.html:196
 #: templates/article/includes/sidebar_actions.part.html:187
 #: templates/tutorial/tutorial/view.html:368
-#: templates/tutorial/tutorial/view_online.html:186
+#: templates/tutorial/tutorial/view_online.html:208
 msgid "Dépublier"
 msgstr ""
 
@@ -449,7 +449,7 @@ msgstr ""
 #: templates/tutorial/tutorial/view.html:377
 #: templates/tutorial/tutorial/view.html:428
 #: templates/tutorial/tutorial/view.html:458
-#: templates/tutorial/tutorial/view_online.html:194 zds/tutorial/forms.py:509
+#: templates/tutorial/tutorial/view_online.html:216 zds/tutorial/forms.py:509
 msgid "Confirmer"
 msgstr ""
 
@@ -586,11 +586,15 @@ msgid "Envoyer un MP"
 msgstr ""
 
 #: templates/article/includes/sidebar_actions.part.html:115
+#: templates/tutorial/chapter/view_online.html:90
 #: templates/tutorial/tutorial/view.html:359
+#: templates/tutorial/tutorial/view_online.html:114
 msgid "aux auteurs"
 msgstr ""
 
 #: templates/article/includes/sidebar_actions.part.html:117
+#: templates/tutorial/chapter/view_online.html:92
+#: templates/tutorial/tutorial/view_online.html:116
 msgid "à l'auteur"
 msgstr ""
 
@@ -2094,7 +2098,9 @@ msgstr ""
 msgid "Aperçu"
 msgstr ""
 
-#: templates/misc/message_form.html:62 zds/member/forms.py:494
+#: templates/misc/message_form.html:62
+#: templates/tutorial/chapter/view_online.html:97
+#: templates/tutorial/tutorial/view_online.html:121 zds/member/forms.py:494
 #: zds/member/forms.py:536 zds/utils/forms.py:18 zds/utils/forms.py:42
 msgid "Envoyer"
 msgstr ""
@@ -3143,15 +3149,33 @@ msgstr ""
 msgid "Licence"
 msgstr ""
 
-#: templates/tutorial/chapter/view_online.html:85
+#: templates/tutorial/chapter/view_online.html:79
+msgid "Signaler une faute dans ce chapitre"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:82
+msgid "J'ai trouvé une faute dans ce chapitre :"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:84
+#: templates/tutorial/tutorial/view_online.html:108
+msgid "Expliquez ici la faute"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:88
+#: templates/tutorial/tutorial/view_online.html:112
+msgid "Pas assez de place ? Envoyer un MP"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:106
 #: templates/tutorial/part/view_online.html:66
-#: templates/tutorial/tutorial/view_online.html:172
+#: templates/tutorial/tutorial/view_online.html:194
 msgid "Admin<span class=\"wide\">istration</span>"
 msgstr ""
 
-#: templates/tutorial/chapter/view_online.html:87
+#: templates/tutorial/chapter/view_online.html:108
 #: templates/tutorial/part/view_online.html:70
-#: templates/tutorial/tutorial/view_online.html:176
+#: templates/tutorial/tutorial/view_online.html:198
 msgid "Version hors-ligne"
 msgstr ""
 
@@ -3336,7 +3360,7 @@ msgstr ""
 msgid "Nouveaux Fichiers"
 msgstr ""
 
-#: templates/tutorial/tutorial/diff.html:49
+#: templates/tutorial/tutorial/diff.html:51
 msgid "Fichiers Modifiés"
 msgstr ""
 
@@ -3549,7 +3573,7 @@ msgid ""
 msgstr ""
 
 #: templates/tutorial/tutorial/view.html:350
-#: templates/tutorial/tutorial/view_online.html:181
+#: templates/tutorial/tutorial/view_online.html:203
 msgid "Historique validation"
 msgstr ""
 
@@ -3597,15 +3621,23 @@ msgid ""
 "                                "
 msgstr ""
 
-#: templates/tutorial/tutorial/view_online.html:112
+#: templates/tutorial/tutorial/view_online.html:103
+msgid "Signaler une faute dans ce tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/view_online.html:106
+msgid "J'ai trouvé une faute dans ce tutoriel :"
+msgstr ""
+
+#: templates/tutorial/tutorial/view_online.html:134
 msgid "commentaire"
 msgstr ""
 
-#: templates/tutorial/tutorial/view_online.html:114
+#: templates/tutorial/tutorial/view_online.html:136
 msgid "Aucun commentaire"
 msgstr ""
 
-#: templates/tutorial/tutorial/view_online.html:191
+#: templates/tutorial/tutorial/view_online.html:213
 msgid "Êtes-vous certains de vouloir dépublier le tutoriel"
 msgstr ""
 
@@ -4689,6 +4721,42 @@ msgstr ""
 msgid ""
 "Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore "
 "plus prudent lors de l'édition de celui-ci !"
+msgstr ""
+
+#: zds/tutorial/views.py:3560 zds/tutorial/views.py:3609
+#: zds/tutorial/views.py:3644
+msgid "Votre proposition de correction est vide"
+msgstr ""
+
+#: zds/tutorial/views.py:3563 zds/tutorial/views.py:3647
+msgid ""
+"[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]"
+"({}).\n"
+"\n"
+"Voici son message :\n"
+"\n"
+"{}"
+msgstr ""
+
+#: zds/tutorial/views.py:3574 zds/tutorial/views.py:3626
+#: zds/tutorial/views.py:3658
+msgid "Proposition de correction"
+msgstr ""
+
+#: zds/tutorial/views.py:3579 zds/tutorial/views.py:3631
+#: zds/tutorial/views.py:3663
+msgid "Votre correction a bien été proposée !"
+msgstr ""
+
+#: zds/tutorial/views.py:3612
+msgid ""
+"[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]"
+"({}).\n"
+"\n"
+"Sa correction concerne le chapitre `{}` de la partie `{}`. Voici son "
+"message :\n"
+"\n"
+"{}"
 msgstr ""
 
 #: zds/utils/tutorials.py:292

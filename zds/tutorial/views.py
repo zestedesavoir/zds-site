@@ -3542,3 +3542,129 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+@login_required
+@require_POST
+def warn_typo_mini(
+    request,
+    tutorial_pk,
+):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    profile = get_object_or_404(Profile, user=request.user)
+
+    if 'explication' not in request.POST or request.POST['explication'] is None:
+        explication = ""
+    else:
+        explication = request.POST['explication']
+        explication = '\n'.join(['> '+line for line in explication.split('\n')])
+
+    if explication == "":
+        messages.error(request, _(u'Votre proposition de correction est vide'))
+    else:
+        message = (
+            _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n'
+              u'Voici son message :\n\n'
+              u'{}').format(request.user.username,
+                            settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                            tutorial.title,
+                            settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
+                            explication)
+            )
+        send_mp(
+            request.user,
+            tutorial.authors.all(),
+            _(u"Proposition de correction"),
+            tutorial.title,
+            message,
+            True,
+            direct=False)
+        messages.success(request, _(u'Votre correction a bien été proposée !'))
+    return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
+        tutorial.pk,
+        tutorial.slug,
+    ]))
+
+
+@login_required
+@require_POST
+def warn_typo(
+    request,
+    tutorial_pk,
+    part_pk=None,
+    chapter_pk=None,
+):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    profile = get_object_or_404(Profile, user=request.user)
+
+    if 'explication' not in request.POST or request.POST['explication'] is None:
+        explication = ""
+    else:
+        explication = request.POST['explication']
+        explication = '\n'.join(['> '+line for line in explication.split('\n')])
+
+    # if we are in a big-tuto chapter
+    if part_pk is not None and chapter_pk is not None:
+        part = get_object_or_404(Part, pk=part_pk)
+        chapter = get_object_or_404(Chapter, pk=chapter_pk)
+
+        if explication == "":
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            message = (
+                _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n'
+                  u'Sa correction concerne le chapitre `{}` de la partie `{}`. Voici son message :\n\n'
+                  u'{}').format(request.user.username,
+                                settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                                tutorial.title,
+                                settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
+                                chapter.title,
+                                part.title,
+                                explication
+                                )
+                )
+            send_mp(
+                request.user,
+                tutorial.authors.all(),
+                _(u"Proposition de correction"),
+                tutorial.title,
+                message,
+                send_by_mail=True,
+                leave=True)
+            messages.success(request, _(u'Votre correction a bien été proposée !'))
+        return redirect(reverse("zds.tutorial.views.view_chapter_online", args=[
+            tutorial.pk,
+            tutorial.slug,
+            part.pk,
+            part.slug,
+            chapter.pk,
+            chapter.slug
+        ]))
+
+    # if we are on the main page (or small tuto)
+    else:
+        if explication == "":
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            message = (
+                _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n'
+                  u'Voici son message :\n\n'
+                  u'{}').format(request.user.username,
+                                settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                                tutorial.title,
+                                settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
+                                explication)
+                )
+            send_mp(
+                request.user,
+                tutorial.authors.all(),
+                _(u"Proposition de correction"),
+                tutorial.title,
+                message,
+                True,
+                direct=False)
+            messages.success(request, _(u'Votre correction a bien été proposée !'))
+        return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
+            tutorial.pk,
+            tutorial.slug,
+        ]))

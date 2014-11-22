@@ -88,6 +88,10 @@ urlpatterns = patterns('',
                            'zds.tutorial.views.delete_tutorial'),
                        url(r'^validation/tutoriel/$',
                            'zds.tutorial.views.ask_validation'),
+                       url(r'^message/typo/(?P<tutorial_pk>\d+)/$',
+                           'zds.tutorial.views.warn_typo_mini'),
+                       url(r'^message/typo/(?P<tutorial_pk>\d+)/(?P<part_pk>\d+)/(?P<chapter_pk>\d+)/$',
+                           'zds.tutorial.views.warn_typo'),
 
                        # Validation
                        url(r'^validation/$',

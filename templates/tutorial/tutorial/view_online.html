@@ -99,6 +99,28 @@
     {% if tutorial.get_conclusion_online %}
         {{ tutorial.get_conclusion_online|safe }}
     {% endif %}
+
+    <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">{% trans "Signaler une faute dans ce tutoriel" %}</a>
+    <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo_mini" tutorial.pk %}" method="post" >
+        <p>
+            {% trans "J'ai trouvé une faute dans ce tutoriel :" %}
+            {% csrf_token %}
+            <textarea name="explication" placeholder="{% blocktrans %}Expliquez ici la faute{% endblocktrans %}" required></textarea>
+        </p>
+        <p>
+            <a href="{% url "zds.mp.views.new" %}?{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
+                ({% trans "Pas assez de place ? Envoyer un MP" %}
+                {% if tutorial.authors.all|length > 1 %}
+                    {% trans "aux auteurs" %}
+                {% else %}
+                    {% trans "à l'auteur" %}
+                {% endif %}
+                )
+            </a>
+        </p>
+        <button type="submit">{% trans "Envoyer" %}</button>
+    </form>
+
 {% endblock %}
 
 
@@ -154,7 +176,7 @@
     {% include "misc/pagination.part.html" with position="bottom" topic=tutorial is_online=True anchor="comments" %}
 
 
-    
+
     {% captureas form_action %}
         {% url 'zds.tutorial.views.answer' %}?tutorial={{ tutorial.pk }}
     {% endcaptureas %}
