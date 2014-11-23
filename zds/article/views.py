@@ -43,7 +43,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import ArticleForm, ReactionForm
+from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read
 
@@ -117,12 +117,20 @@ def view(request, article_pk, article_slug):
         .order_by("-date_proposition")\
         .first()
 
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render_template('article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
         'version': sha,
-        'validation': validation
+        'validation': validation,
+        'is_js': is_js,
+        'formJs': form_js,
     })
 
 
@@ -322,10 +330,12 @@ def edit(request):
                 'subcategory': request.POST.getlist('subcategory'),
                 'licence': licence
             })
+            form_js = ActivJsForm(initial={"js_support": article.js_support})
             return render_template('article/member/edit.html', {
                 'article': article,
                 'text': request.POST['text'],
-                'form': form
+                'form': form,
+                'formJs': form_js
             })
 
         form = ArticleForm(request.POST, request.FILES)
@@ -381,8 +391,9 @@ def edit(request):
             'licence': licence
         })
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
     return render_template('article/member/edit.html', {
-        'article': article, 'form': form
+        'article': article, 'form': form, 'formJs': form_js
     })
 
 
@@ -956,7 +967,11 @@ def mep(article, sha):
             article_version['text'] +
             '.html'),
         "w")
-    html_file.write(emarkdown(md_file_contenu))
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    html_file.write(emarkdown(md_file_contenu, is_js))
     html_file.close()
 
 
@@ -1111,6 +1126,21 @@ def solve_alert(request):
         u'L\'alerte a bien été résolue.')
 
     return redirect(reaction.get_absolute_url())
+
+
+@login_required
+@require_POST
+def activ_js(request):
+
+    # only for staff
+
+    if not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
+    article = get_object_or_404(Article, pk=request.POST["article"])
+    article.js_support = "js_support" in request.POST
+    article.save()
+
+    return redirect(article.get_absolute_url())
 
 
 @can_write_and_read_now

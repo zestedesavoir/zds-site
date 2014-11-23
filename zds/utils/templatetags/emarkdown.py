@@ -20,14 +20,14 @@ __MD_ERROR_PARSING = u"Une erreur est survenue dans la génération de texte Mar
                      u"Veuillez rapporter le bug."
 
 
-def get_markdown_instance(inline=False):
+def get_markdown_instance(inline=False, js_support=False):
     """
     Provide a pre-configured markdown parser.
 
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
-    zdsext = ZdsExtension({"inline": inline, "emoticons": smileys})
+    zdsext = ZdsExtension({"inline": inline, "emoticons": smileys, "js_support": js_support})
     # Generate parser
     md = markdown.Markdown(extensions=(zdsext,),
                            safe_mode = 'escape',
@@ -53,7 +53,7 @@ def get_markdown_instance(inline=False):
     return md
 
 
-def render_markdown(text, inline=False):
+def render_markdown(text, inline=False, js_support=False):
     """
     Render a markdown text to html.
 
@@ -62,11 +62,11 @@ def render_markdown(text, inline=False):
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=inline).convert(text).encode('utf-8').strip()
+    return get_markdown_instance(inline=inline, js_support=js_support).convert(text).encode('utf-8').strip()
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text):
+def emarkdown(text, js=""):
     """
     Filter markdown text and render it to html.
 
@@ -74,8 +74,9 @@ def emarkdown(text):
     :return: Equivalent html string.
     :rtype: str
     """
+    is_js = (js == "js")
     try:
-        return mark_safe(render_markdown(text, inline=False))
+        return mark_safe(render_markdown(text, inline=False, js_support=is_js))
     except:
         return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 

@@ -41,7 +41,7 @@ from git import Repo, Actor
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
-    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
+    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -879,6 +879,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
         .order_by("-date_proposition")\
         .first()
+    form_js = ActivJsForm(initial={"js_support": tutorial.js_support})
+
     if tutorial.source:
         form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
         form_valid = ValidForm(initial={"source": tutorial.source})
@@ -886,6 +888,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         form_ask_validation = AskValidationForm()
         form_valid = ValidForm()
     form_reject = RejectForm()
+
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
     return render_template("tutorial/tutorial/view.html", {
         "tutorial": mandata,
         "chapter": chapter,
@@ -893,8 +900,10 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         "version": sha,
         "validation": validation,
         "formAskValidation": form_ask_validation,
+        "formJs": form_js,
         "formValid": form_valid,
         "formReject": form_reject,
+        "is_js": is_js
     })
 
 
@@ -1324,10 +1333,16 @@ def view_part(
     if not find:
         raise Http404
 
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
     return render_template("tutorial/part/view.html",
                            {"tutorial": mandata,
                             "part": final_part,
-                            "version": sha})
+                            "version": sha,
+                            "is_js": is_js})
 
 
 def view_part_online(
@@ -1684,12 +1699,18 @@ def view_chapter(
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
 
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
     return render_template("tutorial/chapter/view.html", {
         "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
         "version": sha,
+        "is_js": is_js
     })
 
 
@@ -3168,8 +3189,12 @@ def mep(tutorial, sha):
 
             target = u"\\\\?\{0}".format(target)
             html_file = open(target, "w")
+        if tutorial.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
         if md_file_contenu is not None:
-            html_file.write(emarkdown(md_file_contenu))
+            html_file.write(emarkdown(md_file_contenu, is_js))
         html_file.close()
 
     # load markdown out
@@ -3376,6 +3401,21 @@ def solve_alert(request):
     alert.delete()
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(note.get_absolute_url())
+
+
+@login_required
+@require_POST
+def activ_js(request):
+
+    # only for staff
+
+    if not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
+    tutorial = get_object_or_404(Tutorial, pk=request.POST["tutorial"])
+    tutorial.js_support = "js_support" in request.POST
+    tutorial.save()
+
+    return redirect(tutorial.get_absolute_url())
 
 
 @can_write_and_read_now
