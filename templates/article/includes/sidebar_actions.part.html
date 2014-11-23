@@ -112,7 +112,7 @@
                 <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
                     class="ico-after cite blue"
                 >
-                    {% trans "Envoyer un MP" %} 
+                    {% trans "Envoyer un MP" %}
                     {% if authors.all|length > 1 %}
                         {% trans "aux auteurs" %}
                     {% else %}
@@ -121,9 +121,15 @@
                 </a>
             </li>
             <li>
-                <a href="#js-activation" class="open-modal ico-after tick green">
-                    JSFiddle
-                </a>
+                {% if is_js %}
+                    <a href="#js-activation" class="open-modal ico-after cross red">
+                        {% trans "Désactiver JSFiddle" %}
+                    </a>
+                {% else %}
+                    <a href="#js-activation" class="open-modal ico-after tick green">
+                        {% trans "Activer JSFiddle" %}
+                    </a>
+                {% endif %}
             </li>
             <div id="js-activation" class="modal modal-small">
                 {% crispy formJs %}

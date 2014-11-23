@@ -363,9 +363,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#js-activation" class="open-modal ico-after tick green">
-                        JSFiddle
-                    </a>
+                    {% if is_js %}
+                        <a href="#js-activation" class="open-modal ico-after cross red">
+                            {% trans "Désactiver JSFiddle" %}
+                        </a>
+                    {% else %}
+                        <a href="#js-activation" class="open-modal ico-after tick green">
+                            {% trans "Activer JSFiddle" %}
+                        </a>
+                    {% endif %}
                 </li>
                 <div id="js-activation" class="modal modal-small">
                     {% crispy formJs %}
