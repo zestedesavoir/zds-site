@@ -33,7 +33,7 @@
     }
 
 
-    
+
     label {
         display: block;
         color: #555;
@@ -149,7 +149,7 @@
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($upvote, 5%);
+            background: lighten($upvote, 7%);
         }
 
         &.disabled.submitted {
