@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-25 20:25+0100\n"
+"POT-Creation-Date: 2014-11-29 13:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1531,7 +1531,7 @@ msgid "Inscrit"
 msgstr ""
 
 #: templates/member/profile.html:45
-msgid "Dernière connexion"
+msgid "Dernière visite sur le site"
 msgstr ""
 
 #: templates/member/profile.html:49
