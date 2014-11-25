@@ -87,24 +87,6 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton(_('Se connecter'), type='submit'),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after facebook light btn-facebook",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['facebook'])
-                                     + u"?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after twitter light btn-twitter",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['twitter'])
-                                     + u"?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after google-plus light btn-gplus",
-                             onclick=u"javascript:location.href='"
-                                     + reverse('social:begin', args=['google-oauth2'])
-                                     + u"?next={}'".format(next)),
             ),
             HTML('<a href="{% url "zds.member.views.forgot_password" %}" '
                  u'class="form-sub-link">Mot de passe oublié ?</a>'),
@@ -153,24 +135,6 @@ class RegisterForm(forms.Form):
             Field('email'),
             ButtonHolder(
                 Submit('submit', _('Valider mon inscription')),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after facebook light btn-facebook",
-                             onclick="javascript:location.href='"
-                                     + reverse('social:begin', args=['facebook'])
-                                     + "?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after twitter light btn-twitter",
-                             onclick="javascript:location.href='"
-                                     + reverse('social:begin', args=['twitter'])
-                                     + "?next={}'".format(next)),
-                StrictButton('',
-                             type='button',
-                             css_class="ico-after google-plus light btn-gplus",
-                             onclick="javascript:location.href='"
-                                     + reverse('social:begin', args=['google-oauth2'])
-                                     + "?next={}'".format(next)),
             ))
 
     def clean(self):

@@ -142,8 +142,8 @@
                 background: #555;
                 animation: lineLoading linear 1s infinite;
             }
-
-        &:not(.btn-holder){
+		}
+        &:not(.buttonHolder){
             float: right;
         }
     }
@@ -253,8 +253,7 @@
         margin-top: 8px;
     }
 
-    .btn-holder,
-    .buttonHolder /* specifix for crispy */ {
+    .buttonHolder {
         margin-top: 25px;
         min-height: 40px;
     }

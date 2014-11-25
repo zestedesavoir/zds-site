@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
@@ -31,7 +31,8 @@
             {% endif %}
 
             <p class="alert-box success">
-                {% blocktrans %}Si vous n'avez pas de compte, vous pouvez <a href="{% url "zds.member.views.register_view" %}" >vous inscrire</a>.{% endblocktrans %}
+                {% url "zds.member.views.register_view" as url_register %}
+                {% blocktrans %}Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.{% endblocktrans %}
             </p>
 
             <div>
@@ -43,13 +44,13 @@
                 <div class="content-col-2">
                     <h2>{% trans "Connexion via réseaux sociaux" %}</h2>
 
-                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
+                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook buttonHolder">
                         {% trans "Connexion via Facebook" %}
                     </a>
-                    <a href="{% url "social:begin" "twitter" %}" class="btn ico-after twitter light btn-twitter btn-holder">
+                    <a href="{% url "social:begin" "twitter" %}" class="btn ico-after twitter light btn-twitter buttonHolder">
                         {% trans "Connexion via Twitter" %}
                     </a>
-                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
+                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus buttonHolder">
                         {% trans "Connexion via Google+" %}
                     </a>
                 </div>
