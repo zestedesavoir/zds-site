@@ -38,16 +38,14 @@
                 <div class="content-col-2">
                     <h2>Inscription classique</h2>
                     <p>
-                        {% trans "Les informations demandées dans le formulaire suivant
-                        sont nécessaires afin de poursuivre votre inscription" %}.
+                        {% trans "Les informations demandées dans le formulaire suivant sont nécessaires afin de poursuivre votre inscription" %}.
                     </p>
                     {% crispy form %}
                 </div>
                 <div class="content-col-2">
                     <h2>Inscription via réseaux sociaux</h2>
                     <p>
-                        {% trans "Vous pouvez également créer un compte en utilisant
-                        un des services tiers ci-dessous" %}.
+                        {% trans "Vous pouvez également créer un compte en utilisant un des services tiers ci-dessous" %}.
                     </p>
 
                     <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
