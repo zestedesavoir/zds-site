@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import yaml
-import zds
 from django.core.management.base import BaseCommand
 from django.db import transaction
 import glob
