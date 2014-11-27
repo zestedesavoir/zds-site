@@ -2,8 +2,6 @@
 
 from django.conf.urls import patterns, url
 
-from . import views
-
 from views import MemberList
 
 urlpatterns = patterns('',

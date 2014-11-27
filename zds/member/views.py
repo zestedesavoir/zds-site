@@ -50,7 +50,7 @@ class MemberList(ListView):
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
-    queryset = User.objects.order_by('-date_joined').all()
+    queryset = Profile.object.all_members_ordered_by_date_joined()
     template_name = 'member/index.html'
 
 

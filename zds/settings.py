@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'haystack',
     'munin',
     'social.apps.django_app.default',
+    'rest_framework',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -206,7 +207,15 @@ THUMBNAIL_ALIASES = {
     },
 }
 
-if DEBUG:
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
+if (DEBUG):
     INSTALLED_APPS += (
         'debug_toolbar',
     )

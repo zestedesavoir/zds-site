@@ -18,6 +18,7 @@ from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
+from zds.member.managers import ProfileManager
 from django.utils.importlib import import_module
 
 
@@ -87,6 +88,8 @@ class Profile(models.Model):
         'Date de dernière visite',
         null=True,
         blank=True)
+
+    object = ProfileManager()
 
     def __unicode__(self):
         """Textual forum of a profile."""
