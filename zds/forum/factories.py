@@ -47,6 +47,7 @@ class PostFactory(factory.DjangoModelFactory):
         post = super(PostFactory, cls)._prepare(create, **kwargs)
         topic = kwargs.pop('topic', None)
         if topic:
+            post.save()
             topic.last_message = post
             topic.save()
         return post
