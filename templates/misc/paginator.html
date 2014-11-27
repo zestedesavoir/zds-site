@@ -1,0 +1,43 @@
+{% load captureas %}
+{% load append_to_get %}
+{% load i18n %}
+
+
+{% if page_obj|length > 1 %}
+    {% captureas full_anchor %}
+        {% if anchor %}
+            #{{ anchor }}
+        {% endif %}
+    {% endcaptureas %}
+
+    <ul class="pagination pagination-{{ position }}">
+        {% if page_obj.has_previous %}
+            <li class="prev">
+                <a href="?page={{ page_obj.previous_page_number }}{{ full_anchor }}" class="ico-after arrow-left blue">
+                    {% trans "Précédente" %}
+                </a>
+            </li>
+        {% endif %}
+
+        {% for page_nb in page_obj.paginator.page_range %}
+            <li>
+                <a  {% ifnotequal page_nb page_obj.number %}
+                        href="?page={{ page_nb }}{{ full_anchor }}"
+                    {% else %}
+                        class="current"
+                    {% endifnotequal %}
+                >
+                    {{ page_nb }}
+                </a>
+            </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="next">
+                <a href="?page={{ page_obj.next_page_number }}{{ full_anchor }}" class="ico-after arrow-right blue">
+                    {% trans "Suivante" %}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+{% endif %}
