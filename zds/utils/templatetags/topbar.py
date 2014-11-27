@@ -62,7 +62,8 @@ def top_categories(user):
 
 @register.filter('top_categories_tuto')
 def top_categories_tuto(user):
-    """ get all the categories and their related subcategories
+    """
+        Get all the categories and their related subcategories
         associed with an existing tutorial. The result is sorted
         by alphabetic order.
     """
@@ -74,28 +75,18 @@ def top_categories_tuto(user):
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_tutos)\
-        .order_by('category__title', 'subcategory__title')\
+        .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
-        .values('category__title','subcategory__title')\
+        .values('category__title', 'subcategory__title')\
         .all()
-
-    # special categorie 'other' goes to the end
-    other = []
 
     for csc in catsubcats:
         key = csc['category__title']
-
-        if key == 'Autres':
-            other.append(csc['subcategory__title'])
-            continue
 
         if key in cats:
             cats[key].append(csc['subcategory__title'])
         else:
             cats[key] = [csc['subcategory__title']]
-
-    if other != []:
-        cats['Autres'] = other
 
     return cats
 
