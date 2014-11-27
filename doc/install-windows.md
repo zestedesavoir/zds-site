@@ -13,7 +13,7 @@ Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 - Redémarrez Powershell
 - Installez pip : `easy_install pip`
 - Désactivez la sécurité sur les script powershell `Set-ExecutionPolicy RemoteSigned`
-- Installez Virtualenv avec les commandes suivante : 
+- Installez Virtualenv avec les commandes suivante :
     - `pip install virtualenv`
     - `pip install virtualenvwrapper-powershell`
 - Créez votre workspace dédié à ZdS
@@ -28,7 +28,7 @@ Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources ici : http://zestedesavoir.com/static/pack.zip
 Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
 
-Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
+Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](http://zestedesavoir.github.io/zds-site/).
 
 ## Suite de l'installation
 
@@ -38,7 +38,7 @@ Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédi
     - `python manage.py syncdb`
     - `python manage.py migrate`
     - `python manage.py runserver`
-- Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
+- Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1`
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 

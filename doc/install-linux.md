@@ -47,7 +47,7 @@ Une documentation plus complète de cet outil [est disponible ici](http://docs.p
 Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources ici : http://zestedesavoir.com/static/pack.zip
 Il faudra l'extraire dans le dossier `dist/` à la racine de votre projet.
 
-Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
+Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](http://zestedesavoir.github.io/zds-site/).
 
 
 ## Lancer ZdS
