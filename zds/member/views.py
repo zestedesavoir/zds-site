@@ -41,6 +41,18 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 from django.utils.translation import ugettext as _
 
+from django.views.generic import ListView
+
+
+class MemberList(ListView):
+
+    """Displays the list of registered users."""
+
+    context_object_name = 'members'
+    paginate_by = settings.ZDS_APP['member']['members_per_page']
+    queryset = User.objects.order_by('-date_joined').all()
+    template_name = 'member/index.html'
+
 
 def index(request):
     """Displays the list of registered users."""

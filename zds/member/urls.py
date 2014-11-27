@@ -4,9 +4,10 @@ from django.conf.urls import patterns, url
 
 from . import views
 
+from views import MemberList
 
 urlpatterns = patterns('',
-                       url(r'^$', 'zds.member.views.index'),
+                       url(r'^$', MemberList.as_view(), name='member-list'),
                        url(r'^desinscrire/valider/$', 'zds.member.views.unregister'),
                        url(r'^desinscrire/avertissement/$', 'zds.member.views.warning_unregister'),
                        url(r'^voir/(?P<user_name>.+)/$',
