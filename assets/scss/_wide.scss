@@ -90,7 +90,7 @@
             border-top: 6px solid #FFF;
         }
     }
-    
+
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
@@ -343,7 +343,7 @@
                 left: 150px;
                 margin-left: -10px;
             }
-            
+
             blockquote {
                 margin: 0 0 0 300px;
             }
@@ -400,7 +400,7 @@
         width: 46%;
         float: left;
     }
-    
+
 
 
     /* ============
@@ -570,17 +570,25 @@
        ============== */
     .enable-mobile-menu #modals .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
-        
+
         .modal-title {
             line-height: 50px;
         }
 
         [type=submit],
-        .btn {
+        .btn-submit {
+            &:not(.disabled):hover,
+            &:not(.disabled):focus {
+                color: #EEE;
+                background: $upvote !important;
+            }
+        }
+
+        .btn-cancel {
             &:hover,
             &:focus {
-                color: #EEE !important;
-                background: $primary !important;
+                color: #EEE;
+                background: $downvote !important;
             }
         }
     }
