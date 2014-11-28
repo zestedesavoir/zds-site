@@ -33,12 +33,26 @@
                     <article class="extend">
                             {% if tutorial.image.physical.tutorial_illu.url %}
                                 <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
-                                    {% if tutorial.in_beta %}
+                            <div class="tutorial-infos">
+                                <h3 >{{tutorial.title}}</h3>
+                                
+                                <p class="article-metadata">
+                                    {% if tutorial.subcategory %}
+                                        {% for category in tutorial.subcategory.all %}
+                                            {% if not forloop.first %}
+                                                -
+                                            {% endif %}
+                                            {{ category.title }}                                    
+                                        {% endfor %}
+                                    {% endif %}
+                                </p>
+                                <div>
+                                {% if tutorial.in_beta %}
                             {% endif %}
                             <div class="tutorial-infos">
                                 <h3 >{{tutorial.title}}</h3>
                                 <span>{% trans "par : " %}{% for author in tutorial.authors.all %}
-                                    {% if tutorial.on_line %}
+                                {% if tutorial.on_line %}
                                             {% if tutorial.authors.all.count > 1 and not forloop.last %}
                                                 ,
                                             {% endif %}
