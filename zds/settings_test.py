@@ -1,5 +1,5 @@
 DATABASES = {
-        'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'zds_test',
         'USER': 'travis',
