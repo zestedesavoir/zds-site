@@ -333,11 +333,13 @@ ZDS_APP = {
     },
     'article': {
         'repo_path': os.path.join(SITE_ROOT, 'articles-data'),
+        'home_number': 5,
     },
     'tutorial': {
         'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
         'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
-        'default_license_pk': 7
+        'default_license_pk': 7,
+        'home_number': 5,
     },
     'forum': {
         'posts_per_page': 21,
