@@ -1,6 +1,9 @@
 # coding: utf-8
 
 import random
+import sys
+import time
+
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from random import randint
@@ -24,7 +27,6 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.utils import slugify
 from zds import settings
 from django.db import transaction
-import time
 
 
 def load_member(cli, size, fake, root):
@@ -69,8 +71,10 @@ def load_member(cli, size, fake, root):
         profile.last_ip_address = fake.ipv4()
         profile.save()
         cpt += 1
+        sys.stdout.write(" User {}/{}  \r".format(i+1, nb_users))
+        sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_staff(cli, size, fake, root):
@@ -95,8 +99,10 @@ def load_staff(cli, size, fake, root):
         profile.last_ip_address = fake.ipv6()
         profile.save()
         cpt += 1
+        sys.stdout.write(" Staff {}/{}  \r".format(i+1, nb_staffs))
+        sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_gallery(cli, size, fake):
@@ -110,7 +116,8 @@ def load_gallery(cli, size, fake):
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write(u"Il n'y a aucun membre actuellement. Vous devez rajouter les membres dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucun membre actuellement. "
+                         u"Vous devez rajouter les membres dans vos fixtures (member)")
     else:
         profiles = list(Profile.objects.all())
         for i in range(0, nb_users):
@@ -119,8 +126,13 @@ def load_gallery(cli, size, fake):
                 UserGalleryFactory(user=profiles[i].user, gallery=gal)
                 for k in range(0, nb_images):
                     ImageFactory(gallery=gal)
+                    sys.stdout.write(" User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r".
+                                     format(i+1, nb_users,
+                                            j+1, nb_galleries,
+                                            k+1, nb_images))
+                    sys.stdout.flush()
         tps2 = time.time()
-        cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+        cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_categories_forum(cli, size, fake):
@@ -134,8 +146,10 @@ def load_categories_forum(cli, size, fake):
         cat = CategoryFactory(position=i + 1)
         cat.title = fake.word()
         cat.save()
+        sys.stdout.write(" Cat. {}/{}  \r".format(i+1, nb_categories))
+        sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_forums(cli, size, fake):
@@ -147,8 +161,8 @@ def load_forums(cli, size, fake):
     tps1 = time.time()
     nb_categories = FCategory.objects.count()
     if nb_categories == 0:
-        cli.stdout.write(u"Il n'y a aucune catgorie actuellement. Vous devez rajouter les categories "
-                         u"de forum dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucune catgorie actuellement. "
+                         u"Vous devez rajouter les categories de forum dans vos fixtures (category_forum)")
     else:
         categories = list(FCategory.objects.all())
         for i in range(0, nb_forums):
@@ -157,8 +171,10 @@ def load_forums(cli, size, fake):
             forum.title = fake.word()
             forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
             forum.save()
+            sys.stdout.write(" Forum {}/{}  \r".format(i+1, nb_forums))
+            sys.stdout.flush()
         tps2 = time.time()
-        cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+        cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_tags(cli, size, fake):
@@ -172,8 +188,10 @@ def load_tags(cli, size, fake):
         title = fake.word()
         t = Tag(title=title, slug=slugify(title))
         t.save()
+        sys.stdout.write(" Tag {}/{}  \r".format(i+1, nb_tags))
+        sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_topics(cli, size, fake):
@@ -185,17 +203,20 @@ def load_topics(cli, size, fake):
     tps1 = time.time()
     nb_forums = Forum.objects.count()
     if nb_forums == 0:
-        cli.stdout.write(u"Il n'y a aucun forum actuellement. Vous devez rajouter les forums dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucun forum actuellement. "
+                         u"Vous devez rajouter les forums dans vos fixtures (forum)")
     else:
         forums = list(Forum.objects.all())
         nb_users = User.objects.count()
         if nb_users == 0:
-            cli.stdout.write(u"Il n'y a aucun membre actuellement. Vous devez rajouter les membres dans vos fixtures")
+            cli.stdout.write(u"Il n'y a aucun membre actuellement. "
+                             u"Vous devez rajouter les membres dans vos fixtures (member)")
         else:
             profiles = list(Profile.objects.all())
             nb_tags = Tag.objects.count()
             if nb_tags == 0:
-                cli.stdout.write(u"Il n'y a aucun tag actuellement. Vous devez rajouter les tags dans vos fixtures")
+                cli.stdout.write(u"Il n'y a aucun tag actuellement. "
+                                 u"Vous devez rajouter les tags dans vos fixtures (tag)")
             else:
                 for i in range(0, nb_topics):
                     topic = TopicFactory(forum=forums[i % nb_forums], author=profiles[i % nb_users].user)
@@ -211,8 +232,10 @@ def load_topics(cli, size, fake):
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
+                    sys.stdout.write(" Topic {}/{}  \r".format(i+1, nb_topics))
+                    sys.stdout.flush()
                 tps2 = time.time()
-                cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+                cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_posts(cli, size, fake):
@@ -224,12 +247,14 @@ def load_posts(cli, size, fake):
     tps1 = time.time()
     nb_topics = Topic.objects.count()
     if nb_topics == 0:
-        cli.stdout.write(u"Il n'y a aucun topic actuellement. Vous devez rajouter les topics dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucun topic actuellement. "
+                         u"Vous devez rajouter les topics dans vos fixtures (topic)")
     else:
         topics = list(Topic.objects.all())
         nb_users = User.objects.count()
         if nb_users == 0:
-            cli.stdout.write(u"Il n'y a aucun membre actuellement. Vous devez rajouter les membres dans vos fixtures")
+            cli.stdout.write(u"Il n'y a aucun membre actuellement. "
+                             u"Vous devez rajouter les membres dans vos fixtures (member)")
         else:
             profiles = list(Profile.objects.all())
             for i in range(0, nb_topics):
@@ -245,8 +270,12 @@ def load_posts(cli, size, fake):
                         if j % int(nb * 0.3) == 0:
                             post.is_useful = True
                     post.save()
+                    sys.stdout.write(" Topic {}/{}  \tPost {}/{}  \r".
+                                     format(i+1, nb_topics,
+                                            j+1, nb))
+                    sys.stdout.flush()
             tps2 = time.time()
-            cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+            cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_categories_content(cli, size, fake):
@@ -274,6 +303,9 @@ def load_categories_content(cli, size, fake):
                         slug=slugify(ttl))
         cat.save()
         categories.append(cat)
+        sys.stdout.write(" Cat. {}/{}  \r".format(i+1, nb_categories))
+        sys.stdout.flush()
+
     for i in range(0, nb_sub_categories):
         ttl = fake.word()
         cat = SubCategory(title=ttl,
@@ -281,13 +313,17 @@ def load_categories_content(cli, size, fake):
                           slug=slugify(ttl))
         cat.save()
         sub_categories.append(cat)
+        sys.stdout.write(" SubCat. {}/{}  \r".format(i+1, nb_sub_categories))
+        sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
         h = CategorySubCategory(category=categories[i % nb_categories], subcategory=sub_categories[i], is_main=True)
         h.save()
+        sys.stdout.write(" CatSubCat. {}/{}  \r".format(i+1, nb_sub_categories))
+        sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_comment_article(cli, size, fake):
@@ -308,8 +344,12 @@ def load_comment_article(cli, size, fake):
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
+            sys.stdout.write(" Article {}/{}  \tComment {}/{}  \r".
+                             format(i+1, nb_articles,
+                                    j+1, nb))
+            sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_comment_tutorial(cli, size, fake):
@@ -330,8 +370,12 @@ def load_comment_tutorial(cli, size, fake):
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
+            sys.stdout.write(" Tuto {}/{}  \tComment {}/{}  \r".
+                             format(i+1, nb_tutorials,
+                                    j+1, nb))
+            sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_tutorials(cli, size, fake):
@@ -367,20 +411,22 @@ def load_tutorials(cli, size, fake):
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write(u"Il n'y a aucun membre actuellement. Vous devez rajouter les membre dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucun membre actuellement."
+                         u"Vous devez rajouter les membre dans vos fixtures (member)")
     else:
         profiles = list(Profile.objects.all())
         nb_sub_categories = SubCategory.objects.count()
         if nb_sub_categories == 0:
             cli.stdout.write(u"Il n'y a aucune catégories actuellement."
-                             u"Vous devez rajouter les membre dans vos fixtures")
+                             u"Vous devez rajouter les membre dans vos fixtures (category_content)")
         else:
             sub_categories = list(SubCategory.objects.all())
             perms = list(Permission.objects.filter(codename__startswith='change_').all())
             staffs = list(User.objects.filter(groups__permissions__in=perms).all())
             nb_staffs = len(staffs)
             if nb_staffs == 0:
-                cli.stdout.write(u"Il n'y a aucun staff actuellement. Vous devez rajouter les staffs dans vos fixtures")
+                cli.stdout.write(u"Il n'y a aucun staff actuellement."
+                                 u"Vous devez rajouter les staffs dans vos fixtures (staff)")
             else:
                 # big tutorials
                 for i in range(0, nb_tutos):
@@ -439,6 +485,9 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
+                    sys.stdout.write(" Big Tuto {}/{}  \r".format(i+1, nb_tutos))
+                    sys.stdout.flush()
+
                 # Mini tutorials
                 for i in range(0, nb_tutos):
                     tuto = MiniTutorialFactory(title=fake.text(max_nb_chars=200),
@@ -486,8 +535,11 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
+                    sys.stdout.write(" Mini Tuto {}/{}  \r".format(i+1, nb_tutos))
+                    sys.stdout.flush()
+
                 tps2 = time.time()
-                cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+                cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_articles(cli, size, fake):
@@ -511,12 +563,13 @@ def load_articles(cli, size, fake):
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write(u"Il n'y a aucun membre actuellement. Vous devez rajouter les membre dans vos fixtures")
+        cli.stdout.write(u"Il n'y a aucun membre actuellement."
+                         u"Vous devez rajouter les membre dans vos fixtures (member)")
     else:
         nb_sub_categories = SubCategory.objects.count()
         if nb_sub_categories == 0:
             cli.stdout.write(u"Il n'y a aucune catégories actuellement."
-                             u"Vous devez rajouter les membre dans vos fixtures")
+                             u"Vous devez rajouter les membre dans vos fixtures (category_content)")
         else:
             sub_categories = list(SubCategory.objects.all())
             profiles = list(Profile.objects.all())
@@ -524,7 +577,8 @@ def load_articles(cli, size, fake):
             staffs = list(User.objects.filter(groups__permissions__in=perms).all())
             nb_staffs = len(staffs)
             if nb_staffs == 0:
-                cli.stdout.write(u"Il n'y a aucun staff actuellement. Vous devez rajouter les staffs dans vos fixtures")
+                cli.stdout.write(u"Il n'y a aucun staff actuellement."
+                                 u"Vous devez rajouter les staffs dans vos fixtures (staff)")
             else:
                 for i in range(0, nb_arts):
                     art = ArticleFactory(title=fake.text(max_nb_chars=200),
@@ -568,8 +622,11 @@ def load_articles(cli, size, fake):
                         art.sha_public = art.sha_draft
                         art.pubdate = datetime.now()
                         art.save()
+                    sys.stdout.write(" Article {}/{}  \r".format(i+1, nb_arts))
+                    sys.stdout.flush()
+
                 tps2 = time.time()
-                cli.stdout.write(u"Fait en {} sec".format(tps2 - tps1))
+                cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
 @transaction.atomic
