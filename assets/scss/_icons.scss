@@ -38,6 +38,12 @@
         }
     }
 
+    &.unread {
+        &:after {
+            @include sprite-pos($unread);
+        }
+    }
+
     &.upvote {
         &:after {
             @include sprite-pos($thumb-up);
@@ -190,6 +196,12 @@
             }
             &.light:after {
                 @include sprite-pos($tick-light, true);
+            }
+        }
+
+        &.unread {
+            &:after {
+                @include sprite-pos($unread, true);
             }
         }
 

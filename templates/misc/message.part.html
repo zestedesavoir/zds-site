@@ -43,6 +43,13 @@
             <ul class="message-actions">
                 {% if message.is_visible != False %}
                     {% if edit_link %}
+                        {% if can_unread == True %}
+                            <li>
+                                <a class="ico-after unread" href="{{ unread_link|safe }}">
+                                    {% trans "Non-lu" %}
+                                </a>
+                            </li>
+                        {% endif %}
                         {% if message.author = user or perms_change %}
                             {% if can_hide != False %}
                                 <li>

@@ -94,6 +94,10 @@
             {% url "zds.forum.views.solve_alert" %}
         {% endcaptureas %}
 
+        {% captureas unread_link %}
+            {% url "zds.forum.views.unread_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
         {% if forloop.first and nb > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
@@ -106,7 +110,7 @@
             {% set True as answer_schema %}
         {% endif %}
 
-        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
+        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema can_unread=True unread_link=unread_link %}
     {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
