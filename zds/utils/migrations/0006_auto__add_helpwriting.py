@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('title', self.gf('django.db.models.fields.CharField')(max_length=20)),
             ('slug', self.gf('django.db.models.fields.SlugField')(max_length=20)),
             ('tablelabel', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
+            ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
         ))
         db.send_create_signal(u'utils', ['HelpWriting'])
 
@@ -115,7 +115,7 @@ class Migration(SchemaMigration):
         u'utils.helpwriting': {
             'Meta': {'object_name': 'HelpWriting'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '20'}),
             'tablelabel': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '20'})
