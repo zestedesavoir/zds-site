@@ -1,5 +1,7 @@
 {% extends "tutorial/base_online.html" %}
 {% load captureas %}
+{% load staticfiles %}
+{% load thumbnail %}
 
 
 
@@ -25,67 +27,44 @@
 
         {% block content %}
             {% if tutorials %}
-                (Légende des icones <a href="#legend">en bas du tableau</a>)
-                <table class="fullwidth">
-                    <thead>
-                        <tr>
-                            <th scope="col" title="Tutoriel en bêta" style="width: 32px"><span class="ico-after beta blue"></span></th>
-                            <th scope="col" title="Tutoriel en ligne" style="width: 32px"><span class="ico-after view blue"></span></th>
-                            {% for help in helps %}
-                                <th scope="col" title="{{ help.tablelabel }}" style="width: 32px"><img src="{{ help.image.url }}" alt="{{ help.tablelabel }}"></th>
-                            {% endfor %}
-                            <th scope="col" title="Contacter le(s) auteur(s)" style="width: 32px"><span class="ico-after email blue"></span></th>
-                            <th scope="col" title="Titre du tutoriel">Titre du tutoriel</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tutorial in tutorials %}
-                            <tr>
-                                <!-- tuto en beta -->
-                                <td>
-                                    {% if tutorial.in_beta %}
-                                        <a title="oui" href="{{ tutorial.get_absolute_url_beta }}" class="ico-after beta blue"></a>
+                <div class="tutorial-list">
+                {% for tutorial in tutorials %}
+                    <article>
+                        <a href="/tutoriels/off/1/securisez-vos-mots-de-passe-avec-lastpass/" title="{{tutorial.title}}">
+                            <img src="" alt="" class="tutorial-img avatar">
+                            <div class="tutorial-infos">
+                                <h3 >{{tutorial.title}}</h3>
+                                
+                                <p class="article-metadata">
+                                    {% if tutorial.subcategory %}
+                                        {% for category in tutorial.subcategory.all %}
+                                            {% if not forloop.first %}
+                                                -
+                                            {% endif %}
+                                            {{ category.title }}                                    
+                                        {% endfor %}
                                     {% endif %}
-                                </td>
-                                <!-- tuto en ligne -->
-                                <td>
-                                    {% if tutorial.on_line %}
-                                        <a title="oui" href="{{ tutorial.get_absolute_url_online }}" class="ico-after view blue"></a>
-                                    {% endif %}
-                                </td>
+                                </p>
+                                <div>
+                                {% if tutorial.in_beta %}
+                                    <a title="Lire la version bêta" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="Beta Active" class="light" /></a>
+                                {% endif %}
+                                {% if tutorial.on_line %}
+                                    <a title="Lire la version en ligne" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/tutorials.png" %}' alt="Tutoriel en ligne" class="light" /></a>
+                                {% endif %}
                                 {% for help in helps %}
                                     <td>
                                         {% if help in tutorial.helps.all %}
-                                            <img src="{{ help.image.url }}" alt="">
+                                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="Cherche un {{help.title}}" class="light" />
                                         {% endif %}
                                     </td>
                                 {% endfor %}
-                                <!-- Contacter le(s) auteur(s) -->
-                                <td>
-                                    <a href="{% url "zds.mp.views.new" %}?{% for author in tutorial.authors.all %}&amp;username={{ author.username }}{% endfor %}" title="Ecrire aux auteurs" class="ico-after email blue"></a>
-                                </td>
-                                <!-- Titre du tuto -->
-                                <td>
-                                    {{ tutorial.title }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% include "misc/pagination.part.html" with position='bottom' %}
-                <!-- I'm a Legend -->
-                <ul id="legend">
-                    <li><span class="ico-after beta blue"></span> Tutoriel en beta</li>
-                    <li><span class="ico-after view blue"></span> Tutoriel en ligne</li>
-                    {% for help in helps %}
-                        <li><img src="{{ help.image.url }}" alt=""> {{ help.tablelabel }}</li>
-                    {% endfor %}
-                    <li><span class="ico-after email blue"></span> Contacter le(s) auteur(s)</li>
-                </ul>
-            {% else %}
-                <p>
-                    Aucun rédacteur n'a l'air d'avoir besoin d'un {{ request.GET.type|lower }} !
-                </p>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                {% endfor %}
+                </div>
             {% endif %}
         {% endblock %}
     </section>
@@ -100,14 +79,15 @@
         <ul>
             {% for help in helps %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="ico-after tick green {% if request.GET.type == "help.title" %}unread{% endif %}">
-                        {{ help.title }}
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type == "help.title" %}unread{% endif %}">
+                        <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="light" />
+                        <span>{{ help.title }}</span>
                     </a>
                 </li>
             {% endfor %}
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross blue">
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}">
                         Annuler le filtre
                     </a>
                 </li>
