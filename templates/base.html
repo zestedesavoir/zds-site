@@ -46,7 +46,7 @@
 
 
     {% captureas meta_image %}
-        {{ request.META.HTTP_HOST }}{% block meta_image %}{% spaceless %}
+        {{ app.site.dns }}{% block meta_image %}{% spaceless %}
             {% static "images/apple-touch-icon-144x144-precomposed.png" %}
         {% endspaceless %}{% endblock %}
     {% endcaptureas %}
