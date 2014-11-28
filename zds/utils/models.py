@@ -10,6 +10,7 @@ from django.utils.encoding import smart_text
 from django.db import models
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import emarkdown
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from model_utils.managers import InheritanceManager
 
@@ -314,10 +315,7 @@ class HelpWriting(models.Model):
     tablelabel = models.CharField('TableLabel', max_length=150, null=False)
 
     # The image to use to illustrate this role
-    image = models.ImageField(
-        upload_to=image_path_help,
-        blank=True,
-        null=True)
+    image = ThumbnailerImageField(upload_to=image_path_help)
 
     def __unicode__(self):
         """Textual Help Form."""
