@@ -449,10 +449,11 @@ class Tutorial(models.Model):
 
 
 def get_last_tutorials():
+    n = settings.ZDS_APP['tutorial']['home_number']
     tutorials = Tutorial.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:5]
+        .order_by('-pubdate')[:n]
 
     return tutorials
 
