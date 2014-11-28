@@ -298,10 +298,11 @@ def get_old_field_value(instance, field, manager):
 
 
 def get_last_articles():
+    n = settings.ZDS_APP['article']['home_number']
     return Article.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:5]
+        .order_by('-pubdate')[:n]
 
 
 def get_prev_article(g_article):
