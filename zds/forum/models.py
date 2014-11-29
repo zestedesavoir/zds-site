@@ -224,7 +224,6 @@ class Topic(models.Model):
     def first_unread_post(self):
         """Return the first post the user has unread."""
         try:
-            print ("NICE 1")
             last_post = TopicRead.objects\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__position').post
