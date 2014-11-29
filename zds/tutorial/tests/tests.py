@@ -25,7 +25,7 @@ from zds.gallery.factories import UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
+    ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory, ExtractFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.tutorial.views import insert_into_zip
@@ -90,6 +90,16 @@ class BigTutorialTests(TestCase):
             position_in_part=2,
             position_in_tutorial=5)
 
+        self.extract1_1_1 = ExtractFactory(
+            chapter=self.chapter1_1,
+            position_in_chapter=1)
+        self.extract1_2_1 = ExtractFactory(
+            chapter=self.chapter1_2,
+            position_in_chapter=1)
+        self.extract2_1_1 = ExtractFactory(
+            chapter=self.chapter2_1,
+            position_in_chapter=1)
+
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
@@ -106,9 +116,11 @@ class BigTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'version': self.bigtuto.sha_draft,
                 'source': 'http://zestedesavoir.com',
+                'extracts': [self.extract1_1_1.pk, self.extract1_2_1.pk, self.extract2_1_1.pk]
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
+        self.assertEqual(Validation.objects.filter(tutorial__pk=self.bigtuto.pk).count(), 1)
 
         # reserve tutorial
         validation = Validation.objects.get(
@@ -129,6 +141,7 @@ class BigTutorialTests(TestCase):
                 'source': 'http://zestedesavoir.com',
             },
             follow=False)
+        self.assertEqual(Validation.objects.filter(tutorial__pk=self.bigtuto.pk, status__in=["ACCEPT"]).count(), 1)
         self.bigtuto = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
@@ -240,7 +253,7 @@ class BigTutorialTests(TestCase):
                     os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
                 # copy file (taken from zipfile's extract)
                 source = zip_file.open(member)
-                target = file(os.path.join(zip_dir, filename), "wb")
+                target = file(os.path.join(zip_dir, member), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
@@ -1259,6 +1272,8 @@ class BigTutorialTests(TestCase):
         )
         self.assertEqual(302, response.status_code)
         sha_beta = Tutorial.objects.get(pk=tuto.pk).sha_beta
+        self.assertNotEqual(sha_beta, None)
+        self.assertNotEqual(sha_beta, '')
         self.assertEqual(sha_draft, sha_beta)
 
         # delete part 1
@@ -1280,6 +1295,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(Chapter.objects.filter(part__tutorial=tuto.pk).count(), 2)
         self.assertEqual(Part.objects.filter(tutorial=tuto.pk).count(), 2)
 
+        tuto = Tutorial.objects.get(pk=tuto.pk)
         # check view delete part and chapter (draft version)
         result = self.client.get(
             reverse(
@@ -1305,7 +1321,7 @@ class BigTutorialTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 404)
 
-        # deleted part and section HAVE TO be accessible on beta (get 200)
+        # deleted part and section haven't accessible on beta (because beta = public)
         result = self.client.get(
             reverse(
                 'zds.tutorial.views.view_part',
@@ -1315,7 +1331,7 @@ class BigTutorialTests(TestCase):
                     p1.pk,
                     p1.slug]) + '?version={}'.format(sha_beta),
             follow=True)
-        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.status_code, 404)
 
         result = self.client.get(
             reverse(
@@ -1328,32 +1344,7 @@ class BigTutorialTests(TestCase):
                     c3.pk,
                     c3.slug]) + '?version={}'.format(sha_beta),
             follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        # deleted part and section HAVE TO be accessible online (get 200)
-        result = self.client.get(
-            reverse(
-                'zds.tutorial.views.view_part_online',
-                args=[
-                    tuto.pk,
-                    tuto.slug,
-                    p1.pk,
-                    p1.slug]),
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        result = self.client.get(
-            reverse(
-                'zds.tutorial.views.view_chapter_online',
-                args=[
-                    tuto.pk,
-                    tuto.slug,
-                    p2.pk,
-                    p2.slug,
-                    c3.pk,
-                    c3.slug]),
-            follow=True)
-        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.status_code, 404)
 
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
@@ -1384,6 +1375,7 @@ class BigTutorialTests(TestCase):
                 'text': u'Ce tuto est excellent',
                 'is_major': True,
                 'source': 'http://zestedesavoir.com',
+                'extracts': [e3.pk]
             },
             follow=False)
         # check view delete part and chapter (draft version, get 404)
@@ -1435,31 +1427,6 @@ class BigTutorialTests(TestCase):
                     c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 404)
-
-        # deleted part and section still accessible on beta (get 200)
-        result = self.client.get(
-            reverse(
-                'zds.tutorial.views.view_part',
-                args=[
-                    tuto.pk,
-                    tuto.slug,
-                    p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_beta),
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        result = self.client.get(
-            reverse(
-                'zds.tutorial.views.view_chapter',
-                args=[
-                    tuto.pk,
-                    tuto.slug,
-                    p2.pk,
-                    p2.slug,
-                    c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_beta),
-            follow=True)
-        self.assertEqual(result.status_code, 200)
 
     def test_conflict_does_not_destroy(self):
         """tests that simultaneous edition does not conflict"""
@@ -2341,7 +2308,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.sha_draft, tutorial.sha_public)
         # store extract
-        added_extract = Extract.objects.get(chapter=Chapter.objects.get(pk=self.chapter2_1.pk))
+        added_extract = Extract.objects.filter(chapter=Chapter.objects.get(pk=self.chapter2_1.pk)).last()
 
         # fetch archives :
         # 1. draft version

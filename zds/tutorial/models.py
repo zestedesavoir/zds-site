@@ -12,6 +12,7 @@ except:
 
 import json as json_writer
 import os
+from django.db.models import Q
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -181,6 +182,33 @@ class Tutorial(models.Model):
         return os.path.join(
             settings.ZDS_APP['tutorial']['repo_public_path'],
             str(self.pk) + '_' + slugify(data['title']))
+
+    def get_hierarchy(self, sha):
+        hierarchy = []
+        repo = Repo(self.get_path())
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        mandata = json_reader.loads(manifest)
+        if self.is_mini():
+            if 'chapter' in mandata:
+                chapter = mandata["chapter"]
+                for ext in chapter["extracts"]:
+                    hierarchy.append([ext["pk"], ext['title']])
+
+        else:
+            # If it's a big tutorial, fetch parts.
+            parts = mandata["parts"]
+            cpt_p = 1
+            for part in parts:
+                cpt_c = 1
+                for chapter in part["chapters"]:
+                    sub_c_hierarchy = []
+                    for ext in chapter["extracts"]:
+                        sub_c_hierarchy.append([ext['pk'], ext['title']])
+                    hierarchy.append([u"{}.{}-{}".format(str(cpt_p), str(cpt_c), chapter['title']), sub_c_hierarchy])
+                    cpt_c += 1
+                cpt_p += 1
+
+        return hierarchy
 
     def load_dic(self, mandata, sha=None):
         '''fill mandata with informations from database model'''
@@ -449,6 +477,101 @@ class Tutorial(models.Model):
         return os.path.isfile(os.path.join(self.get_prod_path(),
                                            self.slug +
                                            ".epub"))
+
+    def get_selected_parts(self, sha, parts, is_validator=False):
+        """
+        return parts which are selected for validation
+        """
+        is_validation = sha == self.sha_validation and self.in_validation() and is_validator
+        is_public = sha == self.sha_public and self.on_line()
+        is_partial = is_validation or is_public
+
+        if is_validation:
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["PENDING", "PENDING_V"],
+                                            version=self.sha_validation).first()
+        if is_public:
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["ACCEPT"],
+                                            version=self.sha_public).first()
+        if is_partial:
+            if cal.extracts is None:
+                my_extracts = Extract.objects\
+                    .filter(Q(chapter__tutorial=cal.tutorial) | Q(chapter__part__tutorial=cal.tutorial)).values("pk")
+                extracts_select = []
+                for my_extract in my_extracts:
+                    extracts_select.append(str(my_extract['pk']))
+            else:
+                extracts_select = cal.extracts.split(",")
+
+        if not is_partial:
+            return parts
+
+        # clean if we are in validation
+        prs = []
+        for part in parts:
+            chs = []
+            for chapter in part["chapters"]:
+                exts = []
+                for ext in chapter["extracts"]:
+                    if is_partial and str(ext['pk']) in extracts_select:
+                        exts.append(ext)
+                if len(exts) > 0:
+                    chapter["extracts"] = exts
+                    chs.append(chapter)
+            if len(chs) > 0:
+                part["chapters"] = chs
+                prs.append(part)
+
+        return prs
+
+    def get_selected_parts_online(self, parts):
+        """
+        return parts which are selected for public
+        """
+        return self.get_selected_parts(self.sha_public, parts)
+
+    def get_selected_chapter(self, sha, chapter, is_validator=False):
+        """
+        return chapter which are selected for validation
+        """
+        is_validation = (sha == self.sha_validation) and (self.in_validation()) and is_validator
+        is_public = sha == self.sha_public and self.on_line()
+        is_partial = is_validation or is_public
+        if is_validation:
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["PENDING", "PENDING_V"],
+                                            version=self.sha_validation).first()
+        if is_public:
+            cal = Validation.objects.filter(tutorial__pk=self.pk,
+                                            status__in=["ACCEPT"],
+                                            version=self.sha_public).first()
+        if is_partial:
+            if cal.extracts is None:
+                my_extracts = Extract.objects\
+                    .filter(Q(chapter__tutorial=cal.tutorial) | Q(chapter__part__tutorial=cal.tutorial)).values("pk")
+                extracts_select = []
+                for my_extract in my_extracts:
+                    extracts_select.append(str(my_extract['pk']))
+            else:
+                extracts_select = cal.extracts.split(",")
+        if not is_partial:
+            return chapter
+
+        # clean if we are in validation
+        exts = []
+        for ext in chapter["extracts"]:
+            if is_partial and str(ext['pk']) in extracts_select:
+                exts.append(ext)
+        chapter["extracts"] = exts
+
+        return chapter
+
+    def get_selected_chapter_online(self, chapter):
+        """
+        return chapter which are selected for public
+        """
+        return self.get_selected_chapter(self.sha_public, chapter)
 
 
 def get_last_tutorials():
@@ -1089,6 +1212,7 @@ class Validation(models.Model):
                                            blank=True, null=True)
     comment_validator = models.TextField('Commentaire du validateur',
                                          blank=True, null=True)
+    extracts = models.CommaSeparatedIntegerField('Extraits à valider', max_length=250, blank=True, null=True)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,

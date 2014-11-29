@@ -149,6 +149,7 @@ def export_tutorial_to_md(tutorial, sha=None):
     # If it's a small tutorial, fetch its chapter
     if tutorial.type == 'MINI':
         if 'chapter' in mandata:
+            mandata["chapter"] = tutorial.get_selected_chapter_online(mandata["chapter"])
             chapter = mandata['chapter']
             chapter['path'] = tutorial.get_prod_path(sha)
             chapter['type'] = 'MINI'
@@ -181,6 +182,7 @@ def export_tutorial_to_md(tutorial, sha=None):
         else:
             chapter = None
     else:
+        mandata["parts"] = tutorial.get_selected_parts_online(mandata["parts"])
         parts = mandata['parts']
         cpt_p = 1
         for part in parts:

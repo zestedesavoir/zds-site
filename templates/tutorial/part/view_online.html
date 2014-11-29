@@ -74,5 +74,5 @@
         </div>
     {% endif %}
 
-    {% include "tutorial/includes/summary.part.html" with online=True tutorial=part.tutorial parts=part.tutorial.get_parts %}
+    {% include "tutorial/includes/summary.part.html" with online=True tutorial=tutorial parts=tutorial.parts %}
 {% endblock %}

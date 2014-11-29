@@ -252,8 +252,17 @@ votre tutoriel, il devra recommencer son travail si vous faites une mise à jour
 ralentir le processus de validation de votre tutoriel, mais décourager aussi le validateur. Donc un conseil à donner serait
 de n'envoyer que du contenu sûr en validation.
 
-Comme pour la bêta, la version brouillon du tutoriel peut continuer à être améliorée pendant que la version 
-de validation reste figée. Auteurs et validateurs peuvent donc continuer à travailler chacun de son côté.
+Lorsque vous envoyez votre tutoriel en validation, vous devez remplir trois champs :
+
+- le commentaire de validation : afin de faire passer un message au validateur qui s'occupera de votre tutoriel
+- la source originale du tutoriel : si jamais votre tutoriel à déjà été publié sur un notre site avec le même contenu, vous devez renseigner l'url vers ce tutoriel. Si c'est la première fois que vous publiez votre tutoriel sur le site, ne mettez rien
+- les extraits à valider : vous devez sélectionnez ici l'ensemble des extraits que vous souhaitez envoyer en validation. Si le tutoriel est publié, seul les extraits sélectionnés seront publiés.
+
+    .. figure:: images/validation-1.png
+        :align:   center
+
+Comme pour la beta, la version brouillon du tutoriel peut continuer à être améliorée pendant que la version 
+de validation reste figée. Auteurs et validateurs peuvent donc continuer à travailler chacun de son coté.
 
 La publication
 --------------
