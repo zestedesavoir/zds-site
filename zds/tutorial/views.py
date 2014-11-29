@@ -888,12 +888,21 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
         .order_by("-date_proposition")\
         .first()
+    if (validation is not None and validation.extracts is None or validation.extracts.strip()) or validation is None:
+        ext_dcs = Extract.objects\
+            .filter(Q(chapter__tutorial=tutorial) | Q(chapter__part__tutorial=tutorial)).values("pk")
+        ext_lst = []
+        for ext_dc in ext_dcs:
+            ext_lst.append(ext_dc["pk"])
+    else:
+        ext_lst = validation.extracts.split(",")
+
     if tutorial.source:
-        form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
+        form_ask_validation = AskValidationForm(initial={"source": tutorial.source, "extracts": ext_lst})
         form_ask_validation.fields["extracts"].choices = hierarchy
         form_valid = ValidForm(initial={"source": tutorial.source})
     else:
-        form_ask_validation = AskValidationForm()
+        form_ask_validation = AskValidationForm(initial={"extracts": ext_lst})
         form_ask_validation.fields["extracts"].choices = hierarchy
         form_valid = ValidForm()
     form_reject = RejectForm()
