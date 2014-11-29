@@ -1,0 +1,10 @@
+{% load i18n %}
+{% trans "Bonjour" %} {{ username }},
+
+{{ author }} {% trans "vous a ajouté à une conversation privée sur" %} {{ site_name }}
+
+{% trans "Pour y accéder, cliquez ou recopiez l'url suivante" %} : {{ url }}
+
+{% trans "Cordialement" %},
+
+{% trans "L'équipe" %} {{ site_name }}
