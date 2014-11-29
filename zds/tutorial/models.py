@@ -136,6 +136,12 @@ class Tutorial(models.Model):
         else:
             return self.get_absolute_url()
 
+    def get_absolute_contact_url(self):
+        auths = self.authors.all()
+        get = u"?username={}".format(auths[0])
+        for author in auths[:1]:
+            "&username={}".format(author.username)
+        return reverse('zds.mp.views.new')+get
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
             '?tutorial={0}'.format(self.pk)
