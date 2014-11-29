@@ -30,6 +30,7 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
+    position = models.IntegerField('Position', default=0)
 
     slug = models.SlugField(max_length=80)
 
