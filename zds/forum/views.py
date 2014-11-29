@@ -754,6 +754,8 @@ def unread_post(request):
 
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
+    if TopicFollowed.objects.filter(user=request.user, topic=post.topic).count() == 0:
+        TopicFollowed(user=request.user, topic=post.topic).save()
 
     t = TopicRead.objects.filter(topic=post.topic, user=request.user).first()
     if t is None:

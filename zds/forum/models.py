@@ -224,15 +224,15 @@ class Topic(models.Model):
     def first_unread_post(self):
         """Return the first post the user has unread."""
         try:
+            print ("NICE 1")
             last_post = TopicRead.objects\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__position').post
 
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                posiion__gt=last_post.position)\
+                position__gt=last_post.position)\
                 .select_related("author").first()
-
             return next_post
         except:
             return self.first_post()
