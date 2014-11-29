@@ -987,11 +987,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         mandata['get_parts'] = parts
 
     # If the user is authenticated
-
     if request.user.is_authenticated():
+        # We check if he can post a tutorial or not with
+        # antispam filter.
+        mandata['antispam'] = tutorial.antispam()
 
         # If the user is never read, we mark this tutorial read.
-
         if never_read(tutorial):
             mark_read(tutorial)
 
