@@ -666,6 +666,15 @@ def edit_post(request):
             # The user just sent data, handle them
 
             if request.POST["text"].strip() != "":
+                # check if the form is valid
+                form = TopicForm(request.POST)
+                if not form.is_valid() and g_topic:
+                    return render_template("forum/post/edit.html", {
+                        "post": post,
+                        "topic": post.topic,
+                        "text": post.text,
+                        "form": form,
+                    })
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
                 post.update = datetime.now()
