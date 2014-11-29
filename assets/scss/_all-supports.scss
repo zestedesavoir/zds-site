@@ -859,6 +859,10 @@
                     font-weight: bold;
                 }
 
+                img {
+                    border-right: 7px solid transparent;
+                }
+
                 &.ico-after {
                     &:after {
                         top: 7px;
@@ -1385,11 +1389,7 @@
         }
     }
     img.light {
-        opacity: 0.4;
-        &:hover,
-        &:focus {
-            opacity: 1;
-        }
+        opacity: 0.1;
     }
 }
 

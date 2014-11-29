@@ -399,6 +399,9 @@
     .full-content-wrapper .tutorial-list article {
         width: 46%;
         float: left;
+        &.extend {
+            width: 100%;
+        }
     }
     
 
