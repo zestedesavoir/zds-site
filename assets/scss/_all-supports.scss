@@ -3141,6 +3141,7 @@ form.topic-message {
     select,
     textarea {
         margin: 10px 15px;
+        resize: none;
 
         &:not([type=checkbox]):not([type=radio]) {
             width: calc(98% - 32px) !important;
