@@ -217,9 +217,14 @@ def new(request):
             if len(dest_list) > 0:
                 dest = ', '.join(dest_list)
 
+        title = None
+        if 'title' in request.GET:
+            title = request.GET['title']
+
         form = PrivateTopicForm(username=request.user.username,
                                 initial={
                                     'participants': dest,
+                                    'title': title
                                 })
         return render_template('mp/topic/new.html', {
             'form': form,
