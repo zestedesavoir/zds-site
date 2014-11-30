@@ -102,8 +102,7 @@ class Forum(models.Model):
     def get_last_message(self):
         """Gets the last message on the forum, if there are any."""
         try:
-            return Post.objects.all().filter(
-                topic__forum__pk=self.pk).order_by('-position')[0]
+            return Post.objects.filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
         except IndexError:
             return None
 
