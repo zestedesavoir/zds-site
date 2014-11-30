@@ -9,7 +9,6 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
 from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
-from zds.tutorial.models import
 from zds.utils.models import SubCategory, Licence
 from zds.tutorial.models import Tutorial, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
@@ -114,6 +113,7 @@ class TutorialForm(FormWithTitle):
                 'placeholder': _(u'Un résumé de vos ajouts et modifications')
             }
         )
+    )
 
     helps = forms.ModelMultipleChoiceField(
         label="J'ai besoin d'aide avec un...",
