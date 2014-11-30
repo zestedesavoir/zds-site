@@ -138,10 +138,15 @@ class Tutorial(models.Model):
             return self.get_absolute_url()
 
     def get_absolute_contact_url(self):
+        """ Get url to send a new mp for collaboration """
         auths = self.authors.all()
+        mp_title = "&title=Collaboration - {}".format(self.title)
+
         get = u"?username={}".format(auths[0])
-        for author in auths[:1]:
-            "&username={}".format(author.username)
+        for author in auths[1:]:
+            get += "&username={}".format(author.username)
+        get += mp_title
+
         return reverse('zds.mp.views.new')+get
 
     def get_edit_url(self):
