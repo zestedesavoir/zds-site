@@ -147,6 +147,7 @@ class Tutorial(models.Model):
         for author in auths[:1]:
             "&username={}".format(author.username)
         return reverse('zds.mp.views.new')+get
+
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
             '?tutorial={0}'.format(self.pk)
