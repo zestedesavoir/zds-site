@@ -116,7 +116,7 @@
     {% captureas form_action %}
         {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
     {% endcaptureas %}
-    
+
     {% include "misc/message_form.html" with member=user %}
 {% endblock %}
 
@@ -180,7 +180,7 @@
                 {% if topic.is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}
-                    Ê{% trans "tre notifié par courriel" %}
+                    {% trans "Être notifié par courriel" %}
                 {% endif %}
             </button>
         </form>

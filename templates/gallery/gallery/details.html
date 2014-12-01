@@ -39,7 +39,7 @@
                     {% if u.mode == 'R' %}
                         {% trans "Lecture" %}
                     {% elif u.mode == 'W' %}
-                        É{% trans "criture" %}
+                        {% trans "Écriture" %}
                     {% endif %}
                 {% endcaptureas %}
                 <li>
@@ -57,11 +57,11 @@
             {% endif %}
         </ul>
     </div>
-    
+
     <form id="form" name="form" method="post" action="{% url "zds.gallery.views.delete_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
         {% csrf_token %}
-    
+
         {% if gallery.get_images %}
             {% if gallery_mode.is_write %}
                 <button class="btn btn-cancel" name="delete_multi">{% trans "Supprimer la sélection" %}</button>
@@ -93,7 +93,7 @@
 
                 <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
             </div>
-            
+
             {% if gallery_mode.is_write %}
                 <button class="btn btn-cancel" name="delete_multi" tabindex="-1">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
