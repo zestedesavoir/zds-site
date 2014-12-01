@@ -6,6 +6,7 @@
 {% load topbar %}
 {% load thumbnail %}
 {% load i18n %}
+{% load captureas %}
 
 
 
@@ -39,9 +40,9 @@
                         {{site_name}} est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide animés par et pour la communauté.
                     {% endblocktrans %}
                     </p>
-                    <a href="#" class="ico-after tutorial label">Découvrir les tutoriels</a>
-                    <a href="#" class="ico-after article label">Lire les articles</a>
-                    <a href="#" class="ico-after forum label">Echanger sur les forums</a>
+                    <a href="{{url_tutorials}}" class="ico-after tutorial label">Découvrir les tutoriels</a>
+                    <a href="{{url_articles}}" class="ico-after article label">Lire les articles</a>
+                    <a href="{{url_forums}}" class="ico-after forum label">Echanger sur les forums</a>
                 </div>
                 <div class="home-full-description-text">
                     <h2>Partagez vos connaissances</h2>
@@ -50,9 +51,9 @@
                         Tous les membres peuvent écrire et publier des tutoriels et articles sur le site. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
                     {% endblocktrans %}
                     </p>
-                    <a href="#" class="ico-after tutorial label">Rédiger un nouveau tutoriel</a>
-                    <a href="#" class="ico-after article label">Ecrire un nouvel article</a>
-                    <a href="#" class="ico-after forum label">Aider les débutants sur les forums</a>
+                    <a href="{% url 'zds.tutorial.views.add_tutorial' %}" class="ico-after tutorial label">{% blocktrans %}Rédiger un nouveau tutoriel{% endblocktrans %}</a>
+                    <a href="{% url 'zds.article.views.new' %}" class="ico-after article label">{% blocktrans %}Ecrire un nouvel article{% endblocktrans %}</a>
+                    <a href="{{url_forums}}" class="ico-after forum label">{% blocktrans %}Aider les débutants sur les forums{% endblocktrans %}</a>
                 </div>
                 <div class="home-full-description-text">
                     <h2>Gratuit et sans publicité</h2>
@@ -62,10 +63,10 @@
                         Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif.
                     {% endblocktrans %}
                     </p>
-                    <a href='{% url "zds.pages.views.association" %}' class="ico-after association label">En savoir plus sur l'association</a>
-                    <a href="{{app.site.repository}}" class="ico-after github blue label">Aider à developper la plateforme</a>
-                    <a href="{{app.social.twitter}}" class="ico-after twitter blue label">Nous suivre sur Twitter</a>
-                    <a href="{{app.social.facebook}}" class="ico-after facebook blue label">Nous aimer sur Facebook</a>
+                    <a href='{% url "zds.pages.views.association" %}' class="ico-after association label">{% blocktrans %}En savoir plus sur l'association{% endblocktrans %}</a>
+                    <a href="{{app.site.repository}}" class="ico-after github blue label">{% blocktrans %}Aider à developper la plateforme{% endblocktrans %}</a>
+                    <a href="{{app.social.twitter}}" class="ico-after twitter blue label">{% blocktrans %}Nous suivre sur Twitter{% endblocktrans %}</a>
+                    <a href="{{app.social.facebook}}" class="ico-after facebook blue label">{% blocktrans %}Nous aimer sur Facebook{% endblocktrans %}</a>
                     {% endif %}
                 </div>
             </div>
@@ -88,7 +89,6 @@
 {% endblock %}
 
 
-
 {% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
@@ -102,7 +102,14 @@
         <meta itemprop="itemListOrder" content="Descending">
 
         {% for article in last_articles %}
-            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=article illu=article.image display_date=True comment_count=article.get_reaction_count %}
+            {% captureas comment_url %}
+                {% if article.last_read_reaction %}
+                    {{ article.last_read_reaction.get_absolute_url }}
+                {% else %}
+                    {{ article.get_absolute_url_online }}#reactions
+                {% endif %}
+            {% endcaptureas %}
+            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=article illu=article.image display_date=True comment_count=article.get_reaction_count comment_url=comment_url %}
         {% endfor %}
     </section>
 
@@ -115,7 +122,14 @@
         <meta itemprop="itemListOrder" content="Descending">
         
         {% for tutorial in last_tutorials %}
-            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=tutorial illu=tutorial.image.physical display_date=False comment_count=tutorial.get_note_count %}
+            {% captureas comment_url %}
+                {% if tutorial.last_read_note %}
+                    {{ tutorial.last_read_note.get_absolute_url }}
+                {% else %}
+                    {{ tutorial.get_absolute_url_online }}#comments
+                {% endif %}
+            {% endcaptureas %}
+            {% include 'tutorial/includes/tutorial_item.part.html' with tutorial=tutorial illu=tutorial.image.physical display_date=False comment_count=tutorial.get_note_count comment_url=comment_url %}
         {% endfor %}
     </section>
     <section class="content-col-3 hot-topic-list" itemscope itemtype="http://schema.org/ItemList">

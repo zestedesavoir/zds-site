@@ -192,7 +192,7 @@ class Tutorial(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update', 'get_note_count',
-            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'last_read_note'
         ]
 
         # load functions and attributs in tree
