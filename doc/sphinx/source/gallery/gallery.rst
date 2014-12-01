@@ -73,6 +73,11 @@ Il est alors possible de rajouter un nouvel utilisateur dans la galerie. Les dro
 
 Il n'est actuellement pas possible de modifier les droits d'un utilisateur après son ajout à la galerie.
 
+Export
+------
+Une galerie peut être téléchargée à tout moment en se rendant dans la galerie voulue et en cliquant sur le bouton "Archive" dans la section "Téléchargement" du menu latéral.
+
+Attention, pour pouvoir télécharger une galerie voulue, il faut, au minimum, disposer des droits de lecture sur la galerie.
 
 La suppression
 --------------

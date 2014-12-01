@@ -34,7 +34,7 @@
     <div class="authors">
         <span class="authors-label">{% trans "Galerie partagée avec" %} : </span>
         <ul>
-            {% for u in gallery.get_users %}
+            {% for u in gallery.get_users_gallery %}
                 {% captureas info %}
                     {% if u.mode == 'R' %}
                         {% trans "Lecture" %}
@@ -135,4 +135,14 @@
             </ul>
         </div>
     {% endif %}
+        <div class="mobile-menu-bloc" data-title="Télécharger">
+            <h3>Télécharger</h3>
+            <ul>
+                <li>
+                    <a href="{% url "zds.gallery.views.download" %}?gallery={{ gallery.pk  }}" class="ico-after import blue">
+                        Archive
+                    </a>
+                </li>
+            </ul>
+        </div>
 {% endblock %}

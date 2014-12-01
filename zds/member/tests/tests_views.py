@@ -369,8 +369,8 @@ class MemberTests(TestCase):
         self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
         self.assertIsNotNone(Gallery.objects.get(pk=aloneGallery.pk))
-        self.assertEquals(aloneGallery.get_users().count(), 1)
-        self.assertEquals(sharedGallery.get_users().count(), 1)
+        self.assertEquals(aloneGallery.get_users_gallery().count(), 1)
+        self.assertEquals(sharedGallery.get_users_gallery().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
 
     def test_sanctions(self):

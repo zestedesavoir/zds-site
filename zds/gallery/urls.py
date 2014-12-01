@@ -23,4 +23,6 @@ urlpatterns = patterns('',
                            'zds.gallery.views.edit_image'),
                        url(r'^image/importer/(?P<gal_pk>\d+)/$',
                            'zds.gallery.views.import_image'),
+                       url(r'^telecharger/$',
+                           'zds.gallery.views.download'),
                        )

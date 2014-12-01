@@ -3,6 +3,8 @@
 
 import urllib
 import os
+import StringIO
+import zipfile
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -306,6 +308,83 @@ class ModifyGalleryViewTest(TestCase):
         permissions = UserGallery.objects.filter(user=self.profile3.user, gallery=self.gallery1)
         self.assertEqual(1, len(permissions))
         self.assertEqual('W', permissions[0].mode)
+
+
+class DownloadGalleryViewTest(TestCase):
+
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
+        self.gallery1 = GalleryFactory()
+        self.gallery2 = GalleryFactory()
+        self.image1 = ImageFactory(gallery=self.gallery1)
+        self.image2 = ImageFactory(gallery=self.gallery2)
+        self.user_gallery1 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery1)
+        self.user_gallery2 = UserGalleryFactory(user=self.profile1.user, gallery=self.gallery2)
+
+    def tearDown(self):
+        self.image1.delete()
+
+    def test_success_download_gallery(self):
+        """ Test success when the current user has access. """
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(2, UserGallery.objects.all().count())
+        self.assertEqual(2, Image.objects.all().count())
+
+        response = self.client.get(
+            reverse('zds.gallery.views.download') +
+            '?gallery={0}'.format(
+                self.gallery1.pk),
+            follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_fail_user_not_permission(self):
+        """ Test fail when the current hasn't access but would like download a gallery """
+        login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(2, UserGallery.objects.all().count())
+        self.assertEqual(2, Image.objects.all().count())
+
+        response = self.client.get(
+            reverse('zds.gallery.views.download') +
+            '?gallery={0}'.format(
+                self.gallery1.pk),
+            follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_checks_if_zip_file_has_all_images(self):
+        """Checks if zip file has all images of the gallery"""
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        self.assertEqual(2, Gallery.objects.all().count())
+        self.assertEqual(2, UserGallery.objects.all().count())
+        self.assertEqual(2, Image.objects.all().count())
+
+        response = self.client.get(
+            reverse('zds.gallery.views.download') +
+            '?gallery={0}'.format(
+                self.gallery2.pk),
+            follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+        # Checks if image is in the archive file.
+        content = StringIO.StringIO(response.content)
+        zipped_file = zipfile.ZipFile(content, 'r')
+        filename = self.image2.physical.name.split("/")[2]
+
+        self.assertIsNone(zipped_file.testzip())
+        self.assertIn("{0}/{1}".format(self.gallery2.slug, filename), zipped_file.namelist())
+        zipped_file.close()
+        content.close()
 
 
 class EditImageViewTest(TestCase):

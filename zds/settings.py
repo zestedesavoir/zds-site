@@ -347,6 +347,8 @@ ZDS_APP = {
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
+        'cache_path': os.path.join(SITE_ROOT, 'gallery-cache'),
+        'cache_size': 1073741824,
     },
     'article': {
         'home_number': 5,

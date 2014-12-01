@@ -80,6 +80,9 @@ class Image(models.Model):
     def get_absolute_url(self):
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
+    def get_physical_path(self):
+        return '{0}/{1}'.format(settings.MEDIA_ROOT, self.physical)
+
     def get_extension(self):
         return os.path.splitext(self.physical.name)[1][1:]
 
@@ -117,10 +120,21 @@ class Gallery(models.Model):
         """get the physical path to this gallery root"""
         return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
 
-    # TODO rename function to get_users_galleries
+    def get_users_gallery(self):
+        return UserGallery.objects\
+            .select_related()\
+            .filter(gallery=self)\
+            .all()
+
     def get_users(self):
-        return UserGallery.objects.all()\
-            .filter(gallery=self)
+        users = UserGallery.objects\
+            .filter(gallery=self)\
+            .values_list('user', flat=True)\
+            .all()
+        return User.objects\
+            .select_related()\
+            .filter(pk__in=users)\
+            .all()
 
     def get_images(self):
         return Image.objects.all()\
