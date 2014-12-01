@@ -37,7 +37,7 @@
                                 <h3 >{{tutorial.title}}</h3>
                                 <span>par : {% for author in tutorial.authors.all %}
                                             <strong> {{author.username}} </strong>
-                                            {% if not forloop.first %}
+                                            {% if tutorial.authors.all.count > 1 and not forloop.last %}
                                                 ,
                                             {% endif %}
                                             {% endfor %}. <a href="{{tutorial.get_absolute_contact_url}}" >Contacter par MP</a>
@@ -45,32 +45,32 @@
                                 <p class="article-metadata">
                                     {% if tutorial.subcategory %}
                                         {% for category in tutorial.subcategory.all %}
-                                            {% if not forloop.first %}
+                                            {{ category.title }}
+                                            {% if tutorial.subcategory.all.count > 1 and not forloop.last %}
                                                 -
                                             {% endif %}
-                                            {{ category.title }}                                    
                                         {% endfor %}
                                     {% endif %}
                                 </p>
                                 <div>
                                 {% if tutorial.in_beta %}
-                                    <a title="Lire la version bêta" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="Beta Active" /></a>
-                                {% else %}
-                                    <img src='{% static "images/beta.png" %}' alt="Beta Inactive" class="light" />
-                                {% endif %}
                                 {% if tutorial.on_line %}
                                     <a title="Lire la version en ligne" href="{{ tutorial.get_absolute_url }}"><img src='{% static "images/tutorials.png" %}' alt="Tutoriel en ligne" /></a>
                                 {% else %}
                                     <img src='{% static "images/tutorials.png" %}' alt="Tutoriel hors-ligne" class="light" />
                                 {% endif %}
+                                    <a title="Lire la version bêta" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="Beta Active" /></a>
+                                {% else %}
+                                    <img src='{% static "images/beta.png" %}' alt="Beta Inactive" class="light" />
+                                {% endif %}
                                 {% for help in helps %}
-                                    <td>
+                                    <span>
                                         {% if help in tutorial.helps.all %}
                                             <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="Cherche un {{help.title}}" />
                                         {% else %}
                                             <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="Ne cherche pas un {{help.title}}" class="light" />
                                         {% endif %}
-                                    </td>
+                                    </span>
                                 {% endfor %}
                                 </div>
                             </div>
@@ -92,14 +92,18 @@
             {% for help in helps %}
                 <li>
                     <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type == "help.slug" %}unread{% endif %}">
-                        <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="light" />
+                        {% if request.GET.type and request.GET.type != help.slug %}
+                            <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="light" />
+                        {% else %}
+                            <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="" />
+                        {% endif %}
                         <span>{{ help.title }}</span>
                     </a>
                 </li>
             {% endfor %}
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}">
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross red ">
                         Annuler le filtre
                     </a>
                 </li>
