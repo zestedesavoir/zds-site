@@ -2,17 +2,18 @@
 {% load captureas %}
 {% load staticfiles %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Aider les auteurs
+    {% trans "Aider les auteurs" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Aider les auteurs</li>
+    <li>{% trans "Aider les auteurs" %}</li>
 {% endblock %}
 
 
@@ -21,7 +22,7 @@
     <section class="full-content-wrapper">
         <h1 class="ico-after ico-tutorials">
             {% block headline %}
-                Aider les auteurs de tutoriels ({{ tutorials|length }})
+                {% trans "Aider les auteurs de tutoriels" %} ({{ tutorials|length }})
             {% endblock %}
         </h1>
 
@@ -35,12 +36,12 @@
                             {% endif %}
                             <div class="tutorial-infos">
                                 <h3 >{{tutorial.title}}</h3>
-                                <span>par : {% for author in tutorial.authors.all %}
+                                <span>{% trans "par : " %}{% for author in tutorial.authors.all %}
                                             <strong> {{author.username}} </strong>
                                             {% if tutorial.authors.all.count > 1 and not forloop.last %}
                                                 ,
                                             {% endif %}
-                                            {% endfor %}. <a href="{{tutorial.get_absolute_contact_url}}" >Contacter par MP</a>
+                                            {% endfor %}. <a href="{{tutorial.get_absolute_contact_url}}" >{% trans "Contacter par MP" %}</a>
                                 </span>
                                 <p class="article-metadata">
                                     {% if tutorial.subcategory %}
@@ -53,22 +54,22 @@
                                     {% endif %}
                                 </p>
                                 <div>
-                                {% if tutorial.in_beta %}
                                 {% if tutorial.on_line %}
-                                    <a title="Lire la version en ligne" href="{{ tutorial.get_absolute_url }}"><img src='{% static "images/tutorials.png" %}' alt="Tutoriel en ligne" /></a>
+                                    <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ tutorial.get_absolute_url_online }}"><img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel en ligne{% endblocktrans %}" /></a>
                                 {% else %}
-                                    <img src='{% static "images/tutorials.png" %}' alt="Tutoriel hors-ligne" class="light" />
+                                    <img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel hors-ligne{% endblocktrans %}" class="light" />
                                 {% endif %}
-                                    <a title="Lire la version bêta" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="Beta Active" /></a>
+                                {% if tutorial.in_beta %}
+                                    <a title="{% blocktrans %}Lire la version bêta{% endblocktrans %}" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="{% blocktrans %}Bêta Active{% endblocktrans %}" /></a>
                                 {% else %}
-                                    <img src='{% static "images/beta.png" %}' alt="Beta Inactive" class="light" />
+                                    <img src='{% static "images/beta.png" %}' alt="{% blocktrans %}Bêta Inactive{% endblocktrans %}" class="light" />
                                 {% endif %}
                                 {% for help in helps %}
                                     <span>
                                         {% if help in tutorial.helps.all %}
-                                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="Cherche un {{help.title}}" />
+                                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="{% blocktrans %}Cherche un {% endblocktrans %}{{help.title}}" />
                                         {% else %}
-                                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="Ne cherche pas un {{help.title}}" class="light" />
+                                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}" title="{% blocktrans %}Ne cherche pas un {% endblocktrans %}{{help.title}}" class="light" />
                                         {% endif %}
                                     </span>
                                 {% endfor %}
@@ -87,16 +88,12 @@
 {% block sidebar_new %}{% endblock %}
 {% block sidebar_blocks %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Besoin">
-        <h3>Besoin</h3>
+        <h3>{% trans "Besoin" %}</h3>
         <ul>
             {% for help in helps %}
                 <li>
                     <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type == "help.slug" %}unread{% endif %}">
-                        {% if request.GET.type and request.GET.type != help.slug %}
-                            <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="light" />
-                        {% else %}
-                            <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="" />
-                        {% endif %}
+                        <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="{% if request.GET.type and request.GET.type != help.slug %}light{% endif %}" />
                         <span>{{ help.title }}</span>
                     </a>
                 </li>
@@ -104,7 +101,7 @@
             {% if request.GET.type %}
                 <li>
                     <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross red ">
-                        Annuler le filtre
+                        {% trans "Annuler le filtre" %}
                     </a>
                 </li>
             {% endif %}
