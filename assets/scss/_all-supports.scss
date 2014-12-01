@@ -165,7 +165,7 @@
     .dropdown-title {
         color: #FFF;
     }
-    
+
     .dropdown-list {
         width: 100%;
         padding: 0;
@@ -326,7 +326,7 @@
                 width: 22px;
                 top: 50%;
                 left: 50%;
-                margin: -11px 0 0 -11px;                
+                margin: -11px 0 0 -11px;
 
                 &.ico-messages {
                     @include sprite-pos($messages);
@@ -391,7 +391,7 @@
                     &:hover,
                     &:focus {
                         background-color: $header-hover;
-                        
+
                         .username {
                             text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
                         }
@@ -553,7 +553,7 @@
 
             &:after {
                 display: block;
-                content: " ";   
+                content: " ";
                 position: absolute;
                 top: 12px;
                 left: 50%;
@@ -1172,7 +1172,13 @@
     margin-top: 0;
 }
 
-
+img.light {
+    opacity: 0.2;
+    &:hover,
+    &:focus {
+        opacity: 0.5;
+    }
+}
 
 /* ==============
     ALL: Main / Home
@@ -1289,7 +1295,7 @@
             border-left: none;
             width: 40px;
             transition: background $transition-duration;
-            
+
             position: absolute;
             bottom: 0;
             right: 15px;
@@ -1367,7 +1373,7 @@
         height: 100px;
         overflow: hidden;
         background-repeat: no-repeat;
-        background-position: center center;        
+        background-position: center center;
         background-size: cover;
 
         img {
@@ -1390,9 +1396,6 @@
         &.no-illu {
             margin-left: 0;
         }
-    }
-    img.light {
-        opacity: 0.1;
     }
 }
 
@@ -1531,7 +1534,7 @@
             height: 40px;
             line-height: 40px;
             transition: all $transition-duration ease;
-            
+
             &.current {
                 height: 38px;
                 color: #808080;
@@ -2091,7 +2094,7 @@
         img {
             max-width: 100%;
         }
-        
+
         figure {
             margin: 30px 0;
             text-align: center;
@@ -2119,7 +2122,7 @@
             figcaption {
                 display: block;
             }
-            
+
             blockquote ~ figcaption {
                 padding: 0 0 1px 2%;
                 font-style: italic;
@@ -2837,7 +2840,7 @@ form.topic-message {
     .autocomplete-dropdown {
         position: absolute;
         z-index: 60;
-        
+
         ul {
             padding: 0;
             margin: 0;
