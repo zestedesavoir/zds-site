@@ -2664,13 +2664,13 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         intro_path = os.path.join(tuto.get_path(), "introduction.md")
-        extract_path = Extract.objects.get(pk=1).get_path()
+        extract_path = Extract.objects.first().get_path()
         self.assertNotEqual(intro_path, extract_path)
         self.assertTrue(os.path.isfile(intro_path))
         self.assertTrue(os.path.isfile(extract_path))
 
     def test_add_extract_named_conclusion(self):
-        """test the use of an extract named introduction"""
+        """test the use of an extract named conclusion"""
 
         self.client.login(username=self.user_author,
                           password='hostel77')
@@ -2688,7 +2688,7 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         ccl_path = os.path.join(tuto.get_path(), "conclusion.md")
-        extract_path = Extract.objects.get(pk=1).get_path()
+        extract_path = Extract.objects.first().get_path()
         self.assertNotEqual(ccl_path, extract_path)
         self.assertTrue(os.path.isfile(ccl_path))
         self.assertTrue(os.path.isfile(extract_path))
