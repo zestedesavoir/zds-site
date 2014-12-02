@@ -1042,6 +1042,13 @@ class AddParticipantViewTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
 
+        self.anonymous_account = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        self.bot_group = Group()
+        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
+        self.anonymous_account.groups.add(self.bot_group)
+        self.anonymous_account.save()
+
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(
@@ -1103,6 +1110,19 @@ class AddParticipantViewTest(TestCase):
             }
         )
         self.assertFalse(self.anonymous_account in self.topic1.participants.all())
+        # test we can't create a new MP with bot
+        response = self.client.post(
+            reverse('zds.mp.views.new'),
+            {
+                'preview': '',
+                'participants': self.anonymous_account.username,
+                'title': 'title',
+                'subtitle': 'subtitle',
+                'text': 'text'
+            }
+        )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['messages']))
 
     def test_fail_add_participant_who_no_exist(self):
 

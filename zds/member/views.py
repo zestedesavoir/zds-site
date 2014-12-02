@@ -200,7 +200,7 @@ def details(request, user_name):
 
     if usr.profile.is_private():
         form = OldTutoForm(profile)
-        return render_template("member/profile.html", {
+        return render("member/profile.html", {
             "usr": usr,
             "profile": profile,
             "form": form,
