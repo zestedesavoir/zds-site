@@ -89,7 +89,7 @@ class Profile(models.Model):
         null=True,
         blank=True)
 
-    object = ProfileManager()
+    objects = ProfileManager()
 
     def __unicode__(self):
         """Textual forum of a profile."""
@@ -103,7 +103,7 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('zds.member.views.details',
+        return reverse('member-detail',
                        kwargs={'user_name': self.user.username})
 
     def get_city(self):

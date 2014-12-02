@@ -411,7 +411,7 @@ class MemberTests(TestCase):
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
         result = self.client.get(reverse('zds.member.views.login_view') + '?next='
-                                 + reverse('zds.member.views.details', args=[user.user.username]),
+                                 + reverse('member-detail', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
 

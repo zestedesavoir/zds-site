@@ -9,5 +9,5 @@ from zds.member.models import Profile
 class MemberListAPI(ListAPIView):
     """Displays the list of registered users."""
 
-    queryset = Profile.object.all_members_ordered_by_date_joined()
+    queryset = Profile.objects.all_members_ordered_by_date_joined()
     serializer_class = UserSerializer

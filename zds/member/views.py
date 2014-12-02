@@ -41,7 +41,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 from django.utils.translation import ugettext as _
 
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 
 class MemberList(ListView):
@@ -50,7 +50,7 @@ class MemberList(ListView):
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
-    queryset = Profile.object.all_members_ordered_by_date_joined()
+    queryset = Profile.objects.all_members_ordered_by_date_joined()
     template_name = 'member/index.html'
 
 
@@ -201,13 +201,36 @@ def unregister(request):
     return redirect(reverse("zds.pages.views.home"))
 
 
+class MemberDetail(DetailView):
+    """Displays details about a profile."""
+    context_object_name = 'usr'
+    model = User
+    template_name = 'member/profile.html'
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['user_name'])
+
+    def get_context_data(self, **kwargs):
+        context = super(MemberDetail, self).get_context_data(**kwargs)
+        usr = context['usr']
+        profile = usr.profile
+        context['profile'] = profile
+        context['topics'] = Topic.objects.last_topics_of_a_member(usr)
+        context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
+        context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
+        context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
+        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
+        context['karmaform'] = KarmaForm(profile)
+        context['form'] = OldTutoForm(profile)
+        return context
+
+
 def details(request, user_name):
     """Displays details about a profile."""
 
     usr = get_object_or_404(User, username=user_name)
     try:
         profile = usr.profile
-        bans = Ban.objects.filter(user=usr).order_by("-pubdate")
     except SiteProfileNotAvailable:
         raise Http404
 
@@ -282,7 +305,6 @@ def details(request, user_name):
     return render(request, "member/profile.html", {
         "usr": usr,
         "profile": profile,
-        "bans": bans,
         "articles": my_article_versions,
         "tutorials": my_tuto_versions,
         "topics": my_topics,
@@ -521,7 +543,7 @@ def settings_mini_profile(request, user_name):
                                         "e"))
             messages.success(request,
                              _(u"Le profil a correctement été mis à jour."))
-            return redirect(reverse("zds.member.views.details",
+            return redirect(reverse("member-detail",
                                     args=[profile.user.username]))
         else:
             return render(request, "member/settings/profile.html", c)
@@ -607,7 +629,7 @@ def update_avatar(request):
             return redirect(reverse("zds.member.views.settings_profile"))
         messages.success(request, _(u"L'avatar a correctement été mis à jour."))
 
-    return redirect(reverse("zds.member.views.details",
+    return redirect(reverse("member-detail",
                             args=[profile.user.username]))
 
 
@@ -916,7 +938,7 @@ def active_account(request):
         .format(username=usr.username,
                 tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
                 articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
-                members_url=settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
+                members_url=settings.ZDS_APP['site']['url'] + reverse("member-list"),
                 forums_url=settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
                 site_name=settings.ZDS_APP['site']['litteral_name'])
     send_mp(
@@ -1018,7 +1040,7 @@ def add_oldtuto(request):
     messages.success(request,
                      _(u'Le tutoriel a bien été lié au '
                        u'membre {0}.').format(profile.user.username))
-    return redirect(reverse("zds.member.views.details",
+    return redirect(reverse("member-detail",
                             args=[profile.user.username]))
 
 
@@ -1050,7 +1072,7 @@ def remove_oldtuto(request):
     messages.success(request,
                      _(u'Le tutoriel a bien été retiré '
                        u'au membre {0}.').format(profile.user.username))
-    return redirect(reverse("zds.member.views.details",
+    return redirect(reverse("member-detail",
                             args=[profile.user.username]))
 
 
@@ -1199,6 +1221,6 @@ def modify_karma(request):
         profile.karma += note.value
         profile.save()
 
-        return redirect(reverse("zds.member.views.details", args=[profile.user.username]))
+        return redirect(reverse("member-detail", args=[profile.user.username]))
     else:
         raise Http404

@@ -392,6 +392,7 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'home_number': 5,
     },
     'paginator': {
         'folding_limit': 4

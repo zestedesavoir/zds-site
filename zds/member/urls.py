@@ -2,14 +2,13 @@
 
 from django.conf.urls import patterns, url
 
-from views import MemberList
+from views import MemberList, MemberDetail
 
 urlpatterns = patterns('',
                        url(r'^$', MemberList.as_view(), name='member-list'),
                        url(r'^desinscrire/valider/$', 'zds.member.views.unregister'),
                        url(r'^desinscrire/avertissement/$', 'zds.member.views.warning_unregister'),
-                       url(r'^voir/(?P<user_name>.+)/$',
-                           'zds.member.views.details'),
+                       url(r'^voir/(?P<user_name>.+)/$', MemberDetail.as_view(), name='member-detail'),
                        url(r'^profil/modifier/(?P<user_pk>\d+)/$',
                            'zds.member.views.modify_profile'),
                        url(r'^profil/lier/$',

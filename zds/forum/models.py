@@ -13,6 +13,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
+from zds.forum.managers import TopicManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -151,6 +152,8 @@ class Topic(models.Model):
         db_index=True)
 
     key = models.IntegerField('cle', null=True, blank=True)
+
+    objects = TopicManager()
 
     def __unicode__(self):
         """Textual form of a thread."""
