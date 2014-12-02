@@ -669,7 +669,7 @@ def edit_post(request):
                 # check if the form is valid
                 form = TopicForm(request.POST)
                 if not form.is_valid() and g_topic:
-                    return render_template("forum/post/edit.html", {
+                    return render(request, "forum/post/edit.html", {
                         "post": post,
                         "topic": post.topic,
                         "text": post.text,
