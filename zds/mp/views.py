@@ -18,6 +18,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
+from django.core.exceptions import ObjectDoesNotExist
 
 from zds.utils import slugify
 from zds.utils.mps import send_mp
@@ -166,7 +167,7 @@ def new(request):
 
         if form.is_valid():
             data = form.data
-
+            tried_unauthorized_member = False
             # Retrieve all participants of the MP.
             ctrl = []
             list_part = data['participants'].split(",")
@@ -178,6 +179,8 @@ def new(request):
                 # We don't the author of the MP.
                 if request.user == p:
                     continue
+                if p.profile.is_private():
+                    tried_unauthorized_member = True
                 ctrl.append(p)
 
             # user add only himself
@@ -186,9 +189,14 @@ def new(request):
                     and list_part[0] == request.user.username):
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(_(u'Vous êtes déjà auteur du message'))
-                return render(request, 'mp/topic/new.html', {
+                if tried_unauthorized_member:
+                    errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                return render('mp/topic/new.html', {
                     'form': form,
                 })
+            if tried_unauthorized_member and len(ctrl) == 1:
+                errors = form._errors.setdefault("participants", ErrorList())
+                errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
 
             p_topic = send_mp(request.user,
                               ctrl,
@@ -247,7 +255,7 @@ def edit(request):
 
     if request.POST['username']:
         u = get_object_or_404(User, username=request.POST['username'])
-        if not request.user == u:
+        if not request.user == u and not u.profile.is_private():
             g_topic.participants.add(u)
             g_topic.save()
 
@@ -497,6 +505,8 @@ def add_participant(request):
     try:
         # user_pk or user_username ?
         part = User.objects.get(username__exact=request.POST['user_pk'])
+        if part.profile.is_private():
+            raise ObjectDoesNotExist
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
@@ -509,9 +519,9 @@ def add_participant(request):
             messages.success(
                 request,
                 _(u'Le membre a bien été ajouté à la conversation.'))
-    except:
+    except ObjectDoesNotExist:
         messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+            request, u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.')
 
     return redirect(reverse('zds.mp.views.topic', args=[
         ptopic.pk,

@@ -47,10 +47,17 @@ def index(request):
 
     if request.is_ajax():
         q = request.GET.get('q', '')
+        try:
+            bot_group = Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])
+        except Group.DoesNotExist:
+            bot_group = Group()  # fallback if bot group not found
         if request.user.is_authenticated():
-            members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
+            members = User.objects.filter(username__icontains=q)\
+                .exclude(pk=request.user.pk)\
+                .exclude(user__groups__in=[bot_group])[:20]
         else:
-            members = User.objects.filter(username__icontains=q)[:20]
+            members = User.objects.filter(username__icontains=q)\
+                .exclude(user__groups__in=[bot_group])[:20]
         results = []
         for member in members:
             member_json = {}
@@ -190,6 +197,14 @@ def details(request, user_name):
         bans = Ban.objects.filter(user=usr).order_by("-pubdate")
     except SiteProfileNotAvailable:
         raise Http404
+
+    if usr.profile.is_private():
+        form = OldTutoForm(profile)
+        return render("member/profile.html", {
+            "usr": usr,
+            "profile": profile,
+            "form": form,
+        })
 
     # refresh moderation chart
     if request.user.has_perm("member.change_profile"):

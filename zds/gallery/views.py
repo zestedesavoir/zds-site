@@ -163,6 +163,8 @@ def modify_gallery(request):
                                                    user=user).all()
             if galleries.count() > 0:
                 return redirect(gallery.get_absolute_url())
+            if user.profile.is_private():
+                return redirect(gallery.get_absolute_url())
             ug = UserGallery()
             ug.user = user
             ug.gallery = gallery
