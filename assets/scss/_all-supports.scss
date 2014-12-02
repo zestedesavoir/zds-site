@@ -805,7 +805,7 @@
 
         li {
             position: relative;
-            padding: 0 0 0 2.5%;
+            padding: 2.5% 0 0 2.5%;
             transition: background $transition-duration ease;
 
             &:not(.inactive):hover,
@@ -817,6 +817,10 @@
                 .ico-after.action-hover {
                     display: block;
                 }
+            }
+
+            label {
+                line-height: 1.25em;
             }
 
             a,
