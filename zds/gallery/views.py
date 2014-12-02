@@ -11,12 +11,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
     GalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
-from zds.utils import render_template
 from zds.utils import slugify
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -34,7 +33,7 @@ def gallery_list(request):
     """Display the gallery list with all their images."""
 
     galleries = UserGallery.objects.all().filter(user=request.user)
-    return render_template("gallery/gallery/list.html",
+    return render(request, "gallery/gallery/list.html",
                            {"galleries": galleries})
 
 
@@ -50,7 +49,7 @@ def gallery_details(request, gal_pk, gal_slug):
     images = gal.get_images()
     form = UserGalleryForm()
 
-    return render_template("gallery/gallery/details.html", {
+    return render(request, "gallery/gallery/details.html", {
         "gallery": gal,
         "gallery_mode": gal_mode,
         "images": images,
@@ -86,10 +85,10 @@ def new_gallery(request):
             userg.save()
             return redirect(gal.get_absolute_url())
         else:
-            return render_template("gallery/gallery/new.html", {"form": form})
+            return render(request, "gallery/gallery/new.html", {"form": form})
     else:
         form = GalleryForm()
-        return render_template("gallery/gallery/new.html", {"form": form})
+        return render(request, "gallery/gallery/new.html", {"form": form})
 
 
 @can_write_and_read_now
@@ -170,7 +169,7 @@ def modify_gallery(request):
             ug.mode = request.POST["mode"]
             ug.save()
         else:
-            return render_template("gallery/gallery/details.html", {
+            return render(request, "gallery/gallery/details.html", {
                 "gallery": gallery,
                 "gallery_mode": gal_mode,
                 "images": gallery.get_images(),
@@ -236,7 +235,8 @@ def edit_image(request, gal_pk, img_pk):
         })
 
     as_avatar_form = ImageAsAvatarForm()
-    return render_template(
+    return render(
+        request,
         "gallery/image/edit.html", {
             "form": form,
             "gallery_mode": gal_mode,
@@ -309,12 +309,12 @@ def new_image(request, gal_pk):
             return redirect(reverse("zds.gallery.views.edit_image",
                                     args=[gal.pk, img.pk]))
         else:
-            return render_template("gallery/image/new.html", {"form": form,
+            return render(request, "gallery/image/new.html", {"form": form,
                                                               "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ImageForm(initial={"new_image": True})  # A empty, unbound form
-        return render_template("gallery/image/new.html", {"form": form,
+        return render(request, "gallery/image/new.html", {"form": form,
                                                           "gallery_mode": gal_mode,
                                                           "gallery": gal})
 
@@ -392,11 +392,11 @@ def import_image(request, gal_pk):
             return redirect(reverse("zds.gallery.views.gallery_details",
                                     args=[gal.pk, gal.slug]))
         else:
-            return render_template("gallery/image/new.html", {"form": form,
+            return render(request, "gallery/image/new.html", {"form": form,
                                                               "gallery_mode": gal_mode,
                                                               "gallery": gal})
     else:
         form = ArchiveImageForm(initial={"new_image": True})  # A empty, unbound form
-        return render_template("gallery/image/new.html", {"form": form,
+        return render(request, "gallery/image/new.html", {"form": form,
                                                           "gallery_mode": gal_mode,
                                                           "gallery": gal})

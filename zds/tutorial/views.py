@@ -34,7 +34,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -49,7 +49,6 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
 from zds.forum.models import Forum, Topic
-from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
@@ -103,7 +102,7 @@ def index(request):
         mandata = tutorial.load_json_for_public()
         tutorial.load_dic(mandata)
         tuto_versions.append(mandata)
-    return render_template("tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
+    return render(request, "tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
 
 # Staff actions.
@@ -169,7 +168,7 @@ def list_validation(request):
                                                         )).filter(tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition")\
                 .all()
-    return render_template("tutorial/validation/index.html",
+    return render(request, "tutorial/validation/index.html",
                            {"validations": validations})
 
 
@@ -214,7 +213,7 @@ def diff(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
     tdiff = hcommit.diff("HEAD~1")
-    return render_template("tutorial/tutorial/diff.html", {
+    return render(request, "tutorial/tutorial/diff.html", {
         "tutorial": tutorial,
         "path_add": tdiff.iter_change_type("A"),
         "path_ren": tdiff.iter_change_type("R"),
@@ -235,7 +234,7 @@ def history(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
-    return render_template("tutorial/tutorial/history.html",
+    return render(request, "tutorial/tutorial/history.html",
                            {"tutorial": tutorial, "logs": logs})
 
 
@@ -262,7 +261,7 @@ def history_validation(request, tutorial_pk):
                                                 tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition"
                       ).all()
-    return render_template("tutorial/validation/history.html",
+    return render(request, "tutorial/validation/history.html",
                            {"validations": validations, "tutorial": tutorial})
 
 
@@ -893,7 +892,7 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         is_js = "js"
     else:
         is_js = ""
-    return render_template("tutorial/tutorial/view.html", {
+    return render(request, "tutorial/tutorial/view.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
@@ -1038,7 +1037,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # Build form to send a note for the current tutorial.
 
     form = NoteForm(tutorial, request.user)
-    return render_template("tutorial/tutorial/view_online.html", {
+    return render(request, "tutorial/tutorial/view_online.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
@@ -1145,7 +1144,7 @@ def add_tutorial(request):
                 'licence': Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
             }
         )
-    return render_template("tutorial/tutorial/new.html", {"form": form})
+    return render(request, "tutorial/tutorial/new.html", {"form": form})
 
 
 @can_write_and_read_now
@@ -1184,7 +1183,7 @@ def edit_tutorial(request):
                     "conclusion": tutorial.get_conclusion(),
 
                 })
-                return render_template("tutorial/tutorial/edit.html",
+                return render(request, "tutorial/tutorial/edit.html",
                                        {
                                            "tutorial": tutorial, "form": form,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -1260,7 +1259,7 @@ def edit_tutorial(request):
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
         })
-    return render_template("tutorial/tutorial/edit.html",
+    return render(request, "tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
 
 # Parts.
@@ -1339,7 +1338,7 @@ def view_part(
     else:
         is_js = ""
 
-    return render_template("tutorial/part/view.html",
+    return render(request, "tutorial/part/view.html",
                            {"tutorial": mandata,
                             "part": final_part,
                             "version": sha,
@@ -1409,7 +1408,7 @@ def view_part_online(
     if not find:
         raise Http404
 
-    return render_template("tutorial/part/view_online.html", {"part": final_part})
+    return render(request, "tutorial/part/view_online.html", {"part": final_part})
 
 
 @can_write_and_read_now
@@ -1467,7 +1466,7 @@ def add_part(request):
                 return redirect(part.get_absolute_url())
     else:
         form = PartForm()
-    return render_template("tutorial/part/new.html", {"tutorial": tutorial,
+    return render(request, "tutorial/part/new.html", {"tutorial": tutorial,
                                                       "form": form})
 
 
@@ -1561,7 +1560,7 @@ def edit_part(request):
                 form = PartForm({"title": part.title,
                                  "introduction": part.get_introduction(),
                                  "conclusion": part.get_conclusion()})
-                return render_template("tutorial/part/edit.html",
+                return render(request, "tutorial/part/edit.html",
                                        {
                                            "part": part,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -1599,7 +1598,7 @@ def edit_part(request):
         form = PartForm({"title": part.title,
                          "introduction": part.get_introduction(),
                          "conclusion": part.get_conclusion()})
-    return render_template("tutorial/part/edit.html",
+    return render(request, "tutorial/part/edit.html",
                            {
                                "part": part,
                                "last_hash": compute_hash([introduction, conclusion]),
@@ -1705,7 +1704,7 @@ def view_chapter(
     else:
         is_js = ""
 
-    return render_template("tutorial/chapter/view.html", {
+    return render(request, "tutorial/chapter/view.html", {
         "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
@@ -1811,7 +1810,7 @@ def view_chapter_online(
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
 
-    return render_template("tutorial/chapter/view_online.html", {
+    return render(request, "tutorial/chapter/view_online.html", {
         "chapter": final_chapter,
         "parts": parts,
         "prev": prev_chapter,
@@ -1897,7 +1896,7 @@ def add_chapter(request):
     else:
         form = ChapterForm()
 
-    return render_template("tutorial/chapter/new.html", {"part": part,
+    return render(request, "tutorial/chapter/new.html", {"part": part,
                                                          "form": form})
 
 
@@ -2021,7 +2020,7 @@ def edit_chapter(request):
             # avoid collision
             if content_has_changed([introduction, conclusion], data["last_hash"]):
                 form = render_chapter_form(chapter)
-                return render_template("tutorial/part/edit.html",
+                return render(request, "tutorial/part/edit.html",
                                        {
                                            "chapter": chapter,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -2069,7 +2068,7 @@ def edit_chapter(request):
             return redirect(chapter.get_absolute_url())
     else:
         form = render_chapter_form(chapter)
-    return render_template("tutorial/chapter/edit.html", {"chapter": chapter,
+    return render(request, "tutorial/chapter/edit.html", {"chapter": chapter,
                                                           "last_hash": compute_hash([introduction, conclusion]),
                                                           "form": form})
 
@@ -2107,7 +2106,7 @@ def add_extract(request):
         if "preview" in data:
             form = ExtractForm(initial={"title": data["title"],
                                         "text": data["text"]})
-            return render_template("tutorial/extract/new.html",
+            return render(request, "tutorial/extract/new.html",
                                    {"chapter": chapter, "form": form})
         else:
 
@@ -2131,7 +2130,7 @@ def add_extract(request):
     else:
         form = ExtractForm()
 
-    return render_template("tutorial/extract/new.html", {"chapter": chapter,
+    return render(request, "tutorial/extract/new.html", {"chapter": chapter,
                                                          "form": form})
 
 
@@ -2168,7 +2167,7 @@ def edit_extract(request):
                 "title": data["title"],
                 "text": data["text"]
             })
-            return render_template("tutorial/extract/edit.html",
+            return render(request, "tutorial/extract/edit.html",
                                    {
                                        "extract": extract, "form": form,
                                        "last_hash": compute_hash([extract.get_path()])
@@ -2178,7 +2177,7 @@ def edit_extract(request):
                 form = ExtractForm(initial={
                     "title": extract.title,
                     "text": extract.get_text()})
-                return render_template("tutorial/extract/edit.html",
+                return render(request, "tutorial/extract/edit.html",
                                        {
                                            "extract": extract,
                                            "last_hash": compute_hash([extract.get_path()]),
@@ -2211,7 +2210,7 @@ def edit_extract(request):
     else:
         form = ExtractForm({"title": extract.title,
                             "text": extract.get_text()})
-    return render_template("tutorial/extract/edit.html",
+    return render(request, "tutorial/extract/edit.html",
                            {
                                "extract": extract,
                                "last_hash": compute_hash([extract.get_path()]),
@@ -2307,7 +2306,7 @@ def find_tuto(request, pk_user):
             tutorial.load_dic(mandata, sha=tutorial.sha_beta)
             tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/beta.html",
+        return render(request, "tutorial/member/beta.html",
                                {"tutorials": tuto_versions, "usr": display_user})
     else:
         tutorials = Tutorial.objects.all().filter(
@@ -2320,7 +2319,7 @@ def find_tuto(request, pk_user):
             tutorial.load_dic(mandata)
             tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/online.html", {"tutorials": tuto_versions,
+        return render(request, "tutorial/member/online.html", {"tutorials": tuto_versions,
                                                                "usr": display_user})
 
 
@@ -2646,10 +2645,11 @@ def import_tuto(request):
         olds = []
     for old in olds:
         oldtutos.append(get_info_old_tuto(old))
-    return render_template(
-        "tutorial/tutorial/import.html", {"form": form,
-                                          "form_archive": form_archive,
-                                          "old_tutos": oldtutos})
+    return render(
+        request,
+        "tutorial/tutorial/import.html",
+        {"form": form, "form_archive": form_archive, "old_tutos": oldtutos}
+    )
 
 
 # Handling repo
@@ -3298,7 +3298,7 @@ def answer(request):
         if "preview" in data or newnote:
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
-            return render_template("tutorial/comment/new.html", {
+            return render(request, "tutorial/comment/new.html", {
                 "tutorial": tutorial,
                 "last_note_pk": last_note_pk,
                 "newnote": newnote,
@@ -3325,7 +3325,7 @@ def answer(request):
                 tutorial.save()
                 return redirect(note.get_absolute_url())
             else:
-                return render_template("tutorial/comment/new.html", {
+                return render(request, "tutorial/comment/new.html", {
                     "tutorial": tutorial,
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
@@ -3355,7 +3355,7 @@ def answer(request):
                 note_cite.get_absolute_url())
 
         form = NoteForm(tutorial, request.user, initial={"text": text})
-        return render_template("tutorial/comment/new.html", {
+        return render(request, "tutorial/comment/new.html", {
             "tutorial": tutorial,
             "notes": notes,
             "last_note_pk": last_note_pk,
@@ -3476,8 +3476,7 @@ def edit_note(request):
                             initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
-            return render_template(
-                "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+            return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
 
@@ -3494,8 +3493,7 @@ def edit_note(request):
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
         form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
             + "?message=" + str(note_pk)
-        return render_template(
-            "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+        return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
 @can_write_and_read_now
