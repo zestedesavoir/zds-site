@@ -338,7 +338,7 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(
             self.profile2.user.username,
             response2.context['form'].initial['participants'])
-        
+
     def test_success_get_with_and_without_title(self):
 
         response = self.client.get(reverse('zds.mp.views.new'))
@@ -365,7 +365,7 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(200, response2.status_code)
         self.assertIsNone(
             response2.context['form'].initial['participants'])
-        
+
     def test_success_preview(self):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
