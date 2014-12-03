@@ -229,7 +229,7 @@ class Topic(models.Model):
 
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                posiion__gt=last_post.position)\
+                position__gt=last_post.position)\
                 .select_related("author").first()
 
             return next_post
