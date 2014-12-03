@@ -3959,7 +3959,7 @@ class MiniTutorialTests(TestCase):
     def test_help_to_perfect_tuto(self):
         """ This test aim to unit test the "help me to write my tutorial"
         interface. It is testing if the back-end is always sending back
-        good datas """
+        good data """
 
         helps = HelpWriting.objects.all()
 
@@ -3995,6 +3995,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
+        self.assertEqual(sha_draft, sha_beta)
         response = self.client.post(
             reverse('zds.tutorial.views.help_tutorial'),
             follow=False
@@ -4018,7 +4019,6 @@ class MiniTutorialTests(TestCase):
         # if we ask for any help we should get a positive answer for every filter
         for helping in helps:
             self.minituto.helps.add(helping)
-        self.minituto.save()
 
         for helping in helps:
             response = self.client.post(

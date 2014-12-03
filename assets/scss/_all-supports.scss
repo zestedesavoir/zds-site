@@ -1394,6 +1394,13 @@ img.light {
             margin-left: 0;
         }
     }
+    img.light {
+        opacity: 0.4;
+        &:hover,
+        &:focus {
+            opacity: 1;
+        }
+    }
 }
 
 
