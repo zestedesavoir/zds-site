@@ -1349,12 +1349,10 @@
     .article-img {
         position : absolute;
         opacity: 0.4;
-        filter: alpha(opacity=40);
         transition: opacity $transition-duration;
 
         &:hover {
             opacity: 1;
-            filter: alpha(opacity=1);
         }
     }
     a {
@@ -1368,7 +1366,6 @@
         padding: 5px;
         text-decoration: none;
         opacity: 0.9;
-        filter: alpha(opacity=90);
 
         h3.home-title {
             color : lighten($primary, 10%);
