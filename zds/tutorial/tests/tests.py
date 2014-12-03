@@ -3972,6 +3972,7 @@ class MiniTutorialTests(TestCase):
         tutos = response.context['tutorials']
         self.assertEqual(len(tutos), 0)
 
+<<<<<<< HEAD:zds/tutorial/tests/tests.py
         # then active the beta on tutorial :
         ForumFactory(
             category=CategoryFactory(position=1),
@@ -4069,6 +4070,11 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
+=======
+        # if we give the tuto a beta it should return 1
+        self.minituto.sha_beta = "whatever"
+        self.minituto.save()
+>>>>>>> ZEP-03: Ajout des tests unitaires:zds/tutorial/tests.py
         response = self.client.post(
             reverse('zds.tutorial.views.help_tutorial'),
             follow=False
