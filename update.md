@@ -74,12 +74,12 @@ ZEP-3
 
 #### Schéma
 
-Mettre à jour le modèle de donnée.
+Mettre à jour le modèle de données.
 ```
 python manage.py migrate
 ```
 
-Si un souci apparait via South qui grogne avec un mesasge comme celui-ci pas de panique !
+Si un souci apparait via South qui grogne avec un message comme celui-ci pas de panique !
 ```
 Inconsistent migration history
 The following options are available:
@@ -94,7 +94,7 @@ python manage.py migrate --merge
 #### Données
 
 Pour la ZEP, il faut aussi générer les "aides" de base : rédacteur, correcteur, repreneur, illustrateur.
-Tout est déjà prêt dans les fixtures dédié à cela :
+Tout est déjà prêt dans les fixtures dédiées à cela :
 ```
 python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml
 ```
