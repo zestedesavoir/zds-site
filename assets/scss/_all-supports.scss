@@ -585,6 +585,9 @@
             color: #FFF;
             outline: none;
         }
+        &:before {
+            content: "+";
+        }
     }
 }
 
