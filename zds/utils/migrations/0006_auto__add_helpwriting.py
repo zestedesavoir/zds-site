@@ -13,7 +13,6 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=20)),
             ('slug', self.gf('django.db.models.fields.SlugField')(max_length=20)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=20)),
             ('tablelabel', self.gf('django.db.models.fields.CharField')(max_length=150)),
             ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
         ))
