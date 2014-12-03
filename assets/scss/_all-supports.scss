@@ -1349,6 +1349,7 @@
         position : absolute;
         opacity: 0.4;
         filter: alpha(opacity=40);
+        transition: opacity $transition-duration;
         &:hover {
             opacity: 1;
             filter: alpha(opacity=1);
