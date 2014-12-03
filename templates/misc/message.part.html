@@ -148,7 +148,12 @@
 
             <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
                 <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
+                    <span class="long-date">
                     {{ message.pubdate|format_date|capfirst }}
+                    </span>
+                    <span class="short-date">
+                    {{ message.pubdate|format_date:True|capfirst }}
+                    </span>
                 </time>
             </a>
         </div>
