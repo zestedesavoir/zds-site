@@ -7,14 +7,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Group, SiteProfileNotAvailable
+from django.contrib.auth.models import User, Group
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
@@ -24,13 +23,11 @@ from zds.utils.models import Comment
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.gallery.models import UserGallery
 import json
-import pygal
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm
-from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
-    get_info_old_tuto, logout_user, KarmaNote
+from models import Profile, TokenForgotPassword, Ban, TokenRegister, logout_user, KarmaNote
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
@@ -52,6 +49,30 @@ class MemberList(ListView):
     paginate_by = settings.ZDS_APP['member']['members_per_page']
     queryset = Profile.objects.all_members_ordered_by_date_joined()
     template_name = 'member/index.html'
+
+
+class MemberDetail(DetailView):
+    """Displays details about a profile."""
+    context_object_name = 'usr'
+    model = User
+    template_name = 'member/profile.html'
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['user_name'])
+
+    def get_context_data(self, **kwargs):
+        context = super(MemberDetail, self).get_context_data(**kwargs)
+        usr = context['usr']
+        profile = usr.profile
+        context['profile'] = profile
+        context['topics'] = Topic.objects.last_topics_of_a_member(usr)
+        context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
+        context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
+        context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
+        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
+        context['karmaform'] = KarmaForm(profile)
+        context['form'] = OldTutoForm(profile)
+        return context
 
 
 def index(request):
@@ -199,121 +220,6 @@ def unregister(request):
     logout(request)
     User.objects.filter(pk=current.pk).delete()
     return redirect(reverse("zds.pages.views.home"))
-
-
-class MemberDetail(DetailView):
-    """Displays details about a profile."""
-    context_object_name = 'usr'
-    model = User
-    template_name = 'member/profile.html'
-
-    def get_object(self):
-        return get_object_or_404(User, username=self.kwargs['user_name'])
-
-    def get_context_data(self, **kwargs):
-        context = super(MemberDetail, self).get_context_data(**kwargs)
-        usr = context['usr']
-        profile = usr.profile
-        context['profile'] = profile
-        context['topics'] = Topic.objects.last_topics_of_a_member(usr)
-        context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
-        context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
-        context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
-        context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
-        context['karmaform'] = KarmaForm(profile)
-        context['form'] = OldTutoForm(profile)
-        return context
-
-
-def details(request, user_name):
-    """Displays details about a profile."""
-
-    usr = get_object_or_404(User, username=user_name)
-    try:
-        profile = usr.profile
-    except SiteProfileNotAvailable:
-        raise Http404
-
-    if usr.profile.is_private():
-        form = OldTutoForm(profile)
-        return render(request, "member/profile.html", {
-            "usr": usr,
-            "profile": profile,
-            "form": form,
-            "karmaform": [],
-            "karmanotes": [],
-        })
-
-    # refresh moderation chart
-    if request.user.has_perm("member.change_profile"):
-        dot_chart = pygal.Dot(x_label_rotation=30)
-        dot_chart.title = _(u"Messages postés par période")
-        dot_chart.x_labels = [
-            u"Dimanche",
-            u"Lundi",
-            u"Mardi",
-            u"Mercredi",
-            u"Jeudi",
-            u"Vendredi",
-            u"Samedi",
-        ]
-        dot_chart.show_legend = False
-        dates = date_to_chart(profile.get_posts())
-        for i in range(0, 24):
-            dot_chart.add(str(i) + " h", dates[(i + 1) % 24])
-        dot_chart.disable_xml_declaration = True
-        render_chart = dot_chart.render()
-    else:
-        render_chart = None
-
-    my_articles = Article.objects.filter(sha_public__isnull=False).order_by(
-        "-pubdate").filter(authors__in=[usr]).all()[:5]
-    my_tutorials = \
-        Tutorial.objects.filter(sha_public__isnull=False) \
-        .filter(authors__in=[usr]) \
-        .order_by("-pubdate"
-                  ).all()[:5]
-
-    my_tuto_versions = []
-    for my_tutorial in my_tutorials:
-        mandata = my_tutorial.load_json_for_public()
-        my_tutorial.load_dic(mandata)
-        my_tuto_versions.append(mandata)
-    my_article_versions = []
-    for my_article in my_articles:
-        article_version = my_article.load_json_for_public()
-        my_article.load_dic(article_version)
-        my_article_versions.append(article_version)
-
-    my_topics = \
-        Topic.objects\
-        .filter(author=usr)\
-        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
-        .prefetch_related("author")\
-        .order_by("-pubdate").all()[:5]
-
-    karmaform = KarmaForm(profile)
-    karmanotes = KarmaNote.objects.filter(user=usr).order_by('-create_at')
-    form = OldTutoForm(profile)
-    oldtutos = []
-    if profile.sdz_tutorial:
-        olds = profile.sdz_tutorial.strip().split(":")
-    else:
-        olds = []
-    for old in olds:
-        oldtutos.append(get_info_old_tuto(old))
-    return render(request, "member/profile.html", {
-        "usr": usr,
-        "profile": profile,
-        "articles": my_article_versions,
-        "tutorials": my_tuto_versions,
-        "topics": my_topics,
-        "form": form,
-        "old_tutos": oldtutos,
-        "karmaform": karmaform,
-        "karmanotes": karmanotes,
-        "stats_filename": render_chart,
-    })
 
 
 @can_write_and_read_now

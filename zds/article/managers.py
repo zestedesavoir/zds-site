@@ -11,9 +11,9 @@ class ArticleManager(models.Manager):
 
     def last_articles_of_a_member_loaded(self, author):
         my_articles = self.filter(sha_public__isnull=False) \
-                   .filter(authors__in=[author]) \
-                   .order_by("-pubdate") \
-                   .all()[:settings.ZDS_APP['article']['home_number']]
+                          .filter(authors__in=[author]) \
+                          .order_by("-pubdate") \
+                          .all()[:settings.ZDS_APP['article']['home_number']]
         my_article_versions = []
         for my_article in my_articles:
             article_version = my_article.load_json_for_public()
