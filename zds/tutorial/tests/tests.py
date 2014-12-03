@@ -3959,7 +3959,7 @@ class MiniTutorialTests(TestCase):
     def test_help_to_perfect_tuto(self):
         """ This test aim to unit test the "help me to write my tutorial"
         interface. It is testing if the back-end is always sending back
-        good datas """
+        good data """
 
         helps = HelpWriting.objects.all()
 
@@ -4019,81 +4019,6 @@ class MiniTutorialTests(TestCase):
         # if we ask for any help we should get a positive answer for every filter
         for helping in helps:
             self.minituto.helps.add(helping)
-
-        for helping in helps:
-            response = self.client.post(
-                reverse('zds.tutorial.views.help_tutorial') +
-                u'?type={}'.format(helping.slug),
-                follow=False
-            )
-            self.assertEqual(200, response.status_code)
-            tutos = response.context['tutorials']
-            self.assertEqual(len(tutos), 1)
-
-    def test_help_to_perfect_tuto(self):
-        """ This test aim to unit test the "help me to write my tutorial"
-        interface. It is testing if the back-end is always sending back
-        good datas """
-
-        helps = HelpWriting.objects.all()
-
-        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
-        response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial'),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        tutos = response.context['tutorials']
-        self.assertEqual(len(tutos), 0)
-
-        # then active the beta on tutorial :
-        ForumFactory(
-            category=CategoryFactory(position=1),
-            position_in_category=1)
-        # first, login with author :
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
-        response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
-            {
-                'tutorial': self.minituto.pk,
-                'activ_beta': True,
-                'version': sha_draft
-            },
-            follow=False
-        )
-        self.assertEqual(302, response.status_code)
-        sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
-        self.assertEqual(sha_draft, sha_beta)
-
-        response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial'),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        tutos = response.context['tutorials']
-        self.assertEqual(len(tutos), 1)
-
-        # However if we ask with a filter we will still get 0
-        for helping in helps:
-            response = self.client.post(
-                reverse('zds.tutorial.views.help_tutorial') +
-                u'?type={}'.format(helping.slug),
-                follow=False
-            )
-            self.assertEqual(200, response.status_code)
-            tutos = response.context['tutorials']
-            self.assertEqual(len(tutos), 0)
-
-        # now tutorial is positive for every options
-        # if we ask for any help we should get a positive answer for every filter
-        for helping in helps:
-            self.minituto.helps.add(helping)
-        self.minituto.save()
 
         for helping in helps:
             response = self.client.post(

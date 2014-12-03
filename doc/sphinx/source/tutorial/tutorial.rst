@@ -297,7 +297,7 @@ Pour chaque données de test, il faut aussi passer par l'interface d'administrat
 
 Pour charger ces fixtures, il ne faut pas utiliser la routine habituelle `manage.py loaddata`. En effet, les demandes d'aide ont besoin d'être liées à des images.
 C'est pourquoi, nous utilisons la factory `zds.utils.factories.HelpWritingFactory` pour mettre en place ces fixtures.
-Le code sera donc `python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yml`.
+Le code sera donc `python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml`.
 
 L'aspect technique
 ==================
