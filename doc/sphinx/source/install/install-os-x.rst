@@ -66,7 +66,7 @@ Installation de toutes les dépendances
 
 .. sourcecode:: bash
 
-  pip install --upgrade -r requirements.txt
+  pip install --upgrade -r requirements.txt -r requirements-dev.txt
   npm install
   gulp build
 
