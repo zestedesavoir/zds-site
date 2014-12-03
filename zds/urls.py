@@ -60,7 +60,9 @@ sitemaps = {
         priority=0.7
     ),
     'topics': GenericSitemap(
-        {'queryset': Topic.objects.filter(is_locked=False, forum__group__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id']), 'date_field': 'pubdate'},
+        {'queryset': Topic.objects.filter(is_locked=False,
+                                          forum__group__isnull=True).exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+         'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
     ),
