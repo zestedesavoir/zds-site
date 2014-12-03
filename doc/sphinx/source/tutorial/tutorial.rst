@@ -296,7 +296,7 @@ Quelques données de test sont présentes dans le fichier `fixtures/aide_tuto_me
 Pour chaque données de test, il faut aussi passer par l'interface d'administration Django pour ajouter les images relatives à ces aides (limites techniques du chargement automatique). Quatres illustrations sont présentes dans le dossier de fixtures correspondant aux quatres aides présentes dans les fixtures.
 
 Pour charger ces fixtures, il ne faut pas utiliser la routine habituelle `manage.py loaddata`. En effet, les demandes d'aide ont besoin d'être liées à des images.
-C'est pourquoi, nous utilisons la factory `zds.utls.factories.HelpWritingFactory` pour mettre en place ces fixtures.
+C'est pourquoi, nous utilisons la factory `zds.utils.factories.HelpWritingFactory` pour mettre en place ces fixtures.
 Le code sera donc `python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml`.
 
 L'aspect technique
