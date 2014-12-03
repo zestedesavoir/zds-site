@@ -165,7 +165,7 @@
     .dropdown-title {
         color: #FFF;
     }
-    
+
     .dropdown-list {
         width: 100%;
         padding: 0;
@@ -326,7 +326,7 @@
                 width: 22px;
                 top: 50%;
                 left: 50%;
-                margin: -11px 0 0 -11px;                
+                margin: -11px 0 0 -11px;
 
                 &.ico-messages {
                     @include sprite-pos($messages);
@@ -391,7 +391,7 @@
                     &:hover,
                     &:focus {
                         background-color: $header-hover;
-                        
+
                         .username {
                             text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
                         }
@@ -553,7 +553,7 @@
 
             &:after {
                 display: block;
-                content: " ";   
+                content: " ";
                 position: absolute;
                 top: 12px;
                 left: 50%;
@@ -1266,6 +1266,7 @@
                 border: 1px solid #CCC;
                 font-size : 1em;
                 text-decoration : none;
+
                 &:after {
                     margin-left: 5px;
                     margin-top: 5px;
@@ -1322,7 +1323,6 @@
             border-left: none;
             width: 40px;
             transition: background $transition-duration;
-            
             position: absolute;
             bottom: 0;
 
@@ -1345,13 +1345,14 @@
     background: #444;
     border-bottom: 2px solid $sidebar-background;
     border-top: 1px solid #CCC;
+
     .article-img {
         position : absolute;
         opacity: 0.4;
-        filter: alpha(opacity=40);
+        transition: opacity $transition-duration;
+
         &:hover {
             opacity: 1;
-            filter: alpha(opacity=1);
         }
     }
     a {
@@ -1365,7 +1366,7 @@
         padding: 5px;
         text-decoration: none;
         opacity: 0.9;
-        filter: alpha(opacity=90);
+
         h3.home-title {
             color : lighten($primary, 10%);
             font-size: 1.9rem;
@@ -1382,6 +1383,7 @@
     .home-meta-data {
         height: 70px;
         text-shadow: 0px 1px 1px #666;
+
         .home-box-date {
             position: absolute;
             text-align: center;
@@ -1390,6 +1392,7 @@
             height: 80px;
             width: 30px;
             z-index: 20;
+
             .box-day {
                 font-size : 1.6em;
             }
@@ -1416,6 +1419,7 @@
             width: 22px;
             z-index: 0;
             text-align: center;
+
             a {
                 color : $secondary;
                 font-size: 1.1em;
@@ -1430,6 +1434,7 @@
             z-index: 10;
             position : absolute;
             float: left;
+
             p {
                 margin: 0;
                 font-size : 1em;
@@ -1441,6 +1446,7 @@
                 text-decoration: none;
                 padding-left: 20px;
                 padding-right: 10px;
+
                 &.extend-tag {
                     padding-left: 70px;
                 }
@@ -1453,13 +1459,16 @@
 }
 
 .hot-topic-list .topic-item {
+    border-bottom: 1px solid darken($sidebar-background, 20%);
+
     .avatar {
         float: right;
         position: absolute;
     }
-    border-bottom: 1px solid darken($sidebar-background, 20%);
+
     a {
         text-decoration: none;
+
         .topic-infos {
             h3 {
                 color: #333;
@@ -1614,7 +1623,7 @@
             height: 40px;
             line-height: 40px;
             transition: all $transition-duration ease;
-            
+
             &.current {
                 height: 38px;
                 color: #808080;
@@ -2174,7 +2183,7 @@
         img {
             max-width: 100%;
         }
-        
+
         figure {
             margin: 30px 0;
             text-align: center;
@@ -2202,7 +2211,7 @@
             figcaption {
                 display: block;
             }
-            
+
             blockquote ~ figcaption {
                 padding: 0 0 1px 2%;
                 font-style: italic;
@@ -2920,7 +2929,7 @@ form.topic-message {
     .autocomplete-dropdown {
         position: absolute;
         z-index: 60;
-        
+
         ul {
             padding: 0;
             margin: 0;

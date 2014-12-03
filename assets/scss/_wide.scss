@@ -90,7 +90,7 @@
             border-top: 6px solid #FFF;
         }
     }
-    
+
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
@@ -343,7 +343,7 @@
                 left: 150px;
                 margin-left: -10px;
             }
-            
+
             blockquote {
                 margin: 0 0 0 300px;
             }
@@ -360,10 +360,12 @@
                 margin-left: 30px;
                 width: 20%;
                 float: left;
+
                 p {
                     font-size : 1.1em;
                     text-align : justify;
                     margin: 0px;
+                    margin-bottom: 10px;
                 }
             }
         }
@@ -408,10 +410,11 @@
         width: 46%;
         float: left;
     }
-    
+
     .article-img {
         width: 30%;
         text-align: center;
+
         img {
             max-width: 100%;
         }
@@ -585,7 +588,7 @@
        ============== */
     .enable-mobile-menu #modals .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
-        
+
         .modal-title {
             line-height: 50px;
         }
