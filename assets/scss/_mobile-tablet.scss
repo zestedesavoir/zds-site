@@ -566,6 +566,10 @@
 
                 .date {
                     float: right;
+
+                    .long-date {
+                        display: none;
+                    }
                 }
             }
 
