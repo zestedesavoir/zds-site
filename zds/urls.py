@@ -55,12 +55,14 @@ sitemaps = {
         priority=0.7
     ),
     'forums': GenericSitemap(
-        {'queryset': Forum.objects.filter(group__isnull=True)},
+        {'queryset': Forum.objects.filter(group__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
         changefreq='yearly',
         priority=0.7
     ),
     'topics': GenericSitemap(
-        {'queryset': Topic.objects.filter(is_locked=False, forum__group__isnull=True), 'date_field': 'pubdate'},
+        {'queryset': Topic.objects.filter(is_locked=False,
+                                          forum__group__isnull=True).exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+         'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
     ),
