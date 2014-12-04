@@ -35,13 +35,8 @@ class Command(BaseCommand):
 
         for tutorial in tutorials:
             prod_path = tutorial.get_prod_path(tutorial.sha_public)
-            os.system("cd "+prod_path + " && " + settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
-                      + "--template=../../assets/tex/template.tex " + "-s " + "-S "
-                      + "-N " + "--toc " + "-V documentclass=scrbook "
-                      + "-V lang=francais " + "-V mainfont=Merriweather "
-                      + "-V monofont=\"Andale Mono\" " + "-V fontsize=12pt "
-                      + "-V geometry:margin=1in "
+            os.system("cd "+prod_path + " && " + settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
                       + os.path.join(prod_path, tutorial.slug) + ".md "
                       + "-o " + os.path.join(prod_path, tutorial.slug)
                       + ".pdf" + pandoc_debug_str)
-            self.stdout.write(u"----> {} : OK".format(tutorial.title))
+            self.stdout.write(u"----> {}".format(tutorial.title))
