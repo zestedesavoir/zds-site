@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from datetime import datetime
@@ -3040,7 +3040,9 @@ def get_url_images(md_text, pt):
                             im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                         else:
                             im.save(os.path.join(pt, "images", filename))
-                except IOError:
+                except (IOError, KeyError):
+                    # if we can't save or if the image was entered without a proper extension
+
                     pass
             else:
                 # relative link
