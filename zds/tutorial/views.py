@@ -3218,12 +3218,7 @@ def mep(tutorial, sha):
               + os.path.join(prod_path, tutorial.slug)
               + ".md -o " + os.path.join(prod_path,
                                          tutorial.slug) + ".html" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
-              + "--template=../../assets/tex/template.tex " + "-s " + "-S "
-              + "-N " + "--toc " + "-V documentclass=scrbook "
-              + "-V lang=francais " + "-V mainfont=Merriweather "
-              + "-V monofont=\"Andale Mono\" " + "-V fontsize=12pt "
-              + "-V geometry:margin=1in "
+    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
               + os.path.join(prod_path, tutorial.slug) + ".md "
               + "-o " + os.path.join(prod_path, tutorial.slug)
               + ".pdf" + pandoc_debug_str)
