@@ -543,6 +543,11 @@
                     {% endif %}
                     <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
                 </ul>
+                <ul>
+                    <li><a href="{{app.site.association.facebook}}" class="btn ico-after facebook light btn-facebook btn-holder"></a></li>
+                    <li><a href="{{app.site.association.twitter}}" class="btn ico-after twitter light btn-twitter btn-holder"></a></li>
+                    <li><a href="{{app.site.association.googleplus}}" class="btn ico-after google-plus light btn-google-plus btn-holder"></a></li>
+                </ul>
             </div>
         </footer>
     </div>
