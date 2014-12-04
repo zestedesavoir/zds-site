@@ -55,8 +55,7 @@ Pour bénéficier de données de test, exécutez les commandes suivantes, dans l
 
 ```console
 python manage.py loaddata fixtures/*.yaml
-python load_factory_data.py fixtures/advanced/aide_tuto_media.yml
-
+python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 ```
 
 Cela va créer plusieurs entitées :

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-01 22:55+0100\n"
+"POT-Creation-Date: 2014-12-04 18:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3403,6 +3403,10 @@ msgstr ""
 msgid "Tutoriel hors-ligne"
 msgstr ""
 
+#: templates/tutorial/tutorial/help.html:60
+msgid "Tutoriel jamais publié"
+msgstr ""
+
 #: templates/tutorial/tutorial/help.html:63
 msgid "Lire la version bêta"
 msgstr ""
@@ -3413,6 +3417,10 @@ msgstr ""
 
 #: templates/tutorial/tutorial/help.html:65
 msgid "Bêta Inactive"
+msgstr ""
+
+#: templates/tutorial/tutorial/help.html:65
+msgid "Bêta non activée"
 msgstr ""
 
 #: templates/tutorial/tutorial/help.html:70
