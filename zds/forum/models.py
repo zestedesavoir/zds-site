@@ -379,7 +379,6 @@ def mark_read(topic):
 
 def follow(topic, user=None):
     """Toggle following of a topic for an user."""
-    ret = None
     if user is None:
         user = get_current_user()
     try:
@@ -396,17 +395,15 @@ def follow(topic, user=None):
             user=user
         )
         t.save()
-        ret = True
+        return True
     else:
         # If user is already following the topic, we make him don't anymore
         existing.delete()
-        ret = False
-    return ret
+        return False
 
 
 def follow_by_email(topic, user=None):
     """Toggle following of a topic for an user."""
-    ret = None
     if user is None:
         user = get_current_user()
     try:
@@ -425,12 +422,11 @@ def follow_by_email(topic, user=None):
             email=True
         )
         t.save()
-        ret = True
+        return True
     else:
         existing.email = not existing.email
         existing.save()
-        ret = existing.email
-    return ret
+        return existing.email
 
 
 def get_last_topics(user):

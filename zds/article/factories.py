@@ -29,7 +29,7 @@ class ArticleFactory(factory.DjangoModelFactory):
             os.makedirs(path, mode=0o777)
 
         man = export_article(article)
-        repo = Repo.init(path, bare=False)
+        Repo.init(path, bare=False)
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")

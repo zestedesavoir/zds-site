@@ -207,7 +207,7 @@ def get_tag_by_title(title):
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif ((char != u"[" and char.strip() != "") or not continue_parsing_tags):
+        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
@@ -808,7 +808,7 @@ def like_post(request):
             like = CommentLike()
             like.user = user
             like.comments = post
-            post.like = post.like + 1
+            post.like += 1
             post.save()
             like.save()
             if CommentDislike.objects.filter(user__pk=user.pk,
@@ -816,12 +816,12 @@ def like_post(request):
                 CommentDislike.objects.filter(
                     user__pk=user.pk,
                     comments__pk=post_pk).all().delete()
-                post.dislike = post.dislike - 1
+                post.dislike -= 1
                 post.save()
         else:
             CommentLike.objects.filter(user__pk=user.pk,
                                        comments__pk=post_pk).all().delete()
-            post.like = post.like - 1
+            post.like -= 1
             post.save()
     resp["upvotes"] = post.like
     resp["downvotes"] = post.dislike
@@ -856,19 +856,19 @@ def dislike_post(request):
             dislike = CommentDislike()
             dislike.user = user
             dislike.comments = post
-            post.dislike = post.dislike + 1
+            post.dislike += 1
             post.save()
             dislike.save()
             if CommentLike.objects.filter(user__pk=user.pk,
                                           comments__pk=post_pk).count() > 0:
                 CommentLike.objects.filter(user__pk=user.pk,
                                            comments__pk=post_pk).all().delete()
-                post.like = post.like - 1
+                post.like -= 1
                 post.save()
         else:
             CommentDislike.objects.filter(user__pk=user.pk,
                                           comments__pk=post_pk).all().delete()
-            post.dislike = post.dislike - 1
+            post.dislike -= 1
             post.save()
     resp["upvotes"] = post.like
     resp["downvotes"] = post.dislike
