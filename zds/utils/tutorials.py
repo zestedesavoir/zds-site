@@ -101,7 +101,7 @@ def get_blob(tree, chemin):
             if os.path.abspath(bl.path) == os.path.abspath(chemin):
                 data = bl.data_stream.read()
                 return data.decode('utf-8')
-        except:
+        except (OSError, IOError):
             return ""
     if len(tree.trees) > 0:
         for tr in tree.trees:
@@ -435,10 +435,10 @@ def import_archive(request):
     import os
     try:
         import ujson as json_reader
-    except:
+    except ImportError:
         try:
             import simplejson as json_reader
-        except:
+        except ImportError:
             import json as json_reader
 
     archive = request.FILES["file"]
@@ -501,7 +501,7 @@ def import_archive(request):
                 except IOError:
                     try:
                         os.makedirs(ph_dest)
-                    except:
+                    except OSError:
                         pass
         zfile.close()
 

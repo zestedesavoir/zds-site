@@ -8,10 +8,10 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
 
 import json as json_writer
@@ -2350,7 +2350,7 @@ def upload_images(images, tutorial):
         except IOError:
             try:
                 os.makedirs(ph_temp)
-            except:
+            except OSError:
                 pass
     zfile.close()
     return mapping
@@ -3139,8 +3139,9 @@ def mep(tutorial, sha):
         if os.path.isdir(del_path):
             try:
                 shutil.rmtree(del_path)
-            except:
+            except OSError:
                 shutil.rmtree(u"\\\\?\{0}".format(del_path))
+                # WARNING: this can throw another OSError
     shutil.copytree(tutorial.get_path(), prod_path)
     repo.head.reset(commit=sha, index=True, working_tree=True)
 
@@ -3238,8 +3239,9 @@ def un_mep(tutorial):
         if os.path.isdir(del_path):
             try:
                 shutil.rmtree(del_path)
-            except:
+            except OSError:
                 shutil.rmtree(u"\\\\?\{0}".format(del_path))
+                # WARNING: this can throw another OSError
 
 
 @can_write_and_read_now

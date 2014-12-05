@@ -1111,7 +1111,7 @@ def modify_karma(request):
         note.comment = request.POST["warning"]
         try:
             note.value = int(request.POST["points"])
-        except:
+        except (KeyError, ValueError):
             note.value = 0
 
         note.save()

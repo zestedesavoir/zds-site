@@ -4,10 +4,10 @@ from datetime import datetime
 from operator import attrgetter
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
 
 import json as json_writer

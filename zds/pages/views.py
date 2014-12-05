@@ -41,7 +41,7 @@ def home(request):
     try:
         with open(os.path.join(SITE_ROOT, 'quotes.txt'), 'r') as fh:
             quote = random.choice(fh.readlines())
-    except:
+    except IOError:
         quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
