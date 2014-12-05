@@ -57,12 +57,12 @@
                                 {% if tutorial.on_line %}
                                     <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ tutorial.get_absolute_url_online }}"><img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel en ligne{% endblocktrans %}" /></a>
                                 {% else %}
-                                    <img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel hors-ligne{% endblocktrans %}" class="light" />
+                                    <img src='{% static "images/tutorials.png" %}' alt="{% blocktrans %}Tutoriel hors-ligne{% endblocktrans %}" class="light" title="{% blocktrans %}Tutoriel jamais publié{% endblocktrans %}"/>
                                 {% endif %}
                                 {% if tutorial.in_beta %}
                                     <a title="{% blocktrans %}Lire la version bêta{% endblocktrans %}" href="{{ tutorial.get_absolute_url_beta }}"><img src='{% static "images/beta.png" %}' alt="{% blocktrans %}Bêta Active{% endblocktrans %}" /></a>
                                 {% else %}
-                                    <img src='{% static "images/beta.png" %}' alt="{% blocktrans %}Bêta Inactive{% endblocktrans %}" class="light" />
+                                    <img src='{% static "images/beta.png" %}' alt="{% blocktrans %}Bêta Inactive{% endblocktrans %}" class="light" title="{% blocktrans %}Bêta non activée{% endblocktrans %}"/>
                                 {% endif %}
                                 {% for help in helps %}
                                     <span>
