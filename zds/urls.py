@@ -87,6 +87,7 @@ urlpatterns = patterns('',
                        url('', include('social.apps.django_app.urls', namespace='social')),
                        url('', include('django.contrib.auth.urls', namespace='auth')),
                        ('^munin/', include('munin.urls')),
+                       url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
 
                        url(r'^$', 'zds.pages.views.home'),
 

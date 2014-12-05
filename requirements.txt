@@ -25,3 +25,4 @@ easy-thumbnails==2.2
 # Api dependencies
 djangorestframework==2.4.4
 django-filter==0.8
+django-oauth2-provider==0.2.6.1
