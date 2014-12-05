@@ -488,10 +488,14 @@ def leave(request):
 @require_POST
 @transaction.atomic
 def add_participant(request):
-    ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+    try:
+        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+    except KeyError:
+        messages.warning(
+            request, _(u'La conversation que vous avez essayé d\'utiliser n\'existe pas.'))
 
     # check if user is the author of topic
-    if not ptopic.author == request.user:
+    if ptopic is not None and not ptopic.author == request.user:
         raise PermissionDenied
 
     try:
@@ -509,6 +513,9 @@ def add_participant(request):
             messages.success(
                 request,
                 _(u'Le membre a bien été ajouté à la conversation.'))
+    except KeyError:
+        messages.warning(
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
     except:
         messages.warning(
             request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
