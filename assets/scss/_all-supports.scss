@@ -3075,14 +3075,15 @@ form.topic-message {
         }
     }
 
-    ul:last-child {
+    ul.social {
         float: none;
         margin: 0 auto;
 
         a {
+            opacity: 0.7;
             &:hover,
             &:focus {
-                opacity: 0.7;
+                opacity: 1;
             }
         }
     }
