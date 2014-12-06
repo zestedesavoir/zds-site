@@ -17,10 +17,12 @@ from django.utils.translation import ugettext as _
 
 
 def export_chapter(chapter, export_all=True):
-    from zds.tutorial.models import Extract
-    '''
+    """
     Export a chapter to a dict
-    '''
+    """
+
+    from zds.tutorial.models import Extract
+
     dct = OrderedDict()
     if export_all:
         dct['pk'] = chapter.pk
@@ -43,10 +45,12 @@ def export_chapter(chapter, export_all=True):
 
 
 def export_part(part):
-    from zds.tutorial.models import Chapter
-    '''
+    """
     Export a part to a dict
-    '''
+    """
+
+    from zds.tutorial.models import Chapter
+
     dct = OrderedDict()
     dct['pk'] = part.pk
     dct['title'] = part.title
@@ -64,10 +68,11 @@ def export_part(part):
 
 
 def export_tutorial(tutorial):
-    from zds.tutorial.models import Part, Chapter
-    '''
+    """
     Export a tutorial to a dict
-    '''
+    """
+
+    from zds.tutorial.models import Part, Chapter
     dct = OrderedDict()
     dct['title'] = tutorial.title
     dct['description'] = tutorial.description
@@ -510,7 +515,7 @@ def import_archive(request):
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
-            aut_email = "inconnu@".format(settings.ZDS_APP['site']['dns'])
+            aut_email = "inconnu@{0}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(msg.encode("utf-8"),
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email))

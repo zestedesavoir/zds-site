@@ -12,8 +12,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
+#import sys
+#import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -247,9 +247,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ZesteDeSavoir', u'Documentation Zeste de Savoir',
-   u'zestedesavoir', 'ZesteDeSavoir', 'Description en ligne du projet.',
-   'Miscellaneous'),
+    ('index', 'ZesteDeSavoir', u'Documentation Zeste de Savoir',
+     u'zestedesavoir', 'ZesteDeSavoir', 'Description en ligne du projet.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
