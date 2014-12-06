@@ -44,7 +44,7 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zes
 Après avoir mis à jour votre dépot, vous devez executer les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
 ```console
-pip install --upgrade -r requirements.txt
+pip install --upgrade -r requirements.txt -r requirements-dev.txt
 python manage.py migrate
 ```
 
