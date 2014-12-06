@@ -27,3 +27,4 @@ django-debug-toolbar==1.2.2
 flake8==2.2.5
 autopep8==1.0.4
 sphinx==1.2.3
+prospector==0.7.4
