@@ -3620,7 +3620,7 @@ def help_tutorial(request):
 
     aides = HelpWriting.objects.all()
 
-    return render_template("tutorial/tutorial/help.html", {
+    return render("tutorial/tutorial/help.html", {
         "tutorials": shown_tutos,
         "helps": aides,
         "pages": paginator_range(page, paginator.num_pages),
