@@ -240,10 +240,14 @@ def new(request):
             form = TopicForm(initial={"title": request.POST["title"],
                                       "subtitle": request.POST["subtitle"],
                                       "text": request.POST["text"]})
-            return render(request, "forum/topic/new.html",
-                                   {"forum": forum,
-                                    "form": form,
-                                    "text": request.POST["text"]})
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                    content_type='application/json')
+            else:
+                return render(request, "forum/topic/new.html",
+                                       {"forum": forum,
+                                        "form": form,
+                                        "text": request.POST["text"]})
         form = TopicForm(request.POST)
         data = form.data
         if form.is_valid():
@@ -420,7 +424,7 @@ def edit(request):
             g_topic.forum = forum
     g_topic.save()
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json.dumps(resp), content_type='application/json')
     else:
         if not g_topic.forum.can_read(request.user):
             return redirect(reverse("zds.forum.views.index"))
@@ -475,14 +479,18 @@ def answer(request):
             form = PostForm(g_topic, request.user, initial={"text": data["text"]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
-            return render(request, "forum/post/new.html", {
-                "text": data["text"],
-                "topic": g_topic,
-                "posts": posts,
-                "last_post_pk": last_post_pk,
-                "newpost": newpost,
-                "form": form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                    content_type='application/json')
+            else:
+                return render(request, "forum/post/new.html", {
+                    "text": data["text"],
+                    "topic": g_topic,
+                    "posts": posts,
+                    "last_post_pk": last_post_pk,
+                    "newpost": newpost,
+                    "form": form,
+                })
         else:
 
             # Saving the message
@@ -560,6 +568,7 @@ def answer(request):
         # Using the quote button
 
         if "cite" in request.GET:
+            resp = {}
             post_cite_pk = request.GET["cite"]
             post_cite = Post.objects.get(pk=post_cite_pk)
             if not post_cite.is_visible:
@@ -571,6 +580,10 @@ def answer(request):
                 post_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = PostForm(g_topic, request.user, initial={"text": text})
         form.helper.form_action = reverse("zds.forum.views.answer") \
@@ -654,12 +667,16 @@ def edit_post(request):
                                 initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.forum.views.edit_post") \
                 + "?message=" + str(post_pk)
-            return render(request, "forum/post/edit.html", {
-                "post": post,
-                "topic": post.topic,
-                "text": request.POST["text"],
-                "form": form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                    content_type='application/json')
+            else:
+                return render(request, "forum/post/edit.html", {
+                    "post": post,
+                    "topic": post.topic,
+                    "text": request.POST["text"],
+                    "form": form,
+                })
 
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
