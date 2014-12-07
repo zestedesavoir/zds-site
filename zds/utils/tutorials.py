@@ -73,6 +73,7 @@ def export_tutorial(tutorial):
     """
 
     from zds.tutorial.models import Part, Chapter
+
     dct = OrderedDict()
     dct['title'] = tutorial.title
     dct['description'] = tutorial.description
