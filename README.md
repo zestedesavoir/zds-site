@@ -55,7 +55,7 @@ Pour bénéficier de données de test, exécutez les commandes suivantes, dans l
 
 ```console
 python manage.py loaddata fixtures/*.yaml
-
+python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 ```
 
 Cela va créer plusieurs entitées :
@@ -72,6 +72,7 @@ Cela va créer plusieurs entitées :
 * 3 sujets avec une réponse
 * 1 message privé (MP) avec 3 participants
 * 3 catégories et 2 sous-catégories
+* 4 aides pour l'écriture des tutoriels
 
 
 ### La documentation complète

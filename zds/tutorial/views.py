@@ -32,7 +32,7 @@ from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
@@ -43,7 +43,7 @@ from lxml import etree
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
-    mark_read, Note
+    mark_read, Note, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
@@ -1116,6 +1116,10 @@ def add_tutorial(request):
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
 
+            # Add helps if needed
+            for helpwriting in form.cleaned_data["helps"]:
+                tutorial.helps.add(helpwriting)
+
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
 
@@ -1181,7 +1185,7 @@ def edit_tutorial(request):
                     "subcategory": tutorial.subcategory.all(),
                     "introduction": tutorial.get_introduction(),
                     "conclusion": tutorial.get_conclusion(),
-
+                    "helps": tutorial.helps.all(),
                 })
                 return render(request, "tutorial/tutorial/edit.html",
                                        {
@@ -1237,9 +1241,15 @@ def edit_tutorial(request):
                 action="maj",
                 msg=request.POST.get('msg_commit', None)
             )
+
             tutorial.subcategory.clear()
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
+
+            tutorial.helps.clear()
+            for help in form.cleaned_data["helps"]:
+                tutorial.helps.add(help)
+
             tutorial.save()
             return redirect(tutorial.get_absolute_url())
     else:
@@ -1258,6 +1268,7 @@ def edit_tutorial(request):
             "subcategory": tutorial.subcategory.all(),
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
+            "helps": tutorial.helps.all(),
         })
     return render(request, "tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
@@ -3586,3 +3597,42 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+def help_tutorial(request):
+    """fetch all tutorials that needs help"""
+
+    # Retrieve type of the help. Default value is any help
+    type = request.GET.get('type', None)
+
+    if type is not None:
+        aide = get_object_or_404(HelpWriting, slug=type)
+        tutos = Tutorial.objects.filter(helps=aide) \
+                                .all()
+    else:
+        tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
+                                .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .all()
+
+    # Paginator
+    paginator = Paginator(tutos, settings.ZDS_APP['forum']['topics_per_page'])
+    page = request.GET.get('page')
+
+    try:
+        shown_tutos = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_tutos = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_tutos = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    aides = HelpWriting.objects.all()
+
+    return render(request, "tutorial/tutorial/help.html", {
+        "tutorials": shown_tutos,
+        "helps": aides,
+        "pages": paginator_range(page, paginator.num_pages),
+        "nb": page
+    })

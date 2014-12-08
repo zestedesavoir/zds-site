@@ -8,10 +8,9 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
-from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import Tutorial, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -116,6 +115,15 @@ class TutorialForm(FormWithTitle):
         )
     )
 
+    helps = forms.ModelMultipleChoiceField(
+        label=(u"Demander de l'aide à la communauté ! "
+               u"Si vous avez besoin d'un coup de main,"
+               u"sélectionnez une ou plusieurs catégories d'aide ci-dessous"),
+        queryset=HelpWriting.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple()
+    )
+
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -132,6 +140,7 @@ class TutorialForm(FormWithTitle):
             Hidden('last_hash', '{{ last_hash }}'),
             Field('subcategory'),
             Field('licence'),
+            Field('helps'),
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
