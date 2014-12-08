@@ -1,6 +1,7 @@
 # coding: utf-8
 from zds.settings import ZDS_APP
 
+
 def paginator_range(current, stop, start=1):
     assert(current <= stop)
 

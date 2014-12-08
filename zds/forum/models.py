@@ -109,7 +109,6 @@ class Forum(models.Model):
 
     def can_read(self, user):
         """Checks if the forum can be read by the user."""
-        # TODO These prints is used to debug this method. Remove them later.
 
         if self.group.count() == 0:
             return True
