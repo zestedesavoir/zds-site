@@ -9,7 +9,7 @@ except:
         import simplejson as json_reader
     except:
         import json as json_reader
-
+import json
 import json as json_writer
 import os
 import shutil
@@ -1016,13 +1016,17 @@ def answer(request):
             form = ReactionForm(article, request.user, initial={
                 'text': data['text']
             })
-            return render(request, 'article/reaction/new.html', {
-                'article': article,
-                'last_reaction_pk': last_reaction_pk,
-                'newreaction': newreaction,
-                'reactions': reactions,
-                'form': form
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, 'article/reaction/new.html', {
+                    'article': article,
+                    'last_reaction_pk': last_reaction_pk,
+                    'newreaction': newreaction,
+                    'reactions': reactions,
+                    'form': form
+                })
 
         # Saving the message
         else:
@@ -1208,11 +1212,15 @@ def edit_reaction(request):
                 'zds.article.views.edit_reaction') + \
                 '?message=' + \
                 str(reaction_pk)
-            return render(request, 'article/reaction/edit.html', {
-                'reaction': reaction,
-                'article': g_article,
-                'form': form
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, 'article/reaction/edit.html', {
+                    'reaction': reaction,
+                    'article': g_article,
+                    'form': form
+                })
 
         if 'delete_message' not in request.POST \
                 and 'signal_message' not in request.POST \

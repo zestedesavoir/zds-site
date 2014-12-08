@@ -63,11 +63,10 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-    {% if topic.is_solved %}
-        <div class="alert-box success ico-after tick light">
+        <div class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}">
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
-    {% endif %}
+    
 
     {% for message in posts %}
         {% captureas edit_link %}
@@ -144,7 +143,7 @@
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
-                <button class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
+                <button class="solve ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
                     {% if topic.is_solved %}
                         {% trans "Marquer comme non résolu" %}
                     {% else %}
@@ -163,7 +162,7 @@
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
-            <button class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
+            <button class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
                 {% if topic.is_followed %}
                     {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
@@ -180,7 +179,7 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button class="email ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}
