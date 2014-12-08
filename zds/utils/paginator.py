@@ -24,7 +24,7 @@ def paginator_range(current, stop, start=1):
         # Current
         elif page_number == current:
             lst.append(page_number)
-        # Put some 
+        # Put some
         elif page_number == stop - 1 and current == stop - 3:
             lst.append(page_number)
         # And ignore all other numbers
