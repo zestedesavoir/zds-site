@@ -1168,6 +1168,22 @@
     margin-top: 0;
 }
 
+a.go-to-top {
+    position: absolute;
+    right: 31px;
+    bottom: 84px;
+    text-indent: -9999px;
+    font-size: 0;
+    cursor: pointer;
+    outline: 0;
+
+    &:after {
+        width: 33px;
+        height: 24px;
+        @include sprite-pos($arrow-up, true);
+    }
+}
+
 
 
 /* ==============
