@@ -119,7 +119,7 @@
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                $editor.append(data.text+"\n\n\n");
+                $editor.val($editor.val() + data.text + "\n\n\n");
             }
         });
         e.stopPropagation();

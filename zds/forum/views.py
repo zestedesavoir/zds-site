@@ -242,7 +242,7 @@ def new(request):
                                       "text": request.POST["text"]})
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                    content_type='application/json')
+                                    content_type='application/json')
             else:
                 return render(request, "forum/topic/new.html",
                                        {"forum": forum,
@@ -481,7 +481,7 @@ def answer(request):
                 + "?sujet=" + str(g_topic.pk)
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                    content_type='application/json')
+                                    content_type='application/json')
             else:
                 return render(request, "forum/post/new.html", {
                     "text": data["text"],
@@ -669,7 +669,7 @@ def edit_post(request):
                 + "?message=" + str(post_pk)
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                    content_type='application/json')
+                                    content_type='application/json')
             else:
                 return render(request, "forum/post/edit.html", {
                     "post": post,

@@ -13,7 +13,7 @@ except:
         import simplejson as json_reader
     except:
         import json as json_reader
-
+import json
 import json as json_writer
 import shutil
 import re
@@ -3293,13 +3293,17 @@ def answer(request):
         if "preview" in data or newnote:
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
-            return render(request, "tutorial/comment/new.html", {
-                "tutorial": tutorial,
-                "last_note_pk": last_note_pk,
-                "newnote": newnote,
-                "notes": notes,
-                "form": form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, "tutorial/comment/new.html", {
+                    "tutorial": tutorial,
+                    "last_note_pk": last_note_pk,
+                    "newnote": newnote,
+                    "notes": notes,
+                    "form": form,
+                })
         else:
 
             # Saving the message
@@ -3471,7 +3475,13 @@ def edit_note(request):
                             initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
-            return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request,
+                              "tutorial/comment/edit.html",
+                              {"note": note, "tutorial": g_tutorial, "form": form})
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
 
