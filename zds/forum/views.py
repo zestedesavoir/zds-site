@@ -398,8 +398,6 @@ def edit(request):
             resp["solved"] = g_topic.is_solved
     if request.user.has_perm("forum.change_topic"):
 
-        # Staff actions using AJAX TODO: Do not redirect on AJAX requests
-
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
             messages.success(request,
