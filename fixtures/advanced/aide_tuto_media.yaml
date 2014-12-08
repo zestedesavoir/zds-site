@@ -1,6 +1,6 @@
 -   factory: zds.utils.factories.HelpWritingFactory
     fields:
-        title: "Redacteur"
+        title: "Rédacteur"
         tablelabel: "Besoin d'aide pour la rédaction"
         slug: "redacteur"
         fixture_image_path: "aide_redacteur.png"
