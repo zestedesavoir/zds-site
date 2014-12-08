@@ -3,6 +3,7 @@
 {% load staticfiles %}
 {% load thumbnail %}
 {% load i18n %}
+{% load profile %}
 
 
 
@@ -36,12 +37,22 @@
                             {% endif %}
                             <div class="tutorial-infos">
                                 <h3 >{{tutorial.title}}</h3>
-                                <span>{% trans "par : " %}{% for author in tutorial.authors.all %}
-                                            <strong> {{author.username}} </strong>
-                                            {% if tutorial.authors.all.count > 1 and not forloop.last %}
+                                <span>{% trans "par : " %}
+                                    {% for author in tutorial.authors.all %}
+                                        {% if not forloop.first %}
+                                            {% if forloop.last %}
+                                                {% trans "et" %}
+                                            {% else %}
                                                 ,
                                             {% endif %}
-                                            {% endfor %}. <a href="{{tutorial.get_absolute_contact_url}}" >{% trans "Contacter par MP" %}</a>
+                                        {% endif %}
+                                        <strong><a href="{{author.get_absolute_url}}" title="Profil de {{author.username}}">{{author.username}}</a></strong>
+                                    {% endfor %}.
+                                    {% if user in tutorial.authors.all %}
+                                        {% trans "Vous faites parti des auteurs." %}
+                                    {% else %}
+                                        <a href="{{tutorial.get_absolute_contact_url}}" >{% trans "Contacter par MP" %}</a>
+                                    {% endif %}
                                 </span>
                                 <p class="article-metadata">
                                     {% if tutorial.subcategory %}
@@ -78,6 +89,10 @@
                     </article>
                 {% endfor %}
                 </div>
+            {% else %}
+            <p>
+                Aucun auteur n'a besoin d'aide pour le moment.
+            </p>
             {% endif %}
         {% endblock %}
     </section>
@@ -92,7 +107,7 @@
         <ul>
             {% for help in helps %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type == "help.slug" %}unread{% endif %}">
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type and request.GET.type = help.slug %}unread{% endif %}">
                         <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="{% if request.GET.type and request.GET.type != help.slug %}light{% endif %}" />
                         <span>{{ help.title }}</span>
                     </a>

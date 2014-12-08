@@ -116,7 +116,9 @@ class TutorialForm(FormWithTitle):
     )
 
     helps = forms.ModelMultipleChoiceField(
-        label="J'ai besoin d'aide avec un...",
+        label=(u"Demander de l'aide à la communauté ! "
+               u"Si vous avez besoin d'un coup de main,"
+               u"sélectionnez une ou plusieurs catégories d'aide ci-dessous"),
         queryset=HelpWriting.objects.all(),
         required=False,
         widget=forms.SelectMultiple()
