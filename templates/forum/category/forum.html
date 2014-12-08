@@ -1,13 +1,15 @@
 {% extends "forum/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
     {{ forum.title }}
     {% if request.GET.filter == "solve" %}
-        / Sujets résolus
+        / {% trans "Sujets résolus" %}
     {% elif request.GET.filter == "unsolve" %}
-        / Sujets non-résolus
+        / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
     {% endif %}
 {% endblock %}
 
@@ -33,9 +35,11 @@
     {% endif %}
 
     {% if request.GET.filter == "solve" %}
-        <li>Sujets résolus</li>
+        <li>{% trans "Sujets résolus" %}</li>
     {% elif request.GET.filter == "unsolve" %}
-        <li>Sujets non-résolus</li>
+        <li>{% trans "Sujets non-résolus" %}</li>
+    {% elif request.GET.filter == "noanswer" %}
+        <li>{% trans "Sujets sans réponse" %}</li>
     {% endif %}
 {% endblock %}
 
@@ -44,9 +48,11 @@
 {% block headline %}
     {{ forum.title }}
     {% if request.GET.filter == "solve" %}
-        / Sujets résolus
+        / {% trans "Sujets résolus" %}
     {% elif request.GET.filter == "unsolve" %}
-        / Sujets non-résolus
+        / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
     {% endif %}
 {% endblock %}
 
@@ -60,7 +66,7 @@
 
 {% block new_btn %}
     <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
-        Nouveau sujet
+        {% trans "Nouveau sujet" %}
     </a>
 {% endblock %}
 
@@ -87,7 +93,7 @@
 
     {% if not sticky_topics and not topics %}
         <p>
-            Aucun sujet trouvé.
+            {% trans "Aucun sujet trouvé" %}.
         </p>
     {% endif %}
 
@@ -98,20 +104,27 @@
 
 {% block sidebar_blocks %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
-        <h3>Filtres</h3>
+        <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}unread{% endif %}"
                 >
-                    Sujets résolus
+                    {% trans "Sujets résolus" %}
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}unread{% endif %}"
                 >
-                    Sujets non résolus
+                    {% trans "Sujets non résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=noanswer"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}unread{% endif %}"
+                >
+                    {% trans "Sujets sans réponse" %}
                 </a>
             </li>
             {% if request.GET.filter %}
@@ -119,7 +132,7 @@
                     <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}"
                        class="ico-after cross blue"
                     >
-                        Annuler le filtre
+                        {% trans "Annuler le filtre" %}
                     </a>
                 </li>
             {% endif %}

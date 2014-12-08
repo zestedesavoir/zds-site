@@ -4,11 +4,12 @@
 {% load set %}
 {% load profile %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 
 
 {% block title %}
-    {% if topic.is_solved %}[Résolu]{% endif %} {{ topic.title }}
+    {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -62,71 +63,68 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-    <div class="content-wrapper">
-        {% if topic.is_solved %}
-            <div class="alert-box success ico-after tick light">
-                L'auteur de ce sujet a trouvé une solution à son problème.
-            </div>
+    {% if topic.is_solved %}
+        <div class="alert-box success ico-after tick light">
+            {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
+        </div>
+    {% endif %}
+
+    {% for message in posts %}
+        {% captureas edit_link %}
+            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas helpful_link %}
+            {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas upvote_link %}
+            {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas downvote_link %}
+            {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas alert_solve_link %}
+            {% url "zds.forum.views.solve_alert" %}
+        {% endcaptureas %}
+
+        {% if forloop.first and nb > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
         {% endif %}
 
-        {% for message in posts %}
-            {% captureas edit_link %}
-                {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
+        {% if forloop.first and nb = 1 %}
+            {% set False as answer_schema %}
+        {% else %}
+            {% set True as answer_schema %}
+        {% endif %}
 
-            {% captureas cite_link %}
-                {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas helpful_link %}
-                {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas upvote_link %}
-                {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas downvote_link %}
-                {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas alert_solve_link %}
-                {% url "zds.forum.views.solve_alert" %}
-            {% endcaptureas %}
-
-            {% if forloop.first and nb > 1 %}
-                {% set True as is_repeated_message %}
-            {% else %}
-                {% set False as is_repeated_message %}
-            {% endif %}
-
-            {% if forloop.first and nb = 1 %}
-                {% set False as answer_schema %}
-            {% else %}
-                {% set True as answer_schema %}
-            {% endif %}
-
-            {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
-        {% endfor %}
-    </div>
+        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
+    {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
 
 
-    {% if user.is_authenticated %}
-        {% captureas form_action %}
-            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
-        {% endcaptureas %}
-        
-        {% include "misc/message_form.html" with member=user %}
-    {% endif %}
+    {# Anwser form #}
+    {% captureas form_action %}
+        {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
 {% endblock %}
 
 
 
 {% block new_btn %}
     <a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
-        Nouveau sujet
+        {% trans "Nouveau sujet" %}
     </a>
 {% endblock %}
 
@@ -144,9 +142,9 @@
 
                 <button class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
                     {% if topic.is_solved %}
-                        Marquer comme non résolu
+                        {% trans "Marquer comme non résolu" %}
                     {% else %}
-                        Marquer comme résolu
+                        {% trans "Marquer comme résolu" %}
                     {% endif %}
                 </button>
             </form>
@@ -163,9 +161,9 @@
 
             <button class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
                 {% if topic.is_followed %}
-                    Ne plus suivre ce sujet
+                    {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
-                    Suivre ce sujet
+                    {% trans "Suivre ce sujet" %}
                 {% endif %}
             </button>
         </form>
@@ -180,9 +178,9 @@
 
             <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
-                    Ne plus être notifié par courriel
+                    {% trans "Ne plus être notifié par courriel" %}
                 {% else %}
-                    Être notifié par courriel
+                    {% trans "Être notifié par courriel" %}
                 {% endif %}
             </button>
         </form>
@@ -194,7 +192,7 @@
 {% block sidebar_blocks %}
     {% if perms.forum.change_topic %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
-            <h3>Modération</h3>
+            <h3>{% trans "Modération" %}</h3>
             <ul>
                 <li>
                     <form action="{% url "zds.forum.views.edit" %}" method="post">
@@ -206,9 +204,9 @@
 
                         <button class="ico-after lock {% if not topic.is_locked %}blue{% endif %}" type="submit">
                             {% if topic.is_locked %}
-                                Ouvrir le sujet
+                                {% trans "Ouvrir le sujet" %}
                             {% else %}
-                                Fermer le sujet
+                                {% trans "Fermer le sujet" %}
                             {% endif %}
                         </button>
                     </form>
@@ -224,16 +222,16 @@
 
                         <button class="ico-after pin {% if not topic.is_sticky %}blue{% endif %}" type="submit">
                             {% if topic.is_sticky %}
-                                Enlever du post-it
+                                {% trans "Enlever du post-it" %}
                             {% else %}
-                                Marquer en post-it
+                                {% trans "Marquer en post-it" %}
                             {% endif %}
                         </button>
                     </form>
                 </li>
 
                 <li>
-                    <a href="#move-topic" class="ico-after arrow-right blue open-modal">Déplacer le sujet</a>
+                    <a href="#move-topic" class="ico-after arrow-right blue open-modal">{% trans "Déplacer le sujet" %}</a>
                     <div class="modal modal-small" id="move-topic">
                         {% crispy form_move %}
                     </div>

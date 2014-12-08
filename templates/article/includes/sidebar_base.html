@@ -1,22 +1,22 @@
 {% load captureas %}
-
+{% load i18n %}
 
 
 <a href="{% url "zds.article.views.new" %}" class="ico-after more blue new-btn">
-    Nouvel article
+    {% trans "Nouvel article" %}
 </a>
 
 <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
-    <h3>Flux</h3>
+    <h3>{% trans "Flux" %}</h3>
     <ul>
         <li>
             <a href="{% url "article-feed-rss" %}" class="ico-after rss blue">
-                Nouveaux articles (RSS)
+                {% trans "Nouveaux articles (RSS)" %}
             </a>
         </li>
         <li>
             <a href="{% url "article-feed-atom" %}" class="ico-after rss blue">
-                Nouveaux articles (ATOM)
+                {% trans "Nouveaux articles (ATOM)" %}
             </a>
         </li>
     </ul>

@@ -227,13 +227,13 @@ class ArticleTests(TestCase):
 
         # check values
         art = Article.objects.get(pk=self.article.pk)
-        self.assertEqual(Reaction.objects.get(pk=1).article, art)
-        self.assertEqual(Reaction.objects.get(pk=1).author.pk, user1.pk)
-        self.assertEqual(Reaction.objects.get(pk=1).position, 1)
-        self.assertEqual(Reaction.objects.get(pk=1).pk, art.last_reaction.pk)
+        first_art = Reaction.objects.first()
+        self.assertEqual(first_art.article, art)
+        self.assertEqual(first_art.author.pk, user1.pk)
+        self.assertEqual(first_art.position, 1)
+        self.assertEqual(first_art.pk, art.last_reaction.pk)
         self.assertEqual(
-            Reaction.objects.get(
-                pk=1).text,
+            Reaction.objects.first().text,
             u'Histoire de blablater dans les comms de l\'article')
 
         # test antispam return 403

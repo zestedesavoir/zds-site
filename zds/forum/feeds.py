@@ -25,24 +25,26 @@ class LastPostsFeedRSS(Feed):
         return obj
 
     def items(self, obj):
-        if "forum" in obj and "tag" in obj:
-            posts = Post.objects.filter(topic__forum__group__isnull=True,
-                                        topic__forum__pk=obj['forum'],
-                                        topic__tags__pk__in=[obj['tag']])\
-                .order_by('-pubdate')
-        elif "forum" in obj and "tag" not in obj:
-            posts = Post.objects.filter(topic__forum__group__isnull=True,
-                                        topic__forum__pk=obj['forum'])\
-                .order_by('-pubdate')
-        elif "forum" not in obj and "tag" in obj:
-            posts = Post.objects.filter(topic__forum__group__isnull=True,
-                                        topic__tags__pk__in=[obj['tag']])\
-                .order_by('-pubdate')
-        if "forum" not in obj and "tag" not in obj:
-            posts = Post.objects.filter(topic__forum__group__isnull=True)\
-                .order_by('-pubdate')
-
-        return posts[:settings.ZDS_APP['forum']['posts_per_page']]
+        try:
+            if "forum" in obj and "tag" in obj:
+                posts = Post.objects.filter(topic__forum__group__isnull=True,
+                                            topic__forum__pk=obj['forum'],
+                                            topic__tags__pk__in=[obj['tag']])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            elif "forum" in obj and "tag" not in obj:
+                posts = Post.objects.filter(topic__forum__group__isnull=True,
+                                            topic__forum__pk=obj['forum'])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            elif "forum" not in obj and "tag" in obj:
+                posts = Post.objects.filter(topic__forum__group__isnull=True,
+                                            topic__tags__pk__in=[obj['tag']])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            else:
+                posts = Post.objects.filter(topic__forum__group__isnull=True)\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+        except:
+            posts = []
+        return posts
 
     def item_title(self, item):
         return u'{}, message #{}'.format(item.topic.title, item.pk)
@@ -83,24 +85,26 @@ class LastTopicsFeedRSS(Feed):
         return obj
 
     def items(self, obj):
-        if "forum" in obj and "tag" in obj:
-            topics = Topic.objects.filter(forum__group__isnull=True,
-                                          forum__pk=obj['forum'],
-                                          tags__pk__in=[obj['tag']])\
-                .order_by('-pubdate')
-        elif "forum" in obj and "tag" not in obj:
-            topics = Topic.objects.filter(forum__group__isnull=True,
-                                          forum__pk=obj['forum'])\
-                .order_by('-pubdate')
-        elif "forum" not in obj and "tag" in obj:
-            topics = Topic.objects.filter(forum__group__isnull=True,
-                                          tags__pk__in=[obj['tag']])\
-                .order_by('-pubdate')
-        if "forum" not in obj and "tag" not in obj:
-            topics = Topic.objects.filter(forum__group__isnull=True)\
-                .order_by('-pubdate')
-
-        return topics[:settings.ZDS_APP['forum']['posts_per_page']]
+        try:
+            if "forum" in obj and "tag" in obj:
+                topics = Topic.objects.filter(forum__group__isnull=True,
+                                              forum__pk=obj['forum'],
+                                              tags__pk__in=[obj['tag']])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            elif "forum" in obj and "tag" not in obj:
+                topics = Topic.objects.filter(forum__group__isnull=True,
+                                              forum__pk=obj['forum'])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            elif "forum" not in obj and "tag" in obj:
+                topics = Topic.objects.filter(forum__group__isnull=True,
+                                              tags__pk__in=[obj['tag']])\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            if "forum" not in obj and "tag" not in obj:
+                topics = Topic.objects.filter(forum__group__isnull=True)\
+                    .order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+        except:
+            topics = []
+        return topics
 
     def item_pubdate(self, item):
         return item.pubdate

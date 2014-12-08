@@ -2,19 +2,20 @@
 {% load profile %}
 {% load date %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 {% block title %}
-    Historique de "{{ article.title }}"
+    {% trans "Historique de" %} "{{ article.title }}"
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
     {% if user in article.authors.all %}
-        <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+        <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
     {% else %}
-        <li><a href="{% url "zds.article.views.index" %}">Articles</a></li>
+        <li><a href="{% url "zds.article.views.index" %}">{% trans "Articles" %}</a></li>
     {% endif %}
 {% endblock %}
 
@@ -22,7 +23,7 @@
 
 {% block breadcrumb %}
     <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
-    <li>Historique des modifications</li>
+    <li>{% trans "Historique des modifications" %}</li>
 {% endblock %}
 
 
@@ -38,7 +39,7 @@
         {% if article.image %}
             <img src="{{article.image.article_illu.url }}" alt="">
         {% endif %}
-        Historique de "{{ article.title }}"
+        {% trans "Historique de" %} "{{ article.title }}"
     </h1>
     
     {% if article.licence %}
@@ -64,14 +65,14 @@
     </ul>
 
     <span class="pubdate">
-        Publié 
+        {% trans "Publié" %} 
         <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
             {{ article.pubdate|format_date }}
         </time>
     </span>
     
     <div class="authors">
-        <span class="authors-label">Contributeur{{ article.authors.all|pluralize }} : </span>
+        <span class="authors-label">{% trans "Contributeur" %}{{ article.authors.all|pluralize }} : </span>
         <ul>
             {% for member in article.authors.all %}
                 <li>
@@ -88,11 +89,11 @@
     <table class="fullwidth">
         <thead>
             <tr>
-                <th>Visbilité</th>
-                <th width="25%">Date</th>
-                <th>Version</th>
-                <th width="10%">Diff</th>
-                <th width="10%">Auteur</th>
+                <th>{% trans "Visbilité" %}</th>
+                <th width="25%">{% trans "Date" %}</th>
+                <th>{% trans "Version" %}</th>
+                <th width="10%">{% trans "Diff" %}</th>
+                <th width="10%">{% trans "Auteur" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -100,13 +101,13 @@
                 <tr>
                     <td>
                         {% if article.sha_public = log.newhexsha %}
-                            Publique
+                            {% trans "Publique" %}
                         {% elif article.sha_validation = log.newhexsha %}
-                            Validation
+                            {% trans "Validation" %}
                         {% elif article.sha_beta =  log.newhexsha %}
-                            Beta
+                            {% trans "Beta" %}
                         {% elif article.sha_draft =  log.newhexsha %}
-                            Brouillon
+                            {% trans "Brouillon" %}
                         {% endif %}
                     </td>
                     <td>
@@ -118,7 +119,6 @@
                         </a>
                     </td>
                     <td>
-                        {# TODO : proposer les diffs sur les articles #}
                         {# <a href="{% url "zds.article.views.diff" article.pk article.slug %}?sha={{ log.newhexsha }}" > #}
                             {{ log.newhexsha|truncatechars:8 }}
                         {# </a> #}
@@ -128,7 +128,7 @@
                             {% if u %}
                                 {% include "misc/member_item.part.html" with member=u avatar=True %}
                             {% else %}
-                                <em>Inconnu</em>
+                                <em>{% trans "Inconnu" %}</em>
                             {% endif %}
                         {% endwith %}
                     </td>

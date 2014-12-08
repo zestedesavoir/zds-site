@@ -115,23 +115,12 @@
             span {
                 margin-right: 1px;
                 margin-left: 0;
-
-                &.has-vote {
-                    text-indent: 15px;
-                    line-height: 14px;
-                    font-size: 12px;
-                    text-align: right;
-
-                    &.downvote {
-                        line-height: 40px;
-                    }
-                }
             }
         }
         .message-submit {
             display: block !important;
-            width: calc(100% - 16px);
-            margin: 0 8px !important;
+            width: 100%;
+            margin: 0;
 
             button {
                 float: right;
@@ -153,8 +142,43 @@
             left: 0;
             bottom: 0;
             float: none;
-            margin-bottom: 5px;
             margin-left: 0 !important;
+        }
+    }
+    .topic-message {
+        .markdown-help {
+            .markdown-help-more {
+                margin-bottom: 0;
+            }
+
+            .open-markdown-help {
+                position: relative;
+                width: 100%;
+                margin-left: -10px !important;
+                padding-left: 40px;
+
+                &:after {
+                    margin-left: 15px;
+                }
+            }
+
+            .show-markdown-help + .open-markdown-help {
+                margin-top: 0;
+            }
+        }
+    }
+
+
+    .alert-box {
+        .alert-box-btn {
+            &,
+            &.alert-box-btn-right {
+                position: relative;
+                float: none;
+                display: block;
+                margin: 5px 0 0;
+                text-align: center;
+            }
         }
     }
 }

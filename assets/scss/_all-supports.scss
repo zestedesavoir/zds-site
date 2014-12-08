@@ -596,6 +596,11 @@
     margin: 0 0 15px 2%;
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
+    background: #777;
+
+    &.alert-box-not-closable {
+        padding-right: 15px;
+    }
 
     .alert-box-text {
         display: block;
@@ -625,6 +630,13 @@
         top: 8px;
     }
 
+    .alert-box-title {
+        margin: 5px 0;
+        padding: 0;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
     &.info, // TEMP PATCH WITH DJANGO ALERTS
     &.success {
         background: #48A200;
@@ -636,6 +648,12 @@
     &.warning {
         background: #e67e22;
     }
+    &.not-member {
+        background: #FDFDFD;
+        color: #333;
+        text-shadow: none;
+        border-bottom: 3px solid  #D2D5D6;
+    }
 
     &.ico-after {
         padding-left: 40px;
@@ -645,12 +663,45 @@
         }
     }
 
+    h4,
+    p {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    p {
+        margin: 0;
+    }
+
     a {
         color: #EEE;
+    }
+    .alert-box-btn {
+        display: inline-block;
+        background: $primary;
+        text-decoration: none;
+        padding: 8px 15px;
+        margin: 5px 0;
+        color: #FFF !important;
+
+        &:hover,
+        &:focus {
+            background: lighten($primary, 7%);
+        }
+
+        &.alert-box-btn-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+        }
     }
 }
 .content-wrapper .alert-box {
     margin: 0 0 20px;
+
+    & + .not-member {
+        margin-top: -20px;
+    }
 }
 
 
@@ -1588,7 +1639,7 @@
         }
 
         &.unread {
-            .topic-title {
+            .topic-description .topic-title {
                 font-weight: bold;
             }
             background: #FFF;
@@ -1711,6 +1762,7 @@
         .topic-title {
             font-size: 16px;
             font-size: 1.6rem;
+            font-weight: normal;
         }
         .topic-subtitle {
             min-height: 24px;
@@ -2215,6 +2267,27 @@ table {
     &.fullwidth {
         width: 100%;
     }
+
+    &.diff {
+        tbody tr {
+            border-bottom: none;
+            font-family : $font-monospace;
+            background: #FFF;
+            line-height: 1em;
+            .diff_next {
+                display: none;
+            }
+            td.diff_header {
+                padding : 5px;
+            }
+        }
+    }
+}
+
+.diff_delta {
+    overflow: scroll;
+    width: 100%;
+    font-size : 0.9em;
 }
 
 
@@ -2903,6 +2976,7 @@ form.topic-message {
    ============== */
 .markdown-help {
     min-height: 50px;
+    overflow: hidden;
 
     .open-markdown-help {
         float: none !important;
@@ -2929,6 +3003,7 @@ form.topic-message {
         background: #EEE;
         padding: 15px;
         margin-bottom: 5px;
+        border-bottom: 1px solid #CCC;
 
         pre {
             margin: 0;
@@ -2939,6 +3014,14 @@ form.topic-message {
         }
     }
     .show-markdown-help + .open-markdown-help {
+        margin-top: -5px;
+        padding-top: 5px;
+        line-height: 35px;
+
+        &:after {
+            margin-top: 15px !important;
+        }
+
         .close-markdown-help-text {
             display: inline;
         }

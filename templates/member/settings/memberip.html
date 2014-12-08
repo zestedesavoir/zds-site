@@ -1,28 +1,28 @@
 {% extends "member/base.html" %}
 {% load date %}
-
+{% load i18n %}
 
 {% block title %}
-    Membres par IP
+    {% trans "Membres par IP" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>IP</li>
+    <li>{% trans "IP" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Membres par IP : <strong>{{ ip }}</strong>
+    {% trans "Membres par IP" %} : <strong>{{ ip }}</strong>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Liste des membres dont la dernière IP est {{ ip }}
+        {% trans "Liste des membres dont la dernière IP est" %} {{ ip }}
     </p>
     <ul>
         {% for member in members %}
@@ -34,7 +34,7 @@
                 >{% spaceless %}
                 <img src="{{ member.get_avatar_url }}" alt="" class="avatar" itemprop="image">
                 <span itemprop="name">{{ member.user.username }}</span>
-            {% endspaceless %}</a> <span class="info">le {{ member.last_visit|format_date:True }}</span>
+            {% endspaceless %}</a> <span class="info">{% blocktrans with last_visit=member.last_visit|format_date:True %} "le" {{last_visit}} {% endblocktrans %}</span>
             </li>
         {% endfor %}
     </ul>

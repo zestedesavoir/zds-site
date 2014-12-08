@@ -51,10 +51,14 @@ class BigTutorialTests(TestCase):
         self.staff = StaffProfileFactory().user
         self.subcat = SubCategoryFactory()
 
+        ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)
         self.licence = LicenceFactory()
         self.licence.save()
 
-        self.bigtuto = BigTutorialFactory()
+        self.bigtuto = BigTutorialFactory(light=True)
         self.bigtuto.authors.add(self.user_author)
         self.bigtuto.gallery = GalleryFactory()
         self.bigtuto.licence = self.licence
@@ -130,6 +134,79 @@ class BigTutorialTests(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
         mail.outbox = []
+
+    def test_public_tutorial(self):
+        future_tutorial = BigTutorialFactory()
+        future_tutorial.authors.add(self.user_author)
+        future_tutorial.gallery = GalleryFactory()
+        future_tutorial.licence = self.licence
+        future_tutorial.save()
+
+        part1 = PartFactory(tutorial=future_tutorial, position_in_tutorial=1)
+        part2 = PartFactory(tutorial=future_tutorial, position_in_tutorial=2)
+        PartFactory(tutorial=future_tutorial, position_in_tutorial=3)
+
+        ChapterFactory(
+            part=part1,
+            position_in_part=1,
+            position_in_tutorial=1)
+        ChapterFactory(
+            part=part1,
+            position_in_part=2,
+            position_in_tutorial=2)
+        ChapterFactory(
+            part=part1,
+            position_in_part=3,
+            position_in_tutorial=3)
+
+        ChapterFactory(
+            part=part2,
+            position_in_part=1,
+            position_in_tutorial=4)
+        ChapterFactory(
+            part=part2,
+            position_in_part=2,
+            position_in_tutorial=5)
+
+        staff = StaffProfileFactory().user
+
+        login_check = self.client.login(
+            username=staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # ask public tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.ask_validation'),
+            {
+                'tutorial': future_tutorial.pk,
+                'text': u'Ce tuto est excellent',
+                'version': future_tutorial.sha_draft,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # reserve tutorial
+        validation = Validation.objects.get(
+            tutorial__pk=future_tutorial.pk)
+        pub = self.client.post(
+            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+
+        # publish tutorial
+        pub = self.client.post(
+            reverse('zds.tutorial.views.valid_tutorial'),
+            {
+                'tutorial': future_tutorial.pk,
+                'text': u'Ce tuto est excellent',
+                'is_major': True,
+                'source': 'http://zestedesavoir.com',
+            },
+            follow=False)
+        self.assertEqual(pub.status_code, 302)
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_import_archive(self):
         login_check = self.client.login(
@@ -252,13 +329,13 @@ class BigTutorialTests(TestCase):
 
         # check values
         tuto = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
-        self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
-        self.assertEqual(Note.objects.get(pk=1).position, 1)
-        self.assertEqual(Note.objects.get(pk=1).pk, tuto.last_note.pk)
+        first_tuto = Note.objects.first()
+        self.assertEqual(first_tuto.tutorial, tuto)
+        self.assertEqual(first_tuto.author.pk, user1.pk)
+        self.assertEqual(first_tuto.position, 1)
+        self.assertEqual(first_tuto.pk, tuto.last_note.pk)
         self.assertEqual(
-            Note.objects.get(
-                pk=1).text,
+            first_tuto.text,
             u'Histoire de blablater dans les comms du tuto')
 
         # test antispam return 403
@@ -614,6 +691,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 1",
                 'introduction': u"Présentation",
                 'conclusion': u"Fin de la présentation",
+                'msg_commit': u"Initialisation de ma partie 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -640,6 +718,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2",
                 'introduction': u"Analyse",
                 'conclusion': u"Fin de l'analyse",
+                'msg_commit': u"Initialisation de ma partie 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -666,6 +745,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2",
                 'introduction': "Expérimentation",
                 'conclusion': "C'est terminé",
+                'msg_commit': u"Initialisation de ma partie 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -692,6 +772,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre",
                 'conclusion': "Fin de mon premier chapitre",
+                'msg_commit': u"Initialisation du chapitre 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -722,6 +803,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2",
                 'introduction': u"Mon deuxième chapitre",
                 'conclusion': u"Fin de mon deuxième chapitre",
+                'msg_commit': u"Initialisation du chapitre 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -752,6 +834,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2",
                 'introduction': u"Mon troisième chapitre homonyme",
                 'conclusion': u"Fin de mon troisième chapitre",
+                'msg_commit': u"Initialisation du chapitre 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -782,6 +865,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre d'une autre partie",
                 'conclusion': "",
+                'msg_commit': u"Initialisation du chapitre 4"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -810,6 +894,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 1",
                 'text': "Prune",
+                'msg_commit': u"Initialisation de l'extrait 1"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -822,6 +907,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 2",
                 'text': "Citron",
+                'msg_commit': u"Initialisation de l'extrait 2"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -834,6 +920,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 3",
                 'text': "Kiwi",
+                'msg_commit': u"Initialisation de l'extrait 3"
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -913,6 +1000,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
+                'msg_commit': u"Mise à jour de la partie",
                 "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
                                            os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
@@ -929,8 +1017,10 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
-                "last_hash": compute_hash([os.path.join(c3.get_path(), "introduction.md"),
-                                           os.path.join(c3.get_path(), "conclusion.md")])
+                'msg_commit': u"Mise à jour du chapitre",
+                "last_hash": compute_hash([
+                    os.path.join(c3.get_path(), "introduction.md"),
+                    os.path.join(c3.get_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 3 : edition de titre")
@@ -946,6 +1036,7 @@ class BigTutorialTests(TestCase):
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
+                'msg_commit': u"2nd Màj de la partie 2",
                 "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
                                            os.path.join(p2.tutorial.get_path(), p2.conclusion)])
             },
@@ -962,8 +1053,10 @@ class BigTutorialTests(TestCase):
                 'title': u"Chapitre 2 : edition de titre",
                 'introduction': u"Edition d'introduction",
                 'conclusion': u"Edition de conlusion",
-                "last_hash": compute_hash([os.path.join(c2.get_path(), "introduction.md"),
-                                           os.path.join(c2.get_path(), "conclusion.md")])
+                'msg_commit': u"MàJ du chapitre 2",
+                "last_hash": compute_hash([
+                    os.path.join(c2.get_path(), "introduction.md"),
+                    os.path.join(c2.get_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2 : edition de titre")
@@ -2420,10 +2513,15 @@ class MiniTutorialTests(TestCase):
 
         self.subcat = SubCategoryFactory()
 
+        ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+
         self.licence = LicenceFactory()
         self.licence.save()
 
-        self.minituto = MiniTutorialFactory()
+        self.minituto = MiniTutorialFactory(light=True)
         self.minituto.authors.add(self.user_author)
         self.minituto.gallery = GalleryFactory()
         self.minituto.licence = self.licence
@@ -2616,13 +2714,13 @@ class MiniTutorialTests(TestCase):
 
         # check values
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
-        self.assertEqual(Note.objects.get(pk=1).tutorial, tuto)
-        self.assertEqual(Note.objects.get(pk=1).author.pk, user1.pk)
-        self.assertEqual(Note.objects.get(pk=1).position, 1)
-        self.assertEqual(Note.objects.get(pk=1).pk, tuto.last_note.pk)
+        first_note = Note.objects.first()
+        self.assertEqual(first_note.tutorial, tuto)
+        self.assertEqual(first_note.author.pk, user1.pk)
+        self.assertEqual(first_note.position, 1)
+        self.assertEqual(first_note.pk, tuto.last_note.pk)
         self.assertEqual(
-            Note.objects.get(
-                pk=1).text,
+            Note.objects.first().text,
             u'Histoire de blablater dans les comms du tuto')
 
         # test antispam return 403

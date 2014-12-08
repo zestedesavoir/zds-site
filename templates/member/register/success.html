@@ -1,27 +1,27 @@
 {% extends "member/register/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Création du compte réussie
+    {% trans "Création du compte réussie" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Création du compte réussie
+    {% trans "Création du compte réussie" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Création du compte réussie</li>
+    <li>{% trans "Création du compte réussie" %}</li>
 {% endblock %}
 
 
 
 {% block content %}
     <p>
-        Votre compte a été créé avec succès. Vous allez recevoir un courriel contenant un lien d'activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion.
+        {% trans "Votre compte a été créé avec succès. Vous allez recevoir un courriel contenant un lien d'activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion" %}.
     </p>
 {% endblock %}

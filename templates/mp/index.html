@@ -1,23 +1,24 @@
 {% extends "mp/base.html" %}
 {% load date %}
 {% load profile %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Liste des conversations
+    {% trans "Liste des conversations" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Liste des conversations</li>
+    <li>{% trans "Liste des conversations" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-   Liste des conversations
+   {% trans "Liste des conversations" %}
 {% endblock %}
 
 
@@ -32,13 +33,13 @@
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
                         <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
-                            {% if topic.never_read %}<span class="a11y">Non-lu :</span>{% endif %}
+                            {% if topic.never_read %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">Participant{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
+                            <span class="topic-members-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
@@ -51,7 +52,7 @@
                 {% endwith %}
                 <p class="topic-answers {% if topic.get_post_count <= 1 %}topic-no-answer{% endif %}">
                     {% if topic.get_post_count > 1 %}
-                            {{ topic.get_post_count|add:"-1" }} réponse{{ topic.get_post_count|add:"-1"|pluralize }}
+                        {{ topic.get_post_count|add:"-1" }} {% trans "réponse" %}{{ topic.get_post_count|add:"-1"|pluralize }}
                     {% endif %}
                 </p>
                 <p class="topic-last-answer">
@@ -59,7 +60,7 @@
                         {% if answer %}
                             <a href="{{ answer.get_absolute_url }}">
                                 <span class="topic-last-answer-long-date">
-                                    Dernière réponse <br>
+                                    {% trans "Dernière réponse" %} <br>
                                     {{ answer.pubdate|format_date }}
                                 </span>
                                 <span class="topic-last-answer-short-date">
@@ -68,11 +69,11 @@
                             </a>
                             <br>
                             <span class="topic-last-answer-author">
-                                par
+                                {% trans "par" %}
                                 {% include "misc/member_item.part.html" with member=answer.author %}
                             </span>
                         {% else %}
-                            <span class="topic-no-last-answer">Aucune réponse</span>
+                            <span class="topic-no-last-answer">{% trans "Aucune réponse" %}</span>
                         {% endif %}
                     {% endwith %}
                 </p>
@@ -87,20 +88,20 @@
 
 {% block sidebar_actions %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-        <h3>Actions</h3>
+        <h3>{% trans "Actions" %}</h3>
         <ul>
             <li>
                 <a href="#delete-conversations" class="open-modal ico-after cross red">
-                    Supprimer les conversations sélectionnées
+                    {% trans "Supprimer les conversations sélectionnées" %}
                 </a>
                 
                 <form action="{% url "zds.mp.views.index" %}" method="post" id="delete-conversations" class="modal modal-small">
                     <p>
-                        Attention, vous vous appretez à supprimer toutes les conversations sélectionnées.
+                        {% trans "Attention, vous vous appretez à supprimer toutes les conversations sélectionnées" %}.
                     </p>
                     
                     {% csrf_token %}
-                    <button type="submit" name="delete" class="btn">Confirmer</button>
+                    <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
                 </form>
             </li>
         </ul>

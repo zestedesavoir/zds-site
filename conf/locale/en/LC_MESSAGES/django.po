@@ -1,0 +1,4795 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-01 16:34+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/403.html:6 templates/403.html.py:12 templates/403.html.py:18
+msgid "Erreur 403"
+msgstr ""
+
+#: templates/403.html:31
+msgid "Vous n'avez pas les droits suffisants pour accéder à cette page"
+msgstr ""
+
+#: templates/404.html:6 templates/404.html.py:12 templates/404.html.py:18
+msgid "Erreur 404"
+msgstr ""
+
+#: templates/404.html:31
+msgid "Il semblerait que ce que vous cherchiez ne se trouve plus ici"
+msgstr ""
+
+#: templates/500.html:6 templates/500.html.py:12 templates/500.html.py:18
+msgid "Erreur 500"
+msgstr ""
+
+#: templates/500.html:31
+#, python-format
+msgid ""
+"\n"
+"        Si vous voyez cette page, c'est que vous avez trouvé un bug. Merci\n"
+"        de rapporter cette erreur en expliquant comment vous avez procédé\n"
+"        pour tomber sur cette page en créant un sujet sur\n"
+"        <a href=\"%(url_forum)s\">le forum Bugs et Suggestions.</a>Merci de "
+"votre aide\n"
+"        "
+msgstr ""
+
+#: templates/500.html:39
+#, python-format
+msgid ""
+"\n"
+"        Si vous êtes curieux, voici une <a href=\"%(url_bugtracker)s\">liste "
+"des sujets ouverts à ce propos</a> sur le bug tracker public de "
+"l'association\n"
+"        "
+msgstr ""
+
+#: templates/base.html:122
+msgid "Aller au menu"
+msgstr ""
+
+#: templates/base.html:125
+msgid "Aller au contenu"
+msgstr ""
+
+#: templates/base.html:128
+msgid "Aller à la recherche"
+msgstr ""
+
+#: templates/base.html:134
+msgid ""
+"Ce site utilise Google Analytics. En poursuivant votre navigation sur ce "
+"site, vous nous autorisez à déposer des cookies à des fins de mesure "
+"d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer"
+msgstr ""
+
+#: templates/base.html:136
+msgid "ici"
+msgstr ""
+
+#: templates/base.html:137
+msgid "En savoir plus"
+msgstr ""
+
+#: templates/base.html:138 templates/base.html.py:474 templates/home.html:72
+msgid "OK"
+msgstr ""
+
+#: templates/base.html:174 templates/member/profile.html:295
+#: templates/tutorial/base.html:7 templates/tutorial/base.html.py:13
+#: templates/tutorial/base.html:24 templates/tutorial/base_online.html:8
+#: templates/tutorial/base_online.html:24 templates/tutorial/index.html:42
+#: templates/tutorial/extract/new.html:7
+msgid "Tutoriels"
+msgstr ""
+
+#: templates/base.html:178 templates/tutorial/index.html:10
+#: templates/tutorial/index.html.py:31 templates/tutorial/index.html:44
+msgid "Tous les tutoriels"
+msgstr ""
+
+#: templates/base.html:205 templates/article/base.html:6
+#: templates/article/base.html.py:12 templates/article/base.html:20
+#: templates/article/base_content.html:6
+#: templates/article/base_content.html:12
+#: templates/article/base_content.html:20 templates/article/index.html:40
+#: templates/article/member/edit.html:10 templates/article/member/edit.html:19
+#: templates/article/member/history.html:18
+#: templates/article/member/index.html:6 templates/article/member/new.html:9
+#: templates/article/member/view.html:12 templates/article/member/view.html:21
+msgid "Articles"
+msgstr ""
+
+#: templates/base.html:210 templates/forum/base.html:11
+#: templates/forum/base.html.py:17 templates/forum/base.html:25
+#: templates/member/profile.html:393
+msgid "Forums"
+msgstr ""
+
+#: templates/base.html:214
+msgid "Tous les forums"
+msgstr ""
+
+#: templates/base.html:235
+msgid "Tags les plus utilisés"
+msgstr ""
+
+#: templates/base.html:264 templates/base.html.py:268
+msgid "Messagerie privée"
+msgstr ""
+
+#: templates/base.html:290
+msgid "Aucun nouveau message"
+msgstr ""
+
+#: templates/base.html:295
+msgid "Tous les messages"
+msgstr ""
+
+#: templates/base.html:309 templates/base.html.py:313
+msgid "Notifications"
+msgstr ""
+
+#: templates/base.html:331
+msgid "Aucune notification"
+msgstr ""
+
+#: templates/base.html:336
+msgid "Toutes les notifications"
+msgstr ""
+
+#: templates/base.html:347
+msgid "Alertes"
+msgstr ""
+
+#: templates/base.html:354
+msgid "Alertes Modération"
+msgstr ""
+
+#: templates/base.html:366
+msgid "Aucune alerte"
+msgstr ""
+
+#: templates/base.html:371
+msgid "Toutes les alertes"
+msgstr ""
+
+#: templates/base.html:382 templates/member/settings/account.html:13
+msgid "Mon Compte"
+msgstr ""
+
+#: templates/base.html:392 templates/base.html.py:393
+#: templates/member/settings/account.html:7
+#: templates/member/settings/account.html:19
+#: templates/member/settings/base.html:29
+msgid "Mon compte"
+msgstr ""
+
+#: templates/base.html:409 templates/member/settings/base.html:28
+#: templates/member/settings/profile.html:7
+#: templates/member/settings/profile.html:13
+#: templates/member/settings/profile.html:19
+msgid "Mon profil"
+msgstr ""
+
+#: templates/base.html:412 templates/tutorial/base.html:20
+#: templates/tutorial/member/index.html:7
+#: templates/tutorial/member/index.html:22
+#: templates/tutorial/member/index.html:47
+msgid "Mes tutoriels"
+msgstr ""
+
+#: templates/base.html:415 templates/article/member/edit.html:17
+#: templates/article/member/history.html:16
+#: templates/article/member/index.html:12 templates/article/member/new.html:15
+#: templates/article/member/view.html:19
+msgid "Mes articles"
+msgstr ""
+
+#: templates/base.html:418
+msgid "Galeries d'images"
+msgstr ""
+
+#: templates/base.html:421 templates/member/profile.html:195
+#: templates/member/settings/base.html:6
+#: templates/member/settings/base.html:12
+#: templates/member/settings/base.html:18
+msgid "Paramètres"
+msgstr ""
+
+#: templates/base.html:426 templates/tutorial/validation/index.html:28
+msgid "Validation des tutoriels"
+msgstr ""
+
+#: templates/base.html:432 templates/article/validation/index.html:51
+msgid "Validation des articles"
+msgstr ""
+
+#: templates/base.html:441
+msgid "Déconnexion"
+msgstr ""
+
+#: templates/base.html:450 templates/member/login.html:7
+#: templates/member/login.html.py:19 templates/member/login.html:26
+msgid "Connexion"
+msgstr ""
+
+#: templates/base.html:451 templates/member/register/index.html:7
+#: templates/member/register/index.html:13
+#: templates/member/register/index.html:19
+#: templates/member/register/token_already_used.html:18
+#: templates/member/register/token_failed.html:18
+#: templates/member/register/token_success.html:16
+msgid "Inscription"
+msgstr ""
+
+#: templates/base.html:464
+msgid "Accueil"
+msgstr ""
+
+#: templates/base.html:494
+msgid "Masquer l'alerte"
+msgstr ""
+
+#: templates/base.html:532 templates/article/member/history.html:94
+#: templates/tutorial/tutorial/history.html:50
+msgid "Version"
+msgstr ""
+
+#: templates/base.html:536 templates/pages/index.html:25
+msgid "CGU"
+msgstr ""
+
+#: templates/base.html:537 templates/pages/about.html:6
+#: templates/pages/about.html.py:12 templates/pages/about.html:18
+#: templates/pages/index.html:26
+msgid "À propos"
+msgstr ""
+
+#: templates/base.html:539 templates/pages/association.html:6
+#: templates/pages/association.html:12 templates/pages/association.html:18
+#: templates/pages/contact.html:31 templates/pages/index.html:28
+msgid "L'association"
+msgstr ""
+
+#: templates/base.html:542 templates/pages/index.html:30
+msgid "Adhérer"
+msgstr ""
+
+#: templates/base.html:544 templates/pages/contact.html:6
+#: templates/pages/contact.html.py:12 templates/pages/contact.html:18
+#: templates/pages/index.html:31
+msgid "Contact"
+msgstr ""
+
+#: templates/home.html:42
+#, python-format
+msgid ""
+"\n"
+"                        %(site_name)s est un site de <strong>partage de "
+"connaissances</strong> sur lequel vous trouverez des <a href="
+"\"%(url_tutorials)s\">tutoriels de tous niveaux</a>, des <a "
+"href='%(url_articles)s'>articles</a> et des <a href='%(url_forums)s'>forums "
+"d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, "
+"pour l'instant, l'informatique et les sciences, mais nous n'attendons que "
+"vous pour élargir les domaines présentés !\n"
+"                    "
+msgstr ""
+
+#: templates/home.html:47
+msgid ""
+"\n"
+"                        Tous les membres peuvent écrire et <strong>publier "
+"des tutoriels et articles sur le site</strong>. Pour assurer la qualité et "
+"la pédagogie du contenu, l'équipe du site valide chaque cours avant "
+"publication.\n"
+"                    "
+msgstr ""
+
+#: templates/home.html:53
+#, python-format
+msgid ""
+"\n"
+"                        Tout cela est <strong>entièrement gratuit et garanti "
+"sans publicité</strong>, le site est géré et financé par une <a href="
+"\"%(url_association)s\">association</a> à but non lucratif.\n"
+"                    "
+msgstr ""
+
+#: templates/home.html:68
+msgid "Tu cherches quelque chose"
+msgstr ""
+
+#: templates/home.html:71
+msgid "Lancer la recherche"
+msgstr ""
+
+#: templates/home.html:83 templates/member/profile.html:123
+#: templates/member/profile.html.py:270
+msgid "Derniers articles"
+msgstr ""
+
+#: templates/home.html:112 templates/article/view.html:128
+#: templates/article/includes/article_item.part.html:38
+msgid "Aucune réaction"
+msgstr ""
+
+#: templates/home.html:114 templates/article/view.html:126
+msgid "réaction"
+msgstr ""
+
+#: templates/home.html:129 templates/member/profile.html:115
+#: templates/member/profile.html.py:263
+msgid "Derniers tutoriels"
+msgstr ""
+
+#: templates/home.html:144
+msgid "Catégories de tutoriels"
+msgstr ""
+
+#: templates/home.html:146 templates/article/validation/index.html:76
+#: templates/tutorial/validation/index.html:65
+msgid "Catégories"
+msgstr ""
+
+#: templates/home.html:146
+msgid "de tutoriels"
+msgstr ""
+
+#: templates/article/find.html:10 templates/article/find.html.py:16
+msgid "Articles rédigés par"
+msgstr ""
+
+#: templates/article/find.html:32
+msgid "Articles rédigés"
+msgstr ""
+
+#: templates/article/find.html:35
+msgid "Liste des articles rédigés par"
+msgstr ""
+
+#: templates/article/index.html:9 templates/article/index.html.py:29
+#: templates/article/index.html:42
+msgid "Tous les articles"
+msgstr ""
+
+#: templates/article/index.html:17
+msgid "Articles de la communauté à propos de"
+msgstr ""
+
+#: templates/article/index.html:17
+msgid ""
+"Vous pourrez également découvrir de nouvelles notions en parcourant les "
+"autres catégories"
+msgstr ""
+
+#: templates/article/index.html:19
+msgid ""
+"Les articles sont rédigés par la communauté. Ils permettent aussi bien de se "
+"tenir informé des dernières innovations du moment que de découvrir de "
+"nouvelles notions liées à différents domaines : sciences, informatiques"
+msgstr ""
+
+#: templates/article/index.html:58 templates/article/member/index.html:104
+msgid "Aucun article disponible"
+msgstr ""
+
+#: templates/article/view.html:85
+msgid "Publié "
+msgstr ""
+
+#: templates/article/view.html:92 templates/article/member/history.html:75
+#: templates/article/member/view.html:85
+#: templates/article/validation/history.html:46
+msgid "Contributeur"
+msgstr ""
+
+#: templates/article/view.html:188
+#: templates/article/includes/sidebar_actions.part.html:102
+#: templates/article/member/history.html:106
+#: templates/article/validation/history.html:15
+#: templates/article/validation/index.html:14
+#: templates/tutorial/tutorial/history.html:61
+#: templates/tutorial/tutorial/view.html:346
+#: templates/tutorial/validation/history.html:15
+#: templates/tutorial/validation/index.html:8
+#: templates/tutorial/validation/index.html:19
+msgid "Validation"
+msgstr ""
+
+#: templates/article/view.html:192 templates/article/view.html.py:224
+msgid "Version hors ligne"
+msgstr ""
+
+#: templates/article/view.html:196
+#: templates/article/includes/sidebar_actions.part.html:187
+#: templates/tutorial/tutorial/view.html:368
+#: templates/tutorial/tutorial/view_online.html:186
+msgid "Dépublier"
+msgstr ""
+
+#: templates/article/view.html:199
+#: templates/article/includes/sidebar_actions.part.html:190
+msgid ""
+"\n"
+"                                <strong>Attention !</strong> Vous allez "
+"dépublier un article actuellement <strong>en ligne</strong>.\n"
+"                            "
+msgstr ""
+
+#: templates/article/view.html:204
+#: templates/article/includes/sidebar_actions.part.html:25
+#: templates/article/includes/sidebar_actions.part.html:91
+#: templates/article/includes/sidebar_actions.part.html:150
+#: templates/article/includes/sidebar_actions.part.html:161
+#: templates/article/includes/sidebar_actions.part.html:177
+#: templates/article/includes/sidebar_actions.part.html:195
+#: templates/article/includes/sidebar_actions.part.html:227
+#: templates/gallery/gallery/list.html:89 templates/member/profile.html:176
+#: templates/member/profile.html.py:456 templates/member/profile.html:471
+#: templates/member/profile.html.py:489 templates/member/profile.html:510
+#: templates/member/profile.html.py:525 templates/member/profile.html:541
+#: templates/misc/message.part.html:66 templates/misc/message.part.html:129
+#: templates/misc/validation.part.html:40 templates/mp/index.html:104
+#: templates/mp/topic/index.html:126 templates/tutorial/chapter/view.html:168
+#: templates/tutorial/includes/chapter.part.html:46
+#: templates/tutorial/part/view.html:196
+#: templates/tutorial/tutorial/history.html:110
+#: templates/tutorial/tutorial/history.html:129
+#: templates/tutorial/tutorial/view.html:186
+#: templates/tutorial/tutorial/view.html:250
+#: templates/tutorial/tutorial/view.html:279
+#: templates/tutorial/tutorial/view.html:305
+#: templates/tutorial/tutorial/view.html:377
+#: templates/tutorial/tutorial/view.html:428
+#: templates/tutorial/tutorial/view.html:458
+#: templates/tutorial/tutorial/view_online.html:194 zds/tutorial/forms.py:509
+msgid "Confirmer"
+msgstr ""
+
+#: templates/article/view.html:213
+#: templates/article/includes/sidebar_actions.part.html:106
+#: templates/article/validation/history.html:29
+#: templates/tutorial/validation/history.html:9
+#: templates/tutorial/validation/history.html:28
+msgid "Historique de validation"
+msgstr ""
+
+#: templates/article/view.html:220
+#: templates/article/includes/sidebar_actions.part.html:14
+msgid "Gestion"
+msgstr ""
+
+#: templates/article/view.html:232
+#: templates/article/includes/sidebar_actions.part.html:243
+#: templates/tutorial/base.html:59
+msgid "Télécharger"
+msgstr ""
+
+#: templates/article/view.html:238
+#: templates/article/includes/sidebar_actions.part.html:247
+#: templates/tutorial/base.html:96
+msgid "Archive"
+msgstr ""
+
+#: templates/article/includes/article_item.part.html:44
+#: templates/article/member/index.html:21
+#: templates/article/member/index.html:36
+#: templates/article/member/index.html:49
+#: templates/article/member/index.html:73 templates/member/profile.html:317
+#: templates/member/profile.html.py:334 templates/member/profile.html:364
+#: templates/member/profile.html.py:377
+#: templates/tutorial/member/index.html:11
+#: templates/tutorial/member/index.html:31
+#: templates/tutorial/member/index.html:51
+#: templates/tutorial/member/index.html:122 zds/tutorial/views.py:490
+msgid "En validation"
+msgstr ""
+
+#: templates/article/includes/article_item.part.html:46
+#: templates/article/member/history.html:110
+msgid "Brouillon"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:5
+#: templates/article/member/edit.html:26 templates/article/member/edit.html:33
+#: templates/misc/message.part.html:77
+#: templates/tutorial/includes/chapter.part.html:90
+#: templates/tutorial/tutorial/view.html:163
+msgid "Éditer"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:9
+#: templates/tutorial/tutorial/view.html:167
+msgid "Version brouillon"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:18
+#: templates/article/member/view.html:94
+#: templates/tutorial/includes/tags_authors.part.html:39
+#: templates/tutorial/tutorial/view.html:179
+msgid "Ajouter un auteur"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:30
+#: templates/tutorial/tutorial/view.html:192
+msgid "Gérer les auteurs"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:34
+#: templates/article/member/history.html:96 templates/pages/alerts.html:29
+#: templates/tutorial/includes/tags_authors.part.html:28
+#: templates/tutorial/tutorial/history.html:52
+#: templates/tutorial/tutorial/view.html:197
+msgid "Auteur"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:35
+#: templates/forum/base.html:54 templates/gallery/gallery/details.html:123
+#: templates/gallery/gallery/list.html:76 templates/gallery/image/edit.html:68
+#: templates/gallery/image/new.html:35 templates/member/profile.html:161
+#: templates/member/profile.html.py:210 templates/member/profile.html:211
+#: templates/mp/index.html:91 templates/mp/post/edit.html:53
+#: templates/mp/topic/index.html:95 templates/tutorial/base.html:48
+#: templates/tutorial/tutorial/import.html:64
+#: templates/tutorial/tutorial/view.html:198
+msgid "Actions"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:44
+#: templates/article/includes/sidebar_actions.part.html:211
+#: templates/article/includes/sidebar_actions.part.html:215
+#: templates/member/profile.html:169
+#: templates/tutorial/includes/chapter.part.html:36
+#: templates/tutorial/tutorial/view.html:207
+msgid "Supprimer"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:47
+#: templates/tutorial/tutorial/view.html:210
+msgid "Vous êtes seul"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:60
+msgid "Voir <span class=\"wide\">la version</span> en ligne</a>"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:64
+#: templates/tutorial/tutorial/view.html:313
+msgid "Historique des versions"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:70
+#: templates/tutorial/tutorial/view.html:320
+msgid "Demander la validation"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:76
+#: templates/tutorial/tutorial/view.html:327
+msgid "Mettre à jour la version en validation"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:81
+#: templates/tutorial/tutorial/view.html:332
+msgid "En attente de validation"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:113
+#: templates/tutorial/tutorial/view.html:357
+msgid "Envoyer un MP"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:115
+#: templates/tutorial/tutorial/view.html:359
+msgid "aux auteurs"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:117
+msgid "à l'auteur"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:128
+#: templates/misc/validation.part.html:14
+#: templates/tutorial/tutorial/view.html:389
+msgid "Réserver"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:138
+#: templates/misc/validation.part.html:29
+#: templates/tutorial/tutorial/view.html:399
+msgid "Annuler la réservation"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:143
+#: zds/tutorial/forms.py:552
+msgid "Publier"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:154
+#: templates/tutorial/tutorial/view.html:410 zds/tutorial/forms.py:581
+msgid "Rejeter"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:167
+#, python-format
+msgid ""
+"\n"
+"                                    Réservé par <strong>"
+"%(validation.validator.username)s</strong>, le retirer\n"
+"                                "
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:174
+msgid "La validation de cet article est actuellement réservé par"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:174
+#: templates/tutorial/tutorial/view.html:425
+msgid "Êtes-vous certains de vouloir le retirer"
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:218
+#, python-format
+msgid ""
+"\n"
+"                                Vous vous apprêtez à supprimer "
+"<strong>définitivement</strong> l'article \"<em>%(article_title)s</em>\".\n"
+"                            "
+msgstr ""
+
+#: templates/article/includes/sidebar_actions.part.html:233
+#: templates/tutorial/tutorial/view.html:465
+msgid "Impossible, car publié"
+msgstr ""
+
+#: templates/article/includes/sidebar_base.html:6
+#: templates/article/member/index.html:60 templates/article/member/new.html:21
+#: templates/article/member/new.html:27 templates/article/member/new.html:33
+msgid "Nouvel article"
+msgstr ""
+
+#: templates/article/includes/sidebar_base.html:10
+#: templates/forum/includes/feed.part.html:3 templates/tutorial/index.html:92
+msgid "Flux"
+msgstr ""
+
+#: templates/article/includes/sidebar_base.html:14
+msgid "Nouveaux articles (RSS)"
+msgstr ""
+
+#: templates/article/includes/sidebar_base.html:19
+msgid "Nouveaux articles (ATOM)"
+msgstr ""
+
+#: templates/article/member/edit.html:39
+msgid "Éditer l'article"
+msgstr ""
+
+#: templates/article/member/edit.html:53
+msgid ""
+"\n"
+"            <strong>Cet article est actuellement en ligne !</strong> "
+"Veuillez être particulièrement prudent au niveau des changements que vous "
+"apportez à celui-ci.\n"
+"            Vous pouvez modifier la forme de celui-ci, mais évitez d'en "
+"modifier le fond !\n"
+"            "
+msgstr ""
+
+#: templates/article/member/history.html:9
+#: templates/article/member/history.html:42
+#: templates/tutorial/tutorial/history.html:9
+#: templates/tutorial/tutorial/history.html:26
+msgid "Historique de"
+msgstr ""
+
+#: templates/article/member/history.html:26
+#: templates/tutorial/tutorial/history.html:16
+msgid "Historique des modifications"
+msgstr ""
+
+#: templates/article/member/history.html:68
+#: templates/article/member/view.html:77
+msgid "Publié"
+msgstr ""
+
+#: templates/article/member/history.html:92
+msgid "Visbilité"
+msgstr ""
+
+#: templates/article/member/history.html:93 templates/pages/alerts.html:30
+#: templates/tutorial/tutorial/history.html:49
+msgid "Date"
+msgstr ""
+
+#: templates/article/member/history.html:95
+#: templates/tutorial/tutorial/history.html:51
+msgid "Diff"
+msgstr ""
+
+#: templates/article/member/history.html:104
+msgid "Publique"
+msgstr ""
+
+#: templates/article/member/history.html:108
+#: templates/tutorial/tutorial/history.html:64
+msgid "Beta"
+msgstr ""
+
+#: templates/article/member/history.html:131
+#: templates/tutorial/tutorial/history.html:88
+msgid "Inconnu"
+msgstr ""
+
+#: templates/article/member/index.html:19
+#: templates/article/member/index.html:34
+#: templates/article/member/index.html:47
+#: templates/article/member/index.html:68
+#: templates/tutorial/member/index.html:9
+#: templates/tutorial/member/index.html:29
+#: templates/tutorial/member/index.html:49
+#: templates/tutorial/member/index.html:117
+msgid "Publiés"
+msgstr ""
+
+#: templates/article/member/index.html:23
+#: templates/article/member/index.html:38
+#: templates/article/member/index.html:51
+#: templates/article/member/index.html:78
+#: templates/tutorial/member/index.html:15
+#: templates/tutorial/member/index.html:35
+#: templates/tutorial/member/index.html:55
+#: templates/tutorial/member/index.html:132
+msgid "Brouillons"
+msgstr ""
+
+#: templates/article/member/index.html:25
+msgid "Tous mes articles"
+msgstr ""
+
+#: templates/article/member/index.html:32
+#: templates/article/member/index.html:45
+msgid "Mes Articles"
+msgstr ""
+
+#: templates/article/member/index.html:64
+#: templates/article/validation/index.html:22
+#: templates/forum/category/forum.html:107
+#: templates/tutorial/member/index.html:113
+#: templates/tutorial/validation/index.html:109
+msgid "Filtres"
+msgstr ""
+
+#: templates/article/member/index.html:84
+#: templates/article/validation/index.html:37
+#: templates/forum/category/forum.html:135
+#: templates/tutorial/member/index.html:139
+#: templates/tutorial/validation/index.html:124
+msgid "Annuler le filtre"
+msgstr ""
+
+#: templates/article/member/view.html:105
+msgid "Cet article est en attente d'un validateur"
+msgstr ""
+
+#: templates/article/member/view.html:109
+msgid "L'article est en cours de validation par"
+msgstr ""
+
+#: templates/article/member/view.html:116
+#: templates/tutorial/tutorial/view.html:64
+msgid "Le message suivant a été laissé à destination des validateurs"
+msgstr ""
+
+#: templates/article/member/view.html:128
+#: templates/article/member/view.html:134
+msgid "Une autre version de cet article"
+msgstr ""
+
+#: templates/article/member/view.html:129
+#: templates/tutorial/tutorial/view.html:77
+msgid "est en attente d'un validateur"
+msgstr ""
+
+#: templates/article/member/view.html:135
+#: templates/tutorial/tutorial/view.html:83
+msgid "est en cours de validation par"
+msgstr ""
+
+#: templates/article/reaction/edit.html:8
+#: templates/article/reaction/edit.html:15
+msgid "Éditer une réponse"
+msgstr ""
+
+#: templates/article/reaction/edit.html:21
+msgid "Éditer une réponse à l'article"
+msgstr ""
+
+#: templates/article/reaction/new.html:8
+#: templates/article/reaction/new.html:15
+#: templates/article/reaction/new.html:21
+msgid "Répondre à l'article"
+msgstr ""
+
+#: templates/article/reaction/new.html:29
+msgid ""
+"\n"
+"                <strong>Au moins un nouveau message a été posté</strong> "
+"dans la discussion\n"
+"            pendant que vous rédigiez le votre.\n"
+"            "
+msgstr ""
+
+#: templates/article/validation/history.html:9
+msgid "Historique de validation de l'article"
+msgstr ""
+
+#: templates/article/validation/history.html:17
+#: templates/tutorial/tutorial/diff.html:16
+#: templates/tutorial/validation/history.html:17
+msgid "Historique"
+msgstr ""
+
+#: templates/article/validation/history.html:60
+#: templates/article/validation/index.html:63
+#: templates/tutorial/validation/history.html:40
+msgid "Proposé"
+msgstr ""
+
+#: templates/article/validation/history.html:61
+#: templates/article/validation/index.html:64
+#: templates/tutorial/validation/history.html:41
+#: templates/tutorial/validation/index.html:53
+msgid "Statut"
+msgstr ""
+
+#: templates/article/validation/history.html:72
+#: templates/tutorial/validation/history.html:52
+msgid "Message laissé à la validation"
+msgstr ""
+
+#: templates/article/validation/history.html:93
+#: templates/tutorial/validation/index.html:97
+msgid "Aucun tutoriel soumis en validation"
+msgstr ""
+
+#: templates/article/validation/index.html:8
+msgid "Liste des articles soumis en validation"
+msgstr ""
+
+#: templates/article/validation/index.html:15
+msgid "Liste des articles"
+msgstr ""
+
+#: templates/article/validation/index.html:26
+#: templates/tutorial/validation/index.html:113
+msgid "En cours de validation"
+msgstr ""
+
+#: templates/article/validation/index.html:31
+#: templates/tutorial/validation/index.html:118
+msgid "En attente de validateur"
+msgstr ""
+
+#: templates/article/validation/index.html:61
+#: templates/tutorial/validation/index.html:50 zds/article/forms.py:18
+#: zds/forum/forms.py:19 zds/gallery/forms.py:19 zds/gallery/forms.py:110
+#: zds/mp/forms.py:25 zds/tutorial/forms.py:20
+msgid "Titre"
+msgstr ""
+
+#: templates/article/validation/index.html:62
+#: templates/tutorial/validation/index.html:51
+msgid "Auteur(s)"
+msgstr ""
+
+#: templates/article/validation/index.html:85
+#: templates/tutorial/member/index.html:81
+#: templates/tutorial/validation/index.html:74
+msgid "Aucune catégorie"
+msgstr ""
+
+#: templates/article/validation/index.html:108
+msgid "Aucun article soumis en validation"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:8
+msgid "Bonjour, membres du CA"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:12
+#, python-format
+msgid ""
+"\n"
+"        Le membre %(username)s souhaiterait adhérer à %(asso_name)s.\n"
+"        "
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:17
+#: templates/email/assoc/subscribe.txt:8
+msgid "Identité"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:18
+#: templates/email/assoc/subscribe.txt:9 zds/member/forms.py:95
+#: zds/pages/forms.py:23
+msgid "Adresse courriel"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:19
+#: templates/email/assoc/subscribe.txt:10 zds/pages/forms.py:28
+msgid "Date de naissance"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:20
+#: templates/email/assoc/subscribe.txt:11 zds/pages/forms.py:33
+msgid "Adresse"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:23
+#: templates/email/assoc/subscribe.txt:13
+msgid "Raison de cette demande"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:29
+msgid "Cliquez ici pour voir son profil sur le site"
+msgstr ""
+
+#: templates/email/assoc/subscribe.html:32
+#: templates/email/forgot_password/confirm.html:23
+#: templates/email/mp/new.html:17 templates/email/notification/new.html:17
+msgid "Cordialement"
+msgstr ""
+
+#: templates/email/assoc/subscribe.txt:2
+msgid "Bonjour, membres du CA !"
+msgstr ""
+
+#: templates/email/assoc/subscribe.txt:4
+#, python-format
+msgid ""
+"\n"
+"Le membre %(username)s demande à adhérer à %(asso_name)s !\n"
+msgstr ""
+
+#: templates/email/assoc/subscribe.txt:16
+msgid "Lien du profil sur le site"
+msgstr ""
+
+#: templates/email/assoc/subscribe.txt:18
+msgid "Cordialement,"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:7
+#: templates/email/forgot_password/confirm.txt:2 templates/email/mp/new.html:7
+#: templates/email/mp/new.txt:2 templates/email/notification/new.html:7
+#: templates/email/notification/new.txt:2
+#: templates/email/register/confirm.html:7
+#: templates/email/register/confirm.txt:2
+msgid "Bonjour"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:10
+#: templates/email/forgot_password/confirm.txt:4
+msgid ""
+"Vous recevez ce message parce qu'une réinitialisation du mot de passe de "
+"votre compte utilisateur a été demandée sur"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:14
+msgid "ATTENTION"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:16
+msgid ""
+"Si vous n'avez pas demandé une réinitialisation du mot de passe, IGNOREZ et "
+"EFFACEZ ce courriel immédiatement ! Continuez uniquement si vous souhaitez "
+"que votre mot de passe soit réinitialisé !"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:19
+msgid ""
+"Cliquez ou recopiez simplement le lien et complétez le reste du formulaire"
+msgstr ""
+
+#: templates/email/forgot_password/confirm.html:25
+#: templates/email/mp/new.html:19 templates/email/notification/new.html:19
+msgid "L'équipe"
+msgstr ""
+
+#: templates/email/mp/new.html:10 templates/email/mp/new.txt:4
+msgid "vous a envoyé un message privé sur"
+msgstr ""
+
+#: templates/email/mp/new.html:13 templates/email/notification/new.html:13
+msgid "Pour le lire"
+msgstr ""
+
+#: templates/email/mp/new.html:13 templates/email/notification/new.html:13
+msgid "cliquez ici"
+msgstr ""
+
+#: templates/email/mp/new.txt:6 templates/email/notification/new.txt:6
+msgid "Pour le lire, cliquez ou recopiez l'url suivante"
+msgstr ""
+
+#: templates/email/notification/new.html:10
+#: templates/email/notification/new.txt:4
+msgid "a répondu au sujet"
+msgstr ""
+
+#: templates/email/notification/new.html:10
+#: templates/email/notification/new.txt:4
+msgid "que vous suivez sur"
+msgstr ""
+
+#: templates/email/register/confirm.html:11
+#, python-format
+msgid ""
+"\n"
+"        Vous vous &ecirc;tes inscrit sur <a href=\"%(site_url)s\">"
+"%(site_name)s</a> et nous vous en remercions.\n"
+"        En &eacute;tant membre de notre communaut&eacute;, vous aurez la "
+"possibilit&eacute; de r&eacute;diger des tutoriels et des articles\n"
+"        que vous pourrez ensuite publier et ainsi de rendre vos "
+"connaissances accessibles au plus grand nombre.\n"
+"        Vous pourrez &eacute;galement &eacute;changer avec les autres "
+"membres sur nos forums !\n"
+"        <br />\n"
+"        Il ne vous reste plus qu'&agrave; activer votre profil ! Pour ce "
+"faire, visitez le lien ci-dessous :\n"
+"        <br />\n"
+"        <a href=\"%(url)s\">%(url)s</a>\n"
+"        <br />\n"
+"        <br />\n"
+"        A tr&egrave;s bient&ocirc;t !\n"
+"        <br />\n"
+"        L'&eacute;quipe %(site_name)s\n"
+"        "
+msgstr ""
+
+#: templates/email/register/confirm.txt:4
+#, python-format
+msgid ""
+"\n"
+"Vous vous êtes inscrit sur %(site_name)s et nous vous en remercions. En "
+"étant membre de notre communauté, vous aurez la possibilité de rédiger des "
+"tutoriels et des articles que vous pourrez ensuite publier et ainsi rendre "
+"votre savoir accessible au plus grand nombre. Vous pourrez également "
+"échanger avec les autres membres sur nos forums !\n"
+"\n"
+"Il ne vous reste plus qu'à activer votre profil ! Pour ce faire, visitez le "
+"lien ci-dessous :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"A très bientôt !\n"
+"L'équipe %(site_name)s\n"
+msgstr ""
+
+#: templates/forum/base.html:66 templates/forum/topic/followed.html:6
+#: templates/forum/topic/followed.html:12
+#: templates/forum/topic/followed.html:18
+msgid "Sujets suivis"
+msgstr ""
+
+#: templates/forum/base.html:83
+msgid "Ne plus suivre"
+msgstr ""
+
+#: templates/forum/base.html:119 templates/mp/index.html:36
+msgid "Non-lu"
+msgstr ""
+
+#: templates/forum/base.html:131
+#: templates/forum/includes/topic_row.part.html:69 templates/mp/index.html:63
+msgid "Dernière réponse"
+msgstr ""
+
+#: templates/forum/base.html:133
+#: templates/forum/includes/topic_row.part.html:78
+#: templates/member/profile.html:82 templates/misc/message.part.html:182
+#: templates/misc/message.part.html:194 templates/mp/index.html:72
+msgid "par"
+msgstr ""
+
+#: templates/forum/base.html:138
+#: templates/forum/includes/topic_row.part.html:82 templates/mp/index.html:76
+msgid "Aucune réponse"
+msgstr ""
+
+#: templates/forum/base.html:151
+msgid "Aucun sujet suivi"
+msgstr ""
+
+#: templates/forum/index.html:6 templates/forum/index.html.py:18
+#: templates/forum/index.html:24
+msgid "Liste des forums"
+msgstr ""
+
+#: templates/forum/index.html:12
+msgid ""
+"Les forums vous permettent de venir poser vos questions aux autres membres "
+"mais aussi de vous entraîner ou tout simplement de discuter"
+msgstr ""
+
+#: templates/forum/index.html:31
+msgid ""
+"\n"
+"        Les forums vous permettent de venir poser vos questions aux autres \n"
+"        membres mais aussi de s'entrainer ou <strong>tout simplement de "
+"discuter</strong>.\n"
+"        Cela fonctionne également dans l'autre sens : vous pouvez ici aider "
+"les autres et \n"
+"        proposer des exercices au reste de la communauté.\n"
+"        "
+msgstr ""
+
+#: templates/forum/category/forum.html:8
+#: templates/forum/category/forum.html:38
+#: templates/forum/category/forum.html:51
+#: templates/forum/category/forum.html:113
+msgid "Sujets résolus"
+msgstr ""
+
+#: templates/forum/category/forum.html:10
+#: templates/forum/category/forum.html:40
+#: templates/forum/category/forum.html:53
+msgid "Sujets non-résolus"
+msgstr ""
+
+#: templates/forum/category/forum.html:12
+#: templates/forum/category/forum.html:42
+#: templates/forum/category/forum.html:55
+#: templates/forum/category/forum.html:127
+msgid "Sujets sans réponse"
+msgstr ""
+
+#: templates/forum/category/forum.html:69 templates/forum/topic/index.html:127
+#: templates/forum/topic/new.html:9 templates/forum/topic/new.html.py:15
+#: templates/forum/topic/new.html:31
+msgid "Nouveau sujet"
+msgstr ""
+
+#: templates/forum/category/forum.html:96
+msgid "Aucun sujet trouvé"
+msgstr ""
+
+#: templates/forum/category/forum.html:120
+msgid "Sujets non résolus"
+msgstr ""
+
+#: templates/forum/find/post.html:10 templates/forum/find/post.html.py:16
+msgid "Messages postés par"
+msgstr ""
+
+#: templates/forum/find/post.html:25 templates/member/profile.html:403
+msgid "Messages postés"
+msgstr ""
+
+#: templates/forum/find/post.html:26 templates/forum/find/topic.html:25
+#: templates/search/search.html:11 templates/search/search.html.py:17
+#: templates/search/search.html:23 templates/search/search.html.py:29
+#: templates/tutorial/member/beta.html:20
+#: templates/tutorial/member/online.html:19
+msgid "Recherche"
+msgstr ""
+
+#: templates/forum/find/post.html:39 templates/forum/find/topic.html:37
+msgid "Sujet"
+msgstr ""
+
+#: templates/forum/find/post.html:40 templates/forum/find/topic.html:38
+msgid "Quand"
+msgstr ""
+
+#: templates/forum/find/post.html:41 templates/forum/find/topic.html:39
+#: templates/tutorial/includes/chapter.part.html:66
+#: templates/tutorial/includes/chapter.part.html:75
+msgid "Extrait"
+msgstr ""
+
+#: templates/forum/find/post.html:66
+msgid "Aucun message n'a été posté par"
+msgstr ""
+
+#: templates/forum/find/topic.html:9 templates/forum/find/topic.html.py:15
+msgid "Sujets crées par"
+msgstr ""
+
+#: templates/forum/find/topic.html:24
+msgid "Sujets crées"
+msgstr ""
+
+#: templates/forum/find/topic.html:63
+msgid "Aucun sujet n'a été créé par"
+msgstr ""
+
+#: templates/forum/find/topic_by_tag.html:8
+#: templates/forum/find/topic_by_tag.html:14
+#: templates/forum/find/topic_by_tag.html:20
+msgid "Tag"
+msgstr ""
+
+#: templates/forum/includes/feed.part.html:5
+msgid "Nouveaux messages (RSS)"
+msgstr ""
+
+#: templates/forum/includes/feed.part.html:6
+msgid "Nouveaux messages (ATOM)"
+msgstr ""
+
+#: templates/forum/includes/feed.part.html:7
+msgid "Nouveaux sujets (RSS)"
+msgstr ""
+
+#: templates/forum/includes/feed.part.html:8
+msgid "Nouveaux sujets (ATOM)"
+msgstr ""
+
+#: templates/forum/includes/forums.part.html:42
+msgid "Aucun sujet"
+msgstr ""
+
+#: templates/forum/includes/topic_row.part.html:14
+msgid "Epinglé"
+msgstr ""
+
+#: templates/forum/includes/topic_row.part.html:17
+#: templates/forum/topic/index.html:12
+msgid "Résolu"
+msgstr ""
+
+#: templates/forum/includes/topic_row.part.html:20
+msgid "Fermé"
+msgstr ""
+
+#: templates/forum/includes/topic_row.part.html:41
+msgid "Par"
+msgstr ""
+
+#: templates/forum/includes/topic_row.part.html:60 templates/mp/index.html:55
+msgid "réponse"
+msgstr ""
+
+#: templates/forum/post/edit.html:9 templates/forum/post/edit.html.py:18
+#: templates/forum/post/edit.html:24 templates/mp/post/edit.html:8
+#: templates/mp/post/edit.html.py:15 templates/mp/post/edit.html:21
+msgid "Éditer un message"
+msgstr ""
+
+#: templates/forum/post/new.html:10 templates/forum/post/new.html.py:16
+#: templates/forum/post/new.html:25
+msgid "Répondre au sujet"
+msgstr ""
+
+#: templates/forum/topic/index.html:68
+msgid "L'auteur de ce sujet a trouvé une solution à son problème"
+msgstr ""
+
+#: templates/forum/topic/index.html:145
+msgid "Marquer comme non résolu"
+msgstr ""
+
+#: templates/forum/topic/index.html:147
+msgid "Marquer comme résolu"
+msgstr ""
+
+#: templates/forum/topic/index.html:164
+msgid "Ne plus suivre ce sujet"
+msgstr ""
+
+#: templates/forum/topic/index.html:166
+msgid "Suivre ce sujet"
+msgstr ""
+
+#: templates/forum/topic/index.html:181
+msgid "Ne plus être notifié par courriel"
+msgstr ""
+
+#: templates/forum/topic/index.html:183
+msgid "Être notifié par courriel"
+msgstr ""
+
+#: templates/forum/topic/index.html:195 templates/member/profile.html:420
+#: templates/member/profile.html.py:421
+msgid "Modération"
+msgstr ""
+
+#: templates/forum/topic/index.html:207
+msgid "Ouvrir le sujet"
+msgstr ""
+
+#: templates/forum/topic/index.html:209
+msgid "Fermer le sujet"
+msgstr ""
+
+#: templates/forum/topic/index.html:225
+msgid "Enlever du post-it"
+msgstr ""
+
+#: templates/forum/topic/index.html:227
+msgid "Marquer en post-it"
+msgstr ""
+
+#: templates/forum/topic/index.html:234
+msgid "Déplacer le sujet"
+msgstr ""
+
+#: templates/gallery/base.html:7 templates/gallery/base.html.py:13
+msgid "Galeries"
+msgstr ""
+
+#: templates/gallery/base.html:21 templates/gallery/gallery/list.html:66
+msgid "Créer une galerie"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:35
+msgid "Galerie partagée avec"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:40
+msgid "Lecture"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:42
+msgid "Écriture"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:52
+msgid "Ajouter un utilisateur"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:67
+#: templates/gallery/gallery/details.html:98
+msgid "Supprimer la sélection"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:71
+#: templates/gallery/gallery/details.html:102
+msgid "Vue grille"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:106
+#: templates/gallery/gallery/list.html:51
+msgid "Aucune image"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:109
+#, python-format
+msgid ""
+"\n"
+"                        Vous pouvez <a href=\"%(new_img_url)s\">ajouter une "
+"image</a> à cette galerie dès à présent !\n"
+"                    "
+msgstr ""
+
+#: templates/gallery/gallery/details.html:127
+#: templates/gallery/image/edit.html:72 templates/gallery/image/new.html:39
+msgid "Ajouter une image"
+msgstr ""
+
+#: templates/gallery/gallery/details.html:132
+#: templates/gallery/image/edit.html:77 templates/gallery/image/new.html:44
+msgid "Importer une archive"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:6
+#: templates/gallery/gallery/list.html:12
+#: templates/gallery/gallery/list.html:18
+msgid "Liste des galeries"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:53
+msgid "1 image"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:55
+msgid "images"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:65
+msgid "Vous n'avez pas encore de galerie"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:80
+msgid "Supprimer les galeries sélectionnées"
+msgstr ""
+
+#: templates/gallery/gallery/list.html:85
+msgid ""
+"Attention, vous vous appretez à supprimer toutes les galeries sélectionnées"
+msgstr ""
+
+#: templates/gallery/gallery/new.html:8 templates/gallery/gallery/new.html:14
+#: templates/gallery/gallery/new.html:20
+msgid "Nouvelle galerie"
+msgstr ""
+
+#: templates/gallery/image/edit.html:9 templates/gallery/image/edit.html:22
+msgid "Éditer une image"
+msgstr ""
+
+#: templates/gallery/image/edit.html:16
+msgid "Éditer une Image"
+msgstr ""
+
+#: templates/gallery/image/edit.html:31
+msgid "Image"
+msgstr ""
+
+#: templates/gallery/image/edit.html:36 templates/gallery/image/edit.html:52
+msgid "Miniature"
+msgstr ""
+
+#: templates/gallery/image/edit.html:47
+msgid "Code markdown pour insérer cette image"
+msgstr ""
+
+#: templates/gallery/image/edit.html:49
+msgid "Taille normale"
+msgstr ""
+
+#: templates/gallery/image/edit.html:55
+msgid "Miniature + lien vers taille noramle"
+msgstr ""
+
+#: templates/gallery/image/new.html:8 templates/gallery/image/new.html:15
+#: templates/gallery/image/new.html:21
+msgid "Nouvelle image"
+msgstr ""
+
+#: templates/member/base.html:6 templates/member/base.html.py:12
+#: templates/member/base.html:18
+msgid "Membres"
+msgstr ""
+
+#: templates/member/index.html:6 templates/member/index.html.py:12
+#: templates/member/index.html:18
+msgid "Liste des membres"
+msgstr ""
+
+#: templates/member/index.html:25
+msgid ""
+"Sur cette page vous pourrez trouver la liste des membres inscrits au site "
+"(actuellement"
+msgstr ""
+
+#: templates/member/index.html:25
+msgid "membres"
+msgstr ""
+
+#: templates/member/login.html:13
+#: templates/member/register/token_success.html:11
+msgid "no-sidebar"
+msgstr ""
+
+#: templates/member/login.html:37
+#, python-format
+msgid ""
+"\n"
+"                    Si vous n'avez pas de compte, vous pouvez <a href="
+"\"%(url_register)s\" >vous inscrire</a>.\n"
+"                "
+msgstr ""
+
+#: templates/member/login.html:44
+#: templates/member/forgot_password/index.html:7
+#: templates/member/forgot_password/index.html:13
+#: templates/member/forgot_password/index.html:19
+#: templates/member/forgot_password/success.html:6
+#: templates/member/forgot_password/success.html:12
+#: templates/member/forgot_password/success.html:18
+msgid "Mot de passe oublié"
+msgstr ""
+
+#: templates/member/login.html:47 templates/member/register/index.html:45
+msgid "Vous êtes déjà connecté"
+msgstr ""
+
+#: templates/member/profile.html:30
+msgid "Profil de"
+msgstr ""
+
+#: templates/member/profile.html:42
+msgid "Inscrit"
+msgstr ""
+
+#: templates/member/profile.html:45
+msgid "Dernière connexion"
+msgstr ""
+
+#: templates/member/profile.html:49
+msgid "Dernière IP"
+msgstr ""
+
+#: templates/member/profile.html:65
+msgid "E-mail"
+msgstr ""
+
+#: templates/member/profile.html:71
+msgid "Site web"
+msgstr ""
+
+#: templates/member/profile.html:78
+msgid "Remarques sur cet utilisateur"
+msgstr ""
+
+#: templates/member/profile.html:85
+msgid "Cet utilisateur n'a reçu aucune remarque"
+msgstr ""
+
+#: templates/member/profile.html:88
+msgid "Ajouter une remarque"
+msgstr ""
+
+#: templates/member/profile.html:96 templates/member/profile.html.py:249
+msgid "Signature"
+msgstr ""
+
+#: templates/member/profile.html:102
+msgid "Derniers sujets créés"
+msgstr ""
+
+#: templates/member/profile.html:135 templates/member/profile.html.py:277
+#: zds/member/forms.py:203
+msgid "Biographie"
+msgstr ""
+
+#: templates/member/profile.html:143 templates/member/profile.html.py:291
+#: templates/member/profile.html:292
+msgid "Activité"
+msgstr ""
+
+#: templates/member/profile.html:156 templates/member/profile.html.py:284
+msgid "Anciens tutoriels SdZ"
+msgstr ""
+
+#: templates/member/profile.html:160 templates/tutorial/export.html:15
+#: templates/tutorial/tutorial/import.html:63
+msgid "Tutoriel"
+msgstr ""
+
+#: templates/member/profile.html:172
+#, python-format
+msgid ""
+"\n"
+"                                            Attention ! Vous êtes sur le "
+"point de supprimer le tutoriel \"<em>%(tutotitle)s</em>\".\n"
+"                                        "
+msgstr ""
+
+#: templates/member/profile.html:195
+msgid "de mon compte"
+msgstr ""
+
+#: templates/member/profile.html:199
+msgid "Modifier le profil"
+msgstr ""
+
+#: templates/member/profile.html:204
+msgid "Promouvoir"
+msgstr ""
+
+#: templates/member/profile.html:216
+msgid "Envoyer un message privé"
+msgstr ""
+
+#: templates/member/profile.html:223
+msgid "Attribuer un tuto SdZ"
+msgstr ""
+
+#: templates/member/profile.html:227
+msgid "Choisissez un tutoriel du SdZ à attribuer au membre"
+msgstr ""
+
+#: templates/member/profile.html:238 templates/member/profile.html.py:239
+msgid "Accès rapide"
+msgstr ""
+
+#: templates/member/profile.html:243
+msgid "Informations générales"
+msgstr ""
+
+#: templates/member/profile.html:256
+msgid "Derniers sujets"
+msgstr ""
+
+#: templates/member/profile.html:300 templates/member/profile.html.py:357
+msgid "En ligne"
+msgstr ""
+
+#: templates/member/profile.html:308
+msgid "En version bêta"
+msgstr ""
+
+#: templates/member/profile.html:325 templates/member/profile.html.py:342
+#: templates/member/profile.html:370 templates/member/profile.html.py:383
+msgid "En rédaction"
+msgstr ""
+
+#: templates/member/profile.html:397
+msgid "Sujets créés"
+msgstr ""
+
+#: templates/member/profile.html:413
+msgid "Aucune activité"
+msgstr ""
+
+#: templates/member/profile.html:423
+msgid "Statistiques"
+msgstr ""
+
+#: templates/member/profile.html:427
+msgid "Messages modérés"
+msgstr ""
+
+#: templates/member/profile.html:433
+msgid "Alertes actives"
+msgstr ""
+
+#: templates/member/profile.html:439
+msgid "Sanctions"
+msgstr ""
+
+#: templates/member/profile.html:444
+msgid "Lecture seule temporaire"
+msgstr ""
+
+#: templates/member/profile.html:448
+msgid ""
+"\n"
+"                                    Pour quelle raison souhaitez-vous mettre "
+"ce membre en lecture seule <em>temporairement</em> ?\n"
+"                                "
+msgstr ""
+
+#: templates/member/profile.html:462
+msgid "Lecture seule"
+msgstr ""
+
+#: templates/member/profile.html:466
+msgid "Pour quelle raison souhaitez-vous mettre ce membre en lecture seule"
+msgstr ""
+
+#: templates/member/profile.html:478
+msgid "Ôter la lecture seule"
+msgstr ""
+
+#: templates/member/profile.html:482
+msgid ""
+"\n"
+"                                Pour quelle raison souhaitez-vous "
+"<strong>lever la sanction</strong> de ce membre ?\n"
+"                                "
+msgstr ""
+
+#: templates/member/profile.html:498
+msgid "Bannir temporairement"
+msgstr ""
+
+#: templates/member/profile.html:502
+msgid ""
+"\n"
+"                                    Pour quelle raison souhaitez-vous bannir "
+"ce membre <em>temporairement</em> ?\n"
+"                                "
+msgstr ""
+
+#: templates/member/profile.html:516
+msgid "Bannir définitivement"
+msgstr ""
+
+#: templates/member/profile.html:520
+msgid "Pour quelle raison souhaitez-vous bannir ce membre"
+msgstr ""
+
+#: templates/member/profile.html:532
+msgid "Ôter le bannissement"
+msgstr ""
+
+#: templates/member/profile.html:536
+msgid "Pour quelle raison souhaitez vous lever la sanction de ce membre"
+msgstr ""
+
+#: templates/member/forgot_password/index.html:30
+msgid ""
+"Si vous avez perdu votre mot de passe, vous pouvez utiliser ce formulaire "
+"pour le ré-initialiser. Saisissez votre identifiant ou votre adresse de "
+"courriel dans le champ ci-dessous"
+msgstr ""
+
+#: templates/member/forgot_password/index.html:33
+msgid ""
+"Une fois le formulaire envoyé, vous recevrez un courriel demandant la "
+"validation de cette requête pour s'assurer qu'aucune tentative d'abus n'a eu "
+"lieu. Ce courriel contiendra également un lien sur lequel vous devrez "
+"cliquer pour avoir plus d'instructions"
+msgstr ""
+
+#: templates/member/forgot_password/index.html:37
+#: templates/member/new_password/index.html:34
+msgid "Vous êtes connecté"
+msgstr ""
+
+#: templates/member/forgot_password/success.html:25
+msgid ""
+"Un courriel contenant de plus amples instructions d'activation a été envoyé. "
+"Ce courriel se trouve peut-être dans vos spams"
+msgstr ""
+
+#: templates/member/new_password/failed.html:6
+#: templates/member/new_password/failed.html:12
+msgid "Nouveau mot de passe raté"
+msgstr ""
+
+#: templates/member/new_password/failed.html:18
+#: templates/member/new_password/index.html:7
+#: templates/member/new_password/index.html:13
+#: templates/member/new_password/index.html:19
+#: templates/member/new_password/success.html:18 zds/member/forms.py:396
+msgid "Nouveau mot de passe"
+msgstr ""
+
+#: templates/member/new_password/failed.html:25
+msgid ""
+"Votre mot de passe n'a pas pu être modifié. A partir du moment où vous "
+"soumettez votre requête pour réinitialiser votre mot de passe, vous n'avez "
+"qu'une heure pour la confirmer"
+msgstr ""
+
+#: templates/member/new_password/failed.html:28
+msgid "Re-soumettre votre demande de réinitialisation"
+msgstr ""
+
+#: templates/member/new_password/index.html:30
+msgid "Renseignez votre nouveau mot de passe"
+msgstr ""
+
+#: templates/member/new_password/success.html:6
+#: templates/member/new_password/success.html:12
+msgid "Nouveau mot de passe réussi"
+msgstr ""
+
+#: templates/member/new_password/success.html:25
+msgid "Votre mot de passe a bien été modifié"
+msgstr ""
+
+#: templates/member/new_password/success.html:25
+msgid "Vous connectez"
+msgstr ""
+
+#: templates/member/register/index.html:32
+#, python-format
+msgid ""
+"\n"
+"                <strong>Vous êtes sur le point de vous inscrire sur "
+"%(app_name)s</strong>. Si vous\n"
+"                possédez déjà un compte, veuillez <a href=\"%(url_login)s"
+"\">vous connecter</a>.\n"
+"            "
+msgstr ""
+
+#: templates/member/register/success.html:6
+#: templates/member/register/success.html:12
+#: templates/member/register/success.html:18
+msgid "Création du compte réussie"
+msgstr ""
+
+#: templates/member/register/success.html:25
+msgid ""
+"Votre compte a été créé avec succès. Vous allez recevoir un courriel "
+"contenant un lien d'activation. Veuillez cliquer sur celui-ci avant toute "
+"tentative de connexion"
+msgstr ""
+
+#: templates/member/register/token_already_used.html:6
+#: templates/member/register/token_already_used.html:12
+msgid "Compte déjà activé"
+msgstr ""
+
+#: templates/member/register/token_already_used.html:19
+msgid "Déjà activé"
+msgstr ""
+
+#: templates/member/register/token_already_used.html:27
+#, python-format
+msgid ""
+"\n"
+"            Votre email a déjà été activé. Si vous avez oublié votre mot de "
+"passe, vous pouvez le retrouver <a href=\"%(url_forgot)s\">ici</a>.\n"
+"        "
+msgstr ""
+
+#: templates/member/register/token_failed.html:6
+#: templates/member/register/token_failed.html:12
+#: templates/member/register/token_failed.html:19
+msgid "Jeton expiré"
+msgstr ""
+
+#: templates/member/register/token_failed.html:27
+#, python-format
+msgid ""
+"\n"
+"            Désolé, votre de jeton de confirmation a expiré. Vous pouvez "
+"cependant le regénerer, pour cela, cliquer sur ce lien suivant: <a href="
+"\"%(url_generate)s?token=%(jeton)s\">envoi de jeton</a>.\n"
+"        "
+msgstr ""
+
+#: templates/member/register/token_success.html:6
+#: templates/member/register/token_success.html:23
+msgid "Confirmation d'inscription réussie"
+msgstr ""
+
+#: templates/member/register/token_success.html:17 zds/member/forms.py:519
+msgid "Confirmation"
+msgstr ""
+
+#: templates/member/register/token_success.html:26
+msgid "Vous avez confirmé votre courriel sur le site"
+msgstr ""
+
+#: templates/member/register/token_success.html:29
+msgid "Vous pouvez maintenant vous connecter et partager avec tous les membres"
+msgstr ""
+
+#: templates/member/register/token_success.html:31
+msgid "Mot de passe déjà oublié"
+msgstr ""
+
+#: templates/member/settings/base.html:26
+msgid "Navigation"
+msgstr ""
+
+#: templates/member/settings/base.html:30
+#: templates/member/settings/user.html:7
+#: templates/member/settings/user.html:13
+#: templates/member/settings/user.html:19
+msgid "Pseudo et courriel"
+msgstr ""
+
+#: templates/member/settings/base.html:31
+msgid "Se désinscrire"
+msgstr ""
+
+#: templates/member/settings/memberip.html:6
+#: templates/member/settings/memberip.html:18
+msgid "Membres par IP"
+msgstr ""
+
+#: templates/member/settings/memberip.html:12
+msgid "IP"
+msgstr ""
+
+#: templates/member/settings/memberip.html:25
+msgid "Liste des membres dont la dernière IP est"
+msgstr ""
+
+#: templates/member/settings/memberip.html:37
+#, python-format
+msgid " \"le\" %(last_visit)s "
+msgstr ""
+
+#: templates/member/settings/promote.html:7
+#: templates/member/settings/promote.html:13
+#: templates/member/settings/promote.html:19
+msgid "Gestion des groupes"
+msgstr ""
+
+#: templates/member/settings/unregister.html:6
+msgid "Supression de compte"
+msgstr ""
+
+#: templates/member/settings/unregister.html:12
+#: templates/member/settings/unregister.html:18
+msgid "Désinscription"
+msgstr ""
+
+#: templates/member/settings/unregister.html:25
+#, python-format
+msgid ""
+"\n"
+"         Attention %(username)s, vous êtes sur le point de vous désinscrire "
+"de Zeste de Savoir. Voici ce qu'implique cette action <strong>qui ne peut "
+"être annulée</strong> :\n"
+"        "
+msgstr ""
+
+#: templates/member/settings/unregister.html:32
+msgid "Toutes vos conversations privées (MP) seront perdues"
+msgstr ""
+
+#: templates/member/settings/unregister.html:35
+msgid "Tous vos messages de forums seront anonymisés"
+msgstr ""
+
+#: templates/member/settings/unregister.html:38
+#, python-format
+msgid ""
+"\n"
+"                Votre compte et tout ses détails seront supprimés, cela "
+"signifie que l'adresse courriel (%(email)s) sera effacée du système et votre "
+"pseudo (%(username)s) sera libéré et utilisable par un autre membre ;\n"
+"            "
+msgstr ""
+
+#: templates/member/settings/unregister.html:43
+msgid ""
+"Vos tutoriels et articles non publiés (brouillon, bêta ou en cours de "
+"validation) seront supprimés sans possibilité de récuperation (sauf si "
+"d'autres auteurs sont présents lors de la rédaction"
+msgstr ""
+
+#: templates/member/settings/unregister.html:46
+msgid "Vos tutoriels et articles publiés subiront les modifications suivantes"
+msgstr ""
+
+#: templates/member/settings/unregister.html:49
+msgid ""
+"\n"
+"                        si vous étiez seul, ils seront placés sous la "
+"gouvernance du compte \"Auteur Externe\", sauf demande contraire de votre "
+"part à un membre du staff <strong>avant</strong> votre désinscription ;\n"
+"                    "
+msgstr ""
+
+#: templates/member/settings/unregister.html:54
+msgid ""
+"si vous étiez plusieurs auteurs, vous quitterez le groupe de rédacteurs. Les "
+"autres pourront dès lors continuer sans vous"
+msgstr ""
+
+#: templates/member/settings/unregister.html:62
+msgid ""
+" Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton "
+"<kbd>Me désinscrire</kbd> ci-dessous. Sinon il n'est pas encore trop tard "
+msgstr ""
+
+#: templates/member/settings/unregister.html:66
+#: templates/member/settings/unregister.html:80
+msgid "Me désinscrire"
+msgstr ""
+
+#: templates/member/settings/unregister.html:76
+msgid "C'est votre dernière chance de rester parmi nous"
+msgstr ""
+
+#: templates/misc/badge.part.html:7
+msgid "Banni"
+msgstr ""
+
+#: templates/misc/badge.part.html:9
+msgid "LS"
+msgstr ""
+
+#: templates/misc/badge.part.html:11
+msgid "Staff"
+msgstr ""
+
+#: templates/misc/message.part.html:39
+msgid "Auteur du sujet"
+msgstr ""
+
+#: templates/misc/message.part.html:50
+msgid "Masquer"
+msgstr ""
+
+#: templates/misc/message.part.html:56
+msgid "Pour quelle raison souhaitez vous masquer ce message"
+msgstr ""
+
+#: templates/misc/message.part.html:61
+msgid ""
+"Attention, en masquant ce message, vous ne pourrez plus l'afficher vous "
+"même. Êtes vous certains de vouloir le faire"
+msgstr ""
+
+#: templates/misc/message.part.html:86 templates/misc/message.part.html:96
+msgid "Signaler"
+msgstr ""
+
+#: templates/misc/message.part.html:91
+msgid "Pour quelle raison signalez-vous ce message"
+msgstr ""
+
+#: templates/misc/message.part.html:93
+msgid "Minimum 3 caractères pour signaler"
+msgstr ""
+
+#: templates/misc/message.part.html:106
+msgid "Citer"
+msgstr ""
+
+#: templates/misc/message.part.html:113
+msgid "Voir"
+msgstr ""
+
+#: templates/misc/message.part.html:118
+msgid "Démasquer"
+msgstr ""
+
+#: templates/misc/message.part.html:123
+#, python-format
+msgid ""
+"\n"
+"                                Ce message a été masqué par <strong>"
+"%(editor)s</strong>, êtes vous certains de vouloir le ré-afficher ?\n"
+"                                "
+msgstr ""
+
+#: templates/misc/message.part.html:152
+msgid "Reprise du dernier message de la page précédente"
+msgstr ""
+
+#: templates/misc/message.part.html:157
+msgid "Cette réponse a aidé l'auteur du sujet"
+msgstr ""
+
+#: templates/misc/message.part.html:173
+msgid "Masqué par"
+msgstr ""
+
+#: templates/misc/message.part.html:180
+msgid "Édité"
+msgstr ""
+
+#: templates/misc/message.part.html:198
+msgid "Résoudre"
+msgstr ""
+
+#: templates/misc/message.part.html:204
+msgid "Résoudre l'alerte"
+msgstr ""
+
+#: templates/misc/message_form.html:7
+msgid "Ce sujet est verrouillé"
+msgstr ""
+
+#: templates/misc/message_form.html:11
+msgid "Vous devez être connecté pour pouvoir poster un message"
+msgstr ""
+
+#: templates/misc/message_form.html:17
+msgid ""
+"Créez un compte en une minute pour profiter pleinement de toutes les "
+"fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité"
+msgstr ""
+
+#: templates/misc/message_form.html:18
+msgid "Créer un compte"
+msgstr ""
+
+#: templates/misc/message_form.html:23
+msgid ""
+"Vous venez de poster. Merci de patienter au moins 15 minutes entre deux "
+"messages consécutifs afin de limiter le flood"
+msgstr ""
+
+#: templates/misc/message_form.html:27
+msgid "Vous êtes seul dans cette conversation"
+msgstr ""
+
+#: templates/misc/message_form.html:54 zds/utils/forms.py:22
+#: zds/utils/forms.py:46
+msgid "Aperçu"
+msgstr ""
+
+#: templates/misc/message_form.html:62 zds/member/forms.py:494
+#: zds/member/forms.py:536 zds/utils/forms.py:18 zds/utils/forms.py:42
+msgid "Envoyer"
+msgstr ""
+
+#: templates/misc/pagination.part.html:18
+msgid "Précédente"
+msgstr ""
+
+#: templates/misc/pagination.part.html:40
+#: templates/misc/pagination.part.html:53
+msgid "Aller à la page"
+msgstr ""
+
+#: templates/misc/pagination.part.html:49
+msgid "Indiquez la page à laquelle vous souhaitez vous rendre"
+msgstr ""
+
+#: templates/misc/pagination.part.html:64
+msgid "Suivante"
+msgstr ""
+
+#: templates/misc/previsualization.part.html:6
+msgid "Prévisualisation de votre message"
+msgstr ""
+
+#: templates/misc/validation.part.html:19
+msgid "Réservé par"
+msgstr ""
+
+#: templates/misc/validation.part.html:34
+msgid "Actuellement réservé par"
+msgstr ""
+
+#: templates/misc/validation.part.html:35
+msgid ""
+"\n"
+"                    Êtes-vous certains de vouloir <strong>annuler la "
+"réservation</strong> ?\n"
+"                "
+msgstr ""
+
+#: templates/misc/validation.part.html:44
+msgid "Accepté"
+msgstr ""
+
+#: templates/misc/validation.part.html:48
+msgid "Commentaire du validateur"
+msgstr ""
+
+#: templates/misc/validation.part.html:57
+msgid "Rejeté"
+msgstr ""
+
+#: templates/misc/validation.part.html:61
+msgid "Motif du rejet"
+msgstr ""
+
+#: templates/mp/base.html:7 templates/mp/base.html.py:19
+msgid "Messagerie Privée"
+msgstr ""
+
+#: templates/mp/base.html:13
+msgid "Messagerie"
+msgstr ""
+
+#: templates/mp/base.html:25
+msgid "active"
+msgstr ""
+
+#: templates/mp/base.html:33 templates/mp/post/edit.html:56
+msgid "Nouvelle conversation"
+msgstr ""
+
+#: templates/mp/index.html:9 templates/mp/index.html.py:15
+#: templates/mp/index.html:21
+msgid "Liste des conversations"
+msgstr ""
+
+#: templates/mp/index.html:42 templates/mp/topic/index.html:36
+msgid "Participant"
+msgstr ""
+
+#: templates/mp/index.html:95
+msgid "Supprimer les conversations sélectionnées"
+msgstr ""
+
+#: templates/mp/index.html:100
+msgid ""
+"Attention, vous vous appretez à supprimer toutes les conversations "
+"sélectionnées"
+msgstr ""
+
+#: templates/mp/post/edit.html:60 templates/mp/topic/index.html:49
+#: templates/mp/topic/index.html.py:100
+msgid "Ajouter un membre"
+msgstr ""
+
+#: templates/mp/post/edit.html:63
+msgid "Vous allez rajouter un nouveau membre dans la conversation privé"
+msgstr ""
+
+#: templates/mp/post/edit.html:69 templates/mp/topic/index.html:110
+#: zds/gallery/forms.py:93 zds/gallery/forms.py:138
+msgid "Ajouter"
+msgstr ""
+
+#: templates/mp/post/edit.html:76 zds/mp/forms.py:16
+msgid "Participants"
+msgstr ""
+
+#: templates/mp/post/new.html:9 templates/mp/post/new.html.py:16
+#: templates/mp/post/new.html:22
+msgid "Répondre au MP"
+msgstr ""
+
+#: templates/mp/post/new.html:36
+msgid ""
+"\n"
+"            <strong>Au moins un nouveau message a été posté</strong> dans la "
+"discussion\n"
+"            pendant que vous rédigiez le votre.\n"
+"            "
+msgstr ""
+
+#: templates/mp/topic/index.html:104
+msgid "Vous allez rajouter un nouveau membre dans la conversation privée"
+msgstr ""
+
+#: templates/mp/topic/index.html:117
+msgid "Quitter la conversation"
+msgstr ""
+
+#: templates/mp/topic/index.html:121
+msgid ""
+"Attention, vous vous apprêtez à quitter définitivement cette conversation"
+msgstr ""
+
+#: templates/mp/topic/new.html:8 templates/mp/topic/new.html.py:14
+#: templates/mp/topic/new.html:20
+msgid "Nouvelle conversation privée"
+msgstr ""
+
+#: templates/pages/about.html:25
+#, python-format
+msgid ""
+"\n"
+"            Si vous vous intéressez à tout cela, vous devriez songer à <a "
+"href=\"%(repository)s\">contribuer au développement du site</a> !\n"
+"        "
+msgstr ""
+
+#: templates/pages/about.html:33
+msgid "Droits"
+msgstr ""
+
+#: templates/pages/about.html:36
+#, python-format
+msgid ""
+"\n"
+"                            %(site_name)s est un site donc le code source "
+"est sous licence <a href=\"%(src_url_license)s\">%(src_code)s</a>, et "
+"provient en partie de <a href=\"%(provider_url)s\">%(provider_name)s</a>.\n"
+"                        "
+msgstr ""
+
+#: templates/pages/about.html:43
+#, python-format
+msgid ""
+"\n"
+"                            <a href=\"#\">Le logo de %(site_name)s</a> a été "
+"créé par %(author_logo)s et est sous\n"
+"                            <a rel=\"license\" href=\"%(url_license)s\">\n"
+"                            <img alt=\"%(logo_title)s\" src=\"%(url_image)s"
+"\">\n"
+"                    \t    %(logo_desc)s\n"
+"                            </a>\n"
+"                        "
+msgstr ""
+
+#: templates/pages/about.html:57
+msgid "Système / Back-end"
+msgstr ""
+
+#: templates/pages/about.html:59
+msgid "Le Back-end est propulsé par les outils suivants"
+msgstr ""
+
+#: templates/pages/about.html:62
+msgid "Site"
+msgstr ""
+
+#: templates/pages/about.html:74
+msgid "Base de données"
+msgstr ""
+
+#: templates/pages/about.html:81
+msgid "Front-end"
+msgstr ""
+
+#: templates/pages/about.html:83
+msgid "Le front-end utilise les outils suivants"
+msgstr ""
+
+#: templates/pages/about.html:86
+msgid "Feuilles de style"
+msgstr ""
+
+#: templates/pages/alerts.html:8 templates/pages/alerts.html.py:14
+#: templates/pages/alerts.html:20
+msgid "Liste des alertes en cours"
+msgstr ""
+
+#: templates/pages/alerts.html:28
+msgid "Type"
+msgstr ""
+
+#: templates/pages/alerts.html:31
+msgid "Message"
+msgstr ""
+
+#: templates/pages/alerts.html:32
+msgid "Sur un message de"
+msgstr ""
+
+#: templates/pages/alerts.html:41
+#, python-format
+msgid " posté le %(timing)s "
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:7
+#: templates/pages/assoc_subscribe.html:13
+#: templates/pages/assoc_subscribe.html:19
+msgid "Adhérer à l'association"
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:25
+msgid "Pourquoi adhérer"
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:27
+#, python-format
+msgid ""
+"\n"
+"            Adhérer à l'association %(asso_name)s permet de nous soutenir de "
+"manière concrète et d'officialiser votre engagement.\n"
+"        "
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:32
+#, python-format
+msgid ""
+"\n"
+"            D'autre part, le financement des activités de l'association, "
+"dont bien sûr le site, est intégralement assuré par\n"
+"            les cotisations des membres : adhérer vous permet ainsi "
+"d'assurer la pérennité du site. La cotisation, pour\n"
+"            l'année 2014, est de <strong>%(asso_fee)s</strong> (le montant "
+"sera révisé tous les ans). Si pour une raison quelconque\n"
+"            vous ne pouvez pas payer cette cotisation, faites-en nous part, "
+"nous pouvons accorder des dérogations\n"
+"            exceptionnelles.\n"
+"        "
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:41
+msgid "Notez que l'adhésion est subordonnée au paiement de cette cotisation"
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:44
+msgid ""
+"Adhérer permet bien entendu de participer à l'Assemblée Générale annuelle de "
+"l'association, qui élit le Conseil d'Administration. Si vous avez des idées "
+"pour faire avancer l'association et donc le site, c'est le moment"
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:47
+msgid ""
+"\n"
+"            Une précision importante : <strong>adhérer à l'association ne "
+"vous apporte rien sur le site</strong>. L'adhésion\n"
+"            n'est là que pour soutenir le projet, et ne donne droit à aucun "
+"pouvoir ou badge supplémentaires. Elle ne donne\n"
+"            même pas accès à un forum secret, puisque le forum de "
+"l'association est public !\n"
+"        "
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:54
+msgid ""
+"Enfin, toutes les fonctionnalités du site sont disponibles à tous : aucune "
+"n'est conditionnée à l'adhésion à l'association"
+msgstr ""
+
+#: templates/pages/assoc_subscribe.html:57
+msgid "Formulaire d'adhésion"
+msgstr ""
+
+#: templates/pages/association.html:24
+msgid "Présentation de l'association"
+msgstr ""
+
+#: templates/pages/association.html:26
+#, python-format
+msgid ""
+"\n"
+"            %(asso_name)s est une association loi 1901 (association à but "
+"non lucratif) et joue le rôle de structure\n"
+"            légale du site %(site_url)s, dont le but est de promouvoir le "
+"partage de connaissances à travers des\n"
+"            ressources pédagogiques gratuites et de préférence sous licence "
+"libre.\n"
+"            <a href=\"http://www.journal-officiel.gouv.fr/publications/assoc/"
+"pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf\">\n"
+"                Parue au Journal officiel le 19 avril 2014</a>, "
+"l'association a tenu sa première assemblée générale le 15 mars\n"
+"            2014, au cours de laquelle ont été élus le bureau et le conseil "
+"d'administration en présence des <strong>quatorze</strong> membres "
+"fondateurs.\n"
+"        "
+msgstr ""
+
+#: templates/pages/association.html:36
+msgid ""
+"Ces membres fondateurs sont tous des anciens membres très actifs du feu "
+"siteduzero, un site de diffusion de connaissances et d'entraide. À la suite "
+"du changement de politique de ce dernier, ils ont décidé de recréer une "
+"plateforme sur laquelle ils pourraient à nouveau s'entraider et partager "
+"convenablement leurs connaissances et surtout retrouver l'esprit "
+"communautaire qu'ils aimaient tant"
+msgstr ""
+
+#: templates/pages/association.html:39
+#, python-format
+msgid ""
+"\n"
+"            Voilà l'histoire de %(asso_name)s.\n"
+"        "
+msgstr ""
+
+#: templates/pages/association.html:44
+msgid "L'association et le site"
+msgstr ""
+
+#: templates/pages/association.html:46
+msgid ""
+"\n"
+"            <strong>Adhérer à l'association ne vous apporte rien sur le "
+"site</strong>. L'adhésion n'est là que pour soutenir\n"
+"            le projet, et ne donne droit à aucun pouvoir ou badge "
+"supplémentaire. Elle ne donne même pas accès à un forum\n"
+"            secret, puisque le forum de l'association est public !\n"
+"        "
+msgstr ""
+
+#: templates/pages/association.html:53
+msgid ""
+"De même, toutes les fonctionnalités du site sont disponibles à tous : aucune "
+"n'est conditionné à l'adhésion à l'association"
+msgstr ""
+
+#: templates/pages/association.html:56
+msgid "Notez que vous devez être inscrit pour pouvoir adhérer"
+msgstr ""
+
+#: templates/pages/base.html:6 templates/pages/index.html:6
+#: templates/pages/index.html.py:18
+msgid "Pages"
+msgstr ""
+
+#: templates/pages/contact.html:24
+msgid "L'équipe de communication"
+msgstr ""
+
+#: templates/pages/contact.html:26
+#, python-format
+msgid ""
+"\n"
+"            Vous pouvez à tout moment joindre l'équipe de communication de "
+"%(site_name)s par courriel via <a href=\"%(email_contact)s?Subject=Contact "
+"communication\" target=\"_top\">%(email_contact)s</a>\n"
+"        "
+msgstr ""
+
+#: templates/pages/contact.html:33
+#, python-format
+msgid ""
+"\n"
+"                Vous pouvez joindre l'association par courriel via <a href="
+"\"mailto:%(email_association)s?Subject=Contact association\" target=\"_top\">"
+"%(email_association)s</a>\n"
+"            "
+msgstr ""
+
+#: templates/pages/contact.html:39
+msgid "Le staff"
+msgstr ""
+
+#: templates/pages/contact.html:41
+#, python-format
+msgid ""
+"\n"
+"            Le staff est constitué de certains membres du site dont le but "
+"est de contrôler le contenu publié sur %(site_name)s. Ils sont en charge de "
+"la modération des messages sur les forums et commentaires, ainsi que de la "
+"validation et publication d'articles et/ou de tutoriels de %(site_name)s.\n"
+"            Les membres faisant partie du Staff sont les suivants :\n"
+"        "
+msgstr ""
+
+#: templates/pages/contact.html:56
+msgid "L'équipe technique"
+msgstr ""
+
+#: templates/pages/contact.html:58
+#, python-format
+msgid ""
+"\n"
+"            L'équipe technique est constituée de certains membres du site "
+"dont le but est d'une part de s'assurer que le site reste toujours "
+"disponible en ligne, et d'autre part de corriger les bogues rencontrés sur "
+"le site.\n"
+"            Des administrateurs systèmes, jusqu'aux designeurs, en passant "
+"par les développeurs back-end et intégrateurs front-end, ils s'occupent "
+"aussi de la maintenance du <a href=\"%(repository)s\">dépôt officiel du "
+"projet</a>. Les membres faisant partie de l'équipe technique sont les "
+"suivants :\n"
+"        "
+msgstr ""
+
+#: templates/pages/cookies.html:6 templates/pages/cookies.html.py:12
+#: templates/pages/cookies.html:18
+msgid "À propos des cookies"
+msgstr ""
+
+#: templates/pages/cookies.html:24
+msgid "Qu'est-ce qu'un cookie"
+msgstr ""
+
+#: templates/pages/cookies.html:26
+msgid ""
+"\n"
+"            Un <strong>cookie</strong> (aussi appelé <strong>témoin de "
+"connexion</strong> ou <strong>témoin</strong> au Québec) est un petit bout "
+"de texte envoyé par le serveur web au navigateur, et renvoyé à l'identique "
+"par le navigateur au serveur.\n"
+"        "
+msgstr ""
+
+#: templates/pages/cookies.html:30
+msgid ""
+"Les cookies ne sont ni des logiciels espions ni des virus, puisqu'ils ne "
+"sont en réalité que de simples fichiers textes et ne peuvent en aucun cas "
+"être exécutés"
+msgstr ""
+
+#: templates/pages/cookies.html:32
+#, python-format
+msgid ""
+"\n"
+"            Pour plus de détails sur ce qu'est un cookie, voyez <a href="
+"\"http://www.cnil.fr/vos-droits/vos-traces/les-cookies/\">le site de la "
+"CNIL</a> ou <a href=\"http://fr.wikipedia.org/wiki/Cookie_%%28informatique"
+"%%29\">Wikipédia</a>.\n"
+"        "
+msgstr ""
+
+#: templates/pages/cookies.html:37
+msgid "À quoi servent les cookies"
+msgstr ""
+
+#: templates/pages/cookies.html:38
+msgid ""
+"Les cookies se répartissent en deux grands types : les impératifs techniques "
+"et la mesure d'audience"
+msgstr ""
+
+#: templates/pages/cookies.html:39
+msgid ""
+"<strong>En aucun cas</strong> les cookies servent à recueillir des "
+"renseignements personnels, transmettre des données sensibles ou transmettre "
+"des données personnelles à des tiers."
+msgstr ""
+
+#: templates/pages/cookies.html:41 templates/pages/cookies.html.py:63
+msgid "Cookies techniques"
+msgstr ""
+
+#: templates/pages/cookies.html:42
+msgid ""
+"Certaines fonctionnalités du site nécessitent des cookies pour pouvoir être "
+"opérationnelles. L'exemple typique est la connexion aux parties privées de"
+msgstr ""
+
+#: templates/pages/cookies.html:43
+msgid "La liste complète des cookies techniques utilisés sur"
+msgstr ""
+
+#: templates/pages/cookies.html:43
+msgid "et leur utilité est détaillée un peu plus bas"
+msgstr ""
+
+#: templates/pages/cookies.html:44
+#, python-format
+msgid ""
+"Ces cookies, purement techniques, <strong>sont indispensables au "
+"fonctionnement de %(site_name)s</strong>. Si vous les refusez, les éléments "
+"qui en dépendent ne fonctionneront tout simplement pas !"
+msgstr ""
+
+#: templates/pages/cookies.html:46 templates/pages/cookies.html.py:73
+msgid "Cookies d'analyse d'audience"
+msgstr ""
+
+#: templates/pages/cookies.html:47
+#, python-format
+msgid ""
+" %(site_name)s analyse son audience. Que signifie ce terme barbare ? Tout "
+"simplement que nous étudions la manière dont le site est utilisé :"
+msgstr ""
+
+#: templates/pages/cookies.html:49
+msgid "Quelles fonctionnalités sont utilisées"
+msgstr ""
+
+#: templates/pages/cookies.html:50
+msgid "quelle fréquence"
+msgstr ""
+
+#: templates/pages/cookies.html:51
+msgid "D'où viennent nos utilisateurs ? (oui, c'est de vous dont je parle"
+msgstr ""
+
+#: templates/pages/cookies.html:52
+msgid "Comment naviguent-ils dans le site"
+msgstr ""
+
+#: templates/pages/cookies.html:53
+msgid "Etc"
+msgstr ""
+
+#: templates/pages/cookies.html:55
+msgid "quoi cela peut-il bien servir"
+msgstr ""
+
+#: templates/pages/cookies.html:55
+msgid "allez-vous me demander avec sagacit"
+msgstr ""
+
+#: templates/pages/cookies.html:56
+msgid ""
+"Tout simplement à <strong>améliorer l'expérience utilisateur du site</"
+"strong>. Les développeurs, aussi ingénieux soient-ils, ne peuvent "
+"<em>jamais</em> deviner l'utilisation <em>réelle</em> qui sera faite du "
+"site. Telle ou telle fonctionnalité qui leur paraîtra mineure sera en fait "
+"utilisée par une grande majorité, ou telle autre qui leur paraissait "
+"cruciale sera ignorée. "
+msgstr ""
+
+#: templates/pages/cookies.html:57
+msgid ""
+"Le seul moyen <em>fiable</em> de savoir ce qui est réellement utilisé - et "
+"donc ce qu'il faut travailler - est d'analyser l'audience réelle. "
+msgstr ""
+
+#: templates/pages/cookies.html:58
+msgid ""
+"Ceci implique de suivre les utilisateurs à travers le site, ce qui se fait "
+"grâce à un cookie dédié;"
+msgstr ""
+
+#: templates/pages/cookies.html:59
+msgid ""
+"C'est cette analyse qui peut être désactivée, puisqu'elle n'est pas "
+"strictement indispensable au bon fonctionnement du site"
+msgstr ""
+
+#: templates/pages/cookies.html:61
+msgid "Les cookies sur ce site"
+msgstr ""
+
+#: templates/pages/cookies.html:62
+#, python-format
+msgid ""
+" Pour être tout à fait précis, %(site_name)s utilise les cookies suivants :"
+msgstr ""
+
+#: templates/pages/cookies.html:66
+#, python-format
+msgid ""
+" Ce cookie est un identifiant unique qui permet de faire le lien entre votre "
+"session de navigation et les différentes pages que vous visitez. Il permet "
+"en particulier de vous connecter à %(site_name)s. Il ne contient qu'une "
+"chaîne de caractères aléatoires."
+msgstr ""
+
+#: templates/pages/cookies.html:68
+msgid ""
+"Ce cookie contient une chaîne de caractères aléatoires qui permet de se "
+"prémunir des attaques <a href=\"http://fr.wikipedia.org/wiki/Cross-"
+"Site_Request_Forgery\">CSRF</a>. Composant indispensable de la sécurité du "
+"site, vous ne pourrez rien poster sans ce cookie. "
+msgstr ""
+
+#: templates/pages/cookies.html:70
+msgid ""
+"Ce cookie indique si vous acceptez l'analyse d'audience. Il peut prendre les "
+"valeurs <tt>true</tt> (analyse acceptée) ou <tt>false</tt> (analyse refusée)."
+msgstr ""
+
+#: templates/pages/cookies.html:76
+msgid ""
+"Ces cookies sont les cookies d'analyse d'audience de <a href=\"http://www."
+"google.fr/intl/fr/analytics/\">Google Analytics</a>. Leur présence et leur "
+"contenu exact est géré par Google Analytics."
+msgstr ""
+
+#: templates/pages/cookies.html:79
+msgid "Comment refuser les cookies tiers"
+msgstr ""
+
+#: templates/pages/cookies.html:80
+msgid "Refus pur et simple des cookies tiers dans le navigateur"
+msgstr ""
+
+#: templates/pages/cookies.html:81
+msgid ""
+" Vous pouvez bloquer purement et simplement les cookies <strong>tiers</"
+"strong> dans votre navigateur, en suivant la procédure décrite <a href="
+"\"http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-"
+"internautes\">sur le site de la CNIL dans le Conseil 1</a>."
+msgstr ""
+
+#: templates/pages/cookies.html:82
+#, python-format
+msgid ""
+"Cette man&oelig;uvre n'empêchera pas %(site_name)s de fonctionner, puisque "
+"les cookies techniques ne sont pas des cookies tiers."
+msgstr ""
+
+#: templates/pages/cookies.html:83
+msgid ""
+"Toutefois, devant le manque de finesse de contrôle d'une telle solution, "
+"vous pourriez préférer utiliser une solution présentée au paragraphe suivant"
+msgstr ""
+
+#: templates/pages/cookies.html:85
+msgid "Utilisation d'un logiciel 'anti-espions' "
+msgstr ""
+
+#: templates/pages/cookies.html:86
+msgid ""
+"Il existe différents logiciels <em>\"anti-espions\"</em>, qui empêchent "
+"l'installation des cookies d'analyse d'audience, et bien d'autres encore."
+msgstr ""
+
+#: templates/pages/cookies.html:87
+msgid ""
+"La CNIL <a href=\"http://www.cnil.fr/vos-droits/vos-traces/les-cookies/"
+"conseils-aux-internautes\">indique quelles solutions sont disponibles avec "
+"votre navigateur</a>, dans son Conseil 2."
+msgstr ""
+
+#: templates/pages/cookies.html:89
+msgid "Licence de cette page"
+msgstr ""
+
+#: templates/pages/cookies.html:93
+#, python-format
+msgid ""
+"\n"
+"            <a rel=\"license\" href=\"http://creativecommons.org/licenses/"
+"by/4.0/\"><img alt=\"%(cook_title)s\" style=\"border-width:0\" src="
+"\"%(cook_img)s\" /></a>\n"
+"            <span xmlns:dct=\"http://purl.org/dc/terms/\" href=\"http://purl."
+"org/dc/dcmitype/Text\" property=\"dct:title\" rel=\"dct:type\">À propos des "
+"cookies</span> de <a href=\"%(cook_url)s\">%(site_name)s</a> est mis à "
+"disposition selon les termes de la <a rel=\"license\" href=\"%(url_license)s"
+"\">%(cook_descr)s</a>.\n"
+"            "
+msgstr ""
+
+#: templates/pages/cookies.html:100
+#, python-format
+msgid ""
+"\n"
+"            <a rel=\"license\" href=\"http://creativecommons.org/licenses/"
+"by/4.0/\"><img alt=\"Licence Creative Commons\" style=\"border-width:0\" src="
+"\"https://i.creativecommons.org/l/by/4.0/80x15.png\" /></a>\n"
+"            <span xmlns:dct=\"http://purl.org/dc/terms/\" href=\"http://purl."
+"org/dc/dcmitype/Text\" property=\"dct:title\" rel=\"dct:type\">À propos des "
+"cookies</span> de <a xmlns:cc=\"http://creativecommons.org/ns#\" href="
+"\"%(cook_url)s\" property=\"cc:attributionName\" rel=\"cc:attributionURL"
+"\">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="
+"\"license\" href=\"http://creativecommons.org/licenses/by/4.0/\">licence "
+"Creative Commons Attribution 4.0 International</a>.\n"
+"            "
+msgstr ""
+
+#: templates/pages/cookies.html:106
+msgid ""
+"N'oubliez pas d'adapter les cookies réellement utilisés à votre cas si vous "
+"reprenez cette page"
+msgstr ""
+
+#: templates/pages/cookies.html:110
+msgid "Une recette de cookies"
+msgstr ""
+
+#: templates/pages/cookies.html:111
+msgid ""
+"Puisque vous avez réussi à trouver cette page et que vous avez eu le courage "
+"de lire jusqu'ici, vous avez bien droit à une récompense : une recette de "
+"cookies"
+msgstr ""
+
+#: templates/pages/cookies.html:112
+msgid "Ingrédients"
+msgstr ""
+
+#: templates/pages/cookies.html:113
+msgid "Pour 30 cookies environ (parce que c'est bon, on va en faire plein"
+msgstr ""
+
+#: templates/pages/cookies.html:115
+msgid "500 g de farine"
+msgstr ""
+
+#: templates/pages/cookies.html:116
+msgid "250 g de beurre"
+msgstr ""
+
+#: templates/pages/cookies.html:117
+msgid "300 g de chocolat à pâtisser"
+msgstr ""
+
+#: templates/pages/cookies.html:118
+msgid "200 g de cassonade, ou à défaut de sucre roux"
+msgstr ""
+
+#: templates/pages/cookies.html:119
+msgid "2&oelig;ufs"
+msgstr ""
+
+#: templates/pages/cookies.html:120
+msgid "2 sachets de sucre vanillé"
+msgstr ""
+
+#: templates/pages/cookies.html:121
+msgid "1 pincée de sel"
+msgstr ""
+
+#: templates/pages/cookies.html:122
+msgid "1 sachet de levure"
+msgstr ""
+
+#: templates/pages/cookies.html:124
+msgid "Préparation : 10 minutes"
+msgstr ""
+
+#: templates/pages/cookies.html:125
+msgid "Cuisson : 10 minutes"
+msgstr ""
+
+#: templates/pages/cookies.html:126
+msgid "Préparation"
+msgstr ""
+
+#: templates/pages/cookies.html:127
+msgid ""
+"Avec un grand couteau bien aiguisé, découpez le chocolat en petits morceaux"
+msgstr ""
+
+#: templates/pages/cookies.html:128
+msgid ""
+"Dans un grand saladier, mélangez la farine, la cassonade, le sucre vanillé, "
+"la levure et le sel"
+msgstr ""
+
+#: templates/pages/cookies.html:129
+msgid ""
+"Faites fondre le beurre, ajoutez-y les &oelig;ufs. Incorporez le tout à la "
+"préparation"
+msgstr ""
+
+#: templates/pages/cookies.html:130
+msgid "Ajoutez les morceaux de chocolat et mélangez avec soin"
+msgstr ""
+
+#: templates/pages/cookies.html:131
+msgid "Cuisson"
+msgstr ""
+
+#: templates/pages/cookies.html:132
+msgid ""
+"Préchauffez votre four à 220°C / thermostat 7-8, grille en position basse"
+msgstr ""
+
+#: templates/pages/cookies.html:133
+msgid ""
+"Façonnez des cookies d'environ 10 cm de côté sur la plaque recouverte de "
+"papier sulfurisé. Attention, espacez-les parce qu'ils s'étalent à la cuisson"
+msgstr ""
+
+#: templates/pages/cookies.html:134
+msgid ""
+"Enfournez-les environ 10 minutes, ils sont cuits lorsqu'ils prennent une "
+"belle couleur dorée"
+msgstr ""
+
+#: templates/pages/cookies.html:135
+msgid "Conseils divers"
+msgstr ""
+
+#: templates/pages/cookies.html:136
+msgid ""
+"Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des "
+"pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat "
+"à déguster : ces chocolats manquent de sucre pour la patisserie"
+msgstr ""
+
+#: templates/pages/cookies.html:137
+msgid ""
+"La cuisson parfaite se joue à quelques secondes près (sérieusement), alors "
+"surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. "
+"Ce qui serait dommage"
+msgstr ""
+
+#: templates/pages/cookies.html:138
+msgid ""
+" On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> "
+"reste le cookie au chocolat\" "
+msgstr ""
+
+#: templates/pages/index.html:12
+msgid "Liste des pages"
+msgstr ""
+
+#: templates/pages/index.html:25
+msgid "Conditions générales d utilisation"
+msgstr ""
+
+#: templates/pages/index.html:32
+msgid "Les cookies"
+msgstr ""
+
+#: templates/search/search.html:36
+msgid "Résultats"
+msgstr ""
+
+#: templates/search/search.html:43
+msgid "Filtrer les résultats"
+msgstr ""
+
+#: templates/search/search.html:53
+msgid "Rechercher"
+msgstr ""
+
+#: templates/search/search.html:151
+msgid "Aucun résultat trouvé"
+msgstr ""
+
+#: templates/tutorial/base.html:66
+msgid "Markdown"
+msgstr ""
+
+#: templates/tutorial/base.html:74
+msgid "HTML"
+msgstr ""
+
+#: templates/tutorial/base.html:81
+msgid "PDF"
+msgstr ""
+
+#: templates/tutorial/base.html:88
+msgid "EPUB"
+msgstr ""
+
+#: templates/tutorial/export.html:17
+msgid "étendu"
+msgstr ""
+
+#: templates/tutorial/export.html:19
+msgid "rédigé par"
+msgstr ""
+
+#: templates/tutorial/export.html:23
+msgid "et"
+msgstr ""
+
+#: templates/tutorial/export.html:49
+msgid "Aucune introduction"
+msgstr ""
+
+#: templates/tutorial/export.html:63 templates/tutorial/part/view.html:155
+#: templates/tutorial/part/view.html:170
+#: templates/tutorial/tutorial/view_online.html:85
+msgid "Partie"
+msgstr ""
+
+#: templates/tutorial/export.html:70 templates/tutorial/part/view.html:85
+#: templates/tutorial/tutorial/view.html:130
+#: templates/tutorial/tutorial/view_online.html:92
+msgid "Il n'y a actuellement aucune partie dans ce tutoriel"
+msgstr ""
+
+#: templates/tutorial/export.html:80
+msgid "Aucune conclusion"
+msgstr ""
+
+#: templates/tutorial/index.html:18
+msgid "Découvrez tous nos tutoriels sur"
+msgstr ""
+
+#: templates/tutorial/index.html:18
+msgid ""
+"Vous pourrez également découvrir divers sujets tous plus intéressants les "
+"uns que les autres"
+msgstr ""
+
+#: templates/tutorial/index.html:59 templates/tutorial/member/beta.html:40
+#: templates/tutorial/member/index.html:92
+#: templates/tutorial/member/online.html:39
+msgid "Aucun tutoriel disponible"
+msgstr ""
+
+#: templates/tutorial/index.html:72 templates/tutorial/member/index.html:102
+#: templates/tutorial/tutorial/new.html:7
+#: templates/tutorial/tutorial/new.html:13
+msgid "Nouveau tutoriel"
+msgstr ""
+
+#: templates/tutorial/index.html:75
+msgid " Catégories <span class=\"wide\">de tutoriels</span> "
+msgstr ""
+
+#: templates/tutorial/index.html:96
+msgid "Nouveaux tutoriels (RSS)"
+msgstr ""
+
+#: templates/tutorial/index.html:101
+msgid "Nouveaux tutoriels (ATOM)"
+msgstr ""
+
+#: templates/tutorial/chapter/edit.html:8
+#: templates/tutorial/chapter/edit.html:21
+#: templates/tutorial/chapter/edit.html:31
+#: templates/tutorial/chapter/view.html:68
+msgid "Éditer le chapitre"
+msgstr ""
+
+#: templates/tutorial/chapter/edit.html:46
+#: templates/tutorial/extract/edit.html:34
+#: templates/tutorial/part/edit.html:41
+#: templates/tutorial/tutorial/edit.html:36
+msgid "Une nouvelle version a été postée avant que vous ne validiez"
+msgstr ""
+
+#: templates/tutorial/chapter/new.html:8
+#: templates/tutorial/chapter/new.html:13
+#: templates/tutorial/chapter/new.html:21
+msgid "Nouveau chapitre"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:40
+msgid "Cette version du tutoriel est en <strong>BÊTA</strong> !"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:63
+#: templates/tutorial/extract/new.html:20
+#: templates/tutorial/tutorial/view.html:158
+msgid "Ajouter un extrait"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:80
+msgid ""
+"\n"
+"                        Déplacer <span class=\"wide\">le chapitre</span>\n"
+"                    "
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:87
+#: templates/tutorial/chapter/view.html:137
+#: templates/tutorial/includes/chapter.part.html:50
+#: templates/tutorial/includes/chapter.part.html:53
+#: templates/tutorial/includes/chapter.part.html:85
+#: templates/tutorial/part/view.html:130 templates/tutorial/part/view.html:180
+msgid "Déplacer"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:92
+#: templates/tutorial/includes/chapter.part.html:55
+#: templates/tutorial/part/view.html:135
+msgid "Monter"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:98
+#: templates/tutorial/includes/chapter.part.html:59
+#: templates/tutorial/part/view.html:141
+msgid "Descendre"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:102
+#: templates/tutorial/includes/chapter.part.html:62
+#: templates/tutorial/part/view.html:145
+msgid "Déplacer avant"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:112
+#: templates/tutorial/chapter/view.html:127
+#: templates/tutorial/includes/part_export.part.html:23
+msgid "Chapitre"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:117
+#: templates/tutorial/includes/chapter.part.html:71
+#: templates/tutorial/part/view.html:160
+msgid "Déplacer après"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:152
+#: templates/tutorial/tutorial/view.html:443
+msgid "Suppression"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:156
+msgid "Supprimer le chapitre"
+msgstr ""
+
+#: templates/tutorial/chapter/view.html:160
+#, python-format
+msgid ""
+"\n"
+"                                    Attention, vous vous apprêtez à "
+"supprimer définitivement le chapitre <em>%(chapter_title)s</em>.\n"
+"                                "
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:61
+#: templates/tutorial/part/view_online.html:48
+#: templates/tutorial/tutorial/history.html:31
+msgid "Licence"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:85
+#: templates/tutorial/part/view_online.html:66
+#: templates/tutorial/tutorial/view_online.html:172
+msgid "Admin<span class=\"wide\">istration</span>"
+msgstr ""
+
+#: templates/tutorial/chapter/view_online.html:87
+#: templates/tutorial/part/view_online.html:70
+#: templates/tutorial/tutorial/view_online.html:176
+msgid "Version hors-ligne"
+msgstr ""
+
+#: templates/tutorial/comment/edit.html:8
+#: templates/tutorial/comment/edit.html:15
+msgid "Éditer un commentaire"
+msgstr ""
+
+#: templates/tutorial/comment/edit.html:21
+msgid "Éditer le commentaire du tutoriel"
+msgstr ""
+
+#: templates/tutorial/comment/new.html:9
+#: templates/tutorial/comment/new.html:16
+msgid "Commenter le tutoriel"
+msgstr ""
+
+#: templates/tutorial/comment/new.html:22
+msgid "Ajouter un commentaire au tutoriel"
+msgstr ""
+
+#: templates/tutorial/comment/new.html:36
+msgid ""
+"\n"
+"            <strong>Au moins un nouveau message a été posté</strong> dans la "
+"discussion pendant que vous rédigiez le votre.\n"
+"            "
+msgstr ""
+
+#: templates/tutorial/extract/edit.html:7
+#: templates/tutorial/extract/edit.html:20
+#: templates/tutorial/extract/edit.html:26
+msgid "Éditer l'extrait"
+msgstr ""
+
+#: templates/tutorial/extract/new.html:7
+#: templates/tutorial/extract/new.html:26
+msgid "Nouvel extrait"
+msgstr ""
+
+#: templates/tutorial/includes/chapter.part.html:12
+#: templates/tutorial/part/view.html:50
+#: templates/tutorial/tutorial/view.html:108
+msgid "Il n'y a pas d'introduction"
+msgstr ""
+
+#: templates/tutorial/includes/chapter.part.html:21
+msgid "Il n'y a aucun extrait"
+msgstr ""
+
+#: templates/tutorial/includes/chapter.part.html:39
+#, python-format
+msgid ""
+"\n"
+"                        Êtes-vous certain de vouloir supprimer "
+"<strong>définitivement</strong> l'extrait <em>%(extract_title)s</em> ?\n"
+"                        "
+msgstr ""
+
+#: templates/tutorial/includes/chapter.part.html:99
+msgid "Cet extrait est vide"
+msgstr ""
+
+#: templates/tutorial/includes/chapter.part.html:111
+#: templates/tutorial/part/view.html:97
+#: templates/tutorial/tutorial/view.html:142
+msgid "Il n'y a pas de conclusion"
+msgstr ""
+
+#: templates/tutorial/includes/part_export.part.html:11
+msgid "Pas d'introduction"
+msgstr ""
+
+#: templates/tutorial/includes/part_export.part.html:16
+msgid "Il n'y a aucun chapitre dans cette partie"
+msgstr ""
+
+#: templates/tutorial/includes/part_export.part.html:41
+msgid "Pas de conclusion"
+msgstr ""
+
+#: templates/tutorial/includes/summary.part.html:9
+msgid "Sommaire"
+msgstr ""
+
+#: templates/tutorial/includes/summary.part.html:29
+msgid "Aucun extrait actuellement"
+msgstr ""
+
+#: templates/tutorial/includes/summary.part.html:87
+msgid "Aucune partie actuellement"
+msgstr ""
+
+#: templates/tutorial/includes/tags_authors.part.html:18
+msgid "Dernière mise à jour"
+msgstr ""
+
+#: templates/tutorial/member/beta.html:10
+#: templates/tutorial/member/beta.html:26
+#: templates/tutorial/member/online.html:46
+msgid "Tutoriels en bêta par"
+msgstr ""
+
+#: templates/tutorial/member/beta.html:19
+msgid "Tutoriels en bêta"
+msgstr ""
+
+#: templates/tutorial/member/beta.html:47
+msgid "Tutoriels en ligne par"
+msgstr ""
+
+#: templates/tutorial/member/index.html:13
+#: templates/tutorial/member/index.html:33
+#: templates/tutorial/member/index.html:53
+#: templates/tutorial/member/index.html:127
+#: templates/tutorial/tutorial/history.html:134
+msgid "En bêta"
+msgstr ""
+
+#: templates/tutorial/member/index.html:37
+msgid "Tous mes tutoriels"
+msgstr ""
+
+#: templates/tutorial/member/index.html:83
+msgid "Créé"
+msgstr ""
+
+#: templates/tutorial/member/index.html:105
+#: templates/tutorial/tutorial/import.html:77 zds/gallery/forms.py:169
+msgid "Importer"
+msgstr ""
+
+#: templates/tutorial/member/online.html:9
+#: templates/tutorial/member/online.html:25
+msgid "Tutoriels publiés par"
+msgstr ""
+
+#: templates/tutorial/member/online.html:18
+msgid "Tutoriels publiés"
+msgstr ""
+
+#: templates/tutorial/part/edit.html:8 templates/tutorial/part/edit.html:16
+msgid "Éditer une partie"
+msgstr ""
+
+#: templates/tutorial/part/edit.html:26 templates/tutorial/part/view.html:110
+msgid "Éditer la partie"
+msgstr ""
+
+#: templates/tutorial/part/new.html:7 templates/tutorial/part/new.html:14
+#: templates/tutorial/part/new.html:22
+msgid "Nouvelle partie"
+msgstr ""
+
+#: templates/tutorial/part/view.html:35
+msgid ""
+"\n"
+"                Cette version du tutoriel est en <strong>BÊTA</strong> !\n"
+"                "
+msgstr ""
+
+#: templates/tutorial/part/view.html:107
+msgid "Ajouter un chapitre"
+msgstr ""
+
+#: templates/tutorial/part/view.html:122
+msgid ""
+"\n"
+"                    Déplacer <span class=\"wide\">la partie</span>\n"
+"                    "
+msgstr ""
+
+#: templates/tutorial/part/view.html:185
+msgid "Supprimer la partie"
+msgstr ""
+
+#: templates/tutorial/part/view.html:190
+msgid "Attention, vous vous apprêtez à supprimer définitivement la partie"
+msgstr ""
+
+#: templates/tutorial/tutorial/diff.html:41
+msgid "Nouveaux Fichiers"
+msgstr ""
+
+#: templates/tutorial/tutorial/diff.html:51
+msgid "Fichiers Modifiés"
+msgstr ""
+
+#: templates/tutorial/tutorial/edit.html:7
+#: templates/tutorial/tutorial/edit.html:17
+#: templates/tutorial/tutorial/edit.html:28
+msgid "Éditer le tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:48
+msgid "Etat"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:53
+msgid "Bêta"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:67
+msgid "Draft"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:96
+msgid "Activer"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:104
+#, python-format
+msgid ""
+"\n"
+"                                            Êtes-vous certain de vouloir "
+"<strong>activer</strong> la bêta sur le tutoriel \n"
+"                                            \"<em>%(tutorial_title)s</em>\" "
+"dans sa version du %(date_version)s ?\n"
+"                                        "
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:115 zds/gallery/forms.py:206
+msgid "Mettre à jour"
+msgstr ""
+
+#: templates/tutorial/tutorial/history.html:123
+#, python-format
+msgid ""
+"\n"
+"                                            Êtes-vous certain de vouloir "
+"<strong>mettre à jour</strong> la bêta du tutoriel \n"
+"                                            \"<em>%(tutorial_title)s</em>\" "
+"dans sa version du %(date_version)s ?\n"
+"                                        "
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:7
+#: templates/tutorial/tutorial/import.html:13
+#: templates/tutorial/tutorial/import.html:20
+msgid "Importer un tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:27
+msgid "Envoi d'une archive"
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:29
+#, python-format
+msgid ""
+"\n"
+"        Vous avez commencé a rédiger votre tutoriel sur l'éditeur en ligne "
+"de %(site_name)s, vous avez téléchargé l'archive correspondate et vous avez "
+"fait des modifications sur les fichiers en hors-ligne, et vous souhaitez "
+"maintenant importer ces modifications sur le site ? Faites une archive zip "
+"(seul format supporté actuellement) du répertoire dans lequel se trouve les "
+"fichiers de votre tutoriel et renseignez les deux champs ci-dessous, puis "
+"cliquez sur importer.\n"
+"        "
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:35
+msgid "Envoi de fichiers .tuto"
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:37
+msgid ""
+"\n"
+"        Vous êtes l'auteur d'un cours sur le SdZ ? Nous l'avons récupéré "
+"pour vous ! Il est disponible en hors-ligne et n'attend plus que votre "
+"accord pour être publié. Il vous suffit d'en faire la demande à un membre du "
+"Staff via le forum ou directement par MP.\n"
+"        "
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:43
+msgid ""
+"\n"
+"        <strong>Attention</strong>, le fichier attendu n'est pas un .tuto du "
+"Site du Zéro, mais un format intermédiaire qui contient du Markdown et non "
+"du zCode. Contactez un membre du Staff pour demander la conversion de votre "
+"fichier.\n"
+"        "
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:48
+msgid ""
+"\n"
+"            Le fichier zip est celui qui contient les ressources de votre "
+"tutoriel. Il est également issu du convertisseur Markdown > zCode.\n"
+"        "
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:56
+msgid "Récupérer un tutoriel du Site du Zéro"
+msgstr ""
+
+#: templates/tutorial/tutorial/import.html:58
+msgid ""
+"Ci-dessous se trouve la liste des tutoriels que vous aviez rédigé sur le "
+"Site du Zéro et que nous avons récupéré. Vous pouvez les importer pour "
+"continuer leur rédaction et les soumettre à la validation. Si vous pensez "
+"qu'il en manque un, vous pouvez contacter un membre du Staff"
+msgstr ""
+
+#: templates/tutorial/tutorial/new.html:20
+msgid "Nouveau Tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:53
+msgid "Ce tutoriel est en attente d'un validateur"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:57
+msgid "Le tutoriel est en cours de validation par"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:76
+#: templates/tutorial/tutorial/view.html:82
+msgid "Une autre version de ce tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:94
+msgid ""
+"\n"
+"                    Cette version du tutoriel est en <strong>\"BÊTA\"</"
+"strong> !\n"
+"                "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:154
+msgid "Ajouter une partie"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:226
+msgid ""
+"\n"
+"                        Voir <span class=\"wide\">la version</span> en "
+"ligne\n"
+"                    "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:236
+msgid "Mettre cette version en bêta"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:244
+#, python-format
+msgid ""
+"\n"
+"                        Êtes-vous certain de vouloir <strong>activer</"
+"strong> la bêta du tutoriel\n"
+"                        \"<em>%(tutorial_title)s</em>\" dans la version que "
+"vous voyez actuellement ?\n"
+"                        "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:258
+msgid ""
+"\n"
+"                            Voir <span class=\"wide\">la version</span> en "
+"bêta\n"
+"                        "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:265
+msgid "Mettre à jour la bêta avec cette version"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:273
+#, python-format
+msgid ""
+"\n"
+"                            Êtes-vous certain de vouloir <strong>mettre à "
+"jour</strong> la bêta du tutoriel\n"
+"                            \"<em>%(tutorial_title)s</em>\" dans la version "
+"que vous voyez actuellement ?\n"
+"                            "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:286
+msgid "Cette version est déjà en bêta"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:292
+msgid "Désactiver la bêta"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:300
+#, python-format
+msgid ""
+"\n"
+"                            Êtes-vous certain de vouloir <strong>désactiver</"
+"strong> la bêta du tutoriel \"<em>%(tutorial_title)s</em>\" ?\n"
+"                        "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:350
+#: templates/tutorial/tutorial/view_online.html:181
+msgid "Historique validation"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:361
+msgid "l'auteur"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:372
+#, python-format
+msgid ""
+"\n"
+"                                    Êtes-vous certains de vouloir "
+"<strong>dépublier</strong> le tutoriel \"<em>%(tutorial_title)s</em>\"\n"
+"                                "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:404
+msgid "Valider et publier"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:418
+#, python-format
+msgid ""
+"\n"
+"                                        Réservé par <strong>"
+"%(validator_name)s</strong>, le retirer\n"
+"                                    "
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:425
+msgid "La validation de ce tutoriel est actuellement réservé par"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:448
+msgid "Supprimer le tutoriel"
+msgstr ""
+
+#: templates/tutorial/tutorial/view.html:453
+#, python-format
+msgid ""
+"\n"
+"                                    Attention, vous vous apprêtez à "
+"<strong>supprimer définitivement</strong> le tutoriel \"<em>"
+"%(tutorial_title)s</em>\".\n"
+"                                "
+msgstr ""
+
+#: templates/tutorial/tutorial/view_online.html:112
+msgid "commentaire"
+msgstr ""
+
+#: templates/tutorial/tutorial/view_online.html:114
+msgid "Aucun commentaire"
+msgstr ""
+
+#: templates/tutorial/tutorial/view_online.html:191
+msgid "Êtes-vous certains de vouloir dépublier le tutoriel"
+msgstr ""
+
+#: templates/tutorial/validation/history.html:73
+msgid "Ce tutoriel n'a jamais été soumis en validation"
+msgstr ""
+
+#: templates/tutorial/validation/index.html:10
+#: templates/tutorial/validation/index.html:30
+msgid "Reservés"
+msgstr ""
+
+#: templates/tutorial/validation/index.html:12
+#: templates/tutorial/validation/index.html:32
+msgid "Non-reservés"
+msgstr ""
+
+#: templates/tutorial/validation/index.html:52
+msgid "Propos"
+msgstr ""
+
+#: zds/settings.py:52
+msgid "Français"
+msgstr ""
+
+#: zds/settings.py:53
+msgid "Anglais"
+msgstr ""
+
+#: zds/article/forms.py:28 zds/tutorial/forms.py:46
+msgid "Description"
+msgstr ""
+
+#: zds/article/forms.py:38 zds/tutorial/forms.py:310
+msgid "Texte"
+msgstr ""
+
+#: zds/article/forms.py:41 zds/article/forms.py:125 zds/forum/forms.py:39
+#: zds/forum/forms.py:106 zds/mp/forms.py:45 zds/mp/forms.py:102
+#: zds/tutorial/forms.py:62 zds/tutorial/forms.py:72 zds/tutorial/forms.py:147
+#: zds/tutorial/forms.py:157 zds/tutorial/forms.py:210
+#: zds/tutorial/forms.py:220 zds/tutorial/forms.py:314
+#: zds/tutorial/forms.py:423
+msgid "Votre message au format Markdown."
+msgstr ""
+
+#: zds/article/forms.py:48
+msgid "Selectionnez une image"
+msgstr ""
+
+#: zds/article/forms.py:53
+msgid ""
+"Sous catégories de votre article. Si aucune catégorie ne convient n'hésitez "
+"pas à en demander une nouvelle lors de la validation !"
+msgstr ""
+
+#: zds/article/forms.py:60 zds/tutorial/forms.py:95
+msgid "Licence de votre publication"
+msgstr ""
+
+#: zds/article/forms.py:67 zds/tutorial/forms.py:102 zds/tutorial/forms.py:163
+#: zds/tutorial/forms.py:226 zds/tutorial/forms.py:276
+#: zds/tutorial/forms.py:320
+msgid "Message de suivi"
+msgstr ""
+
+#: zds/article/forms.py:72 zds/tutorial/forms.py:107 zds/tutorial/forms.py:168
+#: zds/tutorial/forms.py:231 zds/tutorial/forms.py:281
+#: zds/tutorial/forms.py:325
+msgid "Un résumé de vos ajouts et modifications"
+msgstr ""
+
+#: zds/article/forms.py:147 zds/forum/forms.py:125 zds/tutorial/forms.py:445
+msgid ""
+"Vous venez de poster. Merci de patienter au moins 15 minutes entre deux "
+"messages consécutifs afin de limiter le flood."
+msgstr ""
+
+#: zds/article/forms.py:154
+msgid "Cet article est verrouillé."
+msgstr ""
+
+#: zds/article/forms.py:165 zds/forum/forms.py:144 zds/tutorial/forms.py:463
+msgid "Vous devez écrire une réponse !"
+msgstr ""
+
+#: zds/article/forms.py:171 zds/forum/forms.py:95 zds/forum/forms.py:150
+#: zds/tutorial/forms.py:469
+msgid "Ce message est trop long, il ne doit pas dépasser {0} caractères"
+msgstr ""
+
+#: zds/forum/forms.py:23
+msgid "[Tag 1][Tag 2] Titre de mon sujet"
+msgstr ""
+
+#: zds/forum/forms.py:30 zds/gallery/forms.py:24 zds/mp/forms.py:35
+msgid "Sous-titre"
+msgstr ""
+
+#: zds/forum/forms.py:67 zds/gallery/forms.py:51 zds/mp/forms.py:88
+msgid "Le champ titre ne peut être vide"
+msgstr ""
+
+#: zds/forum/forms.py:73
+msgid "Le titre ne peux pas contenir uniquement des tags"
+msgstr ""
+
+#: zds/forum/forms.py:80
+msgid "Un tag ne peut être vide"
+msgstr ""
+
+#: zds/forum/forms.py:85
+msgid "Un tag doit faire moins de {0} caractères"
+msgstr ""
+
+#: zds/forum/forms.py:89 zds/mp/forms.py:92 zds/mp/forms.py:134
+msgid "Le champ text ne peut être vide"
+msgstr ""
+
+#: zds/forum/forms.py:133
+msgid "Ce topic est verrouillé."
+msgstr ""
+
+#: zds/forum/forms.py:159
+msgid "Forum"
+msgstr ""
+
+#: zds/forum/forms.py:174 zds/member/forms.py:598 zds/pages/forms.py:66
+#: zds/tutorial/forms.py:187 zds/tutorial/forms.py:251
+#: zds/tutorial/forms.py:301
+msgid "Valider"
+msgstr ""
+
+#: zds/gallery/forms.py:40
+msgid "Créer"
+msgstr ""
+
+#: zds/gallery/forms.py:65
+msgid "Nom de l'utilisateur"
+msgstr ""
+
+#: zds/gallery/forms.py:103 zds/member/forms.py:506
+msgid "Ce nom d'utilisateur n'existe pas"
+msgstr ""
+
+#: zds/gallery/forms.py:116
+msgid "Légende"
+msgstr ""
+
+#: zds/gallery/forms.py:122
+msgid "Sélectionnez votre image"
+msgstr ""
+
+#: zds/gallery/forms.py:124
+msgid "Taille maximum : {0} Ko"
+msgstr ""
+
+#: zds/gallery/forms.py:149
+msgid "Votre image est trop lourde, la limite autorisée est de {0} Ko"
+msgstr ""
+
+#: zds/gallery/forms.py:156
+msgid "Sélectionnez l'archive contenant les images à charger"
+msgstr ""
+
+#: zds/gallery/forms.py:183
+msgid "Le champ n'accepte que les fichiers zip"
+msgstr ""
+
+#: zds/gallery/forms.py:225
+msgid "Utiliser comme avatar"
+msgstr ""
+
+#: zds/gallery/views.py:113
+msgid ""
+"La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel "
+"existant."
+msgstr ""
+
+#: zds/gallery/views.py:208 zds/gallery/views.py:364
+msgid ""
+"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {} <abbr "
+"title=\"kibioctet\">Kio</abbr> avant de l'envoyer."
+msgstr ""
+
+#: zds/member/forms.py:30
+msgid "Ancien Tutoriel"
+msgstr ""
+
+#: zds/member/forms.py:46
+msgid "Attribuer"
+msgstr ""
+
+#: zds/member/forms.py:53 zds/member/forms.py:101 zds/member/forms.py:480
+msgid "Nom d'utilisateur"
+msgstr ""
+
+#: zds/member/forms.py:64 zds/member/forms.py:107 zds/member/forms.py:513
+msgid "Mot de passe"
+msgstr ""
+
+#: zds/member/forms.py:72
+msgid "Se souvenir de moi"
+msgstr ""
+
+#: zds/member/forms.py:88
+msgid "Se connecter"
+msgstr ""
+
+#: zds/member/forms.py:115
+msgid "Confirmation du mot de passe"
+msgstr ""
+
+#: zds/member/forms.py:134
+msgid "Valider mon inscription"
+msgstr ""
+
+#: zds/member/forms.py:145 zds/member/forms.py:548
+msgid "Les mots de passe sont différents"
+msgstr ""
+
+#: zds/member/forms.py:160
+msgid "Le nom d'utilisateur ne peut-être vide"
+msgstr ""
+
+#: zds/member/forms.py:163 zds/member/forms.py:368
+msgid "Ce nom d'utilisateur est déjà utilisé"
+msgstr ""
+
+#: zds/member/forms.py:167 zds/member/forms.py:374
+msgid "Le nom d'utilisateur ne peut contenir de virgules"
+msgstr ""
+
+#: zds/member/forms.py:170 zds/member/forms.py:370
+msgid "Le nom d'utilisateur ne peut commencer/finir par des espaces"
+msgstr ""
+
+#: zds/member/forms.py:175
+msgid "Le mot de passe doit être différent du pseudo"
+msgstr ""
+
+#: zds/member/forms.py:189
+msgid "Utilisez un autre fournisseur d'adresses courriel."
+msgstr ""
+
+#: zds/member/forms.py:195 zds/member/forms.py:380
+msgid "Votre adresse courriel est déjà utilisée"
+msgstr ""
+
+#: zds/member/forms.py:207
+msgid "Votre biographie au format Markdown."
+msgstr ""
+
+#: zds/member/forms.py:218
+msgid ""
+"Lien vers votre site internet personnel (ne pas oublier le http:// ou "
+"https:// devant)."
+msgstr ""
+
+#: zds/member/forms.py:230
+msgid "Lien vers un avatar externe (laissez vide pour utiliser Gravatar)."
+msgstr ""
+
+#: zds/member/forms.py:242
+msgid "Elle apparaitra dans les messages de forums. "
+msgstr ""
+
+#: zds/member/forms.py:259 zds/member/forms.py:312 zds/member/forms.py:353
+#: zds/member/forms.py:429
+msgid "Enregistrer"
+msgstr ""
+
+#: zds/member/forms.py:269
+msgid "Afficher mon adresse courriel publiquement"
+msgstr ""
+
+#: zds/member/forms.py:270
+msgid "Afficher les signatures"
+msgstr ""
+
+#: zds/member/forms.py:271
+msgid "Cochez pour dérouler les menus au survol"
+msgstr ""
+
+#: zds/member/forms.py:272
+msgid "Recevez un courriel lorsque vous recevez une réponse à un message privé"
+msgstr ""
+
+#: zds/member/forms.py:320
+msgid "Nouveau pseudo"
+msgstr ""
+
+#: zds/member/forms.py:326 zds/member/forms.py:337
+msgid "Ne mettez rien pour conserver l'ancien"
+msgstr ""
+
+#: zds/member/forms.py:332
+msgid "Nouvelle adresse courriel"
+msgstr ""
+
+#: zds/member/forms.py:340
+msgid "Veuillez entrer une adresse email valide."
+msgstr ""
+
+#: zds/member/forms.py:386
+msgid "Utilisez un autre fournisseur d'adresses mail."
+msgstr ""
+
+#: zds/member/forms.py:403
+msgid "Mot de passe actuel"
+msgstr ""
+
+#: zds/member/forms.py:410
+msgid "Confirmer le nouveau mot de passe"
+msgstr ""
+
+#: zds/member/forms.py:448
+msgid "Mot de passe incorrect."
+msgstr ""
+
+#: zds/member/forms.py:454
+msgid "Les mots de passe sont différents."
+msgstr ""
+
+#: zds/member/forms.py:466 zds/member/forms.py:560
+msgid "Le mot de passe doit être différent de votre pseudo"
+msgstr ""
+
+#: zds/member/forms.py:573
+msgid "Groupe de l'utilisateur"
+msgstr ""
+
+#: zds/member/forms.py:579
+msgid "Super-user"
+msgstr ""
+
+#: zds/member/forms.py:584
+msgid "Compte actif"
+msgstr ""
+
+#: zds/member/views.py:112
+msgid "# Le tutoriel présenté par ce topic n'existe plus."
+msgstr ""
+
+#: zds/member/views.py:198
+msgid "Messages postés par période"
+msgstr ""
+
+#: zds/member/views.py:282
+msgid "Lecture Seule"
+msgstr ""
+
+#: zds/member/views.py:284
+msgid ""
+"Vous ne pouvez plus poster dans les forums, ni dans les commentaires "
+"d'articles et de tutoriels."
+msgstr ""
+
+#: zds/member/views.py:287
+msgid "Lecture Seule Temporaire"
+msgstr ""
+
+#: zds/member/views.py:293
+msgid ""
+"Vous ne pouvez plus poster dans les forums, ni dans les commentaires "
+"d'articles et de tutoriels pendant {0} jours."
+msgstr ""
+
+#: zds/member/views.py:297
+msgid "Ban Temporaire"
+msgstr ""
+
+#: zds/member/views.py:303
+msgid "Vous ne pouvez plus vous connecter sur {} pendant {} jours."
+msgstr ""
+
+#: zds/member/views.py:309
+msgid "Ban définitif"
+msgstr ""
+
+#: zds/member/views.py:312
+msgid "vous ne pouvez plus vous connecter sur {}."
+msgstr ""
+
+#: zds/member/views.py:316
+msgid "Autorisation d'écrire"
+msgstr ""
+
+#: zds/member/views.py:319
+msgid ""
+"Vous pouvez désormais poster sur les forums, dans les commentaires "
+"d'articles et tutoriels."
+msgstr ""
+
+#: zds/member/views.py:322
+msgid "Autorisation de se connecter"
+msgstr ""
+
+#: zds/member/views.py:325
+msgid "vous pouvez désormais vous connecter sur le site."
+msgstr ""
+
+#: zds/member/views.py:332
+msgid ""
+"Bonjour **{0}**,\n"
+"\n"
+"**Bonne Nouvelle**, la sanction qui pesait sur vous a été levée par **{1}"
+"**.\n"
+"\n"
+"Ce qui signifie que {2}\n"
+"\n"
+"Le motif de votre sanction est :\n"
+"\n"
+"> {3}\n"
+"\n"
+"Cordialement, L'équipe {4}."
+msgstr ""
+
+#: zds/member/views.py:345
+msgid ""
+"Bonjour **{0}**,\n"
+"\n"
+"Vous avez été santionné par **{1}**.\n"
+"\n"
+"La sanction est de type *{2}*, ce qui signifie que {3}\n"
+"\n"
+"Le motif de votre sanction est :\n"
+"\n"
+"> {4}\n"
+"\n"
+"Cordialement, L'équipe {5}."
+msgstr ""
+
+#: zds/member/views.py:362
+msgid "Sanction"
+msgstr ""
+
+#: zds/member/views.py:456 zds/member/views.py:505
+msgid "Le profil a correctement été mis à jour."
+msgstr ""
+
+#: zds/member/views.py:502 zds/member/views.py:539 zds/member/views.py:563
+msgid "Une erreur est survenue."
+msgstr ""
+
+#: zds/member/views.py:541
+msgid "L'avatar a correctement été mis à jour."
+msgstr ""
+
+#: zds/member/views.py:559
+msgid "Le mot de passe a bien été modifié."
+msgstr ""
+
+#: zds/member/views.py:633
+msgid ""
+"Vous n'êtes pas autorisé à vous connecter sur le site, vous avez été banni "
+"par un modérateur."
+msgstr ""
+
+#: zds/member/views.py:638
+msgid ""
+"Vous n'avez pas encore activé votre compte, vous devez le faire pour pouvoir "
+"vous connecter sur le site. Regardez dans vos mails : {}."
+msgstr ""
+
+#: zds/member/views.py:644
+msgid "Les identifiants fournis ne sont pas valides."
+msgstr ""
+
+#: zds/member/views.py:696 zds/member/views.py:875
+msgid "{} - Confirmation d'inscription"
+msgstr ""
+
+#: zds/member/views.py:737
+msgid "{} - Mot de passe oublié"
+msgstr ""
+
+#: zds/member/views.py:810
+msgid ""
+"Bonjour **{0}**,\n"
+"\n"
+"Ton compte a été activé, et tu es donc officiellement membre de la "
+"communauté de {4}.\n"
+"\n"
+"{4} est une communauté dont le but est de diffuser des connaissances au plus "
+"grand nombre.\n"
+"\n"
+"Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans plusieurs "
+"domaines et plus particulièrement autour de l'informatique et des sciences. "
+"Tu y retrouveras aussi des [articles]({2}) traitant de sujets d'actualité ou "
+"non, qui, tout comme les tutoriels, sont écrits par des [membres]({3}) de la "
+"communauté. Pendant tes lectures et ton apprentissage, si jamais tu as des "
+"questions à poser, tu retrouveras sur les [forums]({4}) des personnes prêtes "
+"à te filer un coup de main et ainsi t'éviter de passer plusieurs heures sur "
+"un problème.\n"
+"\n"
+"L'ensemble du contenu disponible sur le site est et sera toujours gratuit, "
+"car la communauté de {4} est attachée aux valeurs du libre partage et désire "
+"apporter le savoir à tout le monde quels que soient ses moyens.\n"
+"\n"
+"En espérant que tu te plairas ici, je te laisse maintenant faire un petit "
+"tour.\n"
+"\n"
+"Clem'"
+msgstr ""
+
+#: zds/member/views.py:845
+msgid "Bienvenue sur {}"
+msgstr ""
+
+#: zds/member/views.py:846
+msgid "Le manuel du nouveau membre"
+msgstr ""
+
+#: zds/member/views.py:936
+msgid "Le tutoriel a bien été lié au membre {0}."
+msgstr ""
+
+#: zds/member/views.py:968
+msgid "Le tutoriel a bien été retiré au membre {0}."
+msgstr ""
+
+#: zds/member/views.py:996
+msgid "{0} appartient maintenant au groupe {1}."
+msgstr ""
+
+#: zds/member/views.py:1001
+msgid "{0} n'appartient maintenant plus au groupe {1}."
+msgstr ""
+
+#: zds/member/views.py:1014
+msgid "{0} n'appartient (plus ?) à aucun groupe."
+msgstr ""
+
+#: zds/member/views.py:1020
+msgid "{0} est maintenant super-utilisateur."
+msgstr ""
+
+#: zds/member/views.py:1024
+msgid "Un super-utilisateur ne peux pas se retirer des super-utilisateurs."
+msgstr ""
+
+#: zds/member/views.py:1028
+msgid "{0} n'est maintenant plus super-utilisateur."
+msgstr ""
+
+#: zds/member/views.py:1033
+msgid "{0} est maintenant activé."
+msgstr ""
+
+#: zds/member/views.py:1037
+msgid "{0} est désactivé."
+msgstr ""
+
+#: zds/member/views.py:1044
+msgid ""
+"Bonjour {0},\n"
+"\n"
+"Un administrateur vient de modifier les groupes auxquels vous appartenez.  \n"
+msgstr ""
+
+#: zds/member/views.py:1048
+msgid ""
+"Voici la liste des groupes dont vous faites dorénavant partie :\n"
+"\n"
+msgstr ""
+
+#: zds/member/views.py:1052
+msgid "* Vous ne faites partie d'aucun groupe"
+msgstr ""
+
+#: zds/member/views.py:1055
+msgid ""
+"Vous avez aussi rejoint le rang des super utilisateurs. N'oubliez pas, un "
+"grand pouvoir entraine de grandes responsabiltiés !"
+msgstr ""
+
+#: zds/member/views.py:1060
+msgid "Modification des groupes"
+msgstr ""
+
+#: zds/mp/forms.py:19
+msgid "Les participants doivent être séparés par une virgule."
+msgstr ""
+
+#: zds/mp/forms.py:74
+msgid "Le champ participants ne peut être vide"
+msgstr ""
+
+#: zds/mp/forms.py:81
+msgid "Un des participants saisi est introuvable"
+msgstr ""
+
+#: zds/mp/forms.py:84
+msgid "Vous ne pouvez pas vous écrire à vous-même !"
+msgstr ""
+
+#: zds/mp/forms.py:123
+msgid "Vous êtes seul dans cette conversation, vous ne pouvez plus y écrire."
+msgstr ""
+
+#: zds/mp/views.py:188
+msgid "Vous êtes déjà auteur du message"
+msgstr ""
+
+#: zds/mp/views.py:482
+msgid "Vous avez quitté la conversation avec succès."
+msgstr ""
+
+#: zds/mp/views.py:503
+msgid "Le membre que vous essayez d'ajouter à la conversation y est déjà."
+msgstr ""
+
+#: zds/mp/views.py:511
+msgid "Le membre a bien été ajouté à la conversation."
+msgstr ""
+
+#: zds/mp/views.py:514
+msgid "Le membre que vous avez essayé d'ajouter n'existe pas."
+msgstr ""
+
+#: zds/pages/forms.py:12
+msgid "Qui êtes vous ?"
+msgstr ""
+
+#: zds/pages/forms.py:17
+msgid "M/Mme Prénom Nom"
+msgstr ""
+
+#: zds/pages/forms.py:37
+msgid "Votre adresse complète (rue, code postal, ville, pays...)"
+msgstr ""
+
+#: zds/pages/forms.py:43
+msgid "Pourquoi voulez-vous adhérer à l'association ?"
+msgstr ""
+
+#: zds/pages/forms.py:48
+msgid "Décrivez ici la raison de votre demande d'adhésion à l'association."
+msgstr ""
+
+#: zds/pages/forms.py:76
+msgid "Ce message est trop long, il ne doit pas dépasser 3000 caractères"
+msgstr ""
+
+#: zds/pages/views.py:95
+msgid "Votre demande d'adhésion a bien été envoyée et va être étudiée."
+msgstr ""
+
+#: zds/tutorial/forms.py:36
+msgid "Le champ Titre ne peut être vide"
+msgstr ""
+
+#: zds/tutorial/forms.py:52
+msgid "Sélectionnez le logo du tutoriel (max. {} Ko)"
+msgstr ""
+
+#: zds/tutorial/forms.py:58 zds/tutorial/forms.py:143
+#: zds/tutorial/forms.py:206
+msgid "Introduction"
+msgstr ""
+
+#: zds/tutorial/forms.py:68 zds/tutorial/forms.py:153
+#: zds/tutorial/forms.py:216
+msgid "Conclusion"
+msgstr ""
+
+#: zds/tutorial/forms.py:83
+msgid ""
+"Sous catégories de votre tutoriel. Si aucune catégorie ne convient n'hésitez "
+"pas à en demander une nouvelle lors de la validation !"
+msgstr ""
+
+#: zds/tutorial/forms.py:190 zds/tutorial/forms.py:254
+msgid "Ajouter et continuer"
+msgstr ""
+
+#: zds/tutorial/forms.py:200
+msgid "Selectionnez le logo du tutoriel (max. {0} Ko)"
+msgstr ""
+
+#: zds/tutorial/forms.py:267
+msgid "Sélectionnez une image"
+msgstr ""
+
+#: zds/tutorial/forms.py:293
+msgid "Contenu"
+msgstr ""
+
+#: zds/tutorial/forms.py:346
+msgid "Sélectionnez le tutoriel à importer"
+msgstr ""
+
+#: zds/tutorial/forms.py:350
+msgid "Fichier zip contenant les images du tutoriel"
+msgstr ""
+
+#: zds/tutorial/forms.py:362
+msgid "Importer le .tuto"
+msgstr ""
+
+#: zds/tutorial/forms.py:377
+msgid "Le fichier doit être au format .tuto"
+msgstr ""
+
+#: zds/tutorial/forms.py:384
+msgid "Le fichier doit être au format .zip"
+msgstr ""
+
+#: zds/tutorial/forms.py:391
+msgid "Sélectionnez l'archive de votre tutoriel"
+msgstr ""
+
+#: zds/tutorial/forms.py:396
+msgid "Tutoriel vers lequel vous souhaitez importer votre archive"
+msgstr ""
+
+#: zds/tutorial/forms.py:411
+msgid "Importer l'archive"
+msgstr ""
+
+#: zds/tutorial/forms.py:452
+msgid "Ce tutoriel est verrouillé."
+msgstr ""
+
+#: zds/tutorial/forms.py:484
+msgid "Commentaire pour votre demande."
+msgstr ""
+
+#: zds/tutorial/forms.py:494 zds/tutorial/forms.py:537
+msgid "URL de la version originale"
+msgstr ""
+
+#: zds/tutorial/forms.py:522
+msgid "Commentaire de publication."
+msgstr ""
+
+#: zds/tutorial/forms.py:528
+msgid "Version majeure ?"
+msgstr ""
+
+#: zds/tutorial/forms.py:565
+msgid "Commentaire de rejet."
+msgstr ""
+
+#: zds/tutorial/views.py:188
+msgid "Le tutoriel n'est plus sous réserve."
+msgstr ""
+
+#: zds/tutorial/views.py:196
+msgid "Le tutoriel a bien été                       réservé par {0}."
+msgstr ""
+
+#: zds/tutorial/views.py:298
+msgid "Le tutoriel a bien été refusé."
+msgstr ""
+
+#: zds/tutorial/views.py:302
+msgid ""
+"Désolé, le zeste **{0}** n'a malheureusement pas passé l’étape de "
+"validation. Mais ne désespère pas, certaines corrections peuvent surement "
+"être faite pour l’améliorer et repasser la validation plus tard. Voici le "
+"message que [{1}]({2}), ton validateur t'a laissé:\n"
+"\n"
+"`{3}`\n"
+"\n"
+"N'hésite pas a lui envoyer un petit message pour discuter de la décision ou "
+"demander plus de détail si tout cela te semble injuste ou manque de clarté."
+msgstr ""
+
+#: zds/tutorial/views.py:318
+msgid "Refus de Validation : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:328
+msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le refuser."
+msgstr ""
+
+#: zds/tutorial/views.py:370
+msgid "Le tutoriel a bien été validé."
+msgstr ""
+
+#: zds/tutorial/views.py:375
+msgid ""
+"Félicitations ! Le zeste [{0}]({1}) a été publié par [{2}]({3}) ! Les "
+"lecteurs du monde entier peuvent venir l'éplucher et réagir a son sujet. Je "
+"te conseille de rester a leur écoute afin d'apporter des corrections/"
+"compléments.Un Tutoriel vivant et a jour est bien plus lu qu'un sujet "
+"abandonné !"
+msgstr ""
+
+#: zds/tutorial/views.py:390
+msgid "Publication : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:400
+msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le valider."
+msgstr ""
+
+#: zds/tutorial/views.py:431
+msgid "Le tutoriel a bien été dépublié."
+msgstr ""
+
+#: zds/tutorial/views.py:481
+msgid ""
+"Bonjour {0},Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de "
+"validation, Pour retrouver les modifications qui ont été faites, je t'invite "
+"à consulter l'historique des versions\n"
+"\n"
+"> Merci"
+msgstr ""
+
+#: zds/tutorial/views.py:489
+msgid "Mise à jour de tuto : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:499
+msgid "Votre demande de validation a été envoyée à l'équipe."
+msgstr ""
+
+#: zds/tutorial/views.py:539
+msgid "Le tutoriel {0} a bien été supprimé."
+msgstr ""
+
+#: zds/tutorial/views.py:556
+msgid "Vous ne faites plus partie des rédacteurs de ce tutoriel."
+msgstr ""
+
+#: zds/tutorial/views.py:591
+msgid "L'auteur {0} a bien été ajouté à la rédaction du tutoriel."
+msgstr ""
+
+#: zds/tutorial/views.py:597
+msgid ""
+"Bonjour **{0}**,\n"
+"\n"
+"Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n"
+"Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien \"En "
+"rédaction\" du menu \"Tutoriels\" sur la page de ton profil.\n"
+"\n"
+"Tu peux maintenant commencer à rédiger !"
+msgstr ""
+
+#: zds/tutorial/views.py:611
+msgid "Ajout en tant qu'auteur : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:643
+msgid "L'auteur {0} a bien été retiré du tutoriel."
+msgstr ""
+
+#: zds/tutorial/views.py:649
+msgid ""
+"Bonjour **{0}**,\n"
+"\n"
+"Tu as été supprimé des auteurs du tutoriel [{1}]({2}). Tant qu'il ne sera "
+"pas publié, tu ne pourra plus y accéder.\n"
+msgstr ""
+
+#: zds/tutorial/views.py:660
+msgid "Suppression des auteurs : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:675
+msgid ""
+"Bonjour à tous,\n"
+"\n"
+"J'ai commencé ({0}) la rédaction d'un tutoriel dont l'intitulé est **{1}**.\n"
+"\n"
+"J'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que "
+"sur la forme, afin de proposer en validation un texte de qualité.\n"
+"\n"
+"Si vous êtes intéressé, cliquez ci-dessous \n"
+"\n"
+"-> [Lien de la beta du tutoriel : {1}]({2}) <-\n"
+"\n"
+"\n"
+"\n"
+"Merci d'avance pour votre aide"
+msgstr ""
+
+#: zds/tutorial/views.py:690
+msgid "[beta][tutoriel]{0}"
+msgstr ""
+
+#: zds/tutorial/views.py:698
+msgid ""
+"Bonjour {},\n"
+"\n"
+"Vous venez de mettre votre tutoriel **{}** en beta. La communauté pourra le "
+"consulter afin de vous faire des retours constructifs avant sa soumission en "
+"validation.\n"
+"\n"
+"Un sujet dédié pour la beta de votre tutoriel a été crée dans le forum et "
+"est accessible [ici]({})"
+msgstr ""
+
+#: zds/tutorial/views.py:710
+msgid "Tutoriel en beta : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:717
+msgid ""
+"Bonjour,\n"
+"\n"
+"La beta du tutoriel est de nouveau active.\n"
+"\n"
+"-> [Lien de la beta du tutoriel : {0}]({1}) <-\n"
+"\n"
+"\n"
+"\n"
+"Merci pour vos relectures"
+msgstr ""
+
+#: zds/tutorial/views.py:726
+msgid "La BETA sur ce tutoriel est bien activée."
+msgstr ""
+
+#: zds/tutorial/views.py:728
+msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être activée."
+msgstr ""
+
+#: zds/tutorial/views.py:737
+msgid ""
+"Bonjour à tous,\n"
+"\n"
+"J'ai commencé ({0}) la rédaction d'un tutoriel dont l'intitulé est **{1}**.\n"
+"\n"
+"J'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que "
+"sur la forme, afin de proposer en validation un texte de qualité.\n"
+"\n"
+"Si vous êtes intéressé, cliquez ci-dessous \n"
+"\n"
+"-> [Lien de la beta du tutoriel : {1}]({2}) <-\n"
+"\n"
+"\n"
+"\n"
+"Merci d'avance pour votre aide"
+msgstr ""
+
+#: zds/tutorial/views.py:759
+msgid ""
+"Bonjour, !\n"
+"\n"
+"La beta du tutoriel a été mise à jour.\n"
+"\n"
+"-> [Lien de la beta du tutoriel : {0}]({1}) <-\n"
+"\n"
+"\n"
+"\n"
+"Merci pour vos relectures"
+msgstr ""
+
+#: zds/tutorial/views.py:767
+msgid "La BETA sur ce tutoriel a bien été mise à jour."
+msgstr ""
+
+#: zds/tutorial/views.py:769
+msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être mise à jour."
+msgstr ""
+
+#: zds/tutorial/views.py:777
+msgid ""
+"Désactivation de la beta du tutoriel  **{}**\n"
+"\n"
+"Pour plus d'informations envoyez moi un message privé."
+msgstr ""
+
+#: zds/tutorial/views.py:781
+msgid "La BETA sur ce tutoriel a bien été désactivée."
+msgstr ""
+
+#: zds/tutorial/views.py:1448
+msgid "La partie « {0} » a été ajoutée avec succès."
+msgstr ""
+
+#: zds/tutorial/views.py:1489
+msgid "Déplacement de la partie {} "
+msgstr ""
+
+#: zds/tutorial/views.py:1516
+msgid "Suppression de la partie {} "
+msgstr ""
+
+#: zds/tutorial/views.py:1871
+msgid "Le chapitre « {0} » a été ajouté avec succès."
+msgstr ""
+
+#: zds/tutorial/views.py:1920
+msgid "Déplacement du chapitre {}"
+msgstr ""
+
+#: zds/tutorial/views.py:1921
+msgid "Le chapitre a bien été déplacé."
+msgstr ""
+
+#: zds/tutorial/views.py:1957
+msgid "Suppression du chapitre {}"
+msgstr ""
+
+#: zds/tutorial/views.py:1958
+msgid "Le chapitre a bien été supprimé."
+msgstr ""
+
+#: zds/tutorial/views.py:2240
+msgid "Suppression de l'extrait {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2266
+msgid "Déplacement de l'extrait {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2652
+msgid "Modification du tutoriel : «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2659
+msgid "Création du tutoriel «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2706
+msgid "Suppresion de la partie : «{}»"
+msgstr ""
+
+#: zds/tutorial/views.py:2712
+msgid "Modification de la partie «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2717
+msgid "Création de la partie «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2771
+msgid "Suppresion du chapitre : «{}»"
+msgstr ""
+
+#: zds/tutorial/views.py:2777
+msgid "Modification du tutoriel «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2780
+msgid "Modification du chapitre «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2785
+msgid "Création du chapitre «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2850
+msgid "Suppression de l'extrait : «{}»"
+msgstr ""
+
+#: zds/tutorial/views.py:2858
+msgid "Mise à jour de l'extrait «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:2861
+msgid "Création de l'extrait «{}» {} {}"
+msgstr ""
+
+#: zds/tutorial/views.py:3357
+msgid ""
+"Bonjour {0},Vous recevez ce message car vous avez signalé le message de *{1}"
+"*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il "
+"vous a laissé le message suivant :\n"
+"\n"
+"> {5}\n"
+"\n"
+"Toute l'équipe de la modération vous remercie !"
+msgstr ""
+
+#: zds/tutorial/views.py:3371
+msgid "Résolution d'alerte : {0}"
+msgstr ""
+
+#: zds/tutorial/views.py:3377
+msgid "L'alerte a bien été résolue."
+msgstr ""
+
+#: zds/tutorial/views.py:3405
+msgid ""
+"Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore "
+"plus prudent lors de l'édition de celui-ci !"
+msgstr ""
+
+#: zds/utils/tutorials.py:292
+msgid "Impossible de déplacer l'objet en position {0}"
+msgstr ""
+
+#: zds/utils/tutorials.py:319
+msgid "Le tutoriel que vous souhaitez importer manque de titre"
+msgstr ""
+
+#: zds/utils/tutorials.py:321
+msgid ""
+"Les métadonnées du tutoriel à importer ne nous permettent pas de connaître "
+"son type"
+msgstr ""
+
+#: zds/utils/tutorials.py:324
+msgid "Vous essayez d'importer un big tutoriel dans un mini tutoriel"
+msgstr ""
+
+#: zds/utils/tutorials.py:326 zds/utils/tutorials.py:359
+msgid "La structure de vos métadonnées est incohérente"
+msgstr ""
+
+#: zds/utils/tutorials.py:328
+msgid "La structure de vos extraits est incohérente"
+msgstr ""
+
+#: zds/utils/tutorials.py:332 zds/utils/tutorials.py:383
+msgid "Un de vos extraits est mal renseigné"
+msgstr ""
+
+#: zds/utils/tutorials.py:334 zds/utils/tutorials.py:385
+msgid "L'extrait « {} » n'existe pas dans notre base"
+msgstr ""
+
+#: zds/utils/tutorials.py:336
+msgid "Vous n'êtes pas autorisé à modifier l'extrait « {} »"
+msgstr ""
+
+#: zds/utils/tutorials.py:341 zds/utils/tutorials.py:395
+msgid ""
+"Le fichier « {} » renseigné dans vos métadonnées pour l'extrait « {} » ne se "
+"trouve pas dans votre zip"
+msgstr ""
+
+#: zds/utils/tutorials.py:352 zds/utils/tutorials.py:425
+msgid ""
+"Le fichier « {} » renseigné dans vos métadonnées pour le tutoriel « {} » ne "
+"se trouve pas dans votre zip"
+msgstr ""
+
+#: zds/utils/tutorials.py:357
+msgid "Vous essayez d'importer un mini tutoriel dans un big tutoriel"
+msgstr ""
+
+#: zds/utils/tutorials.py:363
+msgid "La structure de vos parties est incohérente"
+msgstr ""
+
+#: zds/utils/tutorials.py:365
+msgid "La partie « {} » n'existe pas dans notre base"
+msgstr ""
+
+#: zds/utils/tutorials.py:368
+msgid "La partie « {} » n'est pas dans le tutoriel à modifier "
+msgstr ""
+
+#: zds/utils/tutorials.py:373
+msgid "La structure de vos chapitres est incohérente"
+msgstr ""
+
+#: zds/utils/tutorials.py:375
+msgid "Le chapitre « {} » n'existe pas dans notre base"
+msgstr ""
+
+#: zds/utils/tutorials.py:378
+msgid "Le chapitre « {} » n'est pas dans le tutoriel a modifier"
+msgstr ""
+
+#: zds/utils/tutorials.py:389
+msgid "Vous n'êtes pas autorisé à modifier l'extrait « {} » "
+msgstr ""
+
+#: zds/utils/tutorials.py:405
+msgid ""
+"Le fichier « {} » renseigné dans vos métadonnées pour le chapitre « {} » ne "
+"se trouve pas dans votre zip"
+msgstr ""
+
+#: zds/utils/tutorials.py:415
+msgid ""
+"Le fichier « {} » renseigné dans vos métadonnées pour la partie « {} » ne se "
+"trouve pas dans votre zip"
+msgstr ""
+
+#: zds/utils/tutorials.py:475
+msgid ""
+"L'archive n'a pas pu être importée car le fichier manifest.json (fichier de "
+"métadonnées est introuvable)."
+msgstr ""
+
+#: zds/utils/tutorials.py:509
+msgid "Import du tutoriel"
+msgstr ""
+
+#: zds/utils/tutorials.py:521
+msgid "Le tutoriel {} a été importé avec succès"
+msgstr ""
+
+#: zds/utils/tutorials.py:523
+msgid "L'archive n'a pas pu être importée car elle n'est pas au format zip"
+msgstr ""

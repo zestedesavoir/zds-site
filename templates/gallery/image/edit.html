@@ -1,24 +1,25 @@
 {% extends "gallery/base.html" %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 
 {% block title %}
-    Éditer une image
+    {% trans "Éditer une image" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
-    <li>Éditer une Image</li>
+    <li>{% trans "Éditer une Image" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Éditer une image
+    {% trans "Éditer une image" %}
 {% endblock %}
 
 
@@ -27,12 +28,12 @@
 {% block content %}
     <div class="gallery-col-image">
         <p>
-            Image :
+            {% trans "Image" %} :
         </p>
         <a href="{{ image.physical.url }}"><img src="{{ image.physical.url }}" alt="{{ image.legend }}"></a>
         
         <p>
-            Miniature :
+            {% trans "Miniature" %} :
         </p>
         <a href="{{ image.physical.gallery.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend }}"></a>
     </div>
@@ -43,16 +44,16 @@
         {% endif %}
 
         <p>
-            Code markdown pour insérer cette image : <br>
+            {% trans "Code markdown pour insérer cette image" %} : <br>
 
-            Taille normale :
-            <input type="text" value="![{{ image.legend }}]({{ image.physical.content.url }})" readonly onclick="this.select()"> <br>
+            {% trans "Taille normale" %} :
+            <input type="text" value="![{{ image.legend }}]({{app.site.url}}{{ image.physical.content.url }})" readonly onclick="this.select()"> <br>
 
-            Miniature :
-            <input type="text" value="![{{ image.legend }}]({{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
+            {% trans "Miniature" %} :
+            <input type="text" value="![{{ image.legend }}]({{app.site.url}}{{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
 
-            Miniature + lien vers taille noramle :
-            <input type="text" value="[![{{ image.legend }}]({{ image.physical.gallery.url }})]({{ image.physical.content.url }})" readonly onclick="this.select()">
+            {% trans "Miniature + lien vers taille noramle" %} :
+            <input type="text" value="[![{{ image.legend }}]({{app.site.url}}{{ image.physical.gallery.url }})]({{app.site.url}}{{ image.physical.content.url }})" readonly onclick="this.select()">
         </p>
         
         {% crispy as_avatar_form %}
@@ -64,16 +65,16 @@
 {% block sidebar_actions %}
     {% if gallery_mode.is_write %}
         <div class="mobile-menu-bloc" data-title="Actions">
-            <h3>Actions</h3>
+            <h3>{% trans "Actions" %}</h3>
             <ul>
                 <li>
                     <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
-                        Ajouter une image
+                        {% trans "Ajouter une image" %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
-                        Importer une archive
+                        {% trans "Importer une archive" %}
                     </a>
                 </li>
             </ul>

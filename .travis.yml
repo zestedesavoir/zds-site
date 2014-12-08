@@ -12,9 +12,17 @@ notifications:
       - irc.smoothirc.net#zds-dev
     skip_join: true
 
+services: mysql
+
 cache:
   - apt
-  - pip
+
+before_script:
+  # database services
+  - mysql -e 'create database zds_test;'
+  - sudo mv zds/settings_test.py zds/settings_prod.py
+  - sudo apt-get -y install python-mysqldb
+  - sudo apt-get -y install libmysqlclient-dev
 
 install:
   # APT Stuff
@@ -49,18 +57,16 @@ install:
   # Python dependencies
   - travis_retry pip install -r requirements.txt
   - travis_retry pip install coveralls
+  - travis_retry pip install MySQL-python
 
   # NodeJS + NPM stuff
-  - sudo add-apt-repository -y ppa:chris-lea/node.js
-  - sudo apt-get -y update
   - sudo apt-get -y install nodejs
-  - npm install -g bower gulp
-  - npm install
+  - travis_retry npm install
 
 script:
   - npm run-script travis
   - coverage run --source='.' manage.py test
-  - flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
+  - flake8 --exclude=migrations,urls.py,settings.py,settings_prod.py,settings_test.py --max-line-length=120 zds
 
 after_success:
   - coveralls

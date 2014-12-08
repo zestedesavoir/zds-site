@@ -1,24 +1,24 @@
 {% extends "mp/base.html" %}
 {% load crispy_forms_tags %}
 {% load captureas %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Éditer un message
+    {% trans "Éditer un message" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ post.topic.get_absolute_url }}">{{ post.privatetopic.title }}</a></li>
-    <li>Éditer un message</li>
+    <li>{% trans "Éditer un message" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Éditer un message : {{ topic.title }}
+    {% trans "Éditer un message" %} : {{ topic.title }}
 {% endblock %}
 
 
@@ -49,30 +49,30 @@
 
 {% block sidebar_actions %}
     <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
-        <h3>Actions</h3>
+        <h3>{% trans "Actions" %}</h3>
         <ul>
             {% if user.is_authenticated %}
-                <li><a href="{% url "zds.mp.views.new" %}">Nouvelle conversation</a></li>
+                <li><a href="{% url "zds.mp.views.new" %}">{% trans "Nouvelle conversation" %}</a></li>
             {% endif %}
             {% if topic.author == user %}
                 <li>
-                    <a href="#add-participant" class="open-modal">Ajouter un membre</a>
+                    <a href="#add-participant" class="open-modal">{% trans "Ajouter un membre" %}</a>
                     <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
-                            Vous allez rajouter un nouveau membre dans la conversation privé.
+                            {% trans "Vous allez rajouter un nouveau membre dans la conversation privé" %}.
                         </p>
                         <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
                         <input type="text" class="input" name="user_pk" placeholder="Pseudo du membre">
 
                         {% csrf_token %}
-                        <button type="submit">Ajouter</button>
+                        <button type="submit">{% trans "Ajouter" %}</button>
                     </form>
                 </li>
             {% endif %}
         </ul>
     </div>
     <div class="mobile-menu-bloc mobile-all-links" data-title="Participants">
-        <h3>Participants</h3>
+        <h3>{% trans "Participants" %}</h3>
         <ul>
             <li>
                 <a href="{{ topic.author.get_absolute_url }}">

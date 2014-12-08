@@ -186,10 +186,13 @@ class Profile(models.Model):
 
     def get_draft_articles(self):
         """Get all draft articles of the user."""
-        return Article.objects.filter(
-            authors__in=[
-                self.user],
-            sha_draft__isnull=False).all()
+        return Article.objects\
+            .filter(
+                authors__in=[self.user],
+                sha_draft__isnull=False,
+                sha_validation__isnull=True,
+                sha_public__isnull=True,
+            ).all()
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -283,6 +286,19 @@ class Ban(models.Model):
         'Date de publication',
         blank=True,
         null=True, db_index=True)
+
+
+class KarmaNote(models.Model):
+
+    class Meta:
+        verbose_name = 'Note de karma'
+        verbose_name_plural = 'Notes de karma'
+
+    user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
+    staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    comment = models.CharField('Commentaire', max_length=150)
+    value = models.IntegerField('Valeur')
+    create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
 
 def logout_user(username):

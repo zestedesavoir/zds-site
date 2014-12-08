@@ -27,6 +27,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
+from django.utils.translation import ugettext as _
 
 
 @login_required
@@ -110,6 +111,8 @@ def topic(request, topic_pk, topic_slug):
         page_nbr = int(request.GET['page'])
     except KeyError:
         page_nbr = 1
+    except ValueError:
+        raise Http404
 
     try:
         posts = paginator.page(page_nbr)
@@ -182,7 +185,7 @@ def new(request):
                     and len(list_part) == 1
                     and list_part[0] == request.user.username):
                 errors = form._errors.setdefault("participants", ErrorList())
-                errors.append(u'Vous êtes déjà auteur du message')
+                errors.append(_(u'Vous êtes déjà auteur du message'))
                 return render_template('mp/topic/new.html', {
                     'form': form,
                 })
@@ -237,6 +240,8 @@ def edit(request):
         page = int(request.POST['page'])
     except KeyError:
         page = 1
+    except ValueError:
+        raise Http404
 
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
@@ -474,7 +479,7 @@ def leave(request):
             ptopic.save()
 
         messages.success(
-            request, 'Vous avez quitté la conversation avec succès.')
+            request, _(u'Vous avez quitté la conversation avec succès.'))
 
     return redirect(reverse('zds.mp.views.index'))
 
@@ -495,18 +500,18 @@ def add_participant(request):
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
-                'Le membre que vous essayez d\'ajouter '
-                u'à la conversation y est déjà')
+                _(u'Le membre que vous essayez d\'ajouter '
+                  u'à la conversation y est déjà.'))
         else:
             ptopic.participants.add(part)
             ptopic.save()
 
             messages.success(
                 request,
-                'Le membre a bien été ajouté à la conversation')
+                _(u'Le membre a bien été ajouté à la conversation.'))
     except:
         messages.warning(
-            request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
 
     return redirect(reverse('zds.mp.views.topic', args=[
         ptopic.pk,

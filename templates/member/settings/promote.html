@@ -1,22 +1,22 @@
 {% extends "member/settings/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-   Gestion des groupes
+   {% trans "Gestion des groupes" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Gestion des groupes</li>
+    <li>{% trans "Gestion des groupes" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    Gestion des groupes
+    {% trans "Gestion des groupes" %}
 {% endblock %}
 
 

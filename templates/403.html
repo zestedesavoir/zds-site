@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Erreur 403
+    {% trans "Erreur 403" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Erreur 403
+    {% trans "Erreur 403" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Erreur 403</li>
+    <li>{% trans "Erreur 403" %}</li>
 {% endblock %}
 
 
@@ -28,6 +28,6 @@
 
 {% block content %}
     <p>
-        Vous n'avez pas les droits suffisants pour accéder à cette page.
+        {% trans "Vous n'avez pas les droits suffisants pour accéder à cette page" %}.
     </p>
 {% endblock %}

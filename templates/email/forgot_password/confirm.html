@@ -1,25 +1,26 @@
+{% load i18n %}
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-    Bonjour <strong>{{ username }}</strong>,
+    {% trans "Bonjour" %} <strong>{{ username }}</strong>,
     <br />
     <br />
-    Vous recevez ce message parce qu'une réinitialisation du mot de passe de votre compte utilisateur a été demandée sur <a href="{{app.site.url}}">{{app.site.litteral_name}}</a>.
+    {% trans "Vous recevez ce message parce qu'une réinitialisation du mot de passe de votre compte utilisateur a été demandée sur" %} <a href="{{app.site.url}}">{{app.site.litteral_name}}</a>.
     <br />
     <br />
     <hr>
-    ATTENTION
+    {% trans "ATTENTION" %}
     <hr>
-    Si vous n'avez pas demandé une réinitialisation du mot de passe, IGNOREZ et EFFACEZ ce courriel immédiatement ! Continuez uniquement si vous souhaitez que votre mot de passe soit réinitialisé !
+    {% trans "Si vous n'avez pas demandé une réinitialisation du mot de passe, IGNOREZ et EFFACEZ ce courriel immédiatement ! Continuez uniquement si vous souhaitez que votre mot de passe soit réinitialisé !" %}
     <hr>
     <br />
-    Cliquez ou recopiez simplement le lien et complétez le reste du formulaire : <a href="{{ url }}">{{ url }}</a>.
+    {% trans "Cliquez ou recopiez simplement le lien et complétez le reste du formulaire" %} : <a href="{{ url }}">{{ url }}</a>.
     <br />
     <br />
     <br />
-    Cordialement,
+    {% trans "Cordialement" %},
     <br />
-    L'équipe {{app.site.litteral_name}}
+    {% trans "L'équipe" %} {{app.site.litteral_name}}
 </body>

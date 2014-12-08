@@ -2,17 +2,18 @@
 {% load profile %}
 {% load thumbnail %}
 {% load date %}
+{% load i18n %}
 
 
 {% block title %}
-    Historique de "{{ tutorial.title }}"
+    {% trans "Historique de" %} "{{ tutorial.title }}"
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
-    <li>Historique des modifications</li>
+    <li>{% trans "Historique des modifications" %}</li>
 {% endblock %}
 
 
@@ -22,12 +23,12 @@
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
-        Historique de "{{ tutorial.title }}"
+        {% trans "Historique de" %} "{{ tutorial.title }}"
     </h1>
 
     {% if tutorial.licence %}
         <span class="license">
-            Licence {{ tutorial.licence }}
+            {% trans "Licence" %} {{ tutorial.licence }}
         </span>
     {% endif %}
 
@@ -44,12 +45,12 @@
     <table class="fullwidth">
         <thead>
             <tr>
-                <th width="10%">Etat</th>
-                <th width="18%">Date</th>
-                <th>Version</th>
-                <th width="10%">Diff.</th>
-                <th width="15%">Auteur</th>
-                <th width="12%">Bêta</th>
+                <th width="10%">{% trans "Etat" %}</th>
+                <th width="18%">{% trans "Date" %}</th>
+                <th>{% trans "Version" %}</th>
+                <th width="10%">{% trans "Diff" %}.</th>
+                <th width="15%">{% trans "Auteur" %}</th>
+                <th width="12%">{% trans "Bêta" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -57,13 +58,13 @@
                 <tr>
                     <td>
                         {% if tutorial.sha_validation = log.newhexsha %}
-                            Validation
+                            {% trans "Validation" %}
                         {% endif %}
                         {% if tutorial.sha_beta = log.newhexsha %}
-                            Beta
+                            {% trans "Beta" %}
                         {% endif %}
                         {% if tutorial.sha_draft = log.newhexsha %}
-                            Draft
+                            {% trans "Draft" %}
                         {% endif %}
                     </td>
                     <td>
@@ -84,7 +85,7 @@
                             {% if u %}
                                 {% include "misc/member_item.part.html" with member=u avatar=True %}
                             {% else %}
-                                <em>Inconnu</em>
+                                <em>{% trans "Inconnu" %}</em>
                             {% endif %}
                         {% endwith %}
                     </td>
@@ -92,7 +93,7 @@
                         {% if not tutorial.sha_beta = log.newhexsha %}
                             {% if not tutorial.sha_beta %}
                                 <a href="#activ-beta" class="open-modal">
-                                    Activer
+                                    {% trans "Activer" %}
                                 </a>
                                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
                                     {% csrf_token %}
@@ -100,16 +101,18 @@
                                     <input type="hidden" name="activ_beta">
                                     <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                     <p>
-                                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel 
-                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
+                                            Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel 
+                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                        {% endblocktrans %}
                                     </p>
                                     <button type="submit">
-                                        Confirmer
+                                        {% trans "Confirmer" %}
                                     </button>
                                 </form>
                             {% else %}
                                 <a href="#activ-beta" class="open-modal">
-                                    Mettre à jour
+                                    {% trans "Mettre à jour" %}
                                 </a>
                                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
                                     {% csrf_token %}
@@ -117,16 +120,18 @@
                                     <input type="hidden" name="update_beta">
                                     <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                     <p>
-                                        Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
-                                        "<em>{{ tutorial.title }}</em>" dans sa version du {{ log.time.0|humane_time }} ?
+                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
+                                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel 
+                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                        {% endblocktrans %}
                                     </p>
                                     <button type="submit">
-                                        Confirmer
+                                        {% trans "Confirmer" %}
                                     </button>
                                 </form>
                             {% endif %}
                         {% else %}
-                            <em>En bêta</em>
+                            <em>{% trans "En bêta" %}</em>
                         {% endif %}
                     </td>
                 </tr>

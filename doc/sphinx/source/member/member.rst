@@ -117,3 +117,12 @@ Enfin, le dernier point concerne simplement l'activation du compte (normalement 
 
 Elle est géré par le formulaire `PromoteMemberForm` présent dans le fichier `zds/member/forms.py`.
 Elle est ensuite visible via le template `member/settings/promote.html` qui peut-être accédé en tant que super-utilisateur via le profil de n'importe quel membre.
+
+L'interface de karma
+--------------------
+
+Pour pouvoir communiquer entre modérateur, il est utile d'avoir un outil de suivi sur les membres. Ce dernier prend forme via la gestion du "karma" d'un membre. Le karma est une valeur numérique pouvant aller de -100 à +100. Cette valeur peut-être modifié via l'ajout de bonus/malus par les modérateurs. Chaque modification du karma doit s'accompagner d'un commentaire, mais un commentaire n'entraine pas forcément une modification du karma (0 point de bonus/malus).
+
+Cet outil à deux rôles. Permettre d'identifier les membres *perturbateurs* mais aussi les membres *moteurs* qui pourrait faire l'objet d'un article ou d'une mise en avant de leurs projets.
+
+Pour modifier le karma d'un membre, il faut donc être modérateur sur le site. Sur la fiche profil d'un membre apparait alors un formulaire pour ajouter un bonus/malus et une liste des modifications précédentes montrant l'impact (+/-), le message, l'auteur du bonus/malus et la date d'effet de ce dernier.

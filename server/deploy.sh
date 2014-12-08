@@ -55,6 +55,7 @@ gulp pack
 source ../bin/activate
 pip install --upgrade --use-mirrors -r requirements.txt
 python manage.py migrate
+python manage.py compilemessages
 deactivate
 
 # Restart zds

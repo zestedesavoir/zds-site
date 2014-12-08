@@ -4,42 +4,43 @@
 {% load model_name %}
 {% load highlight %}
 {% load topbar %}
+{% load i18n %}
 
 
 {% block title %}
-    Recherche
+    {% trans "Recherche" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    Recherche
+    {% trans "Recherche" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Recherche
+    {% trans "Recherche" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Recherche</li>
+    <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
 
 
 {% block headline_sub %}
     {% if query and page.object_list %}
-        Résultats
+        {% trans "Résultats" %}
     {% endif %}
 {% endblock %}
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
-            <h3>Filtrer les résultats</h3>
+            <h3>{% trans "Filtrer les résultats" %}</h3>
             {{ form.models }}
         </div>
     </aside>
@@ -49,7 +50,7 @@
 {% block content %}
     <form method="get" action="." id="search_form" class="clearfix search-form">
         {{ form.q }}
-        <button type="submit">Rechercher</button>
+        <button type="submit">{% trans "Rechercher" %}</button>
     </form>
 
 
@@ -147,7 +148,7 @@
             </div>
         {% else %}
             <p>
-                Aucun résultat trouvé.
+                {% trans "Aucun résultat trouvé" %}.
             </p>
         {% endif %}
 

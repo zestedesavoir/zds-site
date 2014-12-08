@@ -1,10 +1,11 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 {% block title %}
-    Éditer le chapitre
+    {% trans "Éditer le chapitre" %}
 {% endblock %}
 
 
@@ -17,7 +18,7 @@
         <li><a href="{{ chapter.part.get_absolute_url }}">{{ chapter.part.title }}</a></li>
         <li><a href="{{ chapter.get_absolute_url }}">{{ chapter.title }}</a></li>
     {% endif %}
-    <li>Éditer le chapitre</li>
+    <li>{% trans "Éditer le chapitre" %}</li>
 {% endblock %}
 
 
@@ -27,7 +28,7 @@
         {% if chapter.image %}
             <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
-        Éditer le chapitre : {{ part.title }}
+        {% trans "Éditer le chapitre" %} : {{ part.title }}
     </h1>
 {% endblock %}
 
@@ -42,7 +43,7 @@
 {% block content %}
     {% if new_version %}
         <p class="ico-after warning">
-            Une nouvelle version a été postée avant que vous ne validiez.
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
         </p>
     {% endif %}
     {% crispy form %}

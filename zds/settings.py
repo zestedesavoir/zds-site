@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+from django.utils.translation import gettext_lazy as _
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -46,6 +47,12 @@ USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
+
+LANGUAGES = (
+    ('fr', _('Français')),
+    ('en', _('Anglais')),
+)
+
 
 SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -269,6 +276,10 @@ MESSAGE_TAGS = {
 }
 
 SDZ_TUTO_DIR = ''
+
+LOCALE_PATHS = (
+    os.path.join(SITE_ROOT, 'conf/locale/'),
+)
 
 ZDS_APP = {
     'site': {

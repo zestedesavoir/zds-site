@@ -14,7 +14,7 @@ from zds.settings import SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import Profile
+from zds.member.models import Profile, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory
@@ -671,6 +671,90 @@ class MemberTests(TestCase):
             {}, follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context['members']), 2)
+
+    def test_modify_user_karma(self):
+        tester = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        # login as user
+        result = self.client.post(
+            reverse('zds.member.views.login_view'),
+            {'username': tester.user.username,
+             'password': 'hostel77'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check that user can't use this feature
+        result = self.client.post(reverse('zds.member.views.modify_karma'), follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # login as staff
+        result = self.client.post(
+            reverse('zds.member.views.login_view'),
+            {'username': staff.user.username,
+             'password': 'hostel77'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # try to give a few bad points to the tester
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Bad tester is bad !',
+             'points': '-50'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -50)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 1)
+
+        # Now give a few good points
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Good tester is good !',
+             'points': '10'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -40)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 2)
+
+        # Now access some unknow user
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': -1,
+             'warning': 'Good tester is good !',
+             'points': '10'},
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # Now give unknow point
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Good tester is good !',
+             'points': ''},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -40)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 3)
+
+        # Now give no point at all
+        result = self.client.post(
+            reverse('zds.member.views.modify_karma'),
+            {'profile_pk': tester.pk,
+             'warning': 'Good tester is good !'},
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tester = Profile.objects.get(pk=tester.pk)
+        self.assertEqual(tester.karma, -40)
+        self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 4)
+
+        # Now access without post
+        result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
+        self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
         Profile.objects.all().delete()

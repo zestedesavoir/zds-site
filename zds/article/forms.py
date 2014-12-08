@@ -8,13 +8,14 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 from zds.article.models import Article
-from zds.utils.forms import CommonLayoutEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
+from django.utils.translation import ugettext_lazy as _
 
 
 class ArticleForm(forms.Form):
     title = forms.CharField(
-        label='Titre',
+        label=_(u'Titre'),
         max_length=Article._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
@@ -24,6 +25,7 @@ class ArticleForm(forms.Form):
     )
 
     description = forms.CharField(
+        label=_(u'Description'),
         max_length=Article._meta.get_field('description').max_length,
         widget=forms.TextInput(
             attrs={
@@ -33,32 +35,43 @@ class ArticleForm(forms.Form):
     )
 
     text = forms.CharField(
-        label='Texte',
+        label=_(u'Texte'),
         widget=forms.Textarea(
             attrs={
-                'placeholder': 'Votre message au format Markdown.',
+                'placeholder': _('Votre message au format Markdown.'),
                 'required': 'required',
             }
         )
     )
 
     image = forms.ImageField(
-        label='Selectionnez une image',
+        label=_(u'Selectionnez une image'),
         required=False
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=u"Sous catégories de votre article. Si aucune catégorie ne convient "
-              u"n'hésitez pas à en demander une nouvelle lors de la validation !",
+        label=_(u"Sous catégories de votre article. Si aucune catégorie ne convient "
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.all(),
         required=False
     )
 
     licence = forms.ModelChoiceField(
-        label="Licence de votre publication",
+        label=_(u"Licence de votre publication"),
         queryset=Licence.objects.all(),
         required=True,
         empty_label=None
+    )
+
+    msg_commit = forms.CharField(
+        label=_(u'Message de suivi'),
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -73,7 +86,7 @@ class ArticleForm(forms.Form):
             Field('image'),
             Field('subcategory'),
             Field('licence'),
-            CommonLayoutEditor(),
+            CommonLayoutVersionEditor(),
         )
 
     def clean(self):
@@ -109,7 +122,7 @@ class ReactionForm(forms.Form):
         label='',
         widget=forms.Textarea(
             attrs={
-                'placeholder': 'Votre message au format Markdown.',
+                'placeholder': _(u'Votre message au format Markdown.'),
                 'required': 'required'
             }
         )
@@ -131,14 +144,14 @@ class ReactionForm(forms.Form):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=u'Vous venez de poster. Merci de patienter '
-                    u'au moins 15 minutes entre deux messages consécutifs '
-                    u'afin de limiter le flood.',
+                    placeholder=_(u'Vous venez de poster. Merci de patienter '
+                                  u'au moins 15 minutes entre deux messages consécutifs '
+                                  u'afin de limiter le flood.'),
                     disabled=True)
         elif article.is_locked:
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Cet article est verrouillé.',
+                placeholder=_(u'Cet article est verrouillé.'),
                 disabled=True
             )
 
@@ -149,13 +162,13 @@ class ReactionForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [u'Vous devez écrire une réponse !'])
+                [_(u'Vous devez écrire une réponse !')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
-                [(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                  u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
+                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data

@@ -1,10 +1,10 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Nouvel extrait &ndash; Tutoriels
+    {% trans "Nouvel extrait" %} &ndash; {% trans "Tutoriels" %}
 {% endblock %}
 
 
@@ -17,13 +17,13 @@
     {% else %}
         <li><a href="{{ chapter.tutorial.get_absolute_url }}">{{ chapter.tutorial.title }}</a></li>
     {% endif %}
-    <li><a href="#">Ajouter un extrait</a></li>
+    <li><a href="#">{% trans "Ajouter un extrait" %}</a></li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Nouvel extrait</h1>
+    <h1>{% trans "Nouvel extrait" %}</h1>
 
     <h2 class="subtitle">
         {% if chapter.part %}

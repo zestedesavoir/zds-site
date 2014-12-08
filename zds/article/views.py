@@ -40,6 +40,7 @@ from zds.utils.mps import send_mp
 from zds.utils.models import SubCategory, Category, CommentLike, \
     CommentDislike, Alert, Licence
 from zds.utils.paginator import paginator_range
+from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import ArticleForm, ReactionForm
@@ -170,6 +171,8 @@ def view_online(request, article_pk, article_slug):
         page_nbr = int(request.GET['page'])
     except KeyError:
         page_nbr = 1
+    except ValueError:
+        raise Http404
 
     try:
         reactions = paginator.page(page_nbr)
@@ -270,7 +273,8 @@ def new(request):
                              new_slug_path=article.get_path(),
                              article=article,
                              text=data['text'],
-                             action='add')
+                             action='add',
+                             msg=request.POST.get('msg_commit', None))
             return redirect(article.get_absolute_url())
     else:
         form = ArticleForm(
@@ -358,7 +362,8 @@ def edit(request):
                              new_slug_path=new_slug,
                              article=article,
                              text=data['text'],
-                             action='maj')
+                             action='maj',
+                             msg=request.POST.get('msg_commit', None))
 
             return redirect(article.get_absolute_url())
     else:
@@ -407,7 +412,8 @@ def maj_repo_article(
         new_slug_path=None,
         article=None,
         text=None,
-        action=None):
+        action=None,
+        msg=None,):
 
     if action == 'del':
         shutil.rmtree(old_slug_path)
@@ -416,11 +422,13 @@ def maj_repo_article(
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
                 repo = Repo(new_slug_path)
-            msg = 'Modification de l\'article'
+            msg = u"Modification de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+                .strip()
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
             repo = Repo.init(new_slug_path, bare=False)
-            msg = 'Creation de l\'article'
+            msg = u"Création de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
+                .strip()
 
         repo = Repo(new_slug_path)
         index = repo.index
@@ -438,7 +446,7 @@ def maj_repo_article(
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
-        com = index.commit(msg.encode('utf-8'),
+        com = index.commit(msg,
                            author=Actor(aut_user, aut_email),
                            committer=Actor(aut_user, aut_email)
                            )
@@ -513,31 +521,30 @@ def modify(request):
 
                 comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
                 # send feedback
-                for author in article.authors.all():
-                    msg = (u'Désolé **{0}**, ton zeste **{1}** '
-                           u'n\'a malheureusement pas passé l’étape de validation. '
-                           u'Mais ne désespère pas, certaines corrections peuvent '
-                           u'sûrement être faites pour l’améliorer et repasser la '
-                           u'validation plus tard. Voici le message que [{2}]({3}), '
-                           u'ton validateur t\'a laissé\n\n{4}\n\nN\'hésite pas a '
-                           u'lui envoyer un petit message pour discuter de la décision '
-                           u'ou demander plus de détail si tout cela te semble '
-                           u'injuste ou manque de clarté.'.format(
-                               author.username,
-                               article.title,
-                               validation.validator.username,
-                               validation.validator.profile.get_absolute_url(),
-                               comment_reject))
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    send_mp(
-                        bot,
-                        [author],
-                        u"Refus de Validation : {0}".format(
-                            article.title),
-                        "",
-                        msg,
-                        True,
-                        direct=False)
+                msg = (
+                    u'Désolé, le zeste **{0}** '
+                    u'n\'a malheureusement pas passé l’étape de validation. '
+                    u'Mais ne désespère pas, certaines corrections peuvent '
+                    u'surement être faite pour l’améliorer et repasser la '
+                    u'validation plus tard. Voici le message que [{1}]({2}), '
+                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas a '
+                    u'lui envoyer un petit message pour discuter de la décision '
+                    u'ou demander plus de détail si tout cela te semble '
+                    u'injuste ou manque de clarté.'.format(
+                        article.title,
+                        validation.validator.username,
+                        settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
+                        comment_reject))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    article.authors.all(),
+                    u"Refus de Validation : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
                 return redirect(
                     article.get_absolute_url() +
@@ -545,8 +552,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le refuser.")
+                               u"Vous devez avoir réservé cet article "
+                               u"pour pouvoir le refuser.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -599,27 +606,25 @@ def modify(request):
                 article.save()
 
                 # send feedback
-                for author in article.authors.all():
-                    msg = (
-                        u'Félicitations **{0}** ! Ton zeste [{1}]({2}) '
-                        u'est maintenant publié ! Les lecteurs du monde entier '
-                        u'peuvent venir le lire et réagir à son sujet. Je te conseille '
-                        u'de rester à leur écoute afin d\'apporter des '
-                        u'corrections/compléments. Un article vivant et à jour '
-                        u'est bien plus lu qu\'un sujet abandonné !'
-                        .format(author.username,
-                                article.title,
-                                settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    send_mp(
-                        bot,
-                        [author],
-                        u"Publication : {0}".format(
-                            article.title),
-                        "",
-                        msg,
-                        True,
-                        direct=False)
+                msg = (
+                    u'Félicitations ! Le zeste [{0}]({1}) '
+                    u'est maintenant publié ! Les lecteurs du monde entier '
+                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
+                    u'de rester a leur écoute afin d\'apporter des '
+                    u'corrections/compléments. Un Article vivant et a jour '
+                    u'est bien plus lu qu\'un sujet abandonné !'.format(
+                        article.title,
+                        settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    article.authors.all(),
+                    u"Publication : {0}".format(
+                        article.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False)
 
                 return redirect(
                     article.get_absolute_url() +
@@ -627,8 +632,8 @@ def modify(request):
                     validation.version)
             else:
                 messages.error(request,
-                               "Vous devez avoir réservé cet article "
-                               "pour pouvoir le publier.")
+                               u"Vous devez avoir réservé cet article "
+                               u"pour pouvoir le publier.")
                 return redirect(
                     article.get_absolute_url() +
                     '?version=' +
@@ -757,7 +762,7 @@ def modify(request):
 
             messages.success(
                 request,
-                u'L\'auteur {0} a bien été retiré de l\'article.'.format(
+                u'L\'auteur {0} a bien été retiré de la rédaction de l\'article.'.format(
                     author.username))
 
             # send msg to removed author
@@ -765,7 +770,7 @@ def modify(request):
             msg = (
                 u'Bonjour **{0}**,\n\n'
                 u'Tu as été supprimé des auteurs de l\'article [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
-                u'pourra plus y accéder.\n'.format(
+                u'pourras plus y accéder.\n'.format(
                     author.username,
                     article.title,
                     settings.ZDS_APP['site']['url'] + article.get_absolute_url())
@@ -1103,7 +1108,7 @@ def solve_alert(request):
     alert.delete()
     messages.success(
         request,
-        u'L\'alerte a bien été résolue')
+        u'L\'alerte a bien été résolue.')
 
     return redirect(reaction.get_absolute_url())
 

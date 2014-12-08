@@ -5,6 +5,7 @@
 {% load interventions %}
 {% load topbar %}
 {% load thumbnail %}
+{% load i18n %}
 
 
 
@@ -13,6 +14,10 @@
 
 
 {% block pre_content %}
+    {% url 'zds.tutorial.views.index' as url_tutorials %}
+    {% url 'zds.article.views.index' as url_articles %}
+    {% url 'zds.forum.views.index' as url_forums %}
+    {% url 'zds.pages.views.association' as url_association %}
     {% if user.is_authenticated %}
         <section class="home-quote home-simple-quote">
             <div class="home-wrapper">
@@ -34,14 +39,20 @@
                     </blockquote>
 
                     <p>
-                        {{app.site.litteral_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="{% url 'zds.tutorial.views.index' %}">tutoriels de tous niveaux</a>, des <a href='{% url "zds.article.views.index" %}'>articles</a> et des <a href='{% url "zds.forum.views.index" %}'>forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                    {% blocktrans with site_name=app.site.litteral_name %}
+                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                    {% endblocktrans %}
                     </p>
                     <p>
+                    {% blocktrans %}
                         Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
+                    {% endblocktrans %}
                     </p>
                     {% if app.site.association %}
                     <p>
-                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré et financé par une <a href="{% url 'zds.pages.views.association' %}">association</a> à but non lucratif.
+                    {% blocktrans %}
+                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
+                    {% endblocktrans %}
                     </p>
                     {% endif %}
                 </div>
@@ -54,11 +65,11 @@
     <section class="search-box">
         <form action="/rechercher" class="home-wrapper">
             <label for="search-box-field">
-                Tu cherches quelque chose ?
+                {% trans "Tu cherches quelque chose" %} ?
             </label>
             <input type="text" name="q" placeholder="Exemples : HTML, Java, PHP, Jeux Vidéos, Mathématiques, ..." id="search-box-field">
-            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">
-                OK
+            <button type="submit" class="ico-after search-submit" title='{% trans "Lancer la recherche" %}'>
+                {% trans "OK" %}
             </button>
         </form>
     </section>
@@ -69,7 +80,7 @@
 {% block content_out %}
     <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
         <h2 class="ico-after ico-articles" itemprop="name">
-            Derniers articles
+            {% trans "Derniers articles" %}
         </h2>
         
         <meta itemprop="itemListOrder" content="Descending">
@@ -98,9 +109,9 @@
                             {% endif %}
                         ">
                             {% if article.get_reaction_count == 0 %}
-                                Aucune réaction
+                                {% trans "Aucune réaction" %}
                             {% else %}
-                                {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
+                                {{ article.get_reaction_count }} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}
                             {% endif %}
                         </a>
                     </span>
@@ -115,7 +126,7 @@
 
     <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
         <h2 class="ico-after ico-tutorials" itemprop="name">
-            Derniers tutoriels
+            {% trans "Derniers tutoriels" %}
         </h2>
         
         <meta itemprop="itemListOrder" content="Descending">
@@ -130,9 +141,9 @@
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-hide"
-           data-title="Catégories de tutoriels"
+           data-title='{% trans "Catégories de tutoriels" %}'
     >
-        <h3>Catégories <span class="wide">de tutoriels</span></h3>
+        <h3>{% trans "Catégories" %} <span class="wide">{% trans "de tutoriels" %}</span></h3>
 
         {% with categories='.'|top_categories_tuto %}
             {% for title, subcats in categories.items %}

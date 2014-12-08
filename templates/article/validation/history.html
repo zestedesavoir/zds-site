@@ -2,19 +2,19 @@
 {% load date %}
 {% load captureas %}
 {% load emarkdown %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Historique de validation de l'article
+    {% trans "Historique de validation de l'article" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.article.views.list_validation" %}">Validation</a></li>
+    <li><a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
-    <li>Historique</li>
+    <li>{% trans "Historique" %}</li>
 {% endblock %}
 
 
@@ -26,7 +26,7 @@
 
 
 {% block headline_sub %}
-    Historique de validation
+    {% trans "Historique de validation" %}
 {% endblock %}
 
 
@@ -43,7 +43,7 @@
     </ul>
 
     <div class="authors">
-        <span class="authors-label">Contributeur{{ authors.all|pluralize }} : </span>
+        <span class="authors-label">{% trans "Contributeur" %}{{ authors.all|pluralize }} : </span>
         <ul>
             {% for member in authors.all %}
                 <li>
@@ -57,8 +57,8 @@
         <table class="fullwidth">
             <thead>
                 <tr>
-                    <th width="50%">Proposé</th>
-                    <th width="50%">Statut</th>
+                    <th width="50%">{% trans "Proposé" %}</th>
+                    <th width="50%">{% trans "Statut" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,7 +69,7 @@
                             {% if validation.comment_authors %}
                                 <br>
                                 <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
-                                    Message laissé à la validation
+                                    {% trans "Message laissé à la validation" %}
                                 </a>
                                 <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
@@ -90,7 +90,7 @@
         </table>
     {% else %}
         <p>
-            Aucun tutoriel soumis en validation.
+            {% trans "Aucun tutoriel soumis en validation" %}.
         </p>
     {% endif %}
 {% endblock %}

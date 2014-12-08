@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% load profile %}
 {% load captureas %}
+{% load i18n %}
 
 
 
@@ -31,14 +32,14 @@
 
 {% block content %}
     <div class="authors">
-        <span class="authors-label">Galerie partagée avec : </span>
+        <span class="authors-label">{% trans "Galerie partagée avec" %} : </span>
         <ul>
             {% for u in gallery.get_users %}
                 {% captureas info %}
                     {% if u.mode == 'R' %}
-                        Lecture
+                        {% trans "Lecture" %}
                     {% elif u.mode == 'W' %}
-                        Écriture
+                        {% trans "Écriture" %}
                     {% endif %}
                 {% endcaptureas %}
                 <li>
@@ -48,7 +49,7 @@
 
             {% if gallery_mode.is_write %}
                 <li>
-                    <a href="#add-user-modal" class="open-modal ico-after more blue">Ajouter un utilisateur</a>
+                    <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                     <div id="add-user-modal" class="modal modal-big">
                         {% crispy form %}
                     </div>
@@ -56,18 +57,18 @@
             {% endif %}
         </ul>
     </div>
-    
+
     <form id="form" name="form" method="post" action="{% url "zds.gallery.views.delete_image" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
         {% csrf_token %}
-    
+
         {% if gallery.get_images %}
             {% if gallery_mode.is_write %}
-                <button class="btn btn-cancel" name="delete_multi">Supprimer la sélection</button>
+                <button class="btn btn-cancel" name="delete_multi">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
             <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
-                Vue grille
+                {% trans "Vue grille" %}
             </button>
 
             <div class="gallery topic-list list-view clearfix navigable-list">
@@ -92,19 +93,22 @@
 
                 <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
             </div>
-            
+
             {% if gallery_mode.is_write %}
-                <button class="btn btn-cancel" name="delete_multi" tabindex="-1">Supprimer la sélection</button>
+                <button class="btn btn-cancel" name="delete_multi" tabindex="-1">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
             <button class="toggle-gallery-view btn btn-grey" type="button" tabindex="-1">
-                Vue grille
+                {% trans "Vue grille" %}
             </button>
         {% else %}
             <p>
-                Aucune image. <br>
+                {% trans "Aucune image" %}. <br>
                 {% if gallery_mode.is_write %}
-                    Vous pouvez <a href="{% url "zds.gallery.views.new_image" gallery.pk %}">ajouter une image</a> à cette galerie dès à présent !
+                    {% url "zds.gallery.views.new_image" gallery.pk as new_img_url %}
+                    {% blocktrans %}
+                        Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent !
+                    {% endblocktrans %}
                 {% endif %}
             </p>
         {% endif %}
@@ -116,16 +120,16 @@
 {% block sidebar_actions %}
     {% if gallery_mode.is_write %}
         <div class="mobile-menu-bloc" data-title="Actions">
-            <h3>Actions</h3>
+            <h3>{% trans "Actions" %}</h3>
             <ul>
                 <li>
                     <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
-                        Ajouter une image
+                        {% trans "Ajouter une image" %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
-                        Importer une archive
+                        {% trans "Importer une archive" %}
                     </a>
                 </li>
             </ul>

@@ -1,23 +1,23 @@
 {% extends "tutorial/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Nouveau tutoriel
+    {% trans "Nouveau tutoriel" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Nouveau tutoriel</li>
+    <li>{% trans "Nouveau tutoriel" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
     <h1>
-        Nouveau Tutoriel
+        {% trans "Nouveau Tutoriel" %}
     </h1>
 {% endblock %}
 

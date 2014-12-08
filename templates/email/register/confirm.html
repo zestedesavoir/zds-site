@@ -1,13 +1,15 @@
+{% load i18n %}
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-    Bonjour <strong>{{ username }}</strong>,
+    {% trans "Bonjour" %} <strong>{{ username }}</strong>,
     <br />
     <br />
     <p>
-        Vous vous &ecirc;tes inscrit sur <a href="{{app.site.url}}">{{app.site.litteral_name}}</a> et nous vous en remercions.
+        {% blocktrans with site_name=app.site.litteral_name site_url=app.site.url %}
+        Vous vous &ecirc;tes inscrit sur <a href="{{site_url}}">{{site_name}}</a> et nous vous en remercions.
         En &eacute;tant membre de notre communaut&eacute;, vous aurez la possibilit&eacute; de r&eacute;diger des tutoriels et des articles
         que vous pourrez ensuite publier et ainsi de rendre vos connaissances accessibles au plus grand nombre.
         Vous pourrez &eacute;galement &eacute;changer avec les autres membres sur nos forums !
@@ -19,6 +21,7 @@
         <br />
         A tr&egrave;s bient&ocirc;t !
         <br />
-        L'&eacute;quipe {{app.site.litteral_name}}
+        L'&eacute;quipe {{site_name}}
+        {% endblocktrans %}
     </p>
 </body>

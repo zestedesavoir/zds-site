@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 
 
 {% block title_base %}
-    &bull; Galeries
+    &bull; {% trans "Galeries" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.gallery.views.gallery_list" %}">Galeries</a></li>
+    <li><a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries" %}</a></li>
 {% endblock %}
 
 
@@ -17,7 +18,7 @@
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
         <a href="{% url "zds.gallery.views.new_gallery" %}" class="new-btn ico-after more blue">
-            Créer une galerie
+            {% trans "Créer une galerie" %}
         </a>
 
         {% block new_btn %}{% endblock %}

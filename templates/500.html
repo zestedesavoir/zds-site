@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
-    Erreur 500
+    {% trans "Erreur 500" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    Erreur 500
+    {% trans "Erreur 500" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Erreur 500</li>
+    <li>{% trans "Erreur 500" %}</li>
 {% endblock %}
 
 
@@ -28,14 +28,16 @@
 
 {% block content %}
     <p>
+        {% blocktrans with url_forum="http://zestedesavoir.com/forums/communaute/bug-suggestions/" %}
         Si vous voyez cette page, c'est que vous avez trouvé un bug. Merci
         de rapporter cette erreur en expliquant comment vous avez procédé
         pour tomber sur cette page en créant un sujet sur
-        <a href="http://zestedesavoir.com/forums/communaute/bug-suggestions/">
-        le forum "Bugs et Suggestions".</a> Merci de votre aide !
+        <a href="{{url_forum}}">le forum Bugs et Suggestions.</a>Merci de votre aide
+        {% endblocktrans %} !
     </p>
     <p>
-        Si vous êtes curieux, voici une <a href="https://github.com/zestedesavoir/zds-site/issues?q=is%3Aopen+is%3Aissue+500">liste des sujets ouverts à ce propos</a>
-        sur le bug tracker public de l'association.
+        {% blocktrans with url_bugtracker="https://github.com/zestedesavoir/zds-site/issues?q=is%3Aopen+is%3Aissue+500" %}
+        Si vous êtes curieux, voici une <a href="{{url_bugtracker}}">liste des sujets ouverts à ce propos</a> sur le bug tracker public de l'association
+        {% endblocktrans %}.
     </p>
 {% endblock %}

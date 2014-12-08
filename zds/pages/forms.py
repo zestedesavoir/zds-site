@@ -4,47 +4,48 @@ from crispy_forms.layout import Layout, Field, ButtonHolder
 from crispy_forms.bootstrap import StrictButton
 
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 
 class AssocSubscribeForm(forms.Form):
     full_name = forms.CharField(
-        label=u'Qui êtes vous ?',
+        label=_(u'Qui êtes vous ?'),
         max_length=50,
         required=True,
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'M/Mme Prénom Nom'
+                'placeholder': _(u'M/Mme Prénom Nom')
             }
         )
     )
 
     email = forms.EmailField(
-        label=u'Adresse courriel',
+        label=_(u'Adresse courriel'),
         required=True,
     )
 
     naissance = forms.CharField(
-        label=u'Date de naissance',
+        label=_(u'Date de naissance'),
         required=True,
     )
 
     adresse = forms.CharField(
-        label=u'Adresse',
+        label=_(u'Adresse'),
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': u'Votre adresse complète (rue, code postal, ville, pays...)'
+                'placeholder': _(u'Votre adresse complète (rue, code postal, ville, pays...)')
             }
         )
     )
 
     justification = forms.CharField(
-        label=u'Pourquoi voulez-vous adhérer à l\'association ?',
+        label=_(u'Pourquoi voulez-vous adhérer à l\'association ?'),
         required=False,
         max_length=3000,
         widget=forms.Textarea(
             attrs={
-                'placeholder': u'Décrivez ici la raison de votre demande d\'adhésion à l\'association.'
+                'placeholder': _(u'Décrivez ici la raison de votre demande d\'adhésion à l\'association.')
             }
         )
     )
@@ -62,7 +63,7 @@ class AssocSubscribeForm(forms.Form):
             Field('adresse'),
             Field('justification'),
             ButtonHolder(
-                StrictButton('Valider', type='submit'),
+                StrictButton(_('Valider'), type='submit'),
             )
         )
 
@@ -72,4 +73,4 @@ class AssocSubscribeForm(forms.Form):
 
         if justification is not None and len(justification) > 3000:
             self._errors['justification'] = self.error_class(
-                [(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])
+                [_(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])

@@ -4,7 +4,7 @@
 
 {% with extracts=chapter.extracts %}
     {% if not chapter.type = 'MINI' %}
-        {% if chapter.intro and chapter.intro != "None" %}
+        {% if not chapter.intro and chapter.intro = 'None' %}
             {{ chapter.intro|safe }}
         {% endif %}
     {% endif %}

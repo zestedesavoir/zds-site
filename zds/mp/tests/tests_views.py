@@ -2,6 +2,7 @@
 
 import urllib
 
+from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -121,6 +122,48 @@ class IndexViewTest(TestCase):
 
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
+    def test_topic_get_weird_page(self):
+        """ get a page that can't exist (like page=abc)"""
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('zds.mp.views.index') + '?page=abc')
+        self.assertEqual(response.status_code, 200)
+        # will return the first page
+        self.assertEqual(response.context['nb'], 1)
+
+    def test_topic_get_page_too_far(self):
+        """ get a page that is too far yet"""
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        # create many subjects (at least two pages)
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+            topic = PrivateTopicFactory(author=self.profile1.user)
+            topic.participants.add(self.profile2.user)
+            PrivatePostFactory(
+                privatetopic=topic,
+                author=self.profile1.user,
+                position_in_topic=1)
+
+        response = self.client.post(
+            reverse('zds.mp.views.index') + '?page=42',
+            {
+                'items': [self.topic1.pk],
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        # will return the last page (2)
+        self.assertEqual(response.context['nb'], 2)
+
 
 class TopicViewTest(TestCase):
 
@@ -201,6 +244,60 @@ class TopicViewTest(TestCase):
                 'zds.mp.views.topic',
                 args=[self.topic1.pk, slugify(self.topic1.title)]),
         )
+
+    def test_get_weird_page(self):
+        """ get a page that can't exist (like page=abc)"""
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('zds.mp.views.topic',
+                                           kwargs={'topic_pk': self.topic1.pk,
+                                                   'topic_slug': slugify(self.topic1.title)
+                                                   }) + '?page=abc')
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_page_too_far(self):
+        """ get a page that can't exist (like page=42)"""
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('zds.mp.views.topic',
+                                           kwargs={'topic_pk': self.topic1.pk,
+                                                   'topic_slug': slugify(self.topic1.title)
+                                                   }) + '?page=42')
+        self.assertEqual(response.status_code, 404)
+
+    def test_more_than_one_message(self):
+        """ test get second page """
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        # create many subjects (at least two pages)
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+            post = PrivatePostFactory(
+                privatetopic=self.topic1,
+                author=self.profile1.user,
+                position_in_topic=i+2)
+
+        response = self.client.get(reverse('zds.mp.views.topic',
+                                           kwargs={'topic_pk': self.topic1.pk,
+                                                   'topic_slug': slugify(self.topic1.title)
+                                                   }) + '?page=2')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['posts'][-1], post)
+        self.assertEqual(response.context['last_post_pk'], post.pk)
 
 
 class NewTopicViewTest(TestCase):
@@ -452,6 +549,20 @@ class EditViewTest(TestCase):
             topic.participants.all()
         )
 
+    def test_weird_page_number(self):
+        """ get a page that can't exist (like page=abc) """
+
+        response = self.client.post(
+            reverse('zds.mp.views.edit'),
+            {
+                'privatetopic': self.topic1.pk,
+                'username': self.profile3.user.username,
+                'page': 'abc'
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 404)
+
 
 class AnswerViewTest(TestCase):
 
@@ -537,7 +648,7 @@ class AnswerViewTest(TestCase):
             {
                 'text': 'answer',
                 'preview': '',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -551,7 +662,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -574,7 +685,7 @@ class AnswerViewTest(TestCase):
             + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
-                'last_post': self.topic1.get_last_answer().pk
+                'last_post': self.topic1.last_message.pk
             },
             follow=True
         )
@@ -767,6 +878,33 @@ class EditPostViewTest(TestCase):
             PrivatePost.objects.get(pk=self.post2.pk).text
         )
 
+    def test_text_absent(self):
+        """ test what happens if the text is not sent """
+
+        response = self.client.post(
+            reverse('zds.mp.views.edit_post')
+            + '?message=' + str(self.post2.pk),
+            {
+                'text': '',
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+
+    def test_preview_no_text(self):
+        """ test what happens when we preview with no text """
+
+        response = self.client.post(
+            reverse('zds.mp.views.edit_post')
+            + '?message=' + str(self.post2.pk),
+            {
+                'preview': '',
+            },
+            follow=True
+        )
+        self.assertEqual(403, response.status_code)
+        # 403 because resend the same view without the preview parameter
+
 
 class LeaveViewTest(TestCase):
 
@@ -809,7 +947,7 @@ class LeaveViewTest(TestCase):
             reverse('zds.mp.views.leave'),
             {
                 'leave': '',
-                'topic_pk': '154'
+                'topic_pk': '9999'
             }
         )
 
@@ -817,7 +955,7 @@ class LeaveViewTest(TestCase):
 
     def test_success_leave_topic_as_author_no_participants(self):
 
-        self.topic1.participants.remove(self.profile2)
+        self.topic1.participants.clear()
         self.topic1.save()
 
         response = self.client.post(
@@ -832,7 +970,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             0,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
     def test_success_leave_topic_as_author(self):
@@ -849,7 +987,7 @@ class LeaveViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(
             1,
-            PrivateTopic.objects.all().count()
+            PrivateTopic.objects.filter(pk=self.topic1.pk).all().count()
         )
 
         self.assertEqual(

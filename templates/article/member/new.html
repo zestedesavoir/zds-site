@@ -1,35 +1,36 @@
 {% extends "article/base_content.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 
 
 {% block title_base %}
-    &bull; Articles
+    &bull; {% trans "Articles" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.member.views.articles" %}">Mes articles</a></li>
+    <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
 {% endblock %}
 
 
 
 {% block title %}
-    Nouvel article
+    {% trans "Nouvel article" %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>Nouvel article</li>
+    <li>{% trans "Nouvel article" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>Nouvel article</h1>
+    <h1>{% trans "Nouvel article" %}</h1>
 {% endblock %}
 
 

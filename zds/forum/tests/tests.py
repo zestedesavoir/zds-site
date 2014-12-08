@@ -12,7 +12,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 from django.core import mail
 
-from .models import Post, Topic, TopicFollowed, TopicRead
+from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
 from zds.forum.views import get_tag_by_title
 from zds.forum.models import get_topics, Forum
 
@@ -111,10 +111,10 @@ class ForumMemberTests(TestCase):
 
         # check topic's number
         self.assertEqual(Topic.objects.all().count(), 1)
-        topic = Topic.objects.get(pk=1)
+        topic = Topic.objects.first()
         # check post's number
         self.assertEqual(Post.objects.all().count(), 1)
-        post = Post.objects.get(pk=1)
+        post = Post.objects.first()
 
         # check topic and post
         self.assertEqual(post.topic, topic)
@@ -193,12 +193,12 @@ class ForumMemberTests(TestCase):
         self.assertEqual(post3.topic, topic1)
 
         # check values
-        self.assertEqual(Post.objects.get(pk=4).topic, topic1)
-        self.assertEqual(Post.objects.get(pk=4).position, 4)
-        self.assertEqual(Post.objects.get(pk=4).editor, None)
+        post_final = Post.objects.last()
+        self.assertEqual(post_final.topic, topic1)
+        self.assertEqual(post_final.position, 4)
+        self.assertEqual(post_final.editor, None)
         self.assertEqual(
-            Post.objects.get(
-                pk=4).text,
+            post_final.text,
             u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
 
         # test antispam return 403
@@ -304,12 +304,8 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.answer') +
-            '?sujet={0}&cite={0}'.format(
-                topic1.pk,
-                post2.pk),
-            follow=True)
+        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite={1}'.format(
+            topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
 
@@ -1080,24 +1076,84 @@ class ForumGuestTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_filter_topic(self):
-        """Test filters for solved topic or not"""
+        """Test filters for topics"""
+
         ProfileFactory().user
+
         topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        PostFactory(topic=topic, author=self.user, position=1)
+
         topic_solved = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=False)
+        PostFactory(topic=topic_solved, author=self.user, position=1)
+
         topic_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
+        PostFactory(topic=topic_sticky, author=self.user, position=1)
+
         topic_solved_sticky = TopicFactory(forum=self.forum11, author=self.user, is_solved=True, is_sticky=True)
+        PostFactory(topic=topic_solved_sticky, author=self.user, position=1)
 
-        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=False)), 1)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=False)[0], topic)
+        # no filter
 
-        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=True)), 1)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, is_solved=True)[0], topic_solved)
-
-        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=False)), 1)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=False)[0], topic_sticky)
-
-        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)), 1)
-        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, is_solved=True)[0], topic_solved_sticky)
-
+        # all normal (== not sticky) topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 2)
+        self.assertIn(topic_solved, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
+        self.assertIn(topic, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
+
+        # all sticky topics
         self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 2)
+        self.assertIn(topic_solved_sticky, get_topics(forum_pk=self.forum11.pk, is_sticky=True))
+
+        # solved filter
+
+        # solved topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='solve')), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='solve')[0], topic_solved)
+
+        # solved sticky topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='solve')), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='solve')[0], topic_solved_sticky)
+
+        # unsolved filter
+
+        # unsolved topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='unsolve')), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='unsolve')[0], topic)
+
+        # unsolved sticky topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='unsolve')), 1)
+        self.assertEqual(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='unsolve')[0], topic_sticky)
+
+        # no answer filter
+
+        user1 = ProfileFactory().user
+
+        # create a new topic with answers
+        topic1 = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+        PostFactory(topic=topic1, author=self.user, position=1)
+        PostFactory(topic=topic1, author=user1, position=2)
+        PostFactory(topic=topic1, author=self.user, position=3)
+
+        # create a new sticky topic with answers
+        topic2 = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=True)
+        PostFactory(topic=topic2, author=self.user, position=1)
+        PostFactory(topic=topic2, author=user1, position=2)
+        PostFactory(topic=topic2, author=self.user, position=3)
+
+        # all normal (== not sticky) topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False)), 3)  # 2 normal + 1 with answers
+        self.assertIn(topic1, get_topics(forum_pk=self.forum11.pk, is_sticky=False))
+
+        # all sticky topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True)), 3)  # 2 normal + 1 with answers
+        self.assertIn(topic2, get_topics(forum_pk=self.forum11.pk, is_sticky=True))
+
+        # no answer topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer')), 2)
+        self.assertIn(topic_solved, get_topics(forum_pk=self.forum11.pk, is_sticky=False, filter='noanswer'))
+
+        # no answer sticky topics
+        self.assertEqual(len(get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer')), 2)
+        self.assertIn(
+            topic_solved_sticky,
+            get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
+        )

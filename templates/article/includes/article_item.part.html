@@ -1,6 +1,7 @@
 {% load date %}
 {% load captureas %}
 {% load thumbnail %}
+{% load i18n %}
 
 <article>
     {% if not link %}
@@ -34,15 +35,15 @@
                     {% endif %}
                 ">
                     {% if article.get_reaction_count == 0 %}
-                        Aucune réaction
+                        {% trans "Aucune réaction" %}
                     {% else %}
                         {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
                     {% endif %}
                 </a>
             {% elif article.sha_validation %}
-                En validation
+                {% trans "En validation" %}
             {% else %}
-                Brouillon
+                {% trans "Brouillon" %}
             {% endif %}
         </p>
     </div>

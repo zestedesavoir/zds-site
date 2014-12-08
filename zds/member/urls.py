@@ -17,6 +17,8 @@ urlpatterns = patterns('',
                            'zds.member.views.add_oldtuto'),
                        url(r'^profil/delier/$',
                            'zds.member.views.remove_oldtuto'),
+                       url(r'^profil/karmatiser/$',
+                           'zds.member.views.modify_karma'),
 
                        url(r'^tutoriels/$',
                            'zds.member.views.tutorials'),
