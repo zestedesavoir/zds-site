@@ -99,6 +99,10 @@
                                                     {% with text=result.object.get_text_online|striptags|safe %}
                                                         {% highlight text with query html_tag "mark" %}
                                                     {% endwith %}
+						{% elif result.object.get_text %}
+                                                    {% with text=result.object.get_text|striptags|safe %}
+                                                        {% highlight text with query html_tag "mark" %}
+                                                    {% endwith %}
                                                 {% elif result.object.topic %}
                                                     {% with text=result.object.text|emarkdown|striptags|safe %}
                                                         {% highlight text with query html_tag "mark" %}
