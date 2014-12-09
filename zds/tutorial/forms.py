@@ -4,7 +4,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
+from crispy_forms.layout import HTML, Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
@@ -116,9 +116,7 @@ class TutorialForm(FormWithTitle):
     )
 
     helps = forms.ModelMultipleChoiceField(
-        label=(u"Demander de l'aide à la communauté ! "
-               u"Si vous avez besoin d'un coup de main,"
-               u"sélectionnez une ou plusieurs catégories d'aide ci-dessous"),
+        label=_(u"Pour m'aider je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
         widget=forms.SelectMultiple()
@@ -138,8 +136,14 @@ class TutorialForm(FormWithTitle):
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Hidden('last_hash', '{{ last_hash }}'),
-            Field('subcategory'),
             Field('licence'),
+            Field('subcategory'),
+            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+                   u"Si vous avez besoin d'un coup de main,"
+                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
+                   u"et votre tutoriel apparaitra alors sur <a href="
+                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
+                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
             Field('helps'),
             Field('msg_commit'),
             ButtonHolder(
