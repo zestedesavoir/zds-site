@@ -27,7 +27,7 @@ MIN_PASSWORD_LENGTH = 6
 class OldTutoForm(forms.Form):
 
     id = forms.ChoiceField(
-        label=_('Ancien Tutoriel'),
+        label=_(u'Ancien Tutoriel'),
         required=True,
         choices=listing(),
     )
@@ -43,14 +43,14 @@ class OldTutoForm(forms.Form):
             Field('id'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                StrictButton(_('Attribuer'), type='submit'),
+                StrictButton(_(u'Attribuer'), type='submit'),
             ),
         )
 
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label=_("Nom d'utilisateur"),
+        label=_(u"Nom d'utilisateur"),
         max_length=User._meta.get_field('username').max_length,
         required=True,
         widget=forms.TextInput(
@@ -61,7 +61,7 @@ class LoginForm(forms.Form):
     )
 
     password = forms.CharField(
-        label=_('Mot de passe'),
+        label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -69,7 +69,7 @@ class LoginForm(forms.Form):
     )
 
     remember = forms.BooleanField(
-        label=_('Se souvenir de moi'),
+        label=_(u'Se souvenir de moi'),
         initial=True,
     )
 
@@ -86,28 +86,28 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                StrictButton(_('Se connecter'), type='submit'),
+                StrictButton(_(u'Se connecter'), type='submit'),
             ),
-            HTML('<a href="{% url "zds.member.views.forgot_password" %}" '
+            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}" '
                  u'class="form-sub-link">Mot de passe oublié ?</a>'),
         )
 
 
 class RegisterForm(forms.Form):
     email = forms.EmailField(
-        label=_('Adresse courriel'),
+        label=_(u'Adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
         required=True,
     )
 
     username = forms.CharField(
-        label=_('Nom d\'utilisateur'),
+        label=_(u'Nom d\'utilisateur'),
         max_length=User._meta.get_field('username').max_length,
         required=True,
     )
 
     password = forms.CharField(
-        label=_('Mot de passe'),
+        label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -115,7 +115,7 @@ class RegisterForm(forms.Form):
     )
 
     password_confirm = forms.CharField(
-        label=_('Confirmation du mot de passe'),
+        label=_(u'Confirmation du mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
@@ -134,7 +134,7 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit('submit', _('Valider mon inscription')),
+                Submit('submit', _(u'Valider mon inscription')),
             ))
 
     def clean(self):
@@ -207,7 +207,7 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _('Votre biographie au format Markdown.')
+                'placeholder': _(u'Votre biographie au format Markdown.')
             }
         )
     )
@@ -242,7 +242,7 @@ class MiniProfileForm(forms.Form):
         max_length=Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _('Elle apparaitra dans les messages de forums. ')
+                'placeholder': _(u'Elle apparaitra dans les messages de forums. ')
             }
         )
     )
@@ -269,9 +269,9 @@ class ProfileForm(MiniProfileForm):
         label='',
         required=False,
         choices=(
-            ('show_email', _("Afficher mon adresse courriel publiquement")),
-            ('show_sign', _("Afficher les signatures")),
-            ('hover_or_click', _("Cochez pour dérouler les menus au survol")),
+            ('show_email', _(u"Afficher mon adresse courriel publiquement")),
+            ('show_sign', _(u"Afficher les signatures")),
+            ('hover_or_click', _(u"Cochez pour dérouler les menus au survol")),
             ('email_for_answer', _(u'Recevez un courriel lorsque vous '
              u'recevez une réponse à un message privé')),
         ),
@@ -320,19 +320,19 @@ class ProfileForm(MiniProfileForm):
 class ChangeUserForm(forms.Form):
 
     username_new = forms.CharField(
-        label=_('Nouveau pseudo'),
+        label=_(u'Nouveau pseudo'),
         max_length=User._meta.get_field('username').max_length,
         min_length=1,
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _('Ne mettez rien pour conserver l\'ancien')
+                'placeholder': _(u'Ne mettez rien pour conserver l\'ancien')
             }
         )
     )
 
     email_new = forms.EmailField(
-        label=_('Nouvelle adresse courriel'),
+        label=_(u'Nouvelle adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
@@ -353,7 +353,7 @@ class ChangeUserForm(forms.Form):
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                StrictButton(_('Enregistrer'), type='submit'),
+                StrictButton(_(u'Enregistrer'), type='submit'),
             ),
         )
 
@@ -396,21 +396,21 @@ class ChangeUserForm(forms.Form):
 # to update a password
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
-        label=_('Nouveau mot de passe'),
+        label=_(u'Nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_old = forms.CharField(
-        label=_('Mot de passe actuel'),
+        label=_(u'Mot de passe actuel'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
-        label=_('Confirmer le nouveau mot de passe'),
+        label=_(u'Confirmer le nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
@@ -429,7 +429,7 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton(_('Enregistrer'), type='submit'),
+                StrictButton(_(u'Enregistrer'), type='submit'),
             )
         )
 
@@ -480,7 +480,7 @@ class ChangePasswordForm(forms.Form):
 # Reset the password
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
-        label=_('Nom d\'utilisateur'),
+        label=_(u'Nom d\'utilisateur'),
         max_length=User._meta.get_field('username').max_length,
         required=True
     )
@@ -494,7 +494,7 @@ class ForgotPasswordForm(forms.Form):
         self.helper.layout = Layout(
             Field('username'),
             ButtonHolder(
-                StrictButton(_('Envoyer'), type='submit'),
+                StrictButton(_(u'Envoyer'), type='submit'),
             )
         )
 
@@ -513,13 +513,13 @@ class ForgotPasswordForm(forms.Form):
 
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
-        label=_('Mot de passe'),
+        label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
-        label=_('Confirmation'),
+        label=_(u'Confirmation'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput
@@ -536,7 +536,7 @@ class NewPasswordForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                StrictButton(_('Envoyer'), type='submit'),
+                StrictButton(_(u'Envoyer'), type='submit'),
             )
         )
 
@@ -573,18 +573,18 @@ class NewPasswordForm(forms.Form):
 
 class PromoteMemberForm(forms.Form):
     groups = forms.ModelMultipleChoiceField(
-        label=_("Groupe de l'utilisateur"),
+        label=_(u"Groupe de l'utilisateur"),
         queryset=Group.objects.all(),
         required=False,
     )
 
     superuser = forms.BooleanField(
-        label=_("Super-user"),
+        label=_(u"Super-user"),
         required=False,
     )
 
     activation = forms.BooleanField(
-        label=_("Compte actif"),
+        label=_(u"Compte actif"),
         required=False,
     )
 
@@ -598,7 +598,7 @@ class PromoteMemberForm(forms.Form):
             Field('groups'),
             Field('superuser'),
             Field('activation'),
-            StrictButton(_('Valider'), type='submit'),
+            StrictButton(_(u'Valider'), type='submit'),
         )
 
 
@@ -607,7 +607,7 @@ class KarmaForm(forms.Form):
         max_length=KarmaNote._meta.get_field('comment').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Commentaire sur le comportement de ce membre'
+                'placeholder': u'Commentaire sur le comportement de ce membre'
             }),
         required=True,
     )
@@ -631,6 +631,6 @@ class KarmaForm(forms.Form):
             Field('points'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                StrictButton('Valider', type='submit'),
+                StrictButton(u'Valider', type='submit'),
             ),
         )
