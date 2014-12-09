@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-04 18:15+0100\n"
+"POT-Creation-Date: 2014-12-09 16:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -458,7 +458,7 @@ msgstr ""
 #: templates/tutorial/tutorial/view.html:391
 #: templates/tutorial/tutorial/view.html:442
 #: templates/tutorial/tutorial/view.html:472
-#: templates/tutorial/tutorial/view_online.html:194 zds/tutorial/forms.py:516
+#: templates/tutorial/tutorial/view_online.html:194 zds/tutorial/forms.py:529
 msgid "Confirmer"
 msgstr ""
 
@@ -497,7 +497,7 @@ msgstr ""
 #: templates/tutorial/member/index.html:11
 #: templates/tutorial/member/index.html:31
 #: templates/tutorial/member/index.html:51
-#: templates/tutorial/member/index.html:122 zds/tutorial/views.py:490
+#: templates/tutorial/member/index.html:122 zds/tutorial/views.py:489
 msgid "En validation"
 msgstr ""
 
@@ -626,12 +626,12 @@ msgid "Annuler la réservation"
 msgstr ""
 
 #: templates/article/includes/sidebar_actions.part.html:159
-#: zds/tutorial/forms.py:559
+#: zds/tutorial/forms.py:572
 msgid "Publier"
 msgstr ""
 
 #: templates/article/includes/sidebar_actions.part.html:170
-#: templates/tutorial/tutorial/view.html:424 zds/tutorial/forms.py:588
+#: templates/tutorial/tutorial/view.html:424 zds/tutorial/forms.py:601
 msgid "Rejeter"
 msgstr ""
 
@@ -789,7 +789,7 @@ msgstr ""
 #: templates/article/validation/index.html:37
 #: templates/forum/category/forum.html:135
 #: templates/tutorial/member/index.html:139
-#: templates/tutorial/tutorial/help.html:104
+#: templates/tutorial/tutorial/help.html:119
 #: templates/tutorial/validation/index.html:124
 msgid "Annuler le filtre"
 msgstr ""
@@ -1115,8 +1115,8 @@ msgstr ""
 
 #: templates/forum/base.html:133
 #: templates/forum/includes/topic_row.part.html:78
-#: templates/member/profile.html:82 templates/misc/message.part.html:189
-#: templates/misc/message.part.html:201 templates/mp/index.html:72
+#: templates/member/profile.html:82 templates/misc/message.part.html:194
+#: templates/misc/message.part.html:206 templates/mp/index.html:72
 msgid "par"
 msgstr ""
 
@@ -2076,27 +2076,27 @@ msgid ""
 "                                "
 msgstr ""
 
-#: templates/misc/message.part.html:159
+#: templates/misc/message.part.html:164
 msgid "Reprise du dernier message de la page précédente"
 msgstr ""
 
-#: templates/misc/message.part.html:164
+#: templates/misc/message.part.html:169
 msgid "Cette réponse a aidé l'auteur du sujet"
 msgstr ""
 
-#: templates/misc/message.part.html:180
+#: templates/misc/message.part.html:185
 msgid "Masqué par"
 msgstr ""
 
-#: templates/misc/message.part.html:187
+#: templates/misc/message.part.html:192
 msgid "Édité"
 msgstr ""
 
-#: templates/misc/message.part.html:205
+#: templates/misc/message.part.html:210
 msgid "Résoudre"
 msgstr ""
 
-#: templates/misc/message.part.html:211
+#: templates/misc/message.part.html:216
 msgid "Résoudre l'alerte"
 msgstr ""
 
@@ -3019,7 +3019,7 @@ msgstr ""
 msgid "rédigé par"
 msgstr ""
 
-#: templates/tutorial/export.html:23
+#: templates/tutorial/export.html:23 templates/tutorial/tutorial/help.html:44
 msgid "et"
 msgstr ""
 
@@ -3065,8 +3065,8 @@ msgstr ""
 msgid "Nouveau tutoriel"
 msgstr ""
 
-#: templates/tutorial/index.html:76 templates/tutorial/tutorial/help.html:10
-#: templates/tutorial/tutorial/help.html:16
+#: templates/tutorial/index.html:76 templates/tutorial/tutorial/help.html:11
+#: templates/tutorial/tutorial/help.html:17
 msgid "Aider les auteurs"
 msgstr ""
 
@@ -3379,59 +3379,63 @@ msgstr ""
 msgid "Éditer le tutoriel"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:25
+#: templates/tutorial/tutorial/help.html:26
 msgid "Aider les auteurs de tutoriels"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:39
+#: templates/tutorial/tutorial/help.html:40
 msgid "par : "
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:44
+#: templates/tutorial/tutorial/help.html:52
+msgid "Vous faites parti des auteurs."
+msgstr ""
+
+#: templates/tutorial/tutorial/help.html:54
 msgid "Contacter par MP"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:58
+#: templates/tutorial/tutorial/help.html:69
 msgid "Lire la version en ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:58
+#: templates/tutorial/tutorial/help.html:69
 msgid "Tutoriel en ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:60
+#: templates/tutorial/tutorial/help.html:71
 msgid "Tutoriel hors-ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:60
+#: templates/tutorial/tutorial/help.html:71
 msgid "Tutoriel jamais publié"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:63
+#: templates/tutorial/tutorial/help.html:74
 msgid "Lire la version bêta"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:63
+#: templates/tutorial/tutorial/help.html:74
 msgid "Bêta Active"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:65
+#: templates/tutorial/tutorial/help.html:76
 msgid "Bêta Inactive"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:65
+#: templates/tutorial/tutorial/help.html:76
 msgid "Bêta non activée"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:70
+#: templates/tutorial/tutorial/help.html:81
 msgid "Cherche un "
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:72
+#: templates/tutorial/tutorial/help.html:83
 msgid "Ne cherche pas un "
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:91
+#: templates/tutorial/tutorial/help.html:106
 msgid "Besoin"
 msgstr ""
 
@@ -3728,16 +3732,16 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: zds/article/forms.py:39 zds/tutorial/forms.py:317
+#: zds/article/forms.py:39 zds/tutorial/forms.py:330
 msgid "Texte"
 msgstr ""
 
-#: zds/article/forms.py:42 zds/article/forms.py:126 zds/forum/forms.py:39
+#: zds/article/forms.py:42 zds/article/forms.py:133 zds/forum/forms.py:39
 #: zds/forum/forms.py:106 zds/mp/forms.py:45 zds/mp/forms.py:102
-#: zds/tutorial/forms.py:61 zds/tutorial/forms.py:71 zds/tutorial/forms.py:154
-#: zds/tutorial/forms.py:164 zds/tutorial/forms.py:217
-#: zds/tutorial/forms.py:227 zds/tutorial/forms.py:321
-#: zds/tutorial/forms.py:430
+#: zds/tutorial/forms.py:61 zds/tutorial/forms.py:71 zds/tutorial/forms.py:167
+#: zds/tutorial/forms.py:177 zds/tutorial/forms.py:230
+#: zds/tutorial/forms.py:240 zds/tutorial/forms.py:334
+#: zds/tutorial/forms.py:443
 msgid "Votre message au format Markdown."
 msgstr ""
 
@@ -3751,44 +3755,46 @@ msgid ""
 "pas à en demander une nouvelle lors de la validation !"
 msgstr ""
 
-#: zds/article/forms.py:61 zds/tutorial/forms.py:94
-msgid "Licence de votre publication"
+#: zds/article/forms.py:62 zds/tutorial/forms.py:95
+msgid ""
+"Licence de votre publication (<a href=\"{0}\" alt=\"{1}\">En savoir plus sur "
+"les licences et {2}</a>)"
 msgstr ""
 
-#: zds/article/forms.py:68 zds/tutorial/forms.py:101 zds/tutorial/forms.py:170
-#: zds/tutorial/forms.py:233 zds/tutorial/forms.py:283
-#: zds/tutorial/forms.py:327
+#: zds/article/forms.py:75 zds/tutorial/forms.py:108 zds/tutorial/forms.py:183
+#: zds/tutorial/forms.py:246 zds/tutorial/forms.py:296
+#: zds/tutorial/forms.py:340
 msgid "Message de suivi"
 msgstr ""
 
-#: zds/article/forms.py:73 zds/tutorial/forms.py:106 zds/tutorial/forms.py:175
-#: zds/tutorial/forms.py:238 zds/tutorial/forms.py:288
-#: zds/tutorial/forms.py:332
+#: zds/article/forms.py:80 zds/tutorial/forms.py:113 zds/tutorial/forms.py:188
+#: zds/tutorial/forms.py:251 zds/tutorial/forms.py:301
+#: zds/tutorial/forms.py:345
 msgid "Un résumé de vos ajouts et modifications"
 msgstr ""
 
-#: zds/article/forms.py:148 zds/forum/forms.py:125 zds/tutorial/forms.py:452
+#: zds/article/forms.py:155 zds/forum/forms.py:125 zds/tutorial/forms.py:465
 msgid ""
 "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux "
 "messages consécutifs afin de limiter le flood."
 msgstr ""
 
-#: zds/article/forms.py:155
+#: zds/article/forms.py:162
 msgid "Cet article est verrouillé."
 msgstr ""
 
-#: zds/article/forms.py:166 zds/forum/forms.py:144 zds/tutorial/forms.py:470
+#: zds/article/forms.py:173 zds/forum/forms.py:144 zds/tutorial/forms.py:483
 msgid "Vous devez écrire une réponse !"
 msgstr ""
 
-#: zds/article/forms.py:172 zds/forum/forms.py:95 zds/forum/forms.py:150
-#: zds/tutorial/forms.py:476
+#: zds/article/forms.py:179 zds/forum/forms.py:95 zds/forum/forms.py:150
+#: zds/tutorial/forms.py:489
 msgid "Ce message est trop long, il ne doit pas dépasser {0} caractères"
 msgstr ""
 
-#: zds/article/forms.py:196 zds/forum/forms.py:174 zds/member/forms.py:601
-#: zds/pages/forms.py:66 zds/tutorial/forms.py:194 zds/tutorial/forms.py:258
-#: zds/tutorial/forms.py:308 zds/tutorial/forms.py:612
+#: zds/article/forms.py:203 zds/forum/forms.py:174 zds/member/forms.py:601
+#: zds/pages/forms.py:66 zds/tutorial/forms.py:207 zds/tutorial/forms.py:271
+#: zds/tutorial/forms.py:321 zds/tutorial/forms.py:625
 msgid "Valider"
 msgstr ""
 
@@ -3868,13 +3874,13 @@ msgstr ""
 msgid "Utiliser comme avatar"
 msgstr ""
 
-#: zds/gallery/views.py:113
+#: zds/gallery/views.py:112
 msgid ""
 "La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel "
 "existant."
 msgstr ""
 
-#: zds/gallery/views.py:208 zds/gallery/views.py:364
+#: zds/gallery/views.py:207 zds/gallery/views.py:364
 msgid ""
 "Votre image est beaucoup trop lourde, réduisez sa taille à moins de {} <abbr "
 "title=\"kibioctet\">Kio</abbr> avant de l'envoyer."
@@ -4035,69 +4041,69 @@ msgstr ""
 msgid "Compte actif"
 msgstr ""
 
-#: zds/member/views.py:112
+#: zds/member/views.py:111
 msgid "# Le tutoriel présenté par ce topic n'existe plus."
 msgstr ""
 
-#: zds/member/views.py:198
+#: zds/member/views.py:197
 msgid "Messages postés par période"
 msgstr ""
 
-#: zds/member/views.py:282
+#: zds/member/views.py:281
 msgid "Lecture Seule"
 msgstr ""
 
-#: zds/member/views.py:284
+#: zds/member/views.py:283
 msgid ""
 "Vous ne pouvez plus poster dans les forums, ni dans les commentaires "
 "d'articles et de tutoriels."
 msgstr ""
 
-#: zds/member/views.py:287
+#: zds/member/views.py:286
 msgid "Lecture Seule Temporaire"
 msgstr ""
 
-#: zds/member/views.py:293
+#: zds/member/views.py:292
 msgid ""
 "Vous ne pouvez plus poster dans les forums, ni dans les commentaires "
 "d'articles et de tutoriels pendant {0} jours."
 msgstr ""
 
-#: zds/member/views.py:297
+#: zds/member/views.py:296
 msgid "Ban Temporaire"
 msgstr ""
 
-#: zds/member/views.py:303
+#: zds/member/views.py:302
 msgid "Vous ne pouvez plus vous connecter sur {} pendant {} jours."
 msgstr ""
 
-#: zds/member/views.py:309
+#: zds/member/views.py:308
 msgid "Ban définitif"
 msgstr ""
 
-#: zds/member/views.py:312
+#: zds/member/views.py:311
 msgid "vous ne pouvez plus vous connecter sur {}."
 msgstr ""
 
-#: zds/member/views.py:316
+#: zds/member/views.py:315
 msgid "Autorisation d'écrire"
 msgstr ""
 
-#: zds/member/views.py:319
+#: zds/member/views.py:318
 msgid ""
 "Vous pouvez désormais poster sur les forums, dans les commentaires "
 "d'articles et tutoriels."
 msgstr ""
 
-#: zds/member/views.py:322
+#: zds/member/views.py:321
 msgid "Autorisation de se connecter"
 msgstr ""
 
-#: zds/member/views.py:325
+#: zds/member/views.py:324
 msgid "vous pouvez désormais vous connecter sur le site."
 msgstr ""
 
-#: zds/member/views.py:332
+#: zds/member/views.py:331
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4113,7 +4119,7 @@ msgid ""
 "Cordialement, L'équipe {4}."
 msgstr ""
 
-#: zds/member/views.py:345
+#: zds/member/views.py:344
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4128,51 +4134,51 @@ msgid ""
 "Cordialement, L'équipe {5}."
 msgstr ""
 
-#: zds/member/views.py:362
+#: zds/member/views.py:361
 msgid "Sanction"
 msgstr ""
 
-#: zds/member/views.py:456 zds/member/views.py:505
+#: zds/member/views.py:455 zds/member/views.py:504
 msgid "Le profil a correctement été mis à jour."
 msgstr ""
 
-#: zds/member/views.py:502 zds/member/views.py:539 zds/member/views.py:563
+#: zds/member/views.py:501 zds/member/views.py:538 zds/member/views.py:562
 msgid "Une erreur est survenue."
 msgstr ""
 
-#: zds/member/views.py:541
+#: zds/member/views.py:540
 msgid "L'avatar a correctement été mis à jour."
 msgstr ""
 
-#: zds/member/views.py:559
+#: zds/member/views.py:558
 msgid "Le mot de passe a bien été modifié."
 msgstr ""
 
-#: zds/member/views.py:633
+#: zds/member/views.py:632
 msgid ""
 "Vous n'êtes pas autorisé à vous connecter sur le site, vous avez été banni "
 "par un modérateur."
 msgstr ""
 
-#: zds/member/views.py:638
+#: zds/member/views.py:637
 msgid ""
 "Vous n'avez pas encore activé votre compte, vous devez le faire pour pouvoir "
 "vous connecter sur le site. Regardez dans vos mails : {}."
 msgstr ""
 
-#: zds/member/views.py:644
+#: zds/member/views.py:643
 msgid "Les identifiants fournis ne sont pas valides."
 msgstr ""
 
-#: zds/member/views.py:700 zds/member/views.py:879
+#: zds/member/views.py:699 zds/member/views.py:878
 msgid "{} - Confirmation d'inscription"
 msgstr ""
 
-#: zds/member/views.py:741
+#: zds/member/views.py:740
 msgid "{} - Mot de passe oublié"
 msgstr ""
 
-#: zds/member/views.py:814
+#: zds/member/views.py:813
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4201,78 +4207,78 @@ msgid ""
 "Clem'"
 msgstr ""
 
-#: zds/member/views.py:849
+#: zds/member/views.py:848
 msgid "Bienvenue sur {}"
 msgstr ""
 
-#: zds/member/views.py:850
+#: zds/member/views.py:849
 msgid "Le manuel du nouveau membre"
 msgstr ""
 
-#: zds/member/views.py:940
+#: zds/member/views.py:939
 msgid "Le tutoriel a bien été lié au membre {0}."
 msgstr ""
 
-#: zds/member/views.py:972
+#: zds/member/views.py:971
 msgid "Le tutoriel a bien été retiré au membre {0}."
 msgstr ""
 
-#: zds/member/views.py:1000
+#: zds/member/views.py:999
 msgid "{0} appartient maintenant au groupe {1}."
 msgstr ""
 
-#: zds/member/views.py:1005
+#: zds/member/views.py:1004
 msgid "{0} n'appartient maintenant plus au groupe {1}."
 msgstr ""
 
-#: zds/member/views.py:1018
+#: zds/member/views.py:1017
 msgid "{0} n'appartient (plus ?) à aucun groupe."
 msgstr ""
 
-#: zds/member/views.py:1024
+#: zds/member/views.py:1023
 msgid "{0} est maintenant super-utilisateur."
 msgstr ""
 
-#: zds/member/views.py:1028
+#: zds/member/views.py:1027
 msgid "Un super-utilisateur ne peux pas se retirer des super-utilisateurs."
 msgstr ""
 
-#: zds/member/views.py:1032
+#: zds/member/views.py:1031
 msgid "{0} n'est maintenant plus super-utilisateur."
 msgstr ""
 
-#: zds/member/views.py:1037
+#: zds/member/views.py:1036
 msgid "{0} est maintenant activé."
 msgstr ""
 
-#: zds/member/views.py:1041
+#: zds/member/views.py:1040
 msgid "{0} est désactivé."
 msgstr ""
 
-#: zds/member/views.py:1048
+#: zds/member/views.py:1047
 msgid ""
 "Bonjour {0},\n"
 "\n"
 "Un administrateur vient de modifier les groupes auxquels vous appartenez.  \n"
 msgstr ""
 
-#: zds/member/views.py:1052
+#: zds/member/views.py:1051
 msgid ""
 "Voici la liste des groupes dont vous faites dorénavant partie :\n"
 "\n"
 msgstr ""
 
-#: zds/member/views.py:1056
+#: zds/member/views.py:1055
 msgid "* Vous ne faites partie d'aucun groupe"
 msgstr ""
 
-#: zds/member/views.py:1059
+#: zds/member/views.py:1058
 msgid ""
 "Vous avez aussi rejoint le rang des super utilisateurs. N'oubliez pas, un "
 "grand pouvoir entraine de grandes responsabiltiés !"
 msgstr ""
 
-#: zds/member/views.py:1064
+#: zds/member/views.py:1063
 msgid "Modification des groupes"
 msgstr ""
 
@@ -4352,13 +4358,13 @@ msgstr ""
 msgid "Sélectionnez le logo du tutoriel (max. {} Ko)"
 msgstr ""
 
-#: zds/tutorial/forms.py:57 zds/tutorial/forms.py:150
-#: zds/tutorial/forms.py:213
+#: zds/tutorial/forms.py:57 zds/tutorial/forms.py:163
+#: zds/tutorial/forms.py:226
 msgid "Introduction"
 msgstr ""
 
-#: zds/tutorial/forms.py:67 zds/tutorial/forms.py:160
-#: zds/tutorial/forms.py:223
+#: zds/tutorial/forms.py:67 zds/tutorial/forms.py:173
+#: zds/tutorial/forms.py:236
 msgid "Conclusion"
 msgstr ""
 
@@ -4368,91 +4374,103 @@ msgid ""
 "pas à en demander une nouvelle lors de la validation !"
 msgstr ""
 
-#: zds/tutorial/forms.py:197 zds/tutorial/forms.py:261
+#: zds/tutorial/forms.py:119
+msgid "Pour m'aider je cherche un..."
+msgstr ""
+
+#: zds/tutorial/forms.py:141
+msgid ""
+"<p>Demander de l'aide à la communauté !<br>Si vous avez besoin d'un coup de "
+"main,sélectionnez une ou plusieurs catégories d'aide ci-dessous et votre "
+"tutoriel apparaitra alors sur <a href=\"{% url \"zds.tutorial.views."
+"help_tutorial\" %}\" alt=\"aider les auteurs\">la page d'aide</a>.</p>"
+msgstr ""
+
+#: zds/tutorial/forms.py:210 zds/tutorial/forms.py:274
 msgid "Ajouter et continuer"
 msgstr ""
 
-#: zds/tutorial/forms.py:207
+#: zds/tutorial/forms.py:220
 msgid "Selectionnez le logo du tutoriel (max. {0} Ko)"
 msgstr ""
 
-#: zds/tutorial/forms.py:274
+#: zds/tutorial/forms.py:287
 msgid "Sélectionnez une image"
 msgstr ""
 
-#: zds/tutorial/forms.py:300
+#: zds/tutorial/forms.py:313
 msgid "Contenu"
 msgstr ""
 
-#: zds/tutorial/forms.py:353
+#: zds/tutorial/forms.py:366
 msgid "Sélectionnez le tutoriel à importer"
 msgstr ""
 
-#: zds/tutorial/forms.py:357
+#: zds/tutorial/forms.py:370
 msgid "Fichier zip contenant les images du tutoriel"
 msgstr ""
 
-#: zds/tutorial/forms.py:369
+#: zds/tutorial/forms.py:382
 msgid "Importer le .tuto"
 msgstr ""
 
-#: zds/tutorial/forms.py:384
+#: zds/tutorial/forms.py:397
 msgid "Le fichier doit être au format .tuto"
 msgstr ""
 
-#: zds/tutorial/forms.py:391
+#: zds/tutorial/forms.py:404
 msgid "Le fichier doit être au format .zip"
 msgstr ""
 
-#: zds/tutorial/forms.py:398
+#: zds/tutorial/forms.py:411
 msgid "Sélectionnez l'archive de votre tutoriel"
 msgstr ""
 
-#: zds/tutorial/forms.py:403
+#: zds/tutorial/forms.py:416
 msgid "Tutoriel vers lequel vous souhaitez importer votre archive"
 msgstr ""
 
-#: zds/tutorial/forms.py:418
+#: zds/tutorial/forms.py:431
 msgid "Importer l'archive"
 msgstr ""
 
-#: zds/tutorial/forms.py:459
+#: zds/tutorial/forms.py:472
 msgid "Ce tutoriel est verrouillé."
 msgstr ""
 
-#: zds/tutorial/forms.py:491
+#: zds/tutorial/forms.py:504
 msgid "Commentaire pour votre demande."
 msgstr ""
 
-#: zds/tutorial/forms.py:501 zds/tutorial/forms.py:544
+#: zds/tutorial/forms.py:514 zds/tutorial/forms.py:557
 msgid "URL de la version originale"
 msgstr ""
 
-#: zds/tutorial/forms.py:529
+#: zds/tutorial/forms.py:542
 msgid "Commentaire de publication."
 msgstr ""
 
-#: zds/tutorial/forms.py:535
+#: zds/tutorial/forms.py:548
 msgid "Version majeure ?"
 msgstr ""
 
-#: zds/tutorial/forms.py:572
+#: zds/tutorial/forms.py:585
 msgid "Commentaire de rejet."
 msgstr ""
 
-#: zds/tutorial/views.py:188
+#: zds/tutorial/views.py:187
 msgid "Le tutoriel n'est plus sous réserve."
 msgstr ""
 
-#: zds/tutorial/views.py:196
+#: zds/tutorial/views.py:195
 msgid "Le tutoriel a bien été                       réservé par {0}."
 msgstr ""
 
-#: zds/tutorial/views.py:298
+#: zds/tutorial/views.py:297
 msgid "Le tutoriel a bien été refusé."
 msgstr ""
 
-#: zds/tutorial/views.py:302
+#: zds/tutorial/views.py:301
 msgid ""
 "Désolé, le zeste **{0}** n'a malheureusement pas passé l’étape de "
 "validation. Mais ne désespère pas, certaines corrections peuvent surement "
@@ -4465,19 +4483,19 @@ msgid ""
 "demander plus de détail si tout cela te semble injuste ou manque de clarté."
 msgstr ""
 
-#: zds/tutorial/views.py:318
+#: zds/tutorial/views.py:317
 msgid "Refus de Validation : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:328
+#: zds/tutorial/views.py:327
 msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le refuser."
 msgstr ""
 
-#: zds/tutorial/views.py:370
+#: zds/tutorial/views.py:369
 msgid "Le tutoriel a bien été validé."
 msgstr ""
 
-#: zds/tutorial/views.py:375
+#: zds/tutorial/views.py:374
 msgid ""
 "Félicitations ! Le zeste [{0}]({1}) a été publié par [{2}]({3}) ! Les "
 "lecteurs du monde entier peuvent venir l'éplucher et réagir a son sujet. Je "
@@ -4486,19 +4504,19 @@ msgid ""
 "abandonné !"
 msgstr ""
 
-#: zds/tutorial/views.py:390
+#: zds/tutorial/views.py:389
 msgid "Publication : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:400
+#: zds/tutorial/views.py:399
 msgid "Vous devez avoir réservé ce tutoriel pour pouvoir le valider."
 msgstr ""
 
-#: zds/tutorial/views.py:431
+#: zds/tutorial/views.py:430
 msgid "Le tutoriel a bien été dépublié."
 msgstr ""
 
-#: zds/tutorial/views.py:481
+#: zds/tutorial/views.py:480
 msgid ""
 "Bonjour {0},Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de "
 "validation, Pour retrouver les modifications qui ont été faites, je t'invite "
@@ -4507,27 +4525,27 @@ msgid ""
 "> Merci"
 msgstr ""
 
-#: zds/tutorial/views.py:489
+#: zds/tutorial/views.py:488
 msgid "Mise à jour de tuto : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:499
+#: zds/tutorial/views.py:498
 msgid "Votre demande de validation a été envoyée à l'équipe."
 msgstr ""
 
-#: zds/tutorial/views.py:539
+#: zds/tutorial/views.py:538
 msgid "Le tutoriel {0} a bien été supprimé."
 msgstr ""
 
-#: zds/tutorial/views.py:556
+#: zds/tutorial/views.py:555
 msgid "Vous ne faites plus partie des rédacteurs de ce tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:591
+#: zds/tutorial/views.py:590
 msgid "L'auteur {0} a bien été ajouté à la rédaction du tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:597
+#: zds/tutorial/views.py:596
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4538,15 +4556,15 @@ msgid ""
 "Tu peux maintenant commencer à rédiger !"
 msgstr ""
 
-#: zds/tutorial/views.py:611
+#: zds/tutorial/views.py:610
 msgid "Ajout en tant qu'auteur : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:643
+#: zds/tutorial/views.py:642
 msgid "L'auteur {0} a bien été retiré du tutoriel."
 msgstr ""
 
-#: zds/tutorial/views.py:649
+#: zds/tutorial/views.py:648
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4554,11 +4572,11 @@ msgid ""
 "pas publié, tu ne pourra plus y accéder.\n"
 msgstr ""
 
-#: zds/tutorial/views.py:660
+#: zds/tutorial/views.py:659
 msgid "Suppression des auteurs : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:675
+#: zds/tutorial/views.py:674
 msgid ""
 "Bonjour à tous,\n"
 "\n"
@@ -4576,11 +4594,11 @@ msgid ""
 "Merci d'avance pour votre aide"
 msgstr ""
 
-#: zds/tutorial/views.py:690
+#: zds/tutorial/views.py:689
 msgid "[beta][tutoriel]{0}"
 msgstr ""
 
-#: zds/tutorial/views.py:698
+#: zds/tutorial/views.py:697
 msgid ""
 "Bonjour {},\n"
 "\n"
@@ -4592,11 +4610,11 @@ msgid ""
 "est accessible [ici]({})"
 msgstr ""
 
-#: zds/tutorial/views.py:710
+#: zds/tutorial/views.py:709
 msgid "Tutoriel en beta : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:717
+#: zds/tutorial/views.py:716
 msgid ""
 "Bonjour,\n"
 "\n"
@@ -4609,15 +4627,15 @@ msgid ""
 "Merci pour vos relectures"
 msgstr ""
 
-#: zds/tutorial/views.py:726
+#: zds/tutorial/views.py:725
 msgid "La BETA sur ce tutoriel est bien activée."
 msgstr ""
 
-#: zds/tutorial/views.py:728
+#: zds/tutorial/views.py:727
 msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être activée."
 msgstr ""
 
-#: zds/tutorial/views.py:737
+#: zds/tutorial/views.py:736
 msgid ""
 "Bonjour à tous,\n"
 "\n"
@@ -4635,7 +4653,7 @@ msgid ""
 "Merci d'avance pour votre aide"
 msgstr ""
 
-#: zds/tutorial/views.py:759
+#: zds/tutorial/views.py:758
 msgid ""
 "Bonjour, !\n"
 "\n"
@@ -4648,62 +4666,62 @@ msgid ""
 "Merci pour vos relectures"
 msgstr ""
 
-#: zds/tutorial/views.py:767
+#: zds/tutorial/views.py:766
 msgid "La BETA sur ce tutoriel a bien été mise à jour."
 msgstr ""
 
-#: zds/tutorial/views.py:769
+#: zds/tutorial/views.py:768
 msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être mise à jour."
 msgstr ""
 
-#: zds/tutorial/views.py:777
+#: zds/tutorial/views.py:776
 msgid ""
 "Désactivation de la beta du tutoriel  **{}**\n"
 "\n"
 "Pour plus d'informations envoyez moi un message privé."
 msgstr ""
 
-#: zds/tutorial/views.py:781
+#: zds/tutorial/views.py:780
 msgid "La BETA sur ce tutoriel a bien été désactivée."
 msgstr ""
 
-#: zds/tutorial/views.py:1475
+#: zds/tutorial/views.py:1474
 msgid "La partie « {0} » a été ajoutée avec succès."
 msgstr ""
 
-#: zds/tutorial/views.py:1516
+#: zds/tutorial/views.py:1515
 msgid "Déplacement de la partie {} "
 msgstr ""
 
-#: zds/tutorial/views.py:1543
+#: zds/tutorial/views.py:1542
 msgid "Suppression de la partie {} "
 msgstr ""
 
-#: zds/tutorial/views.py:1904
+#: zds/tutorial/views.py:1903
 msgid "Le chapitre « {0} » a été ajouté avec succès."
 msgstr ""
 
-#: zds/tutorial/views.py:1953
+#: zds/tutorial/views.py:1952
 msgid "Déplacement du chapitre {}"
 msgstr ""
 
-#: zds/tutorial/views.py:1954
+#: zds/tutorial/views.py:1953
 msgid "Le chapitre a bien été déplacé."
 msgstr ""
 
-#: zds/tutorial/views.py:1990
+#: zds/tutorial/views.py:1989
 msgid "Suppression du chapitre {}"
 msgstr ""
 
-#: zds/tutorial/views.py:1991
+#: zds/tutorial/views.py:1990
 msgid "Le chapitre a bien été supprimé."
 msgstr ""
 
-#: zds/tutorial/views.py:2273
+#: zds/tutorial/views.py:2272
 msgid "Suppression de l'extrait {}"
 msgstr ""
 
-#: zds/tutorial/views.py:2299
+#: zds/tutorial/views.py:2298
 msgid "Déplacement de l'extrait {}"
 msgstr ""
 
@@ -4755,7 +4773,7 @@ msgstr ""
 msgid "Création de l'extrait «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:3394
+#: zds/tutorial/views.py:3389
 msgid ""
 "Bonjour {0},Vous recevez ce message car vous avez signalé le message de *{1}"
 "*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il "
@@ -4766,15 +4784,15 @@ msgid ""
 "Toute l'équipe de la modération vous remercie !"
 msgstr ""
 
-#: zds/tutorial/views.py:3408
+#: zds/tutorial/views.py:3403
 msgid "Résolution d'alerte : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:3414
+#: zds/tutorial/views.py:3409
 msgid "L'alerte a bien été résolue."
 msgstr ""
 
-#: zds/tutorial/views.py:3457
+#: zds/tutorial/views.py:3452
 msgid ""
 "Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore "
 "plus prudent lors de l'édition de celui-ci !"
