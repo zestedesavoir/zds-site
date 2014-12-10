@@ -5,6 +5,6 @@
 
 {% trans "Pour le lire, cliquez ou recopiez l'url suivante" %} : {{ url }}
 
-{% trans "Cordialement,
+{% trans "Cordialement" %},
 
-L'équipe" %} {{app.site.litteral_name}}
+{% trans "L'équipe" %} {{app.site.litteral_name}}

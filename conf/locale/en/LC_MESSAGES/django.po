@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-08 23:25+0100\n"
+"POT-Creation-Date: 2014-12-10 20:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -962,7 +962,8 @@ msgstr ""
 
 #: templates/email/assoc/subscribe.html:32
 #: templates/email/forgot_password/confirm.html:23
-#: templates/email/mp/new.html:17 templates/email/notification/new.html:17
+#: templates/email/mp/new.html:17 templates/email/mp/new.txt:8
+#: templates/email/notification/new.html:17
 msgid "Cordialement"
 msgstr ""
 
@@ -1018,7 +1019,8 @@ msgid ""
 msgstr ""
 
 #: templates/email/forgot_password/confirm.html:25
-#: templates/email/mp/new.html:19 templates/email/notification/new.html:19
+#: templates/email/mp/new.html:19 templates/email/mp/new.txt:10
+#: templates/email/notification/new.html:19
 msgid "L'équipe"
 msgstr ""
 
@@ -2156,6 +2158,15 @@ msgstr ""
 
 #: templates/misc/previsualization.part.html:6
 msgid "Prévisualisation de votre message"
+msgstr ""
+
+#: templates/misc/social_buttons.part.html:3
+#: templates/misc/social_buttons.part.html:4
+msgid "Partager"
+msgstr ""
+
+#: templates/misc/social_buttons.part.html:31
+msgid "Envoyer par mail"
 msgstr ""
 
 #: templates/misc/validation.part.html:19

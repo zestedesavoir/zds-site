@@ -240,4 +240,6 @@
             </li>
         </ul>
     </div>
+
+    {% include "misc/social_buttons.part.html" with link=article.get_absolute_url_online text=article.title %}
 {% endblock %}

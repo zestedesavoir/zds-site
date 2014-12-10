@@ -90,4 +90,6 @@
     {% endif %}
 
     {% include "tutorial/includes/summary.part.html" with online=True tutorial=chapter.part.tutorial chapter_current=chapter %}
+
+    {% include "misc/social_buttons.part.html" with link=chapter.part.tutorial.get_absolute_url_online text=chapter.part.tutorial.title %}
 {% endblock %}
