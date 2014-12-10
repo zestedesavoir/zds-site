@@ -1172,14 +1172,6 @@
     margin-top: 0;
 }
 
-img.light {
-    opacity: 0.2;
-    &:hover,
-    &:focus {
-        opacity: 0.5;
-    }
-}
-
 /* ==============
     ALL: Main / Home
    ============== */
@@ -1395,6 +1387,15 @@ img.light {
 
         &.no-illu {
             margin-left: 0;
+        }
+    }
+
+    .tutorial-help img.light {
+        opacity: 0.2;
+
+        &:hover,
+        &:focus {
+            opacity: 0.5;
         }
     }
 }
