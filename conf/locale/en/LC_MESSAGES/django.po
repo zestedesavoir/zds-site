@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-07 17:48+0100\n"
+"POT-Creation-Date: 2014-12-10 20:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -962,7 +962,8 @@ msgstr ""
 
 #: templates/email/assoc/subscribe.html:32
 #: templates/email/forgot_password/confirm.html:23
-#: templates/email/mp/new.html:17 templates/email/notification/new.html:17
+#: templates/email/mp/new.html:17 templates/email/mp/new.txt:8
+#: templates/email/notification/new.html:17
 msgid "Cordialement"
 msgstr ""
 
@@ -1018,7 +1019,8 @@ msgid ""
 msgstr ""
 
 #: templates/email/forgot_password/confirm.html:25
-#: templates/email/mp/new.html:19 templates/email/notification/new.html:19
+#: templates/email/mp/new.html:19 templates/email/mp/new.txt:10
+#: templates/email/notification/new.html:19
 msgid "L'équipe"
 msgstr ""
 
@@ -1114,8 +1116,8 @@ msgstr ""
 
 #: templates/forum/base.html:133
 #: templates/forum/includes/topic_row.part.html:78
-#: templates/member/profile.html:82 templates/misc/message.part.html:189
-#: templates/misc/message.part.html:201 templates/mp/index.html:72
+#: templates/member/profile.html:82 templates/misc/message.part.html:194
+#: templates/misc/message.part.html:206 templates/mp/index.html:72
 msgid "par"
 msgstr ""
 
@@ -1171,7 +1173,7 @@ msgstr ""
 msgid "Sujets sans réponse"
 msgstr ""
 
-#: templates/forum/category/forum.html:69 templates/forum/topic/index.html:131
+#: templates/forum/category/forum.html:69 templates/forum/topic/index.html:130
 #: templates/forum/topic/new.html:9 templates/forum/topic/new.html.py:15
 #: templates/forum/topic/new.html:31
 msgid "Nouveau sujet"
@@ -1289,56 +1291,56 @@ msgstr ""
 msgid "Répondre au sujet"
 msgstr ""
 
-#: templates/forum/topic/index.html:68
+#: templates/forum/topic/index.html:67
 msgid "L'auteur de ce sujet a trouvé une solution à son problème"
 msgstr ""
 
-#: templates/forum/topic/index.html:149
+#: templates/forum/topic/index.html:148
 msgid "Marquer comme non résolu"
 msgstr ""
 
-#: templates/forum/topic/index.html:151
+#: templates/forum/topic/index.html:150
 msgid "Marquer comme résolu"
 msgstr ""
 
-#: templates/forum/topic/index.html:168
+#: templates/forum/topic/index.html:167
 msgid "Ne plus suivre ce sujet"
 msgstr ""
 
-#: templates/forum/topic/index.html:170
+#: templates/forum/topic/index.html:169
 msgid "Suivre ce sujet"
 msgstr ""
 
-#: templates/forum/topic/index.html:185
+#: templates/forum/topic/index.html:184
 msgid "Ne plus être notifié par courriel"
 msgstr ""
 
-#: templates/forum/topic/index.html:187
+#: templates/forum/topic/index.html:186
 msgid "Être notifié par courriel"
 msgstr ""
 
-#: templates/forum/topic/index.html:199 templates/member/profile.html:420
+#: templates/forum/topic/index.html:198 templates/member/profile.html:420
 #: templates/member/profile.html.py:421
 msgid "Modération"
 msgstr ""
 
-#: templates/forum/topic/index.html:211
+#: templates/forum/topic/index.html:210
 msgid "Ouvrir le sujet"
 msgstr ""
 
-#: templates/forum/topic/index.html:213
+#: templates/forum/topic/index.html:212
 msgid "Fermer le sujet"
 msgstr ""
 
-#: templates/forum/topic/index.html:229
+#: templates/forum/topic/index.html:228
 msgid "Enlever du post-it"
 msgstr ""
 
-#: templates/forum/topic/index.html:231
+#: templates/forum/topic/index.html:230
 msgid "Marquer en post-it"
 msgstr ""
 
-#: templates/forum/topic/index.html:238
+#: templates/forum/topic/index.html:237
 msgid "Déplacer le sujet"
 msgstr ""
 
@@ -2075,27 +2077,27 @@ msgid ""
 "                                "
 msgstr ""
 
-#: templates/misc/message.part.html:159
+#: templates/misc/message.part.html:164
 msgid "Reprise du dernier message de la page précédente"
 msgstr ""
 
-#: templates/misc/message.part.html:164
+#: templates/misc/message.part.html:169
 msgid "Cette réponse a aidé l'auteur du sujet"
 msgstr ""
 
-#: templates/misc/message.part.html:180
+#: templates/misc/message.part.html:185
 msgid "Masqué par"
 msgstr ""
 
-#: templates/misc/message.part.html:187
+#: templates/misc/message.part.html:192
 msgid "Édité"
 msgstr ""
 
-#: templates/misc/message.part.html:205
+#: templates/misc/message.part.html:210
 msgid "Résoudre"
 msgstr ""
 
-#: templates/misc/message.part.html:211
+#: templates/misc/message.part.html:216
 msgid "Résoudre l'alerte"
 msgstr ""
 
@@ -4746,7 +4748,7 @@ msgstr ""
 msgid "Création de l'extrait «{}» {} {}"
 msgstr ""
 
-#: zds/tutorial/views.py:3383
+#: zds/tutorial/views.py:3382
 #, python-brace-format
 msgid ""
 "Bonjour {0},Vous recevez ce message car vous avez signalé le message de *{1}"
@@ -4758,16 +4760,16 @@ msgid ""
 "Toute l'équipe de la modération vous remercie !"
 msgstr ""
 
-#: zds/tutorial/views.py:3397
+#: zds/tutorial/views.py:3396
 #, python-brace-format
 msgid "Résolution d'alerte : {0}"
 msgstr ""
 
-#: zds/tutorial/views.py:3403
+#: zds/tutorial/views.py:3402
 msgid "L'alerte a bien été résolue."
 msgstr ""
 
-#: zds/tutorial/views.py:3446
+#: zds/tutorial/views.py:3445
 msgid ""
 "Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore "
 "plus prudent lors de l'édition de celui-ci !"
