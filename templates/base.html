@@ -77,9 +77,9 @@
 
     {# Stylesheets #}
     {% if debug %}
-        <link rel="stylesheet" href="/static/css/main.css">
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% else %}
-        <link rel="stylesheet" href="/static/css/main.min.css">
+        <link rel="stylesheet" href="{% static "css/main.min.css" %}">
         {% block canonical %}{% endblock %}
     {% endif %}
 
