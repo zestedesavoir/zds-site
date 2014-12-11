@@ -197,7 +197,7 @@
         {% if profile.user == user or perms.member.change_profile %}
             <div>
                 {% if profile.user == user %}
-                    <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
+                    <a href="{% url "update-member" %}" class="new-btn ico-after gear blue">
                         {% trans "Paramètres" %} <span class="wide">{% trans "de mon compte" %}</span>
                     </a>
                 {% else %}

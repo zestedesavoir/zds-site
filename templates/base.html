@@ -390,7 +390,7 @@
                                         {%  endwith %}
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -402,7 +402,7 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
                                        title="{% blocktrans %}Mon compte{% endblocktrans %}"
@@ -434,7 +434,7 @@
                                             <a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries d'images" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.settings_profile" %}">{% trans "Paramètres" %}</a>
+                                            <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
                                         {% if perms.tutorial.change_tutorial %}

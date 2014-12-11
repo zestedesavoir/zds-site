@@ -12,9 +12,9 @@ from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
@@ -38,7 +38,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 from django.utils.translation import ugettext as _
 
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 
 
 class MemberList(ListView):
@@ -74,6 +74,124 @@ class MemberDetail(DetailView):
         context['form'] = OldTutoForm(profile)
         return context
 
+
+class UpdateMember(UpdateView):
+    """Updates a profile."""
+    form_class = ProfileForm
+    template_name = 'member/settings/profile.html'
+
+    def get_object(self):
+        user = get_object_or_404(User, username=self.request.user.username)
+        return user.profile
+
+    def get_form(self, form_class):
+        profile = self.get_object()
+
+        return ProfileForm(initial={
+            "biography": profile.biography,
+            "site": profile.site,
+            "avatar_url": profile.avatar_url,
+            "show_email": profile.show_email,
+            "show_sign": profile.show_sign,
+            "hover_or_click": profile.hover_or_click,
+            "email_for_answer": profile.email_for_answer,
+            "sign": profile.sign
+            })
+
+    def post(self, request, *args, **kwargs):
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            return self.form_valid(request, form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, request, form):
+        profile = self.get_object()
+
+        self.update_profile(profile, form)
+
+        self.save_profile(profile)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def update_profile(self, profile, form):
+        profile.biography = form.data["biography"]
+        profile.site = form.data["site"]
+        profile.show_email = "show_email" \
+                             in form.cleaned_data.get("options")
+        profile.show_sign = "show_sign" in form.cleaned_data.get("options")
+        profile.hover_or_click = "hover_or_click" \
+                                 in form.cleaned_data.get("options")
+        profile.email_for_answer = "email_for_answer" \
+                                   in form.cleaned_data.get("options")
+        profile.avatar_url = form.data["avatar_url"]
+        profile.sign = form.data["sign"]
+
+    def get_success_url(self):
+        return reverse('update-member')
+
+    def save_profile(self, profile):
+        try:
+            profile.save()
+            profile.user.save()
+        except:
+            messages.error(self.request, self.get_error_message())
+            return redirect(reverse("zds.member.views.settings_profile"))
+        messages.success(self.request, self.get_success_message())
+
+    def get_success_message(self):
+        return _(u"Le profil a correctement été mis à jour.")
+
+    def get_error_message(self):
+        return _(u"Une erreur est survenue.")
+
+
+class UpdateAvatarMember(UpdateMember):
+
+    def get_success_url(self):
+        profile = self.get_object()
+        return reverse("member-detail", args=[profile.user.username])
+
+    def get_form(self, form_class):
+        return ImageAsAvatarForm(self.request.POST)
+
+    def update_profile(self, profile, form):
+        profile.avatar_url = form.data["avatar_url"]
+
+    def get_success_message(self):
+        return _(u"L'avatar a correctement été mis à jour.")
+
+
+class UpdatePasswordMember(UpdateMember):
+
+    def get_form(self, form_class):
+        return ChangePasswordForm(self.request.user, self.request.POST)
+
+    def update_profile(self, profile, form):
+        profile.user.set_password(form.data["password_new"])
+
+    def get_success_message(self):
+        return _(u"Le mot de passe a correctement été mis à jour.")
+
+    def get_success_url(self):
+        return reverse('update-password-member')
+
+
+class UpdateUsernameEmailMember(UpdateMember):
+
+    def get_form(self, form_class):
+        return ChangeUserForm(self.request.POST)
+
+    def update_profile(self, profile, form):
+        if form.data["username_new"]:
+            profile.user.username = form.data["username_new"]
+        elif form.data["email_new"]:
+            if form.data["email_new"].strip() != "":
+                profile.user.email = form.data["email_new"]
+
+    def get_success_url(self):
+        profile = self.get_object();
+        return profile.get_absolute_url()
 
 def index(request):
     """Displays the list of registered users."""
@@ -553,10 +671,10 @@ def settings_account(request):
                 request.user.save()
                 messages.success(request, _(u"Le mot de passe a bien été modifié.")
                                  )
-                return redirect(reverse("zds.member.views.settings_account"))
+                return redirect(reverse("update-password-member"))
             except:
                 messages.error(request, _(u"Une erreur est survenue."))
-                return redirect(reverse("zds.member.views.settings_account"))
+                return redirect(reverse("update-password-member"))
         else:
             return render(request, "member/settings/account.html", c)
     else:

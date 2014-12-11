@@ -2,54 +2,47 @@
 
 from django.conf.urls import patterns, url
 
-from views import MemberList, MemberDetail
+from views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
+    UpdateUsernameEmailMember
 
 urlpatterns = patterns('',
+                        #list
                        url(r'^$', MemberList.as_view(), name='member-list'),
-                       url(r'^desinscrire/valider/$', 'zds.member.views.unregister'),
-                       url(r'^desinscrire/avertissement/$', 'zds.member.views.warning_unregister'),
+
+                        #details
                        url(r'^voir/(?P<user_name>.+)/$', MemberDetail.as_view(), name='member-detail'),
-                       url(r'^profil/modifier/(?P<user_pk>\d+)/$',
-                           'zds.member.views.modify_profile'),
-                       url(r'^profil/lier/$',
-                           'zds.member.views.add_oldtuto'),
-                       url(r'^profil/delier/$',
-                           'zds.member.views.remove_oldtuto'),
-                       url(r'^profil/karmatiser/$',
-                           'zds.member.views.modify_karma'),
 
-                       url(r'^tutoriels/$',
-                           'zds.member.views.tutorials'),
-                       url(r'^articles/$',
-                           'zds.member.views.articles'),
+                        #modification
+                       url(r'^parametres/profil/$', UpdateMember.as_view(), name='update-member'),
+                       url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
+                       url(r'^parametres/compte/$', UpdatePasswordMember.as_view(), name='update-password-member'),
+                       url(r'^parametres/user/$', UpdateUsernameEmailMember.as_view(), name='update-username-email-member'),
 
-                       url(r'^parametres/profil/$',
-                           'zds.member.views.settings_profile'),
-                       url(r'^parametres/profil/maj_avatar/$',
-                           'zds.member.views.update_avatar'),
-                       url(r'^parametres/mini_profil/(?P<user_name>.+)/$',
-                           'zds.member.views.settings_mini_profile'),
-                       url(r'^parametres/compte/$',
-                           'zds.member.views.settings_account'),
-                       url(r'^parametres/user/$',
-                           'zds.member.views.settings_user'),
-                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$',
-                           'zds.member.views.settings_promote'),
-                       url(r'^profil/multi/(?P<ip>.+)/$',
-                           'zds.member.views.member_from_ip'),
+                       #old tuto
+                       url(r'^profil/lier/$', 'zds.member.views.add_oldtuto'),
+                       url(r'^profil/delier/$', 'zds.member.views.remove_oldtuto'),
 
-                       url(r'^connexion/$',
-                           'zds.member.views.login_view'),
-                       url(r'^deconnexion/$',
-                           'zds.member.views.logout_view'),
-                       url(r'^inscription/$',
-                           'zds.member.views.register_view'),
-                       url(r'^reinitialisation/$',
-                           'zds.member.views.forgot_password'),
-                       url(r'^new_password/$',
-                           'zds.member.views.new_password'),
-                       url(r'^activation/$',
-                           'zds.member.views.active_account'),
-                       url(r'^envoi_jeton/$',
-                           'zds.member.views.generate_token_account'),
+                        #moderation
+                       url(r'^profil/karmatiser/$', 'zds.member.views.modify_karma'),
+                       url(r'^profil/modifier/(?P<user_pk>\d+)/$','zds.member.views.modify_profile'),
+                       url(r'^parametres/mini_profil/(?P<user_name>.+)/$','zds.member.views.settings_mini_profile'),
+                       url(r'^profil/multi/(?P<ip>.+)/$','zds.member.views.member_from_ip'),
+
+                        #tutorials and articles
+                       url(r'^tutoriels/$', 'zds.member.views.tutorials'),
+                       url(r'^articles/$', 'zds.member.views.articles'),
+
+                        #user rights
+                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$','zds.member.views.settings_promote'),
+
+                        #membership
+                       url(r'^connexion/$', 'zds.member.views.login_view'),
+                       url(r'^deconnexion/$', 'zds.member.views.logout_view'),
+                       url(r'^inscription/$', 'zds.member.views.register_view'),
+                       url(r'^reinitialisation/$', 'zds.member.views.forgot_password'),
+                       url(r'^new_password/$', 'zds.member.views.new_password'),
+                       url(r'^activation/$', 'zds.member.views.active_account'),
+                       url(r'^envoi_jeton/$', 'zds.member.views.generate_token_account'),
+                       url(r'^desinscrire/valider/$', 'zds.member.views.unregister'),
+                       url(r'^desinscrire/avertissement/$', 'zds.member.views.warning_unregister')
                        )
