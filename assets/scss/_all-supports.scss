@@ -165,7 +165,7 @@
     .dropdown-title {
         color: #FFF;
     }
-    
+
     .dropdown-list {
         width: 100%;
         padding: 0;
@@ -326,7 +326,7 @@
                 width: 22px;
                 top: 50%;
                 left: 50%;
-                margin: -11px 0 0 -11px;                
+                margin: -11px 0 0 -11px;
 
                 &.ico-messages {
                     @include sprite-pos($messages);
@@ -391,7 +391,7 @@
                     &:hover,
                     &:focus {
                         background-color: $header-hover;
-                        
+
                         .username {
                             text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
                         }
@@ -553,7 +553,7 @@
 
             &:after {
                 display: block;
-                content: " ";   
+                content: " ";
                 position: absolute;
                 top: 12px;
                 left: 50%;
@@ -1070,6 +1070,8 @@
         font-weight: normal;
         border-bottom: 1px solid $secondary;
         margin: 1px 0 15px;
+        display: block;
+        overflow: hidden;
 
         &.illu {
             padding-left: 60px;
@@ -1088,8 +1090,25 @@
                 margin-left: 21px;
             }
         }
-        &.ico-articles:after {
-            @include sprite-pos($articles);
+        &.ico-articles,
+        &.ico-tutorials,
+        &.hot-topics {
+            a {
+                background : $sidebar-background;
+                font-size : 0.7em;
+                float : right;
+                padding: 0px 15px 0px;
+                color : #555;
+                text-decoration: none;
+                &:hover {
+                    background: darken($sidebar-background, 10%);
+                }
+            }
+        }
+        &.ico-articles {
+            &:after {
+                @include sprite-pos($articles);
+            }
         }
         &.ico-tutorials:after {
             @include sprite-pos($tutorials);
@@ -1180,7 +1199,6 @@
    ============== */
 .home-wrapper {
     position: relative;
-    max-width: 1100px;
     padding: 0 15px;
     margin: 0 auto;
 }
@@ -1215,8 +1233,8 @@
     }
 
     &.home-full-description {
-        padding: 20px 0;
-        min-height: 210px;
+        padding: 5px 0;
+        min-height: 255px;
         text-align: center;
 
         img {
@@ -1224,30 +1242,53 @@
         }
 
         .home-full-description-text {
-            line-height: 18px;
+            line-height: 20px;
             text-align: left;
 
             h2 {
                 font-size: 22px;
-                font-size: 2.2rem;
+                font-size: 2.1rem;
                 line-height: 38px;
                 line-height: 3.8rem;
                 color: $primary;
                 font-weight: normal;
                 border-bottom: 1px solid #F8AD32;
-                margin-top: 0;
-            }
-
-            blockquote {
-                color: #0b668e;
-                font-style: italic;
-                font-size: 18px;
-                font-size: 1.8rem;
-                margin: 0;
+                margin-bottom: 10px;
+                margin-top: 0px;
+                text-align : center;
             }
 
             p:last-child {
                 margin-bottom: 0;
+            }
+
+            a.label {
+                display: block;
+                height: 25px;
+                line-height: 25px;
+                padding: 0px 30px;
+                margin-top: 3px;
+                color: #084561;
+                background: #EEE;
+                box-shadow: rgba(0, 0, 0, .25) 0 0 1px;
+                border: 1px solid #CCC;
+                font-size : 1em;
+                text-decoration : none;
+
+                &:after {
+                    margin-left: 5px;
+                    margin-top: 5px;
+                }
+                &:hover,
+                &:focus {
+                    background: #FFF;
+                    color: $primary;
+                    border-color: $secondary;
+                    text-decoration: none;
+                }
+                &:focus {
+                    box-shadow: $header-hover 0 0 3px;
+                }
             }
         }
     }
@@ -1290,10 +1331,8 @@
             border-left: none;
             width: 40px;
             transition: background $transition-duration;
-            
             position: absolute;
             bottom: 0;
-            right: 15px;
 
             &:hover {
                 background: #EEE;
@@ -1308,93 +1347,156 @@
     }
 }
 
-.tutorial-list article,
-.main .article-content .tutorial-list article {
-    min-height: 60px;
-    padding: 20px 2%;
-    border-bottom: 1px solid #e0e4e5;
+.article-list .home-article {
+    min-height: 160px;
+    margin-bottom: 10px;
+    background: #444;
+    border-bottom: 2px solid $sidebar-background;
+    border-top: 1px solid #CCC;
 
-    &:nth-child(2n+1) {
-        background-color: rgba(255, 255, 255, .8);
-    }
+    .article-img {
+        position : absolute;
+        opacity: 0.4;
+        transition: opacity $transition-duration;
 
-    &,
-    h3,
-    a h3,
-    h3 a {
-        color: #424242;
-        font-weight: normal;
-    }
-    a h3,
-    h3 a {
-        &:hover,
-        &:focus {
-            text-decoration: underline;
+        &:hover {
+            opacity: 1;
         }
-    }
-    h3 {
-        margin: 0;
-        padding: 0;
-        font-size: 20px;
-        font-size: 2.0rem;
-        height: 27px;
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
     a {
         text-decoration: none;
     }
+    a.link {
+        z-index: 20;
+        display: block;
+        position: relative;
+        background: $sidebar-background;
+        padding: 5px;
+        text-decoration: none;
+        opacity: 0.9;
 
-    .article-metadata {
-        margin: 0 0 5px;
-        padding: 0;
-        color: #ee8709;
+        h3.home-title {
+            color : lighten($primary, 10%);
+            font-size: 1.9rem;
+            font-weight: normal;
+            text-shadow: 0px 1px 1px #000;
+        }
+    }
+    .home-subtitle {
+        background-color: #FFF;
+        margin: 0;
+        padding: 5px;
+        font-size: 0.9em;
+    }
+    .home-meta-data {
+        height: 70px;
+        text-shadow: 0px 1px 1px #666;
 
-        a {
-            color: #ee8709;
+        .home-box-date {
+            position: absolute;
+            text-align: center;
+            color: $primary;
+            float: left;
+            height: 80px;
+            width: 30px;
+            z-index: 20;
 
-            &:hover,
-            &:focus {
-                text-decoration: underline;
+            .box-day {
+                font-size : 1.6em;
+            }
+            .box-month {
+                font-size : 1.1em;
+            }
+            .box-year {
+                font-size : 0.9em;
             }
         }
-    }
-
-    .article-illu {
-        display: block;
-        width: 100%;
-        height: 100px;
-        overflow: hidden;
-        background-repeat: no-repeat;
-        background-position: center center;        
-        background-size: cover;
-
-        img {
-            width: 100%;
-            height: 100%;
-            opacity: 0;
+        .home-box-sep {
+            float: left;
+            position: absolute;
+            z-index: 15;
+            width: 0;
+            height: 0;
+            border-top: 135px solid #FFF;
+            border-right: 55px solid transparent;
         }
-    }
-    .resume {
-        margin: 20px 0 0;
-        padding: 0;
-    }
+        .home-box-count-comment {
+            float: right;
+            right: 30px;
+            top: 10px;
+            width: 22px;
+            z-index: 0;
+            text-align: center;
 
-    .tutorial-img {
-        float: left;
-    }
-    .tutorial-infos {
-        margin: 7px 0 0 70px;
+            a {
+                color : $secondary;
+                font-size: 1.1em;
+            }
+            &:after {
+                width: 22px;
+                height: 22px;
+                z-index: -1;
+            }
+        }
+        .home-box-category {
+            z-index: 10;
+            position : absolute;
+            float: left;
 
-        &.no-illu {
-            margin-left: 0;
+            p {
+                margin: 0;
+                font-size : 1em;
+            }
+            a {
+                background: $primary;
+                border: 1px solid #fff;
+                color: #fff;
+                text-decoration: none;
+                padding-left: 20px;
+                padding-right: 10px;
+
+                &.extend-tag {
+                    padding-left: 70px;
+                }
+                &:hover {
+                    background-color: lighten($primary, 10%);
+                }
+            }
         }
     }
 }
 
+.hot-topic-list .topic-item {
+    border-bottom: 1px solid darken($sidebar-background, 20%);
 
+    .avatar {
+        float: right;
+        position: absolute;
+    }
+
+    a {
+        text-decoration: none;
+
+        .topic-infos {
+            h3 {
+                color: #333;
+                font-size: 1.3em;
+                font-weight: normal;
+            }
+            .topic-meta {
+                color: darken($secondary, 10%);
+                min-height: 2em;
+            }
+            .topic-tag {
+                float: right;
+                background: $primary;
+                color: #FFF;
+                padding: 1px 5px 1px 5px;
+                margin-right: 2px;
+            }
+        }
+    }
+}
 
 /* ==============
     ALL: Main / Tags
@@ -1529,7 +1631,7 @@
             height: 40px;
             line-height: 40px;
             transition: all $transition-duration ease;
-            
+
             &.current {
                 height: 38px;
                 color: #808080;
@@ -2089,7 +2191,7 @@
         img {
             max-width: 100%;
         }
-        
+
         figure {
             margin: 30px 0;
             text-align: center;
@@ -2117,7 +2219,7 @@
             figcaption {
                 display: block;
             }
-            
+
             blockquote ~ figcaption {
                 padding: 0 0 1px 2%;
                 font-style: italic;
@@ -2835,7 +2937,7 @@ form.topic-message {
     .autocomplete-dropdown {
         position: absolute;
         z-index: 60;
-        
+
         ul {
             padding: 0;
             margin: 0;

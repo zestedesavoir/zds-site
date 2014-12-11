@@ -197,6 +197,7 @@ THUMBNAIL_ALIASES = {
         'avatar_mini': {'size': (24, 24), 'crop': True},
         'tutorial_illu': {'size': (60, 60), 'crop': True},
         'article_illu': {'size': (60, 60), 'crop': True},
+        'home_illu': {'size': (400, 140), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
     },
@@ -372,6 +373,10 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
     },
+    'social': {
+        'twitter': u"https://",
+        'facebook': u"https://",
+    }
 }
 
 LOGIN_REDIRECT_URL = "/"

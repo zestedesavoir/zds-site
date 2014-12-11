@@ -1,0 +1,18 @@
+{% load thumbnail %}
+<article class="topic-item">
+    <a href="{{topic.get_absolute_url}}" >
+        <div class="topic-infos">
+            <h3 itemprop="itemListElement">{{ topic.title }}</h3>
+            <div class="topic-meta">
+                <span>
+                    {{ topic.forum.title }}                                    
+                </span>
+                {% for tag in topic.tags.all %}
+                    <span class="topic-tag">
+                        {{ tag.title }}                                    
+                    </span>  
+                {% endfor %}
+            </div>
+        </div>
+    </a>
+</article>

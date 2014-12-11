@@ -39,7 +39,7 @@
             left: 12px;
             // TODO : remake icons
             display: none;
-        }        
+        }
     }
     button {
         padding: 0 15px;
@@ -47,7 +47,7 @@
         border-top: none;
         border-right: none;
         border-left: none;
-        
+
         &[type=submit] {
             background: #084561;
             border-bottom-color: #084561;
@@ -114,7 +114,7 @@
 div.zform-popup {
     top: 18px;
     z-index: 100;
-    background: transparent;    
+    background: transparent;
     background-color: #fff;
     background-image: linear-gradient(center bottom , #EBEBE5 8%, #F9F9F6 75%);
     border: 1px solid #CCCCCC;
@@ -156,7 +156,7 @@ div.zform-popup {
 
 /* Overlay gris clair */
 #zform-modal-overlay {
-    position: fixed; 
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -173,23 +173,23 @@ div.zform-popup {
 <div id="zform-modal-wrapper">
     <div>
         <header id="zform-modal-header"></header>
-        
+
         <section class="zform-modal" id="zform-modal-link">
             <div>
                 <label for="zform-modal-link-href">Lien :</label>
                 <input type="text" id="zform-modal-link-href" />
             </div>
-            
+
             <div>
                 <label for="zform-modal-link-text">Texte :</label>
                 <input type="text" id="zform-modal-link-text" />
             </div>
         </section>
-        
+
         <section class="zform-modal" id="zform-modal-image">...</section>
         <section class="zform-modal" id="zform-modal-abbr">...</section>
         <section class="zform-modal" id="zform-modal-footnote">...</section>
-        
+
         <footer>
             <a id="zform-modal-validate">Valider</a>
             <a id="zform-modal-cancel">Annuler</a>
@@ -200,14 +200,14 @@ div.zform-popup {
 
 /* Modal box container */
 #zform-modal-wrapper {
-    position: fixed; 
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     display: none;
     margin-top: 10%;
-    text-align: center; 
+    text-align: center;
     z-index: 100;
 
     & > div {
