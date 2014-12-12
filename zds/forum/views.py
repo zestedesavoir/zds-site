@@ -42,7 +42,9 @@ def index(request):
     categories = top_categories(request.user)
 
     return render(request, "forum/index.html", {"categories": categories,
-                                                "user": request.user})
+                                                "user": request.user,
+                                                "nb": settings.ZDS_APP['forum']['topics_per_page'],
+                                                "page": 1})
 
 
 def details(request, cat_slug, forum_slug):
@@ -102,7 +104,9 @@ def cat_details(request, cat_slug):
         forums = forums_pub
 
     return render(request, "forum/category/index.html", {"category": category,
-                                                         "forums": forums})
+                                                         "forums": forums,
+                                                        "nb": settings.ZDS_APP['forum']['topics_per_page'],
+                                                        "page": 1})
 
 
 def topic(request, topic_pk, topic_slug):
@@ -382,9 +386,11 @@ def edit(request):
     if "page" in request.POST:
         try:
             page = int(request.POST["page"])
-        except:
+        except ValueError:
             # problem in variable format
             raise Http404
+        except:
+            page = 1
     else:
         page = 1
 
