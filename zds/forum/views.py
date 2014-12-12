@@ -105,8 +105,8 @@ def cat_details(request, cat_slug):
 
     return render(request, "forum/category/index.html", {"category": category,
                                                          "forums": forums,
-                                                        "nb": settings.ZDS_APP['forum']['topics_per_page'],
-                                                        "page": 1})
+                                                         "nb": settings.ZDS_APP['forum']['topics_per_page'],
+                                                         "page": 1})
 
 
 def topic(request, topic_pk, topic_slug):
@@ -389,8 +389,6 @@ def edit(request):
         except ValueError:
             # problem in variable format
             raise Http404
-        except:
-            page = 1
     else:
         page = 1
 
