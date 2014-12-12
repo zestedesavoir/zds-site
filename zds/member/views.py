@@ -205,6 +205,8 @@ def details(request, user_name):
             "usr": usr,
             "profile": profile,
             "form": form,
+            "karmaform": [],
+            "karmanotes": [],
         })
 
     # refresh moderation chart
