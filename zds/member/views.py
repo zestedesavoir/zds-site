@@ -81,8 +81,7 @@ class UpdateMember(UpdateView):
     template_name = 'member/settings/profile.html'
 
     def get_object(self):
-        user = get_object_or_404(User, username=self.request.user.username)
-        return user.profile
+        return get_object_or_404(Profile, user=self.request.user)
 
     def get_form(self, form_class):
         profile = self.get_object()
