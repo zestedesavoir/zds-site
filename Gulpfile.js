@@ -2,6 +2,7 @@ var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
     path = require("path"),
     spritesmith = require("gulp.spritesmith"),
+    del = require("del"),
     mainBowerFiles = require('main-bower-files');
 
 var paths = {
@@ -27,9 +28,8 @@ var paths = {
 
 
 
-gulp.task("clean", function() {
-  return gulp.src(["dist/*"], { read: false })
-    .pipe($.rimraf());
+gulp.task("clean", function(cb) {
+  del(["dist/*"], cb);
 });
 
 gulp.task("script", ["test"], function() {
@@ -44,9 +44,8 @@ gulp.task("script", ["test"], function() {
     .pipe($.size({ title: "main.min.js" }));
 });
 
-gulp.task("clean-errors", function() {
-  return gulp.src(["errors/css/*"], { read: false })
-    .pipe($.rimraf());
+gulp.task("clean-errors", function(cb) {
+  del(["errors/css/*"], cb);
 });
 
 gulp.task("errors", ["clean-errors"], function() {
