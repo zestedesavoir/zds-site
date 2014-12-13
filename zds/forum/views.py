@@ -78,6 +78,7 @@ def details(request, cat_slug, forum_slug):
         "forum": forum,
         "sticky_topics": sticky_topics,
         "topics": shown_topics,
+        "page": 1,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
         "filter": filter,
@@ -105,8 +106,8 @@ def cat_details(request, cat_slug):
 
     return render(request, "forum/category/index.html", {"category": category,
                                                          "forums": forums,
-                                                        "nb": settings.ZDS_APP['forum']['topics_per_page'],
-                                                        "page": 1})
+                                                         "nb": settings.ZDS_APP['forum']['topics_per_page'],
+                                                         "page": 1})
 
 
 def topic(request, topic_pk, topic_slug):
@@ -180,6 +181,7 @@ def topic(request, topic_pk, topic_slug):
         "topic": topic,
         "posts": res,
         "categories": categories,
+        "page": 1,
         "pages": paginator_range(page_nbr, paginator.num_pages),
         "nb": page_nbr,
         "last_post_pk": last_post_pk,
