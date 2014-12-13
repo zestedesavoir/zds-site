@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-09 16:51+0100\n"
+"POT-Creation-Date: 2014-12-11 17:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -789,7 +789,7 @@ msgstr ""
 #: templates/article/validation/index.html:37
 #: templates/forum/category/forum.html:135
 #: templates/tutorial/member/index.html:139
-#: templates/tutorial/tutorial/help.html:119
+#: templates/tutorial/tutorial/help.html:134
 #: templates/tutorial/validation/index.html:124
 msgid "Annuler le filtre"
 msgstr ""
@@ -1272,6 +1272,7 @@ msgid "Fermé"
 msgstr ""
 
 #: templates/forum/includes/topic_row.part.html:41
+#: templates/tutorial/tutorial/help.html:40
 msgid "Par"
 msgstr ""
 
@@ -1524,7 +1525,7 @@ msgstr ""
 msgid "Vous êtes déjà connecté"
 msgstr ""
 
-#: templates/member/profile.html:30
+#: templates/member/profile.html:30 templates/tutorial/tutorial/help.html:54
 msgid "Profil de"
 msgstr ""
 
@@ -3019,7 +3020,7 @@ msgstr ""
 msgid "rédigé par"
 msgstr ""
 
-#: templates/tutorial/export.html:23 templates/tutorial/tutorial/help.html:44
+#: templates/tutorial/export.html:23 templates/tutorial/tutorial/help.html:45
 msgid "et"
 msgstr ""
 
@@ -3383,59 +3384,59 @@ msgstr ""
 msgid "Aider les auteurs de tutoriels"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:40
-msgid "par : "
-msgstr ""
-
 #: templates/tutorial/tutorial/help.html:52
-msgid "Vous faites parti des auteurs."
+msgid "vous"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:54
+#: templates/tutorial/tutorial/help.html:61
 msgid "Contacter par MP"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:69
+#: templates/tutorial/tutorial/help.html:76
 msgid "Lire la version en ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:69
+#: templates/tutorial/tutorial/help.html:77
 msgid "Tutoriel en ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:71
+#: templates/tutorial/tutorial/help.html:80
 msgid "Tutoriel hors-ligne"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:71
+#: templates/tutorial/tutorial/help.html:81
 msgid "Tutoriel jamais publié"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:74
+#: templates/tutorial/tutorial/help.html:84
 msgid "Lire la version bêta"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:74
+#: templates/tutorial/tutorial/help.html:85
 msgid "Bêta Active"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:76
+#: templates/tutorial/tutorial/help.html:88
 msgid "Bêta Inactive"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:76
+#: templates/tutorial/tutorial/help.html:89
 msgid "Bêta non activée"
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:81
+#: templates/tutorial/tutorial/help.html:95
 msgid "Cherche un "
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:83
-msgid "Ne cherche pas un "
+#: templates/tutorial/tutorial/help.html:98
+msgid "Ne cherche aucun "
 msgstr ""
 
-#: templates/tutorial/tutorial/help.html:106
+#: templates/tutorial/tutorial/help.html:109
+msgid "Aucun auteur n'a besoin d'aide pour le moment."
+msgstr ""
+
+#: templates/tutorial/tutorial/help.html:121
 msgid "Besoin"
 msgstr ""
 
@@ -3756,6 +3757,7 @@ msgid ""
 msgstr ""
 
 #: zds/article/forms.py:62 zds/tutorial/forms.py:95
+#, python-brace-format
 msgid ""
 "Licence de votre publication (<a href=\"{0}\" alt=\"{1}\">En savoir plus sur "
 "les licences et {2}</a>)"
@@ -3789,6 +3791,7 @@ msgstr ""
 
 #: zds/article/forms.py:179 zds/forum/forms.py:95 zds/forum/forms.py:150
 #: zds/tutorial/forms.py:489
+#, python-brace-format
 msgid "Ce message est trop long, il ne doit pas dépasser {0} caractères"
 msgstr ""
 
@@ -3819,6 +3822,7 @@ msgid "Un tag ne peut être vide"
 msgstr ""
 
 #: zds/forum/forms.py:85
+#, python-brace-format
 msgid "Un tag doit faire moins de {0} caractères"
 msgstr ""
 
@@ -3855,10 +3859,12 @@ msgid "Sélectionnez votre image"
 msgstr ""
 
 #: zds/gallery/forms.py:124
+#, python-brace-format
 msgid "Taille maximum : {0} Ko"
 msgstr ""
 
 #: zds/gallery/forms.py:149
+#, python-brace-format
 msgid "Votre image est trop lourde, la limite autorisée est de {0} Ko"
 msgstr ""
 
@@ -4064,6 +4070,7 @@ msgid "Lecture Seule Temporaire"
 msgstr ""
 
 #: zds/member/views.py:292
+#, python-brace-format
 msgid ""
 "Vous ne pouvez plus poster dans les forums, ni dans les commentaires "
 "d'articles et de tutoriels pendant {0} jours."
@@ -4104,6 +4111,7 @@ msgid "vous pouvez désormais vous connecter sur le site."
 msgstr ""
 
 #: zds/member/views.py:331
+#, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4120,6 +4128,7 @@ msgid ""
 msgstr ""
 
 #: zds/member/views.py:344
+#, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4179,6 +4188,7 @@ msgid "{} - Mot de passe oublié"
 msgstr ""
 
 #: zds/member/views.py:813
+#, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4216,26 +4226,32 @@ msgid "Le manuel du nouveau membre"
 msgstr ""
 
 #: zds/member/views.py:939
+#, python-brace-format
 msgid "Le tutoriel a bien été lié au membre {0}."
 msgstr ""
 
 #: zds/member/views.py:971
+#, python-brace-format
 msgid "Le tutoriel a bien été retiré au membre {0}."
 msgstr ""
 
 #: zds/member/views.py:999
+#, python-brace-format
 msgid "{0} appartient maintenant au groupe {1}."
 msgstr ""
 
 #: zds/member/views.py:1004
+#, python-brace-format
 msgid "{0} n'appartient maintenant plus au groupe {1}."
 msgstr ""
 
 #: zds/member/views.py:1017
+#, python-brace-format
 msgid "{0} n'appartient (plus ?) à aucun groupe."
 msgstr ""
 
 #: zds/member/views.py:1023
+#, python-brace-format
 msgid "{0} est maintenant super-utilisateur."
 msgstr ""
 
@@ -4244,18 +4260,22 @@ msgid "Un super-utilisateur ne peux pas se retirer des super-utilisateurs."
 msgstr ""
 
 #: zds/member/views.py:1031
+#, python-brace-format
 msgid "{0} n'est maintenant plus super-utilisateur."
 msgstr ""
 
 #: zds/member/views.py:1036
+#, python-brace-format
 msgid "{0} est maintenant activé."
 msgstr ""
 
 #: zds/member/views.py:1040
+#, python-brace-format
 msgid "{0} est désactivé."
 msgstr ""
 
 #: zds/member/views.py:1047
+#, python-brace-format
 msgid ""
 "Bonjour {0},\n"
 "\n"
@@ -4391,6 +4411,7 @@ msgid "Ajouter et continuer"
 msgstr ""
 
 #: zds/tutorial/forms.py:220
+#, python-brace-format
 msgid "Selectionnez le logo du tutoriel (max. {0} Ko)"
 msgstr ""
 
@@ -4463,6 +4484,7 @@ msgid "Le tutoriel n'est plus sous réserve."
 msgstr ""
 
 #: zds/tutorial/views.py:195
+#, python-brace-format
 msgid "Le tutoriel a bien été                       réservé par {0}."
 msgstr ""
 
@@ -4471,6 +4493,7 @@ msgid "Le tutoriel a bien été refusé."
 msgstr ""
 
 #: zds/tutorial/views.py:301
+#, python-brace-format
 msgid ""
 "Désolé, le zeste **{0}** n'a malheureusement pas passé l’étape de "
 "validation. Mais ne désespère pas, certaines corrections peuvent surement "
@@ -4484,6 +4507,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:317
+#, python-brace-format
 msgid "Refus de Validation : {0}"
 msgstr ""
 
@@ -4496,6 +4520,7 @@ msgid "Le tutoriel a bien été validé."
 msgstr ""
 
 #: zds/tutorial/views.py:374
+#, python-brace-format
 msgid ""
 "Félicitations ! Le zeste [{0}]({1}) a été publié par [{2}]({3}) ! Les "
 "lecteurs du monde entier peuvent venir l'éplucher et réagir a son sujet. Je "
@@ -4505,6 +4530,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:389
+#, python-brace-format
 msgid "Publication : {0}"
 msgstr ""
 
@@ -4517,6 +4543,7 @@ msgid "Le tutoriel a bien été dépublié."
 msgstr ""
 
 #: zds/tutorial/views.py:480
+#, python-brace-format
 msgid ""
 "Bonjour {0},Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de "
 "validation, Pour retrouver les modifications qui ont été faites, je t'invite "
@@ -4526,6 +4553,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:488
+#, python-brace-format
 msgid "Mise à jour de tuto : {0}"
 msgstr ""
 
@@ -4534,6 +4562,7 @@ msgid "Votre demande de validation a été envoyée à l'équipe."
 msgstr ""
 
 #: zds/tutorial/views.py:538
+#, python-brace-format
 msgid "Le tutoriel {0} a bien été supprimé."
 msgstr ""
 
@@ -4542,10 +4571,12 @@ msgid "Vous ne faites plus partie des rédacteurs de ce tutoriel."
 msgstr ""
 
 #: zds/tutorial/views.py:590
+#, python-brace-format
 msgid "L'auteur {0} a bien été ajouté à la rédaction du tutoriel."
 msgstr ""
 
 #: zds/tutorial/views.py:596
+#, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4557,14 +4588,17 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:610
+#, python-brace-format
 msgid "Ajout en tant qu'auteur : {0}"
 msgstr ""
 
 #: zds/tutorial/views.py:642
+#, python-brace-format
 msgid "L'auteur {0} a bien été retiré du tutoriel."
 msgstr ""
 
 #: zds/tutorial/views.py:648
+#, python-brace-format
 msgid ""
 "Bonjour **{0}**,\n"
 "\n"
@@ -4573,10 +4607,12 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:659
+#, python-brace-format
 msgid "Suppression des auteurs : {0}"
 msgstr ""
 
 #: zds/tutorial/views.py:674
+#, python-brace-format
 msgid ""
 "Bonjour à tous,\n"
 "\n"
@@ -4595,6 +4631,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:689
+#, python-brace-format
 msgid "[beta][tutoriel]{0}"
 msgstr ""
 
@@ -4611,10 +4648,12 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:709
+#, python-brace-format
 msgid "Tutoriel en beta : {0}"
 msgstr ""
 
 #: zds/tutorial/views.py:716
+#, python-brace-format
 msgid ""
 "Bonjour,\n"
 "\n"
@@ -4636,6 +4675,7 @@ msgid "La BETA sur ce tutoriel n'a malheureusement pas pu être activée."
 msgstr ""
 
 #: zds/tutorial/views.py:736
+#, python-brace-format
 msgid ""
 "Bonjour à tous,\n"
 "\n"
@@ -4654,6 +4694,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:758
+#, python-brace-format
 msgid ""
 "Bonjour, !\n"
 "\n"
@@ -4686,6 +4727,7 @@ msgid "La BETA sur ce tutoriel a bien été désactivée."
 msgstr ""
 
 #: zds/tutorial/views.py:1474
+#, python-brace-format
 msgid "La partie « {0} » a été ajoutée avec succès."
 msgstr ""
 
@@ -4698,6 +4740,7 @@ msgid "Suppression de la partie {} "
 msgstr ""
 
 #: zds/tutorial/views.py:1903
+#, python-brace-format
 msgid "Le chapitre « {0} » a été ajouté avec succès."
 msgstr ""
 
@@ -4774,6 +4817,7 @@ msgid "Création de l'extrait «{}» {} {}"
 msgstr ""
 
 #: zds/tutorial/views.py:3389
+#, python-brace-format
 msgid ""
 "Bonjour {0},Vous recevez ce message car vous avez signalé le message de *{1}"
 "*, dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** et il "
@@ -4785,6 +4829,7 @@ msgid ""
 msgstr ""
 
 #: zds/tutorial/views.py:3403
+#, python-brace-format
 msgid "Résolution d'alerte : {0}"
 msgstr ""
 
@@ -4799,6 +4844,7 @@ msgid ""
 msgstr ""
 
 #: zds/utils/tutorials.py:292
+#, python-brace-format
 msgid "Impossible de déplacer l'objet en position {0}"
 msgstr ""
 
