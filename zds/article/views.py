@@ -231,7 +231,8 @@ def new(request):
                 'text': request.POST['text'],
                 'image': image,
                 'subcategory': request.POST.getlist('subcategory'),
-                'licence': request.POST['licence']
+                'licence': request.POST['licence'],
+                'msg_commit': request.POST['msg_commit']
             })
             return render(request, 'article/member/new.html', {
                 'text': request.POST['text'],
@@ -327,7 +328,8 @@ def edit(request):
                 'text': request.POST['text'],
                 'image': image,
                 'subcategory': request.POST.getlist('subcategory'),
-                'licence': licence
+                'licence': licence,
+                'msg_commit': request.POST['msg_commit']
             })
             form_js = ActivJsForm(initial={"js_support": article.js_support})
             return render(request, 'article/member/edit.html', {
