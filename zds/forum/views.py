@@ -143,7 +143,7 @@ def topic(request, topic_pk, topic_slug):
     if "page" in request.GET:
         try:
             page_nbr = int(request.GET["page"])
-        except:
+        except (KeyError, ValueError):
             # problem in variable format
             raise Http404
     else:
@@ -226,7 +226,7 @@ def new(request):
 
     try:
         forum_pk = request.GET["forum"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
@@ -345,7 +345,7 @@ def move_topic(request):
         raise PermissionDenied
     try:
         topic_pk = request.GET["sujet"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
@@ -376,13 +376,13 @@ def edit(request):
 
     try:
         topic_pk = request.POST["topic"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     if "page" in request.POST:
         try:
             page = int(request.POST["page"])
-        except:
+        except (KeyError, ValueError):
             # problem in variable format
             raise Http404
     else:
@@ -415,7 +415,7 @@ def edit(request):
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
-            except:
+            except (KeyError, ValueError):
                 # problem in variable format
                 raise Http404
             forum = get_object_or_404(Forum, pk=forum_pk)
@@ -439,7 +439,7 @@ def answer(request):
 
     try:
         topic_pk = request.GET["sujet"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
 
@@ -602,7 +602,7 @@ def edit_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -742,7 +742,7 @@ def useful_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -769,7 +769,7 @@ def unread_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -806,7 +806,7 @@ def like_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     resp = {}
@@ -854,7 +854,7 @@ def dislike_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     resp = {}

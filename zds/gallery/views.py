@@ -269,6 +269,8 @@ def delete_image(request):
         try:
             img = Image.objects.get(pk=request.POST["image"], gallery=gal)
             img.delete()
+        except KeyError:
+            pass
         except:
             pass
     elif "delete_multi" in request.POST:

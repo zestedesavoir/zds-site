@@ -15,7 +15,7 @@ def get_git_version():
         commit = repo.head.commit.hexsha
         v = u'{0}/{1}'.format(branch, commit[:7])
         return {'name': v, 'url': u'{}/tree/{}'.format(settings.ZDS_APP['site']['repository'], commit)}
-    except:
+    except (KeyError, TypeError):
         return {'name': '', 'url': ''}
 
 
