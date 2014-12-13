@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+import time
 from git import Repo
 try:
     import ujson as json_reader
@@ -2483,8 +2484,10 @@ class BigTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
-    def test_change_date(self):
-        """test the change of `tutorial.pubdate` if part/chapter/extract are modified (ensure #1715)"""
+    def test_change_update(self):
+        """test the change of `tutorial.update` if part/chapter/extract are modified (ensure #1715)
+        Note: the `sleep(2)` are there to ensure (non-)comparison in system for which `datetime.now()` does not
+        give the microseconds. """
 
         # login with author
         self.assertEqual(
@@ -2506,6 +2509,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertIsNotNone(tutorial.update)
         old_date = tutorial.update
+        time.sleep(2)
 
         # add part (implicit call to `maj_repo_part()`)
         result = self.client.post(
@@ -2521,6 +2525,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
         part = Part.objects.filter(tutorial=tutorial).last()
 
         # edit part (implicit call to `maj_repo_part()`)
@@ -2539,6 +2544,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
 
         # add chapter  (implicit call to `maj_repo_chapter()`)
         result = self.client.post(
@@ -2554,6 +2560,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
         chapter = Chapter.objects.filter(part=part).last()
 
         # edit chapter (implicit call to `maj_repo_chapter()`)
@@ -2573,6 +2580,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
 
         # add another extract (implicit call to `maj_repo_extract()`)
         result = self.client.post(
@@ -2585,6 +2593,7 @@ class BigTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
 
         # edit extract (implicit call to `maj_repo_extract()`)
         extract = chapter.get_extracts()[0]
@@ -4073,8 +4082,10 @@ class MiniTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
-    def test_change_date(self):
-        """test the change of `tutorial.pubdate` if extract is modified (ensure #1715)"""
+    def test_change_update(self):
+        """test the change of `tutorial.update` if extract is modified (ensure #1715)
+        note: the `sleep(2)` are there to ensure (non-)comparison in system for which `datetime.now()` does not
+        give the microseconds."""
 
         # login with author
         self.assertEqual(
@@ -4098,6 +4109,7 @@ class MiniTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertIsNotNone(tutorial.pubdate)
         old_date = tutorial.update  # ok, change induced
+        time.sleep(2)
 
         # test adding a new extract (implicit call to `maj_repo_extract()`)
         extract_title = u'Un deuxieme extrait'
@@ -4115,6 +4127,7 @@ class MiniTutorialTests(TestCase):
         tutorial = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertNotEqual(tutorial.update, old_date)
         old_date = tutorial.update
+        time.sleep(2)
 
         # test the extract edition (also implicit call to `maj_repo_extract()`)
         extract = self.chapter.get_extracts()[1]
