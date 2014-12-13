@@ -2116,7 +2116,8 @@ def add_extract(request):
 
         if "preview" in data:
             form = ExtractForm(initial={"title": data["title"],
-                                        "text": data["text"]})
+                                        "text": data["text"],
+                                        'msg_commit': data['msg_commit']})
             return render(request, "tutorial/extract/new.html",
                                    {"chapter": chapter, "form": form})
         else:
@@ -2176,7 +2177,8 @@ def edit_extract(request):
         if "preview" in data:
             form = ExtractForm(initial={
                 "title": data["title"],
-                "text": data["text"]
+                "text": data["text"],
+                'msg_commit': data['msg_commit']
             })
             return render(request, "tutorial/extract/edit.html",
                                    {
@@ -2187,7 +2189,8 @@ def edit_extract(request):
             if content_has_changed([extract.get_path()], data["last_hash"]):
                 form = ExtractForm(initial={
                     "title": extract.title,
-                    "text": extract.get_text()})
+                    "text": extract.get_text(),
+                    'msg_commit': data['msg_commit']})
                 return render(request, "tutorial/extract/edit.html",
                                        {
                                            "extract": extract,
