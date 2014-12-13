@@ -46,7 +46,7 @@
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.article.views.answer" %}?article={{ topic.pk }}&amp;cite={{ message.pk }}
+                {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas upvote_link %}
