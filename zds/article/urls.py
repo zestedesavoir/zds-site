@@ -14,7 +14,7 @@ urlpatterns = patterns('',
                        url(r'^flux/atom/$', feeds.LastArticlesFeedATOM(),
                            name='article-feed-atom'),
 
-                       # TODO: Handle redirect
+
 
                        # Moderation
                        url(r'^resolution_alerte/$',

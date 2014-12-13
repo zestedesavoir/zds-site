@@ -168,7 +168,7 @@ def unregister(request):
     # so we will just delete the unretistering user ownership and give it to anonymous in the only case
     # he was alone so that gallery is not lost
     for gallery in UserGallery.objects.filter(user=current):
-        if gallery.gallery.get_users().count() == 1:
+        if gallery.gallery.get_linked_users().count() == 1:
             anonymousGallery = UserGallery()
             anonymousGallery.user = external
             anonymousGallery.mode = "w"

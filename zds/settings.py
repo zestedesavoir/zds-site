@@ -372,6 +372,9 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
     },
+    'paginator':{
+        'folding_limit': 4
+    }
 }
 
 LOGIN_REDIRECT_URL = "/"
