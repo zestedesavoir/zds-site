@@ -22,7 +22,7 @@ from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
-from zds.utils.models import SubCategory, Licence, Comment
+from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
 
 
@@ -111,6 +111,8 @@ class Tutorial(models.Model):
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
+    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
+
     def __unicode__(self):
         return self.title
 
@@ -134,6 +136,18 @@ class Tutorial(models.Model):
             ]) + '?version=' + self.sha_beta
         else:
             return self.get_absolute_url()
+
+    def get_absolute_contact_url(self):
+        """ Get url to send a new mp for collaboration """
+        auths = self.authors.all()
+        mp_title = "&title=Collaboration - {}".format(self.title)
+
+        get = u"?username={}".format(auths[0])
+        for author in auths[1:]:
+            get += "&username={}".format(author.username)
+        get += mp_title
+
+        return reverse('zds.mp.views.new')+get
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
