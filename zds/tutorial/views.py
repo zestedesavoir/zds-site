@@ -1255,7 +1255,7 @@ def edit_tutorial(request):
     else:
         json = tutorial.load_json()
         if "licence" in json:
-            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+            licence = json['licence']
         else:
             licence = Licence.objects.get(
                 pk=settings.ZDS_APP['tutorial']['default_license_pk']
