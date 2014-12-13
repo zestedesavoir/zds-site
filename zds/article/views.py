@@ -377,7 +377,7 @@ def edit(request):
             return redirect(article.get_absolute_url())
     else:
         if "licence" in json:
-            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+            licence = json['licence']
         else:
             licence = Licence.objects.get(
                 pk=settings.ZDS_APP['tutorial']['default_license_pk']
