@@ -199,11 +199,11 @@ def new(request):
                 return render(request, 'mp/topic/new.html', {
                     'form': form,
                 })
-            if tried_unauthorized_member and len(ctrl) == 1:
+            if tried_unauthorized_member:
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
-
-            p_topic = send_mp(request.user,
+            else:
+                p_topic = send_mp(request.user,
                               ctrl,
                               data['title'],
                               data['subtitle'],
@@ -211,8 +211,10 @@ def new(request):
                               True,
                               False)
 
-            return redirect(p_topic.get_absolute_url())
-
+                return redirect(p_topic.get_absolute_url())
+            return render(request, 'mp/topic/new.html', {
+                    'form': form,
+                })
         else:
             return render(request, 'mp/topic/new.html', {
                 'form': form,

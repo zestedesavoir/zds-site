@@ -54,10 +54,10 @@ def index(request):
         if request.user.is_authenticated():
             members = User.objects.filter(username__icontains=q)\
                 .exclude(pk=request.user.pk)\
-                .exclude(user__groups__in=[bot_group])[:20]
+                .exclude(groups__in=[bot_group])[:20]
         else:
             members = User.objects.filter(username__icontains=q)\
-                .exclude(user__groups__in=[bot_group])[:20]
+                .exclude(groups__in=[bot_group])[:20]
         results = []
         for member in members:
             member_json = {}
