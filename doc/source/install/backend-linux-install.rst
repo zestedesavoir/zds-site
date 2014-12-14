@@ -66,7 +66,6 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
 .. sourcecode:: bash
 
     pip install --upgrade -r requirements.txt -r requirements-dev.txt
-    python manage.py syncdb
     python manage.py migrate
     python manage.py runserver
 
