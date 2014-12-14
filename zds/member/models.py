@@ -1,26 +1,25 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.db import models
-from hashlib import md5
-from django.http import HttpRequest
-from django.utils.http import urlquote
-from django.contrib.sessions.models import Session
-from django.contrib.auth import logout
 import os
 
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.dispatch import receiver
+from hashlib import md5
+from importlib import import_module
 
-import pygeoip
+from django.conf import settings
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.contrib.gis.geoip import GeoIP
+from django.contrib.sessions.models import Session
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.dispatch import receiver
+from django.http import HttpRequest
+
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
-from zds.member.managers import ProfileManager
-from importlib import import_module
 
 
 class Profile(models.Model):
@@ -110,28 +109,19 @@ class Profile(models.Model):
         return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
 
     def get_city(self):
+<<<<<<< HEAD
         """
         Uses geo-localization to get physical localization of a profile through its last IP address.
         This works relatively good with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
         :return: The city and the country name of this profile.
         """
-        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
-        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
-        geo = gic.record_by_addr(self.last_ip_address)
-
-        return u'{0}, {1}'.format(
-            geo['city'], geo['country_name'])
+        last_ip_address = self.last_ip_address
+        g = GeoIP()
+        geo = g.city(self.last_ip_address)
+        if not geo is None:
+            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+        return ''
 
     def get_avatar_url(self):
         """
