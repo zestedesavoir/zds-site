@@ -391,8 +391,6 @@ def edit(request):
         except (KeyError, ValueError):
             # problem in variable format
             raise Http404
-        except:
-            page = 1
     else:
         page = 1
 
