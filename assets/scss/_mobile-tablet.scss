@@ -696,17 +696,15 @@
         text-align: center;
         height: auto;
 
-        p {
+        .wrapper {
+          flex-direction: column;
+        }
+
+        .copyright, .social {
             border-bottom: 1px solid darken($secondary, 40%);
         }
-        p,
-        ul {
-            display: block;
-            float: none;
-        }
-        ul {
-            line-height: 30px;
 
+        ul {
             li {
                 margin: 0 5px;
             }
