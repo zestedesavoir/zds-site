@@ -3071,6 +3071,7 @@ form.topic-message {
     border-top: 3px solid $secondary;
     font-size: 14px;
     font-size: 1.4rem;
+    text-align: center;
 
     p {
         float: left;
@@ -3087,6 +3088,19 @@ form.topic-message {
         li {
             display: inline-block;
             margin-left: 25px;
+        }
+    }
+
+    ul.social {
+        float: none;
+        margin: 0 auto;
+
+        a {
+            opacity: 0.7;
+            &:hover,
+            &:focus {
+                opacity: 1;
+            }
         }
     }
 

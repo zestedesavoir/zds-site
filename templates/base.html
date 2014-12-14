@@ -543,6 +543,17 @@
                     {% endif %}
                     <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
                 </ul>
+                <ul class="social">
+                    {% if app.site.social.facebook %}
+                        <li><a href="{{app.site.social.facebook}}" class="btn ico-after facebook light btn-facebook btn-holder"></a></li>
+                    {% endif %}
+                    {% if app.site.social.twitter %}
+                        <li><a href="{{app.site.social.twitter}}" class="btn ico-after twitter light btn-twitter btn-holder"></a></li>
+                    {% endif %}
+                    {% if app.site.social.googleplus %}
+                        <li><a href="{{app.site.social.googleplus}}" class="btn ico-after google-plus light btn-google-plus btn-holder"></a></li>
+                    {% endif %}
+                </ul>
             </div>
         </footer>
     </div>
