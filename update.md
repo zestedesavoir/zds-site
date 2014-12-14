@@ -120,7 +120,6 @@ Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lan
 
 Faire pointer nginx sur `static/` au lieu de `dist/`.
 
-
 Actions à faire pour mettre en prod la version : v1.6
 =====================================================
 
@@ -149,3 +148,19 @@ ZDS_APP['site']['googleTagManagerID'] = 'GTM-WH7642'
 
 Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.
 
+Actions à faire pour mettre en prod la version : v1.8
+=====================================================
+
+Issue #1455 Django 1.7
+----------------------
+
+**Avant** de lancer la migration de la base, prévenir Django que `easy_thumbnail` est déjà OK : 
+
+
+```
+python manage.py migrate --fake easy_thumbnails
+```
+
+Le reste l'est aussi mais il est incapable de le détecter tout seul pour cette app.
+
+Désinstaller south: `pip uninstall south`. La MAJ de Django de la 1.6 à la 1.7 sera faite par le script (via la mise à jour des _requirements_).
