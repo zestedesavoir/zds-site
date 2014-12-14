@@ -107,7 +107,7 @@ gulp.task("sprite", function() {
 gulp.task("images", ["stylesheet"], function() {
   return gulp.src(paths.images)
     .pipe($.newer("dist/images"))
-    .pipe($.cache($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
+    .pipe($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
     .pipe($.size())
     .pipe(gulp.dest("dist/images"));
 });
@@ -115,7 +115,7 @@ gulp.task("images", ["stylesheet"], function() {
 gulp.task("smileys", function() {
   return gulp.src(paths.smileys)
     .pipe($.newer("dist/smileys"))
-    .pipe($.cache($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
+    .pipe($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
     .pipe($.size())
     .pipe(gulp.dest("dist/smileys"));
 });
