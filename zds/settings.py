@@ -324,7 +324,6 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
