@@ -11,13 +11,6 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 # INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
-
-ADMINS = (
-    ('user', 'mail'),
-)
-
-MANAGERS = ADMINS
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
