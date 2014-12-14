@@ -140,7 +140,7 @@ class Tutorial(models.Model):
     def get_absolute_contact_url(self):
         """ Get url to send a new mp for collaboration """
         auths = self.authors.all()
-        mp_title = "&title=Collaboration - {}".format(self.title)
+        mp_title = u"&title=Collaboration - {}".format(self.title)
 
         get = u"?username={}".format(auths[0])
         for author in auths[1:]:
