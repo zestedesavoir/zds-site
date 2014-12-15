@@ -3604,6 +3604,83 @@ def dislike_note(request):
         return redirect(note.get_absolute_url())
 
 
+@login_required
+@require_POST
+def warn_typo(request, obj_type, obj_pk):
+    """Warn author(s) about a mistake in its (their) tutorial by sending him (them) a private message.
+    `obj` is ["tutorial"|"chapter"]"""
+
+    # need profile :
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # get tutorial (and object)
+    tutorial = None
+    chapter = None
+    if obj_type == 'tutorial':
+        tutorial = get_object_or_404(Tutorial, pk=obj_pk)
+    elif obj_type == 'chapter':
+        chapter = get_object_or_404(Chapter, pk=obj_pk)
+        if chapter.part:
+            tutorial = chapter.part.tutorial
+        else:
+            raise Http404  # normally, warn about mistake in chapter is only possible with big tutorials
+
+    # then, fetch explanation :
+    explanation = ''
+    if 'explication' not in request.POST or request.POST['explication'] is None:
+        messages.error(request, _(u'Votre proposition de correction est vide'))
+    else:
+        explanation = request.POST['explication']
+        explanation = '\n'.join(['> '+line for line in explanation.split('\n')])
+
+        # is the user trying to send PM to himself ?
+        if request.user in tutorial.authors.all():
+            messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes auteur de ce tutoriel!'))
+        else:
+            # create message :
+            msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n').format(
+                request.user.username,
+                settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                tutorial.title,
+                settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online()
+            )
+
+            # special case of mistake in chapter :
+            if obj_type == 'chapter':
+                msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                    chapter.title,
+                    settings.ZDS_APP['site']['url'] + chapter.get_absolute_url_online(),
+                    chapter.part.title,
+                    settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url_online()
+                )
+            msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+            # send it :
+            send_mp(request.user,
+                    tutorial.authors.all(),
+                    _(u"Proposition de correction"),
+                    tutorial.title,
+                    msg,
+                    leave=False)
+            messages.success(request, _(u'Votre correction a bien été proposée !'))
+
+    # return to page :
+    if obj_type == 'tutorial':
+        return redirect(reverse("zds.tutorial.views.view_tutorial_online", args=[
+            tutorial.pk,
+            tutorial.slug,
+        ]))
+    elif obj_type == 'chapter':
+        return redirect(reverse("zds.tutorial.views.view_chapter_online", args=[
+            tutorial.pk,
+            tutorial.slug,
+            chapter.part.pk,
+            chapter.part.slug,
+            chapter.pk,
+            chapter.slug
+        ]))
+
+
 def help_tutorial(request):
     """fetch all tutorials that needs help"""
 

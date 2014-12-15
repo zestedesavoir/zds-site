@@ -75,6 +75,14 @@
             {% include "tutorial/includes/chapter_pager.part.html" with position="bttom" online=True %}
         {% endwith %}
     {% endwith %}
+
+    {% if chapter.tutorial %}
+        {% set chapter.tutorial as tutorial %}
+    {% else %}
+        {% set chapter.part.tutorial as tutorial %}
+    {% endif %}
+
+    {% include "tutorial/includes/warn_typo.part.html" with obj_type="chapter" obj_pk=chapter.pk %}
 {% endblock %}
 
 

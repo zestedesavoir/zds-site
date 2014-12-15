@@ -67,6 +67,7 @@
 
 
 {% block content %}
+
     {% if tutorial.get_introduction_online %}
         {{ tutorial.get_introduction_online|safe }}
     {% endif %}
@@ -99,6 +100,8 @@
     {% if tutorial.get_conclusion_online %}
         {{ tutorial.get_conclusion_online|safe }}
     {% endif %}
+
+    {% include "tutorial/includes/warn_typo.part.html" with obj_type="tutorial" obj_pk=tutorial.pk %}
 {% endblock %}
 
 
