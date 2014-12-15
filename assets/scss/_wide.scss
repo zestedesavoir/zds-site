@@ -90,7 +90,7 @@
             border-top: 6px solid #FFF;
         }
     }
-    
+
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
@@ -246,14 +246,14 @@
                 padding: 100px 0;
                 margin-bottom: 0;
 
-                .open-zen-mode:before {
-                    content: "Quitter la ";
-                }
-
                 .comments-title,
                 .pagination:not(.pagination-chapter),
                 .topic-message {
                     display: none;
+                }
+
+                .content-wrapper {
+                    margin: 0 4%;
                 }
             }
 
