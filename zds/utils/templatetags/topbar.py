@@ -77,16 +77,16 @@ def top_categories_tuto(user):
         .filter(subcategory__in=subcats_tutos)\
         .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
-        .values('category__title', 'subcategory__title')\
+        .values('category__title', 'subcategory__title', 'subcategory__slug')\
         .all()
 
     for csc in catsubcats:
         key = csc['category__title']
 
         if key in cats:
-            cats[key].append(csc['subcategory__title'])
+            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
         else:
-            cats[key] = [csc['subcategory__title']]
+            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
     return cats
 

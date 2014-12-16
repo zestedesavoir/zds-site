@@ -186,10 +186,10 @@
                                                         <li class="dropdown-title">
                                                             {{ title }}
                                                         </li>
-                                                        {% for subcat in subcats %}
+                                                        {% for subcat,slug in subcats %}
                                                             <li>
-                                                                <a href="{{ subcat.get_absolute_url_tutorial }}">
-                                                                    {{ subcat.title }}
+                                                                <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}">
+                                                                    {{  subcat }}
                                                                 </a>
                                                             </li>
                                                         {% endfor %}
