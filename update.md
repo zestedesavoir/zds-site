@@ -98,3 +98,12 @@ Tout est déjà prêt dans les fixtures dédiées à cela :
 ```
 python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml
 ```
+
+Actions à faire pour mettre en prod la version : v1.5
+=====================================================
+
+Issue #1511
+-----------
+Fix sur la recherche d'article avec solr :
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/solr-4.10.2/example/solr/collection1/conf/schema.xml`
+  - Lancer l'indexage : `python manage.py rebuild_index`
