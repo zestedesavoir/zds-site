@@ -139,9 +139,9 @@
                                         <a href="{{ result.object.get_absolute_url_online }}">
                                             {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
                                         </a>
-                                    {% elif result.object.chapter.part.tutorial.pubdate %}
+                                    {% elif result.object.chapter.tutorial.pubdate %}
                                         <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.chapter.part.tutorial.pubdate|format_date|capfirst }}
+                                            {{ result.object.chapter.tutorial.pubdate|format_date|capfirst }}
                                         </a>
                                     {% endif %}
                                 </div>
