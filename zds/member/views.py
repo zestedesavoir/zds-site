@@ -11,10 +11,9 @@ from django.contrib.auth.models import User, Group
 from django.core.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
@@ -22,7 +21,6 @@ from django.views.decorators.http import require_POST
 from zds.utils.models import Comment
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.gallery.models import UserGallery
-import json
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
@@ -34,7 +32,6 @@ from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
 from django.utils.translation import ugettext as _
 
@@ -191,58 +188,6 @@ class UpdateUsernameEmailMember(UpdateMember):
     def get_success_url(self):
         profile = self.get_object();
         return profile.get_absolute_url()
-
-def index(request):
-    """Displays the list of registered users."""
-
-    if request.is_ajax():
-        q = request.GET.get('q', '')
-        try:
-            bot_group = Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])
-        except Group.DoesNotExist:
-            bot_group = Group()  # fallback if bot group not found
-        if request.user.is_authenticated():
-            members = User.objects.filter(username__icontains=q)\
-                .exclude(pk=request.user.pk)\
-                .exclude(groups__in=[bot_group])[:20]
-        else:
-            members = User.objects.filter(username__icontains=q)\
-                .exclude(groups__in=[bot_group])[:20]
-        results = []
-        for member in members:
-            member_json = {}
-            member_json['id'] = member.pk
-            member_json['label'] = member.username
-            member_json['value'] = member.username
-            results.append(member_json)
-        data = json.dumps(results)
-
-        mimetype = "application/json"
-
-        return HttpResponse(data, mimetype)
-
-    else:
-        members = User.objects.order_by("-date_joined")
-
-        # Paginator
-        paginator = Paginator(members, settings.ZDS_APP['member']['members_per_page'])
-
-        # Get the `page` argument (if empty `page = 1` by default)
-        page = request.GET.get("page", 1)
-
-        # Check if `page` is correct (integer and exists)
-        try:
-            page = int(page)
-            shown_members = paginator.page(page)
-        except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
-            raise Http404
-
-        return render(request, "member/index.html", {
-            "members": shown_members,
-            "count": members.count(),
-            "pages": paginator_range(page, paginator.num_pages),
-            "nb": page,
-        })
 
 
 @login_required
