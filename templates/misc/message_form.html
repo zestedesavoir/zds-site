@@ -15,7 +15,7 @@
         <h4 class="alert-box-title">Pas encore inscrit ?</h4>
         <p>
             {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité" %}. <br>
-            <a href="{% url "zds.member.views.register_view" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
+            <a href="{% url "create-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
         </p>
     </div>
 {% elif topic.antispam %}

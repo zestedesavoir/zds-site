@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
-    UpdateUsernameEmailMember
+    UpdateUsernameEmailMember, RegisterView
 
 urlpatterns = patterns('',
                         #list
@@ -38,7 +38,7 @@ urlpatterns = patterns('',
                         #membership
                        url(r'^connexion/$', 'zds.member.views.login_view'),
                        url(r'^deconnexion/$', 'zds.member.views.logout_view'),
-                       url(r'^inscription/$', 'zds.member.views.register_view'),
+                       url(r'^inscription/$', RegisterView.as_view(), name='create-member'),
                        url(r'^reinitialisation/$', 'zds.member.views.forgot_password'),
                        url(r'^new_password/$', 'zds.member.views.new_password'),
                        url(r'^activation/$', 'zds.member.views.active_account'),

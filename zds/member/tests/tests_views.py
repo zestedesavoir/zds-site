@@ -113,7 +113,7 @@ class MemberTests(TestCase):
         """To test user registration."""
 
         result = self.client.post(
-            reverse('zds.member.views.register_view'),
+            reverse('create-member'),
             {
                 'username': 'firm1',
                 'password': 'flavour',

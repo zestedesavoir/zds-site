@@ -30,7 +30,7 @@
                 </div>
             {% endif %}
             <p class="alert-box success">
-                {% url "zds.member.views.register_view" as url_register %}
+                {% url "create-member" as url_register %}
                 {% blocktrans %}
                     Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
                 {% endblocktrans %}
