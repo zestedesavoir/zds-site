@@ -295,6 +295,37 @@ class BigTutorialTests(TestCase):
         shutil.rmtree(temp)
         os.remove(zip_path)
 
+    def test_fail_import_archive(self):
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
+            os.makedirs(temp, mode=0777)
+
+        # test fail import
+        with open(os.path.join(temp, 'test.py'), 'a') as f:
+            f.write('something')
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        'test.py'),
+                    'r'),
+                'tutorial': self.bigtuto.pk,
+                'import-archive': "importer"},
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # delete temporary data directory
+        shutil.rmtree(temp)
+
     def test_add_note(self):
         """To test add note for tutorial."""
         user1 = ProfileFactory().user
@@ -2644,6 +2675,37 @@ class MiniTutorialTests(TestCase):
         # delete temporary data directory
         shutil.rmtree(temp)
         os.remove(zip_path)
+
+    def test_fail_import_archive(self):
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
+            os.makedirs(temp, mode=0777)
+
+        # test fail import
+        with open(os.path.join(temp, 'test.py'), 'a') as f:
+            f.write('something')
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        'test.py'),
+                    'r'),
+                'tutorial': self.minituto.pk,
+                'import-archive': "importer"},
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # delete temporary data directory
+        shutil.rmtree(temp)
 
     def test_add_extract_named_introduction(self):
         """test the use of an extract named introduction"""

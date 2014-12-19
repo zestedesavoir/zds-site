@@ -2640,6 +2640,7 @@ def import_tuto(request):
             if form_archive.is_valid():
                 (check, reason) = import_archive(request)
                 if not check:
+                    form = ImportForm()
                     messages.error(request, reason)
                 else:
                     messages.success(request, reason)
