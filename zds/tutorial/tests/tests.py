@@ -320,6 +320,7 @@ class BigTutorialTests(TestCase):
                     'r'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
+            follow=False
         )
         self.assertEqual(result.status_code, 200)
 
@@ -2701,6 +2702,7 @@ class MiniTutorialTests(TestCase):
                     'r'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},
+            follow=False
         )
         self.assertEqual(result.status_code, 200)
 
