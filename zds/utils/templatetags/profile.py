@@ -51,12 +51,12 @@ def state(user):
 @register.filter('liked')
 def liked(user, comment_pk):
     comment = Comment.objects.get(pk=comment_pk)
-    return CommentLike.objects.filter(comments=comment, user=user).count() > 0
+    return CommentLike.objects.filter(comments=comment, user=user) \
+                              .count() > 0
 
 
 @register.filter('disliked')
 def disliked(user, comment_pk):
     comment = Comment.objects.get(pk=comment_pk)
-    return CommentDislike.objects.filter(
-        comments=comment,
-        user=user).count() > 0
+    return CommentDislike.objects.filter(comments=comment, user=user) \
+                                 .count() > 0
