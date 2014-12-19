@@ -142,7 +142,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.core.context_processors.request',
     'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages'
+    'django.contrib.messages.context_processors.messages',
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
+    # ZDS context processors
+    'zds.utils.context_processor.app_settings',
+    'zds.utils.context_processor.git_version',
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
@@ -164,6 +169,7 @@ INSTALLED_APPS = (
     'email_obfuscator',
     'haystack',
     'munin',
+    'social.apps.django_app.default',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -191,6 +197,8 @@ THUMBNAIL_ALIASES = {
         'avatar_mini': {'size': (24, 24), 'crop': True},
         'tutorial_illu': {'size': (60, 60), 'crop': True},
         'article_illu': {'size': (60, 60), 'crop': True},
+        'help_illu': {'size': (48, 48), 'crop': True},
+        'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
     },
@@ -251,6 +259,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
+PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -308,7 +317,8 @@ ZDS_APP = {
             'logo': {
                 'code': u"CC-BY",
                 'title': u"Creative Commons License",
-                'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International.",
+                'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - "
+                               u"Partage dans les Mêmes Conditions 4.0 International.",
                 'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
                 'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
                 'author': u"MaxRoyo"
@@ -321,15 +331,22 @@ ZDS_APP = {
                 'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/"
             },
             'source': {
-                'code' : u"GPL v3",
+                'code': u"GPL v3",
                 'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                 'provider_name': u"Progdupeupl",
                 'provider_url': u"http://progdupeu.pl",
-            }
+            },
+            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+            'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
+        },
+	'social': {
+            'facebook': u'https://www.facebook.com/ZesteDeSavoir',
+            'twitter': u'https://twitter.com/ZesteDeSavoir',
+            'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
         },
         'cnil': u"1771020",
     },
@@ -343,12 +360,14 @@ ZDS_APP = {
         'image_max_size': 1024 * 1024,
     },
     'article': {
-        'repo_path': os.path.join(SITE_ROOT, 'articles-data'),
+        'home_number': 5,
+        'repo_path': os.path.join(SITE_ROOT, 'articles-data')
     },
     'tutorial': {
         'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
         'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
-        'default_license_pk': 7
+        'default_license_pk': 7,
+        'home_number': 5,
     },
     'forum': {
         'posts_per_page': 21,
@@ -359,8 +378,40 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+    },
+    'paginator':{
+        'folding_limit': 4
     }
 }
+
+LOGIN_REDIRECT_URL = "/"
+
+AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
+                           'social.backends.google.GoogleOAuth2',
+                           'social.backends.twitter.TwitterOAuth',
+                           'django.contrib.auth.backends.ModelBackend')
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'social.pipeline.user.create_user',
+    'zds.member.models.save_profile',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
+
+# redefine for real key and secret code
+SOCIAL_AUTH_FACEBOOK_KEY = ""
+SOCIAL_AUTH_FACEBOOK_SECRET = ""
+SOCIAL_AUTH_TWITTER_KEY = "bVWLd2pDe6F12SXRa5FQyVTze"
+SOCIAL_AUTH_TWITTER_SECRET = "pwdQ3trdMdT7Y669aKRwVM6tivrYsx3psbFnRJ5Tq4Wy1VjBNk"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 
 # Load the production settings, overwrite the existing ones if needed
 try:

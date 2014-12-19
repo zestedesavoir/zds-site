@@ -55,12 +55,14 @@ sitemaps = {
         priority=0.7
     ),
     'forums': GenericSitemap(
-        {'queryset': Forum.objects.filter(group__isnull=True)},
+        {'queryset': Forum.objects.filter(group__isnull=True).exclude(pk=settings.ZDS_APP['forum']['beta_forum_id'])},
         changefreq='yearly',
         priority=0.7
     ),
     'topics': GenericSitemap(
-        {'queryset': Topic.objects.filter(is_locked=False, forum__group__isnull=True), 'date_field': 'pubdate'},
+        {'queryset': Topic.objects.filter(is_locked=False,
+                                          forum__group__isnull=True).exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+         'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
     ),
@@ -81,6 +83,8 @@ urlpatterns = patterns('',
                        url(r'^galerie/', include('zds.gallery.urls')),
                        url(r'^rechercher/', include('zds.search.urls')),
                        url(r'^munin/', include('zds.munin.urls')),
+                       url('', include('social.apps.django_app.urls', namespace='social')),
+                       url('', include('django.contrib.auth.urls', namespace='auth')),
                        ('^munin/', include('munin.urls')),
 
                        url(r'^$', 'zds.pages.views.home'),

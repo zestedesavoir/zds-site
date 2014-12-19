@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
 import factory
 
 from zds.member.models import Profile
@@ -50,13 +50,14 @@ class StaffFactory(factory.DjangoModelFactory):
             user.set_password(password)
             if create:
                 user.save()
-        perms = Permission.objects.filter(codename__startswith='change_').all()
+        group_staff = Group.objects.filter(name="staff").first()
+        if group_staff is None:
+            group_staff = Group(name="staff")
+            group_staff.save()
 
-        user.user_permissions = list(perms)
-        user.user_permissions.add(
-            Permission.objects.get(
-                codename='moderation'))
-        user.user_permissions.add(Permission.objects.get(codename='show_ip'))
+        perms = Permission.objects.filter(codename__startswith='change_').all()
+        group_staff.permissions = perms
+        user.groups.add(group_staff)
 
         user.save()
         return user

@@ -102,14 +102,12 @@ class Forum(models.Model):
     def get_last_message(self):
         """Gets the last message on the forum, if there are any."""
         try:
-            return Post.objects.all().filter(
-                topic__forum__pk=self.pk).order_by('-position')[0]
+            return Post.objects.all().filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
         except IndexError:
             return None
 
     def can_read(self, user):
         """Checks if the forum can be read by the user."""
-        # TODO These prints is used to debug this method. Remove them later.
 
         if self.group.count() == 0:
             return True
@@ -230,9 +228,8 @@ class Topic(models.Model):
 
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                posiion__gt=last_post.position)\
+                position__gt=last_post.position)\
                 .select_related("author").first()
-
             return next_post
         except:
             return self.first_post()

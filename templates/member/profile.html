@@ -42,7 +42,7 @@
                     {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                 </li>
                 <li>
-                    {% trans "Dernière connexion" %} {{ usr.last_login|format_date:True }}
+                    {% trans "Dernière visite sur le site" %} {{ profile.last_visit|format_date:True }}
                 </li>
                 {% if perms.member.show_ip %}
                     <li>
@@ -75,17 +75,17 @@
 
         {% if perms.member.change_profile %}
             <div>
-                Remarques sur cette utilisateur ({{ profile.karma }}) :
+                {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
                 <ul>
                 {% if karmanotes.count > 0 %}
                     {% for note in karmanotes %}
-                        <li><strong>{{ note.value }}</strong> {{ note.create_at|format_date:True }} par {{ note.staff.username }} : {{ note.comment }}</li>
+                        <li><strong>{{ note.value }}</strong> {{ note.create_at|format_date:True }} {% trans "par" %} {{ note.staff.username }} : {{ note.comment }}</li>
                     {% endfor %}
                 {% else %}
-                    <li>Cet utilisateur n'a reçu aucune remarque</li>
+                    <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
                 {% endif %}
                 </ul>
-                <a href="#karmatiser-modal" class="open-modal">Ajouter une remarque</a>
+                <a href="#karmatiser-modal" class="open-modal">{% trans "Ajouter une remarque" %}</a>
                 <div id="karmatiser-modal" class="modal modal-big">
                     {% crispy karmaform %}
                 </div>
@@ -169,8 +169,8 @@
                                 <a href="#delete-old-tutorial-{{ id }}" class="btn btn-submit open-modal">{% trans "Supprimer" %}</a>
                                 <div class="modal modal-small" id="delete-old-tutorial-{{ id }}">
                                     <p>
-                                        {% blocktrans %}
-                                            Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ titre }}</em>".
+                                        {% blocktrans with tutotitle=titre%}
+                                            Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ tutotitle }}</em>".
                                         {% endblocktrans %}
                                     </p>
                                     <a href="{% url "zds.member.views.remove_oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
@@ -475,7 +475,7 @@
                 {% else %}
                     <li>
                         <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
-                            Ô{% trans "ter la lecture seule" %}
+                            {% trans "Ôter la lecture seule" %}
                         </a>
                         <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-medium">
                             <p>

@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from collections import OrderedDict
 from django import template
 from django.conf import settings
 import itertools
@@ -61,23 +62,32 @@ def top_categories(user):
 
 @register.filter('top_categories_tuto')
 def top_categories_tuto(user):
+    """
+        Get all the categories and their related subcategories
+        associed with an existing tutorial. The result is sorted
+        by alphabetic order.
+    """
 
-    cats = {}
+    # Ordered dict is use to keep order
+    cats = OrderedDict()
+
     subcats_tutos = Tutorial.objects.values('subcategory').filter(sha_public__isnull=False).all()
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_tutos)\
+        .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
+        .values('category__title', 'subcategory__title')\
         .all()
 
-    cscs = list(catsubcats.all())
+    for csc in catsubcats:
+        key = csc['category__title']
 
-    for csc in cscs:
-        key = csc.category.title
         if key in cats:
-            cats[key].append(csc.subcategory)
+            cats[key].append(csc['subcategory__title'])
         else:
-            cats[key] = [csc.subcategory]
+            cats[key] = [csc['subcategory__title']]
+
     return cats
 
 

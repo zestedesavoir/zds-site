@@ -159,7 +159,7 @@
         {% url 'zds.tutorial.views.answer' %}?tutorial={{ tutorial.pk }}
     {% endcaptureas %}
 
-    {% include "misc/message_form.html" with member=user %}
+    {% include "misc/message_form.html" with member=user topic=tutorial %}
 {% endblock %}
 
 
@@ -198,4 +198,6 @@
             </ul>
         </div>
     {% endif %}
+
+    {% include "misc/social_buttons.part.html" with link=tutorial.get_absolute_url_online text=tutorial.title %}
 {% endblock %}

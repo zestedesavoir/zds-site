@@ -339,6 +339,23 @@ class NewTopicViewTest(TestCase):
             self.profile2.user.username,
             response2.context['form'].initial['participants'])
 
+    def test_success_get_with_and_without_title(self):
+
+        response = self.client.get(reverse('zds.mp.views.new'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertIsNone(
+            response.context['form'].initial['title'])
+
+        response2 = self.client.get(
+            reverse('zds.mp.views.new')
+            + '?title=Test titre')
+
+        self.assertEqual(200, response2.status_code)
+        self.assertEqual(
+            'Test titre',
+            response2.context['form'].initial['title'])
+
     def test_fail_get_with_username_not_exist(self):
 
         response2 = self.client.get(

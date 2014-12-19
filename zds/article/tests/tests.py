@@ -426,7 +426,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON :
         json = article.load_json()
-        self.assertEquals(json['licence'], new_licence.code)
+        self.assertEquals(json['licence'].code, new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -458,7 +458,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON :
         json = article.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -511,7 +511,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = article.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
     def test_workflow_archive_article(self):
         """ensure the behavior of archive with an article"""

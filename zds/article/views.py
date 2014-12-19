@@ -4,12 +4,12 @@ from datetime import datetime
 from operator import attrgetter
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
-
+import json
 import json as json_writer
 import os
 import shutil
@@ -26,14 +26,13 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
 
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
-from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.articles import get_blob
 from zds.utils.mps import send_mp
@@ -43,7 +42,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from .forms import ArticleForm, ReactionForm
+from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
     Reaction, never_read, mark_read
 
@@ -76,7 +75,7 @@ def index(request):
         article_version = article.load_dic(article_version)
         article_versions.append(article_version)
 
-    return render_template('article/index.html', {
+    return render(request, 'article/index.html', {
         'articles': article_versions,
         'tag': tag,
     })
@@ -117,12 +116,20 @@ def view(request, article_pk, article_slug):
         .order_by("-date_proposition")\
         .first()
 
-    return render_template('article/member/view.html', {
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
+    return render(request, 'article/member/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
         'version': sha,
-        'validation': validation
+        'validation': validation,
+        'is_js': is_js,
+        'formJs': form_js,
     })
 
 
@@ -194,7 +201,7 @@ def view_online(request, article_pk, article_slug):
     # Build form to send a reaction for the current article.
     form = ReactionForm(article, request.user)
 
-    return render_template('article/view.html', {
+    return render(request, 'article/view.html', {
         'article': article_version,
         'authors': article.authors,
         'tags': article.subcategory,
@@ -224,9 +231,10 @@ def new(request):
                 'text': request.POST['text'],
                 'image': image,
                 'subcategory': request.POST.getlist('subcategory'),
-                'licence': request.POST['licence']
+                'licence': request.POST['licence'],
+                'msg_commit': request.POST['msg_commit']
             })
-            return render_template('article/member/new.html', {
+            return render(request, 'article/member/new.html', {
                 'text': request.POST['text'],
                 'form': form
             })
@@ -283,7 +291,7 @@ def new(request):
             }
         )
 
-    return render_template('article/member/new.html', {
+    return render(request, 'article/member/new.html', {
         'form': form
     })
 
@@ -320,12 +328,15 @@ def edit(request):
                 'text': request.POST['text'],
                 'image': image,
                 'subcategory': request.POST.getlist('subcategory'),
-                'licence': licence
+                'licence': licence,
+                'msg_commit': request.POST['msg_commit']
             })
-            return render_template('article/member/edit.html', {
+            form_js = ActivJsForm(initial={"js_support": article.js_support})
+            return render(request, 'article/member/edit.html', {
                 'article': article,
                 'text': request.POST['text'],
-                'form': form
+                'form': form,
+                'formJs': form_js
             })
 
         form = ArticleForm(request.POST, request.FILES)
@@ -368,7 +379,7 @@ def edit(request):
             return redirect(article.get_absolute_url())
     else:
         if "licence" in json:
-            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+            licence = json['licence']
         else:
             licence = Licence.objects.get(
                 pk=settings.ZDS_APP['tutorial']['default_license_pk']
@@ -381,8 +392,9 @@ def edit(request):
             'licence': licence
         })
 
-    return render_template('article/member/edit.html', {
-        'article': article, 'form': form
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+    return render(request, 'article/member/edit.html', {
+        'article': article, 'form': form, 'formJs': form_js
     })
 
 
@@ -401,7 +413,7 @@ def find_article(request, pk_user):
         article_versions.append(article_version)
 
     # Paginator
-    return render_template('article/find.html', {
+    return render(request, 'article/find.html', {
         'articles': article_versions, 'usr': user,
     })
 
@@ -850,7 +862,7 @@ def list_validation(request):
                         article__subcategory__in=[subcategory]) \
                 .order_by("date_proposition") \
                 .all()
-    return render_template('article/validation/index.html', {
+    return render(request, 'article/validation/index.html', {
         'validations': validations,
     })
 
@@ -881,7 +893,7 @@ def history_validation(request, article_pk):
             .order_by("date_proposition") \
             .all()
 
-    return render_template('article/validation/history.html', {
+    return render(request, 'article/validation/history.html', {
         'validations': validations,
         'article': article,
         'authors': article.authors,
@@ -935,7 +947,7 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
-    return render_template('article/member/history.html', {
+    return render(request, 'article/member/history.html', {
         'article': article, 'logs': logs
     })
 
@@ -956,7 +968,11 @@ def mep(article, sha):
             article_version['text'] +
             '.html'),
         "w")
-    html_file.write(emarkdown(md_file_contenu))
+    if article.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    html_file.write(emarkdown(md_file_contenu, is_js))
     html_file.close()
 
 
@@ -1002,13 +1018,17 @@ def answer(request):
             form = ReactionForm(article, request.user, initial={
                 'text': data['text']
             })
-            return render_template('article/reaction/new.html', {
-                'article': article,
-                'last_reaction_pk': last_reaction_pk,
-                'newreaction': newreaction,
-                'reactions': reactions,
-                'form': form
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, 'article/reaction/new.html', {
+                    'article': article,
+                    'last_reaction_pk': last_reaction_pk,
+                    'newreaction': newreaction,
+                    'reactions': reactions,
+                    'form': form
+                })
 
         # Saving the message
         else:
@@ -1031,7 +1051,7 @@ def answer(request):
 
                 return redirect(reaction.get_absolute_url())
             else:
-                return render_template('article/reaction/new.html', {
+                return render(request, 'article/reaction/new.html', {
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
@@ -1062,7 +1082,7 @@ def answer(request):
         form = ReactionForm(article, request.user, initial={
             'text': text
         })
-        return render_template('article/reaction/new.html', {
+        return render(request, 'article/reaction/new.html', {
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
@@ -1111,6 +1131,21 @@ def solve_alert(request):
         u'L\'alerte a bien été résolue.')
 
     return redirect(reaction.get_absolute_url())
+
+
+@login_required
+@require_POST
+def activ_js(request):
+
+    # only for staff
+
+    if not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
+    article = get_object_or_404(Article, pk=request.POST["article"])
+    article.js_support = "js_support" in request.POST
+    article.save()
+
+    return redirect(article.get_absolute_url())
 
 
 @can_write_and_read_now
@@ -1179,11 +1214,15 @@ def edit_reaction(request):
                 'zds.article.views.edit_reaction') + \
                 '?message=' + \
                 str(reaction_pk)
-            return render_template('article/reaction/edit.html', {
-                'reaction': reaction,
-                'article': g_article,
-                'form': form
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, 'article/reaction/edit.html', {
+                    'reaction': reaction,
+                    'article': g_article,
+                    'form': form
+                })
 
         if 'delete_message' not in request.POST \
                 and 'signal_message' not in request.POST \
@@ -1205,7 +1244,7 @@ def edit_reaction(request):
         })
         form.helper.form_action = reverse(
             'zds.article.views.edit_reaction') + '?message=' + str(reaction_pk)
-        return render_template('article/reaction/edit.html', {
+        return render(request, 'article/reaction/edit.html', {
             'reaction': reaction,
             'article': g_article,
             'form': form

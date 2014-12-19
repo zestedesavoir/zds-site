@@ -6,7 +6,6 @@
 {% load i18n %}
 
 
-
 {% block title_base %}
     &bull; {% trans "Forums" %}
 {% endblock %}
@@ -73,8 +72,8 @@
                                 <li>
                                     <form action="{% url "zds.forum.views.edit" %}" method="post">
                                         <input type="hidden" name="topic" value="{{ topic.pk }}">
-                                        <input type="hidden" name="nb" value="{{ nb }}">
-                                        <input type="hidden" name="page" value="{{ nb }}">
+                                        <input type="hidden" name="nb" value="{% if nb %} {{ nb }} {% else %} {{ zds.settings.ZDS_APP.forum.posts_per_page }} {% endif %}">
+                                        <input type="hidden" name="page" value="{% if page %} {{ page }} {% else %} 1 {% endif %}">
                                         <input type="hidden" name="follow" value="1">
                                         {% csrf_token %}
 

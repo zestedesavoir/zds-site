@@ -4,14 +4,13 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Field, \
+from crispy_forms.layout import HTML, Layout, Fieldset, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
-from zds.tutorial.models import TYPE_CHOICES
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
-from zds.tutorial.models import Tutorial
+from zds.tutorial.models import Tutorial, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -92,7 +91,14 @@ class TutorialForm(FormWithTitle):
     )
 
     licence = forms.ModelChoiceField(
-        label=_(u"Licence de votre publication"),
+        label=(
+            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)')
+            .format(
+                settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                settings.ZDS_APP['site']['licenses']['licence_info_link'],
+                settings.ZDS_APP['site']['name']
+            )
+        ),
         queryset=Licence.objects.all(),
         required=True,
         empty_label=None
@@ -109,6 +115,13 @@ class TutorialForm(FormWithTitle):
         )
     )
 
+    helps = forms.ModelMultipleChoiceField(
+        label=_(u"Pour m'aider je cherche un..."),
+        queryset=HelpWriting.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple()
+    )
+
     def __init__(self, *args, **kwargs):
         super(TutorialForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -123,8 +136,15 @@ class TutorialForm(FormWithTitle):
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Hidden('last_hash', '{{ last_hash }}'),
-            Field('subcategory'),
             Field('licence'),
+            Field('subcategory'),
+            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+                   u"Si vous avez besoin d'un coup de main,"
+                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
+                   u"et votre tutoriel apparaitra alors sur <a href="
+                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
+                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
+            Field('helps'),
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
@@ -582,3 +602,26 @@ class RejectForm(forms.Form):
                     type='submit'),),
             Hidden('tutorial', '{{ tutorial.pk }}'),
             Hidden('version', '{{ version }}'), )
+
+
+class ActivJsForm(forms.Form):
+
+    js_support = forms.BooleanField(
+        label='Cocher pour activer JSFiddle',
+        required=False,
+        initial=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ActivJsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('zds.tutorial.views.activ_js')
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('js_support'),
+            ButtonHolder(
+                StrictButton(
+                    _(u'Valider'),
+                    type='submit'),),
+            Hidden('tutorial', '{{ tutorial.pk }}'), )

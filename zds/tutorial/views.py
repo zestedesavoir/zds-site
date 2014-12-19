@@ -8,12 +8,12 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from urlparse import urlparse, parse_qs
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
-
+import json
 import json as json_writer
 import shutil
 import re
@@ -32,24 +32,23 @@ from django.core.files import File
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
-    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm
+    ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
-    mark_read, Note
+    mark_read, Note, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
 from zds.forum.models import Forum, Topic
-from zds.utils import render_template
 from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
@@ -103,7 +102,7 @@ def index(request):
         mandata = tutorial.load_json_for_public()
         tutorial.load_dic(mandata)
         tuto_versions.append(mandata)
-    return render_template("tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
+    return render(request, "tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
 
 # Staff actions.
@@ -169,7 +168,7 @@ def list_validation(request):
                                                         )).filter(tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition")\
                 .all()
-    return render_template("tutorial/validation/index.html",
+    return render(request, "tutorial/validation/index.html",
                            {"validations": validations})
 
 
@@ -214,7 +213,7 @@ def diff(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
     tdiff = hcommit.diff("HEAD~1")
-    return render_template("tutorial/tutorial/diff.html", {
+    return render(request, "tutorial/tutorial/diff.html", {
         "tutorial": tutorial,
         "path_add": tdiff.iter_change_type("A"),
         "path_ren": tdiff.iter_change_type("R"),
@@ -235,7 +234,7 @@ def history(request, tutorial_pk, tutorial_slug):
     repo = Repo(tutorial.get_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
-    return render_template("tutorial/tutorial/history.html",
+    return render(request, "tutorial/tutorial/history.html",
                            {"tutorial": tutorial, "logs": logs})
 
 
@@ -262,7 +261,7 @@ def history_validation(request, tutorial_pk):
                                                 tutorial__subcategory__in=[subcategory]) \
             .order_by("date_proposition"
                       ).all()
-    return render_template("tutorial/validation/history.html",
+    return render(request, "tutorial/validation/history.html",
                            {"validations": validations, "tutorial": tutorial})
 
 
@@ -879,6 +878,8 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
         .order_by("-date_proposition")\
         .first()
+    form_js = ActivJsForm(initial={"js_support": tutorial.js_support})
+
     if tutorial.source:
         form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
         form_valid = ValidForm(initial={"source": tutorial.source})
@@ -886,15 +887,22 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         form_ask_validation = AskValidationForm()
         form_valid = ValidForm()
     form_reject = RejectForm()
-    return render_template("tutorial/tutorial/view.html", {
+
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+    return render(request, "tutorial/tutorial/view.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
         "version": sha,
         "validation": validation,
         "formAskValidation": form_ask_validation,
+        "formJs": form_js,
         "formValid": form_valid,
         "formReject": form_reject,
+        "is_js": is_js
     })
 
 
@@ -978,11 +986,12 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         mandata['get_parts'] = parts
 
     # If the user is authenticated
-
     if request.user.is_authenticated():
+        # We check if he can post a tutorial or not with
+        # antispam filter.
+        mandata['antispam'] = tutorial.antispam()
 
         # If the user is never read, we mark this tutorial read.
-
         if never_read(tutorial):
             mark_read(tutorial)
 
@@ -1028,7 +1037,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     # Build form to send a note for the current tutorial.
 
     form = NoteForm(tutorial, request.user)
-    return render_template("tutorial/tutorial/view_online.html", {
+    return render(request, "tutorial/tutorial/view_online.html", {
         "tutorial": mandata,
         "chapter": chapter,
         "parts": parts,
@@ -1106,6 +1115,10 @@ def add_tutorial(request):
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
 
+            # Add helps if needed
+            for helpwriting in form.cleaned_data["helps"]:
+                tutorial.helps.add(helpwriting)
+
             # We need to save the tutorial before changing its author list
             # since it's a many-to-many relationship
 
@@ -1134,7 +1147,7 @@ def add_tutorial(request):
                 'licence': Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
             }
         )
-    return render_template("tutorial/tutorial/new.html", {"form": form})
+    return render(request, "tutorial/tutorial/new.html", {"form": form})
 
 
 @can_write_and_read_now
@@ -1171,9 +1184,9 @@ def edit_tutorial(request):
                     "subcategory": tutorial.subcategory.all(),
                     "introduction": tutorial.get_introduction(),
                     "conclusion": tutorial.get_conclusion(),
-
+                    "helps": tutorial.helps.all(),
                 })
-                return render_template("tutorial/tutorial/edit.html",
+                return render(request, "tutorial/tutorial/edit.html",
                                        {
                                            "tutorial": tutorial, "form": form,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -1227,15 +1240,21 @@ def edit_tutorial(request):
                 action="maj",
                 msg=request.POST.get('msg_commit', None)
             )
+
             tutorial.subcategory.clear()
             for subcat in form.cleaned_data["subcategory"]:
                 tutorial.subcategory.add(subcat)
+
+            tutorial.helps.clear()
+            for help in form.cleaned_data["helps"]:
+                tutorial.helps.add(help)
+
             tutorial.save()
             return redirect(tutorial.get_absolute_url())
     else:
         json = tutorial.load_json()
         if "licence" in json:
-            licence = Licence.objects.filter(code=json["licence"]).all()[0]
+            licence = json['licence']
         else:
             licence = Licence.objects.get(
                 pk=settings.ZDS_APP['tutorial']['default_license_pk']
@@ -1248,8 +1267,9 @@ def edit_tutorial(request):
             "subcategory": tutorial.subcategory.all(),
             "introduction": tutorial.get_introduction(),
             "conclusion": tutorial.get_conclusion(),
+            "helps": tutorial.helps.all(),
         })
-    return render_template("tutorial/tutorial/edit.html",
+    return render(request, "tutorial/tutorial/edit.html",
                            {"tutorial": tutorial, "form": form, "last_hash": compute_hash([introduction, conclusion])})
 
 # Parts.
@@ -1323,10 +1343,16 @@ def view_part(
     if not find:
         raise Http404
 
-    return render_template("tutorial/part/view.html",
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
+    return render(request, "tutorial/part/view.html",
                            {"tutorial": mandata,
                             "part": final_part,
-                            "version": sha})
+                            "version": sha,
+                            "is_js": is_js})
 
 
 def view_part_online(
@@ -1392,7 +1418,7 @@ def view_part_online(
     if not find:
         raise Http404
 
-    return render_template("tutorial/part/view_online.html", {"part": final_part})
+    return render(request, "tutorial/part/view_online.html", {"part": final_part})
 
 
 @can_write_and_read_now
@@ -1450,7 +1476,7 @@ def add_part(request):
                 return redirect(part.get_absolute_url())
     else:
         form = PartForm()
-    return render_template("tutorial/part/new.html", {"tutorial": tutorial,
+    return render(request, "tutorial/part/new.html", {"tutorial": tutorial,
                                                       "form": form})
 
 
@@ -1544,7 +1570,7 @@ def edit_part(request):
                 form = PartForm({"title": part.title,
                                  "introduction": part.get_introduction(),
                                  "conclusion": part.get_conclusion()})
-                return render_template("tutorial/part/edit.html",
+                return render(request, "tutorial/part/edit.html",
                                        {
                                            "part": part,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -1582,7 +1608,7 @@ def edit_part(request):
         form = PartForm({"title": part.title,
                          "introduction": part.get_introduction(),
                          "conclusion": part.get_conclusion()})
-    return render_template("tutorial/part/edit.html",
+    return render(request, "tutorial/part/edit.html",
                            {
                                "part": part,
                                "last_hash": compute_hash([introduction, conclusion]),
@@ -1683,12 +1709,18 @@ def view_chapter(
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1
                     < len(chapter_tab) else None)
 
-    return render_template("tutorial/chapter/view.html", {
+    if tutorial.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
+    return render(request, "tutorial/chapter/view.html", {
         "tutorial": mandata,
         "chapter": final_chapter,
         "prev": prev_chapter,
         "next": next_chapter,
         "version": sha,
+        "is_js": is_js
     })
 
 
@@ -1788,7 +1820,7 @@ def view_chapter_online(
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
 
-    return render_template("tutorial/chapter/view_online.html", {
+    return render(request, "tutorial/chapter/view_online.html", {
         "chapter": final_chapter,
         "parts": parts,
         "prev": prev_chapter,
@@ -1874,7 +1906,7 @@ def add_chapter(request):
     else:
         form = ChapterForm()
 
-    return render_template("tutorial/chapter/new.html", {"part": part,
+    return render(request, "tutorial/chapter/new.html", {"part": part,
                                                          "form": form})
 
 
@@ -1998,7 +2030,7 @@ def edit_chapter(request):
             # avoid collision
             if content_has_changed([introduction, conclusion], data["last_hash"]):
                 form = render_chapter_form(chapter)
-                return render_template("tutorial/part/edit.html",
+                return render(request, "tutorial/part/edit.html",
                                        {
                                            "chapter": chapter,
                                            "last_hash": compute_hash([introduction, conclusion]),
@@ -2046,7 +2078,7 @@ def edit_chapter(request):
             return redirect(chapter.get_absolute_url())
     else:
         form = render_chapter_form(chapter)
-    return render_template("tutorial/chapter/edit.html", {"chapter": chapter,
+    return render(request, "tutorial/chapter/edit.html", {"chapter": chapter,
                                                           "last_hash": compute_hash([introduction, conclusion]),
                                                           "form": form})
 
@@ -2083,8 +2115,9 @@ def add_extract(request):
 
         if "preview" in data:
             form = ExtractForm(initial={"title": data["title"],
-                                        "text": data["text"]})
-            return render_template("tutorial/extract/new.html",
+                                        "text": data["text"],
+                                        'msg_commit': data['msg_commit']})
+            return render(request, "tutorial/extract/new.html",
                                    {"chapter": chapter, "form": form})
         else:
 
@@ -2108,7 +2141,7 @@ def add_extract(request):
     else:
         form = ExtractForm()
 
-    return render_template("tutorial/extract/new.html", {"chapter": chapter,
+    return render(request, "tutorial/extract/new.html", {"chapter": chapter,
                                                          "form": form})
 
 
@@ -2143,9 +2176,10 @@ def edit_extract(request):
         if "preview" in data:
             form = ExtractForm(initial={
                 "title": data["title"],
-                "text": data["text"]
+                "text": data["text"],
+                'msg_commit': data['msg_commit']
             })
-            return render_template("tutorial/extract/edit.html",
+            return render(request, "tutorial/extract/edit.html",
                                    {
                                        "extract": extract, "form": form,
                                        "last_hash": compute_hash([extract.get_path()])
@@ -2154,8 +2188,9 @@ def edit_extract(request):
             if content_has_changed([extract.get_path()], data["last_hash"]):
                 form = ExtractForm(initial={
                     "title": extract.title,
-                    "text": extract.get_text()})
-                return render_template("tutorial/extract/edit.html",
+                    "text": extract.get_text(),
+                    'msg_commit': data['msg_commit']})
+                return render(request, "tutorial/extract/edit.html",
                                        {
                                            "extract": extract,
                                            "last_hash": compute_hash([extract.get_path()]),
@@ -2188,7 +2223,7 @@ def edit_extract(request):
     else:
         form = ExtractForm({"title": extract.title,
                             "text": extract.get_text()})
-    return render_template("tutorial/extract/edit.html",
+    return render(request, "tutorial/extract/edit.html",
                            {
                                "extract": extract,
                                "last_hash": compute_hash([extract.get_path()]),
@@ -2284,7 +2319,7 @@ def find_tuto(request, pk_user):
             tutorial.load_dic(mandata, sha=tutorial.sha_beta)
             tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/beta.html",
+        return render(request, "tutorial/member/beta.html",
                                {"tutorials": tuto_versions, "usr": display_user})
     else:
         tutorials = Tutorial.objects.all().filter(
@@ -2297,7 +2332,7 @@ def find_tuto(request, pk_user):
             tutorial.load_dic(mandata)
             tuto_versions.append(mandata)
 
-        return render_template("tutorial/member/online.html", {"tutorials": tuto_versions,
+        return render(request, "tutorial/member/online.html", {"tutorials": tuto_versions,
                                                                "usr": display_user})
 
 
@@ -2328,7 +2363,7 @@ def upload_images(images, tutorial):
         except IOError:
             try:
                 os.makedirs(ph_temp)
-            except:
+            except OSError:
                 pass
     zfile.close()
     return mapping
@@ -2623,10 +2658,11 @@ def import_tuto(request):
         olds = []
     for old in olds:
         oldtutos.append(get_info_old_tuto(old))
-    return render_template(
-        "tutorial/tutorial/import.html", {"form": form,
-                                          "form_archive": form_archive,
-                                          "old_tutos": oldtutos})
+    return render(
+        request,
+        "tutorial/tutorial/import.html",
+        {"form": form, "form_archive": form_archive, "old_tutos": oldtutos}
+    )
 
 
 # Handling repo
@@ -3127,8 +3163,9 @@ def mep(tutorial, sha):
         if os.path.isdir(del_path):
             try:
                 shutil.rmtree(del_path)
-            except:
+            except OSError:
                 shutil.rmtree(u"\\\\?\{0}".format(del_path))
+                # WARNING: this can throw another OSError
     shutil.copytree(tutorial.get_path(), prod_path)
     repo.head.reset(commit=sha, index=True, working_tree=True)
 
@@ -3178,8 +3215,12 @@ def mep(tutorial, sha):
 
             target = u"\\\\?\{0}".format(target)
             html_file = open(target, "w")
+        if tutorial.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
         if md_file_contenu is not None:
-            html_file.write(emarkdown(md_file_contenu))
+            html_file.write(emarkdown(md_file_contenu, is_js))
         html_file.close()
 
     # load markdown out
@@ -3203,12 +3244,7 @@ def mep(tutorial, sha):
               + os.path.join(prod_path, tutorial.slug)
               + ".md -o " + os.path.join(prod_path,
                                          tutorial.slug) + ".html" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc " + "--latex-engine=xelatex "
-              + "--template=../../assets/tex/template.tex " + "-s " + "-S "
-              + "-N " + "--toc " + "-V documentclass=scrbook "
-              + "-V lang=francais " + "-V mainfont=Merriweather "
-              + "-V monofont=\"Andale Mono\" " + "-V fontsize=12pt "
-              + "-V geometry:margin=1in "
+    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
               + os.path.join(prod_path, tutorial.slug) + ".md "
               + "-o " + os.path.join(prod_path, tutorial.slug)
               + ".pdf" + pandoc_debug_str)
@@ -3227,8 +3263,9 @@ def un_mep(tutorial):
         if os.path.isdir(del_path):
             try:
                 shutil.rmtree(del_path)
-            except:
+            except OSError:
                 shutil.rmtree(u"\\\\?\{0}".format(del_path))
+                # WARNING: this can throw another OSError
 
 
 @can_write_and_read_now
@@ -3282,13 +3319,17 @@ def answer(request):
         if "preview" in data or newnote:
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
-            return render_template("tutorial/comment/new.html", {
-                "tutorial": tutorial,
-                "last_note_pk": last_note_pk,
-                "newnote": newnote,
-                "notes": notes,
-                "form": form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, "tutorial/comment/new.html", {
+                    "tutorial": tutorial,
+                    "last_note_pk": last_note_pk,
+                    "newnote": newnote,
+                    "notes": notes,
+                    "form": form,
+                })
         else:
 
             # Saving the message
@@ -3309,7 +3350,7 @@ def answer(request):
                 tutorial.save()
                 return redirect(note.get_absolute_url())
             else:
-                return render_template("tutorial/comment/new.html", {
+                return render(request, "tutorial/comment/new.html", {
                     "tutorial": tutorial,
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
@@ -3339,7 +3380,7 @@ def answer(request):
                 note_cite.get_absolute_url())
 
         form = NoteForm(tutorial, request.user, initial={"text": text})
-        return render_template("tutorial/comment/new.html", {
+        return render(request, "tutorial/comment/new.html", {
             "tutorial": tutorial,
             "notes": notes,
             "last_note_pk": last_note_pk,
@@ -3386,6 +3427,21 @@ def solve_alert(request):
     alert.delete()
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(note.get_absolute_url())
+
+
+@login_required
+@require_POST
+def activ_js(request):
+
+    # only for staff
+
+    if not request.user.has_perm("tutorial.change_tutorial"):
+        raise PermissionDenied
+    tutorial = get_object_or_404(Tutorial, pk=request.POST["tutorial"])
+    tutorial.js_support = "js_support" in request.POST
+    tutorial.save()
+
+    return redirect(tutorial.get_absolute_url())
 
 
 @can_write_and_read_now
@@ -3445,8 +3501,13 @@ def edit_note(request):
                             initial={"text": request.POST["text"]})
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
-            return render_template(
-                "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request,
+                              "tutorial/comment/edit.html",
+                              {"note": note, "tutorial": g_tutorial, "form": form})
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
 
@@ -3463,8 +3524,7 @@ def edit_note(request):
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
         form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
             + "?message=" + str(note_pk)
-        return render_template(
-            "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
+        return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
 @can_write_and_read_now
@@ -3552,3 +3612,42 @@ def dislike_note(request):
         return HttpResponse(json_writer.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+def help_tutorial(request):
+    """fetch all tutorials that needs help"""
+
+    # Retrieve type of the help. Default value is any help
+    type = request.GET.get('type', None)
+
+    if type is not None:
+        aide = get_object_or_404(HelpWriting, slug=type)
+        tutos = Tutorial.objects.filter(helps=aide) \
+                                .all()
+    else:
+        tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
+                                .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .all()
+
+    # Paginator
+    paginator = Paginator(tutos, settings.ZDS_APP['forum']['topics_per_page'])
+    page = request.GET.get('page')
+
+    try:
+        shown_tutos = paginator.page(page)
+        page = int(page)
+    except PageNotAnInteger:
+        shown_tutos = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        shown_tutos = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    aides = HelpWriting.objects.all()
+
+    return render(request, "tutorial/tutorial/help.html", {
+        "tutorials": shown_tutos,
+        "helps": aides,
+        "pages": paginator_range(page, paginator.num_pages),
+        "nb": page
+    })

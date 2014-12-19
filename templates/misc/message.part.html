@@ -43,6 +43,13 @@
             <ul class="message-actions">
                 {% if message.is_visible != False %}
                     {% if edit_link %}
+                        {% if can_unread == True %}
+                            <li>
+                                <a class="ico-after unread" href="{{ unread_link|safe }}">
+                                    {% trans "Non-lu" %}
+                                </a>
+                            </li>
+                        {% endif %}
                         {% if message.author = user or perms_change %}
                             {% if can_hide != False %}
                                 <li>
@@ -141,7 +148,12 @@
 
             <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
                 <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
+                    <span class="long-date">
                     {{ message.pubdate|format_date|capfirst }}
+                    </span>
+                    <span class="short-date">
+                    {{ message.pubdate|format_date:True|capfirst }}
+                    </span>
                 </time>
             </a>
         </div>

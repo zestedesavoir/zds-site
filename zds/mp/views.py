@@ -13,13 +13,13 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
 
-from zds.utils import render_template, slugify
+from zds.utils import slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -73,7 +73,7 @@ def index(request):
         shown_privatetopics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template('mp/index.html', {
+    return render(request, 'mp/index.html', {
         'privatetopics': shown_privatetopics,
         'pages': paginator_range(page, paginator.num_pages), 'nb': page
     })
@@ -134,7 +134,7 @@ def topic(request, topic_pk, topic_slug):
     # Build form to add an answer for the current topid.
     form = PrivatePostForm(g_topic, request.user)
 
-    return render_template('mp/topic/index.html', {
+    return render(request, 'mp/topic/index.html', {
         'topic': g_topic,
         'posts': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
@@ -158,7 +158,7 @@ def new(request):
                                         'subtitle': request.POST['subtitle'],
                                         'text': request.POST['text'],
                                     })
-            return render_template('mp/topic/new.html', {
+            return render(request, 'mp/topic/new.html', {
                 'form': form,
             })
 
@@ -186,7 +186,7 @@ def new(request):
                     and list_part[0] == request.user.username):
                 errors = form._errors.setdefault("participants", ErrorList())
                 errors.append(_(u'Vous êtes déjà auteur du message'))
-                return render_template('mp/topic/new.html', {
+                return render(request, 'mp/topic/new.html', {
                     'form': form,
                 })
 
@@ -201,7 +201,7 @@ def new(request):
             return redirect(p_topic.get_absolute_url())
 
         else:
-            return render_template('mp/topic/new.html', {
+            return render(request, 'mp/topic/new.html', {
                 'form': form,
             })
     else:
@@ -217,11 +217,16 @@ def new(request):
             if len(dest_list) > 0:
                 dest = ', '.join(dest_list)
 
+        title = None
+        if 'title' in request.GET:
+            title = request.GET['title']
+
         form = PrivateTopicForm(username=request.user.username,
                                 initial={
                                     'participants': dest,
+                                    'title': title
                                 })
-        return render_template('mp/topic/new.html', {
+        return render(request, 'mp/topic/new.html', {
             'form': form,
         })
 
@@ -286,7 +291,7 @@ def answer(request):
             form = PrivatePostForm(g_topic, request.user, initial={
                 'text': data['text']
             })
-            return render_template('mp/post/new.html', {
+            return render(request, 'mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
                 'posts': posts,
@@ -352,7 +357,7 @@ def answer(request):
 
                 return redirect(post.get_absolute_url())
             else:
-                return render_template('mp/post/new.html', {
+                return render(request, 'mp/post/new.html', {
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
@@ -380,7 +385,7 @@ def answer(request):
         form = PrivatePostForm(g_topic, request.user, initial={
             'text': text
         })
-        return render_template('mp/post/new.html', {
+        return render(request, 'mp/post/new.html', {
             'topic': g_topic,
             'posts': posts,
             'last_post_pk': last_post_pk,
@@ -433,7 +438,7 @@ def edit_post(request):
             form.helper.form_action = reverse(
                 'zds.mp.views.edit_post') + '?message=' + str(post_pk)
 
-            return render_template('mp/post/edit.html', {
+            return render(request, 'mp/post/edit.html', {
                 'post': post,
                 'topic': g_topic,
                 'form': form,
@@ -453,7 +458,7 @@ def edit_post(request):
         })
         form.helper.form_action = reverse(
             'zds.mp.views.edit_post') + '?message=' + str(post_pk)
-        return render_template('mp/post/edit.html', {
+        return render(request, 'mp/post/edit.html', {
             'post': post,
             'topic': g_topic,
             'text': post.text,
@@ -488,10 +493,14 @@ def leave(request):
 @require_POST
 @transaction.atomic
 def add_participant(request):
-    ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+    try:
+        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
+    except KeyError:
+        messages.warning(
+            request, _(u'La conversation que vous avez essayé d\'utiliser n\'existe pas.'))
 
     # check if user is the author of topic
-    if not ptopic.author == request.user:
+    if ptopic is not None and not ptopic.author == request.user:
         raise PermissionDenied
 
     try:
@@ -509,6 +518,9 @@ def add_participant(request):
             messages.success(
                 request,
                 _(u'Le membre a bien été ajouté à la conversation.'))
+    except KeyError:
+        messages.warning(
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
     except:
         messages.warning(
             request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))

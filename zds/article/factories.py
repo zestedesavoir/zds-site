@@ -9,6 +9,7 @@ import os
 from zds.article.models import Article, Reaction, \
     Validation, Licence
 from zds.utils.articles import export_article
+from zds.article.views import mep
 
 
 class ArticleFactory(factory.DjangoModelFactory):
@@ -61,7 +62,7 @@ class ReactionFactory(factory.DjangoModelFactory):
         return reaction
 
 
-class VaidationFactory(factory.DjangoModelFactory):
+class ValidationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Validation
 
 
@@ -75,3 +76,16 @@ class LicenceFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
         return licence
+
+
+class PublishedArticleFactory(ArticleFactory):
+    FACTORY_FOR = Article
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        article = super(PublishedArticleFactory, cls)._prepare(create, **kwargs)
+        mep(article, article.sha_draft)
+        article.sha_public = article.sha_draft
+        article.pubdate = datetime.now()
+        article.save()
+        return article
