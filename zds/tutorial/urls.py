@@ -111,7 +111,7 @@ urlpatterns = patterns('',
                        url(r'^message/like/$', 'zds.tutorial.views.like_note'),
                        url(r'^message/dislike/$',
                            'zds.tutorial.views.dislike_note'),
-                       url(r'^message/typo/(?P<obj>.+)/(?P<obj_pk>\d+)/$',
+                       url(r'^message/typo/(?P<obj_type>.+)/(?P<obj_pk>\d+)/$',
                            'zds.tutorial.views.warn_typo'),
 
                        # Moderation

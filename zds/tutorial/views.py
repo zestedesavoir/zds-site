@@ -3624,6 +3624,8 @@ def warn_typo(request, obj_type, obj_pk):
             tutorial = chapter.part.tutorial
         else:
             raise Http404  # normally, warn about mistake in chapter is only possible with big tutorials
+    else:
+        raise Http404 # unknown `obj_type`
 
     # then, fetch explanation :
     explanation = ''
