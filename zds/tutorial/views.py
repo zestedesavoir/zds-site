@@ -755,7 +755,7 @@ def modify_tutorial(request):
                                  )
                 else:
                     msg_up = \
-                        (_(u'Bonjour, !\n\n'
+                        (_(u'Bonjour à tous !\n\n'
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
