@@ -58,7 +58,7 @@
         {% endif %}
         {{ article.title }}
     </h1>
-    
+
     {% if article.licence %}
         <span class="license" itemprop="license">
             {{ article.licence }}
@@ -82,12 +82,14 @@
     </ul>
 
     <span class="pubdate">
-        {% trans "Publi" %}é 
+        {% trans "Publié " %}
         <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
             {{ article.pubdate|format_date }}
         </time>
     </span>
-    
+
+    {% include "misc/zen_button.part.html" %}
+
     <div class="authors">
         <span class="authors-label">{% trans "Contributeur" %}{{ authors.all|pluralize }} : </span>
         <ul>
@@ -111,7 +113,7 @@
 {% block content %}
     {{ article.txt|safe }}
 
- 
+
     {% include "article/includes/pager.part.html" %}
 {% endblock %}
 
@@ -172,7 +174,7 @@
     {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" %}
 
 
-    
+
     {% captureas form_action %}
         {% url 'zds.article.views.answer' %}?article={{ article.pk }}
     {% endcaptureas %}
@@ -240,4 +242,6 @@
             </li>
         </ul>
     </div>
+
+    {% include "misc/social_buttons.part.html" with link=article.get_absolute_url_online text=article.title %}
 {% endblock %}

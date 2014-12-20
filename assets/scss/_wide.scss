@@ -15,7 +15,7 @@
 
 
     .main-container {
-        min-height: calc(100% - 146px);
+        min-height: calc(100% - 136px);
     }
 
 
@@ -90,7 +90,7 @@
             border-top: 6px solid #FFF;
         }
     }
-    
+
     .logbox .dropdown.my-account-dropdown ul li {
         height: 30px;
         line-height: 30px;
@@ -246,14 +246,14 @@
                 padding: 100px 0;
                 margin-bottom: 0;
 
-                .open-zen-mode:before {
-                    content: "Quitter la ";
-                }
-
                 .comments-title,
                 .pagination:not(.pagination-chapter),
                 .topic-message {
                     display: none;
+                }
+
+                .content-wrapper {
+                    margin: 0 4%;
                 }
             }
 
@@ -346,6 +346,7 @@
             
             blockquote {
                 margin: 0 0 0 300px;
+                width: auto;
             }
         }
 
@@ -399,6 +400,9 @@
     .full-content-wrapper .tutorial-list article {
         width: 46%;
         float: left;
+        &.extend {
+            width: 100%;
+        }
     }
     
 
@@ -496,6 +500,10 @@
                 white-space: nowrap;
                 overflow: hidden;
             }
+
+            .message-metadata .date .short-date {
+                display: none;
+            }
         }
     }
 
@@ -547,6 +555,20 @@
         padding-left: 20px;
     }
 
+
+
+
+
+    /* ============
+       Forms
+       ============ */
+   .content-container,
+    #modals {
+        form.content-wrapper {
+            margin: 0;
+            width: 100%;
+        }
+    }
 
 
 

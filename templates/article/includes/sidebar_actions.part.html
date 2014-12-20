@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load crispy_forms_tags %}
+
 {% if user in authors.all or perms.article.change_article %}
     {% if article.sha_draft = version %}
         <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
@@ -110,7 +112,7 @@
                 <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
                     class="ico-after cite blue"
                 >
-                    {% trans "Envoyer un MP" %} 
+                    {% trans "Envoyer un MP" %}
                     {% if authors.all|length > 1 %}
                         {% trans "aux auteurs" %}
                     {% else %}
@@ -118,6 +120,20 @@
                     {% endif %}
                 </a>
             </li>
+            <li>
+                {% if is_js %}
+                    <a href="#js-activation" class="open-modal ico-after cross red">
+                        {% trans "Désactiver JSFiddle" %}
+                    </a>
+                {% else %}
+                    <a href="#js-activation" class="open-modal ico-after tick green">
+                        {% trans "Activer JSFiddle" %}
+                    </a>
+                {% endif %}
+            </li>
+            <div id="js-activation" class="modal modal-small">
+                {% crispy formJs %}
+            </div>
 
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}

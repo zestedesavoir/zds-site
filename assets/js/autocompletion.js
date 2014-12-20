@@ -193,6 +193,12 @@
             return false;
         },
 
+        filterData: function(data, exclude){
+            return data.filter(function(e){
+                return exclude.indexOf(e.value) === -1;
+            });
+        },
+
         updateDropdown: function(list){
             var self = this;
             var onClick = function(e){
@@ -202,6 +208,8 @@
                 self.$input.focus();
                 self.handleInput();
             };
+
+            list = self.filterData(list, self.extractWords(this.$input.val()));
 
             if(list.length > this.options.limit) list = list.slice(0, this.options.limit);
 

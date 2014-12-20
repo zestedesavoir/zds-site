@@ -117,8 +117,8 @@ class Gallery(models.Model):
         """get the physical path to this gallery root"""
         return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
 
-    # TODO rename function to get_users_galleries
-    def get_users(self):
+    def get_linked_users(self):
+        """get all the linked users for this gallery whatever their rights"""
         return UserGallery.objects.all()\
             .filter(gallery=self)
 

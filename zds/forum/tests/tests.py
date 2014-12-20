@@ -259,6 +259,50 @@ class ForumMemberTests(TestCase):
         # check edit data
         self.assertEqual(Post.objects.get(pk=post1.pk).editor, self.user)
 
+        # check if topic is valid (no topic)
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post2.pk),
+            {'title': u'',
+             'subtitle': u'Encore ces lombards en plein été',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
+
+        # check if topic is valid (tags only)
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post2.pk),
+            {'title': u'[foo][bar]',
+             'subtitle': u'Encore ces lombards en plein été',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
+
+        # check if topic is valid (spaces only)
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post2.pk),
+            {'title': u'  ',
+             'subtitle': u'Encore ces lombards en plein été',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
+
+        # check if topic is valid (valid title)
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post2.pk),
+            {'title': u'Un titre valide',
+             'subtitle': u'Encore ces lombards en plein été',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, u'Un titre valide')
+
     def test_edit_post(self):
         """To test all aspects of the edition of simple post by member."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)

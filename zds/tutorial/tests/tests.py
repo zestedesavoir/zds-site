@@ -4,7 +4,8 @@ import os
 import shutil
 import tempfile
 import zipfile
-import time
+import datetime
+
 from git import Repo
 try:
     import ujson as json_reader
@@ -30,7 +31,7 @@ from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, Part
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.tutorial.views import insert_into_zip
-from zds.utils.models import SubCategory, Licence, Alert
+from zds.utils.models import SubCategory, Licence, Alert, HelpWriting
 from zds.utils.misc import compute_hash
 
 
@@ -2222,7 +2223,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], new_licence.code)
+        self.assertEquals(json['licence'].code, new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2256,7 +2257,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2313,7 +2314,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a big tutorial"""
@@ -2485,9 +2486,7 @@ class BigTutorialTests(TestCase):
         os.remove(online_zip_path)
 
     def test_change_update(self):
-        """test the change of `tutorial.update` if part/chapter/extract are modified (ensure #1715)
-        Note: the `sleep(2)` are there to ensure (non-)comparison in system for which `datetime.now()` does not
-        give the microseconds. """
+        """test the change of `tutorial.update` if part/chapter/extract are modified (ensure #1715) """
 
         # login with author
         self.assertEqual(
@@ -2496,20 +2495,14 @@ class BigTutorialTests(TestCase):
                 password='hostel77'),
             True)
 
-        # first induce a change (if not, `tutorial.update == None`)
-        result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
-            '?chapitre={0}'.format(
-                self.chapter2_1.pk),
-            {
-                'title': u'Un premier extrait',
-                'text': u'La culture des agrumes sur Zeste de Savoir. Dans les arbres.'
-            })
-        self.assertEqual(result.status_code, 302)
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertIsNotNone(tutorial.update)
-        old_date = tutorial.update
-        time.sleep(2)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first, ensure the modification
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tutorial.update, time_0)
 
         # add part (implicit call to `maj_repo_part()`)
         result = self.client.post(
@@ -2521,14 +2514,14 @@ class BigTutorialTests(TestCase):
                 'msg_commit': u"Nouvelle partie"
             },
             follow=False)
-        self.assertEqual(result.status_code, 302)
+
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
-        part = Part.objects.filter(tutorial=tutorial).last()
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
         # edit part (implicit call to `maj_repo_part()`)
+        part = Part.objects.filter(tutorial=tutorial).last()
         result = self.client.post(
             reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(part.pk),
             {
@@ -2541,10 +2534,11 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
+
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
         # add chapter  (implicit call to `maj_repo_chapter()`)
         result = self.client.post(
@@ -2557,13 +2551,14 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
-        chapter = Chapter.objects.filter(part=part).last()
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
         # edit chapter (implicit call to `maj_repo_chapter()`)
+        chapter = Chapter.objects.filter(part=part).last()
         result = self.client.post(
             reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(chapter.pk),
             {
@@ -2577,10 +2572,11 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
+
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
         # add another extract (implicit call to `maj_repo_extract()`)
         result = self.client.post(
@@ -2590,10 +2586,11 @@ class BigTutorialTests(TestCase):
                 'text': u'Comment extraire le jus des agrumes ? Est-ce torturer Clem ?'
             })
         self.assertEqual(result.status_code, 302)
+
         tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
         # edit extract (implicit call to `maj_repo_extract()`)
         extract = chapter.get_extracts()[0]
@@ -2606,8 +2603,7 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
-        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.bigtuto.pk), time_0)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
@@ -2771,7 +2767,7 @@ class MiniTutorialTests(TestCase):
         shutil.rmtree(temp)
         os.remove(zip_path)
 
-    def add_test_extract_named_introduction(self):
+    def test_add_extract_named_introduction(self):
         """test the use of an extract named introduction"""
 
         self.client.login(username=self.user_author,
@@ -2790,13 +2786,13 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         intro_path = os.path.join(tuto.get_path(), "introduction.md")
-        extract_path = Extract.objects.get(pk=1).get_path()
+        extract_path = Extract.objects.first().get_path()
         self.assertNotEqual(intro_path, extract_path)
         self.assertTrue(os.path.isfile(intro_path))
         self.assertTrue(os.path.isfile(extract_path))
 
-    def add_test_extract_named_conclusion(self):
-        """test the use of an extract named introduction"""
+    def test_add_extract_named_conclusion(self):
+        """test the use of an extract named conclusion"""
 
         self.client.login(username=self.user_author,
                           password='hostel77')
@@ -2814,7 +2810,7 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         ccl_path = os.path.join(tuto.get_path(), "conclusion.md")
-        extract_path = Extract.objects.get(pk=1).get_path()
+        extract_path = Extract.objects.first().get_path()
         self.assertNotEqual(ccl_path, extract_path)
         self.assertTrue(os.path.isfile(ccl_path))
         self.assertTrue(os.path.isfile(extract_path))
@@ -3829,7 +3825,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], new_licence.code)
+        self.assertEquals(json['licence'].code, new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -3863,7 +3859,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -3920,7 +3916,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEquals(json['licence'].code, self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a mini tutorial"""
@@ -4082,10 +4078,82 @@ class MiniTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
+    def test_help_to_perfect_tuto(self):
+        """ This test aim to unit test the "help me to write my tutorial"
+        interface. It is testing if the back-end is always sending back
+        good datas """
+
+        helps = HelpWriting.objects.all()
+
+        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 0)
+
+        # then active the beta on tutorial :
+        ForumFactory(
+            category=CategoryFactory(position=1),
+            position_in_category=1)
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.minituto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        tutos = response.context['tutorials']
+        self.assertEqual(len(tutos), 1)
+
+        # However if we ask with a filter we will still get 0
+        for helping in helps:
+            response = self.client.post(
+                reverse('zds.tutorial.views.help_tutorial') +
+                u'?type={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            tutos = response.context['tutorials']
+            self.assertEqual(len(tutos), 0)
+
+        # now tutorial is positive for every options
+        # if we ask for any help we should get a positive answer for every filter
+        for helping in helps:
+            self.minituto.helps.add(helping)
+        self.minituto.save()
+
+        for helping in helps:
+            response = self.client.post(
+                reverse('zds.tutorial.views.help_tutorial') +
+                u'?type={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            tutos = response.context['tutorials']
+            self.assertEqual(len(tutos), 1)
+
     def test_change_update(self):
-        """test the change of `tutorial.update` if extract is modified (ensure #1715)
-        note: the `sleep(2)` are there to ensure (non-)comparison in system for which `datetime.now()` does not
-        give the microseconds."""
+        """test the change of `tutorial.update` if extract is modified (ensure #1715)"""
 
         # login with author
         self.assertEqual(
@@ -4094,43 +4162,32 @@ class MiniTutorialTests(TestCase):
                 password='hostel77'),
             True)
 
-        # note: one have first to induce a change, if not, `tutorial.update == None`
-        extract_title = u'Un titre d\'extrait'
-        extract_content = u'C\'est noël, je décore le sapin'
-        result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
-            '?chapitre={0}'.format(
-                self.chapter.pk),
-            {
-                'title': extract_title,
-                'text': extract_content
-            })
-        self.assertEqual(result.status_code, 302)
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
         tutorial = Tutorial.objects.get(pk=self.minituto.pk)
-        self.assertIsNotNone(tutorial.pubdate)
-        old_date = tutorial.update  # ok, change induced
-        time.sleep(2)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first check if this modification is performed :
+        self.assertEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
 
         # test adding a new extract (implicit call to `maj_repo_extract()`)
-        extract_title = u'Un deuxieme extrait'
-        extract_content = u'Attention aux épines, ça pique !!'
         result = self.client.post(
             reverse('zds.tutorial.views.add_extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
             {
-                'title': extract_title,
-                'text': extract_content
+                'title': u'Un deuxieme extrait',
+                'text': u'Attention aux épines, ça pique !!'
             })
         self.assertEqual(result.status_code, 302)
 
         tutorial = Tutorial.objects.get(pk=self.minituto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
-        old_date = tutorial.update
-        time.sleep(2)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
 
-        # test the extract edition (also implicit call to `maj_repo_extract()`)
-        extract = self.chapter.get_extracts()[1]
+        # test the extract edition (also implicit call to `maj_repo_extract()`) :
+        extract = self.chapter.get_extracts().last()
         result = self.client.post(
             reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
             {
@@ -4140,8 +4197,7 @@ class MiniTutorialTests(TestCase):
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
-        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
-        self.assertNotEqual(tutorial.update, old_date)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

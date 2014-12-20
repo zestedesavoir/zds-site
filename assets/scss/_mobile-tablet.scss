@@ -566,6 +566,10 @@
 
                 .date {
                     float: right;
+
+                    .long-date {
+                        display: none;
+                    }
                 }
             }
 
@@ -632,6 +636,7 @@
 
         .article-content {
             p,
+            ol,
             ul:not(.pagination) {
                 font-size: 15px;
                 font-size: 1.5rem;
@@ -641,7 +646,7 @@
         .content-wrapper,
         .full-content-wrapper {
             h1:not(.ico-after),
-            h2,
+            h2:not(.ico-after),
             h3,
             .subtitle {
                 padding-left: 10px;
@@ -691,17 +696,15 @@
         text-align: center;
         height: auto;
 
-        p {
+        .wrapper {
+          flex-direction: column;
+        }
+
+        .copyright, .social {
             border-bottom: 1px solid darken($secondary, 40%);
         }
-        p,
-        ul {
-            display: block;
-            float: none;
-        }
-        ul {
-            line-height: 30px;
 
+        ul {
             li {
                 margin: 0 5px;
             }
