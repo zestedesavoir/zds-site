@@ -3621,7 +3621,7 @@ def help_tutorial(request):
                                 .all()
 
     # Paginator
-    paginator = Paginator(tutos, settings.ZDS_APP['forum']['topics_per_page'])
+    paginator = Paginator(tutos, settings.ZDS_APP['tutorial']['helps_per_page'])
     page = request.GET.get('page')
 
     try:

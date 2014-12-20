@@ -363,6 +363,7 @@ ZDS_APP = {
         'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
         'default_license_pk': 7,
         'home_number': 5,
+        'helps_per_page': 20
     },
     'forum': {
         'posts_per_page': 21,
