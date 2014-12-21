@@ -408,7 +408,6 @@ def tutorials(request):
     else:
         user_tutorials = user_tutorials.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
 
-
     return render(
         request,
         'tutorial/member/index.html',
