@@ -24,6 +24,9 @@ MIN_PASSWORD_LENGTH = 6
 
 
 class OldTutoForm(forms.Form):
+    """
+    This form to attributes "Old" tutorials to the current user.
+    """
     id = forms.ChoiceField(
         label=_(u'Ancien Tutoriel'),
         required=True,
@@ -47,6 +50,9 @@ class OldTutoForm(forms.Form):
 
 
 class LoginForm(forms.Form):
+    """
+    The login form, including the "remember me" checkbox and the "password forget" link.
+    """
     username = forms.CharField(
         label=_(u"Nom d'utilisateur"),
         max_length=User._meta.get_field('username').max_length,
@@ -92,6 +98,9 @@ class LoginForm(forms.Form):
 
 
 class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
+    """
+    Form to register a new user.
+    """
     email = forms.EmailField(
         label=_(u'Adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
@@ -136,6 +145,19 @@ class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
             ))
 
     def clean(self):
+        """
+        Cleans the input data and performs following checks:
+        - Both passwords are the same
+        - Username doesn't exist in database
+        - Username is not empty
+        - Username doesn't contain any comma (this will break the personal message system)
+        - Username doesn't begin or ends with spaces
+        - Password is different of username
+        - Email address is unique through all users
+        - Email provider is not a forbidden one
+        Forbidden email providers are stored in `forbidden_email_providers.txt` on project root.
+        :return: Cleaned data, and the error messages if they exist.
+        """
         cleaned_data = super(RegisterForm, self).clean()
 
         # Check that the password and it's confirmation match
@@ -177,6 +199,9 @@ class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
 
 
 class MiniProfileForm(forms.Form):
+    """
+    Updates some profile data: biography, website, avatar URL, signature.
+    """
     biography = forms.CharField(
         label=_('Biographie'),
         required=False,
@@ -238,8 +263,14 @@ class MiniProfileForm(forms.Form):
             ))
 
 
-# update extra information about user
 class ProfileForm(MiniProfileForm):
+    """
+    Updates main profile rules:
+    - Display email address to everybody
+    - Display signatures
+    - Display menus on hover
+    - Receive an email when receiving a personal message
+    """
     options = forms.MultipleChoiceField(
         label='',
         required=False,
@@ -291,8 +322,10 @@ class ProfileForm(MiniProfileForm):
             ))
 
 
-# to update email/username
 class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
+    """
+    Update username and email
+    """
     username = forms.CharField(
         label=_(u'Nouveau pseudo'),
         max_length=User._meta.get_field('username').max_length,
@@ -348,8 +381,9 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
         self._errors[key] = self.error_class([message])
 
 
-# to update a password
+# TODO: Updates the password --> requires a better name
 class ChangePasswordForm(forms.Form):
+
     password_new = forms.CharField(
         label=_(u'Nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
@@ -393,6 +427,7 @@ class ChangePasswordForm(forms.Form):
         password_new = cleaned_data.get('password_new')
         password_confirm = cleaned_data.get('password_confirm')
 
+        # TODO: mutualizes these rules with registration ones?
         # Check if the actual password is not empty
         if password_old:
             user_exist = authenticate(
@@ -430,7 +465,7 @@ class ChangePasswordForm(forms.Form):
         return cleaned_data
 
 
-# Reset the password
+# TODO Asks for a new password --> Requires a better name
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label=_(u'Nom d\'utilisateur'),
@@ -494,6 +529,9 @@ class ForgotPasswordForm(forms.Form):
 
 
 class NewPasswordForm(forms.Form):
+    """
+    Defines a new password (when the current one has been forgotten)
+    """
     password = forms.CharField(
         label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
@@ -529,6 +567,7 @@ class NewPasswordForm(forms.Form):
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
 
+        # TODO: mutualizes these rules with registration ones?
         if not password_confirm == password:
             msg = _(u'Les mots de passe sont différents')
             self._errors['password'] = self.error_class([''])
@@ -554,6 +593,9 @@ class NewPasswordForm(forms.Form):
 
 
 class PromoteMemberForm(forms.Form):
+    """
+    Promotes a user to an arbitrary group
+    """
     groups = forms.ModelMultipleChoiceField(
         label=_(u"Groupe de l'utilisateur"),
         queryset=Group.objects.all(),

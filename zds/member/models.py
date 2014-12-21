@@ -24,8 +24,10 @@ from django.utils.importlib import import_module
 
 
 class Profile(models.Model):
+    """
+    A user profile. Complementary data of standard Django `auth.user`.
+    """
 
-    """Represents an user profile."""
     class Meta:
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
@@ -34,6 +36,8 @@ class Profile(models.Model):
             ("show_ip", u"Afficher les IP d'un membre"),
         )
 
+    # Link with standard user is a simple one-to-one link, as recommended in official documentation.
+    # See https://docs.djangoproject.com/en/1.6/topics/auth/customizing/#extending-the-existing-user-model
     user = models.OneToOneField(
         User,
         verbose_name='Utilisateur',
@@ -59,15 +63,15 @@ class Profile(models.Model):
 
     sign = models.TextField('Signature', max_length=250, blank=True)
 
-    show_sign = models.BooleanField('Voir les signatures',
-                                    default=True)
+    show_sign = models.BooleanField('Voir les signatures', default=True)
 
-    hover_or_click = models.BooleanField('Survol ou click ?',
-                                         default=False)
+    # TODO: Change this name. This is a boolean: "true" is "hover" or "click" ?!
+    hover_or_click = models.BooleanField('Survol ou click ?', default=False)
 
-    email_for_answer = models.BooleanField('Envoyer pour les réponse MP',
-                                           default=False)
+    email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
 
+    # SdZ tutorial IDs separated by columns (:).
+    # TODO: bad field name (singular --> should be plural), manually handled multi-valued field.
     sdz_tutorial = models.TextField(
         'Identifiant des tutos SdZ',
         blank=True,
@@ -93,7 +97,6 @@ class Profile(models.Model):
     objects = ProfileManager()
 
     def __unicode__(self):
-        """Textual forum of a profile."""
         return self.user.username
 
     def is_private(self):
@@ -107,7 +110,14 @@ class Profile(models.Model):
         return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
 
     def get_city(self):
-        """return physical adress by geolocalisation."""
+        """
+        Uses geo-localization to get physical localization of a profile through its last IP address.
+        This works relatively good with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
+        providers.
+        :return: The city and the country name of this profile.
+        """
+        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
+        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
         if len(self.last_ip_address) <= 16:
             gic = pygeoip.GeoIP(
                 os.path.join(
@@ -124,7 +134,10 @@ class Profile(models.Model):
             geo['city'], geo['country_name'])
 
     def get_avatar_url(self):
-        """Avatar URL (using custom URL or Gravatar)"""
+        """
+        Get the avatar URL for this profile. If the user has defined a custom URL, use it. If not, use Gravatar.
+        :return: The avatar URL for this profile
+        """
         if self.avatar_url:
             return self.avatar_url
         else:
@@ -132,29 +145,42 @@ class Profile(models.Model):
                 md5(self.user.email.lower().encode("utf-8")).hexdigest())
 
     def get_post_count(self):
-        """Number of messages posted."""
+        """
+        :return: The forum post count. Doesn't count comments on articles or tutorials.
+        """
         return Post.objects.filter(author__pk=self.user.pk, is_visible=True).count()
 
     def get_post_count_as_staff(self):
         """Number of messages posted (view as staff)."""
+
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
-        """Number of threads created."""
+        """
+        :return: the number of topics created by this user.
+        """
         return Topic.objects.filter(author=self.user).count()
 
     def get_tuto_count(self):
-        """Number of tutos created."""
+        """
+        :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
+        """
         if self.is_private():
             return 0
         return Tutorial.objects.filter(authors__in=[self.user]).count()
 
     def get_tutos(self):
-        """Get all tutorials of the user."""
+        """
+        :return: All tutorials with this user as author.
+        """
         return Tutorial.objects.filter(authors__in=[self.user]).all()
 
     def get_draft_tutos(self):
-        """Tutorial in draft."""
+        """
+        Return all draft tutorials with this user as author.
+        A draft tutorial is a tutorial which is not published, in validation or in beta.
+        :return: All draft tutorials with this user as author.
+        """
         return Tutorial.objects.filter(
             authors__in=[self.user],
             sha_draft__isnull=False,
@@ -164,46 +190,62 @@ class Profile(models.Model):
         ).all()
 
     def get_public_tutos(self):
-        """Tutorial in public."""
+        """
+        :return: All published tutorials with this user as author.
+        """
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_public__isnull=False).all()
 
     def get_validate_tutos(self):
-        """Tutorial in validation."""
+        """
+        :return: All tutorials in validation with this user as author.
+        """
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_validation__isnull=False).all()
 
     def get_beta_tutos(self):
-        """Tutorial in beta."""
+        """
+        :return: All tutorials in beta with this user as author.
+        """
         return Tutorial.objects.filter(
             authors__in=[
                 self.user],
             sha_beta__isnull=False).all()
 
     def get_articles(self):
-        """Get all articles of the user."""
+        """
+        :return: All articles with this user as author.
+        """
         return Article.objects.filter(authors__in=[self.user]).all()
 
     def get_public_articles(self):
-        """Get all public articles of the user."""
+        """
+        :return: All published articles with this user as author.
+        """
         return Article.objects.filter(
             authors__in=[
                 self.user],
             sha_public__isnull=False).all()
 
     def get_validate_articles(self):
-        """Articles in validation."""
+        """
+        :return: All articles in validation with this user as author.
+        """
         return Article.objects.filter(
             authors__in=[
                 self.user],
             sha_validation__isnull=False).all()
 
     def get_draft_articles(self):
-        """Get all draft articles of the user."""
+        """
+        Return all draft article with this user as author.
+        A draft article is a article which is not published or in validation.
+        :return: All draft article with this user as author.
+        """
         return Article.objects\
             .filter(
                 authors__in=[self.user],
@@ -218,7 +260,11 @@ class Profile(models.Model):
     def get_invisible_posts_count(self):
         return Post.objects.filter(is_visible=False, author=self.user).count()
 
+    # TODO: improve this method's name?
     def get_alerts_posts_count(self):
+        """
+        :return: The number of currently active alerts created by this user.
+        """
         return Alert.objects.filter(author=self.user).count()
 
     def can_read_now(self):
@@ -242,19 +288,28 @@ class Profile(models.Model):
             return False
 
     def get_followed_topics(self):
-        """Followed topics."""
+        """
+        :return: All forum topics followed by this user.
+        """
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
 
 
 @receiver(models.signals.post_delete, sender=User)
 def auto_delete_token_on_unregistering(sender, instance, **kwargs):
+    """
+    This signal receiver deletes forgotten password tokens and registering tokens for the un-registering user;
+    """
     TokenForgotPassword.objects.filter(user=instance).delete()
     TokenRegister.objects.filter(user=instance).delete()
 
 
 class TokenForgotPassword(models.Model):
-
+    """
+    When a user forgot its password, the website sends it an email with a token (embedded in a URL).
+    If the user has the correct token, it can choose a new password on the dedicated page.
+    This model stores the tokens for the users that have forgot their passwords, with an expiration date.
+    """
     class Meta:
         verbose_name = 'Token de mot de passe oublié'
         verbose_name_plural = 'Tokens de mots de passe oubliés'
@@ -264,13 +319,18 @@ class TokenForgotPassword(models.Model):
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
-        """Absolute URL to the new password page."""
-        return reverse('zds.member.views.new_password') + \
-            '?token={0}'.format(self.token)
+        """
+        :return: The absolute URL of the "New password" page, including the correct token.
+        """
+        return reverse('zds.member.views.new_password') + '?token={0}'.format(self.token)
 
 
 class TokenRegister(models.Model):
-
+    """
+    On registration, a token is send by mail to the user. It must use this token (by clicking on a link) to activate its
+    account (and prove the email address is correct) and connect itself.
+    This model stores the registration token for each user, with an expiration date.
+    """
     class Meta:
         verbose_name = 'Token d\'inscription'
         verbose_name_plural = 'Tokens  d\'inscription'
@@ -280,15 +340,16 @@ class TokenRegister(models.Model):
     date_end = models.DateTimeField('Date de fin')
 
     def get_absolute_url(self):
-        """Absolute URL to the active account page."""
-        return reverse('zds.member.views.active_account') + \
-            '?token={0}'.format(self.token)
+        """
+        :return: the absolute URL of the account validation page, including the token.
+        """
+        return reverse('zds.member.views.active_account') + '?token={0}'.format(self.token)
 
     def __unicode__(self):
-        """Textual forum of a profile."""
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
 
+# TODO: Seems unused
 def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
@@ -302,6 +363,11 @@ def save_profile(backend, user, response, *args, **kwargs):
 
 
 class Ban(models.Model):
+    """
+    This model stores all sanctions (not only bans).
+    It stores sanctioned user, the moderator, the type of sanctions, the reason and the date.
+    Note this stores also un-sanctions.
+    """
 
     class Meta:
         verbose_name = 'Sanction'
@@ -319,19 +385,33 @@ class Ban(models.Model):
 
 
 class KarmaNote(models.Model):
-
+    """
+    A karma note is a tool for staff to store data about a member.
+    Data are:
+    - A note (negative values are bad)
+    - A comment about the member
+    - A date
+    This helps the staff to react and stores history of stupidities of a member.
+    """
     class Meta:
         verbose_name = 'Note de karma'
         verbose_name_plural = 'Notes de karma'
 
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True)
+    # TODO: coherence, "staff" is called "moderator" in Ban model.
     staff = models.ForeignKey(User, related_name='karmanote_staff', db_index=True)
+    # TODO: coherence, "comment" is called "text" in Ban model.
     comment = models.CharField('Commentaire', max_length=150)
     value = models.IntegerField('Valeur')
+    # TODO: coherence, "create_at" is called "pubdate" in Ban model.
     create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
 
 def logout_user(username):
+    """
+    Logout the member.
+    :param username: the name of the user to logout.
+    """
     now = datetime.now()
     request = HttpRequest()
 
@@ -347,7 +427,11 @@ def logout_user(username):
 
 
 def listing():
-
+    """
+    Lists all SdZ tutorials stored on the server at `settings.SDZ_TUTO_DIR` location.
+    :return: a list of tuples (tutorial ID, path)
+    """
+    # TODO: French here. Improve the method name.
     fichier = []
     if os.path.isdir(settings.SDZ_TUTO_DIR):
         for root in os.listdir(settings.SDZ_TUTO_DIR):
@@ -361,6 +445,12 @@ def listing():
 
 
 def get_info_old_tuto(id):
+    """
+    Retrieve data from SdZ tutorials.
+    :param id: The ID of the SdZ tutorial.
+    :return: ID, title, tutorial file path, image list file paths, and logo file path of this SdZ tutorial.
+    """
+    # TODO: French here.
     titre = ''
     tuto = ''
     images = ''
@@ -386,4 +476,4 @@ def get_info_old_tuto(id):
                                                          'gif']:
                                 logo = os.path.join(root, file)
 
-    return (id, titre, tuto, images, logo)
+    return id, titre, tuto, images, logo

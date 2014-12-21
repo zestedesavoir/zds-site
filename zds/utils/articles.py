@@ -8,6 +8,7 @@ import os
 # Export-to-dict functions
 def export_article(article):
     """Export an article to a dict."""
+    # TODO: Thank you, Captain Obvious... WHY this export?!
     dct = OrderedDict()
     dct['title'] = article.title
     dct['description'] = article.description
@@ -20,6 +21,7 @@ def export_article(article):
 
 
 def get_blob(tree, chemin):
+
     for bl in tree.blobs:
         if os.path.abspath(bl.path) == os.path.abspath(chemin):
             data = bl.data_stream.read()

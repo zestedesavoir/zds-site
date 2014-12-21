@@ -19,11 +19,6 @@ from zds.utils.models import Comment, Tag
 
 
 def sub_tag(g):
-    """
-
-    :param g:
-    :return:
-    """
     start = g.group('start')
     end = g.group('end')
     return u"{0}".format(start + end)
@@ -125,6 +120,7 @@ class Forum(models.Model):
         """
         return Post.objects.filter(topic__forum=self).count()
 
+    # TODO: Rename this method for something clearer
     def get_last_message(self):
         """
         :return: the last message on the forum, if there are any.
