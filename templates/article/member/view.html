@@ -72,11 +72,11 @@
         {% endfor %}
     </ul>
 
-    {% if article.sha_public %}
+    {% if article.update %}
         <span class="pubdate">
-            {% trans "Publié" %}
-            <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
-                {{ article.pubdate|format_date }}
+            {% trans "Dernière mise à jour" %} :
+            <time datetime="{{ article.update|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+                {{ article.update|format_date }}
             </time>
         </span>
     {% endif %}

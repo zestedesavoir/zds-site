@@ -427,6 +427,8 @@ def maj_repo_article(
         action=None,
         msg=None,):
 
+    article.update = datetime.now()
+
     if action == 'del':
         shutil.rmtree(old_slug_path)
     else:
