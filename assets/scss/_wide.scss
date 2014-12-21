@@ -83,6 +83,7 @@
             width: 0;
             border: 6px solid transparent;
             border-top: 6px solid rgba(255, 255, 255, .7);
+            border-left: 5px inset transparent;
         }
         &:hover:after,
         &:focus:after,
