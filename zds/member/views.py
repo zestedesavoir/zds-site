@@ -640,21 +640,19 @@ def login_view(request):
         else:
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
-    form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view")
+
     if next_page is not None:
-        form = LoginForm(next=next_page)
+        form = LoginForm()
         form.helper.form_action += "?next=" + next_page
     else:
         form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view")
+
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
     return render(request, "member/login.html",
                            {"form": form,
-                            "csrf_tk": csrf_tk,
-                            "next_page": next_page})
+                            "csrf_tk": csrf_tk})
 
 
 @login_required

@@ -1310,6 +1310,10 @@
     }
 }
 
+.tutorial-list {
+  margin: 0 0 12px 0;
+}
+
 .tutorial-list article,
 .main .article-content .tutorial-list article {
     min-height: 60px;
@@ -1344,6 +1348,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        clear: none;
     }
     a {
         text-decoration: none;
@@ -1393,6 +1398,10 @@
         &.no-illu {
             margin-left: 0;
         }
+    }
+
+    .tutorial-help{
+      margin: 12px 0 0 0;
     }
 
     .tutorial-help img.light {

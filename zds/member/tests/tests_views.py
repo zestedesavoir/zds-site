@@ -65,8 +65,26 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        # good password then redirection
-        self.assertEqual(result.status_code, 302)
+        # good password then redirection to the homepage
+        self.assertRedirects(result, reverse('zds.pages.views.home'))
+
+        result = self.client.post(
+            reverse('zds.member.views.login_view')
+            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+            {'username': user.user.username,
+             'password': 'hostel77',
+             'remember': 'remember'},
+            follow=False)
+        # good password and ?next= then redirection to the "next" page
+        self.assertRedirects(result, reverse('zds.gallery.views.gallery_list'))
+
+        self.client.logout()
+        result = self.client.get(reverse('zds.member.views.login_view')
+                                 + '?next=' + reverse('zds.gallery.views.gallery_list'))
+        # check if the login form will redirect if there is a ?next=
+        self.assertContains(result, reverse('zds.member.views.login_view')
+                            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+                            count=1)
 
     def test_register(self):
         """To test user registration."""

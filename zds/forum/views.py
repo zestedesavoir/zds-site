@@ -243,13 +243,14 @@ def new(request):
         # If the client is using the "preview" button
 
         if "preview" in request.POST:
-            form = TopicForm(initial={"title": request.POST["title"],
-                                      "subtitle": request.POST["subtitle"],
-                                      "text": request.POST["text"]})
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
                                     content_type='application/json')
             else:
+                form = TopicForm(initial={"title": request.POST["title"],
+                                          "subtitle": request.POST["subtitle"],
+                                          "text": request.POST["text"]})
+
                 return render(request, "forum/topic/new.html",
                                        {"forum": forum,
                                         "form": form,
@@ -662,19 +663,21 @@ def edit_post(request):
         # Using the preview button
 
         if "preview" in request.POST:
-            if g_topic:
-                form = TopicForm(initial={"title": request.POST["title"],
-                                          "subtitle": request.POST["subtitle"],
-                                          "text": request.POST["text"]})
-            else:
-                form = PostForm(post.topic, request.user,
-                                initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.forum.views.edit_post") \
-                + "?message=" + str(post_pk)
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
                                     content_type='application/json')
             else:
+                if g_topic:
+                    form = TopicForm(initial={"title": request.POST["title"],
+                                              "subtitle": request.POST["subtitle"],
+                                              "text": request.POST["text"]})
+                else:
+                    form = PostForm(post.topic, request.user,
+                                    initial={"text": request.POST["text"]})
+
+                form.helper.form_action = reverse("zds.forum.views.edit_post") \
+                    + "?message=" + str(post_pk)
+
                 return render(request, "forum/post/edit.html", {
                     "post": post,
                     "topic": post.topic,
