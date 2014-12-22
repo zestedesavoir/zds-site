@@ -24,6 +24,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment
 from zds.utils.tutorials import get_blob, export_tutorial
+from zds.settings import ZDS_APP
 
 
 TYPE_CHOICES = (
@@ -76,6 +77,9 @@ class Container(models.Model):
                                              null=False,
                                              default=1)
 
+    #integer key used to represent the tutorial or article old identifier for url compatibility
+    compatibility_pk = models.IntegerField(null=False, default=0)
+
     def get_children(self):
         """get this container children"""
         if self.has_extract():
@@ -95,10 +99,24 @@ class Container(models.Model):
         """Get the relative position of the last child"""
         return Container.objects.filter(parent=self).count() + Extract.objects.filter(chapter=self).count()
 
+    def get_tree_depth(self):
+        """get the tree depth, basically you don't want to have more than 3 levels :
+        - tutorial/article
+        - Part
+        - Chapter
+        """
+        depth = 0
+        current = self
+        while current.parent is not None:
+            current = current.parent
+            depth += 1
+
+        return depth
+
     def add_container(self, container):
         """add a child container. A container can only be added if
         no extract had already been added in this container"""
-        if not self.has_extract():
+        if not self.has_extract() and self.get_tree_depth() == ZDS_APP['tutorial']['max_tree_depth']:
             container.parent = self
             container.position_in_parent = container.get_last_child_position() + 1
             container.save()
@@ -106,11 +124,16 @@ class Container(models.Model):
             raise InvalidOperationError("Can't add a container if this container contains extracts.")
 
     def get_phy_slug(self):
-        """Get the physical path as stored in git file system"""
+        """gets the slugified title that is used to store the content into the filesystem"""
         base = ""
         if self.parent is not None:
             base = self.parent.get_phy_slug()
-        return os.path.join(base, self.slug)
+
+        used_pk = self.compatibility_pk
+        if used_pk == 0:
+            used_pk = self.pk
+
+        return os.path.join(base,used_pk + '_' + self.slug)
 
     def update_children(self):
         for child in self.get_children():
@@ -129,7 +152,7 @@ class Container(models.Model):
 
 
 
-class PubliableContent(Container):
+class PublishableContent(Container):
 
     """A tutorial whatever its size or an aticle."""
     class Meta:
@@ -145,19 +168,21 @@ class PubliableContent(Container):
                                          verbose_name='Sous-Catégorie',
                                          blank=True, null=True, db_index=True)
 
+    # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
                               blank=True, null=True,
                               on_delete=models.SET_NULL)
 
+    # every publishable content has its own gallery to manage images
     gallery = models.ForeignKey(Gallery,
                                 verbose_name='Galerie d\'images',
                                 blank=True, null=True, db_index=True)
 
-    create_at = models.DateTimeField('Date de création')
+    creation_date = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
                                    blank=True, null=True, db_index=True)
-    update = models.DateTimeField('Date de mise à jour',
+    update_date = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
@@ -181,7 +206,7 @@ class PubliableContent(Container):
         null=True,
         max_length=200)
 
-    last_note = models.ForeignKey('Note', blank=True, null=True,
+    last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
                                   related_name='last_note',
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
@@ -190,10 +215,8 @@ class PubliableContent(Container):
     def __unicode__(self):
         return self.title
 
-    def get_phy_slug(self):
-        return str(self.pk) + "_" + self.slug
-
     def get_absolute_url(self):
+        """gets the url to access the tutorial when offline"""
         return reverse('zds.tutorial.views.view_tutorial', args=[
             self.pk, slugify(self.title)
         ])
@@ -215,11 +238,6 @@ class PubliableContent(Container):
         return reverse('zds.tutorial.views.modify_tutorial') + \
             '?tutorial={0}'.format(self.pk)
 
-    def get_subcontainers(self):
-        return Container.objects.all()\
-            .filter(tutorial__pk=self.pk)\
-            .order_by('position_in_parent')
-
     def in_beta(self):
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
@@ -235,14 +253,15 @@ class PubliableContent(Container):
     def is_article(self):
         return self.type == 'ARTICLE'
 
-    def is_tuto(self):
+    def is_tutorial(self):
         return self.type == 'TUTO'
 
     def get_path(self, relative=False):
         if relative:
             return ''
         else:
-            return os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.get_phy_slug())
+            # get the full path (with tutorial/article before it)
+            return os.path.join(settings.ZDS_APP[self.type.lower()]['repo_path'], self.get_phy_slug())
 
     def get_prod_path(self, sha=None):
         data = self.load_json_for_public(sha)
@@ -422,22 +441,22 @@ class PubliableContent(Container):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
 
-        super(PubliableContent, self).save(*args, **kwargs)
+        super(PublishableContent, self).save(*args, **kwargs)
 
     def get_note_count(self):
         """Return the number of notes in the tutorial."""
-        return Note.objects.filter(tutorial__pk=self.pk).count()
+        return ContentReaction.objects.filter(tutorial__pk=self.pk).count()
 
     def get_last_note(self):
         """Gets the last answer in the thread, if any."""
-        return Note.objects.all()\
+        return ContentReaction.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
 
     def first_note(self):
         """Return the first post of a topic, written by topic's author."""
-        return Note.objects\
+        return ContentReaction.objects\
             .filter(tutorial=self)\
             .order_by('pubdate')\
             .first()
@@ -449,7 +468,7 @@ class PubliableContent(Container):
                 .select_related()\
                 .filter(tutorial=self, user=get_current_user())\
                 .latest('note__pubdate').note
-        except Note.DoesNotExist:
+        except ContentReaction.DoesNotExist:
             return self.first_post()
 
     def first_unread_note(self):
@@ -459,7 +478,7 @@ class PubliableContent(Container):
                 .filter(tutorial=self, user=get_current_user())\
                 .latest('note__pubdate').note
 
-            next_note = Note.objects.filter(
+            next_note = ContentReaction.objects.filter(
                 tutorial__pk=self.pk,
                 pubdate__gt=last_note.pubdate)\
                 .select_related("author").first()
@@ -481,7 +500,7 @@ class PubliableContent(Container):
         if user is None:
             user = get_current_user()
 
-        last_user_notes = Note.objects\
+        last_user_notes = ContentReaction.objects\
             .filter(tutorial=self)\
             .filter(author=user.pk)\
             .order_by('-position')
@@ -526,14 +545,15 @@ class PubliableContent(Container):
                                            ".epub"))
 
 
-class Note(Comment):
+class ContentReaction(Comment):
 
     """A comment written by an user about a Publiable content he just read."""
     class Meta:
-        verbose_name = 'note sur un tutoriel'
-        verbose_name_plural = 'notes sur un tutoriel'
+        verbose_name = 'note sur un contenu'
+        verbose_name_plural = 'notes sur un contenu'
 
-    related_content = models.ForeignKey(PubliableContent, verbose_name='Tutoriel', db_index=True)
+    related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
+                                        related_name="related_content_note", db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -557,12 +577,12 @@ class ContentRead(models.Model):
 
     """
     class Meta:
-        verbose_name = 'Tutoriel lu'
-        verbose_name_plural = 'Tutoriels lus'
+        verbose_name = 'Contenu lu'
+        verbose_name_plural = 'Contenu lus'
 
-    tutorial = models.ForeignKey(PubliableContent, db_index=True)
-    note = models.ForeignKey(Note, db_index=True)
-    user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
+    tutorial = models.ForeignKey(PublishableContent, db_index=True)
+    note = models.ForeignKey(ContentReaction, db_index=True)
+    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
 
     def __unicode__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
@@ -716,7 +736,7 @@ class Validation(models.Model):
         verbose_name = 'Validation'
         verbose_name_plural = 'Validations'
 
-    tutorial = models.ForeignKey(PubliableContent, null=True, blank=True,
+    tutorial = models.ForeignKey(PublishableContent, null=True, blank=True,
                                  verbose_name='Tutoriel proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
@@ -724,7 +744,7 @@ class Validation(models.Model):
     comment_authors = models.TextField('Commentaire de l\'auteur')
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
-                                  related_name='author_validations',
+                                  related_name='author_content_validations',
                                   blank=True, null=True, db_index=True)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)

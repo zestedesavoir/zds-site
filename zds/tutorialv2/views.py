@@ -43,7 +43,7 @@ from lxml import etree
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
-    mark_read, Note, HelpWriting
+    mark_read, ContentReaction, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
@@ -997,7 +997,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     # Find all notes of the tutorial.
 
-    notes = Note.objects.filter(tutorial__pk=tutorial.pk).order_by("position").all()
+    notes = ContentReaction.objects.filter(tutorial__pk=tutorial.pk).order_by("position").all()
 
     # Retrieve pk of the last note. If there aren't notes for the tutorial, we
     # initialize this last note at 0.
@@ -3284,7 +3284,7 @@ def answer(request):
 
     # Retrieve 3 last notes of the current tutorial.
 
-    notes = Note.objects.filter(tutorial=tutorial).order_by("-pubdate")[:3]
+    notes = ContentReaction.objects.filter(tutorial=tutorial).order_by("-pubdate")[:3]
 
     # If there is a last notes for the tutorial, we save his pk. Otherwise, we
     # save 0.
@@ -3294,7 +3294,7 @@ def answer(request):
         last_note_pk = tutorial.last_note.pk
 
     # Retrieve lasts notes of the current tutorial.
-    notes = Note.objects.filter(tutorial=tutorial) \
+    notes = ContentReaction.objects.filter(tutorial=tutorial) \
         .prefetch_related() \
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
@@ -3327,7 +3327,7 @@ def answer(request):
             form = NoteForm(tutorial, request.user, request.POST)
             if form.is_valid():
                 data = form.data
-                note = Note()
+                note = ContentReaction()
                 note.related_content = tutorial
                 note.author = request.user
                 note.text = data["text"]
@@ -3356,7 +3356,7 @@ def answer(request):
 
         if "cite" in request.GET:
             note_cite_pk = request.GET["cite"]
-            note_cite = Note.objects.get(pk=note_cite_pk)
+            note_cite = ContentReaction.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
                 raise PermissionDenied
 
@@ -3390,7 +3390,7 @@ def solve_alert(request):
         raise PermissionDenied
 
     alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
-    note = Note.objects.get(pk=alert.comment.id)
+    note = ContentReaction.objects.get(pk=alert.comment.id)
 
     if "text" in request.POST and request.POST["text"] != "":
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
@@ -3443,7 +3443,7 @@ def edit_note(request):
         note_pk = request.GET["message"]
     except KeyError:
         raise Http404
-    note = get_object_or_404(Note, pk=note_pk)
+    note = get_object_or_404(ContentReaction, pk=note_pk)
     g_tutorial = None
     if note.position >= 1:
         g_tutorial = get_object_or_404(Tutorial, pk=note.related_content.pk)
@@ -3526,7 +3526,7 @@ def like_note(request):
     except KeyError:
         raise Http404
     resp = {}
-    note = get_object_or_404(Note, pk=note_pk)
+    note = get_object_or_404(ContentReaction, pk=note_pk)
 
     user = request.user
     if note.author.pk != request.user.pk:
@@ -3571,7 +3571,7 @@ def dislike_note(request):
     except KeyError:
         raise Http404
     resp = {}
-    note = get_object_or_404(Note, pk=note_pk)
+    note = get_object_or_404(ContentReaction, pk=note_pk)
     user = request.user
     if note.author.pk != request.user.pk:
 
