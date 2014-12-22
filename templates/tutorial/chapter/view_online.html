@@ -76,13 +76,15 @@
         {% endwith %}
     {% endwith %}
 
-    {% if chapter.tutorial %}
-        {% set chapter.tutorial as tutorial %}
-    {% else %}
-        {% set chapter.part.tutorial as tutorial %}
-    {% endif %}
+    {%  if user.is_authenticated %}
+         {% if chapter.tutorial %}
+            {% set chapter.tutorial as tutorial %}
+        {% else %}
+            {% set chapter.part.tutorial as tutorial %}
+        {% endif %}
 
-    {% include "tutorial/includes/warn_typo.part.html" with obj_type="chapter" obj_pk=chapter.pk %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="chapter" obj_pk=chapter.pk version_tutorial=tutorial.sha_public %}
+    {% endif %}
 {% endblock %}
 
 

@@ -101,7 +101,9 @@
         {{ tutorial.get_conclusion_online|safe }}
     {% endif %}
 
-    {% include "tutorial/includes/warn_typo.part.html" with obj_type="tutorial" obj_pk=tutorial.pk %}
+    {%  if user.is_authenticated %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="tutorial" obj_pk=tutorial.pk version_tutorial=tutorial.sha_public %}
+    {% endif %}
 {% endblock %}
 
 
