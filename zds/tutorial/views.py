@@ -781,6 +781,55 @@ def modify_tutorial(request):
 
             return redirect(tutorial.get_absolute_url())
 
+        # user want to remove his article from the validation
+        elif 'unvalidate' in request.POST:
+
+            author = request.user
+
+            validation = Validation.objects.filter(tutorial__pk=tutorial_pk).first()
+            validator = validation.validator
+
+            # remove sha_validation
+            tutorial.sha_validation = None
+            tutorial.pubdate = None
+            tutorial.save()
+
+            # check if a validator have already reserv it
+            if validator:
+
+                # check if the user add a comment
+                if request.POST['comment']:
+                    comment = request.POST['comment']
+                else:
+                    comment = u'Pas de raison évoquée.'
+
+                # send a private message to the validator
+                msg = (
+                    u'Bonjour **{0}**,\n\n'
+                    u'Le tutoriel **{1}** que tu avais réservé vient d\'être retiré de la validation par **{2}**. Les '
+                    u'raisons évoqués sont les suivantes :\n\n'
+                    u'> {3}'.format(
+                        validator,
+                        tutorial.title,
+                        author.username,
+                        comment)
+                )
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    [validator],
+                    u'Suppression de la validation du tutoriel « {0} »'.format(tutorial.title),
+                    '',
+                    msg,
+                    True,
+                    direct=False,
+                )
+
+            # delete the validation object
+            validation.delete()
+
+            return redirect(tutorial.get_absolute_url())
+
     # No action performed, raise 403
 
     raise PermissionDenied
