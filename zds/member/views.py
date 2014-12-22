@@ -66,19 +66,20 @@ def index(request):
 
     else:
         members = User.objects.order_by("-date_joined")
-        # Paginator
 
+        # Paginator
         paginator = Paginator(members, settings.ZDS_APP['member']['members_per_page'])
-        page = request.GET.get("page")
+
+        # Get the `page` argument (if empty `page = 1` by default)
+        page = request.GET.get("page", 1)
+
+        # Check if `page` is correct (integer and exists)
         try:
-            shown_members = paginator.page(page)
             page = int(page)
-        except PageNotAnInteger:
-            shown_members = paginator.page(1)
-            page = 1
-        except EmptyPage:
-            shown_members = paginator.page(paginator.num_pages)
-            page = paginator.num_pages
+            shown_members = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+            raise Http404
+
         return render(request, "member/index.html", {
             "members": shown_members,
             "count": members.count(),
