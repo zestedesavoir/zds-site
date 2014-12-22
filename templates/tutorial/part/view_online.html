@@ -36,18 +36,18 @@
 
 
 {% block headline %}
+    {% if tutorial.licence %}
+        <span class="license" itemprop="license">
+            {{ tutorial.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ part.title }}
     </h1>
-
-    {% if tutorial.licence %}
-        <span class="license" itemprop="license">
-            {{ tutorial.licence }}
-        </span>
-    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 {% endblock %}

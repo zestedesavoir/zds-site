@@ -1106,15 +1106,12 @@
             width: 50px;
             height: 50px;
         }
-
-        &:not(.subtitle):not(:first-child) {
-            margin-top: 50px;
-        }
     }
 
     .license {
         float: right;
-        margin-top: -45px;
+        margin: 0;
+        margin-top: 10px;
     }
 
     .subtitle {
