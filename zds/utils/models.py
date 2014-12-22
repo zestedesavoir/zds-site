@@ -10,6 +10,7 @@ from django.utils.encoding import smart_text
 from django.db import models
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import emarkdown
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from model_utils.managers import InheritanceManager
 
@@ -21,6 +22,13 @@ def image_path_category(instance, filename):
     return os.path.join('categorie/normal', str(instance.pk), filename)
 
 
+def image_path_help(instance, filename):
+    """Return path to an image."""
+    ext = filename.split('.')[-1]
+    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    return os.path.join('helps/normal', str(instance.pk), filename)
+
+
 class Category(models.Model):
 
     """Common category for several concepts of the application."""
@@ -30,6 +38,7 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
+    position = models.IntegerField('Position', default=0)
 
     slug = models.SlugField(max_length=80)
 
@@ -290,3 +299,29 @@ class Tag(models.Model):
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)
+
+
+class HelpWriting(models.Model):
+
+    """Tutorial Help"""
+    class Meta:
+        verbose_name = u'Aide à la rédaction'
+        verbose_name_plural = u'Aides à la rédaction'
+
+    # A name for this help
+    title = models.CharField('Name', max_length=20, null=False)
+    slug = models.SlugField(max_length=20)
+
+    # tablelabel: Used for the accessibility "This tutoriel need help for writing"
+    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
+
+    # The image to use to illustrate this role
+    image = ThumbnailerImageField(upload_to=image_path_help)
+
+    def __unicode__(self):
+        """Textual Help Form."""
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(HelpWriting, self).save(*args, **kwargs)

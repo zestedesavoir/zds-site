@@ -45,7 +45,7 @@
 
     {% if tutorial.licence %}
         <span class="license" itemprop="license">
-            {% trans "Licence" %} {{ tutorial.licence }}
+            {{ tutorial.licence }}
         </span>
     {% endif %}
 
@@ -75,4 +75,6 @@
     {% endif %}
 
     {% include "tutorial/includes/summary.part.html" with online=True tutorial=part.tutorial parts=part.tutorial.get_parts %}
+
+    {% include "misc/social_buttons.part.html" with link=part.tutorial.get_absolute_url_online text=part.tutorial.title %}
 {% endblock %}

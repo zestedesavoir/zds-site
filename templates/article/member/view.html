@@ -145,6 +145,6 @@
 
 {% block content %}
     <div>
-        {{ article.txt|emarkdown }}
+        {{ article.txt|emarkdown:is_js }}
     </div>
 {% endblock %}

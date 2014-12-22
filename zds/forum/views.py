@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -28,7 +28,7 @@ from models import Category, Forum, Topic, Post, follow, follow_by_email, never_
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
-from zds.utils import render_template, slugify
+from zds.utils import slugify
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
@@ -41,7 +41,7 @@ def index(request):
 
     categories = top_categories(request.user)
 
-    return render_template("forum/index.html", {"categories": categories,
+    return render(request, "forum/index.html", {"categories": categories,
                                                 "user": request.user})
 
 
@@ -72,7 +72,7 @@ def details(request, cat_slug, forum_slug):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template("forum/category/forum.html", {
+    return render(request, "forum/category/forum.html", {
         "forum": forum,
         "sticky_topics": sticky_topics,
         "topics": shown_topics,
@@ -101,7 +101,7 @@ def cat_details(request, cat_slug):
     else:
         forums = forums_pub
 
-    return render_template("forum/category/index.html", {"category": category,
+    return render(request, "forum/category/index.html", {"category": category,
                                                          "forums": forums})
 
 
@@ -143,7 +143,7 @@ def topic(request, topic_pk, topic_slug):
     if "page" in request.GET:
         try:
             page_nbr = int(request.GET["page"])
-        except:
+        except (KeyError, ValueError):
             # problem in variable format
             raise Http404
     else:
@@ -172,7 +172,7 @@ def topic(request, topic_pk, topic_slug):
         + str(topic.pk)
     form_move = MoveTopicForm(topic=topic)
 
-    return render_template("forum/topic/index.html", {
+    return render(request, "forum/topic/index.html", {
         "topic": topic,
         "posts": res,
         "categories": categories,
@@ -226,7 +226,7 @@ def new(request):
 
     try:
         forum_pk = request.GET["forum"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
@@ -237,13 +237,18 @@ def new(request):
         # If the client is using the "preview" button
 
         if "preview" in request.POST:
-            form = TopicForm(initial={"title": request.POST["title"],
-                                      "subtitle": request.POST["subtitle"],
-                                      "text": request.POST["text"]})
-            return render_template("forum/topic/new.html",
-                                   {"forum": forum,
-                                    "form": form,
-                                    "text": request.POST["text"]})
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                form = TopicForm(initial={"title": request.POST["title"],
+                                          "subtitle": request.POST["subtitle"],
+                                          "text": request.POST["text"]})
+
+                return render(request, "forum/topic/new.html",
+                                       {"forum": forum,
+                                        "form": form,
+                                        "text": request.POST["text"]})
         form = TopicForm(request.POST)
         data = form.data
         if form.is_valid():
@@ -284,7 +289,7 @@ def new(request):
     else:
         form = TopicForm()
 
-    return render_template("forum/topic/new.html", {"forum": forum, "form": form})
+    return render(request, "forum/topic/new.html", {"forum": forum, "form": form})
 
 
 @can_write_and_read_now
@@ -341,7 +346,7 @@ def move_topic(request):
         raise PermissionDenied
     try:
         topic_pk = request.GET["sujet"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
@@ -372,13 +377,13 @@ def edit(request):
 
     try:
         topic_pk = request.POST["topic"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     if "page" in request.POST:
         try:
             page = int(request.POST["page"])
-        except:
+        except (KeyError, ValueError):
             # problem in variable format
             raise Http404
     else:
@@ -398,8 +403,6 @@ def edit(request):
             resp["solved"] = g_topic.is_solved
     if request.user.has_perm("forum.change_topic"):
 
-        # Staff actions using AJAX TODO: Do not redirect on AJAX requests
-
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
             messages.success(request,
@@ -413,14 +416,14 @@ def edit(request):
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
-            except:
+            except (KeyError, ValueError):
                 # problem in variable format
                 raise Http404
             forum = get_object_or_404(Forum, pk=forum_pk)
             g_topic.forum = forum
     g_topic.save()
     if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
+        return HttpResponse(json.dumps(resp), content_type='application/json')
     else:
         if not g_topic.forum.can_read(request.user):
             return redirect(reverse("zds.forum.views.index"))
@@ -437,7 +440,7 @@ def answer(request):
 
     try:
         topic_pk = request.GET["sujet"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
 
@@ -475,14 +478,18 @@ def answer(request):
             form = PostForm(g_topic, request.user, initial={"text": data["text"]})
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
-            return render_template("forum/post/new.html", {
-                "text": data["text"],
-                "topic": g_topic,
-                "posts": posts,
-                "last_post_pk": last_post_pk,
-                "newpost": newpost,
-                "form": form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                return render(request, "forum/post/new.html", {
+                    "text": data["text"],
+                    "topic": g_topic,
+                    "posts": posts,
+                    "last_post_pk": last_post_pk,
+                    "newpost": newpost,
+                    "form": form,
+                })
         else:
 
             # Saving the message
@@ -543,7 +550,7 @@ def answer(request):
                     follow(g_topic)
                 return redirect(post.get_absolute_url())
             else:
-                return render_template("forum/post/new.html", {
+                return render(request, "forum/post/new.html", {
                     "text": data["text"],
                     "topic": g_topic,
                     "posts": posts,
@@ -560,6 +567,7 @@ def answer(request):
         # Using the quote button
 
         if "cite" in request.GET:
+            resp = {}
             post_cite_pk = request.GET["cite"]
             post_cite = Post.objects.get(pk=post_cite_pk)
             if not post_cite.is_visible:
@@ -572,10 +580,14 @@ def answer(request):
                 settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
 
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
+
         form = PostForm(g_topic, request.user, initial={"text": text})
         form.helper.form_action = reverse("zds.forum.views.answer") \
             + "?sujet=" + str(g_topic.pk)
-        return render_template("forum/post/new.html", {
+        return render(request, "forum/post/new.html", {
             "topic": g_topic,
             "posts": posts,
             "last_post_pk": last_post_pk,
@@ -591,7 +603,7 @@ def edit_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -645,27 +657,42 @@ def edit_post(request):
         # Using the preview button
 
         if "preview" in request.POST:
-            if g_topic:
-                form = TopicForm(initial={"title": request.POST["title"],
-                                          "subtitle": request.POST["subtitle"],
-                                          "text": request.POST["text"]})
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
             else:
-                form = PostForm(post.topic, request.user,
-                                initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.forum.views.edit_post") \
-                + "?message=" + str(post_pk)
-            return render_template("forum/post/edit.html", {
-                "post": post,
-                "topic": post.topic,
-                "text": request.POST["text"],
-                "form": form,
-            })
+                if g_topic:
+                    form = TopicForm(initial={"title": request.POST["title"],
+                                              "subtitle": request.POST["subtitle"],
+                                              "text": request.POST["text"]})
+                else:
+                    form = PostForm(post.topic, request.user,
+                                    initial={"text": request.POST["text"]})
+
+                form.helper.form_action = reverse("zds.forum.views.edit_post") \
+                    + "?message=" + str(post_pk)
+
+                return render(request, "forum/post/edit.html", {
+                    "post": post,
+                    "topic": post.topic,
+                    "text": request.POST["text"],
+                    "form": form,
+                })
 
         if "delete_message" not in request.POST and "signal_message" \
                 not in request.POST and "show_message" not in request.POST:
             # The user just sent data, handle them
 
             if request.POST["text"].strip() != "":
+                # check if the form is valid
+                form = TopicForm(request.POST)
+                if not form.is_valid() and g_topic:
+                    return render(request, "forum/post/edit.html", {
+                        "post": post,
+                        "topic": post.topic,
+                        "text": post.text,
+                        "form": form,
+                    })
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
                 post.update = datetime.now()
@@ -702,7 +729,7 @@ def edit_post(request):
                             initial={"text": post.text})
         form.helper.form_action = reverse("zds.forum.views.edit_post") \
             + "?message=" + str(post_pk)
-        return render_template("forum/post/edit.html", {
+        return render(request, "forum/post/edit.html", {
             "post": post,
             "topic": post.topic,
             "text": post.text,
@@ -718,7 +745,7 @@ def useful_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -745,7 +772,7 @@ def unread_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -754,6 +781,8 @@ def unread_post(request):
 
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
+    if TopicFollowed.objects.filter(user=request.user, topic=post.topic).count() == 0:
+        TopicFollowed(user=request.user, topic=post.topic).save()
 
     t = TopicRead.objects.filter(topic=post.topic, user=request.user).first()
     if t is None:
@@ -780,7 +809,7 @@ def like_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     resp = {}
@@ -828,7 +857,7 @@ def dislike_post(request):
 
     try:
         post_pk = request.GET["message"]
-    except:
+    except KeyError:
         # problem in variable format
         raise Http404
     resp = {}
@@ -913,7 +942,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/find/topic_by_tag.html", {
+    return render(request, "forum/find/topic_by_tag.html", {
         "topics": shown_topics,
         "tag": tag,
         "pages": paginator_range(page, paginator.num_pages),
@@ -946,7 +975,7 @@ def find_topic(request, user_pk):
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template("forum/find/topic.html", {
+    return render(request, "forum/find/topic.html", {
         "topics": shown_topics,
         "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
@@ -986,7 +1015,7 @@ def find_post(request, user_pk):
         shown_posts = paginator.page(paginator.num_pages)
         page = paginator.num_pages
 
-    return render_template("forum/find/post.html", {
+    return render(request, "forum/find/post.html", {
         "posts": shown_posts,
         "usr": displayed_user,
         "pages": paginator_range(page, paginator.num_pages),
@@ -1011,7 +1040,7 @@ def followed_topics(request):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
-    return render_template("forum/topic/followed.html",
+    return render(request, "forum/topic/followed.html",
                            {"followed_topics": shown_topics,
                             "pages": paginator_range(page,
                                                      paginator.num_pages),

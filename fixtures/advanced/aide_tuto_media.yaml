@@ -1,0 +1,27 @@
+-   factory: zds.utils.factories.HelpWritingFactory
+    fields:
+        title: "Rédacteur"
+        tablelabel: "Besoin d'aide pour la rédaction"
+        slug: "redacteur"
+        fixture_image_path: "aide_redacteur.png"
+
+-   factory: zds.utils.factories.HelpWritingFactory
+    fields:
+        title: "Correcteur"
+        tablelabel: "Besoin d'aide pour la correction"
+        slug: "correcteur"
+        fixture_image_path: "aide_correcteur.png"
+
+-   factory: zds.utils.factories.HelpWritingFactory
+    fields:
+        title: "Illustrateur"
+        tablelabel: "Besoin d'aide pour l'illustration"
+        slug: "illustrateur"
+        fixture_image_path: "aide_illustrateur.png"
+
+-   factory: zds.utils.factories.HelpWritingFactory
+    fields:
+        title: "Repreneur"
+        tablelabel: "Cherche un repreneur"
+        slug: "repreneur"
+        fixture_image_path: "aide_repreneur.png"

@@ -13,10 +13,10 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
 
 import json as json_writer
@@ -84,6 +84,7 @@ class Article(models.Model):
                                       related_name='last_reaction',
                                       verbose_name='Derniere réaction')
     is_locked = models.BooleanField('Est verrouillé', default=False)
+    js_support = models.BooleanField('Support du Javascript', default=False)
 
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
@@ -141,7 +142,8 @@ class Article(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-
+            if 'licence' in data:
+                data['licence'] = Licence.objects.get(code=data['licence'])
             return data
         else:
             return None
@@ -150,7 +152,8 @@ class Article(models.Model):
         repo = Repo(self.get_path())
         manarticle = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
         data = json_reader.loads(manarticle)
-
+        if 'licence' in data:
+            data['licence'] = Licence.objects.get(code=data['licence'])
         return data
 
     def load_dic(self, article_version):
@@ -298,10 +301,11 @@ def get_old_field_value(instance, field, manager):
 
 
 def get_last_articles():
+    n = settings.ZDS_APP['article']['home_number']
     return Article.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:5]
+        .order_by('-pubdate')[:n]
 
 
 def get_prev_article(g_article):

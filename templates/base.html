@@ -46,7 +46,7 @@
 
 
     {% captureas meta_image %}
-        {{ request.META.HTTP_HOST }}{% block meta_image %}{% spaceless %}
+        {{ app.site.dns }}{% block meta_image %}{% spaceless %}
             {% static "images/apple-touch-icon-144x144-precomposed.png" %}
         {% endspaceless %}{% endblock %}
     {% endcaptureas %}
@@ -77,9 +77,9 @@
 
     {# Stylesheets #}
     {% if debug %}
-        <link rel="stylesheet" href="/static/css/main.css">
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% else %}
-        <link rel="stylesheet" href="/static/css/main.min.css">
+        <link rel="stylesheet" href="{% static "css/main.min.css" %}">
         {% block canonical %}{% endblock %}
     {% endif %}
 
@@ -186,10 +186,10 @@
                                                         <li class="dropdown-title">
                                                             {{ title }}
                                                         </li>
-                                                        {% for subcat in subcats %}
+                                                        {% for subcat,slug in subcats %}
                                                             <li>
-                                                                <a href="{{ subcat.get_absolute_url_tutorial }}">
-                                                                    {{ subcat.title }}
+                                                                <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}">
+                                                                    {{  subcat }}
                                                                 </a>
                                                             </li>
                                                         {% endfor %}
@@ -473,7 +473,7 @@
                             <input type="text" name="q" placeholder="Rechercher">
                             <button type="submit" class="ico-after search-submit" title="Lancer la recherche">{% trans "OK" %}</button>
                         </form>
-                        <a href="/rechercher" title="Recherche avancée" class="search-more">+</a>
+                        <a href="/rechercher" title="Recherche avancée" class="search-more"></a>
                     </div>
                 </div>
             </div>
@@ -563,10 +563,10 @@
 
     {# Javascript stuff start #}
     {% if debug %}
-        <script src="/static/js/vendors.js"></script>
-        <script src="/static/js/main.js"></script>
+        <script src="{% static "js/vendors.js" %}"></script>
+        <script src="{% static "js/main.js" %}"></script>
     {% else %}
-        <script src="/static/js/all.min.js"></script>
+        <script src="{% static "js/all.min.js" %}"></script>
     {% endif %}
 
 

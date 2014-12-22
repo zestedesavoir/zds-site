@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -36,7 +36,6 @@ from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.tutorial.models import Tutorial
-from zds.utils import render_template
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.tokens import generate_token
@@ -80,7 +79,7 @@ def index(request):
         except EmptyPage:
             shown_members = paginator.page(paginator.num_pages)
             page = paginator.num_pages
-        return render_template("member/index.html", {
+        return render(request, "member/index.html", {
             "members": shown_members,
             "count": members.count(),
             "pages": paginator_range(page, paginator.num_pages),
@@ -91,7 +90,7 @@ def index(request):
 @login_required
 def warning_unregister(request):
     """displays a warning page showing what will happen when user unregisters"""
-    return render_template("member/settings/unregister.html", {"user": request.user})
+    return render(request, "member/settings/unregister.html", {"user": request.user})
 
 
 @login_required
@@ -169,7 +168,7 @@ def unregister(request):
     # so we will just delete the unretistering user ownership and give it to anonymous in the only case
     # he was alone so that gallery is not lost
     for gallery in UserGallery.objects.filter(user=current):
-        if gallery.gallery.get_users().count() == 1:
+        if gallery.gallery.get_linked_users().count() == 1:
             anonymousGallery = UserGallery()
             anonymousGallery.user = external
             anonymousGallery.mode = "w"
@@ -250,7 +249,7 @@ def details(request, user_name):
         olds = []
     for old in olds:
         oldtutos.append(get_info_old_tuto(old))
-    return render_template("member/profile.html", {
+    return render(request, "member/profile.html", {
         "usr": usr,
         "profile": profile,
         "bans": bans,
@@ -393,7 +392,7 @@ def tutorials(request):
     else:
         user_tutorials = profile.get_tutos()
 
-    return render_template("tutorial/member/index.html",
+    return render(request, "tutorial/member/index.html",
                            {"tutorials": user_tutorials, "type": type})
 
 
@@ -421,7 +420,7 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render_template('article/member/index.html', {'articles': user_articles, 'type': state})
+    return render(request, 'article/member/index.html', {'articles': user_articles, 'type': state})
 
 
 # settings for public profile
@@ -457,7 +456,7 @@ def settings_mini_profile(request, user_name):
             return redirect(reverse("zds.member.views.details",
                                     args=[profile.user.username]))
         else:
-            return render_template("member/settings/profile.html", c)
+            return render(request, "member/settings/profile.html", c)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -466,7 +465,7 @@ def settings_mini_profile(request, user_name):
             "sign": profile.sign,
         })
         c = {"form": form, "profile": profile}
-        return render_template("member/settings/profile.html", c)
+        return render(request, "member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -505,7 +504,7 @@ def settings_profile(request):
                              _(u"Le profil a correctement été mis à jour."))
             return redirect(reverse("zds.member.views.settings_profile"))
         else:
-            return render_template("member/settings/profile.html", c)
+            return render(request, "member/settings/profile.html", c)
     else:
         form = ProfileForm(initial={
             "biography": profile.biography,
@@ -518,7 +517,7 @@ def settings_profile(request):
             "sign": profile.sign,
         })
         c = {"form": form}
-        return render_template("member/settings/profile.html", c)
+        return render(request, "member/settings/profile.html", c)
 
 
 @can_write_and_read_now
@@ -563,11 +562,11 @@ def settings_account(request):
                 messages.error(request, _(u"Une erreur est survenue."))
                 return redirect(reverse("zds.member.views.settings_account"))
         else:
-            return render_template("member/settings/account.html", c)
+            return render(request, "member/settings/account.html", c)
     else:
         form = ChangePasswordForm(request.user)
         c = {"form": form}
-        return render_template("member/settings/account.html", c)
+        return render(request, "member/settings/account.html", c)
 
 
 @can_write_and_read_now
@@ -588,11 +587,11 @@ def settings_user(request):
             old.save()
             return redirect(old.profile.get_absolute_url())
         else:
-            return render_template("member/settings/user.html", c)
+            return render(request, "member/settings/user.html", c)
     else:
         form = ChangeUserForm()
         c = {"form": form}
-        return render_template("member/settings/user.html", c)
+        return render(request, "member/settings/user.html", c)
 
 
 def login_view(request):
@@ -642,17 +641,19 @@ def login_view(request):
         else:
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
-    form = LoginForm()
-    form.helper.form_action = reverse("zds.member.views.login_view")
+
     if next_page is not None:
+        form = LoginForm()
         form.helper.form_action += "?next=" + next_page
+    else:
+        form = LoginForm()
+
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
-    return render_template("member/login.html",
+    return render(request, "member/login.html",
                            {"form": form,
-                            "csrf_tk": csrf_tk,
-                            "next_page": next_page})
+                            "csrf_tk": csrf_tk})
 
 
 @login_required
@@ -707,11 +708,11 @@ def register_view(request):
                 msg.send()
             except:
                 msg = None
-            return render_template("member/register/success.html", {})
+            return render(request, "member/register/success.html", {})
         else:
-            return render_template("member/register/index.html", {"form": form})
+            return render(request, "member/register/index.html", {"form": form})
     form = RegisterForm()
-    return render_template("member/register/index.html", {"form": form})
+    return render(request, "member/register/index.html", {"form": form})
 
 
 def forgot_password(request):
@@ -745,12 +746,12 @@ def forgot_password(request):
                                          [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
-            return render_template("member/forgot_password/success.html")
+            return render(request, "member/forgot_password/success.html")
         else:
-            return render_template("member/forgot_password/index.html",
+            return render(request, "member/forgot_password/index.html",
                                    {"form": form})
     form = ForgotPasswordForm()
-    return render_template("member/forgot_password/index.html", {"form": form})
+    return render(request, "member/forgot_password/index.html", {"form": form})
 
 
 def new_password(request):
@@ -769,15 +770,15 @@ def new_password(request):
             # User can't confirm his request if it is too late.
 
             if datetime.now() > token.date_end:
-                return render_template("member/new_password/failed.html")
+                return render(request, "member/new_password/failed.html")
             token.user.set_password(password)
             token.user.save()
             token.delete()
-            return render_template("member/new_password/success.html")
+            return render(request, "member/new_password/success.html")
         else:
-            return render_template("member/new_password.html", {"form": form})
+            return render(request, "member/new_password.html", {"form": form})
     form = NewPasswordForm(identifier=token.user.username)
-    return render_template("member/new_password/index.html", {"form": form})
+    return render(request, "member/new_password/index.html", {"form": form})
 
 
 def active_account(request):
@@ -793,12 +794,12 @@ def active_account(request):
     # User can't confirm his request if he is already activated.
 
     if usr.is_active:
-        return render_template("member/register/token_already_used.html")
+        return render(request, "member/register/token_already_used.html")
 
     # User can't confirm his request if it is too late.
 
     if datetime.now() > token.date_end:
-        return render_template("member/register/token_failed.html",
+        return render(request, "member/register/token_failed.html",
                                {"token": token})
     usr.is_active = True
     usr.save()
@@ -807,38 +808,38 @@ def active_account(request):
 
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = _(
-        u'Bonjour **{0}**,'
+        u'Bonjour **{username}**,'
         u'\n\n'
         u'Ton compte a été activé, et tu es donc officiellement '
-        u'membre de la communauté de {4}.'
+        u'membre de la communauté de {site_name}.'
         u'\n\n'
-        u'{4} est une communauté dont le but est de diffuser des '
+        u'{site_name} est une communauté dont le but est de diffuser des '
         u'connaissances au plus grand nombre.'
         u'\n\n'
-        u'Sur ce site, tu trouveras un ensemble de [tutoriels]({1}) dans '
+        u'Sur ce site, tu trouveras un ensemble de [tutoriels]({tutorials_url}) dans '
         u'plusieurs domaines et plus particulièrement autour de l\'informatique '
-        u'et des sciences. Tu y retrouveras aussi des [articles]({2}) '
+        u'et des sciences. Tu y retrouveras aussi des [articles]({articles_url}) '
         u'traitant de sujets d\'actualité ou non, qui, tout comme les tutoriels, '
-        u'sont écrits par des [membres]({3}) de la communauté. '
+        u'sont écrits par des [membres]({members_url}) de la communauté. '
         u'Pendant tes lectures et ton apprentissage, si jamais tu as des '
-        u'questions à poser, tu retrouveras sur les [forums]({4}) des personnes '
+        u'questions à poser, tu retrouveras sur les [forums]({forums_url}) des personnes '
         u'prêtes à te filer un coup de main et ainsi t\'éviter de passer '
         u'plusieurs heures sur un problème.'
         u'\n\n'
         u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
-        u'car la communauté de {4} est attachée aux valeurs du libre '
+        u'car la communauté de {site_name} est attachée aux valeurs du libre '
         u'partage et désire apporter le savoir à tout le monde quels que soient ses moyens.'
         u'\n\n'
         u'En espérant que tu te plairas ici, '
         u'je te laisse maintenant faire un petit tour.'
         u'\n\n'
         u'Clem\'')\
-        .format(usr.username,
-                settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
-                settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
-                settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
-                settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
-                settings.ZDS_APP['site']['litteral_name'])
+        .format(username=usr.username,
+                tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
+                articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
+                members_url=settings.ZDS_APP['site']['url'] + reverse("zds.member.views.index"),
+                forums_url=settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
+                site_name=settings.ZDS_APP['site']['litteral_name'])
     send_mp(
         bot,
         [usr],
@@ -851,7 +852,7 @@ def active_account(request):
     )
     token.delete()
     form = LoginForm(initial={'username': usr.username})
-    return render_template("member/register/token_success.html", {"usr": usr, "form": form})
+    return render(request, "member/register/token_success.html", {"usr": usr, "form": form})
 
 
 def generate_token_account(request):
@@ -890,7 +891,7 @@ def generate_token_account(request):
         msg.send()
     except:
         msg = None
-    return render_template('member/register/success.html', {})
+    return render(request, 'member/register/success.html', {})
 
 
 def get_client_ip(request):
@@ -1070,7 +1071,7 @@ def settings_promote(request, user_pk):
                                       'groups': user.groups.all(),
                                       'activation': user.is_active
                                       })
-    return render_template('member/settings/promote.html', {
+    return render(request, 'member/settings/promote.html', {
         "usr": user,
         "profile": profile,
         "form": form
@@ -1085,7 +1086,7 @@ def member_from_ip(request, ip):
         raise PermissionDenied
 
     members = Profile.objects.filter(last_ip_address=ip).order_by('-last_visit')
-    return render_template('member/settings/memberip.html', {
+    return render(request, 'member/settings/memberip.html', {
         "members": members,
         "ip": ip
     })
@@ -1108,7 +1109,7 @@ def modify_karma(request):
         note.comment = request.POST["warning"]
         try:
             note.value = int(request.POST["points"])
-        except:
+        except (KeyError, ValueError):
             note.value = 0
 
         note.save()

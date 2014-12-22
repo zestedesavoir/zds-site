@@ -108,7 +108,6 @@ class Forum(models.Model):
 
     def can_read(self, user):
         """Checks if the forum can be read by the user."""
-        # TODO These prints is used to debug this method. Remove them later.
 
         if self.group.count() == 0:
             return True
@@ -231,7 +230,6 @@ class Topic(models.Model):
                 topic__pk=self.pk,
                 position__gt=last_post.position)\
                 .select_related("author").first()
-
             return next_post
         except:
             return self.first_post()

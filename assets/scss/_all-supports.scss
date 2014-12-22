@@ -30,7 +30,7 @@
 
             &:hover,
             &:focus {
-                color: #084561;
+                color: $primary;
                 background-color: #fff;
                 text-decoration: none;
             }
@@ -105,7 +105,7 @@
 
 
 .header-container header {
-    background: #084561;
+    background: $primary;
     border-bottom: 3px solid $secondary;
 
     a,
@@ -165,7 +165,7 @@
     .dropdown-title {
         color: #FFF;
     }
-    
+
     .dropdown-list {
         width: 100%;
         padding: 0;
@@ -326,7 +326,7 @@
                 width: 22px;
                 top: 50%;
                 left: 50%;
-                margin: -11px 0 0 -11px;                
+                margin: -11px 0 0 -11px;
 
                 &.ico-messages {
                     @include sprite-pos($messages);
@@ -391,7 +391,7 @@
                     &:hover,
                     &:focus {
                         background-color: $header-hover;
-                        
+
                         .username {
                             text-shadow: rgba(0, 0, 0, .5) 0 0 5px;
                         }
@@ -440,7 +440,7 @@
                 &:nth-child(2n+1) {
                     &,
                     form button {
-                        background-color: #084561;
+                        background-color: $primary;
                     }
                 }
             }
@@ -530,8 +530,10 @@
 
             &:hover,
             &:focus {
-                outline: none;
-                background-color: rgba(255, 255, 255, .75);
+                background-color: #FFF;
+            }
+            &:focus {
+                outline-color: $secondary;
             }
         }
         input {
@@ -551,7 +553,7 @@
 
             &:after {
                 display: block;
-                content: " ";   
+                content: " ";
                 position: absolute;
                 top: 12px;
                 left: 50%;
@@ -563,7 +565,6 @@
         }
     }
     .search-more {
-        // TODO : mettre l'icône en background plutôt que tout ça
         display: block;
         float: left;
         height: 40px;
@@ -574,13 +575,18 @@
         font-weight: bold;
         text-decoration: none;
         font-size: 24px;
-        background: rgba(255, 255, 255, 1);
-        color: #084561;
+        background: #FFF;
+        color: $primary;
         transition: background $transition-duration ease;
 
         &:hover,
         &:focus {
-            background: rgba(255, 255, 255, .7);
+            background: $secondary;
+            color: #FFF;
+            outline: none;
+        }
+        &:before {
+            content: "+";
         }
     }
 }
@@ -610,7 +616,7 @@
     .close-alert-box {
         display: block;
         position: absolute;
-        top: 0;
+        top: 8px;
         right: 15px;
         height: 20px;
         width: 20px;
@@ -696,6 +702,11 @@
         }
     }
 }
+
+.empty {
+    display: none;
+}
+
 .content-wrapper .alert-box {
     margin: 0 0 20px;
 
@@ -856,6 +867,10 @@
                     font-weight: bold;
                 }
 
+                img {
+                    border-right: 7px solid transparent;
+                }
+
                 &.ico-after {
                     &:after {
                         top: 7px;
@@ -990,7 +1005,7 @@
 
                 a {
                     position: relative;
-                    color: #084561;
+                    color: $primary;
                     transition: all $transition-duration ease;
 
                     &:hover,
@@ -1162,8 +1177,6 @@
     margin-top: 0;
 }
 
-
-
 /* ==============
     ALL: Main / Home
    ============== */
@@ -1221,7 +1234,7 @@
                 font-size: 2.2rem;
                 line-height: 38px;
                 line-height: 3.8rem;
-                color: #084561;
+                color: $primary;
                 font-weight: normal;
                 border-bottom: 1px solid #F8AD32;
                 margin-top: 0;
@@ -1279,7 +1292,7 @@
             border-left: none;
             width: 40px;
             transition: background $transition-duration;
-            
+
             position: absolute;
             bottom: 0;
             right: 15px;
@@ -1295,6 +1308,10 @@
             }
         }
     }
+}
+
+.tutorial-list {
+  margin: 0 0 12px 0;
 }
 
 .tutorial-list article,
@@ -1331,6 +1348,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        clear: none;
     }
     a {
         text-decoration: none;
@@ -1357,7 +1375,7 @@
         height: 100px;
         overflow: hidden;
         background-repeat: no-repeat;
-        background-position: center center;        
+        background-position: center center;
         background-size: cover;
 
         img {
@@ -1379,6 +1397,18 @@
 
         &.no-illu {
             margin-left: 0;
+        }
+    }
+
+    .tutorial-help{
+      margin: 12px 0 0 0;
+    }
+
+    .tutorial-help img.light {
+        opacity: 0.2;
+        &:hover,
+        &:focus {
+            opacity: 0.5;
         }
     }
 }
@@ -1480,7 +1510,7 @@
                 &:hover,
                 &:focus {
                     background: #DDD;
-                    color: #084561;
+                    color: $primary;
                 }
             }
 
@@ -1513,12 +1543,12 @@
             display: block;
             text-align: center;
             text-decoration: none;
-            color: #084561;
+            color: $primary;
             min-width: 45px;
             height: 40px;
             line-height: 40px;
             transition: all $transition-duration ease;
-            
+
             &.current {
                 height: 38px;
                 color: #808080;
@@ -1797,7 +1827,7 @@
 
 .forum-list {
     .group-title {
-        width: 100%;
+        max-width: 100%;
         margin-top: 30px !important;
         clear: both;
         border-bottom: 1px solid #CCC;
@@ -2078,7 +2108,7 @@
         img {
             max-width: 100%;
         }
-        
+
         figure {
             margin: 30px 0;
             text-align: center;
@@ -2106,7 +2136,7 @@
             figcaption {
                 display: block;
             }
-            
+
             blockquote ~ figcaption {
                 padding: 0 0 1px 2%;
                 font-style: italic;
@@ -2552,6 +2582,7 @@ table {
                 font-size: 1.2rem;
                 color: #999;
                 flex: 1;
+                overflow: hidden;
 
                 p {
                     margin: 0;
@@ -2824,7 +2855,7 @@ form.topic-message {
     .autocomplete-dropdown {
         position: absolute;
         z-index: 60;
-        
+
         ul {
             padding: 0;
             margin: 0;
@@ -3043,9 +3074,9 @@ form.topic-message {
     padding: 20px 0;
 }
 .page-footer {
-    background: darken($primary, 10%);
-    height: 50px;
-    line-height: 50px;
+    background: $primary;
+    height: 40px;
+    line-height: 40px;
     border-top: 3px solid $secondary;
     font-size: 14px;
     font-size: 1.4rem;
@@ -3138,6 +3169,7 @@ form.topic-message {
     select,
     textarea {
         margin: 10px 15px;
+        resize: none;
 
         &:not([type=checkbox]):not([type=radio]) {
             width: calc(98% - 32px) !important;

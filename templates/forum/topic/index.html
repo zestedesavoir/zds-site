@@ -63,11 +63,10 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-    {% if topic.is_solved %}
-        <div class="alert-box success ico-after tick light">
+        <div class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}">
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
-    {% endif %}
+    
 
     {% for message in posts %}
         {% captureas edit_link %}
@@ -94,6 +93,10 @@
             {% url "zds.forum.views.solve_alert" %}
         {% endcaptureas %}
 
+        {% captureas unread_link %}
+            {% url "zds.forum.views.unread_post" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
         {% if forloop.first and nb > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
@@ -106,7 +109,7 @@
             {% set True as answer_schema %}
         {% endif %}
 
-        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema %}
+        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema can_unread=True unread_link=unread_link %}
     {% endfor %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
@@ -140,7 +143,7 @@
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
-                <button class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
+                <button class="solve ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
                     {% if topic.is_solved %}
                         {% trans "Marquer comme non résolu" %}
                     {% else %}
@@ -159,7 +162,7 @@
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
-            <button class="ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
+            <button class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
                 {% if topic.is_followed %}
                     {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
@@ -176,7 +179,7 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button class="email ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
                 {% if topic.is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}

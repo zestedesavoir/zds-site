@@ -4,10 +4,10 @@ from math import ceil
 import shutil
 try:
     import ujson as json_reader
-except:
+except ImportError:
     try:
         import simplejson as json_reader
-    except:
+    except ImportError:
         import json as json_reader
 
 import json as json_writer
@@ -16,13 +16,14 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.http import urlencode
 from django.db import models
 from datetime import datetime
 from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
-from zds.utils.models import SubCategory, Licence, Comment
+from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
 
 
@@ -109,6 +110,9 @@ class Tutorial(models.Model):
                                   related_name='last_note',
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
+    js_support = models.BooleanField('Support du Javascript', default=False)
+
+    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
     def __unicode__(self):
         return self.title
@@ -133,6 +137,15 @@ class Tutorial(models.Model):
             ]) + '?version=' + self.sha_beta
         else:
             return self.get_absolute_url()
+
+    def get_absolute_contact_url(self):
+        """ Get url to send a new mp for collaboration """
+        get = '?'+urlencode({'title': u'Collaboration - {}'.format(self.title)})
+
+        for author in self.authors.all():
+            get += '&'+urlencode({'username': author.username})
+
+        return reverse('zds.mp.views.new')+get
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
@@ -248,7 +261,8 @@ class Tutorial(models.Model):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
-
+        if 'licence' in data:
+            data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
 
     def load_json(self, path=None, online=False):
@@ -265,7 +279,8 @@ class Tutorial(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-
+            if 'licence' in data:
+                data['licence'] = Licence.objects.filter(code=data['licence']).first()
             return data
 
     def dump_json(self, path=None):
@@ -449,10 +464,11 @@ class Tutorial(models.Model):
 
 
 def get_last_tutorials():
+    n = settings.ZDS_APP['tutorial']['home_number']
     tutorials = Tutorial.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:5]
+        .order_by('-pubdate')[:n]
 
     return tutorials
 
