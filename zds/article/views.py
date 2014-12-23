@@ -1013,17 +1013,20 @@ def answer(request):
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
-        newreaction = last_reaction_pk != int(data['last_reaction'])
+
+        if not request.is_ajax():
+            newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
-            form = ReactionForm(article, request.user, initial={
-                'text': data['text']
-            })
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
                                     content_type='application/json')
             else:
+                form = ReactionForm(article, request.user, initial={
+                    'text': data['text']
+                })
+
                 return render(request, 'article/reaction/new.html', {
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
