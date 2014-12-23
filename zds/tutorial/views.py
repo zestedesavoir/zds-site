@@ -3303,7 +3303,9 @@ def answer(request):
 
     if request.method == "POST":
         data = request.POST
-        newnote = last_note_pk != int(data["last_note"])
+
+        if not request.is_ajax():
+            newnote = last_note_pk != int(data["last_note"])
 
         # Using the « preview button », the « more » button or new note
 
@@ -3356,6 +3358,7 @@ def answer(request):
         # Using the quote button
 
         if "cite" in request.GET:
+            resp = {}
             note_cite_pk = request.GET["cite"]
             note_cite = Note.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
@@ -3369,6 +3372,10 @@ def answer(request):
                 note_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 note_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = NoteForm(tutorial, request.user, initial={"text": text})
         return render(request, "tutorial/comment/new.html", {
