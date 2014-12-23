@@ -776,7 +776,7 @@ def new_password(request):
             token.delete()
             return render(request, "member/new_password/success.html")
         else:
-            return render(request, "member/new_password.html", {"form": form})
+            return render(request, "member/new_password/index.html", {"form": form})
     form = NewPasswordForm(identifier=token.user.username)
     return render(request, "member/new_password/index.html", {"form": form})
 
