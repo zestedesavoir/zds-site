@@ -152,16 +152,20 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(request.user.username,
-                                    initial={
-                                        'participants': request.POST['participants'],
-                                        'title': request.POST['title'],
-                                        'subtitle': request.POST['subtitle'],
-                                        'text': request.POST['text'],
-                                    })
-            return render(request, 'mp/topic/new.html', {
-                'form': form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                form = PrivateTopicForm(request.user.username,
+                                        initial={
+                                            'participants': request.POST['participants'],
+                                            'title': request.POST['title'],
+                                            'subtitle': request.POST['subtitle'],
+                                            'text': request.POST['text'],
+                                        })
+                return render(request, 'mp/topic/new.html', {
+                    'form': form,
+                })
 
         form = PrivateTopicForm(request.user.username, request.POST)
 
