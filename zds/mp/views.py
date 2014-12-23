@@ -382,6 +382,7 @@ def answer(request):
 
         # Using the quote button
         if 'cite' in request.GET:
+            resp = {}
             post_cite_pk = request.GET['cite']
             post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
@@ -393,6 +394,10 @@ def answer(request):
                 post_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 post_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = PrivatePostForm(g_topic, request.user, initial={
             'text': text
