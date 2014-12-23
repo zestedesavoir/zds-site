@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,7 +13,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
@@ -151,16 +152,20 @@ def new(request):
     if request.method == 'POST':
         # If the client is using the "preview" button
         if 'preview' in request.POST:
-            form = PrivateTopicForm(request.user.username,
-                                    initial={
-                                        'participants': request.POST['participants'],
-                                        'title': request.POST['title'],
-                                        'subtitle': request.POST['subtitle'],
-                                        'text': request.POST['text'],
-                                    })
-            return render(request, 'mp/topic/new.html', {
-                'form': form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
+                                    content_type='application/json')
+            else:
+                form = PrivateTopicForm(request.user.username,
+                                        initial={
+                                            'participants': request.POST['participants'],
+                                            'title': request.POST['title'],
+                                            'subtitle': request.POST['subtitle'],
+                                            'text': request.POST['text'],
+                                        })
+                return render(request, 'mp/topic/new.html', {
+                    'form': form,
+                })
 
         form = PrivateTopicForm(request.user.username, request.POST)
 
@@ -284,24 +289,31 @@ def answer(request):
     # User would like preview his post or post a new post on the topic.
     if request.method == 'POST':
         data = request.POST
-        newpost = last_post_pk != int(data['last_post'])
+
+        if not request.is_ajax():
+            newpost = last_post_pk != int(data['last_post'])
 
         # Using the « preview button », the « more » button or new post
         if 'preview' in data or newpost:
-            form = PrivatePostForm(g_topic, request.user, initial={
-                'text': data['text']
-            })
-            return render(request, 'mp/post/new.html', {
-                'topic': g_topic,
-                'last_post_pk': last_post_pk,
-                'posts': posts,
-                'newpost': newpost,
-                'form': form,
-            })
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                form = PrivatePostForm(g_topic, request.user, initial={
+                    'text': data['text']
+                })
+
+                return render(request, 'mp/post/new.html', {
+                    'topic': g_topic,
+                    'last_post_pk': last_post_pk,
+                    'posts': posts,
+                    'newpost': newpost,
+                    'form': form,
+                })
 
         # Saving the message
         else:
-            form = PrivatePostForm(g_topic, request.user, request.POST)
+            form = PrivatePostForm(g_topic, request.user, data)
             if form.is_valid():
                 data = form.data
 
@@ -419,9 +431,11 @@ def edit_post(request):
         raise PermissionDenied
 
     if request.method == 'POST':
-        if 'text' not in request.POST:
+        data = request.POST
+
+        if 'text' not in data:
             # if preview mode return on
-            if 'preview' in request.POST:
+            if 'preview' in data:
                 return redirect(
                     reverse('zds.mp.views.edit_post') +
                     '?message=' +
@@ -431,22 +445,26 @@ def edit_post(request):
                 raise PermissionDenied
 
         # Using the preview button
-        if 'preview' in request.POST:
-            form = PrivatePostForm(g_topic, request.user, initial={
-                'text': request.POST['text']
-            })
-            form.helper.form_action = reverse(
-                'zds.mp.views.edit_post') + '?message=' + str(post_pk)
+        if 'preview' in data:
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                form = PrivatePostForm(g_topic, request.user, initial={
+                    'text': data['text']
+                })
+                form.helper.form_action = reverse(
+                    'zds.mp.views.edit_post') + '?message=' + str(post_pk)
 
-            return render(request, 'mp/post/edit.html', {
-                'post': post,
-                'topic': g_topic,
-                'form': form,
-            })
+                return render(request, 'mp/post/edit.html', {
+                    'post': post,
+                    'topic': g_topic,
+                    'form': form,
+                })
 
         # The user just sent data, handle them
-        post.text = request.POST['text']
-        post.text_html = emarkdown(request.POST['text'])
+        post.text = data['text']
+        post.text_html = emarkdown(data['text'])
         post.update = datetime.now()
         post.save()
 

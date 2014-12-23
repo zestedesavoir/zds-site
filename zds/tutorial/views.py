@@ -3303,7 +3303,9 @@ def answer(request):
 
     if request.method == "POST":
         data = request.POST
-        newnote = last_note_pk != int(data["last_note"])
+
+        if not request.is_ajax():
+            newnote = last_note_pk != int(data["last_note"])
 
         # Using the « preview button », the « more » button or new note
 
