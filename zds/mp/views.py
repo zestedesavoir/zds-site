@@ -427,9 +427,11 @@ def edit_post(request):
         raise PermissionDenied
 
     if request.method == 'POST':
-        if 'text' not in request.POST:
+        data = request.POST
+
+        if 'text' not in data:
             # if preview mode return on
-            if 'preview' in request.POST:
+            if 'preview' in data:
                 return redirect(
                     reverse('zds.mp.views.edit_post') +
                     '?message=' +
@@ -439,22 +441,26 @@ def edit_post(request):
                 raise PermissionDenied
 
         # Using the preview button
-        if 'preview' in request.POST:
-            form = PrivatePostForm(g_topic, request.user, initial={
-                'text': request.POST['text']
-            })
-            form.helper.form_action = reverse(
-                'zds.mp.views.edit_post') + '?message=' + str(post_pk)
+        if 'preview' in data:
+            if request.is_ajax():
+                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
+                                    content_type='application/json')
+            else:
+                form = PrivatePostForm(g_topic, request.user, initial={
+                    'text': data['text']
+                })
+                form.helper.form_action = reverse(
+                    'zds.mp.views.edit_post') + '?message=' + str(post_pk)
 
-            return render(request, 'mp/post/edit.html', {
-                'post': post,
-                'topic': g_topic,
-                'form': form,
-            })
+                return render(request, 'mp/post/edit.html', {
+                    'post': post,
+                    'topic': g_topic,
+                    'form': form,
+                })
 
         # The user just sent data, handle them
-        post.text = request.POST['text']
-        post.text_html = emarkdown(request.POST['text'])
+        post.text = data['text']
+        post.text_html = emarkdown(data['text'])
         post.update = datetime.now()
         post.save()
 
