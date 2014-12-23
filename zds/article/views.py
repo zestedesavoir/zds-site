@@ -1013,17 +1013,20 @@ def answer(request):
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
-        newreaction = last_reaction_pk != int(data['last_reaction'])
+
+        if not request.is_ajax():
+            newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
-            form = ReactionForm(article, request.user, initial={
-                'text': data['text']
-            })
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
                                     content_type='application/json')
             else:
+                form = ReactionForm(article, request.user, initial={
+                    'text': data['text']
+                })
+
                 return render(request, 'article/reaction/new.html', {
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
@@ -1067,6 +1070,7 @@ def answer(request):
 
         # Using the quote button
         if 'cite' in request.GET:
+            resp = {}
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
@@ -1080,6 +1084,10 @@ def answer(request):
                 reaction_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
