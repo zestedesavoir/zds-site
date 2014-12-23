@@ -1065,6 +1065,7 @@ def answer(request):
 
         # Using the quote button
         if 'cite' in request.GET:
+            resp = {}
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
@@ -1078,6 +1079,10 @@ def answer(request):
                 reaction_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
