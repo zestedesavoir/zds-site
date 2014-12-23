@@ -4,6 +4,8 @@ import os
 import shutil
 import tempfile
 import zipfile
+import datetime
+
 from git import Repo
 try:
     import ujson as json_reader
@@ -2515,6 +2517,126 @@ class BigTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
+    def test_change_update(self):
+        """test the change of `tutorial.update` if part/chapter/extract are modified (ensure #1715) """
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first, ensure the modification
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tutorial.update, time_0)
+
+        # add part (implicit call to `maj_repo_part()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tutorial.pk),
+            {
+                'title': u"Une nouvelle partie",
+                'introduction': "Expérimentation",
+                'conclusion': "C'est terminé",
+                'msg_commit': u"Nouvelle partie"
+            },
+            follow=False)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit part (implicit call to `maj_repo_part()`)
+        part = Part.objects.filter(tutorial=tutorial).last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(part.pk),
+            {
+                'title': u"Cette partie a changé de nom",
+                'introduction': u"Expérimentation : edition d'introduction",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                'msg_commit': u"Changement de la partie",
+                "last_hash": compute_hash([os.path.join(part.tutorial.get_path(), part.introduction),
+                                           os.path.join(part.tutorial.get_path(), part.conclusion)])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # add chapter  (implicit call to `maj_repo_chapter()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(part.pk),
+            {
+                'title': u"Cuisine des agrumes sur ZdS",
+                'introduction': "Mon premier chapitre",
+                'conclusion': "Fin de mon premier chapitre",
+                'msg_commit': u"Initialisation du chapitre 1"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit chapter (implicit call to `maj_repo_chapter()`)
+        chapter = Chapter.objects.filter(part=part).last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(chapter.pk),
+            {
+                'title': u"Le respect des agrumes sur ZdS",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                'msg_commit': u"MàJ du chapitre 2 : le respect des agrumes sur ZdS",
+                "last_hash": compute_hash([
+                    os.path.join(chapter.get_path(), "introduction.md"),
+                    os.path.join(chapter.get_path(), "conclusion.md")])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # add another extract (implicit call to `maj_repo_extract()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(chapter.pk),
+            {
+                'title': u'Un second extrait',
+                'text': u'Comment extraire le jus des agrumes ? Est-ce torturer Clem ?'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit extract (implicit call to `maj_repo_extract()`)
+        extract = chapter.get_extracts()[0]
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            {
+                'title': u"Extrait 2 : edition de titre",
+                'text': u"On ne torture pas les agrumes !",
+                "last_hash": compute_hash([os.path.join(extract.get_path())])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.bigtuto.pk), time_0)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
             shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
@@ -4093,6 +4215,53 @@ class MiniTutorialTests(TestCase):
             self.assertEqual(200, response.status_code)
             tutos = response.context['tutorials']
             self.assertEqual(len(tutos), 1)
+
+    def test_change_update(self):
+        """test the change of `tutorial.update` if extract is modified (ensure #1715)"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
+        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first check if this modification is performed :
+        self.assertEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
+
+        # test adding a new extract (implicit call to `maj_repo_extract()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+            {
+                'title': u'Un deuxieme extrait',
+                'text': u'Attention aux épines, ça pique !!'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # test the extract edition (also implicit call to `maj_repo_extract()`) :
+        extract = self.chapter.get_extracts().last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            {
+                'title': u"Un autre titre",
+                'text': u"j'ai changé d'avis, je vais mettre un sapin synthétique",
+                "last_hash": compute_hash([extract.get_path()])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

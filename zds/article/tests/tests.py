@@ -3,6 +3,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+import datetime
 
 try:
     import ujson as json_reader
@@ -650,6 +651,41 @@ class ArticleTests(TestCase):
         # finally, clean up things:
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
+
+    def test_change_update(self):
+        """test the change of `article.update` if modified (ensure #1956)"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
+        tutorial = Article.objects.get(pk=self.article.pk)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first check if this modification is performed :
+        self.assertEqual(Article.objects.get(pk=self.article.pk).update, time_0)
+
+        # modify article content and title (implicit call to `maj_repo_article()`)
+        article_title = u'Le titre, mais pas pareil'
+        article_content = u'Mais nous c\'est pas pareil ...'
+        result = self.client.post(
+            reverse('zds.article.views.edit') +
+            '?article={}'.format(self.article.pk),
+            {
+                'title': article_title,
+                'description': self.article.description,
+                'text': article_content,
+                'subcategory': self.article.subcategory.all(),
+                'licence': self.licence.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotEqual(Article.objects.get(pk=self.article.pk).update, time_0)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['article']['repo_path']):

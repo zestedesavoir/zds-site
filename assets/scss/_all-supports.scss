@@ -1106,15 +1106,12 @@
             width: 50px;
             height: 50px;
         }
-
-        &:not(.subtitle):not(:first-child) {
-            margin-top: 50px;
-        }
     }
 
     .license {
         float: right;
-        margin-top: -45px;
+        margin: 0;
+        margin-top: 10px;
     }
 
     .subtitle {
@@ -3081,32 +3078,62 @@ form.topic-message {
     font-size: 14px;
     font-size: 1.4rem;
 
-    p {
-        float: left;
+    .wrapper {
+        display: flex;
+    }
+
+    .copyright {
         color: #EEE;
         margin: 0;
     }
 
     ul {
         list-style: none;
-        float: right;
         margin: 0;
         padding: 0;
 
-        li {
+        &.links li {
             display: inline-block;
             margin-left: 25px;
+
+            a {
+                text-decoration: none;
+                color: #EEE;
+                border-bottom: 1px solid transparent;
+
+                &:hover,
+                &:focus {
+                    border-bottom-color: $secondary;
+                }
+            }
         }
-    }
 
-    a {
-        text-decoration: none;
-        color: #EEE;
-        border-bottom: 1px solid transparent;
+        &.social {
+            flex: 1;
+            text-align: center;
 
-        &:hover,
-        &:focus {
-            border-bottom-color: $secondary;
+            li {
+                margin: -2px 10px;
+                display: inline-block;
+
+                a {
+                    display: block;
+                    height: 16px;
+                    width: 16px;
+
+                    &:after {
+                        opacity: 0.6;
+                    }
+
+                    &:hover {
+                        border-bottom-color: transparent;
+
+                        &:after {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
         }
     }
 

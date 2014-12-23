@@ -171,6 +171,7 @@ class Article(models.Model):
                                                       args=[self.pk, self.slug])
         article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
                                                              args=[self.pk, slugify(article_version['title'])])
+        article_version['update'] = self.update
 
         return article_version
 

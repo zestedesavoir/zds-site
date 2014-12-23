@@ -755,7 +755,7 @@ def modify_tutorial(request):
                                  )
                 else:
                     msg_up = \
-                        (_(u'Bonjour, !\n\n'
+                        (_(u'Bonjour à tous !\n\n'
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
@@ -1079,7 +1079,6 @@ def add_tutorial(request):
             # add create date
 
             tutorial.create_at = datetime.now()
-            tutorial.pubdate = datetime.now()
 
             # Creating the gallery
 
@@ -2738,6 +2737,8 @@ def maj_repo_part(
 
     repo = Repo(part.tutorial.get_path())
     index = repo.index
+    # update the tutorial last edit date
+    part.tutorial.update = datetime.now()
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = _(u"Suppresion de la partie : «{}»").format(part.title)
@@ -2799,9 +2800,13 @@ def maj_repo_chapter(
     if chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.tutorial.get_phy_slug()))
         ph = None
+        # update the tutorial last edit date
+        chapter.tutorial.update = datetime.now()
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+        # update the tutorial last edit date
+        chapter.part.tutorial.update = datetime.now()
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
@@ -2876,9 +2881,14 @@ def maj_repo_extract(
     if extract.chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.tutorial.update = datetime.now()
+
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.part.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.part.tutorial.update = datetime.now()
     index = repo.index
 
     chap = extract.chapter
@@ -3303,7 +3313,9 @@ def answer(request):
 
     if request.method == "POST":
         data = request.POST
-        newnote = last_note_pk != int(data["last_note"])
+
+        if not request.is_ajax():
+            newnote = last_note_pk != int(data["last_note"])
 
         # Using the « preview button », the « more » button or new note
 

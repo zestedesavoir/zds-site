@@ -17,15 +17,15 @@
 
 
 {% block headline %}
-    <h2>
-        {{ part.title }}
-    </h2>
-
     {% if tutorial.licence %}
         <p class="license">
             {{ tutorial.licence }}
         </p>
     {% endif %}
+
+    <h2>
+        {{ part.title }}
+    </h2>
 
     {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
 
