@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
