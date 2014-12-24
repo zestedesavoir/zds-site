@@ -4222,7 +4222,7 @@ class MiniTutorialTests(TestCase):
             u'?page=1534',
         )
         self.assertEqual(404, response.status_code)
-        
+
     def test_change_update(self):
         """test the change of `tutorial.update` if extract is modified (ensure #1715)"""
 
