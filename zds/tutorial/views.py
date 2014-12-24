@@ -3639,14 +3639,20 @@ def help_tutorial(request):
 
     # Paginator
     paginator = Paginator(tutos, settings.ZDS_APP['tutorial']['helps_per_page'])
-    page = request.GET.get('page')
+
+    if "page" in request.GET:
+        try:
+            page = int(request.GET["page"])
+        except (KeyError, ValueError):
+            # problem in variable format
+            raise Http404
+    else:
+        page = 1
 
     try:
         shown_tutos = paginator.page(page)
-        page = int(page)
     except PageNotAnInteger:
         shown_tutos = paginator.page(1)
-        page = 1
     except EmptyPage:
         raise Http404
 

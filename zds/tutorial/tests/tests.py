@@ -4223,6 +4223,13 @@ class MiniTutorialTests(TestCase):
         )
         self.assertEqual(404, response.status_code)
 
+        # test pagination page not an integer
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            u'?page=abcd',
+        )
+        self.assertEqual(404, response.status_code)
+
     def test_change_update(self):
         """test the change of `tutorial.update` if extract is modified (ensure #1715)"""
 
