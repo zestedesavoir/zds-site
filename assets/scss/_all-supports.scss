@@ -2494,6 +2494,10 @@ table {
             }
             .date {
                 line-height: 32px;
+
+                .long-date {
+                    display: none;
+                }
             }
         }
 
