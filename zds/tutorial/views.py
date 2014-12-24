@@ -3648,8 +3648,7 @@ def help_tutorial(request):
         shown_tutos = paginator.page(1)
         page = 1
     except EmptyPage:
-        shown_tutos = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        raise Http404
 
     aides = HelpWriting.objects.all()
 
