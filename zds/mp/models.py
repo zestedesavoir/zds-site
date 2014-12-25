@@ -68,7 +68,7 @@ class PrivateTopic(models.Model):
             .order_by('-position_in_topic')\
             .first()
 
-        # If the last answer is the first answer, there is no answer in the topic (only initial post)
+        # If the last post is the first post, there is no answer in the topic (only initial post)
         if last_post == self.first_post():
             return None
 
@@ -165,6 +165,10 @@ class PrivateTopic(models.Model):
 class PrivatePost(models.Model):
 
     """A private post written by an user."""
+
+    class Meta:
+        verbose_name = 'Sujet privé'
+        verbose_name_plural = 'Sujets privés'
 
     privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
