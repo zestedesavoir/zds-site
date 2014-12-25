@@ -195,7 +195,7 @@ def reservation(request, validation_pk):
                       _(u"Le tutoriel a bien été \
                       réservé par {0}.").format(request.user.username))
         return redirect(
-            validation.tutorial.get_absolute_url() +
+            validation.content.get_absolute_url() +
             "?version=" + validation.version
         )
 
@@ -468,7 +468,7 @@ def ask_validation(request):
     # We create and save validation object of the tutorial.
 
     validation = Validation()
-    validation.tutorial = tutorial
+    validation.content = tutorial
     validation.date_proposition = datetime.now()
     validation.comment_authors = request.POST["text"]
     validation.version = request.POST["version"]
@@ -491,9 +491,9 @@ def ask_validation(request):
             False,
         )
     validation.save()
-    validation.tutorial.source = request.POST["source"]
-    validation.tutorial.sha_validation = request.POST["version"]
-    validation.tutorial.save()
+    validation.content.source = request.POST["source"]
+    validation.content.sha_validation = request.POST["version"]
+    validation.content.save()
     messages.success(request,
                      _(u"Votre demande de validation a été envoyée à l'équipe."))
     return redirect(tutorial.get_absolute_url())

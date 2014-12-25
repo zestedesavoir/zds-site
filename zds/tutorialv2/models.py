@@ -28,7 +28,7 @@ from zds.settings import ZDS_APP
 
 
 TYPE_CHOICES = (
-    ('TUTO', 'Tutoriel'),
+    ('TUTORIAL', 'Tutoriel'),
     ('ARTICLE', 'Article'),
 )
 
@@ -45,8 +45,16 @@ class InvalidOperationError(RuntimeError):
 
 
 class Container(models.Model):
+    """
+    A container, which can have sub-Containers or Extracts.
 
-    """A container (tuto/article, part, chapter)."""
+    A Container has a title, a introduction and a conclusion, a parent (which can be None) and a position into this
+    parent (which is 1 by default).
+
+    It has also a tree depth.
+
+    There is a `compatibility_pk` for compatibility with older versions.
+    """
     class Meta:
         verbose_name = 'Container'
         verbose_name_plural = 'Containers'
@@ -68,63 +76,85 @@ class Container(models.Model):
         max_length=200)
 
     parent = models.ForeignKey("self",
-                              verbose_name='Conteneur parent',
-                              blank=True, null=True,
-                              on_delete=models.SET_NULL)
+                               verbose_name='Conteneur parent',
+                               blank=True, null=True,
+                               on_delete=models.SET_NULL)
 
     position_in_parent = models.IntegerField(verbose_name='position dans le conteneur parent',
                                              blank=False,
                                              null=False,
                                              default=1)
 
-    #integer key used to represent the tutorial or article old identifier for url compatibility
+    # TODO: thumbnails ?
+
+    # integer key used to represent the tutorial or article old identifier for url compatibility
     compatibility_pk = models.IntegerField(null=False, default=0)
 
     def get_children(self):
-        """get this container children"""
+        """
+        :return: children of this Container, ordered by position
+        """
         if self.has_extract():
             return Extract.objects.filter(container_pk=self.pk)
 
-        return Container.objects.filter(parent_pk=self.pk)
+        return Container.objects.filter(parent_pk=self.pk).order_by('position_in_parent')
 
     def has_extract(self):
-        """Check this container has content extracts"""
-        return Extract.objects.filter(chapter=self).count() > 0
+        """
+        :return: `True` if the Container has extract as children, `False` otherwise.
+        """
+        return Extract.objects.filter(parent=self).count() > 0
 
-    def has_sub_part(self):
-        """Check this container has a sub container"""
-        return Container.objects.filter(parent=self).count() > 0
+    def has_sub_container(self):
+        """
+        :return: `True` if the Container has other Containers as children, `False` otherwise.
+        """
+        return Container.objects.filter(container=self).count() > 0
 
     def get_last_child_position(self):
-        """Get the relative position of the last child"""
-        return Container.objects.filter(parent=self).count() + Extract.objects.filter(chapter=self).count()
+        """
+        :return: the relative position of the last child
+        """
+        return Container.objects.filter(parent=self).count() + Extract.objects.filter(container=self).count()
 
     def get_tree_depth(self):
-        """get the tree depth, basically you don't want to have more than 3 levels :
-        - tutorial/article
-        - Part
-        - Chapter
+        """
+        Tree depth is no more than 2, because there is 3 levels for Containers :
+        - PublishableContent (0),
+        - Part (1),
+        - Chapter (2)
+        Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+        :return: Tree depth
         """
         depth = 0
         current = self
         while current.parent is not None:
             current = current.parent
             depth += 1
-
         return depth
 
     def add_container(self, container):
-        """add a child container. A container can only be added if
-        no extract had already been added in this container"""
-        if not self.has_extract() and self.get_tree_depth() == ZDS_APP['tutorial']['max_tree_depth']:
-            container.parent = self
-            container.position_in_parent = container.get_last_child_position() + 1
-            container.save()
+        """
+        Add a child Container, but only if no extract were previously added and tree depth is < 2.
+        :param container: the new Container
+        """
+        if not self.has_extract():
+            if self.get_tree_depth() < ZDS_APP['tutorial']['max_tree_depth']:
+                container.parent = self
+                container.position_in_parent = container.get_last_child_position() + 1
+                container.save()
+            else:
+                raise InvalidOperationError("Cannot add another level to this content")
         else:
             raise InvalidOperationError("Can't add a container if this container contains extracts.")
+        # TODO: limitation if article ?
 
     def get_phy_slug(self):
-        """gets the slugified title that is used to store the content into the filesystem"""
+        """
+        The slugified title is used to store physically the information in filesystem.
+        A "compatibility pk" can be used instead of real pk to ensure compatibility with previous versions.
+        :return: the slugified title
+        """
         base = ""
         if self.parent is not None:
             base = self.parent.get_phy_slug()
@@ -133,9 +163,12 @@ class Container(models.Model):
         if used_pk == 0:
             used_pk = self.pk
 
-        return os.path.join(base,used_pk + '_' + self.slug)
+        return os.path.join(base, str(used_pk) + '_' + self.slug)
 
     def update_children(self):
+        """
+        Update all children of the container.
+        """
         for child in self.get_children():
             if child is Container:
                 self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
@@ -143,22 +176,46 @@ class Container(models.Model):
                 self.save()
                 child.update_children()
             else:
-                    child.text = child.get_path(relative=True)
+                child.text = child.get_path(relative=True)
             child.save()
 
     def add_extract(self, extract):
-        if not self.has_sub_part():
-            extract.chapter = self
-
+        """
+        Add a child container, but only if no container were previously added
+        :param extract: the new Extract
+        """
+        if not self.has_sub_container():
+            extract.container = self
+            extract.save()
+    # TODO:
+    # - rewrite save()
+    # - get_absolute_url_*() stuffs, get_path(), get_prod_path()
+    # - __unicode__()
+    # - get_introduction_*(), get_conclusion_*()
+    # - a `top_parent()` function to access directly to the parent PublishableContent and avoid the
+    #   `container.parent.parent.parent` stuff ?
+    # - a nice `delete_entity_and_tree()` function ? (which also remove the file)
+    # - the `maj_repo_*()` stuffs should probably be into the model ?
 
 
 class PublishableContent(Container):
+    """
+    A tutorial whatever its size or an article.
 
-    """A tutorial whatever its size or an aticle."""
+    A PublishableContent is a tree depth 0 Container (no parent) with additional information, such as
+    - authors, description, source (if the content comes from another website), subcategory and licence ;
+    - Thumbnail and gallery ;
+    - Creation, publication and update date ;
+    - Public, beta, validation and draft sha, for versioning ;
+    - Comment support ;
+    - Type, which is either "ARTICLE" or "TUTORIAL"
+
+    These are two repositories : draft and online.
+    """
     class Meta:
         verbose_name = 'Tutoriel'
         verbose_name_plural = 'Tutoriels'
-
+    # TODO: "Contenu" ?
 
     description = models.CharField('Description', max_length=200)
     source = models.CharField('Source', max_length=200)
@@ -183,7 +240,7 @@ class PublishableContent(Container):
     pubdate = models.DateTimeField('Date de publication',
                                    blank=True, null=True, db_index=True)
     update_date = models.DateTimeField('Date de mise à jour',
-                                  blank=True, null=True)
+                                       blank=True, null=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
                                   blank=True, null=True, max_length=80, db_index=True)
@@ -205,6 +262,7 @@ class PublishableContent(Container):
         blank=True,
         null=True,
         max_length=200)
+    # TODO: rename this field ? (`relative_image_path` ?)
 
     last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
                                   related_name='last_note',
@@ -216,70 +274,120 @@ class PublishableContent(Container):
         return self.title
 
     def get_absolute_url(self):
-        """gets the url to access the tutorial when offline"""
-        return reverse('zds.tutorial.views.view_tutorial', args=[
-            self.pk, slugify(self.title)
-        ])
+        """
+        :return: the url to access the tutorial when offline
+        """
+        return reverse('zds.tutorialv2.views.view_tutorial', args=[self.pk, slugify(self.title)])
 
     def get_absolute_url_online(self):
-        return reverse('zds.tutorial.views.view_tutorial_online', args=[
-            self.pk, slugify(self.title)
-        ])
+        """
+        :return: the url to access the tutorial when online
+        """
+        return reverse('zds.tutorialv2.views.view_tutorial_online', args=[self.pk, slugify(self.title)])
 
     def get_absolute_url_beta(self):
+        """
+        :return: the url to access the tutorial when in beta
+        """
         if self.sha_beta is not None:
-            return reverse('zds.tutorial.views.view_tutorial', args=[
-                self.pk, slugify(self.title)
-            ]) + '?version=' + self.sha_beta
+            return self.get_absolute_url() + '?version=' + self.sha_beta
         else:
             return self.get_absolute_url()
 
     def get_edit_url(self):
-        return reverse('zds.tutorial.views.modify_tutorial') + \
-            '?tutorial={0}'.format(self.pk)
+        """
+        :return: the url to edit the tutorial
+        """
+        return reverse('zds.tutorialv2.views.modify_tutorial') + '?tutorial={0}'.format(self.pk)
 
     def in_beta(self):
+        """
+        A tutorial is not in beta if sha_beta is `None` or empty
+        :return: `True` if the tutorial is in beta, `False` otherwise
+        """
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
     def in_validation(self):
+        """
+        A tutorial is not in validation if sha_validation is `None` or empty
+        :return: `True` if the tutorial is in validation, `False` otherwise
+        """
         return (self.sha_validation is not None) and (self.sha_validation.strip() != '')
 
     def in_drafting(self):
+        """
+        A tutorial is not in draft if sha_draft is `None` or empty
+        :return: `True` if the tutorial is in draft, `False` otherwise
+        """
+        # TODO: probably always True !!
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def on_line(self):
+        """
+        A tutorial is not in on line if sha_public is `None` or empty
+        :return: `True` if the tutorial is on line, `False` otherwise
+        """
+        # TODO: for the logic with previous method, why not `in_public()` ?
         return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def is_article(self):
+        """
+        :return: `True` if article, `False` otherwise
+        """
         return self.type == 'ARTICLE'
 
     def is_tutorial(self):
-        return self.type == 'TUTO'
+        """
+        :return: `True` if tutorial, `False` otherwise
+        """
+        return self.type == 'TUTORIAL'
+
+    def get_phy_slug(self):
+        """
+        :return: the physical slug, used to represent data in filesystem
+        """
+        return str(self.pk) + "_" + self.slug
 
     def get_path(self, relative=False):
+        """
+        Get the physical path to the draft version of the Content.
+        :param relative: if `True`, the path will be relative, absolute otherwise.
+        :return: physical path
+        """
         if relative:
             return ''
         else:
             # get the full path (with tutorial/article before it)
             return os.path.join(settings.ZDS_APP[self.type.lower()]['repo_path'], self.get_phy_slug())
+        # TODO: versionning ?!?
 
     def get_prod_path(self, sha=None):
+        """
+        Get the physical path to the public version of the content
+        :param sha: version of the content, if `None`, public version is used
+        :return: physical path
+        """
         data = self.load_json_for_public(sha)
         return os.path.join(
-            settings.ZDS_APP['tutorial']['repo_public_path'],
+            settings.ZDS_APP[self.type.lower()]['repo_public_path'],
             str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata, sha=None):
-        '''fill mandata with informations from database model'''
+        """
+        Fill mandata with information from database model and add 'slug', 'is_beta', 'is_validation', 'is_on_line'.
+        :param mandata: a dictionary from JSON file
+        :param sha: current version, used to fill the `is_*` fields by comparison with the corresponding `sha_*`
+        """
+        # TODO: give it a more explicit name such as `insert_data_in_json()` ?
 
         fns = [
-            'is_big', 'is_mini', 'have_markdown', 'have_html', 'have_pdf',
-            'have_epub', 'get_path', 'in_beta', 'in_validation', 'on_line'
+            'is_big', 'is_mini', 'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'get_path', 'in_beta',
+            'in_validation', 'on_line'
         ]
 
         attrs = [
-            'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update',
-            'source', 'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'pk', 'authors', 'subcategory', 'image', 'pubdate', 'update', 'source', 'sha_draft', 'sha_beta',
+            'sha_validation', 'sha_public'
         ]
 
         # load functions and attributs in tree
@@ -291,37 +399,37 @@ class PublishableContent(Container):
         # general information
         mandata['slug'] = slugify(mandata['title'])
         mandata['is_beta'] = self.in_beta() and self.sha_beta == sha
-        mandata['is_validation'] = self.in_validation() \
-            and self.sha_validation == sha
+        mandata['is_validation'] = self.in_validation() and self.sha_validation == sha
         mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
         # url:
-        mandata['get_absolute_url'] = reverse(
-            'zds.tutorial.views.view_tutorial',
-            args=[self.pk, mandata['slug']]
-        )
+        mandata['get_absolute_url'] = reverse('zds.tutorialv2.views.view_tutorial', args=[self.pk, mandata['slug']])
 
         if self.in_beta():
             mandata['get_absolute_url_beta'] = reverse(
-                'zds.tutorial.views.view_tutorial',
+                'zds.tutorialv2.views.view_tutorial',
                 args=[self.pk, mandata['slug']]
             ) + '?version=' + self.sha_beta
 
         else:
             mandata['get_absolute_url_beta'] = reverse(
-                'zds.tutorial.views.view_tutorial',
+                'zds.tutorialv2.views.view_tutorial',
                 args=[self.pk, mandata['slug']]
             )
 
         mandata['get_absolute_url_online'] = reverse(
-            'zds.tutorial.views.view_tutorial_online',
+            'zds.tutorialv2.views.view_tutorial_online',
             args=[self.pk, mandata['slug']]
         )
 
     def load_introduction_and_conclusion(self, mandata, sha=None, public=False):
-        '''Explicitly load introduction and conclusion to avoid useless disk
-        access in load_dic()
-        '''
+        """
+        Explicitly load introduction and conclusion to avoid useless disk access in `load_dic()`
+        :param mandata: dictionary from JSON file
+        :param sha: version
+        :param public: if `True`, get introduction and conclusion from the public version instead of the draft one
+        (`sha` is not used in this case)
+        """
 
         if public:
             mandata['get_introduction_online'] = self.get_introduction_online()
@@ -331,17 +439,29 @@ class PublishableContent(Container):
             mandata['get_conclusion'] = self.get_conclusion(sha)
 
     def load_json_for_public(self, sha=None):
+        """
+        Fetch the public version of the JSON file for this content.
+        :param sha: version
+        :return: a dictionary containing the structure of the JSON file.
+        """
         if sha is None:
             sha = self.sha_public
-        repo = Repo(self.get_path())
+        repo = Repo(self.get_path())  # should be `get_prod_path()` !?!
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
         if 'licence' in data:
             data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
+    # TODO: redundant with next function
 
     def load_json(self, path=None, online=False):
-
+        """
+        Fetch a specific version of the JSON file for this content.
+        :param sha: version
+        :param path: path to the repository. If None, the `get_[prod_]path()` function is used
+        :param public: if `True`fetch the public version instead of the private one
+        :return: a dictionary containing the structure of the JSON file.
+        """
         if path is None:
             if online:
                 man_path = os.path.join(self.get_prod_path(), 'manifest.json')
@@ -359,6 +479,10 @@ class PublishableContent(Container):
             return data
 
     def dump_json(self, path=None):
+        """
+        Write the JSON into file
+        :param path: path to the file. If `None`, use default path.
+        """
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:
@@ -371,6 +495,11 @@ class PublishableContent(Container):
         json_data.close()
 
     def get_introduction(self, sha=None):
+        """
+        Get the introduction content of a specific version
+        :param sha: version, if `None`, use draft one
+        :return: the introduction (as a string)
+        """
         # find hash code
         if sha is None:
             sha = self.sha_draft
@@ -385,7 +514,10 @@ class PublishableContent(Container):
             return get_blob(repo.commit(sha).tree, path_content_intro)
 
     def get_introduction_online(self):
-        """get the introduction content for a particular version if sha is not None"""
+        """
+        Get introduction content of the public version
+        :return: the introduction (as a string)
+        """
         if self.on_line():
             intro = open(
                 os.path.join(
@@ -399,7 +531,11 @@ class PublishableContent(Container):
             return intro_contenu.decode('utf-8')
 
     def get_conclusion(self, sha=None):
-        """get the conclusion content for a particular version if sha is not None"""
+        """
+        Get the conclusion content of a specific version
+        :param sha: version, if `None`, use draft one
+        :return: the conclusion (as a string)
+        """
         # find hash code
         if sha is None:
             sha = self.sha_draft
@@ -414,7 +550,10 @@ class PublishableContent(Container):
             return get_blob(repo.commit(sha).tree, path_content_ccl)
 
     def get_conclusion_online(self):
-        """get the conclusion content for the online version of the current publiable content"""
+        """
+        Get conclusion content of the public version
+        :return: the conclusion (as a string)
+        """
         if self.on_line():
             conclusion = open(
                 os.path.join(
@@ -428,7 +567,9 @@ class PublishableContent(Container):
             return conlusion_content.decode('utf-8')
 
     def delete_entity_and_tree(self):
-        """deletes the entity and its filesystem counterpart"""
+        """
+        Delete the entities and their filesystem counterparts
+        """
         shutil.rmtree(self.get_path(), 0)
         Validation.objects.filter(tutorial=self).delete()
 
@@ -437,6 +578,7 @@ class PublishableContent(Container):
         if self.on_line():
             shutil.rmtree(self.get_prod_path())
         self.delete()
+        # TODO: should use the "git" version of `delete()` !!!
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -444,25 +586,33 @@ class PublishableContent(Container):
         super(PublishableContent, self).save(*args, **kwargs)
 
     def get_note_count(self):
-        """Return the number of notes in the tutorial."""
+        """
+        :return : umber of notes in the tutorial.
+        """
         return ContentReaction.objects.filter(tutorial__pk=self.pk).count()
 
     def get_last_note(self):
-        """Gets the last answer in the thread, if any."""
+        """
+        :return: the last answer in the thread, if any.
+        """
         return ContentReaction.objects.all()\
             .filter(tutorial__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
 
     def first_note(self):
-        """Return the first post of a topic, written by topic's author."""
+        """
+        :return: the first post of a topic, written by topic's author, if any.
+        """
         return ContentReaction.objects\
             .filter(tutorial=self)\
             .order_by('pubdate')\
             .first()
 
     def last_read_note(self):
-        """Return the last post the user has read."""
+        """
+        :return: the last post the user has read.
+        """
         try:
             return ContentRead.objects\
                 .select_related()\
@@ -472,7 +622,9 @@ class PublishableContent(Container):
             return self.first_post()
 
     def first_unread_note(self):
-        """Return the first note the user has unread."""
+        """
+        :return: Return the first note the user has unread.
+        """
         try:
             last_note = ContentRead.objects\
                 .filter(tutorial=self, user=get_current_user())\
@@ -482,20 +634,15 @@ class PublishableContent(Container):
                 tutorial__pk=self.pk,
                 pubdate__gt=last_note.pubdate)\
                 .select_related("author").first()
-
             return next_note
-        except:
+        except:  # TODO: `except:` is bad.
             return self.first_note()
 
     def antispam(self, user=None):
-        """Check if the user is allowed to post in an tutorial according to the
-        SPAM_LIMIT_SECONDS value.
-
-        If user shouldn't be able to note, then antispam is activated
-        and this method returns True. Otherwise time elapsed between
-        user's last note and now is enough, and the method will return
-        False.
-
+        """
+        Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
+        :param user: the user to check antispam. If `None`, current user is used.
+        :return: `True` if the user is not able to note (the elapsed time is not enough), `False` otherwise.
         """
         if user is None:
             user = get_current_user()
@@ -513,41 +660,47 @@ class PublishableContent(Container):
         return False
 
     def change_type(self, new_type):
-        """Allow someone to change the content type, basicaly from tutorial to article"""
+        """
+        Allow someone to change the content type, basically from tutorial to article
+        :param new_type: the new type, either `"ARTICLE"` or `"TUTORIAL"`
+        """
         if new_type not in TYPE_CHOICES:
             raise ValueError("This type of content does not exist")
-
         self.type = new_type
 
-
     def have_markdown(self):
-        """Check the markdown zip archive is available"""
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".md"))
+        """
+        Check if the markdown zip archive is available
+        :return: `True` if available, `False` otherwise
+        """
+        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".md"))
 
     def have_html(self):
-        """Check the html version of the content is available"""
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".html"))
+        """
+        Check if the html version of the content is available
+        :return: `True` if available, `False` otherwise
+        """
+        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".html"))
 
     def have_pdf(self):
-        """Check the pdf version of the content is available"""
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".pdf"))
+        """
+        Check if the pdf version of the content is available
+        :return: `True` if available, `False` otherwise
+        """
+        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".pdf"))
 
     def have_epub(self):
-        """Check the standard epub version of the content is available"""
-        return os.path.isfile(os.path.join(self.get_prod_path(),
-                                           self.slug +
-                                           ".epub"))
+        """
+        Check if the standard epub version of the content is available
+        :return: `True` if available, `False` otherwise
+        """
+        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".epub"))
 
 
 class ContentReaction(Comment):
-
-    """A comment written by an user about a Publiable content he just read."""
+    """
+    A comment written by any user about a PublishableContent he just read.
+    """
     class Meta:
         verbose_name = 'note sur un contenu'
         verbose_name_plural = 'notes sur un contenu'
@@ -556,43 +709,40 @@ class ContentReaction(Comment):
                                         related_name="related_content_note", db_index=True)
 
     def __unicode__(self):
-        """Textual form of a post."""
         return u'<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
 
     def get_absolute_url(self):
+        """
+        :return: the url of the comment
+        """
         page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
-
-        return '{0}?page={1}#p{2}'.format(
-            self.related_content.get_absolute_url_online(),
-            page,
-            self.pk)
+        return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
 
 
 class ContentRead(models.Model):
+    """
+    Small model which keeps track of the user viewing tutorials.
 
-    """Small model which keeps track of the user viewing tutorials.
-
-    It remembers the topic he looked and what was the last Note at this
-    time.
-
+    It remembers the PublishableContent he looked and what was the last Note at this time.
     """
     class Meta:
         verbose_name = 'Contenu lu'
         verbose_name_plural = 'Contenu lus'
 
-    tutorial = models.ForeignKey(PublishableContent, db_index=True)
+    content = models.ForeignKey(PublishableContent, db_index=True)
     note = models.ForeignKey(ContentReaction, db_index=True)
     user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
 
     def __unicode__(self):
-        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
-                                                           self.user,
-                                                           self.note.pk)
+        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.content,  self.user, self.note.pk)
 
 
 class Extract(models.Model):
+    """
+    A content extract from a Container.
 
-    """A content extract from a chapter."""
+    It has a title, a position in the parent container and a text.
+    """
     class Meta:
         verbose_name = 'Extrait'
         verbose_name_plural = 'Extraits'
@@ -611,64 +761,57 @@ class Extract(models.Model):
         return u'<extrait \'{0}\'>'.format(self.title)
 
     def get_absolute_url(self):
+        """
+        :return: the url to access the tutorial offline
+        """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url(),
-            self.position_in_chapter,
+            self.position_in_container,
             slugify(self.title)
         )
 
     def get_absolute_url_online(self):
+        """
+        :return: the url to access the tutorial when online
+        """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url_online(),
-            self.position_in_chapter,
+            self.position_in_container,
             slugify(self.title)
         )
 
+    def get_absolute_url_beta(self):
+        """
+        :return: the url to access the tutorial when in beta
+        """
+        return '{0}#{1}-{2}'.format(
+            self.container.get_absolute_url_beta(),
+            self.position_in_container,
+            slugify(self.title)
+        )
+
+    def get_phy_slug(self):
+        """
+        :return: the physical slug
+        """
+        return str(self.pk) + '_' + slugify(self.title)
+
     def get_path(self, relative=False):
-        if relative:
-            if self.container.tutorial:
-                chapter_path = ''
-            else:
-                chapter_path = os.path.join(
-                    self.container.part.get_phy_slug(),
-                    self.container.get_phy_slug())
-        else:
-            if self.container.tutorial:
-                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                            self.container.tutorial.get_phy_slug())
-            else:
-                chapter_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
-                                            self.container.part.tutorial.get_phy_slug(),
-                                            self.container.part.get_phy_slug(),
-                                            self.container.get_phy_slug())
+        """
+        Get the physical path to the draft version of the extract.
+        :param relative: if `True`, the path will be relative, absolute otherwise.
+        :return: physical path
+        """
+        return os.path.join(self.container.get_path(relative=relative), self.get_phy_slug()) + '.md'
+        # TODO: versionning ?
 
-        return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
-
-    def get_prod_path(self):
-
-        if self.container.tutorial:
-            data = self.container.tutorial.load_json_for_public()
-            mandata = self.container.tutorial.load_dic(data)
-            if "chapter" in mandata:
-                for ext in mandata["chapter"]["extracts"]:
-                    if ext['pk'] == self.pk:
-                        return os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
-                                            str(self.container.tutorial.pk) + '_' + slugify(mandata['title']),
-                                            str(ext['pk']) + "_" + slugify(ext['title'])) \
-                            + '.md.html'
-        else:
-            data = self.container.part.tutorial.load_json_for_public()
-            mandata = self.container.part.tutorial.load_dic(data)
-            for part in mandata["parts"]:
-                for chapter in part["chapters"]:
-                    for ext in chapter["extracts"]:
-                        if ext['pk'] == self.pk:
-                            return os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
-                                                str(mandata['pk']) + '_' + slugify(mandata['title']),
-                                                str(part['pk']) + "_" + slugify(part['title']),
-                                                str(chapter['pk']) + "_" + slugify(chapter['title']),
-                                                str(ext['pk']) + "_" + slugify(ext['title'])) \
-                                + '.md.html'
+    def get_prod_path(self, sha=None):
+        """
+        Get the physical path to the public version of a specific version of the extract.
+        :param sha: version of the content, if `None`, `sha_public` is used
+        :return: physical path
+        """
+        return os.path.join(self.container.get_prod_path(sha), self.get_phy_slug()) + '.md.html'
 
     def get_text(self, sha=None):
 
@@ -730,14 +873,15 @@ class Extract(models.Model):
 
 
 class Validation(models.Model):
-
-    """Tutorial validation."""
+    """
+    Content validation.
+    """
     class Meta:
         verbose_name = 'Validation'
         verbose_name_plural = 'Validations'
 
-    tutorial = models.ForeignKey(PublishableContent, null=True, blank=True,
-                                 verbose_name='Tutoriel proposé', db_index=True)
+    content = models.ForeignKey(PublishableContent, null=True, blank=True,
+                                verbose_name='Contenu proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
     date_proposition = models.DateTimeField('Date de proposition', db_index=True)
@@ -758,16 +902,32 @@ class Validation(models.Model):
         default='PENDING')
 
     def __unicode__(self):
-        return self.tutorial.title
+        return self.content.title
 
     def is_pending(self):
+        """
+        Check if the validation is pending
+        :return: `True` if status is pending, `False` otherwise
+        """
         return self.status == 'PENDING'
 
     def is_pending_valid(self):
+        """
+        Check if the validation is pending (but there is a validator)
+        :return: `True` if status is pending, `False` otherwise
+        """
         return self.status == 'PENDING_V'
 
     def is_accept(self):
+        """
+        Check if the content is accepted
+        :return: `True` if status is accepted, `False` otherwise
+        """
         return self.status == 'ACCEPT'
 
     def is_reject(self):
+        """
+        Check if the content is rejected
+        :return: `True` if status is rejected, `False` otherwise
+        """
         return self.status == 'REJECT'
