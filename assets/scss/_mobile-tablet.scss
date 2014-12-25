@@ -9,7 +9,7 @@
 @media only screen and (max-width: 959px) {
     body {
         background: #222;
-        
+
         &:not(.swipping) {
             .page-container,
             .mobile-menu {
@@ -212,7 +212,7 @@
         .mobile-menu-hide {
             display: none;
         }
-        
+
         .page-container {
             .mobile-menu-bloc,
             .mobile-menu-link,
@@ -234,7 +234,7 @@
 
                 &:after {
                     display: block;
-                    content: " ";   
+                    content: " ";
                     position: absolute;
                     top: 15px;
                     left: 13px;
@@ -473,7 +473,7 @@
             p {
                 margin: 0 !important;
             }
-            
+
             .topic-members {
                 .topic-members-long-date {
                     display: none;
@@ -566,10 +566,6 @@
 
                 .date {
                     float: right;
-
-                    .long-date {
-                        display: none;
-                    }
                 }
             }
 
