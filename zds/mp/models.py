@@ -1,69 +1,106 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from zds.utils import slugify
 from math import ceil
 
+from django.conf import settings
 from django.contrib.auth.models import User
-
-from zds.utils import get_current_user
 from django.core.urlresolvers import reverse
+from django.db import models
+
+from zds.utils import get_current_user, slugify
 
 
 class PrivateTopic(models.Model):
 
     """Topic private, containing private posts."""
+
     class Meta:
         verbose_name = 'Message privé'
         verbose_name_plural = 'Messages privés'
 
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
-
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name='Participants',
-                                          related_name='participants', db_index=True)
-    last_message = models.ForeignKey('PrivatePost', null=True,
+    author = models.ForeignKey(User,
+                               verbose_name='Auteur',
+                               related_name='author',
+                               db_index=True)
+    participants = models.ManyToManyField(User,
+                                          verbose_name='Participants',
+                                          related_name='participants',
+                                          db_index=True)
+    last_message = models.ForeignKey('PrivatePost',
+                                     null=True,
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
 
     def __unicode__(self):
-        """Textual form of a thread."""
+        """
+        Human-readable representation of the PrivateTopic model.
+
+        :return: PrivateTopic title
+        :rtype: unicode
+        """
         return self.title
 
     def get_absolute_url(self):
-        return reverse('zds.mp.views.topic',
-                       kwargs={'topic_pk': self.pk,
-                               'topic_slug': slugify(self.title)})
+        """
+        URL of a single PrivateTopic object.
+
+        :return: PrivateTopic object URL
+        :rtype: str
+        """
+        return reverse('zds.mp.views.topic', kwargs={'topic_pk': self.pk, 'topic_slug': slugify(self.title)})
 
     def get_post_count(self):
-        """Return the number of private posts in the private topic."""
+        """
+        Get the number of private posts in a single PrivateTopic object.
+
+        :return: number of post in PrivateTopic object
+        :rtype: int
+        """
         return PrivatePost.objects.filter(privatetopic__pk=self.pk).count()
 
     def get_last_answer(self):
-        """Gets the last answer in the thread, if any."""
+        """
+        Get the last answer in the PrivateTopic written by topic's author, if exists.
+
+        :return: PrivateTopic object last answer (PrivatePost)
+        :rtype: PrivatePost object or None
+        """
         last_post = PrivatePost.objects\
             .filter(privatetopic__pk=self.pk)\
             .order_by('-position_in_topic')\
             .first()
 
+        # If the last answer is the first answer, there is no answer in the topic (only initial post)
         if last_post == self.first_post():
             return None
-        else:
-            return last_post
+
+        return last_post
 
     def first_post(self):
-        """Return the first post of a topic, written by topic's author."""
+        """
+        Get the firstanswer in the PrivateTopic written by topic's author, if exists.
+
+        :return: PrivateTopic object first answer (PrivatePost)
+        :rtype: PrivatePost object or None
+        """
         return PrivatePost.objects\
             .filter(privatetopic=self)\
             .order_by('position_in_topic')\
             .first()
 
     def last_read_post(self, user=None):
-        """Return the last private post the user has read."""
+        """
+        Get the last PrivatePost the user has read.
+
+        :param user: The user is reading the PrivateTopic
+        :type user: User object
+        :return: last PrivatePost read
+        :rtype: PrivatePost object or None
+        """
+        # If user param is not defined, we get the current user
         if user is None:
             user = get_current_user()
 
@@ -73,14 +110,21 @@ class PrivateTopic(models.Model):
                 .filter(privatetopic=self, user=user)
             if len(post) == 0:
                 return self.first_post()
-            else:
-                return post.latest('privatepost__position_in_topic').privatepost
+            return post.latest('privatepost__position_in_topic').privatepost
 
         except PrivatePost.DoesNotExist:
             return self.first_post()
 
     def first_unread_post(self, user=None):
-        """Return the first post the user has unread."""
+        """
+        Get the first PrivatePost the user has unread.
+
+        :param user: The user is reading the PrivateTopic
+        :type user: User object
+        :return: first PrivatePost unread
+        :rtype: PrivatePost object or None
+        """
+        # If user param is not defined, we get the current user
         if user is None:
             user = get_current_user()
 
@@ -95,14 +139,28 @@ class PrivateTopic(models.Model):
                 position_in_topic__gt=last_post.position_in_topic).first()
 
             return next_post
-        except:
+        except PrivatePost.DoesNotExist:
             return self.first_post()
 
     def alone(self):
-        """Check if there just one participant in the conversation."""
+        """
+        Check if there just one participant in the conversation (PrivateTopic).
+
+        :return: True if there just one participant in PrivateTopic
+        :rtype: bool
+        """
         return self.participants.count() == 0
 
     def never_read(self, user=None):
+        """
+        Check if an user has never read the current PrivateTopic.
+
+        :param user: an user as Django User object
+        :type user: User object
+        :return: True if the PrivateTopic was never read
+        :rtype: bool
+        """
+        # If user param is not defined, we get the current user
         if user is None:
             user = get_current_user()
 
@@ -112,45 +170,44 @@ class PrivateTopic(models.Model):
 class PrivatePost(models.Model):
 
     """A private post written by an user."""
-    privatetopic = models.ForeignKey(
-        PrivateTopic,
-        verbose_name='Message privé',
-        db_index=True)
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='privateposts', db_index=True)
+
+    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en HTML')
-
     pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)
-
     position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
 
     def __unicode__(self):
-        """Textual form of a post."""
-        return u'<Post pour "{0}", #{1}>'.format(self.privatetopic, self.pk)
+        """
+        Human-readable representation of the PrivatePost model.
+
+        :return: PrivatePost description
+        :rtype: unicode
+        """
+        return u'<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
-        page = int(
-            ceil(
-                float(
-                    self.position_in_topic) /
-                settings.ZDS_APP['forum']['posts_per_page']))
+        """
+        URL of a single PrivatePost object.
 
-        return '{0}?page={1}#p{2}'.format(
-            self.privatetopic.get_absolute_url(),
-            page,
-            self.pk)
+        :return: PrivatePost object URL
+        :rtype: str
+        """
+        page = int(ceil(float(self.position_in_topic) / settings.ZDS_APP['forum']['posts_per_page']))
+
+        return '{0}?page={1}#p{2}'.format(self.privatetopic.get_absolute_url(), page, self.pk)
 
 
 class PrivateTopicRead(models.Model):
 
-    """Small model which keeps track of the user viewing private topics.
-
-    It remembers the topic he looked and what was the last private Post
-    at this time.
-
     """
+    Small model which keeps track of the user viewing private topics.
+
+    It remembers the topic he looked and what was the last private Post at this time.
+    """
+
     class Meta:
         verbose_name = 'Message privé lu'
         verbose_name_plural = 'Messages privés lus'
@@ -160,40 +217,51 @@ class PrivateTopicRead(models.Model):
     user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
 
     def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.privatetopic,
-                                                        self.user,
-                                                        self.privatepost.pk)
+        """
+        Human-readable representation of the PrivateTopicRead model.
+
+        :return: PrivateTopicRead description
+        :rtype: unicode
+        """
+        return u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def never_privateread(privatetopic, user=None):
-    """Check if a private topic has been read by an user since it last post was
-    added."""
+    """
+    Check if a private topic has been read by an user since it last post was added.
 
+    :param privatetopic: a PrivateTopic to check
+    :type privatetopic: PrivateTopic object
+    :param user: an user as Django User object
+    :type user: User object
+    :return: True if the PrivateTopic was never read
+    :rtype: bool
+    """
+    # If user param is not defined, we get the current user
     if user is None:
         user = get_current_user()
 
     return PrivateTopicRead.objects\
-        .filter(privatepost=privatetopic.last_message,
-                privatetopic=privatetopic, user=user)\
+        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)\
         .count() == 0
 
 
 def mark_read(privatetopic, user=None):
-    """Mark a private topic as read for the user."""
+    """
+    Mark a private topic as read for the user.
 
+    :param privatetopic: a PrivateTopic to check
+    :type privatetopic: PrivateTopic object
+    :param user: an user as Django User object
+    :type user: User object
+    :return: nothing is returned
+    :rtype: None
+    """
+    # If user param is not defined, we get the current user
     if user is None:
         user = get_current_user()
 
-    PrivateTopicRead.objects.filter(
-        privatetopic=privatetopic,
-        user=user).delete()
-    t = PrivateTopicRead(
-        privatepost=privatetopic.last_message,
-        privatetopic=privatetopic,
-        user=user)
-    t.save()
-
-
-def get_last_privatetopics():
-    """Returns the 5 very last topics."""
-    return PrivateTopic.objects.order_by('-pubdate').all()[:5]
+    # Delete the old PrivateTopic and add the new as the last read
+    PrivateTopicRead.objects.filter(privatetopic=privatetopic, user=user).delete()
+    topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
+    topic.save()
