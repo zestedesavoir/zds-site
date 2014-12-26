@@ -453,7 +453,8 @@ ZDS_APP = {
         'default_license_pk': 7,
         'home_number': 5,
         'helps_per_page': 20,
-        'max_tree_depth': 3
+        'max_tree_depth': 3,
+        'content_per_page': 50
     },
     'forum': {
         'posts_per_page': 21,

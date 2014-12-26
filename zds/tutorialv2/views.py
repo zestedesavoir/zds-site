@@ -45,6 +45,7 @@ from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
 from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, ContentReaction, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
+from .models import PublishableContent
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
@@ -60,6 +61,41 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, get_sep, get_text_is_empty, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 from django.utils.translation import ugettext as _
+from django.views.generic import ListView, DetailView, UpdateView
+
+
+class ArticleList(ListView):
+
+    """Displays the list of published articles."""
+    context_object_name = 'articles'
+    paginate_by = settings.ZDS_APP['tutorial']['content_per_page']
+    type="ARTICLE"
+    template_name = 'article/index.html'
+    tag = None
+
+    def get_queryset(self):
+        """filter the content to obtain the list of only articles. If tag parameter is provided, only article
+        which has this category will be listed."""
+        if self.request.GET.get('tag') is not None:
+            self.tag = get_object_or_404(SubCategory, title=self.request.GET.get('tag'))
+        query_set = PublishableContent.objects.filter(type=self.type).filter(sha_public__isnull=False)\
+            .exclude(sha_public='')
+        if self.tag is not None:
+            query_set = query_set.filter(subcategory__in=[self.tag])
+        return query_set.order_by('-pubdate')
+
+    def get_context_data(self, **kwargs):
+        context = super(ArticleList, self).get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
+
+
+class TutorialList(ArticleList):
+    """Displays the list of published tutorials."""
+
+    context_object_name = 'tutorials'
+    type="TUTO"
+    template_name = 'tutorial/index.html'
 
 
 def render_chapter_form(chapter):
@@ -72,37 +108,6 @@ def render_chapter_form(chapter):
         return \
             EmbdedChapterForm({"introduction": chapter.get_introduction(),
                                "conclusion": chapter.get_conclusion()})
-
-
-def index(request):
-    """Display all public tutorials of the website."""
-
-    # The tag indicate what the category tutorial the user would like to
-    # display. We can display all subcategories for tutorials.
-
-    try:
-        tag = get_object_or_404(SubCategory, slug=request.GET["tag"])
-    except (KeyError, Http404):
-        tag = None
-    if tag is None:
-        tutorials = \
-            Tutorial.objects.filter(sha_public__isnull=False).exclude(sha_public="") \
-            .order_by("-pubdate") \
-            .all()
-    else:
-        # The tag isn't None and exist in the system. We can use it to retrieve
-        # all tutorials in the subcategory specified.
-
-        tutorials = Tutorial.objects.filter(
-            sha_public__isnull=False,
-            subcategory__in=[tag]).exclude(sha_public="").order_by("-pubdate").all()
-
-    tuto_versions = []
-    for tutorial in tutorials:
-        mandata = tutorial.load_json_for_public()
-        tutorial.load_dic(mandata)
-        tuto_versions.append(mandata)
-    return render(request, "tutorial/index.html", {"tutorials": tuto_versions, "tag": tag})
 
 
 # Staff actions.
