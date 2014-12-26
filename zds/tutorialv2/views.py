@@ -42,8 +42,8 @@ from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
-from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
-    mark_read, ContentReaction, HelpWriting
+from models import PublishableContent, Container, Extract, Validation
+from utils import never_read
 from zds.gallery.models import Gallery, UserGallery, Image
 from models import PublishableContent
 from zds.member.decorator import can_write_and_read_now
@@ -207,6 +207,123 @@ def reservation(request, validation_pk):
             validation.content.get_absolute_url() +
             "?version=" + validation.version
         )
+
+class DisplayContent(DetailView):
+    model = PublishableContent
+    type = "TUTO"
+
+    def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
+        dictionary["tutorial"] = content
+        dictionary["path"] = content.get_path()
+        dictionary["slug"] = slugify(dictionary["title"])
+        dictionary["position_in_tutorial"] = cpt_p
+
+        cpt_c = 1
+        for chapter in dictionary["chapters"]:
+            chapter["part"] = dictionary
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            self.compatibility_chapter(content, repo, sha, chapter)
+            cpt_c += 1
+
+    def compatibility_chapter(self,content, repo, sha, dictionary):
+        """enable compatibility with old version of mini tutorial and chapter implementations"""
+        dictionary["path"] = content.get_path()
+        dictionary["type"] = self.type
+        dictionary["pk"] = Container.objects.get(parent=content).pk # TODO : find better name
+        dictionary["intro"] = get_blob(repo.commit(sha).tree,
+                                    "introduction.md")
+        dictionary["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
+                                     )
+        cpt = 1
+        for ext in dictionary["extracts"]:
+            ext["position_in_chapter"] = cpt
+            ext["path"] = content.get_path()
+            ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
+            cpt += 1
+
+
+    def get_object(self):
+        return get_object_or_404(PublishableContent, pk=self.kwargs['content_pk'])
+
+    def get_context_data(self, **kwargs):
+        """Show the given offline tutorial if exists."""
+
+        context = super(DisplayContent, self).get_context_data(**kwargs)
+        content = context[self.context_object_name]
+        # Retrieve sha given by the user. This sha must to be exist. If it doesn't
+        # exist, we take draft version of the content.
+
+        try:
+            sha = self.request.GET.get("version")
+        except KeyError:
+            sha = content.sha_draft
+
+        # check that if we ask for beta, we also ask for the sha version
+        is_beta = (sha == content.sha_beta and content.in_beta())
+
+        # Only authors of the tutorial and staff can view tutorial in offline.
+
+        if self.request.user not in content.authors.all() and not is_beta:
+            # if we are not author of this content or if we did not ask for beta
+            # the only members that can display and modify the tutorial are validators
+            if not self.request.user.has_perm("tutorial.change_tutorial"):
+                raise PermissionDenied
+
+
+        # Find the good manifest file
+
+        repo = Repo(content.get_path())
+
+        # Load the tutorial.
+
+        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
+        mandata = json_reader.loads(manifest)
+        content.load_dic(mandata, sha)
+        content.load_introduction_and_conclusion(mandata, sha)
+        children_tree = {}
+
+        if 'chapter' in mandata:
+            # compatibility with old "Mini Tuto"
+            self.compatibility_chapter(content, repo, sha, mandata["chapter"])
+            children_tree = mandata['chapter']
+        elif 'parts' in mandata:
+            # compatibility with old "big tuto".
+            parts = mandata["parts"]
+            cpt_p = 1
+            for part in parts:
+                self.compatibility_parts(content, repo, sha, part, cpt_p)
+                cpt_p += 1
+            children_tree = parts
+        validation = Validation.objects.filter(tutorial__pk=content.pk)\
+            .order_by("-date_proposition")\
+            .first()
+        form_js = ActivJsForm(initial={"js_support": content.js_support})
+
+        if content.source:
+            form_ask_validation = AskValidationForm(initial={"source": content.source})
+            form_valid = ValidForm(initial={"source": content.source})
+        else:
+            form_ask_validation = AskValidationForm()
+            form_valid = ValidForm()
+        form_reject = RejectForm()
+
+        if content.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
+        context["tutorial"] = mandata # TODO : change to "content"
+        context["children"] = children_tree
+        context["version"] = sha
+        context["validation"] = validation
+        context["formAskValidation"] =  form_ask_validation
+        context["formJs"] = form_js
+        context["formValid"] = form_valid
+        context["formReject"] = form_reject,
+        context["is_js"] = is_js
+
+        return context
 
 
 @login_required
