@@ -4,8 +4,15 @@ from django.conf.urls import patterns, url
 
 from . import views
 from . import feeds
+from .views import *
 
 urlpatterns = patterns('',
+                       # viewing articles
+                       url(r'^articles/$', ArticleList.as_view(), name="index-article"),
+                       url(r'^articles/flux/rss/$', feeds.LastArticlesFeedRSS(), name='article-feed-rss'),
+                       url(r'^articles/flux/atom/$', feeds.LastArticlesFeedATOM(), name='article-feed-atom'),
+
+
                        # Viewing
                        url(r'^flux/rss/$', feeds.LastTutorialsFeedRSS(), name='tutorial-feed-rss'),
                        url(r'^flux/atom/$', feeds.LastTutorialsFeedATOM(), name='tutorial-feed-atom'),
@@ -65,7 +72,7 @@ urlpatterns = patterns('',
                        url(r'^nouveau/extrait/$',
                            'zds.tutorial.views.add_extract'),
 
-                       url(r'^$', 'zds.tutorial.views.index'),
+                       url(r'^$', TutorialList.as_view, name='index-tutorial'),
                        url(r'^importer/$', 'zds.tutorial.views.import_tuto'),
                        url(r'^import_local/$',
                            'zds.tutorial.views.local_import'),
