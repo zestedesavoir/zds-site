@@ -42,10 +42,9 @@ from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
-from models import PublishableContent, Container, Extract, Validation
-from utils import never_read
+from models import PublishableContent, Container, Extract, Validation, ContentRead, ContentReaction
+from utils import never_read, mark_read
 from zds.gallery.models import Gallery, UserGallery, Image
-from models import PublishableContent
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import get_info_old_tuto, Profile
 from zds.member.views import get_client_ip
@@ -115,8 +114,12 @@ def render_chapter_form(chapter):
 
 
 class DisplayContent(DetailView):
+    """Base class that can show any content in any state, by default it shows offline tutorials"""
+
     model = PublishableContent
+    template_name = 'tutorial/view.html'
     type = "TUTORIAL"
+    is_public = False
 
     def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
         dictionary["tutorial"] = content
@@ -149,12 +152,33 @@ class DisplayContent(DetailView):
             ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
             cpt += 1
 
+    def get_forms(self, context, content):
+        """get all the auxiliary forms about validation, js fiddle..."""
+        validation = Validation.objects.filter(tutorial__pk=content.pk)\
+            .order_by("-date_proposition")\
+            .first()
+        form_js = ActivJsForm(initial={"js_support": content.js_support})
+
+        if content.source:
+            form_ask_validation = AskValidationForm(initial={"source": content.source})
+            form_valid = ValidForm(initial={"source": content.source})
+        else:
+            form_ask_validation = AskValidationForm()
+            form_valid = ValidForm()
+        form_reject = RejectForm()
+
+        context["validation"] = validation
+        context["formAskValidation"] =  form_ask_validation
+        context["formJs"] = form_js
+        context["formValid"] = form_valid
+        context["formReject"] = form_reject,
+
 
     def get_object(self):
         return get_object_or_404(PublishableContent, pk=self.kwargs['content_pk'])
 
     def get_context_data(self, **kwargs):
-        """Show the given offline tutorial if exists."""
+        """Show the given tutorial if exists."""
 
         context = super(DisplayContent, self).get_context_data(**kwargs)
         content = context[self.context_object_name]
@@ -164,19 +188,22 @@ class DisplayContent(DetailView):
         try:
             sha = self.request.GET.get("version")
         except KeyError:
-            sha = content.sha_draft
+            if self.sha is not None:
+                sha = self.sha
+            else:
+                sha = content.sha_draft
 
         # check that if we ask for beta, we also ask for the sha version
         is_beta = (sha == content.sha_beta and content.in_beta())
-
+        # check that if we ask for public version, we also ask for the sha version
+        is_online = (sha == content.sha_public and content.is_online())
         # Only authors of the tutorial and staff can view tutorial in offline.
 
-        if self.request.user not in content.authors.all() and not is_beta:
+        if self.request.user not in content.authors.all() and not is_beta and not is_online:
             # if we are not author of this content or if we did not ask for beta
             # the only members that can display and modify the tutorial are validators
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
-
 
         # Find the good manifest file
 
@@ -184,10 +211,9 @@ class DisplayContent(DetailView):
 
         # Load the tutorial.
 
-        manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-        mandata = json_reader.loads(manifest)
+        mandata = content.load_json_for_public(sha)
         content.load_dic(mandata, sha)
-        content.load_introduction_and_conclusion(mandata, sha)
+        content.load_introduction_and_conclusion(mandata, sha, sha == content.sha_public)
         children_tree = {}
 
         if 'chapter' in mandata:
@@ -202,38 +228,132 @@ class DisplayContent(DetailView):
                 self.compatibility_parts(content, repo, sha, part, cpt_p)
                 cpt_p += 1
             children_tree = parts
-        validation = Validation.objects.filter(tutorial__pk=content.pk)\
-            .order_by("-date_proposition")\
-            .first()
-        form_js = ActivJsForm(initial={"js_support": content.js_support})
 
-        if content.source:
-            form_ask_validation = AskValidationForm(initial={"source": content.source})
-            form_valid = ValidForm(initial={"source": content.source})
-        else:
-            form_ask_validation = AskValidationForm()
-            form_valid = ValidForm()
-        form_reject = RejectForm()
-
+        # check whether this tuto support js fiddle
         if content.js_support:
             is_js = "js"
         else:
             is_js = ""
+        context["is_js"] = is_js
         context["tutorial"] = mandata # TODO : change to "content"
         context["children"] = children_tree
         context["version"] = sha
-        context["validation"] = validation
-        context["formAskValidation"] =  form_ask_validation
-        context["formJs"] = form_js
-        context["formValid"] = form_valid
-        context["formReject"] = form_reject,
-        context["is_js"] = is_js
+        self.get_forms(context, content)
 
         return context
 
 
 class DisplayArticle(DisplayContent):
-    type = "Article"
+    type = "ARTICLE"
+
+
+class DisplayOnlineContent(DisplayContent):
+    """Display online tutorial"""
+    type = "TUTORIAL"
+    template_name = "tutorial/view_online.html"
+
+    def get_forms(self, context, content):
+
+        # Build form to send a note for the current tutorial.
+        context['form'] = NoteForm(content, self.request.user)
+
+    def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
+        dictionary["tutorial"] = content
+        dictionary["path"] = content.get_path()
+        dictionary["slug"] = slugify(dictionary["title"])
+        dictionary["position_in_tutorial"] = cpt_p
+
+        cpt_c = 1
+        for chapter in dictionary["chapters"]:
+            chapter["part"] = dictionary
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            self.compatibility_chapter(content, repo, sha, chapter)
+            cpt_c += 1
+
+    def compatibility_chapter(self,content, repo, sha, dictionary):
+        """enable compatibility with old version of mini tutorial and chapter implementations"""
+        dictionary["path"] = content.get_prod_path()
+        dictionary["type"] = self.type
+        dictionary["pk"] = Container.objects.get(parent=content).pk # TODO : find better name
+        dictionary["intro"] = open(os.path.join(content.get_prod_path(),
+                                          "introduction.md" + ".html"), "r")
+        dictionary["conclu"] = open(os.path.join(content.get_prod_path(),
+                                          "conclusion.md" + ".html"), "r")
+        cpt = 1
+        for ext in dictionary["extracts"]:
+            ext["position_in_chapter"] = cpt
+            ext["path"] = content.get_prod_path()
+            text = open(os.path.join(content.get_prod_path(), ext["text"]
+                                         + ".html"), "r")
+            ext["txt"] = text.read()
+            cpt += 1
+
+    def get_context_data(self, **kwargs):
+        content = self.get_object()
+         # If the tutorial isn't online, we raise 404 error.
+        if not content.is_online():
+            raise Http404
+        self.sha = content.sha_public
+        context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
+
+        context["tutorial"]["update"] = content.update
+        context["tutorial"]["get_note_count"] = content.get_note_count()
+
+        if self.request.user.is_authenticated():
+            # If the user is authenticated, he may want to tell the world how cool the content is
+            # We check if he can post a not or not with
+            # antispam filter.
+            context['tutorial']['antispam'] = content.antispam()
+
+            # If the user has never read this before, we mark this tutorial read.
+            if never_read(content):
+                mark_read(content)
+
+        # Find all notes of the tutorial.
+
+        notes = ContentReaction.objects.filter(related_content__pk=content.pk).order_by("position").all()
+
+        # Retrieve pk of the last note. If there aren't notes for the tutorial, we
+        # initialize this last note at 0.
+
+        last_note_pk = 0
+        if content.last_note:
+            last_note_pk = content.last_note.pk
+
+        # Handle pagination
+
+        paginator = Paginator(notes, settings.ZDS_APP['forum']['posts_per_page'])
+        try:
+            page_nbr = int(self.request.GET.get("page"))
+        except KeyError:
+            page_nbr = 1
+        except ValueError:
+            raise Http404
+
+        try:
+            notes = paginator.page(page_nbr)
+        except PageNotAnInteger:
+            notes = paginator.page(1)
+        except EmptyPage:
+            raise Http404
+
+        res = []
+        if page_nbr != 1:
+
+            # Show the last note of the previous page
+
+            last_page = paginator.page(page_nbr - 1).object_list
+            last_note = last_page[len(last_page) - 1]
+            res.append(last_note)
+        for note in notes:
+            res.append(note)
+
+        context['notes'] = res
+        context['last_note_pk'] = last_note_pk
+        context['pages'] = paginator_range(page_nbr, paginator.num_pages)
+        context['nb'] = page_nbr
 
 
 # Staff actions.
@@ -917,268 +1037,6 @@ def modify_tutorial(request):
     raise PermissionDenied
 
 
-# Tutorials.
-
-
-@login_required
-def view_tutorial(request, tutorial_pk, tutorial_slug):
-    """Show the given offline tutorial if exists."""
-
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
-    # Retrieve sha given by the user. This sha must to be exist. If it doesn't
-    # exist, we take draft version of the article.
-
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
-
-    is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
-
-    # Only authors of the tutorial and staff can view tutorial in offline.
-
-    if request.user not in tutorial.authors.all() and not is_beta:
-        if not request.user.has_perm("tutorial.change_tutorial"):
-            raise PermissionDenied
-
-    # Two variables to handle two distinct cases (large/small tutorial)
-
-    chapter = None
-    parts = None
-
-    # Find the good manifest file
-
-    repo = Repo(tutorial.get_path())
-
-    # Load the tutorial.
-
-    manifest = get_blob(repo.commit(sha).tree, "manifest.json")
-    mandata = json_reader.loads(manifest)
-    tutorial.load_dic(mandata, sha)
-    tutorial.load_introduction_and_conclusion(mandata, sha)
-
-    # If it's a small tutorial, fetch its chapter
-
-    if tutorial.type == "MINI":
-        if 'chapter' in mandata:
-            chapter = mandata["chapter"]
-            chapter["path"] = tutorial.get_path()
-            chapter["type"] = "MINI"
-            chapter["pk"] = Chapter.objects.get(tutorial=tutorial).pk
-            chapter["intro"] = get_blob(repo.commit(sha).tree,
-                                        "introduction.md")
-            chapter["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
-                                         )
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_path()
-                ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                cpt += 1
-        else:
-            chapter = None
-    else:
-
-        # If it's a big tutorial, fetch parts.
-
-        parts = mandata["parts"]
-        cpt_p = 1
-        for part in parts:
-            part["tutorial"] = tutorial
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-                    cpt_e += 1
-                cpt_c += 1
-            cpt_p += 1
-    validation = Validation.objects.filter(tutorial__pk=tutorial.pk)\
-        .order_by("-date_proposition")\
-        .first()
-    form_js = ActivJsForm(initial={"js_support": tutorial.js_support})
-
-    if tutorial.source:
-        form_ask_validation = AskValidationForm(initial={"source": tutorial.source})
-        form_valid = ValidForm(initial={"source": tutorial.source})
-    else:
-        form_ask_validation = AskValidationForm()
-        form_valid = ValidForm()
-    form_reject = RejectForm()
-
-    if tutorial.js_support:
-        is_js = "js"
-    else:
-        is_js = ""
-    return render(request, "tutorial/tutorial/view.html", {
-        "tutorial": mandata,
-        "chapter": chapter,
-        "parts": parts,
-        "version": sha,
-        "validation": validation,
-        "formAskValidation": form_ask_validation,
-        "formJs": form_js,
-        "formValid": form_valid,
-        "formReject": form_reject,
-        "is_js": is_js
-    })
-
-
-def view_tutorial_online(request, tutorial_pk, tutorial_slug):
-    """Display a tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-
-    # If the tutorial isn't online, we raise 404 error.
-    if not tutorial.on_line():
-        raise Http404
-
-    # Two variables to handle two distinct cases (large/small tutorial)
-
-    chapter = None
-    parts = None
-
-    # find the good manifest file
-
-    mandata = tutorial.load_json_for_public()
-    tutorial.load_dic(mandata, sha=tutorial.sha_public)
-    tutorial.load_introduction_and_conclusion(mandata, public=True)
-    mandata["update"] = tutorial.update
-    mandata["get_note_count"] = tutorial.get_note_count()
-
-    # If it's a small tutorial, fetch its chapter
-
-    if tutorial.type == "MINI":
-        if "chapter" in mandata:
-            chapter = mandata["chapter"]
-            chapter["path"] = tutorial.get_prod_path()
-            chapter["type"] = "MINI"
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      mandata["introduction"] + ".html"), "r")
-            chapter["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       mandata["conclusion"] + ".html"), "r")
-            chapter["conclu"] = conclu.read()
-            conclu.close()
-            cpt = 1
-            for ext in chapter["extracts"]:
-                ext["position_in_chapter"] = cpt
-                ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
-                ext["txt"] = text.read()
-                text.close()
-                cpt += 1
-        else:
-            chapter = None
-    else:
-
-        # chapter = Chapter.objects.get(tutorial=tutorial)
-
-        parts = mandata["parts"]
-        cpt_p = 1
-        for part in parts:
-            part["tutorial"] = mandata
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
-                cpt_c += 1
-            part["get_chapters"] = part["chapters"]
-            cpt_p += 1
-
-        mandata['get_parts'] = parts
-
-    # If the user is authenticated
-    if request.user.is_authenticated():
-        # We check if he can post a tutorial or not with
-        # antispam filter.
-        mandata['antispam'] = tutorial.antispam()
-
-        # If the user is never read, we mark this tutorial read.
-        if never_read(tutorial):
-            mark_read(tutorial)
-
-    # Find all notes of the tutorial.
-
-    notes = ContentReaction.objects.filter(tutorial__pk=tutorial.pk).order_by("position").all()
-
-    # Retrieve pk of the last note. If there aren't notes for the tutorial, we
-    # initialize this last note at 0.
-
-    last_note_pk = 0
-    if tutorial.last_note:
-        last_note_pk = tutorial.last_note.pk
-
-    # Handle pagination
-
-    paginator = Paginator(notes, settings.ZDS_APP['forum']['posts_per_page'])
-    try:
-        page_nbr = int(request.GET["page"])
-    except KeyError:
-        page_nbr = 1
-    except ValueError:
-        raise Http404
-
-    try:
-        notes = paginator.page(page_nbr)
-    except PageNotAnInteger:
-        notes = paginator.page(1)
-    except EmptyPage:
-        raise Http404
-
-    res = []
-    if page_nbr != 1:
-
-        # Show the last note of the previous page
-
-        last_page = paginator.page(page_nbr - 1).object_list
-        last_note = last_page[len(last_page) - 1]
-        res.append(last_note)
-    for note in notes:
-        res.append(note)
-
-    # Build form to send a note for the current tutorial.
-
-    form = NoteForm(tutorial, request.user)
-    return render(request, "tutorial/tutorial/view_online.html", {
-        "tutorial": mandata,
-        "chapter": chapter,
-        "parts": parts,
-        "notes": res,
-        "pages": paginator_range(page_nbr, paginator.num_pages),
-        "nb": page_nbr,
-        "last_note_pk": last_note_pk,
-        "form": form,
-    })
-
 
 @can_write_and_read_now
 @login_required
@@ -1384,7 +1242,7 @@ def edit_tutorial(request):
             tutorial.save()
             return redirect(tutorial.get_absolute_url())
     else:
-        json = tutorial.load_json()
+        json = tutorial.load_json_for_public(tutorial.sha_draft)
         if "licence" in json:
             licence = json['licence']
         else:
@@ -1497,7 +1355,7 @@ def view_part_online(
     """Display a part."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if not tutorial.on_line():
+    if not tutorial.is_online():
         raise Http404
 
     # find the good manifest file
@@ -1868,7 +1726,7 @@ def view_chapter_online(
     """View chapter."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if not tutorial.on_line():
+    if not tutorial.is_online():
         raise Http404
 
     # find the good manifest file
@@ -3077,7 +2935,7 @@ def download(request):
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
     sha = tutorial.sha_draft
-    if 'online' in request.GET and tutorial.on_line():
+    if 'online' in request.GET and tutorial.is_online():
         sha = tutorial.sha_public
     elif request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
