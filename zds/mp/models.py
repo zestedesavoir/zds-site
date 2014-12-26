@@ -139,7 +139,7 @@ class PrivateTopic(models.Model):
                 position_in_topic__gt=last_post.position_in_topic).first()
 
             return next_post
-        except PrivatePost.DoesNotExist:
+        except (PrivatePost.DoesNotExist, PrivateTopicRead.DoesNotExist):
             return self.first_post()
 
     def alone(self):
