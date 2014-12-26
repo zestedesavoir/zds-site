@@ -949,8 +949,10 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render(request, 'article/member/history.html', {
-        'article': article, 'logs': logs
+        'article': article, 'logs': logs, 'formJs': form_js
     })
 
 # Reactions at an article.
