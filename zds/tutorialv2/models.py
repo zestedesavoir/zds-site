@@ -326,7 +326,7 @@ class PublishableContent(Container):
         # TODO: probably always True !!
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
-    def on_line(self):
+    def is_online(self):
         """
         A tutorial is not in on line if sha_public is `None` or empty
         :return: `True` if the tutorial is on line, `False` otherwise
@@ -404,7 +404,7 @@ class PublishableContent(Container):
         mandata['slug'] = slugify(mandata['title'])
         mandata['is_beta'] = self.in_beta() and self.sha_beta == sha
         mandata['is_validation'] = self.in_validation() and self.sha_validation == sha
-        mandata['is_on_line'] = self.on_line() and self.sha_public == sha
+        mandata['is_on_line'] = self.is_online() and self.sha_public == sha
 
         # url:
         mandata['get_absolute_url'] = reverse('zds.tutorialv2.views.view_tutorial', args=[self.pk, mandata['slug']])
@@ -456,31 +456,6 @@ class PublishableContent(Container):
         if 'licence' in data:
             data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
-    # TODO: redundant with next function
-
-    def load_json(self, path=None, online=False):
-        """
-        Fetch a specific version of the JSON file for this content.
-        :param sha: version
-        :param path: path to the repository. If None, the `get_[prod_]path()` function is used
-        :param public: if `True`fetch the public version instead of the private one
-        :return: a dictionary containing the structure of the JSON file.
-        """
-        if path is None:
-            if online:
-                man_path = os.path.join(self.get_prod_path(), 'manifest.json')
-            else:
-                man_path = os.path.join(self.get_path(), 'manifest.json')
-        else:
-            man_path = path
-
-        if os.path.isfile(man_path):
-            json_data = open(man_path)
-            data = json_reader.load(json_data)
-            json_data.close()
-            if 'licence' in data:
-                data['licence'] = Licence.objects.filter(code=data['licence']).first()
-            return data
 
     def dump_json(self, path=None):
         """
@@ -522,7 +497,7 @@ class PublishableContent(Container):
         Get introduction content of the public version
         :return: the introduction (as a string)
         """
-        if self.on_line():
+        if self.is_online():
             intro = open(
                 os.path.join(
                     self.get_prod_path(),
@@ -558,7 +533,7 @@ class PublishableContent(Container):
         Get conclusion content of the public version
         :return: the conclusion (as a string)
         """
-        if self.on_line():
+        if self.is_online():
             conclusion = open(
                 os.path.join(
                     self.get_prod_path(),
@@ -579,7 +554,7 @@ class PublishableContent(Container):
 
         if self.gallery is not None:
             self.gallery.delete()
-        if self.on_line():
+        if self.is_online():
             shutil.rmtree(self.get_prod_path())
         self.delete()
         # TODO: should use the "git" version of `delete()` !!!
