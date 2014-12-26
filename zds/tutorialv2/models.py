@@ -59,6 +59,8 @@ class Container(models.Model):
         verbose_name = 'Container'
         verbose_name_plural = 'Containers'
 
+    # TODO: clear all database related information ?
+
     title = models.CharField('Titre', max_length=80)
 
     slug = models.SlugField(max_length=80)
@@ -92,7 +94,7 @@ class Container(models.Model):
 
     def get_children(self):
         """
-        :return: children of this Container, ordered by position
+        :return: children of this container, ordered by position
         """
         if self.has_extract():
             return Extract.objects.filter(container_pk=self.pk)
@@ -101,13 +103,13 @@ class Container(models.Model):
 
     def has_extract(self):
         """
-        :return: `True` if the Container has extract as children, `False` otherwise.
+        :return: `True` if the container has extract as children, `False` otherwise.
         """
         return Extract.objects.filter(parent=self).count() > 0
 
     def has_sub_container(self):
         """
-        :return: `True` if the Container has other Containers as children, `False` otherwise.
+        :return: `True` if the container has other Containers as children, `False` otherwise.
         """
         return Container.objects.filter(container=self).count() > 0
 
@@ -136,7 +138,7 @@ class Container(models.Model):
     def add_container(self, container):
         """
         Add a child Container, but only if no extract were previously added and tree depth is < 2.
-        :param container: the new Container
+        :param container: the new container
         """
         if not self.has_extract():
             if self.get_tree_depth() < ZDS_APP['tutorial']['max_tree_depth']:
@@ -182,7 +184,7 @@ class Container(models.Model):
     def add_extract(self, extract):
         """
         Add a child container, but only if no container were previously added
-        :param extract: the new Extract
+        :param extract: the new extract
         """
         if not self.has_sub_container():
             extract.container = self
@@ -269,6 +271,8 @@ class PublishableContent(Container):
                                   verbose_name='Derniere note')
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
+
+    # TODO : split this class in two part (one for the DB object, another one for JSON [versionned] file) ?
 
     def __unicode__(self):
         return self.title
@@ -746,6 +750,8 @@ class Extract(models.Model):
     class Meta:
         verbose_name = 'Extrait'
         verbose_name_plural = 'Extraits'
+
+    # TODO: clear all database related information ?
 
     title = models.CharField('Titre', max_length=80)
     container = models.ForeignKey(Container, verbose_name='Chapitre parent', db_index=True)
