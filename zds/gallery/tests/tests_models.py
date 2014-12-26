@@ -26,7 +26,7 @@ class UserGalleryTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        result = u'Galerie "{0}" envoye par {1}'.format(self.gallery, self.profile.user)
+        result = u'Galerie « {0} » envoyée par {1}'.format(self.gallery, self.profile.user)
 
         self.assertEqual(result, self.user_gallery.__unicode__())
 
