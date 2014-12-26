@@ -5,19 +5,27 @@ from django.conf import settings
 
 from django.utils.feedgenerator import Atom1Feed
 
-from .models import PublishableContent
+from models import PublishableContent
 
 
-class LastTutorialsFeedRSS(Feed):
-    title = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    link = "/tutoriels/"
-    description = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+class LastContentFeedRSS(Feed):
+    """
+    RSS feed for any type of content.
+    """
+    title = u"Contenu sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers contenus parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    link = ""
+    content_type = None
 
     def items(self):
-        return PublishableContent.objects\
-            .filter(type="TUTO")\
-            .filter(sha_public__isnull=False)\
-            .order_by('-pubdate')[:5]
+        """
+        :return: The last 5 contents (sorted by publication date). If `self.type` is not `None`, the contents will only
+        be of this type.
+        """
+        contents = PublishableContent.objects.filter(sha_public__isnull=False)
+        if self.content_type is not None:
+            contents.filter(type=self.content_type)
+        return contents.order_by('-pubdate')[:5]
 
     def item_title(self, item):
         return item.title
@@ -38,6 +46,16 @@ class LastTutorialsFeedRSS(Feed):
 
     def item_link(self, item):
         return item.get_absolute_url_online()
+
+
+class LastTutorialsFeedRSS(LastContentFeedRSS):
+    """
+    Redefinition of `LastContentFeedRSS` for tutorials only
+    """
+    content_type = "TUTORIAL"
+    link = "/tutoriels/"
+    title = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -79,3 +97,18 @@ class LastArticlesFeedRSS(Feed):
 class LastTutorialsFeedATOM(LastArticlesFeedRSS):
     feed_type = Atom1Feed
     subtitle = LastTutorialsFeedRSS.description
+
+
+class LastArticlesFeedRSS(LastContentFeedRSS):
+    """
+    Redefinition of `LastContentFeedRSS` for articles only
+    """
+    content_type = "ARTICLE"
+    link = "/articles/"
+    title = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+
+
+class LastArticlesFeedATOM(LastArticlesFeedRSS):
+    feed_type = Atom1Feed
+    subtitle = LastArticlesFeedRSS.description
