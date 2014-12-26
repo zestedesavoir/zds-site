@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils.feedgenerator import Atom1Feed
 
 from models import PublishableContent
-
+from zds.settings import ZDS_APP
 
 class LastContentFeedRSS(Feed):
     """
@@ -19,13 +19,13 @@ class LastContentFeedRSS(Feed):
 
     def items(self):
         """
-        :return: The last 5 contents (sorted by publication date). If `self.type` is not `None`, the contents will only
+        :return: The last (typically 5) contents (sorted by publication date). If `self.type` is not `None`, the contents will only
         be of this type.
         """
         contents = PublishableContent.objects.filter(sha_public__isnull=False)
         if self.content_type is not None:
             contents.filter(type=self.content_type)
-        return contents.order_by('-pubdate')[:5]
+        return contents.order_by('-pubdate')[:ZDS_APP['tutorial']['feed_length']]
 
     def item_title(self, item):
         return item.title
