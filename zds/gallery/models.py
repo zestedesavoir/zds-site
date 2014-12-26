@@ -1,18 +1,17 @@
 # coding: utf-8
 
 import os
-import string
-import uuid
+from string import lower
+from uuid import uuid4
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
 
-from zds.settings import MEDIA_ROOT
+from zds.settings import MEDIA_ROOT, MEDIA_URL
 
 
 # Models settings
@@ -32,7 +31,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split('.')[-1]
-    filename = u'{0}.{1}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = u'{0}.{1}'.format(str(uuid4()), lower(ext))
 
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
@@ -128,7 +127,7 @@ class Image(models.Model):
         :return: Image object URL
         :rtype: str
         """
-        return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
+        return '{0}/{1}'.format(MEDIA_URL, self.physical)
 
     def get_extension(self):
         """
