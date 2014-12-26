@@ -114,103 +114,9 @@ def render_chapter_form(chapter):
                                "conclusion": chapter.get_conclusion()})
 
 
-# Staff actions.
-
-
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-@login_required
-def list_validation(request):
-    """Display tutorials list in validation."""
-
-    # Retrieve type of the validation. Default value is all validations.
-
-    try:
-        type = request.GET["type"]
-    except KeyError:
-        type = None
-
-    # Get subcategory to filter validations.
-
-    try:
-        subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
-        subcategory = None
-
-    # Orphan validation. There aren't validator attached to the validations.
-
-    if type == "orphan":
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                validator__isnull=True,
-                status="PENDING").order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(validator__isnull=True,
-                                                    status="PENDING",
-                                                    tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
-                .all()
-    elif type == "reserved":
-
-        # Reserved validation. There are a validator attached to the
-        # validations.
-
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                validator__isnull=False,
-                status="PENDING_V").order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(validator__isnull=False,
-                                                    status="PENDING_V",
-                                                    tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
-                .all()
-    else:
-
-        # Default, we display all validations.
-
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(Q(status="PENDING")
-                                                    | Q(status="PENDING_V"
-                                                        )).filter(tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition")\
-                .all()
-    return render(request, "tutorial/validation/index.html",
-                           {"validations": validations})
-
-
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-@login_required
-@require_POST
-def reservation(request, validation_pk):
-    """Display tutorials list in validation."""
-
-    validation = get_object_or_404(Validation, pk=validation_pk)
-    if validation.validator:
-        validation.validator = None
-        validation.date_reserve = None
-        validation.status = "PENDING"
-        validation.save()
-        messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
-        return redirect(reverse("zds.tutorial.views.list_validation"))
-    else:
-        validation.validator = request.user
-        validation.date_reserve = datetime.now()
-        validation.status = "PENDING_V"
-        validation.save()
-        messages.info(request,
-                      _(u"Le tutoriel a bien été \
-                      réservé par {0}.").format(request.user.username))
-        return redirect(
-            validation.content.get_absolute_url() +
-            "?version=" + validation.version
-        )
-
 class DisplayContent(DetailView):
     model = PublishableContent
-    type = "TUTO"
+    type = "TUTORIAL"
 
     def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
         dictionary["tutorial"] = content
@@ -324,6 +230,105 @@ class DisplayContent(DetailView):
         context["is_js"] = is_js
 
         return context
+
+
+class DisplayArticle(DisplayContent):
+    type = "Article"
+
+
+# Staff actions.
+
+
+@permission_required("tutorial.change_tutorial", raise_exception=True)
+@login_required
+def list_validation(request):
+    """Display tutorials list in validation."""
+
+    # Retrieve type of the validation. Default value is all validations.
+
+    try:
+        type = request.GET["type"]
+    except KeyError:
+        type = None
+
+    # Get subcategory to filter validations.
+
+    try:
+        subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
+    except (KeyError, Http404):
+        subcategory = None
+
+    # Orphan validation. There aren't validator attached to the validations.
+
+    if type == "orphan":
+        if subcategory is None:
+            validations = Validation.objects.filter(
+                validator__isnull=True,
+                status="PENDING").order_by("date_proposition").all()
+        else:
+            validations = Validation.objects.filter(validator__isnull=True,
+                                                    status="PENDING",
+                                                    tutorial__subcategory__in=[subcategory]) \
+                .order_by("date_proposition") \
+                .all()
+    elif type == "reserved":
+
+        # Reserved validation. There are a validator attached to the
+        # validations.
+
+        if subcategory is None:
+            validations = Validation.objects.filter(
+                validator__isnull=False,
+                status="PENDING_V").order_by("date_proposition").all()
+        else:
+            validations = Validation.objects.filter(validator__isnull=False,
+                                                    status="PENDING_V",
+                                                    tutorial__subcategory__in=[subcategory]) \
+                .order_by("date_proposition") \
+                .all()
+    else:
+
+        # Default, we display all validations.
+
+        if subcategory is None:
+            validations = Validation.objects.filter(
+                Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition").all()
+        else:
+            validations = Validation.objects.filter(Q(status="PENDING")
+                                                    | Q(status="PENDING_V"
+                                                        )).filter(tutorial__subcategory__in=[subcategory]) \
+                .order_by("date_proposition")\
+                .all()
+    return render(request, "tutorial/validation/index.html",
+                           {"validations": validations})
+
+
+@permission_required("tutorial.change_tutorial", raise_exception=True)
+@login_required
+@require_POST
+def reservation(request, validation_pk):
+    """Display tutorials list in validation."""
+
+    validation = get_object_or_404(Validation, pk=validation_pk)
+    if validation.validator:
+        validation.validator = None
+        validation.date_reserve = None
+        validation.status = "PENDING"
+        validation.save()
+        messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
+        return redirect(reverse("zds.tutorial.views.list_validation"))
+    else:
+        validation.validator = request.user
+        validation.date_reserve = datetime.now()
+        validation.status = "PENDING_V"
+        validation.save()
+        messages.info(request,
+                      _(u"Le tutoriel a bien été \
+                      réservé par {0}.").format(request.user.username))
+        return redirect(
+            validation.content.get_absolute_url() +
+            "?version=" + validation.version
+        )
 
 
 @login_required
