@@ -497,7 +497,7 @@ class PublishableContent(models.Model):
                                 blank=True, null=True, db_index=True)
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
-    #zep03 field
+    # zep03 field
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
     relative_images_path = models.CharField(
