@@ -281,7 +281,7 @@ class ExtractFactory(factory.DjangoModelFactory):
 
 
 class NoteFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Note
+    FACTORY_FOR = ContentReaction
 
     ip_address = '192.168.3.1'
     text = 'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
@@ -323,7 +323,7 @@ class LicenceFactory(factory.DjangoModelFactory):
 
 
 class PublishedMiniTutorial(MiniTutorialFactory):
-    FACTORY_FOR = Tutorial
+    FACTORY_FOR = PublishableContent
 
     @classmethod
     def _prepare(cls, create, **kwargs):

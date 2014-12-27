@@ -20,8 +20,8 @@ class LastContentFeedRSS(Feed):
 
     def items(self):
         """
-        :return: The last (typically 5) contents (sorted by publication date). If `self.type` is not `None`, the
-        contents will only be of this type.
+        :return: The last (typically 5) contents (sorted by publication date).
+        If `self.type` is not `None`, the contents will only be of this type.
         """
         contents = PublishableContent.objects.filter(sha_public__isnull=False)
         if self.content_type is not None:
