@@ -8,6 +8,7 @@ def export_extract(extract):
     :return: dictionary containing the information
     """
     dct = OrderedDict()
+    dct['obj_type'] = 'extract'
     dct['pk'] = extract.pk
     dct['title'] = extract.title
     dct['text'] = extract.text
@@ -21,9 +22,9 @@ def export_container(container):
     :return: dictionary containing the information
     """
     dct = OrderedDict()
+    dct['obj_type'] = "container"
     dct['pk'] = container.pk
     dct['title'] = container.title
-    dct['obj_type'] = "container"
     dct['introduction'] = container.introduction
     dct['conclusion'] = container.conclusion
     dct['children'] = []
@@ -47,6 +48,7 @@ def export_content(content):
     dct = export_container(content)
 
     # append metadata :
+    dct['version'] = 2  # to recognize old and new version of the content
     dct['description'] = content.description
     dct['type'] = content.type
     if content.licence:

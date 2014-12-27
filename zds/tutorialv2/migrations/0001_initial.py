@@ -8,22 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Container'
-        db.create_table(u'tutorialv2_container', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=80)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=80)),
-            ('introduction', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('conclusion', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.Container'], null=True, on_delete=models.SET_NULL, blank=True)),
-            ('position_in_parent', self.gf('django.db.models.fields.IntegerField')(default=1)),
-            ('compatibility_pk', self.gf('django.db.models.fields.IntegerField')(default=0)),
-        ))
-        db.send_create_signal(u'tutorialv2', ['Container'])
-
         # Adding model 'PublishableContent'
         db.create_table(u'tutorialv2_publishablecontent', (
-            (u'container_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['tutorialv2.Container'], unique=True, primary_key=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=80)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('source', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('image', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gallery.Image'], null=True, on_delete=models.SET_NULL, blank=True)),
@@ -37,7 +25,7 @@ class Migration(SchemaMigration):
             ('sha_draft', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=80, null=True, blank=True)),
             ('licence', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['utils.Licence'], null=True, blank=True)),
             ('type', self.gf('django.db.models.fields.CharField')(max_length=10, db_index=True)),
-            ('images', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
+            ('relative_images_path', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
             ('last_note', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='last_note', null=True, to=orm['tutorialv2.ContentReaction'])),
             ('is_locked', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('js_support', self.gf('django.db.models.fields.BooleanField')(default=False)),
@@ -62,6 +50,15 @@ class Migration(SchemaMigration):
         ))
         db.create_unique(m2m_table_name, ['publishablecontent_id', 'subcategory_id'])
 
+        # Adding M2M table for field helps on 'PublishableContent'
+        m2m_table_name = db.shorten_name(u'tutorialv2_publishablecontent_helps')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('publishablecontent', models.ForeignKey(orm[u'tutorialv2.publishablecontent'], null=False)),
+            ('helpwriting', models.ForeignKey(orm[u'utils.helpwriting'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['publishablecontent_id', 'helpwriting_id'])
+
         # Adding model 'ContentReaction'
         db.create_table(u'tutorialv2_contentreaction', (
             (u'comment_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['utils.Comment'], unique=True, primary_key=True)),
@@ -72,26 +69,16 @@ class Migration(SchemaMigration):
         # Adding model 'ContentRead'
         db.create_table(u'tutorialv2_contentread', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tutorial', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.PublishableContent'])),
+            ('content', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.PublishableContent'])),
             ('note', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.ContentReaction'])),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='content_notes_read', to=orm['auth.User'])),
         ))
         db.send_create_signal(u'tutorialv2', ['ContentRead'])
 
-        # Adding model 'Extract'
-        db.create_table(u'tutorialv2_extract', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=80)),
-            ('container', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.Container'])),
-            ('position_in_container', self.gf('django.db.models.fields.IntegerField')(db_index=True)),
-            ('text', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-        ))
-        db.send_create_signal(u'tutorialv2', ['Extract'])
-
         # Adding model 'Validation'
         db.create_table(u'tutorialv2_validation', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tutorial', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.PublishableContent'], null=True, blank=True)),
+            ('content', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tutorialv2.PublishableContent'], null=True, blank=True)),
             ('version', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=80, null=True, blank=True)),
             ('date_proposition', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
             ('comment_authors', self.gf('django.db.models.fields.TextField')()),
@@ -105,9 +92,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting model 'Container'
-        db.delete_table(u'tutorialv2_container')
-
         # Deleting model 'PublishableContent'
         db.delete_table(u'tutorialv2_publishablecontent')
 
@@ -117,14 +101,14 @@ class Migration(SchemaMigration):
         # Removing M2M table for field subcategory on 'PublishableContent'
         db.delete_table(db.shorten_name(u'tutorialv2_publishablecontent_subcategory'))
 
+        # Removing M2M table for field helps on 'PublishableContent'
+        db.delete_table(db.shorten_name(u'tutorialv2_publishablecontent_helps'))
+
         # Deleting model 'ContentReaction'
         db.delete_table(u'tutorialv2_contentreaction')
 
         # Deleting model 'ContentRead'
         db.delete_table(u'tutorialv2_contentread')
-
-        # Deleting model 'Extract'
-        db.delete_table(u'tutorialv2_extract')
 
         # Deleting model 'Validation'
         db.delete_table(u'tutorialv2_validation')
@@ -187,17 +171,6 @@ class Migration(SchemaMigration):
             'title': ('django.db.models.fields.CharField', [], {'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'update': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         },
-        u'tutorialv2.container': {
-            'Meta': {'object_name': 'Container'},
-            'compatibility_pk': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'conclusion': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'introduction': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.Container']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'position_in_parent': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '80'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
-        },
         u'tutorialv2.contentreaction': {
             'Meta': {'object_name': 'ContentReaction', '_ormbases': [u'utils.Comment']},
             u'comment_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['utils.Comment']", 'unique': 'True', 'primary_key': 'True'}),
@@ -205,39 +178,33 @@ class Migration(SchemaMigration):
         },
         u'tutorialv2.contentread': {
             'Meta': {'object_name': 'ContentRead'},
+            'content': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.PublishableContent']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'note': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.ContentReaction']"}),
-            'tutorial': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.PublishableContent']"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'content_notes_read'", 'to': u"orm['auth.User']"})
         },
-        u'tutorialv2.extract': {
-            'Meta': {'object_name': 'Extract'},
-            'container': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.Container']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'position_in_container': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
-            'text': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '80'})
-        },
         u'tutorialv2.publishablecontent': {
-            'Meta': {'object_name': 'PublishableContent', '_ormbases': [u'tutorialv2.Container']},
+            'Meta': {'object_name': 'PublishableContent'},
             'authors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'db_index': 'True', 'symmetrical': 'False'}),
-            u'container_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['tutorialv2.Container']", 'unique': 'True', 'primary_key': 'True'}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'gallery': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gallery.Gallery']", 'null': 'True', 'blank': 'True'}),
+            'helps': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['utils.HelpWriting']", 'db_index': 'True', 'symmetrical': 'False'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gallery.Image']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'images': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'js_support': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_note': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'last_note'", 'null': 'True', 'to': u"orm['tutorialv2.ContentReaction']"}),
             'licence': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['utils.Licence']", 'null': 'True', 'blank': 'True'}),
             'pubdate': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
+            'relative_images_path': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'sha_beta': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'sha_draft': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'sha_public': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'sha_validation': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'}),
             'source': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'subcategory': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['utils.SubCategory']", 'null': 'True', 'db_index': 'True', 'blank': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '80'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '10', 'db_index': 'True'}),
             'update_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         },
@@ -245,12 +212,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Validation'},
             'comment_authors': ('django.db.models.fields.TextField', [], {}),
             'comment_validator': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'content': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.PublishableContent']", 'null': 'True', 'blank': 'True'}),
             'date_proposition': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'date_reserve': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'date_validation': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'PENDING'", 'max_length': '10'}),
-            'tutorial': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tutorialv2.PublishableContent']", 'null': 'True', 'blank': 'True'}),
             'validator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'author_content_validations'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'version': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'})
         },
@@ -269,6 +236,14 @@ class Migration(SchemaMigration):
             'text_hidden': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '80'}),
             'text_html': ('django.db.models.fields.TextField', [], {}),
             'update': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
+        },
+        u'utils.helpwriting': {
+            'Meta': {'object_name': 'HelpWriting'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '20'}),
+            'tablelabel': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
         u'utils.licence': {
             'Meta': {'object_name': 'Licence'},
