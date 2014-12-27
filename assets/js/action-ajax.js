@@ -134,18 +134,16 @@
         $.ajax({
             url: $form.attr("action"),
             type: "POST",
-            dataType: "json",
             data: {
                 "csrfmiddlewaretoken": csrfmiddlewaretoken,
                 "text": text,
                 "last_post": lastPost,
-                "preview": "Apercu"
+                "preview": "preview"
             },
             success: function(data){
                 $(".previsualisation").remove();
-                var $prev = $("<div class='previsualisation content-wrapper'> <h3 class='reactions-title'>Prévisualisation de votre message</h3><div class='message-content'>"+data.text+"</div></div>");
-                $prev.insertAfter($form);
-            }
+                $(data).insertAfter($form);
+            },
         });
         e.stopPropagation();
         e.preventDefault();
