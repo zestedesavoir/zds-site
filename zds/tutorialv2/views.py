@@ -42,7 +42,7 @@ from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
-from models import PublishableContent, Container, Extract, Validation, ContentRead, ContentReaction
+from models import PublishableContent, Container, Extract, Validation, ContentReaction  # , ContentRead
 from utils import never_read, mark_read
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
@@ -60,7 +60,9 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, get_sep, get_text_is_empty, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView, DetailView# , UpdateView
+from django.views.generic import ListView, DetailView  # , UpdateView
+# until we completely get rid of these, import them :
+from zds.tutorial.models import Tutorial, Chapter, Part, HelpWriting
 
 
 class ArticleList(ListView):
@@ -159,15 +161,13 @@ class DisplayContent(DetailView):
             self.compatibility_chapter(content, repo, sha, chapter)
             cpt_c += 1
 
-    def compatibility_chapter(self,content, repo, sha, dictionary):
+    def compatibility_chapter(self, content, repo, sha, dictionary):
         """enable compatibility with old version of mini tutorial and chapter implementations"""
         dictionary["path"] = content.get_path()
         dictionary["type"] = self.type
-        dictionary["pk"] = Container.objects.get(parent=content).pk # TODO : find better name
-        dictionary["intro"] = get_blob(repo.commit(sha).tree,
-                                    "introduction.md")
-        dictionary["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md"
-                                     )
+        dictionary["pk"] = Container.objects.get(parent=content).pk  # TODO : find better name
+        dictionary["intro"] = get_blob(repo.commit(sha).tree, "introduction.md")
+        dictionary["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md")
         cpt = 1
         for ext in dictionary["extracts"]:
             ext["position_in_chapter"] = cpt
@@ -191,11 +191,10 @@ class DisplayContent(DetailView):
         form_reject = RejectForm()
 
         context["validation"] = validation
-        context["formAskValidation"] =  form_ask_validation
+        context["formAskValidation"] = form_ask_validation
         context["formJs"] = form_js
         context["formValid"] = form_valid
         context["formReject"] = form_reject,
-
 
     def get_object(self):
         return get_object_or_404(PublishableContent, pk=self.kwargs['content_pk'])
@@ -219,7 +218,7 @@ class DisplayContent(DetailView):
         # check that if we ask for beta, we also ask for the sha version
         is_beta = (sha == content.sha_beta and content.in_beta())
         # check that if we ask for public version, we also ask for the sha version
-        is_online = (sha == content.sha_public and content.is_online())
+        is_online = (sha == content.sha_public and content.in_public())
         # Only authors of the tutorial and staff can view tutorial in offline.
 
         if self.request.user not in content.authors.all() and not is_beta and not is_online:
@@ -258,7 +257,7 @@ class DisplayContent(DetailView):
         else:
             is_js = ""
         context["is_js"] = is_js
-        context["tutorial"] = mandata # TODO : change to "content"
+        context["tutorial"] = mandata  # TODO : change to "content"
         context["children"] = children_tree
         context["version"] = sha
         self.get_forms(context, content)
@@ -295,28 +294,25 @@ class DisplayOnlineContent(DisplayContent):
             self.compatibility_chapter(content, repo, sha, chapter)
             cpt_c += 1
 
-    def compatibility_chapter(self,content, repo, sha, dictionary):
+    def compatibility_chapter(self, content, repo, sha, dictionary):
         """enable compatibility with old version of mini tutorial and chapter implementations"""
         dictionary["path"] = content.get_prod_path()
         dictionary["type"] = self.type
-        dictionary["pk"] = Container.objects.get(parent=content).pk # TODO : find better name
-        dictionary["intro"] = open(os.path.join(content.get_prod_path(),
-                                          "introduction.md" + ".html"), "r")
-        dictionary["conclu"] = open(os.path.join(content.get_prod_path(),
-                                          "conclusion.md" + ".html"), "r")
+        dictionary["pk"] = Container.objects.get(parent=content).pk  # TODO : find better name
+        dictionary["intro"] = open(os.path.join(content.get_prod_path(), "introduction.md" + ".html"), "r")
+        dictionary["conclu"] = open(os.path.join(content.get_prod_path(), "conclusion.md" + ".html"), "r")
         cpt = 1
         for ext in dictionary["extracts"]:
             ext["position_in_chapter"] = cpt
             ext["path"] = content.get_prod_path()
-            text = open(os.path.join(content.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
+            text = open(os.path.join(content.get_prod_path(), ext["text"] + ".html"), "r")
             ext["txt"] = text.read()
             cpt += 1
 
     def get_context_data(self, **kwargs):
         content = self.get_object()
-         # If the tutorial isn't online, we raise 404 error.
-        if not content.is_online():
+        # If the tutorial isn't online, we raise 404 error.
+        if not content.in_public():
             raise Http404
         self.sha = content.sha_public
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
@@ -1064,7 +1060,6 @@ def modify_tutorial(request):
     raise PermissionDenied
 
 
-
 @can_write_and_read_now
 @login_required
 def add_tutorial(request):
@@ -1382,7 +1377,7 @@ def view_part_online(
     """Display a part."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if not tutorial.is_online():
+    if not tutorial.in_public():
         raise Http404
 
     # find the good manifest file
@@ -1753,7 +1748,7 @@ def view_chapter_online(
     """View chapter."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    if not tutorial.is_online():
+    if not tutorial.in_public():
         raise Http404
 
     # find the good manifest file
@@ -2962,7 +2957,7 @@ def download(request):
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
     sha = tutorial.sha_draft
-    if 'online' in request.GET and tutorial.is_online():
+    if 'online' in request.GET and tutorial.in_public():
         sha = tutorial.sha_public
     elif request.user not in tutorial.authors.all():
         if not request.user.has_perm('tutorial.change_tutorial'):
