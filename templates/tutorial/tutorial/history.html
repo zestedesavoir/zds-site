@@ -91,45 +91,36 @@
                     </td>
                     <td>
                         {% if not tutorial.sha_beta = log.newhexsha %}
-                            {% if not tutorial.sha_beta %}
-                                <a href="#activ-beta" class="open-modal">
+                            <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
+                                {% if not tutorial.sha_beta %}
                                     {% trans "Activer" %}
-                                </a>
-                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                                    <input type="hidden" name="activ_beta">
-                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
-                                    <p>
-                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
-                                            Êtes-vous certain de vouloir <strong>activer</strong> la bêta sur le tutoriel
-                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
-                                        {% endblocktrans %}
-                                    </p>
-                                    <button type="submit">
-                                        {% trans "Confirmer" %}
-                                    </button>
-                                </form>
-                            {% else %}
-                                <a href="#activ-beta" class="open-modal">
+                                {% else %}
                                     {% trans "Mettre à jour" %}
-                                </a>
-                                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                                    <input type="hidden" name="update_beta">
-                                    <input type="hidden" name="version" value="{{ log.newhexsha }}">
-                                    <p>
-                                        {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
-                                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
-                                            "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
-                                        {% endblocktrans %}
-                                    </p>
-                                    <button type="submit">
-                                        {% trans "Confirmer" %}
-                                    </button>
-                                </form>
-                            {% endif %}
+                                {% endif %}
+                            </a>
+                            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                                <input type="hidden" name="{% if not tutorial.sha_beta %}activ_beta{% else %}update_beta{% endif %}">
+                                <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                <p>
+                                    {% blocktrans %}
+                                        Êtes-vous certain de vouloir <strong>
+                                    {% endblocktrans %}
+                                     {% if not tutorial.sha_beta %}
+                                        {% trans "activer" %}
+                                    {% else %}
+                                        {% trans "mettre à jour" %}
+                                    {% endif %}
+                                    {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
+                                        </strong> la bêta sur le tutoriel
+                                        "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                    {% endblocktrans %}
+                                </p>
+                                <button type="submit">
+                                    {% trans "Confirmer" %}
+                                </button>
+                            </form>
                         {% else %}
                             <em>{% trans "En bêta" %}</em>
                         {% endif %}
