@@ -21,28 +21,34 @@ urlpatterns = patterns('',
                        url(r'^recherche/(?P<pk_user>\d+)/$',
                            'zds.tutorial.views.find_tuto'),
 
-                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
+                       url(r'^off/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
                            'zds.tutorial.views.view_chapter',
                            name="view-chapter-url"),
 
-                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
+                       url(r'^off/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
                            'zds.tutorial.views.view_part',
                            name="view-part-url"),
 
-                       url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
-                           'zds.tutorial.views.view_tutorial'),
+                       url(r'^tutorial/off/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           DisplayContent.as_view()),
+
+                       url(r'^article/off/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           DisplayArticle.as_view()),
 
                        # View online
-                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
+                       url(r'^(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
                            'zds.tutorial.views.view_chapter_online',
                            name="view-chapter-url-online"),
 
-                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
+                       url(r'^(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
                            'zds.tutorial.views.view_part_online',
                            name="view-part-url-online"),
 
-                       url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
-                           'zds.tutorial.views.view_tutorial_online'),
+                       url(r'^tutoriel/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           DisplayOnlineContent.as_view()),
+
+                       url(r'^article/(?P<content_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           DisplayOnlineArticle.as_view()),
 
                        # Editing
                        url(r'^editer/tutoriel/$',
@@ -125,6 +131,6 @@ urlpatterns = patterns('',
 
                        # Help
                        url(r'^aides/$',
-                           'zds.tutorial.views.help_tutorial'),
+                           TutorialWithHelp.as_view()),
                        )
 
